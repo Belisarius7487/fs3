@@ -1,0 +1,7661 @@
+{
+  "boamun": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "PVB Amun"
+    ],
+    "notes": "Heavy Bomber, Very poor agility, strong hull and shields, low speed, high secondary payload",
+    "docks": [
+      {
+        "dx": -0.026,
+        "dy": -1.003,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.691,
+        "dy": -0.053,
+        "len": 0.54,
+        "w": 0.405,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.767,
+        "dy": -0.389
+      },
+      {
+        "dx": 0.353,
+        "dy": 0.718
+      },
+      {
+        "dx": -0.573,
+        "dy": 0.457
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.205,
+        "dy": -0.049
+      }
+    ]
+  },
+  "boartemis": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTB Artemis"
+    ],
+    "notes": "Medium Bomber, more agile than the Boanerges, weaker hull, less payload",
+    "docks": [
+      {
+        "dx": -0.019,
+        "dy": -0.402,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.441,
+        "dy": 0.216,
+        "len": 0.705,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.716,
+        "dy": -0.266,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.554,
+        "dy": 0.089
+      },
+      {
+        "dx": 0.592,
+        "dy": 0.262
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.554,
+        "dy": 0.17
+      }
+    ]
+  },
+  "boartemisdh": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTB Artemis D.H."
+    ],
+    "notes": "Medium Bomber, faster and more agile than the Artemis",
+    "docks": [
+      {
+        "dx": -0.044,
+        "dy": -0.429,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.676,
+        "dy": -0.336,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.451,
+        "dy": 0.196,
+        "len": 0.585,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.535,
+        "dy": 0.055
+      },
+      {
+        "dx": 0.592,
+        "dy": 0.243
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.563,
+        "dy": 0.144
+      }
+    ]
+  },
+  "boathena": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "GTB Athena"
+    ],
+    "notes": "Fast like a Light Bomber, fighter, low ordnance capacity",
+    "docks": [
+      {
+        "dx": 0.401,
+        "dy": 0.044,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.844,
+        "dy": 0.054,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.166,
+        "dy": 0.641,
+        "len": 0.35,
+        "w": 0.59,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.846,
+        "dy": 0.352
+      },
+      {
+        "dx": 0.808,
+        "dy": 0.213
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.586,
+        "dy": 0.524
+      }
+    ]
+  },
+  "bobakha": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVB Bakha"
+    ],
+    "notes": "Medium Bomber, Medium hull and shields, low secondary payload, medium agility",
+    "docks": [
+      {
+        "dx": -0.172,
+        "dy": -0.955,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.386,
+        "dy": -0.358,
+        "len": 0.66,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.474,
+        "dy": 0.284,
+        "len": 0.575,
+        "w": 0.14,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.592,
+        "dy": 0.07
+      },
+      {
+        "dx": 0.577,
+        "dy": 0.282
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.674,
+        "dy": 0.203
+      }
+    ]
+  },
+  "boboanerges": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTB Boanerges"
+    ],
+    "notes": "Heavy Bomber, Low primary capacity, slow, flies like a brick",
+    "docks": [
+      {
+        "dx": -0.084,
+        "dy": -0.371,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.971,
+        "dy": -0.349,
+        "len": 0.35,
+        "w": 0.425,
+        "dir": -1
+      },
+      {
+        "dx": -0.993,
+        "dy": 0.278,
+        "len": 0.35,
+        "w": 0.655,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.956,
+        "dy": 0.91
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.627,
+        "dy": 0.038
+      }
+    ]
+  },
+  "bomedusa": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTB Medusa"
+    ],
+    "notes": "Medium Bomber, Comparable to the Artemis",
+    "docks": [
+      {
+        "dx": 0.097,
+        "dy": -0.363,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.808,
+        "dy": 0.169,
+        "len": 0.35,
+        "w": 0.26,
+        "dir": -1
+      },
+      {
+        "dx": -0.81,
+        "dy": -0.309,
+        "len": 0.35,
+        "w": 0.265,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.465,
+        "dy": -0.168
+      },
+      {
+        "dx": -0.383,
+        "dy": -0.58
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.413,
+        "dy": 0.269
+      }
+    ]
+  },
+  "bonahema": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SB Nahema"
+    ],
+    "notes": "medium bomber, medium hull and shields",
+    "thrusters": [
+      {
+        "dx": -0.452,
+        "dy": 0.022,
+        "len": 0.775,
+        "w": 0.695,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.971,
+        "dy": 0.11
+      },
+      {
+        "dx": 0.963,
+        "dy": -0.038
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.881,
+        "dy": 0.28
+      }
+    ]
+  },
+  "bonephilim": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SB Nephilim"
+    ],
+    "notes": "heavy bomber, slow and tanky",
+    "thrusters": [
+      {
+        "dx": -0.432,
+        "dy": 0.51,
+        "len": 1.1,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.822,
+        "dy": -0.179,
+        "len": 0.71,
+        "w": 0.155,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.919,
+        "dy": -0.514
+      },
+      {
+        "dx": 0.804,
+        "dy": -0.282
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.575,
+        "dy": 0.079
+      }
+    ]
+  },
+  "boosiris": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "PVB or GVB Osiris"
+    ],
+    "notes": "Heavy Bomber, Low speed, poor agility, medium secondary payload, medium shields, thick hull",
+    "docks": [
+      {
+        "dx": 0.084,
+        "dy": -0.803,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.933,
+        "dy": -0.026,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.979,
+        "dy": 0.19
+      },
+      {
+        "dx": 0.347,
+        "dy": -0.838
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.847,
+        "dy": -0.222
+      }
+    ]
+  },
+  "bosekhmet": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVB Sekhmet"
+    ],
+    "notes": "Heavy Bomber, Heavy hull and shields, average agility, low speed, good secondary capacity",
+    "docks": [
+      {
+        "dx": -0.544,
+        "dy": -0.27,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.827,
+        "dy": 0.044,
+        "len": 0.42,
+        "w": 0.145,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.77,
+        "dy": 0.299
+      },
+      {
+        "dx": 0.837,
+        "dy": 0.076
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.765,
+        "dy": 0.042
+      }
+    ]
+  },
+  "boseraphim": {
+    "facing": "right",
+    "eras": [
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SB Seraphim"
+    ],
+    "notes": "heavy bomber, very slow, strong shields and armor",
+    "thrusters": [
+      {
+        "dx": -0.992,
+        "dy": -0.467,
+        "len": 0.49,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.405,
+        "dy": 0.621
+      },
+      {
+        "dx": 0.941,
+        "dy": -0.516
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.195,
+        "dy": -0.676
+      }
+    ]
+  },
+  "boshaitan": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "SB Shaitan"
+    ],
+    "notes": "light bomber, medium speed and hull",
+    "thrusters": [
+      {
+        "dx": -0.964,
+        "dy": 0.455,
+        "len": 0.455,
+        "w": 0.35,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.883,
+        "dy": 0.566
+      },
+      {
+        "dx": 0.882,
+        "dy": 0.672
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.252,
+        "dy": 0.298
+      }
+    ]
+  },
+  "botaurvi": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SB Taurvi"
+    ],
+    "notes": "medium bomber, strong hull, medium shields and speed",
+    "thrusters": [
+      {
+        "dx": -0.226,
+        "dy": -0.456,
+        "len": 0.77,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.152,
+        "dy": 0.229,
+        "len": 0.845,
+        "w": 0.165,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.812,
+        "dy": 0.514
+      },
+      {
+        "dx": 0.65,
+        "dy": -0.388
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.815,
+        "dy": 0.06
+      }
+    ]
+  },
+  "boursa": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTB Ursa"
+    ],
+    "notes": "Heavy Bomber, Strong Hull, moves like a brick, very slow, strong shields",
+    "docks": [
+      {
+        "dx": -0.013,
+        "dy": -0.898,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.987,
+        "dy": -0.472,
+        "len": 0.54,
+        "w": 0.54,
+        "dir": -1
+      },
+      {
+        "dx": -0.987,
+        "dy": 0.067,
+        "len": 0.54,
+        "w": 0.54,
+        "dir": -1
+      },
+      {
+        "dx": -0.987,
+        "dy": 0.607,
+        "len": 0.54,
+        "w": 0.54,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.891,
+        "dy": -0.025
+      },
+      {
+        "dx": 0.891,
+        "dy": -0.187
+      },
+      {
+        "dx": 0.889,
+        "dy": -0.343
+      },
+      {
+        "dx": -0.442,
+        "dy": -0.882
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.638,
+        "dy": 0.49
+      }
+    ]
+  },
+  "bozeus": {
+    "facing": "right",
+    "eras": [
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTB Zeus"
+    ],
+    "notes": "Light Bomber, Athena successor",
+    "docks": [
+      {
+        "dx": -0.096,
+        "dy": -0.825,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.986,
+        "dy": -0.796,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.851,
+        "dy": -0.109,
+        "len": 0.48,
+        "w": 0.425,
+        "dir": -1
+      },
+      {
+        "dx": -0.851,
+        "dy": 0.317,
+        "len": 0.48,
+        "w": 0.425,
+        "dir": -1
+      },
+      {
+        "dx": -0.851,
+        "dy": 0.742,
+        "len": 0.48,
+        "w": 0.425,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.788,
+        "dy": 0.249
+      },
+      {
+        "dx": 0.975,
+        "dy": 0.519
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.247,
+        "dy": -0.251
+      }
+    ]
+  },
+  "cacharybdis": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTA Charybdis"
+    ],
+    "notes": "AWACS, weak hull, poorly armed, boosts sensor range, blocks enemy communications",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.117,
+        "dy": 0.141,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.358,
+        "dy": -0.884,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.67,
+        "dy": 0.193,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.05,
+        "dy": -0.347,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.907,
+        "dy": -0.199,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.26,
+        "dy": 0.058,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.998,
+        "dy": 0.234,
+        "len": 0.265,
+        "w": 0.5,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.594,
+        "dy": 0.59
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.088,
+        "dy": -0.185
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.405,
+        "dy": -0.374,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.3,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "casetekh": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVA Setekh"
+    ],
+    "notes": "AWACS, Vasudan counterpart of the Charybdis, weak hull, poorly armed",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.638,
+        "dy": 0.292,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.272,
+        "dy": -0.357,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.385,
+        "dy": -0.257,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.91,
+        "dy": 0.05,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.852,
+        "dy": -0.376,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.801,
+        "dy": -0.441,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.862,
+        "dy": 0.076,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.858,
+        "dy": -0.2,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.262,
+        "dy": 0.222
+      },
+      {
+        "dx": -0.511,
+        "dy": -0.248
+      }
+    ]
+  },
+  "codeimos": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTCv Deimos"
+    ],
+    "notes": "strong hull",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.14,
+        "dy": -0.483,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.794,
+        "dy": -0.517,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.027,
+        "dy": 0.538,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.371,
+        "dy": -0.772,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.651,
+        "dy": 0.204,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.451,
+        "dy": -0.648,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.906,
+        "dy": -0.059,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.923,
+        "dy": -0.268,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.977,
+        "dy": -0.545,
+        "len": 0.35,
+        "w": 0.35,
+        "dir": -1
+      },
+      {
+        "dx": -0.383,
+        "dy": 0.789,
+        "len": 0.35,
+        "w": 0.3,
+        "dir": -1
+      },
+      {
+        "dx": 0.721,
+        "dy": 0.546,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.594,
+        "dy": -0.901
+      },
+      {
+        "dx": 0.272,
+        "dy": -0.737
+      },
+      {
+        "dx": 0.657,
+        "dy": -0.67
+      },
+      {
+        "dx": 0.305,
+        "dy": 0.49
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.042,
+        "dy": 0.003
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.817,
+        "dy": -0.421,
+        "large": true,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1.1,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.96,
+        "dy": -0.014,
+        "large": true,
+        "type": "static",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1.1
+      },
+      {
+        "dx": 0.739,
+        "dy": 0.02,
+        "large": false,
+        "type": "static",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1.1
+      }
+    ]
+  },
+  "coiceni": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "NTF Iceni"
+    ],
+    "notes": "Flagship of the NTF, blockade runner",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.716,
+        "dy": 0.628,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.402,
+        "dy": -0.357,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.212,
+        "dy": 0.585,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.63,
+        "dy": -0.323,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.047,
+        "dy": 0.877,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.143,
+        "dy": -0.814,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.498,
+        "dy": 0.799,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.362,
+        "dy": -0.459,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.397,
+        "dy": -0.68,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.32,
+        "dy": -0.238,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.088,
+        "dy": -0.943
+      },
+      {
+        "dx": -0.364,
+        "dy": -0.949
+      },
+      {
+        "dx": 0.272,
+        "dy": -0.656
+      },
+      {
+        "dx": -0.719,
+        "dy": 0.567
+      },
+      {
+        "dx": -0.731,
+        "dy": -0.368
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.164,
+        "dy": 0.953
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.972,
+        "dy": 0.012,
+        "large": true,
+        "type": "static",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1
+      },
+      {
+        "dx": 0.782,
+        "dy": -0.045,
+        "large": false,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 0.3,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.511,
+        "dy": 0.005,
+        "large": true,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 0.75,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.13,
+        "dy": -0.431,
+        "large": false,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 0.3,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.257,
+        "dy": -0.432,
+        "large": false,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 0.3,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.148,
+        "dy": 0.639,
+        "large": true,
+        "type": "static",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1
+      },
+      {
+        "dx": -0.791,
+        "dy": -0.114,
+        "large": false,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 0.3,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.826,
+        "dy": 0.416,
+        "large": false,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 0.3,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.892,
+        "dy": -0.161,
+        "large": true,
+        "type": "static",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1
+      }
+    ]
+  },
+  "comoloch": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SCv Moloch"
+    ],
+    "notes": "Shivan Corvette, strong hull",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.243,
+        "dy": -0.505,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.36,
+        "dy": 0.043,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.509,
+        "dy": -0.574,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.039,
+        "dy": 0.039,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.765,
+        "dy": -0.483,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.043,
+        "dy": -0.384,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.702,
+        "dy": -0.13,
+        "len": 0.35,
+        "w": 0.165,
+        "dir": -1
+      },
+      {
+        "dx": 0.372,
+        "dy": 0.188,
+        "len": 0.35,
+        "w": 0.145,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.111,
+        "dy": -0.069
+      },
+      {
+        "dx": -0.221,
+        "dy": 0.379
+      },
+      {
+        "dx": -0.835,
+        "dy": -0.517
+      },
+      {
+        "dx": 0.221,
+        "dy": -0.564
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.61,
+        "dy": 0.454
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.816,
+        "dy": -0.257,
+        "large": true,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.8
+      },
+      {
+        "dx": -0.044,
+        "dy": -0.427,
+        "large": true,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.7,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.976,
+        "dy": -0.074,
+        "large": true,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.8,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.457,
+        "dy": -0.069,
+        "large": false,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1.1,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "cosobek": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVCv Sobek"
+    ],
+    "notes": "Corvette",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.048,
+        "dy": 0.213,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.163,
+        "dy": 0.649,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.385,
+        "dy": 0.197,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.669,
+        "dy": 0.814,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.537,
+        "dy": -0.076,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.196,
+        "dy": 0.256,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.81,
+        "dy": 0.375,
+        "len": 0.35,
+        "w": 0.15,
+        "dir": -1
+      },
+      {
+        "dx": 0.152,
+        "dy": 0.753,
+        "len": 0.35,
+        "w": 0.195,
+        "dir": -1
+      },
+      {
+        "dx": -0.812,
+        "dy": 0.622,
+        "len": 0.35,
+        "w": 0.15,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.833,
+        "dy": 0.58
+      },
+      {
+        "dx": 0.239,
+        "dy": 0.23
+      },
+      {
+        "dx": -0.582,
+        "dy": 0.242
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.647,
+        "dy": 0.855
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.119,
+        "dy": 0.063,
+        "large": true,
+        "type": "static",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1
+      },
+      {
+        "dx": -0.232,
+        "dy": 0.338,
+        "large": false,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 0.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.937,
+        "dy": -0.834,
+        "large": false,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1.1,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.873,
+        "dy": 0.8,
+        "large": false,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1.1,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "craeolus": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTC Aeolus"
+    ],
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.494,
+        "dy": -0.617,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.621,
+        "dy": 0.68,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.046,
+        "dy": 0.722,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.129,
+        "dy": -0.639,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.937,
+        "dy": -0.123,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.325,
+        "dy": -0.723,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.974,
+        "dy": -0.434,
+        "len": 0.35,
+        "w": 0.405,
+        "dir": -1
+      },
+      {
+        "dx": -0.977,
+        "dy": 0.22,
+        "len": 0.35,
+        "w": 0.405,
+        "dir": -1
+      },
+      {
+        "dx": 0.336,
+        "dy": 0.5,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.692,
+        "dy": -0.658
+      },
+      {
+        "dx": 0.087,
+        "dy": -0.833
+      },
+      {
+        "dx": -0.808,
+        "dy": -0.865
+      },
+      {
+        "dx": -0.876,
+        "dy": 0.699
+      },
+      {
+        "dx": 0.178,
+        "dy": 0.827
+      },
+      {
+        "dx": 0.89,
+        "dy": 0.731
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.725,
+        "dy": 0.021,
+        "large": true,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1
+      },
+      {
+        "dx": -0.056,
+        "dy": 0.093,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      },
+      {
+        "dx": 0.124,
+        "dy": 0.093,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      }
+    ]
+  },
+  "craten": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "PVC or GVC Aten"
+    ],
+    "notes": "Cruiser, Anti fighter platform",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.432,
+        "dy": -0.282,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.107,
+        "dy": -0.862,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.058,
+        "dy": 0.817,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.418,
+        "dy": 0.555,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.767,
+        "dy": -0.614,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.105,
+        "dy": -0.878,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.974,
+        "dy": -0.171,
+        "len": 0.18,
+        "w": 0.32,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.611,
+        "dy": 0.899
+      },
+      {
+        "dx": 0.242,
+        "dy": -0.216
+      },
+      {
+        "dx": -0.252,
+        "dy": -0.224
+      },
+      {
+        "dx": -0.731,
+        "dy": 0.123
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.454,
+        "dy": -0.886,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.826,
+        "dy": 0.553,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.3,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.009,
+        "dy": -0.299,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.3,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "crcain": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SC Cain"
+    ],
+    "notes": "Shivan Light Cruiser, Light armor",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.147,
+        "dy": 0.835,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.384,
+        "dy": -0.905,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.344,
+        "dy": 0.574,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.35,
+        "dy": -0.23,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.808,
+        "dy": -0.155,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.564,
+        "dy": -0.227,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.99,
+        "dy": -0.018,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.99,
+        "dy": 0.203,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.99,
+        "dy": 0.425,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.738,
+        "dy": -0.805
+      },
+      {
+        "dx": 0.955,
+        "dy": 0.899
+      },
+      {
+        "dx": 0.429,
+        "dy": 0.584
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.123,
+        "dy": 0.251
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.626,
+        "dy": 0.653,
+        "large": true,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.6,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.964,
+        "dy": -0.154,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "crfenris": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTC Fenris"
+    ],
+    "notes": "prone to beam fire",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.142,
+        "dy": 0.33,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.332,
+        "dy": -0.217,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.246,
+        "dy": -0.221,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.048,
+        "dy": -0.688,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.86,
+        "dy": -0.298,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.57,
+        "dy": -0.335,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.989,
+        "dy": -0.057,
+        "len": 0.215,
+        "w": 0.455,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.568,
+        "dy": -0.069
+      },
+      {
+        "dx": -0.552,
+        "dy": 0.176
+      },
+      {
+        "dx": -0.73,
+        "dy": -0.306
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.155,
+        "dy": 0.903
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.865,
+        "dy": 0.037,
+        "large": true,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1
+      },
+      {
+        "dx": -0.912,
+        "dy": 0.108,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      }
+    ]
+  },
+  "crleviathan": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTC Leviathan"
+    ],
+    "notes": "prone to beam fire",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.108,
+        "dy": 0.34,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.328,
+        "dy": -0.323,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.229,
+        "dy": -0.268,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.052,
+        "dy": -0.733,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.903,
+        "dy": -0.363,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.56,
+        "dy": -0.383,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.984,
+        "dy": -0.124,
+        "len": 0.215,
+        "w": 0.455,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.61,
+        "dy": -0.103
+      },
+      {
+        "dx": 0.31,
+        "dy": -0.096
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.176,
+        "dy": 0.885
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.876,
+        "dy": -0.035,
+        "large": true,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1
+      },
+      {
+        "dx": -0.894,
+        "dy": -0.3,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      },
+      {
+        "dx": -0.892,
+        "dy": 0.053,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      }
+    ]
+  },
+  "crlilith": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SC Lilith"
+    ],
+    "notes": "Shivan Heavy Cruiser, Strong armor",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.365,
+        "dy": -0.913,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.13,
+        "dy": 0.791,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.352,
+        "dy": 0.582,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.356,
+        "dy": -0.271,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.781,
+        "dy": -0.149,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.612,
+        "dy": -0.217,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.988,
+        "dy": -0.009,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.988,
+        "dy": 0.212,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.988,
+        "dy": 0.435,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.95,
+        "dy": 0.894
+      },
+      {
+        "dx": 0.742,
+        "dy": -0.822
+      },
+      {
+        "dx": 0.434,
+        "dy": 0.608
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.118,
+        "dy": 0.251
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.624,
+        "dy": 0.68,
+        "large": true,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1
+      },
+      {
+        "dx": -0.957,
+        "dy": -0.114,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "crmentu": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVC Mentu"
+    ],
+    "notes": "Cruiser, Agile Cruiser",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.483,
+        "dy": -0.341,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.411,
+        "dy": -0.693,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.069,
+        "dy": 0.3,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.008,
+        "dy": -0.858,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.828,
+        "dy": -0.033,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.129,
+        "dy": -0.991,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.973,
+        "dy": 0.109,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.971,
+        "dy": 0.605,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.365,
+        "dy": -0.582
+      },
+      {
+        "dx": -0.707,
+        "dy": 0.905
+      },
+      {
+        "dx": 0.15,
+        "dy": -0.731
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.42,
+        "dy": 0.327
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.496,
+        "dy": -0.184,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.244,
+        "dy": -0.311,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.107,
+        "dy": -0.364,
+        "large": true,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "crrakshasa": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SC Rakshasa"
+    ],
+    "notes": "Shivan Cruiser, Medium hull",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.354,
+        "dy": 0.413,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.262,
+        "dy": -0.513,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.17,
+        "dy": 0.073,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.444,
+        "dy": -0.514,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.714,
+        "dy": -0.904,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.256,
+        "dy": -0.536,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.869,
+        "dy": -0.78,
+        "len": 0.35,
+        "w": 0.175,
+        "dir": -1
+      },
+      {
+        "dx": -0.881,
+        "dy": -0.514,
+        "len": 0.35,
+        "w": 0.15,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.695,
+        "dy": -0.302
+      },
+      {
+        "dx": 0.473,
+        "dy": 0.068
+      },
+      {
+        "dx": 0.467,
+        "dy": -0.288
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.955,
+        "dy": 0.123,
+        "large": true,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.7,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.921,
+        "dy": -0.026,
+        "large": true,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.7,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.879,
+        "dy": -0.663,
+        "large": true,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.7,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.831,
+        "dy": -0.692,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.697,
+        "dy": 0.36,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "dedemon": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SD Demon"
+    ],
+    "notes": "Shivan Destroyer",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.463,
+        "dy": 0.088,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.611,
+        "dy": 0.382,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.208,
+        "dy": 0.371,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.671,
+        "dy": -0.221,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.778,
+        "dy": -0.305,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.131,
+        "dy": -0.402,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.86,
+        "dy": -0.073,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.974,
+        "dy": 0.295
+      },
+      {
+        "dx": 0.038,
+        "dy": 0.558
+      },
+      {
+        "dx": -0.429,
+        "dy": 0.701
+      },
+      {
+        "dx": -0.566,
+        "dy": 0.094
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.728,
+        "dy": 0.243,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": 0.234,
+        "dy": -0.268,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": -0.12,
+        "dy": -0.985,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": -0.465,
+        "dy": -0.229,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.899,
+        "dy": 0.369,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "dehatshepsut": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVD Hatshepsut"
+    ],
+    "notes": "Vasudan Destroyer",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.139,
+        "dy": 0.77,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.616,
+        "dy": 0.507,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.073,
+        "dy": -0.569,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.402,
+        "dy": -0.844,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.801,
+        "dy": -0.368,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.178,
+        "dy": -0.825,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.97,
+        "dy": 0.292,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.934,
+        "dy": 0.041,
+        "len": 0.385,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.9,
+        "dy": -0.233,
+        "len": 0.42,
+        "w": 0.165,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.051,
+        "dy": 0.201
+      },
+      {
+        "dx": -0.24,
+        "dy": 0.014
+      },
+      {
+        "dx": -0.939,
+        "dy": -0.387
+      },
+      {
+        "dx": 0.755,
+        "dy": 0.928
+      },
+      {
+        "dx": -0.355,
+        "dy": 0.682
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.075,
+        "dy": 0.344
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.806,
+        "dy": 0.186,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": 0.009,
+        "dy": -0.793,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": -0.281,
+        "dy": -0.828,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": -0.057,
+        "dy": -0.523,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.418,
+        "dy": -0.323,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.497,
+        "dy": 0.686,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "dehecate": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTD Hecate"
+    ],
+    "notes": "Prone to bombs",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.084,
+        "dy": -0.06,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.156,
+        "dy": -0.504,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.616,
+        "dy": 0.033,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.788,
+        "dy": -0.912,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.804,
+        "dy": 0.124,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.106,
+        "dy": -0.532,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.945,
+        "dy": -0.037,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.943,
+        "dy": -0.328,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.484,
+        "dy": 0.293,
+        "len": 0.35,
+        "w": 0.175,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.786,
+        "dy": -0.565
+      },
+      {
+        "dx": 0.851,
+        "dy": 0.169
+      },
+      {
+        "dx": 0.446,
+        "dy": -0.594
+      },
+      {
+        "dx": -0.254,
+        "dy": -0.743
+      },
+      {
+        "dx": 0.239,
+        "dy": 0.101
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.256,
+        "dy": 0.297
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.981,
+        "dy": -0.388,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": 0.197,
+        "dy": -0.115,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.939,
+        "dy": -0.079,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.597,
+        "dy": -0.232,
+        "large": false,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.4
+      },
+      {
+        "dx": 0.599,
+        "dy": 0.279,
+        "large": false,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.4
+      }
+    ]
+  },
+  "deorionleft": {
+    "facing": "left",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTD Orion"
+    ],
+    "notes": "Strong hull",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.462,
+        "dy": 0.422,
+        "r": 0.05
+      },
+      {
+        "id": "sensors",
+        "dx": -0.217,
+        "dy": 0.639,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.926,
+        "dy": -0.116,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.41,
+        "dy": -0.542,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": 0.904,
+        "dy": -0.213,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.415,
+        "dy": -0.515,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.988,
+        "dy": 0.116,
+        "len": 0.09,
+        "w": 0.335,
+        "dir": 1
+      },
+      {
+        "dx": 0.989,
+        "dy": 0.555,
+        "len": 0.09,
+        "w": 0.315,
+        "dir": 1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.844,
+        "dy": -0.476
+      },
+      {
+        "dx": -0.605,
+        "dy": -0.489
+      },
+      {
+        "dx": 0.74,
+        "dy": -0.94
+      },
+      {
+        "dx": 0.166,
+        "dy": 0.915
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.038,
+        "dy": -0.279
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.857,
+        "dy": 0.104,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": 0.161,
+        "dy": -0.129,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": -0.45,
+        "dy": -0.02,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.791,
+        "dy": 0.546,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.389,
+        "dy": 0.447,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.193,
+        "dy": -0.584,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "deorionright": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTD Orion"
+    ],
+    "notes": "Strong hull",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.47,
+        "dy": 0.561,
+        "r": 0.05
+      },
+      {
+        "id": "sensors",
+        "dx": 0.361,
+        "dy": 0.55,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.928,
+        "dy": -0.156,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.412,
+        "dy": -0.52,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.91,
+        "dy": -0.198,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.411,
+        "dy": -0.518,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.993,
+        "dy": 0.115,
+        "len": 0.09,
+        "w": 0.335,
+        "dir": -1
+      },
+      {
+        "dx": -0.993,
+        "dy": 0.553,
+        "len": 0.09,
+        "w": 0.315,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.158,
+        "dy": 0.934
+      },
+      {
+        "dx": 0.85,
+        "dy": -0.463
+      },
+      {
+        "dx": 0.621,
+        "dy": -0.473
+      },
+      {
+        "dx": -0.729,
+        "dy": -0.933
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.244,
+        "dy": -0.241
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.854,
+        "dy": 0.125,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": -0.717,
+        "dy": 0.404,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": 0.519,
+        "dy": -0.102,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 1.45
+      },
+      {
+        "dx": -0.198,
+        "dy": 0.503,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 1.45
+      },
+      {
+        "dx": -0.197,
+        "dy": -0.587,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.168,
+        "dy": 0.542,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "deravana": {
+    "facing": "left",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SD Ravana"
+    ],
+    "notes": "Shivan Destroyer",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.672,
+        "dy": -0.752,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.606,
+        "dy": -0.106,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.744,
+        "dy": 0.232,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.177,
+        "dy": 0.427,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": 0.932,
+        "dy": -0.53,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.101,
+        "dy": -0.263,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.838,
+        "dy": -0.235,
+        "len": 0.35,
+        "w": 0.2,
+        "dir": 1
+      },
+      {
+        "dx": 0.439,
+        "dy": 0.226,
+        "len": 0.35,
+        "w": 0.14,
+        "dir": 1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.261,
+        "dy": 0.458
+      },
+      {
+        "dx": 0.284,
+        "dy": -0.47
+      },
+      {
+        "dx": -0.038,
+        "dy": -0.223
+      },
+      {
+        "dx": -0.459,
+        "dy": -0.125
+      },
+      {
+        "dx": -0.548,
+        "dy": 0.046
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.567,
+        "dy": 0.165
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.985,
+        "dy": 0.188,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": -0.884,
+        "dy": -0.361,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.099,
+        "dy": -0.26,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.8,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.436,
+        "dy": 0.458,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.8,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.394,
+        "dy": -0.939,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": 0.365,
+        "dy": -0.983,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": 0.411,
+        "dy": -0.253,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "detyphon": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "PVD or GVD Typhon"
+    ],
+    "notes": "Vasudan Destroyer",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.191,
+        "dy": -0.57,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.269,
+        "dy": 0.604,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.066,
+        "dy": -0.825,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.405,
+        "dy": 0.212,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.645,
+        "dy": -0.364,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.568,
+        "dy": -0.407,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.789,
+        "dy": 0.256,
+        "len": 0.35,
+        "w": 0.35,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.746,
+        "dy": 0.098
+      },
+      {
+        "dx": 0.605,
+        "dy": -0.08
+      },
+      {
+        "dx": 0.361,
+        "dy": -0.111
+      },
+      {
+        "dx": -0.127,
+        "dy": -0.53
+      },
+      {
+        "dx": -0.498,
+        "dy": 0.469
+      },
+      {
+        "dx": -0.686,
+        "dy": -0.379
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.015,
+        "dy": 0.187
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.118,
+        "dy": -0.514,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1
+      },
+      {
+        "dx": -0.105,
+        "dy": 0.525,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1
+      },
+      {
+        "dx": -0.411,
+        "dy": -0.332,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.638,
+        "dy": 0.155,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.61,
+        "dy": 0.231,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "ephermes": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTEP Hermes"
+    ],
+    "notes": "Escape Pod, rather fast, weak hull",
+    "thrusters": [
+      {
+        "dx": -0.977,
+        "dy": -0.323,
+        "len": 0.35,
+        "w": 0.645,
+        "dir": -1
+      }
+    ]
+  },
+  "epra": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GVEP Ra"
+    ],
+    "notes": "Vasudan Escape Pod, Vasudan counterpart to the GTEP Hermes",
+    "thrusters": [
+      {
+        "dx": -0.401,
+        "dy": -0.145,
+        "len": 0.84,
+        "w": 1.01,
+        "dir": -1
+      }
+    ]
+  },
+  "fcmeson": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "TC-Meson Bomb"
+    ],
+    "notes": "Extreme Blast Radius, kills all fighters and bombers when hit by shockwave, only Triton Freighter can move it",
+    "docks": [
+      {
+        "dx": -0.999,
+        "dy": 0.006,
+        "ang": 180,
+        "label": ""
+      }
+    ]
+  },
+  "fcsac3": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SAC 3"
+    ],
+    "notes": "Shivan freight container, only carriable by the SFr Dis",
+    "docks": [
+      {
+        "dx": -0.977,
+        "dy": 0.121,
+        "ang": 180,
+        "label": ""
+      }
+    ]
+  },
+  "fcsc5": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SC 5"
+    ],
+    "notes": "Shivan freight container",
+    "docks": [
+      {
+        "dx": 0.001,
+        "dy": -1.001,
+        "ang": 270,
+        "label": ""
+      }
+    ]
+  },
+  "fctac1": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "TAC 1"
+    ],
+    "notes": "Freight Container, Stationary Object, only Chronos can move",
+    "docks": [
+      {
+        "dx": -0.007,
+        "dy": 0.992,
+        "ang": 90,
+        "label": ""
+      }
+    ]
+  },
+  "fctc2": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "TC 2"
+    ],
+    "notes": "Freight Container, Light Armored, dockable by the Poseidon",
+    "docks": [
+      {
+        "dx": -0.001,
+        "dy": -0.899,
+        "ang": 270,
+        "label": ""
+      }
+    ]
+  },
+  "fctctri": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "TC-TRI"
+    ],
+    "notes": "Freight Container, only dockable by the GTFr Triton",
+    "docks": [
+      {
+        "dx": -0.982,
+        "dy": -0.332,
+        "ang": 180,
+        "label": ""
+      }
+    ]
+  },
+  "fctsc2": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "TSC 2"
+    ],
+    "notes": "Freight Container, Only dockable by GTFr Poseidon",
+    "docks": [
+      {
+        "dx": 0.001,
+        "dy": -0.895,
+        "ang": 270,
+        "label": ""
+      }
+    ]
+  },
+  "fcttc1": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "TTC 1"
+    ],
+    "notes": "Freight Container, Only dockable with the GTFr Poseidon",
+    "docks": [
+      {
+        "dx": -0.006,
+        "dy": -0.838,
+        "ang": 270,
+        "label": ""
+      }
+    ]
+  },
+  "fcvac4": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "VAC 4"
+    ],
+    "notes": "Freight Container, immobile object",
+    "docks": [
+      {
+        "dx": 0.004,
+        "dy": -0.998,
+        "ang": 270,
+        "label": ""
+      }
+    ]
+  },
+  "fcvac5": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "VAC 5"
+    ],
+    "notes": "Freight Container, Only movable by the GVFr Bes",
+    "docks": [
+      {
+        "dx": -0.967,
+        "dy": 0.023,
+        "ang": 180,
+        "label": ""
+      }
+    ]
+  },
+  "fcvc3": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "VC 3"
+    ],
+    "notes": "Freight Container, Immobile object",
+    "docks": [
+      {
+        "dx": -0.003,
+        "dy": 0.99,
+        "ang": 90,
+        "label": ""
+      }
+    ]
+  },
+  "fiaeshma": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SF Aeshma"
+    ],
+    "notes": "light fighter, weak hull and shields",
+    "thrusters": [
+      {
+        "dx": -0.635,
+        "dy": 0.076,
+        "len": 0.865,
+        "w": 0.34,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.852,
+        "dy": 0.486
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.011,
+        "dy": 0.233
+      }
+    ]
+  },
+  "fianubis": {
+    "facing": "right",
+    "eras": [
+      "fs1"
+    ],
+    "tags": [
+      "PVF Anubis"
+    ],
+    "notes": "Light Fighter, Weak hull, low secondary capacity",
+    "docks": [
+      {
+        "dx": -0.421,
+        "dy": -0.993,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.975,
+        "dy": 0.245,
+        "len": 0.495,
+        "w": 0.485,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.593,
+        "dy": 0.307
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.036,
+        "dy": 0.134
+      }
+    ]
+  },
+  "fiapollo": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "GTF Apollo"
+    ],
+    "notes": "Assault Fighter, Space Superiority Fighter",
+    "docks": [
+      {
+        "dx": -0.055,
+        "dy": -0.796,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.998,
+        "dy": -0.658,
+        "len": 0.35,
+        "w": 0.285,
+        "dir": -1
+      },
+      {
+        "dx": -0.929,
+        "dy": 0.4,
+        "len": 0.35,
+        "w": 0.3,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.273,
+        "dy": 0.254
+      },
+      {
+        "dx": 0.307,
+        "dy": 0.15
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.365,
+        "dy": 0.605
+      }
+    ]
+  },
+  "fiares": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTF Ares"
+    ],
+    "notes": "less maneuverable than the Herc Mk2, Heavy Fighter",
+    "docks": [
+      {
+        "dx": -0.082,
+        "dy": -0.821,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.074,
+        "dy": -0.875,
+        "len": 0.35,
+        "w": 0.155,
+        "dir": -1
+      },
+      {
+        "dx": -0.43,
+        "dy": -0.397,
+        "len": 0.35,
+        "w": 0.15,
+        "dir": -1
+      },
+      {
+        "dx": 0.099,
+        "dy": -0.035,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.488,
+        "dy": -0.339
+      },
+      {
+        "dx": 0.434,
+        "dy": -0.197
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.383,
+        "dy": -0.563
+      }
+    ]
+  },
+  "fiastaroth": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SF Astaroth"
+    ],
+    "notes": "light fighter, weak hull and shields, very fast and agile",
+    "thrusters": [
+      {
+        "dx": -0.56,
+        "dy": -0.102,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.834,
+        "dy": 0.415
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.082,
+        "dy": 0.687
+      }
+    ]
+  },
+  "fibasilisk": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SF Basilisk"
+    ],
+    "notes": "medium fighter, medium hull, weak shields, medium speed and agility, missile spammer",
+    "thrusters": [
+      {
+        "dx": -0.965,
+        "dy": -0.768,
+        "len": 0.65,
+        "w": 0.35,
+        "dir": -1
+      },
+      {
+        "dx": -0.964,
+        "dy": -0.418,
+        "len": 0.65,
+        "w": 0.35,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.136,
+        "dy": -0.132
+      },
+      {
+        "dx": -0.137,
+        "dy": -0.327
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.242,
+        "dy": -0.586
+      }
+    ]
+  },
+  "fidragon": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SF Dragon"
+    ],
+    "notes": "weak hull and shields, very fast and agile",
+    "thrusters": [
+      {
+        "dx": -0.812,
+        "dy": 0.208,
+        "len": 0.505,
+        "w": 0.53,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.88,
+        "dy": 0.612
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.862,
+        "dy": 0.407
+      }
+    ]
+  },
+  "fierinyes": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTF Erinyes"
+    ],
+    "notes": "poor primary firing rate, Heavy Fighter",
+    "docks": [
+      {
+        "dx": -0.084,
+        "dy": -0.57,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.509,
+        "dy": -0.066,
+        "len": 0.465,
+        "w": 0.35,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.883,
+        "dy": 0.737
+      },
+      {
+        "dx": 0.413,
+        "dy": 0.445
+      },
+      {
+        "dx": 0.41,
+        "dy": 0.377
+      },
+      {
+        "dx": 0.879,
+        "dy": 0.694
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.507,
+        "dy": -0.098
+      }
+    ]
+  },
+  "fiherc": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTF Hercules"
+    ],
+    "notes": "Heavy Assault Fighter, poor agility, medium hull",
+    "docks": [
+      {
+        "dx": -0.013,
+        "dy": -0.79,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.669,
+        "dy": -0.526,
+        "len": 0.595,
+        "w": 0.3,
+        "dir": -1
+      },
+      {
+        "dx": -0.676,
+        "dy": -0.017,
+        "len": 0.595,
+        "w": 0.3,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.397,
+        "dy": -0.377
+      },
+      {
+        "dx": 0.338,
+        "dy": -0.174
+      },
+      {
+        "dx": 0.378,
+        "dy": 0.053
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.347,
+        "dy": -0.268
+      }
+    ]
+  },
+  "fihercmk2": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTF Hercules Mk2"
+    ],
+    "notes": "more maneuverable than the Herc 1, less primary punch, Heavy Assault Fighter",
+    "docks": [
+      {
+        "dx": -0.364,
+        "dy": -0.813,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.829,
+        "dy": -0.473,
+        "len": 0.595,
+        "w": 0.56,
+        "dir": -1
+      },
+      {
+        "dx": -0.186,
+        "dy": -0.867,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.134,
+        "dy": -0.012,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.249,
+        "dy": -0.354
+      },
+      {
+        "dx": 0.244,
+        "dy": -0.151
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.198,
+        "dy": -0.599
+      }
+    ]
+  },
+  "fihorus": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "PVF or GVF Horus"
+    ],
+    "notes": "Light Fighter, Weak hull, fast, very agile",
+    "docks": [
+      {
+        "dx": 0.281,
+        "dy": -0.737,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.911,
+        "dy": -0.737,
+        "len": 0.35,
+        "w": 0.35,
+        "dir": -1
+      },
+      {
+        "dx": -0.951,
+        "dy": -0.086,
+        "len": 0.31,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.327,
+        "dy": 0.068
+      },
+      {
+        "dx": -0.219,
+        "dy": 0.368
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.387,
+        "dy": 0.612
+      }
+    ]
+  },
+  "filoki": {
+    "facing": "right",
+    "eras": [
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTF Loki"
+    ],
+    "notes": "Limited Stealth Fighter, Light Stealth Fighter in Silent Threat, Light Fighter in FS2 without stealth capability",
+    "docks": [
+      {
+        "dx": 0.36,
+        "dy": -0.254,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.979,
+        "dy": -0.438,
+        "len": 0.435,
+        "w": 0.64,
+        "dir": -1
+      },
+      {
+        "dx": -0.458,
+        "dy": 0.072,
+        "len": 0.505,
+        "w": 0.805,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.295,
+        "dy": 0.685
+      },
+      {
+        "dx": 0.292,
+        "dy": -0.163
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.292,
+        "dy": 0.048
+      }
+    ]
+  },
+  "fimanticore": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SF Manticore"
+    ],
+    "notes": "medium fighter, weak hull and shields, medium agility and speed",
+    "thrusters": [
+      {
+        "dx": -0.847,
+        "dy": -0.328,
+        "len": 0.63,
+        "w": 0.44,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.812,
+        "dy": -0.389
+      },
+      {
+        "dx": 0.904,
+        "dy": -0.719
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.146,
+        "dy": 0.63
+      }
+    ]
+  },
+  "fimara": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SF Mara"
+    ],
+    "notes": "medium fighter, medium speed, agility, hull and shields",
+    "thrusters": [
+      {
+        "dx": -0.811,
+        "dy": -0.447,
+        "len": 0.64,
+        "w": 0.44,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.809,
+        "dy": -0.033
+      },
+      {
+        "dx": 0.666,
+        "dy": -0.494
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.314,
+        "dy": -0.582
+      }
+    ]
+  },
+  "fimyrmidon": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTF Myrmidon"
+    ],
+    "notes": "massive primary firepower weak hull, less secondary capacity than Herc Mk2, Space Superiority Fighter",
+    "docks": [
+      {
+        "dx": 0.204,
+        "dy": -0.978,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.43,
+        "dy": 0.152,
+        "len": 0.65,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.664,
+        "dy": 0.465
+      },
+      {
+        "dx": 0.662,
+        "dy": 0.315
+      },
+      {
+        "dx": 0.854,
+        "dy": 0.173
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.786,
+        "dy": -0.531
+      }
+    ]
+  },
+  "fipegasus": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTF Pegasus"
+    ],
+    "notes": "weak hull, fast, maneuverable, low secondary capacity low secondary capacity, Stealth Fighter",
+    "docks": [
+      {
+        "dx": -0.454,
+        "dy": -0.902,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.9,
+        "dy": -0.084,
+        "len": 0.485,
+        "w": 0.755,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.871,
+        "dy": 0.133
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.38,
+        "dy": -0.277
+      }
+    ]
+  },
+  "fiperseus": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTF Perseus"
+    ],
+    "notes": "Interceptor, fast, maneuverable, weak hull",
+    "docks": [
+      {
+        "dx": 0.039,
+        "dy": -0.495,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.714,
+        "dy": -0.085,
+        "len": 0.47,
+        "w": 0.49,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.205,
+        "dy": -0.08
+      },
+      {
+        "dx": 0.153,
+        "dy": 0.024
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.093,
+        "dy": -0.27
+      }
+    ]
+  },
+  "fiptah": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVF Ptah"
+    ],
+    "notes": "Stealth Fighter, Weak hull, low secondary capacity, Vasudan counterpart of the Pegasus",
+    "docks": [
+      {
+        "dx": 0.083,
+        "dy": -0.943,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.535,
+        "dy": -0.737,
+        "len": 0.35,
+        "w": 0.1,
+        "dir": -1
+      },
+      {
+        "dx": -0.078,
+        "dy": 0.082,
+        "len": 0.35,
+        "w": 0.135,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.823,
+        "dy": 0.153
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.769,
+        "dy": 0.038
+      }
+    ]
+  },
+  "fiscorpion": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "SF Scorpion"
+    ],
+    "notes": "weak hull and shields, agile but slow",
+    "thrusters": [
+      {
+        "dx": -0.907,
+        "dy": 0.826,
+        "len": 0.54,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.123,
+        "dy": 0.57
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.881,
+        "dy": 0.463
+      }
+    ]
+  },
+  "fiserapis": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVF Serapis"
+    ],
+    "notes": "Interceptor, Weak hull, weak shields, very fast and agile",
+    "docks": [
+      {
+        "dx": 0.199,
+        "dy": -0.827,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.35,
+        "dy": 0.436,
+        "len": 0.74,
+        "w": 0.675,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.93,
+        "dy": 0.168
+      },
+      {
+        "dx": 0.984,
+        "dy": 0.04
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.892,
+        "dy": -0.033
+      }
+    ]
+  },
+  "fiseth": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "PVF or GVF Seth"
+    ],
+    "notes": "heavy assault fighter, Strong hull and shields, poor speed and agility",
+    "docks": [
+      {
+        "dx": -0.124,
+        "dy": -0.91,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.677,
+        "dy": -0.458,
+        "len": 0.35,
+        "w": 0.37,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.587,
+        "dy": 0.803
+      },
+      {
+        "dx": 0.247,
+        "dy": -0.403
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.266,
+        "dy": 0.148
+      }
+    ]
+  },
+  "fitauret": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVF Tauret"
+    ],
+    "notes": "Heavy Fighter, Medium hull, heavy shields, poor agility, medium speed",
+    "docks": [
+      {
+        "dx": -0.277,
+        "dy": -0.981,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.93,
+        "dy": -0.662,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.818,
+        "dy": 0.828
+      },
+      {
+        "dx": 0.965,
+        "dy": 0.242
+      },
+      {
+        "dx": 0.891,
+        "dy": 0.734
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.62,
+        "dy": 0.302
+      }
+    ]
+  },
+  "fitoth": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "PVF or GVF Thoth"
+    ],
+    "notes": "Space Superiority Fighter, Very fast and agile, medium hull and shields, Thoth is its correct name",
+    "docks": [
+      {
+        "dx": -0.197,
+        "dy": -0.956,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.99,
+        "dy": -0.188,
+        "len": 0.405,
+        "w": 0.885,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.395,
+        "dy": 0.462
+      },
+      {
+        "dx": 0.395,
+        "dy": 0.069
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.46,
+        "dy": 0.404
+      }
+    ]
+  },
+  "fiulysses": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTF Ulysses"
+    ],
+    "notes": "Space Superiority Fighter, fast, maneuverable, low secondary capacity",
+    "docks": [
+      {
+        "dx": 0.078,
+        "dy": -0.978,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.683,
+        "dy": 0.028,
+        "len": 0.5,
+        "w": 0.46,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.987,
+        "dy": 0.123
+      },
+      {
+        "dx": 0.798,
+        "dy": -0.087
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.53,
+        "dy": -0.193
+      }
+    ]
+  },
+  "fivalyrie": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "GTF Valkyrie"
+    ],
+    "notes": "Interceptor, weak hull, fast, maneuverable, low secondary capacity",
+    "docks": [
+      {
+        "dx": -0.048,
+        "dy": -0.77,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.997,
+        "dy": -0.418,
+        "len": 0.525,
+        "w": 0.535,
+        "dir": -1
+      },
+      {
+        "dx": -0.916,
+        "dy": 0.146,
+        "len": 0.6,
+        "w": 0.33,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.214,
+        "dy": 0.255
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.19,
+        "dy": -0.505
+      }
+    ]
+  },
+  "frasmodeus": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SFr Asmodeus"
+    ],
+    "notes": "Strong hull, two dock points for freight containers",
+    "docks": [
+      {
+        "dx": -0.549,
+        "dy": -0.897,
+        "ang": 270,
+        "label": ""
+      },
+      {
+        "dx": 0.139,
+        "dy": -0.893,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.74,
+        "dy": -0.322,
+        "len": 0.59,
+        "w": 0.325,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.728,
+        "dy": -0.79
+      },
+      {
+        "dx": -0.921,
+        "dy": -0.813
+      },
+      {
+        "dx": -0.08,
+        "dy": -0.338
+      }
+    ]
+  },
+  "frbast": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "PVFr Bast"
+    ],
+    "notes": "Freighter, Completely unarmed, weak hull",
+    "docks": [
+      {
+        "dx": 0.195,
+        "dy": 0.098,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.853,
+        "dy": -0.461,
+        "len": 0.47,
+        "w": 0.37,
+        "dir": -1
+      },
+      {
+        "dx": -0.853,
+        "dy": 0.299,
+        "len": 0.47,
+        "w": 0.37,
+        "dir": -1
+      }
+    ]
+  },
+  "frbes": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVFr Bes"
+    ],
+    "notes": "Freighter, Weak hull",
+    "docks": [
+      {
+        "dx": 0.309,
+        "dy": 0.113,
+        "ang": 0,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.66,
+        "dy": -0.007,
+        "len": 0.465,
+        "w": 0.58,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.283,
+        "dy": -0.765
+      },
+      {
+        "dx": -0.838,
+        "dy": -0.815
+      }
+    ]
+  },
+  "frchronos": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTFr Chronos"
+    ],
+    "notes": "Freighter, weak hull",
+    "docks": [
+      {
+        "dx": 0.007,
+        "dy": 0.636,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.898,
+        "dy": 0.079,
+        "len": 0.35,
+        "w": 1.03,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.982,
+        "dy": 0.523
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.706,
+        "dy": -0.75
+      }
+    ]
+  },
+  "frdis": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SFr Dis"
+    ],
+    "notes": "Weak hull, low agility",
+    "docks": [
+      {
+        "dx": 0.703,
+        "dy": -0.126,
+        "ang": 0,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.83,
+        "dy": -0.118,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.144,
+        "dy": -0.681
+      },
+      {
+        "dx": -0.332,
+        "dy": 0.495
+      }
+    ]
+  },
+  "frmaat": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "PVFr or GVFr Ma'at"
+    ],
+    "notes": "Freighter, Medium hull",
+    "docks": [
+      {
+        "dx": -0.248,
+        "dy": -0.271,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.93,
+        "dy": -0.085,
+        "len": 0.35,
+        "w": 0.205,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.563,
+        "dy": 0.863
+      },
+      {
+        "dx": 0.884,
+        "dy": -0.322
+      },
+      {
+        "dx": -0.242,
+        "dy": -0.492
+      }
+    ]
+  },
+  "frmephisto": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SFr Mephisto"
+    ],
+    "notes": "Fast freighter, can carry two freight containers, strong hull",
+    "docks": [
+      {
+        "dx": 0.167,
+        "dy": -0.93,
+        "ang": 270,
+        "label": ""
+      },
+      {
+        "dx": 0.166,
+        "dy": 0.929,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.597,
+        "dy": 0.248,
+        "len": 0.535,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.898,
+        "dy": 0.677
+      },
+      {
+        "dx": 0.771,
+        "dy": 0.056
+      }
+    ]
+  },
+  "frposeidon": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTFr Poseidon"
+    ],
+    "notes": "Freighter, weak hull",
+    "docks": [
+      {
+        "dx": -0.302,
+        "dy": -0.054,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.981,
+        "dy": -0.321,
+        "len": 0.35,
+        "w": 0.37,
+        "dir": -1
+      },
+      {
+        "dx": -0.542,
+        "dy": -0.501,
+        "len": 0.35,
+        "w": 0.56,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.657,
+        "dy": -0.752
+      },
+      {
+        "dx": -0.3,
+        "dy": 0.186
+      }
+    ]
+  },
+  "frsatis": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "PVFr or GVFr Satis"
+    ],
+    "notes": "Freighter, Cannot dock with freight containers, strong hull",
+    "docks": [
+      {
+        "dx": 0.192,
+        "dy": -0.84,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.63,
+        "dy": -0.282,
+        "len": 0.55,
+        "w": 0.48,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.897,
+        "dy": -0.951
+      },
+      {
+        "dx": 0.286,
+        "dy": 0.542
+      },
+      {
+        "dx": -0.234,
+        "dy": -0.232
+      }
+    ]
+  },
+  "frtriton": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTFr Triton"
+    ],
+    "notes": "Freighter, Cruiser sized, only freighter capable of docking with meson bomb",
+    "docks": [
+      {
+        "dx": 0.424,
+        "dy": -0.411,
+        "ang": 0,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.189,
+        "dy": 0.678,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.917,
+        "dy": -0.401,
+        "len": 0.35,
+        "w": 0.635,
+        "dir": -1
+      },
+      {
+        "dx": -0.237,
+        "dy": -0.371,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.127,
+        "dy": -0.842
+      },
+      {
+        "dx": 0.037,
+        "dy": 0.921
+      }
+    ]
+  },
+  "gmanuket": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVG Anuket"
+    ],
+    "notes": "Vasudan Gas Miner, big blast radius, weak hull",
+    "docks": [
+      {
+        "dx": 0.24,
+        "dy": -0.391,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.67,
+        "dy": 0.19,
+        "len": 0.35,
+        "w": 0.475,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.136,
+        "dy": 0.13
+      },
+      {
+        "dx": -0.398,
+        "dy": 0.116
+      },
+      {
+        "dx": -0.358,
+        "dy": 0.866
+      }
+    ]
+  },
+  "gmrahu": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SG Rahu"
+    ],
+    "notes": "Shivan gas miner, big blast radius",
+    "docks": [
+      {
+        "dx": 0.362,
+        "dy": -0.509,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.881,
+        "dy": 0,
+        "len": 0.6,
+        "w": 0.845,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.719,
+        "dy": 0.357
+      },
+      {
+        "dx": 0.295,
+        "dy": 0.057
+      }
+    ]
+  },
+  "gmzephyrus": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTG Zephyrus"
+    ],
+    "notes": "Gas Miner, Weak hull, giant blast radius",
+    "docks": [
+      {
+        "dx": -0.107,
+        "dy": -0.5,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.765,
+        "dy": -0.384,
+        "len": 0.35,
+        "w": 0.55,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.539,
+        "dy": 0.25
+      },
+      {
+        "dx": 0.603,
+        "dy": -0.53
+      },
+      {
+        "dx": -0.639,
+        "dy": -0.699
+      }
+    ]
+  },
+  "inarcadia": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTI Arcadia"
+    ],
+    "notes": "big terran installation, strong hull, stationary object",
+    "docks": [
+      {
+        "dx": -0.623,
+        "dy": -0.051,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.493,
+        "dy": -0.331
+      },
+      {
+        "dx": 0.45,
+        "dy": 0.203
+      },
+      {
+        "dx": 0.418,
+        "dy": 0.206
+      },
+      {
+        "dx": -0.011,
+        "dy": -0.968
+      },
+      {
+        "dx": -0.089,
+        "dy": 0.964
+      },
+      {
+        "dx": -0.953,
+        "dy": 0.054
+      },
+      {
+        "dx": -0.956,
+        "dy": 0.147
+      },
+      {
+        "dx": -0.737,
+        "dy": 0.007
+      },
+      {
+        "dx": -0.736,
+        "dy": 0.15
+      },
+      {
+        "dx": -0.032,
+        "dy": -0.342
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.85,
+        "dy": 0.096
+      },
+      {
+        "dx": 0.858,
+        "dy": -0.219
+      },
+      {
+        "dx": -0.094,
+        "dy": 0.895
+      }
+    ]
+  },
+  "incommnode": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "Unknown Device"
+    ],
+    "notes": "Shivan Comm Node, but never called that, big explosion radius, one subsystem that destroys the entire construction upon destruction, subsystem called crystal"
+  },
+  "inknossos45deg": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "ancients",
+      "kulisse"
+    ],
+    "notes": "Knossos, 45 Grad gedreht. Von den Ancients gebaut, kein Schiff einer Fraktion. Traegt bewusst keine Waffen, Subsysteme oder Andockpunkte."
+  },
+  "inknossosfront": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "ancients",
+      "kulisse"
+    ],
+    "notes": "Knossos, Frontalansicht. Von den Ancients gebaut, kein Schiff einer Fraktion. Traegt bewusst keine Waffen, Subsysteme oder Andockpunkte."
+  },
+  "inpharos": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTNB Pharos"
+    ],
+    "notes": "Navbuoy, immobile object"
+  },
+  "mehippocrates": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTM Hippocrates"
+    ],
+    "notes": "Medical Cruiser, Poorly armed, weak hull",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.132,
+        "dy": 0.933,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.07,
+        "dy": -0.219,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.708,
+        "dy": -0.197,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.262,
+        "dy": -0.793,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.809,
+        "dy": 0.016,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.531,
+        "dy": 0.653,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.686,
+        "dy": 0.456,
+        "len": 0.155,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.917,
+        "dy": -0.158,
+        "len": 0.23,
+        "w": 0.17,
+        "dir": -1
+      },
+      {
+        "dx": -0.888,
+        "dy": -0.542,
+        "len": 0.165,
+        "w": 0.15,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.666,
+        "dy": 0.645
+      },
+      {
+        "dx": 0.761,
+        "dy": -0.812
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.604,
+        "dy": -0.894,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "ntfcodeimos": {
+    "facing": "left",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "NTCv Deimos"
+    ],
+    "notes": "Corvette, NTF Variant of the GTCv Deimos",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.089,
+        "dy": -0.398,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.895,
+        "dy": 0.553,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.016,
+        "dy": 0.651,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.348,
+        "dy": -0.702,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": 0.633,
+        "dy": 0.314,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.4,
+        "dy": -0.6,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.902,
+        "dy": -0.016,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": 1
+      },
+      {
+        "dx": 0.92,
+        "dy": -0.234,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": 1
+      },
+      {
+        "dx": 0.967,
+        "dy": -0.475,
+        "len": 0.35,
+        "w": 0.35,
+        "dir": 1
+      },
+      {
+        "dx": 0.38,
+        "dy": 0.8,
+        "len": 0.35,
+        "w": 0.3,
+        "dir": 1
+      },
+      {
+        "dx": -0.725,
+        "dy": 0.584,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": 1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.578,
+        "dy": -0.902
+      },
+      {
+        "dx": -0.272,
+        "dy": -0.737
+      },
+      {
+        "dx": -0.657,
+        "dy": -0.67
+      },
+      {
+        "dx": -0.305,
+        "dy": 0.49
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.042,
+        "dy": 0.056
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.819,
+        "dy": -0.362,
+        "large": true,
+        "type": "slash",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1.1,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.991,
+        "dy": 0.016,
+        "large": true,
+        "type": "static",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1.1
+      },
+      {
+        "dx": -0.745,
+        "dy": 0.072,
+        "large": false,
+        "type": "static",
+        "chargeT": 640,
+        "fireT": 100,
+        "coolT": 500,
+        "dmg": 1.1
+      }
+    ]
+  },
+  "ntfcraeolus": {
+    "facing": "left",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "NTC Aeolus"
+    ],
+    "notes": "Cruiser, NTF variant of the GTC Aeolus",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.484,
+        "dy": 0.629,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.498,
+        "dy": -0.462,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.856,
+        "dy": -0.308,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.895,
+        "dy": -0.628,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": 0.234,
+        "dy": 0.4,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.323,
+        "dy": -0.61,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.974,
+        "dy": -0.334,
+        "len": 0.35,
+        "w": 0.405,
+        "dir": 1
+      },
+      {
+        "dx": 0.977,
+        "dy": 0.22,
+        "len": 0.35,
+        "w": 0.405,
+        "dir": 1
+      },
+      {
+        "dx": -0.336,
+        "dy": 0.5,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": 1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.676,
+        "dy": -0.646
+      },
+      {
+        "dx": -0.072,
+        "dy": -0.794
+      },
+      {
+        "dx": 0.808,
+        "dy": -0.865
+      },
+      {
+        "dx": 0.876,
+        "dy": 0.699
+      },
+      {
+        "dx": -0.17,
+        "dy": 0.807
+      },
+      {
+        "dx": -0.875,
+        "dy": 0.722
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.725,
+        "dy": 0.021,
+        "large": true,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1
+      },
+      {
+        "dx": 0.056,
+        "dy": 0.093,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      },
+      {
+        "dx": -0.124,
+        "dy": 0.093,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      }
+    ]
+  },
+  "ntfcrfenris": {
+    "facing": "left",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "NTC Fenris"
+    ],
+    "notes": "Cruiser, NTF Variant of the GTC Fenris",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.227,
+        "dy": 0.315,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.331,
+        "dy": -0.262,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.113,
+        "dy": 0.312,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.044,
+        "dy": -0.902,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": 0.715,
+        "dy": -0.338,
+        "r": 0.03
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.99,
+        "dy": -0.108,
+        "len": 0.215,
+        "w": 0.455,
+        "dir": 1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.578,
+        "dy": -0.116
+      },
+      {
+        "dx": 0.561,
+        "dy": 0.127
+      },
+      {
+        "dx": 0.878,
+        "dy": -0.295
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.054,
+        "dy": 0.813
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.866,
+        "dy": -0.013,
+        "large": true,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1
+      },
+      {
+        "dx": 0.915,
+        "dy": 0.061,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      }
+    ]
+  },
+  "ntfcrleviathan": {
+    "facing": "left",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "NTC Leviathan"
+    ],
+    "notes": "Cruiser, NTF Variant of the GTC Leviathan",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.108,
+        "dy": 0.34,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.328,
+        "dy": -0.323,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.229,
+        "dy": -0.268,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.052,
+        "dy": -0.733,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": 0.903,
+        "dy": -0.363,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.595,
+        "dy": -0.437,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.99,
+        "dy": -0.174,
+        "len": 0.215,
+        "w": 0.455,
+        "dir": 1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.618,
+        "dy": -0.165
+      },
+      {
+        "dx": -0.308,
+        "dy": -0.153
+      }
+    ],
+    "secondary": [
+      {
+        "dx": -0.043,
+        "dy": 0.798
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.902,
+        "dy": -0.1,
+        "large": true,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 1
+      },
+      {
+        "dx": 0.898,
+        "dy": -0.342,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      },
+      {
+        "dx": 0.899,
+        "dy": -0.005,
+        "large": false,
+        "type": "static",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.4
+      }
+    ]
+  },
+  "ntfdehecate": {
+    "facing": "left",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "NTD Hecate"
+    ],
+    "notes": "NTF variant of the GTD Hecate",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": -0.475,
+        "dy": 0.052,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.427,
+        "dy": 0.845,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.031,
+        "dy": -0.114,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.807,
+        "dy": -0.946,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": 0.776,
+        "dy": 0.143,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.1,
+        "dy": -0.538,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.945,
+        "dy": -0.037,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": 1
+      },
+      {
+        "dx": 0.943,
+        "dy": -0.328,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": 1
+      },
+      {
+        "dx": 0.484,
+        "dy": 0.293,
+        "len": 0.35,
+        "w": 0.175,
+        "dir": 1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.755,
+        "dy": -0.588
+      },
+      {
+        "dx": -0.851,
+        "dy": 0.169
+      },
+      {
+        "dx": -0.415,
+        "dy": -0.61
+      },
+      {
+        "dx": 0.292,
+        "dy": -0.755
+      },
+      {
+        "dx": -0.228,
+        "dy": 0.109
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.256,
+        "dy": 0.297
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.981,
+        "dy": -0.388,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": -0.194,
+        "dy": -0.108,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.928,
+        "dy": -0.001,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.597,
+        "dy": -0.232,
+        "large": false,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.4
+      },
+      {
+        "dx": -0.598,
+        "dy": 0.287,
+        "large": false,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 0.4
+      }
+    ]
+  },
+  "ntfdeorion": {
+    "facing": "left",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "NTD Orion"
+    ],
+    "notes": "NTF variant of the GTD Orion",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.479,
+        "dy": 0.643,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": -0.386,
+        "dy": 0.495,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.641,
+        "dy": 0.038,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.419,
+        "dy": -0.475,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": 0.901,
+        "dy": -0.266,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.415,
+        "dy": -0.48,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.995,
+        "dy": 0.116,
+        "len": 0.09,
+        "w": 0.335,
+        "dir": 1
+      },
+      {
+        "dx": 0.995,
+        "dy": 0.523,
+        "len": 0.09,
+        "w": 0.315,
+        "dir": 1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.834,
+        "dy": -0.481
+      },
+      {
+        "dx": -0.601,
+        "dy": -0.488
+      },
+      {
+        "dx": 0.755,
+        "dy": -0.925
+      },
+      {
+        "dx": 0.18,
+        "dy": 0.915
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.352,
+        "dy": -0.122
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.857,
+        "dy": 0.104,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": 0.166,
+        "dy": -0.113,
+        "large": true,
+        "type": "static",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4
+      },
+      {
+        "dx": -0.45,
+        "dy": -0.013,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.799,
+        "dy": 0.52,
+        "large": true,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.395,
+        "dy": 0.429,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.198,
+        "dy": -0.548,
+        "large": false,
+        "type": "slash",
+        "chargeT": 800,
+        "fireT": 120,
+        "coolT": 600,
+        "dmg": 1.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "scfaustus": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTSC Faustus"
+    ],
+    "notes": "Science Cruiser, big blast radius, weak hull, poorly armed",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.828,
+        "dy": -0.291,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.772,
+        "dy": 0.212,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.335,
+        "dy": 0.168,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.003,
+        "dy": -0.08,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.382,
+        "dy": -0.264,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.628,
+        "dy": -0.442,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.805,
+        "dy": -0.136,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.805,
+        "dy": 0.141,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.744,
+        "dy": -0.212
+      },
+      {
+        "dx": -0.659,
+        "dy": -0.323
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.771,
+        "dy": 0.242
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.659,
+        "dy": 0.329,
+        "large": false,
+        "type": "slash",
+        "chargeT": 360,
+        "fireT": 90,
+        "coolT": 380,
+        "dmg": 0.3,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "sdcolossus": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTVA Colossus"
+    ],
+    "notes": "Flagship of the GTVA, ultra strong hull",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.119,
+        "dy": -0.814,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.296,
+        "dy": -0.282,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.91,
+        "dy": -0.494,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.387,
+        "dy": -0.1,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.826,
+        "dy": -0.118,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.224,
+        "dy": -0.104,
+        "ang": 89,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.977,
+        "dy": -0.241,
+        "len": 0.195,
+        "w": 0.185,
+        "dir": -1
+      },
+      {
+        "dx": -0.942,
+        "dy": -0.508,
+        "len": 0.23,
+        "w": 0.21,
+        "dir": -1
+      },
+      {
+        "dx": -0.251,
+        "dy": 0.834,
+        "len": 0.125,
+        "w": 0.145,
+        "dir": -1
+      },
+      {
+        "dx": 0.685,
+        "dy": 0.025,
+        "len": 0.1,
+        "w": 0.14,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.866,
+        "dy": -0.827
+      },
+      {
+        "dx": -0.717,
+        "dy": -0.02
+      },
+      {
+        "dx": -0.427,
+        "dy": -0.698
+      },
+      {
+        "dx": -0.178,
+        "dy": 0.981
+      },
+      {
+        "dx": 0.757,
+        "dy": 0.15
+      },
+      {
+        "dx": 0.799,
+        "dy": 0.146
+      },
+      {
+        "dx": 0.699,
+        "dy": -0.765
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.034,
+        "dy": -0.955
+      }
+    ],
+    "beams": [
+      {
+        "dx": -0.829,
+        "dy": -0.258,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": -0.904,
+        "dy": -0.259,
+        "large": true,
+        "type": "slash",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.752,
+        "dy": -0.259,
+        "large": true,
+        "type": "slash",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.534,
+        "dy": -0.472,
+        "large": false,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 0.4
+      },
+      {
+        "dx": -0.119,
+        "dy": 0.011,
+        "large": true,
+        "type": "slash",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1,
+        "sweepArc": 2
+      },
+      {
+        "dx": 0.21,
+        "dy": -0.482,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": 0.723,
+        "dy": -0.328,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": 0.846,
+        "dy": -0.667,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": -0.279,
+        "dy": -0.747,
+        "large": false,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 0.4
+      }
+    ]
+  },
+  "sdhades": {
+    "facing": "right",
+    "eras": [
+      "str"
+    ],
+    "tags": [
+      "GTD Hades"
+    ],
+    "notes": "Superdestroyer of the GTI",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.024,
+        "dy": -0.843,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.751,
+        "dy": 0.443,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.454,
+        "dy": 0.52,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": 0.494,
+        "dy": -0.029,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.807,
+        "dy": 0.118,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.243,
+        "dy": -0.059,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.958,
+        "dy": -0.307,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.959,
+        "dy": 0.536,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.253,
+        "dy": 0.312
+      },
+      {
+        "dx": -0.543,
+        "dy": 0.891
+      },
+      {
+        "dx": -0.941,
+        "dy": 0.738
+      },
+      {
+        "dx": -0.759,
+        "dy": -0.411
+      },
+      {
+        "dx": -0.935,
+        "dy": -0.509
+      },
+      {
+        "dx": -0.773,
+        "dy": 0.655
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.772,
+        "dy": -0.215,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": 0.864,
+        "dy": 0.652,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": -0.388,
+        "dy": 0.112,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": -0.109,
+        "dy": -0.972,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": -0.393,
+        "dy": 0.113,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      }
+    ]
+  },
+  "sdlucifer": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "SD Lucifer"
+    ],
+    "notes": "Shivan Superdestroyer",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.225,
+        "dy": 0.276,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.467,
+        "dy": -0.429,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": -0.166,
+        "dy": 0.09,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.333,
+        "dy": 0.049,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.667,
+        "dy": -0.243,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": 0.601,
+        "dy": -0.401,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.883,
+        "dy": 0.148,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": 0.229,
+        "dy": 0.754,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      },
+      {
+        "dx": -0.77,
+        "dy": -0.049,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.783,
+        "dy": -0.298
+      },
+      {
+        "dx": 0.093,
+        "dy": -0.284
+      },
+      {
+        "dx": 0.048,
+        "dy": 0.265
+      },
+      {
+        "dx": -0.595,
+        "dy": -0.588
+      },
+      {
+        "dx": -0.599,
+        "dy": 0.291
+      },
+      {
+        "dx": -0.838,
+        "dy": -0.084
+      },
+      {
+        "dx": 0.303,
+        "dy": 0.819
+      },
+      {
+        "dx": -0.978,
+        "dy": 0.297
+      }
+    ],
+    "secondary": [
+      {
+        "dx": 0.636,
+        "dy": 0.104
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.906,
+        "dy": 0.418,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": 0.353,
+        "dy": 0.087,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      }
+    ]
+  },
+  "sdsathanas": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SJ Sathanas"
+    ],
+    "notes": "Shivan Juggernaut",
+    "subs": [
+      {
+        "id": "weapons",
+        "dx": 0.254,
+        "dy": 0.3,
+        "r": 0.03
+      },
+      {
+        "id": "sensors",
+        "dx": 0.036,
+        "dy": 0.357,
+        "r": 0.03
+      },
+      {
+        "id": "navigation",
+        "dx": 0.225,
+        "dy": -0.737,
+        "r": 0.03
+      },
+      {
+        "id": "communication",
+        "dx": -0.317,
+        "dy": -0.736,
+        "r": 0.03
+      },
+      {
+        "id": "engines",
+        "dx": -0.798,
+        "dy": -0.28,
+        "r": 0.03
+      }
+    ],
+    "docks": [
+      {
+        "dx": -0.673,
+        "dy": -0.909,
+        "ang": 292,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": 0.139,
+        "dy": -0.653,
+        "len": 0.35,
+        "w": 0.16,
+        "dir": -1
+      },
+      {
+        "dx": 0.172,
+        "dy": 0.847,
+        "len": 0.35,
+        "w": 0.12,
+        "dir": -1
+      },
+      {
+        "dx": -0.844,
+        "dy": -0.815,
+        "len": 0.35,
+        "w": 0.155,
+        "dir": -1
+      },
+      {
+        "dx": -0.726,
+        "dy": 0.266,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.426,
+        "dy": 0.085
+      },
+      {
+        "dx": 0.018,
+        "dy": -0.171
+      },
+      {
+        "dx": -0.289,
+        "dy": -0.455
+      },
+      {
+        "dx": -0.472,
+        "dy": 0.546
+      },
+      {
+        "dx": -0.29,
+        "dy": 0.536
+      },
+      {
+        "dx": -0.113,
+        "dy": 0.567
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.986,
+        "dy": -0.087,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": 0.97,
+        "dy": 0.536,
+        "large": true,
+        "type": "static",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 1.6
+      },
+      {
+        "dx": -0.742,
+        "dy": -0.31,
+        "large": true,
+        "type": "slash",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 0.75,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.206,
+        "dy": -0.07,
+        "large": false,
+        "type": "slash",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 0.4,
+        "sweepArc": 2
+      },
+      {
+        "dx": -0.567,
+        "dy": 0.314,
+        "large": false,
+        "type": "slash",
+        "chargeT": 480,
+        "fireT": 120,
+        "coolT": 440,
+        "dmg": 0.4,
+        "sweepArc": 2
+      }
+    ]
+  },
+  "sgalastor": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTSG Alastor"
+    ],
+    "notes": "Sentry Gun, stationary object",
+    "primary": [
+      {
+        "dx": 0.129,
+        "dy": -0.587
+      },
+      {
+        "dx": -0.076,
+        "dy": 0.596
+      }
+    ]
+  },
+  "sgankh": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GVSG Ankh"
+    ],
+    "notes": "Vasudan sentry gun, immobile",
+    "primary": [
+      {
+        "dx": 0.703,
+        "dy": 0.608
+      },
+      {
+        "dx": -0.634,
+        "dy": -0.616
+      }
+    ]
+  },
+  "sgbelial": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "SSG Belial"
+    ],
+    "notes": "Shivan sentry gun",
+    "primary": [
+      {
+        "dx": -0.565,
+        "dy": 0.954
+      },
+      {
+        "dx": -0.611,
+        "dy": -0.958
+      },
+      {
+        "dx": -0.147,
+        "dy": -0.002
+      }
+    ]
+  },
+  "sgcerberus": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "GTSG Cerberus"
+    ],
+    "notes": "Sentry Gun, stationary object",
+    "primary": [
+      {
+        "dx": -0.212,
+        "dy": -0.587
+      },
+      {
+        "dx": 0.249,
+        "dy": 0.602
+      }
+    ]
+  },
+  "sgmjolnir": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTSG Mjolnir"
+    ],
+    "notes": "Sentry Gun, stationary object, only transportable by Triton freighters",
+    "docks": [
+      {
+        "dx": -0.995,
+        "dy": -0.106,
+        "ang": 180,
+        "label": ""
+      }
+    ],
+    "beams": [
+      {
+        "dx": 0.787,
+        "dy": -0.036,
+        "large": true,
+        "type": "static",
+        "chargeT": 900,
+        "fireT": 110,
+        "coolT": 700,
+        "dmg": 2
+      }
+    ]
+  },
+  "sgtrident": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "SSG Trident"
+    ],
+    "notes": "Shivan sentry gun",
+    "primary": [
+      {
+        "dx": 0.169,
+        "dy": -0.869
+      },
+      {
+        "dx": 0.157,
+        "dy": 0.853
+      }
+    ]
+  },
+  "sgwatchdog": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "GTSG Watchdog"
+    ],
+    "notes": "Terran sentry gun, stationary object",
+    "primary": [
+      {
+        "dx": -0.218,
+        "dy": -0.588
+      },
+      {
+        "dx": 0.254,
+        "dy": 0.591
+      }
+    ]
+  },
+  "sucentaur": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "GTS Centaur"
+    ],
+    "notes": "Support Ship, No weapons, big blast radius, only docks with fighters and bombers",
+    "docks": [
+      {
+        "dx": -0.178,
+        "dy": 0.978,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.993,
+        "dy": 0.141,
+        "len": 0.35,
+        "w": 0.22,
+        "dir": -1
+      }
+    ]
+  },
+  "suhygeia": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTS Hygeia"
+    ],
+    "notes": "Support Ship, Only docks with fighters and bombers, no weaponry, big explosion radius",
+    "docks": [
+      {
+        "dx": 0.057,
+        "dy": 0.993,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.907,
+        "dy": -0.548,
+        "len": 0.465,
+        "w": 0.505,
+        "dir": -1
+      }
+    ]
+  },
+  "sunephthys": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GVS Nephthys"
+    ],
+    "notes": "Vasudan support ship, high blast radius like the GTS Centaur and GTS Hygeia, can only dock with Vasudan fighters and bombers",
+    "docks": [
+      {
+        "dx": 0.405,
+        "dy": 0.98,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.673,
+        "dy": -0.031,
+        "len": 0.51,
+        "w": 0.695,
+        "dir": -1
+      }
+    ]
+  },
+  "suscarab": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "str"
+    ],
+    "tags": [
+      "PVS Scarab"
+    ],
+    "notes": "High blast radius like the Nephthys, Vasudan support ship, can only dock with Vasudan fighters and bombers",
+    "docks": [
+      {
+        "dx": -0.27,
+        "dy": 0.978,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.85,
+        "dy": 0,
+        "len": 0.66,
+        "w": 0.5,
+        "dir": -1
+      }
+    ]
+  },
+  "trargo": {
+    "facing": "right",
+    "eras": [
+      "fs2"
+    ],
+    "tags": [
+      "GTT Argo"
+    ],
+    "notes": "Terran large transport ship",
+    "docks": [
+      {
+        "dx": 0.989,
+        "dy": -0.08,
+        "ang": 0,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.986,
+        "dy": 0.043,
+        "len": 0.35,
+        "w": 1.075,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.479,
+        "dy": -0.893
+      }
+    ]
+  },
+  "trazrael": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "ST Azrael"
+    ],
+    "notes": "Shivan transport, medium speed and agility",
+    "docks": [
+      {
+        "dx": -0.099,
+        "dy": 0.512,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.717,
+        "dy": -0.097,
+        "len": 0.73,
+        "w": 0.525,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": -0.652,
+        "dy": 0.356
+      },
+      {
+        "dx": -0.237,
+        "dy": -0.51
+      }
+    ]
+  },
+  "trelysium": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "GTT Elysium"
+    ],
+    "notes": "Transport ship, weak hull",
+    "docks": [
+      {
+        "dx": -0.18,
+        "dy": -0.823,
+        "ang": 270,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.982,
+        "dy": -0.606,
+        "len": 0.35,
+        "w": 0.3,
+        "dir": -1
+      },
+      {
+        "dx": -0.984,
+        "dy": 0.685,
+        "len": 0.35,
+        "w": 0.3,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.705,
+        "dy": -0.822
+      }
+    ]
+  },
+  "trisis": {
+    "facing": "right",
+    "eras": [
+      "fs1",
+      "fs2",
+      "str"
+    ],
+    "tags": [
+      "PVT or GVT Isis"
+    ],
+    "notes": "Vasudan transport, Good hull, very agile",
+    "docks": [
+      {
+        "dx": 0.224,
+        "dy": 0.722,
+        "ang": 90,
+        "label": ""
+      }
+    ],
+    "thrusters": [
+      {
+        "dx": -0.967,
+        "dy": -0.281,
+        "len": 0.35,
+        "w": 0.315,
+        "dir": -1
+      }
+    ],
+    "primary": [
+      {
+        "dx": 0.579,
+        "dy": 0.808
+      },
+      {
+        "dx": 0.001,
+        "dy": -0.794
+      }
+    ]
+  }
+}

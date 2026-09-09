@@ -1,0 +1,11 @@
+sprites/
+*.png
+*.webp
+*.jpg
+hlp_shooter_v*_logic.html
+__pycache__/
+*.pyc
+*.dds
+planets/
+suns/
+*.json.v*
