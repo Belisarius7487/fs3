@@ -57,7 +57,64 @@ CLASSES = {
     "sg", "in", "fc",                            # unbeweglich
 }
 
-# Hoechstbreite je Klasse. Massgeblich ist, wie gross das Schiff im Spiel
+# ── HOECHSTBREITE JE SCHIFF ──────────────────────────────────
+# Bis v82 stand hier ein Deckel je KLASSE, geschaetzt aus der ungefaehren
+# Darstellungsgroesse. Seit v81 rechnet das Spiel die Breite jedes Rumpfs
+# aus seiner kanonischen Laenge aus, also kann der Packer denselben Wert
+# benutzen statt ihn zu raten.
+#
+# ACHTUNG, ZWEITE KOPIE EINER KURVE: die folgenden fuenf Konstanten muessen
+# mit hullWidth() in der Spieldatei uebereinstimmen. Laufen sie
+# auseinander, werden Sprites still weich oder still zu gross. Der Packer
+# gibt den angewandten Deckel deshalb mit aus.
+#
+# Die Klassentabelle bleibt als Rueckfall fuer alles, was keine Laenge hat.
+HULL_LEN_FILE = "fs3_hull_lengths.json"
+SIZE_K, SIZE_E = 2.880, 0.641
+SIZE_MAX = 400
+SIZE_REF_L, SIZE_REF_W = 20.0, 60.0      # Jaegerlaenge, Jaegerbreite
+SIZE_FIXED = {"sdcolossus": 556}
+SIZE_CLASS_FIXED = {"fi": 60, "bo": 65, "ep": 60}
+MAX_RES = 3                              # Deckel der Zeichenflaeche im Spiel
+SPRITE_PX_MIN = 128                      # nichts unter dieser Breite packen
+
+_HULL_LEN = None
+def hull_lengths():
+    global _HULL_LEN
+    if _HULL_LEN is None:
+        try:
+            with open(HULL_LEN_FILE, "r", encoding="utf-8") as fh:
+                _HULL_LEN = json.load(fh)["len"]
+        except Exception:
+            _HULL_LEN = {}
+    return _HULL_LEN
+
+def hull_class(key):
+    return key[3:5] if key.startswith("ntf") else key[:2]
+
+def hull_width(key):
+    """Muss exakt dasselbe liefern wie hullWidth() in der Spieldatei."""
+    if key in SIZE_FIXED:
+        return SIZE_FIXED[key]
+    c = hull_class(key)
+    if c in SIZE_CLASS_FIXED:
+        return SIZE_CLASS_FIXED[c]
+    L = hull_lengths().get(key)
+    if not L:
+        return None
+    curve = SIZE_K * (L ** SIZE_E)
+    floor = min(SIZE_REF_W, SIZE_REF_W * ((L / SIZE_REF_L) ** SIZE_E))
+    return int(round(min(SIZE_MAX, max(floor, curve))))
+
+def sprite_limit(key, cls):
+    """Deckel fuer dieses eine Sprite. Faellt auf die Klassentabelle
+    zurueck, wenn der Rumpf keine Laenge hat."""
+    w = hull_width(key)
+    if w is None:
+        return SPRITE_PX.get(cls, SPRITE_PX_DEFAULT)
+    return max(SPRITE_PX_MIN, w * MAX_RES)
+
+# Rueckfalltabelle. Massgeblich ist, wie gross das Schiff im Spiel
 # tatsaechlich gezogen wird, mal MAX_RES 3:
 #   Jaeger/Bomber 58-65 -> 195   Kreuzer 100 -> 300
 #   Korvette 130-140    -> 420   Zerstoerer 380 -> 1140   Boss 320-360 -> 1080
@@ -159,7 +216,7 @@ def collect_sprites(folder):
             raw = fh.read()
         before = len(raw)
         cls = split_name(name)[1]
-        limit = SPRITE_PX.get(cls, SPRITE_PX_DEFAULT)
+        limit = sprite_limit(key, cls)
         raw, did = shrink_png(raw, limit)
         if did:
             shrunk.append((name, limit, before, len(raw)))
@@ -355,6 +412,29 @@ def version_from(path):
     return ("v" + m.group(1)) if m else None
 
 
+# Mapping must match MIME_EXT in split_images.py.
+ASSET_MIME = {".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp"}
+
+
+def inline_assets(html):
+    """Replace @@FS3_ASSET:path@@ tokens with data URIs read from disk.
+    Keeps images out of the logic file so it can live in git."""
+    def repl(m):
+        path = m.group(1)
+        ext = os.path.splitext(path)[1].lower()
+        if ext not in ASSET_MIME:
+            sys.exit("Abbruch: unbekannter Bildtyp: %s" % path)
+        if not os.path.isfile(path):
+            sys.exit("Abbruch: Bilddatei fehlt: %s" % path)
+        with open(path, "rb") as fh:
+            data = fh.read()
+        return "data:%s;base64,%s" % (ASSET_MIME[ext], base64.b64encode(data).decode("ascii"))
+    html, n = re.subn(r"@@FS3_ASSET:([A-Za-z0-9_./-]+)@@", repl, html)
+    if n:
+        print("Bilddateien eingebettet: %d" % n)
+    return html
+
+
 def main():
     ap = argparse.ArgumentParser(description="Packt Sprites, Mounts und Hintergrundkoerper in die Spieldatei.")
     ap.add_argument("--sprites", default="sprites", help="Ordner mit den PNG-Dateien")
@@ -467,6 +547,8 @@ def main():
             print("Spieltempo auf %d Hz gesetzt" % hz)
         else:
             print("  WARNUNG: TICK_HZ nicht gefunden, --hz wurde ignoriert")
+
+    html = inline_assets(html)  # resolve @@FS3_ASSET@@ tokens
 
     with open(args.out, "w", encoding="utf-8") as fh:
         fh.write(html)
