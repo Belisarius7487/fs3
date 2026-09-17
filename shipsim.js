@@ -29,11 +29,12 @@ function between(startText){
 const shipsDecl = src.match(/const PLAYER_SHIPS = \[[\s\S]*?\];/)[0];
 const hullFacDecl = src.match(/const HULL_FAC = \{[\s\S]*?\};/)[0];
 const menuBgDecl = src.match(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/)[0];
+const volleyDecl = src.match(/const VOLLEY_BASE[\s\S]*?const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/)[0];
 const names = ['hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
-  'mountsFor','spriteFacing','drawHullBg'];
+  'mountsFor','spriteFacing','drawHullBg','volleyDmg','volleyTotal','primaryCount'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
 const mouseHandler = src.slice(src.indexOf('function', downStart), blockEnd(src, src.indexOf('function', downStart)));
@@ -75,6 +76,8 @@ const world = `
   const ALLY_KEYS=[], ALLY_ORDER=[], ALLY_SPECIAL='x', ALLY_SPECIAL_KEY='Q';
   ${hullFacDecl}
   ${menuBgDecl}
+  ${volleyDecl}
+  let MOUNTS={};
   ${shipsDecl}
   ${names.map(fn).join('\n')}
   const onKey = ${keyHandler};
@@ -273,6 +276,46 @@ W.set('IMGS', {fitoth:IMG(0,0)});
 CLR(); W.run('drawShipMenu()');
 ok('a zero sized sprite is skipped instead of dividing by zero', draws().length===0);
 W.set('IMGS', {});
+
+console.log('Barrels and volley damage in the cells');
+const texts = ()=> CALLS.filter(c=>c.fn==='fillText').map(c=>({s:String(c.args[0]), x:c.args[1], y:c.args[2]}));
+const gunLines = ()=> texts().filter(t=>t.s.indexOf('GUN ')===0);
+reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
+W.set('MOUNTS', {});
+CLR(); W.run('drawShipMenu()');
+ok('no mount data: no claim about guns at all', gunLines().length===0);
+W.set('MOUNTS', {fitoth:{primary:[1,1]}, fihorus:{primary:[1,1]}, boosiris:{primary:[1,1]},
+                 fiserapis:{primary:[1,1]}, fiseth:{primary:[1,1]}, bobakha:{primary:[1,1]},
+                 fitauret:{primary:[1,1,1]}, bosekhmet:{primary:[1,1]}});
+CLR(); W.run('drawShipMenu()');
+ok('a line on every one of the eight cells', gunLines().length===8);
+ok('the seven two barrel hulls read GUN 2  DMG 51',
+   gunLines().filter(t=>t.s==='GUN 2  DMG 51').length===7);
+ok('the Tauret reads GUN 3  DMG 57',
+   gunLines().filter(t=>t.s==='GUN 3  DMG 57').length===1);
+ok('the figure matches what volleyDmg actually does',
+   Math.round(W.run('volleyTotal(2)'))===51 && Math.round(W.run('volleyTotal(3)'))===57
+   && Math.round(W.run('volleyTotal(1)'))===44);
+ok('one barrel is the fallback of the formula, not a crash', W.run('volleyTotal(0)')===44);
+{
+  // Positions are checked against the cell rectangles the menu itself
+  // reported, not against arithmetic repeated from the drawing code.
+  const cells = W.run('window._shipRects');
+  const inSomeCell = (t)=> cells.some(c=> t.x===c.x+c.w-6 && t.y===c.y+37);
+  ok('right aligned at the edge of its own cell', gunLines().every(inSomeCell));
+  ok('inside the cell, clear of the agility pips',
+     gunLines().every(t=> cells.some(c=> t.x<=c.x+c.w && t.x - t.s.length*4.8 > c.x+161)));
+}
+{
+  // Two unlocked of eight: the menu needs two to open at all.
+  reset(); W.run("shipUnlocked=2"); W.set('allies',[destroyer()]);
+  W.set('MOUNTS', {fitoth:{primary:[1,1]}, fihorus:{primary:[1,1]}, fitauret:{primary:[1,1,1]}});
+  W.run('toggleShipMenu()'); CLR(); W.run('drawShipMenu()');
+  ok('only the two unlocked cells make a claim', gunLines().length===2);
+  ok('the locked Tauret stays silent even with mount data',
+     gunLines().every(t=>t.s!=='GUN 3  DMG 57'));
+}
+W.set('MOUNTS', {});
 
 console.log('Bar button placement');
 {
