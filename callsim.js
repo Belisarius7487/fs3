@@ -39,14 +39,38 @@ const facOn  = decl(/const ALLY_FAC_ON = \{[^}]*\};/);
 const colT   = decl(/const COLOSSUS_TIME = \d+;/);
 const refine = decl(/const REFINE_COST = \d+;/);
 
-const names = ['allyFacOn', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly'];
+const names = ['allyFacOn', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
+  'mountsFor', 'spriteFacing', 'drawHullBg'];
+const menuBgDecl = decl(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/);
 
-const ctxStub = new Proxy({}, {get: (t, k) => k in t ? t[k] : () => {}, set: (t, k, v) => { t[k] = v; return true; }});
+const CALLS = [];
+const ctxStub = new Proxy({}, {
+  get:(t,k)=> k in t ? t[k] : function(){ CALLS.push({fn:String(k), args:[].slice.call(arguments)}); },
+  set:(t,k,v)=>{ CALLS.push({fn:'set '+String(k), args:[v]}); t[k]=v; return true; }
+});
+// Helpers over the recorded drawing calls.
+const CLR    = ()=>{ CALLS.length = 0; };
+const draws  = ()=> CALLS.filter(c=>c.fn==='drawImage');
+const clips  = ()=> CALLS.filter(c=>c.fn==='clip');
+const alphas = ()=> CALLS.filter(c=>c.fn==='set globalAlpha').map(c=>c.args[0]);
+// Every sprite has to sit inside a save/restore pair, otherwise its clip and
+// its alpha leak into whatever is drawn next.
+function balanced(){
+  let d = 0, okAll = true;
+  for(const c of CALLS){
+    if(c.fn==='save') d++;
+    else if(c.fn==='restore'){ d--; if(d<0) okAll=false; }
+    else if((c.fn==='drawImage' || c.fn==='clip') && d<1) okAll=false;
+  }
+  return okAll && d===0;
+}
+
 const world = `
   const W=800, H=500;
   const ctx=CTX; const window={};
   let callMenu=true, allies=[], called=[], affordAll=true;
   let tickets={cruiser:9, corvette:9, destroyer:9, colossus:9};
+  let IMGS={};
   const HULL={cruiser:1200, corvette:1800, destroyer:2600};
   const STATS={escortsCalled:0};
   function capHull(v){ return Math.round(v); }
@@ -66,6 +90,7 @@ const world = `
   ${facOn}
   ${colT}
   ${refine}
+  ${menuBgDecl}
   const REFINE_UP={cruiser:'corvette', corvette:'destroyer', destroyer:'colossus'};
   ${names.map(fn).join('\n')}
   return {get:(k)=>eval(k), set:(k,v)=>eval(k+'=v'), run:(code)=>eval(code)};`;
@@ -137,6 +162,24 @@ console.log('With nothing affordable');
 W.run('affordAll=false');
 ok('no entry is tappable, and nothing crashes', rects().filter(r => r.id).length === 0);
 W.run('affordAll=true');
+
+console.log('Hull sprites behind the rows');
+const IMG = (w,h)=>({width:w, height:h});
+W.set('IMGS', {});
+CLR(); W.run('drawCallMenu()');
+ok('nothing loaded yet: no sprite, no crash', draws().length===0 && rects().length>0);
+W.set('IMGS', {craten:IMG(200,120), crmentu:IMG(200,120), cosobek:IMG(300,120),
+               detyphon:IMG(420,150), dehatshepsut:IMG(420,150), sdcolossus:IMG(560,200)});
+CLR(); W.run('drawCallMenu()');
+ok('five Vasudan rows plus the Colossus row', draws().length===6);
+ok('each one clipped to its row', clips().length===6);
+ok('each one fits inside its row', draws().every(d=>d.args[3]<=190-5 && d.args[4]<=38-5 && d.args[3]>0));
+ok('save and restore stay balanced', balanced());
+ok('faint, not opaque', alphas().every(a=>a>0 && a<0.4));
+W.run('affordAll=false'); CLR(); W.run('drawCallMenu()');
+ok('rows that cannot be paid for are dimmer', alphas().length===6 && alphas().every(a=>a===0.11));
+W.run('affordAll=true');
+W.set('IMGS', {});
 
 console.log('\n' + (fails ? fails + ' FAILED' : 'all passed'));
 process.exit(fails ? 1 : 0);

@@ -28,16 +28,39 @@ function between(startText){
 }
 const shipsDecl = src.match(/const PLAYER_SHIPS = \[[\s\S]*?\];/)[0];
 const hullFacDecl = src.match(/const HULL_FAC = \{[\s\S]*?\};/)[0];
+const menuBgDecl = src.match(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/)[0];
 const names = ['hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
-  'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered'];
+  'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
+  'mountsFor','spriteFacing','drawHullBg'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
 const mouseHandler = src.slice(src.indexOf('function', downStart), blockEnd(src, src.indexOf('function', downStart)));
 const launch = fn('launchGame');
 
-const ctxStub = new Proxy({}, {get:(t,k)=> k in t ? t[k] : ()=>{}, set:(t,k,v)=>{t[k]=v; return true;}});
+const CALLS = [];
+const ctxStub = new Proxy({}, {
+  get:(t,k)=> k in t ? t[k] : function(){ CALLS.push({fn:String(k), args:[].slice.call(arguments)}); },
+  set:(t,k,v)=>{ CALLS.push({fn:'set '+String(k), args:[v]}); t[k]=v; return true; }
+});
+// Helpers over the recorded drawing calls.
+const CLR    = ()=>{ CALLS.length = 0; };
+const draws  = ()=> CALLS.filter(c=>c.fn==='drawImage');
+const clips  = ()=> CALLS.filter(c=>c.fn==='clip');
+const alphas = ()=> CALLS.filter(c=>c.fn==='set globalAlpha').map(c=>c.args[0]);
+// Every sprite has to sit inside a save/restore pair, otherwise its clip and
+// its alpha leak into whatever is drawn next.
+function balanced(){
+  let d = 0, okAll = true;
+  for(const c of CALLS){
+    if(c.fn==='save') d++;
+    else if(c.fn==='restore'){ d--; if(d<0) okAll=false; }
+    else if((c.fn==='drawImage' || c.fn==='clip') && d<1) okAll=false;
+  }
+  return okAll && d===0;
+}
+
 const world = `
   const W=800,H=500,HUD_H=54, PLAYER_SPD_FIGHTER=3.2, PLAYER_SPD_BOMBER=2.4, PLAYER_TURN=0.14;
   let FS1_MODE=false, GS='playing', paused=false, callMenu=false, wave=1, score=0, allies=[], jump=false;
@@ -51,6 +74,7 @@ const world = `
   let shipUnlocked=1, shipSwapWave=-1, shipMenu=false, gameOverAt=0;
   const ALLY_KEYS=[], ALLY_ORDER=[], ALLY_SPECIAL='x', ALLY_SPECIAL_KEY='Q';
   ${hullFacDecl}
+  ${menuBgDecl}
   ${shipsDecl}
   ${names.map(fn).join('\n')}
   const onKey = ${keyHandler};
@@ -220,6 +244,35 @@ ok('the call is gated inside callAlly, not only in the menu',
    /function callAlly\(id\)\{[\s\S]{0,400}allyFacOn\(cdef\.fac\)/.test(src));
 ok('the menu no longer uses the fixed two column split', !src.includes('ALLY_TER_N?0:1'));
 ok('the Colossus is a GTVA ship now', /colossus:\s*\{cls:'destroyer', fac:'gtva'/.test(src));
+
+console.log('Hull sprites behind the cells');
+const IMG = (w,h)=>({width:w, height:h});
+reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
+W.set('IMGS', {});
+CLR(); W.run('drawShipMenu()');
+ok('nothing loaded yet: no sprite, no crash, cells still there',
+   draws().length===0 && W.run('window._shipRects').length===8);
+W.set('IMGS', {fitoth:IMG(120,90), fihorus:IMG(120,90), boosiris:IMG(150,110),
+               fiserapis:IMG(120,90), fiseth:IMG(120,90), bobakha:IMG(150,110),
+               fitauret:IMG(120,90), bosekhmet:IMG(150,110)});
+CLR(); W.run('drawShipMenu()');
+ok('one hull drawn per cell', draws().length===8);
+ok('each one clipped to its cell first', clips().length===8);
+ok('each one fits inside the 236x50 cell',
+   draws().every(d=>d.args[3]<=236-5 && d.args[4]<=50-5 && d.args[3]>0 && d.args[4]>0));
+ok('aspect ratio kept', draws().every(d=>Math.abs((d.args[3]/d.args[4]) - (120/90))<0.01
+                                      || Math.abs((d.args[3]/d.args[4]) - (150/110))<0.01));
+ok('save and restore stay balanced, no leaking clip or alpha', balanced());
+ok('never fully opaque', alphas().every(a=>a>0 && a<0.4));
+{
+  const a = alphas();
+  ok('the three unlocked cells are brighter than the five locked ones',
+     a.length===8 && a.slice(0,3).every(v=>v===0.26) && a.slice(3).every(v=>v===0.11));
+}
+W.set('IMGS', {fitoth:IMG(0,0)});
+CLR(); W.run('drawShipMenu()');
+ok('a zero sized sprite is skipped instead of dividing by zero', draws().length===0);
+W.set('IMGS', {});
 
 console.log('Bar button placement');
 {
