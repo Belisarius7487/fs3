@@ -27,9 +27,11 @@ function between(startText){
   return src.slice(j, blockEnd(src, j));
 }
 const shipsDecl = src.match(/const PLAYER_SHIPS = \[[\s\S]*?\];/)[0];
+const hullFacDecl = src.match(/const HULL_FAC = \{[\s\S]*?\};/)[0];
 const names = ['hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
-  'resetPlayerShield','playerSc','setCallMenu'];
+  'resetPlayerShield','playerSc','setCallMenu',
+  'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
 const mouseHandler = src.slice(src.indexOf('function', downStart), blockEnd(src, src.indexOf('function', downStart)));
@@ -48,6 +50,7 @@ const world = `
   function allyReady(){return true;} function toggleCallMenu(){} function toGC(x,y){return {x:x,y:y};}
   let shipUnlocked=1, shipSwapWave=-1, shipMenu=false, gameOverAt=0;
   const ALLY_KEYS=[], ALLY_ORDER=[], ALLY_SPECIAL='x', ALLY_SPECIAL_KEY='Q';
+  ${hullFacDecl}
   ${shipsDecl}
   ${names.map(fn).join('\n')}
   const onKey = ${keyHandler};
@@ -81,9 +84,11 @@ console.log('When the switch is available');
 const ready = (setup)=>{ reset(); W.run("shipUnlocked=3"); setup(); return W.run('shipSwapReady()'); };
 ok('no destroyer: not ready', ready(()=>{})===false);
 ok('allied Vasudan destroyer: ready', ready(()=>W.set('allies',[destroyer()]))===true);
-ok('allied NTF destroyer key (ntfdehecate): ready', ready(()=>W.set('allies',[destroyer({img:'ntfdehecate'})]))===true);
+ok('NTF hull (ntfdehecate) is Terran, no Terran hulls exist: not ready',
+   ready(()=>W.set('allies',[destroyer({img:'ntfdehecate'})]))===false);
 ok('cruiser only: not ready', ready(()=>W.set('allies',[destroyer({img:'crmentu'})]))===false);
-ok('Colossus only: not ready', ready(()=>W.set('allies',[destroyer({img:'sdcolossus'})]))===false);
+ok('Colossus alone is a joint yard: ready',
+   ready(()=>W.set('allies',[destroyer({img:'sdcolossus', colossus:true})]))===true);
 ok('dead destroyer: not ready', ready(()=>W.set('allies',[destroyer({dead:true})]))===false);
 ok('destroyer warping out: not ready', ready(()=>W.set('allies',[destroyer({warpOut:true})]))===false);
 ok('only the start ship unlocked: not ready', ready(()=>{ W.set('allies',[destroyer()]); W.run('shipUnlocked=1'); })===false);
@@ -145,6 +150,76 @@ W.run("GS='title'; launched=0"); down(); ok('tap on title starts at once', W.get
 W.run("GS='gameover'; gameOverAt=performance.now(); launched=0"); down(); ok('tap right after dying does not restart', W.get('launched')===0);
 W.run("gameOverAt=performance.now()-2000"); down(); ok('tap after 2 s restarts', W.get('launched')===1);
 
+
+console.log('Hangars by faction');
+const colossus = (o)=>Object.assign({img:'sdcolossus', colossus:true, small:false, dead:false, warpOut:false}, o||{});
+ok('hull faction comes from the key', W.run("hullFac('dehatshepsut')")==='vasudan'
+   && W.run("hullFac('deorionright')")==='terran' && W.run("hullFac('sdcolossus')")==='gtva');
+ok('a defected Hammer of Light Typhon still counts as Vasudan',
+   ready(()=>W.set('allies',[destroyer({img:'detyphon', faction:'hol'})]))===true);
+ok('a renegade Hatshepsut too',
+   ready(()=>W.set('allies',[destroyer({img:'dehatshepsut', faction:'renegade'})]))===true);
+ok('Terran Orion only: not ready', ready(()=>W.set('allies',[destroyer({img:'deorionright'})]))===false);
+ok('Terran Hecate only: not ready', ready(()=>W.set('allies',[destroyer({img:'dehecate'})]))===false);
+ok('Orion plus Typhon: ready, the lists add up',
+   ready(()=>W.set('allies',[destroyer({img:'deorionright'}), destroyer({img:'detyphon'})]))===true);
+ok('unknown capital hull: not ready', ready(()=>W.set('allies',[destroyer({img:'dedemon'})]))===false);
+
+reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer({img:'deorionright'})]);
+ok('Vasudan hull not offered by a Terran hangar', W.run("shipOffered('fihorus')")===false);
+W.run("shipMenu=true; swapShip('fihorus')");
+ok('and a forced switch is refused', P().ship==='fitoth' && W.get('shipSwapWave')===-1);
+W.set('allies',[colossus()]);
+ok('the Colossus offers the Vasudan hull', W.run("shipOffered('fihorus')")===true);
+
+reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer({img:'deorionright'})]);
+W.run('toggleShipMenu()'); ok('Terran hangar only: the menu stays shut', W.get('shipMenu')===false);
+W.run("shipMenu=true; drawShipMenu()");
+ok('no cell is tappable in that state', W.run('window._shipRects').every(r=>!r.key));
+
+console.log('Colossus lifts the once per wave limit');
+reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]);
+W.run("toggleShipMenu(); swapShip('fihorus')");
+ok('first switch of the wave refits', P().ship==='fihorus' && P().hp===80 && P().sh===100 && P().secAmmo===20);
+ok('no Colossus: spent for this wave', W.run('shipSwapReady()')===false);
+W.set('allies',[destroyer(), colossus()]);
+ok('Colossus arrives: available again in the same wave', W.run('shipSwapReady()')===true);
+W.run("player.hp=40; player.sh=50; player.secAmmo=10");
+W.run("toggleShipMenu(); swapShip('boosiris')");
+ok('second switch happens', P().ship==='boosiris');
+ok('hull carries over as a fraction, 40/80 of 140 = 70', P().hp===70);
+ok('shields carry over, 50/100 of 100 = 50', P().sh===50);
+ok('ammo carries over, 10/20 of 10 bombs = 5', P().secAmmo===5);
+ok('no refit: not full', P().hp<P().maxHp && P().secAmmo<P().secMax);
+
+reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer(), colossus()]);
+W.run("toggleShipMenu(); swapShip('fihorus')");
+ok('with the Colossus there the first switch still refits', P().hp===80 && P().secAmmo===20);
+W.run("player.hp=1");
+W.run("toggleShipMenu(); swapShip('boosiris')");
+ok('a nearly dead hull stays alive after carrying over', P().hp>=1 && P().hp<=3);
+
+reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer(), colossus({dead:true})]);
+W.run("toggleShipMenu(); swapShip('fihorus')");
+ok('dead Colossus grants nothing', W.run('shipSwapReady()')===false);
+reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer(), colossus({warpOut:true})]);
+W.run("toggleShipMenu(); swapShip('fihorus')");
+ok('Colossus warping out grants nothing', W.run('shipSwapReady()')===false);
+
+reset(); W.run("shipUnlocked=3"); W.set('allies',[colossus()]);
+W.run("toggleShipMenu(); swapShip('fihorus')"); W.run("player.hp=20");
+W.run("toggleShipMenu(); swapShip('fitoth')");
+ok('back onto the start hull at the Colossus, 20/80 of 100 = 25', P().ship==='fitoth' && P().hp===25);
+W.run('wave=2');
+ok('new wave with the Colossus still there: refits again', W.run('shipSwapReady()')===true);
+W.run("toggleShipMenu(); swapShip('fihorus')"); ok('and it is a full hull', P().hp===80);
+
+console.log('Support calls by faction');
+ok('the Terran column is off in this cycle', src.includes("const ALLY_FAC_ON = {terran:false, vasudan:true, gtva:true};"));
+ok('the call is gated inside callAlly, not only in the menu',
+   /function callAlly\(id\)\{[\s\S]{0,400}allyFacOn\(cdef\.fac\)/.test(src));
+ok('the menu no longer uses the fixed two column split', !src.includes('ALLY_TER_N?0:1'));
+ok('the Colossus is a GTVA ship now', /colossus:\s*\{cls:'destroyer', fac:'gtva'/.test(src));
 
 console.log('Bar button placement');
 {
