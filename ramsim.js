@@ -38,13 +38,13 @@ function decl(re){
 
 const names = ['ramsOnContact', 'tickRamming', 'tickCapRam', 'ramBlast',
                'applySpawnOpts', 'halfW', 'halfH',
-               'spriteBox', 'hullBox', 'hullsTouch'];
+               'spriteBox', 'hullBox', 'hullsTouch', 'hullDepth', 'hullsBite'];
 const consts = [
   decl(/const RAM_PCT_CAPITAL = [\d.]+;/),
   decl(/const RAM_PCT_BOMBER  = [\d.]+;/),
   decl(/const RAM_PCT_FIGHTER = [\d.]+;/),
   decl(/const RAM_OVERLAP = \d+;/),
-  decl(/const CAP_RAM_OVERLAP = \d+;/),
+  decl(/const CAP_RAM_BITE = [\d.]+;/),
   decl(/const CAP_RAM_CLIMB = [\d.]+;/),
   decl(/const SPR_BOX = \{\};/)
 ];
@@ -102,6 +102,9 @@ vm.createContext(ctxObj);
 vm.runInContext(WORLD, ctxObj);
 const run = (code)=>vm.runInContext(code, ctxObj);
 const get = (name)=>vm.runInContext(name, ctxObj);
+// Call one of the box predicates on two ships held outside the context.
+const run2 = (a, b, name)=>{ ctxObj._a = a; ctxObj._b = b;
+  return vm.runInContext(name+'(_a, _b, '+(name==='hullsBite'?'CAP_RAM_BITE':name==='hullsTouch'?'RAM_OVERLAP':'')+')', ctxObj); };
 const set = (name, v)=>{ ctxObj[name] = v; };
 
 let fails = 0;
@@ -213,6 +216,45 @@ console.log('\nA ram course keeps the whole height of the field');
   ok('a ship that is merely still is still pinned, as before',
      e.minY===e.y && e.maxY===e.y && e.vy===0);
 }
+
+console.log('\nA ram course has to be buried, not brushed');
+{
+  // Both boxes are rectangles around ships that are not rectangular, so their
+  // corners meet well before the ships do. The cruiser is 200 by 120, its
+  // visible hull 120 by 72, so half its width is 60 points.
+  const t = {uid:'A1', img:'dehatshepsut', x:400, y:250, sc:1, small:false,
+             dead:false, hp:6500, maxHp:6500, vy:0};
+  const e = {uid:'V1', img:'crmentu', x:400, y:250, sc:1, capRam:0.9,
+             dead:false, warp:0, rollT:null, minY:64, maxY:490};
+  ok('dead centre on her counts', run2(e, t, 'hullsBite')===true);
+  // Just inside the boxes: they overlap, but only barely.
+  e.x = 400 + 126 + 60 - 12;
+  ok('boxes that merely touch at the edge do not', run2(e, t, 'hullsBite')===false);
+  ok('though they do touch', run2(e, t, 'hullsTouch')===true);
+  // Far enough in that it is standing in her hull.
+  e.x = 400 + 126;
+  ok('standing in her hull counts', run2(e, t, 'hullsBite')===true);
+}
+{
+  // The depth is what the rule reads, so it is worth checking directly.
+  const t = {img:'dehatshepsut', x:400, y:250, sc:1};
+  const e = {img:'crmentu', x:400, y:250, sc:1};
+  const d = run2(e, t, 'hullDepth');
+  ok('two hulls on the same spot overlap by both half widths',
+     Math.abs(d.x - (126+60)) < 2);
+  ok('and by both half heights', Math.abs(d.y - (45+36)) < 2);
+}
+
+console.log('\nA ram course does not break off its run');
+// flySmall sets passT once it is within ATTACK_BREAK and then flies straight
+// through. Both the contact test and the yellow chevron want passT to be zero,
+// so a rammer that breaks off loses its marking exactly when it matters and
+// cannot register the impact. flySmall is too entangled to run here, so the
+// guard is checked where it stands.
+ok('the break off is skipped for a ram course',
+   /else if\(d<ATTACK_BREAK && !ramsOnContact\(e\)\)/.test(src));
+ok('and it is still there for everyone else',
+   /e\.passT=ATTACK_PASS/.test(src));
 
 console.log('\nNothing but the ram course moves a ram course');
 // This is the check that was missing. ramsim ran tickCapRam on its own and
