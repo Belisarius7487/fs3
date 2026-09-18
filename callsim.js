@@ -40,12 +40,18 @@ const colT   = decl(/const COLOSSUS_TIME = \d+;/);
 const refine = decl(/const REFINE_COST = \d+;/);
 
 const names = [
+  'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell',
   
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','allyFacOn', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
   'mountsFor', 'spriteFacing', 'drawHullBg',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const menuBgDecl = decl(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/);
+// The support menu's own measurements, from CM_W down to the faction headings.
+const callDecl   = decl(/const CM_W[\s\S]*?const CM_FAC_HEAD = \{[^}]*\};/);
+// drawHullCell and drawKeyChip are shared with the hangar, so its measurements
+// have to come along.
+const hangarDecl = decl(/const HG_W[\s\S]*?\n\];/);
 const themesDecl = decl(/const THEMES = \{[\s\S]*?\n\};/);
 
 const CALLS = [];
@@ -54,6 +60,13 @@ const ctxStub = new Proxy({}, {
     CALLS.push({fn:String(k), args:[].slice.call(arguments)});
     // createLinearGradient has to hand back something with addColorStop.
     if(k==='createLinearGradient') return {addColorStop:function(){}};
+    // thFit measures before it cuts, so the stub has to answer with a width.
+    // Roughly 0.55 of the set point size per character is close enough for
+    // the layout decisions being checked here.
+    if(k==='measureText'){
+      const px = parseFloat(String(t.font||'10px').replace(/^bold\s+/,'')) || 10;
+      return {width: String(arguments[0]||'').length * px * 0.55};
+    }
   },
   set:(t,k,v)=>{ CALLS.push({fn:'set '+String(k), args:[v]}); t[k]=v; return true; }
 });
@@ -102,6 +115,8 @@ const world = `
   ${themesDecl}
   let ECO={hud:'hlp', scheme:'fire'};
   ${menuBgDecl}
+  ${callDecl}
+  ${hangarDecl}
   const REFINE_UP={cruiser:'corvette', corvette:'destroyer', destroyer:'colossus'};
   ${names.map(fn).join('\n')}
   return {get:(k)=>eval(k), set:(k,v)=>eval(k+'=v'), run:(code)=>eval(code)};`;
@@ -138,8 +153,66 @@ ok('the Colossus row sits below the last entry', (() => {
   const col = boxes().find(r => r.id === 'colossus');
   return boxes().filter(r => r.id !== 'colossus').every(r => r.y + r.h <= col.y);
 })());
-ok('the menu is narrower than the two column version was',
-   Math.max(...boxes().map(r => r.x + r.w)) < 620);
+// The panel used to be as wide as its columns, which is how the Colossus
+// line of text came to be wider than the panel it sat in. The width is fixed
+// now, and that is the thing to hold on to.
+ok('the panel keeps one width whatever is on call',
+   W.run('window._callPanelRect').w === W.run('CM_W'));
+ok('the Colossus row runs the full inner width', (() => {
+  const pr = W.run('window._callPanelRect');
+  const col = boxes().find(r => r.id === 'colossus');
+  return col && Math.abs(col.w - (pr.w - 2*W.run('CM_PAD'))) <= 1;
+})());
+
+console.log('No label can leave the panel');
+W.run('callMenu=true');
+// Walk the recorded calls in order, carrying the font and the alignment that
+// were set before each one, and work out where every string actually ends.
+// This is what thFit exists to guarantee, so it is what gets checked.
+const spans = ()=>{
+  let font='10px', align='left';
+  const out=[];
+  for(const c of CALLS){
+    if(c.fn==='set font') font=String(c.args[0]);
+    else if(c.fn==='set textAlign') align=String(c.args[0]);
+    else if(c.fn==='fillText'){
+      const px = parseFloat(font.replace(/^bold\s+/,'')) || 10;
+      const w  = String(c.args[0]).length*px*0.55;
+      const x  = c.args[1];
+      const l  = align==='right' ? x-w : (align==='center' ? x-w/2 : x);
+      out.push({s:String(c.args[0]), l:l, r:l+w});
+    }
+  }
+  return out;
+};
+{
+  CLR(); W.run('drawCallMenu()');
+  const pr = W.run('window._callPanelRect');
+  ok('every string starts and ends inside the panel',
+     spans().every(t => t.l >= pr.x-1 && t.r <= pr.x+pr.w+1));
+  ok('the Colossus line is among them', spans().some(t => t.s.indexOf('station') >= 0));
+}
+{
+  // A deliberately impossible label: thFit has to cut it rather than let it
+  // run, and what is left has to end in the ellipsis.
+  W.run("ALLY_DEFS.vas_aten.label='PVC Aten '+'Of An Unreasonable Length '.repeat(6)");
+  CLR(); W.run('drawCallMenu()');
+  const pr = W.run('window._callPanelRect');
+  ok('an over long name is cut, not allowed to run',
+     spans().every(t => t.r <= pr.x+pr.w+1));
+  ok('and it is marked as cut', spans().some(t => t.s.indexOf('\u2026') >= 0));
+  W.run("ALLY_DEFS.vas_aten.label='PVC Aten'");
+}
+{
+  // thFit on its own, so the guarantee is checked and not just its effect
+  // in one particular layout.
+  W.run("ctx.font=thValue(13,true)");
+  ok('what fits is left alone', W.run("thFit('PVC Aten', 400)")==='PVC Aten');
+  const cut = W.run("thFit('PVC Aten Of An Unreasonable Length', 60)");
+  ok('what does not fit is cut', cut.length < 'PVC Aten Of An Unreasonable Length'.length);
+  ok('and marked as cut', cut.indexOf('\u2026') >= 0);
+  ok('a width of zero yields nothing rather than a crash', W.run("thFit('anything', 0)")==='');
+}
 
 console.log('The gate holds where it matters');
 W.run("called=[]; callAlly('ter_orion')");
@@ -185,11 +258,14 @@ CLR(); W.run('drawCallMenu()');
 ok('five Vasudan rows plus the Colossus row', draws().length===6);
 // Each plate's gloss clips too, so this is at least one clip per hull.
 ok('each one clipped to its row', clips().length>=6);
-ok('each one fits inside its row', draws().every(d=>d.args[3]<=190-5 && d.args[4]<=38-5 && d.args[3]>0));
+// The picture has its own cell now, the same one the hangar uses.
+ok('each one fits inside its picture cell',
+   draws().every(d=>d.args[3]<=W.run('CM_PIC_W')-5 && d.args[4]<=W.run('CM_ROW')-6-5 && d.args[3]>0));
 ok('save and restore stay balanced', balanced());
-ok('faint, not opaque', alphas().every(a=>a>0 && a<0.4));
+ok('a portrait now, not a watermark', alphas().every(a=>a>0.9 && a<=1));
 W.run('affordAll=false'); CLR(); W.run('drawCallMenu()');
-ok('rows that cannot be paid for are dimmer', alphas().length===6 && alphas().every(a=>a===0.11));
+ok('rows that cannot be paid for are dimmer',
+   alphas().length===6 && alphas().every(a=>a===W.run('HG_PIC_ALPHA_OFF')));
 W.run('affordAll=true');
 W.set('IMGS', {});
 

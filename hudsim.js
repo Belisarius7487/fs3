@@ -32,6 +32,7 @@ function decl(re){
 
 const themes = decl(/const THEMES = \{[\s\S]*?\n\};/);
 const names = [
+  'thFit',
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','drawHUD', 'drawHUDHLP', 'TH', 'thLabel', 'thValue',
                'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton'];
@@ -42,6 +43,13 @@ const ctxStub = new Proxy({}, {
     CALLS.push({fn:String(k), args:[].slice.call(arguments)});
     // createLinearGradient has to hand back something with addColorStop.
     if(k === 'createLinearGradient') return {addColorStop:function(){}};
+    // thFit measures before it cuts, so the stub has to answer with a width.
+    // Roughly 0.55 of the set point size per character is close enough for the
+    // layout decisions being checked here.
+    if(k === 'measureText'){
+      const px = parseFloat(String(t.font||'10px').replace(/^bold\s+/,'')) || 10;
+      return {width: String(arguments[0]||'').length * px * 0.55};
+    }
   },
   set:(t,k,v)=>{ CALLS.push({fn:'set '+String(k), args:[v]}); t[k]=v; return true; }
 });

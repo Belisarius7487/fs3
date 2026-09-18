@@ -32,7 +32,8 @@ const menuBgDecl = src.match(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s
 const hangarDecl = src.match(/const HG_W[\s\S]*?\n\];/)[0];
 const themesDecl = src.match(/const THEMES = \{[\s\S]*?\n\};/)[0];
 const volleyDecl = src.match(/const VOLLEY_BASE[\s\S]*?const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/)[0];
-const names = ['hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
+const names = [
+  'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell','hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
@@ -52,6 +53,13 @@ const ctxStub = new Proxy({}, {
     CALLS.push({fn:String(k), args:[].slice.call(arguments)});
     // createLinearGradient has to hand back something with addColorStop.
     if(k==='createLinearGradient') return {addColorStop:function(){}};
+    // thFit measures before it cuts, so the stub has to answer with a width.
+    // Roughly 0.55 of the set point size per character is close enough for
+    // the layout decisions being checked here.
+    if(k==='measureText'){
+      const px = parseFloat(String(t.font||'10px').replace(/^bold\s+/,'')) || 10;
+      return {width: String(arguments[0]||'').length * px * 0.55};
+    }
   },
   set:(t,k,v)=>{ CALLS.push({fn:'set '+String(k), args:[v]}); t[k]=v; return true; }
 });
