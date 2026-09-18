@@ -40,12 +40,18 @@ const colT   = decl(/const COLOSSUS_TIME = \d+;/);
 const refine = decl(/const REFINE_COST = \d+;/);
 
 const names = ['allyFacOn', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
-  'mountsFor', 'spriteFacing', 'drawHullBg'];
+  'mountsFor', 'spriteFacing', 'drawHullBg',
+  'TH','thLabel','thValue','thBevel','thGlow','thPanel','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const menuBgDecl = decl(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/);
+const themesDecl = decl(/const THEMES = \{[\s\S]*?\n\};/);
 
 const CALLS = [];
 const ctxStub = new Proxy({}, {
-  get:(t,k)=> k in t ? t[k] : function(){ CALLS.push({fn:String(k), args:[].slice.call(arguments)}); },
+  get:(t,k)=> k in t ? t[k] : function(){
+    CALLS.push({fn:String(k), args:[].slice.call(arguments)});
+    // createLinearGradient has to hand back something with addColorStop.
+    if(k==='createLinearGradient') return {addColorStop:function(){}};
+  },
   set:(t,k,v)=>{ CALLS.push({fn:'set '+String(k), args:[v]}); t[k]=v; return true; }
 });
 // Helpers over the recorded drawing calls.
@@ -90,6 +96,8 @@ const world = `
   ${facOn}
   ${colT}
   ${refine}
+  ${themesDecl}
+  let ECO={hud:'hlp', scheme:'fire'};
   ${menuBgDecl}
   const REFINE_UP={cruiser:'corvette', corvette:'destroyer', destroyer:'colossus'};
   ${names.map(fn).join('\n')}
@@ -180,6 +188,22 @@ W.run('affordAll=false'); CLR(); W.run('drawCallMenu()');
 ok('rows that cannot be paid for are dimmer', alphas().length===6 && alphas().every(a=>a===0.11));
 W.run('affordAll=true');
 W.set('IMGS', {});
+
+console.log('Both looks draw the call menu');
+W.run("ECO.hud='classic'"); CLR(); W.run('drawCallMenu()');
+const cFonts = CALLS.filter(c=>c.fn==='set font').map(c=>String(c.args[0]));
+const cRects = rects().filter(r=>r.id).map(r=>r.id+':'+r.x+','+r.y).join('|');
+ok('the old call menu still uses Courier', cFonts.some(f=>f.indexOf('Courier')>=0));
+W.run("ECO.hud='hlp'"); CLR(); W.run('drawCallMenu()');
+const hFonts = CALLS.filter(c=>c.fn==='set font').map(c=>String(c.args[0]));
+ok('the new one has no Courier left', hFonts.every(f=>f.indexOf('Courier')<0));
+ok('the rows sit in the same places',
+   rects().filter(r=>r.id).map(r=>r.id+':'+r.x+','+r.y).join('|')===cRects);
+ok('the Colossus row gets the full ring', CALLS.some(c=>c.fn==='set shadowBlur'));
+ok('nothing leaks out of a save/restore', balanced());
+W.run("ECO.scheme='void'"); CLR(); W.run('drawCallMenu()');
+ok('it draws in Void as well', CALLS.length>50);
+W.run("ECO.scheme='fire'");
 
 console.log('\n' + (fails ? fails + ' FAILED' : 'all passed'));
 process.exit(fails ? 1 : 0);

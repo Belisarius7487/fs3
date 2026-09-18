@@ -29,12 +29,14 @@ function between(startText){
 const shipsDecl = src.match(/const PLAYER_SHIPS = \[[\s\S]*?\];/)[0];
 const hullFacDecl = src.match(/const HULL_FAC = \{[\s\S]*?\};/)[0];
 const menuBgDecl = src.match(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/)[0];
+const themesDecl = src.match(/const THEMES = \{[\s\S]*?\n\};/)[0];
 const volleyDecl = src.match(/const VOLLEY_BASE[\s\S]*?const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/)[0];
 const names = ['hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
-  'mountsFor','spriteFacing','drawHullBg','volleyDmg','volleyTotal','primaryCount','syncPause'];
+  'mountsFor','spriteFacing','drawHullBg','volleyDmg','volleyTotal','primaryCount','syncPause',
+  'TH','thLabel','thValue','thBevel','thGlow','thPanel','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
 const mouseHandler = src.slice(src.indexOf('function', downStart), blockEnd(src, src.indexOf('function', downStart)));
@@ -42,7 +44,11 @@ const launch = fn('launchGame');
 
 const CALLS = [];
 const ctxStub = new Proxy({}, {
-  get:(t,k)=> k in t ? t[k] : function(){ CALLS.push({fn:String(k), args:[].slice.call(arguments)}); },
+  get:(t,k)=> k in t ? t[k] : function(){
+    CALLS.push({fn:String(k), args:[].slice.call(arguments)});
+    // createLinearGradient has to hand back something with addColorStop.
+    if(k==='createLinearGradient') return {addColorStop:function(){}};
+  },
   set:(t,k,v)=>{ CALLS.push({fn:'set '+String(k), args:[v]}); t[k]=v; return true; }
 });
 // Helpers over the recorded drawing calls.
@@ -76,6 +82,8 @@ const world = `
   let shipUnlocked=1, shipSwapWave=-1, shipMenu=false, gameOverAt=0;
   const ALLY_KEYS=[], ALLY_ORDER=[], ALLY_SPECIAL='x', ALLY_SPECIAL_KEY='Q';
   ${hullFacDecl}
+  ${themesDecl}
+  let ECO={hud:'hlp', scheme:'fire'};
   ${menuBgDecl}
   ${volleyDecl}
   let MOUNTS={};
@@ -318,6 +326,26 @@ ok('one barrel is the fallback of the formula, not a crash', W.run('volleyTotal(
      gunLines().every(t=>t.s!=='GUN 3  DMG 57'));
 }
 W.set('MOUNTS', {});
+
+console.log('Both looks draw the hangar');
+reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
+W.run("ECO.hud='classic'"); CLR(); W.run('drawShipMenu()');
+const classicFonts = CALLS.filter(c=>c.fn==='set font').map(c=>String(c.args[0]));
+const classicCells = W.run('window._shipRects').map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|');
+ok('the old hangar still uses Courier', classicFonts.some(f=>f.indexOf('Courier')>=0));
+W.run("ECO.hud='hlp'"); CLR(); W.run('drawShipMenu()');
+const hlpFonts = CALLS.filter(c=>c.fn==='set font').map(c=>String(c.args[0]));
+const hlpCells = W.run('window._shipRects').map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|');
+ok('the new hangar has no Courier left', hlpFonts.every(f=>f.indexOf('Courier')<0));
+ok('it uses the forum faces', hlpFonts.some(f=>f.indexOf('Tahoma')>=0) && hlpFonts.some(f=>f.indexOf('Segoe UI')>=0));
+ok('the cells sit in exactly the same places', classicCells===hlpCells && classicCells.length>0);
+ok('the active cell gets a glow ring', CALLS.some(c=>c.fn==='set shadowBlur'));
+ok('no ring leaks out of its save/restore', balanced());
+W.run("ECO.scheme='void'"); CLR(); W.run('drawShipMenu()');
+ok('the hangar draws in Void too', CALLS.length>50);
+ok('and the cells did not move',
+   W.run('window._shipRects').map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|')===hlpCells);
+W.run("ECO.scheme='fire'");
 
 console.log('Bar button placement');
 {
