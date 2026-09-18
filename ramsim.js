@@ -37,12 +37,16 @@ function decl(re){
 }
 
 const names = ['ramsOnContact', 'tickRamming', 'tickCapRam', 'ramBlast',
-               'applySpawnOpts', 'halfW', 'halfH'];
+               'applySpawnOpts', 'halfW', 'halfH',
+               'spriteBox', 'hullBox', 'hullsTouch'];
 const consts = [
   decl(/const RAM_PCT_CAPITAL = [\d.]+;/),
   decl(/const RAM_PCT_BOMBER  = [\d.]+;/),
   decl(/const RAM_PCT_FIGHTER = [\d.]+;/),
-  decl(/const RAM_OVERLAP = \d+;/)
+  decl(/const RAM_OVERLAP = \d+;/),
+  decl(/const CAP_RAM_OVERLAP = \d+;/),
+  decl(/const CAP_RAM_CLIMB = [\d.]+;/),
+  decl(/const SPR_BOX = \{\};/)
 ];
 
 // A world just large enough for the ramming to run in. Everything the real
@@ -70,6 +74,20 @@ function spawnShock(){ EFFECTS.push({fn:'shock'}); }
 function addShake(){}
 function playerDie(){ EFFECTS.push({fn:'playerDie'}); }
 function mountsFor(){ return null; }
+// The masks the real getMask would build, with a transparent margin around
+// the ship the way an actual sprite file has one. MASK_INSET is the share of
+// the image taken up by that margin on each side.
+var MASK_INSET = 0.2;
+function getMask(key){
+  const img = IMGS[key];
+  if(!img) return null;
+  const w = Math.max(2, Math.round(img.width/5)), h = Math.max(2, Math.round(img.height/5));
+  const bits = new Uint8Array(w*h);
+  const x0 = Math.round(w*MASK_INSET), x1 = w-1-Math.round(w*MASK_INSET);
+  const y0 = Math.round(h*MASK_INSET), y1 = h-1-Math.round(h*MASK_INSET);
+  for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++) bits[y*w+x] = 1;
+  return {w:w, h:h, bits:bits};
+}
 // smallTarget is replaced wholesale: what a bomber picks is not what is under
 // test here, only what happens once it is over what it picked.
 var RAM_TARGET = null;
@@ -108,16 +126,16 @@ ok('a fighter briefed for it does', run("ramsOnContact({type:'fighter',faction:'
 ok('and so does a briefed fighter of any faction',
    run("ramsOnContact({type:'fighter',faction:'ntf',rammer:true})")===true);
 
-console.log('\nContact is hull against hull, not centre against centre');
+console.log('\nContact is the visible hull, not the image rectangle');
+// The image is 420 by 150 and the ship inside it fills the middle 60 per cent,
+// so her visible hull reaches 126 points either side of her centre and 45
+// above and below. Between 126 and 210 there is nothing but transparent file.
 {
-  // Sitting on her hull, well clear of her centre: this is the case that did
-  // nothing before, because the distance to her centre is about 150.
   const t = destroyer();
-  set('RAM_TARGET', t);
-  set('allies', [t]);
-  set('enemies', [bomber('hol', 550, 250)]);
+  set('RAM_TARGET', t); set('allies', [t]);
+  set('enemies', [bomber('hol', 400+100, 250)]);
   run('EFFECTS.length=0; tickRamming()');
-  ok('a bomber over her bow goes up', get('enemies')[0].dead===true);
+  ok('a bomber on her bow goes up', get('enemies')[0].dead===true);
   ok('and she takes the damage', t.hp < 6500);
   ok('the hull was marked at the point of contact',
      get('EFFECTS').some(e=>e.fn==='hullHit'));
@@ -125,21 +143,29 @@ console.log('\nContact is hull against hull, not centre against centre');
      get('EFFECTS').some(e=>e.fn==='expl' && e.kind==='corvette'));
 }
 {
-  // Just past her stern: no overlap, so no hit.
+  // This is the one that used to go off for no visible reason: inside her
+  // image, outside her ship.
   const t = destroyer();
-  set('RAM_TARGET', t); set('allies',[t]);
-  set('enemies', [bomber('hol', 400+210+20+10, 250)]);
+  set('RAM_TARGET', t); set('allies', [t]);
+  set('enemies', [bomber('hol', 400+170, 250)]);
   run('tickRamming()');
-  ok('a bomber that misses her hull flies on', get('enemies')[0].dead===false);
+  ok('a bomber in the transparent margin beside her flies on',
+     get('enemies')[0].dead===false);
+  ok('and she is untouched', t.hp===6500);
 }
 {
-  // Above her, horizontally lined up. A circular test would have fired here.
   const t = destroyer();
-  set('RAM_TARGET', t); set('allies',[t]);
-  set('enemies', [bomber('hol', 400, 250-75-12-10)]);
+  set('RAM_TARGET', t); set('allies', [t]);
+  set('enemies', [bomber('hol', 400, 250-60)]);
   run('tickRamming()');
-  ok('a bomber passing over her, not through her, flies on',
-     get('enemies')[0].dead===false);
+  ok('nor does one in the margin above her', get('enemies')[0].dead===false);
+}
+{
+  const t = destroyer();
+  set('RAM_TARGET', t); set('allies', [t]);
+  set('enemies', [bomber('hol', 400+260, 250)]);
+  run('tickRamming()');
+  ok('a bomber clear of her image entirely flies on', get('enemies')[0].dead===false);
 }
 {
   const t = destroyer();
@@ -158,6 +184,13 @@ console.log('\nContact is hull against hull, not centre against centre');
   set('enemies', [bomber('hol', 100, 250)]);
   run('tickRamming()');
   ok('the player is never rammed', get('enemies')[0].dead===false);
+}
+{
+  // The measurement itself, so the reason is checked and not only its effect.
+  const b = run("spriteBox('dehatshepsut')");
+  ok('the visible hull is narrower than the image', b.hw < 210 && b.hw > 100);
+  ok('and shorter than it', b.hh < 75 && b.hh > 30);
+  ok('the box is measured once and then kept', run("SPR_BOX['dehatshepsut'] !== undefined")===true);
 }
 
 console.log('\nA ram course keeps the whole height of the field');
@@ -179,6 +212,36 @@ console.log('\nA ram course keeps the whole height of the field');
   run("applySpawnOpts(_e, {still:true})");
   ok('a ship that is merely still is still pinned, as before',
      e.minY===e.y && e.maxY===e.y && e.vy===0);
+}
+
+console.log('\nNothing but the ram course moves a ram course');
+// This is the check that was missing. ramsim ran tickCapRam on its own and
+// reported seven out of seven while the cruiser was visibly missing in the
+// game, because tickEnemies moves capital ships as well and moved it faster
+// than the ram course could steer. tickEnemies is far too large to run here,
+// so what is checked is that it stands aside: the station keeping and the
+// patrol drift have to sit behind a capRam guard in both capital branches.
+ok('the cruiser branch stands aside for a ram course',
+   /if\(!e\.capRam\)\{[\s\S]{0,240}?e\.x=Math\.max\(e\.targetX,e\.x-0\.8\)/.test(src));
+ok('and so does the corvette and destroyer branch',
+   /if\(!e\.capRam\)\{[\s\S]{0,240}?e\.x=Math\.max\(e\.targetX,e\.x-0\.6\)/.test(src));
+{
+  // capRam has to be the speed itself now, so a step has to be worth it.
+  const t = {uid:'A1', img:'dehatshepsut', x:400, y:250, sc:1, small:false,
+             dead:false, hp:6500, maxHp:6500, vy:0};
+  const e = {uid:'V1', img:'crmentu', x:800, y:250, sc:1, capRam:0.9,
+             dead:false, warp:0, rollT:null, minY:64, maxY:490};
+  set('allies', [t]); set('enemies', [e]);
+  const x0 = e.x;
+  run('tickCapRam()');
+  ok('one step covers capRam points, not a fraction of somebody else\'s',
+     Math.abs((x0 - e.x) - 0.9) < 0.01);
+}
+{
+  // And the mission has to hand it a speed a ship can travel at. 0.05 only
+  // ever worked because the station keeping was doing the real moving.
+  const m = src.match(/\{id:'V1'[^}]*capRam:([\d.]+)/);
+  ok('mission 28 gives the cruiser a real speed', !!m && parseFloat(m[1]) >= 0.5);
 }
 
 console.log('\nThe ramming cruiser reaches its target from any height');
