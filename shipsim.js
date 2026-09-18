@@ -37,7 +37,8 @@ const names = ['hullClass','isBomberHull','shipStats','applyShip','tickShipUnloc
   'resetPlayerShield','playerSc','setCallMenu',
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
   'mountsFor','spriteFacing','drawHullBg','drawHullCell','volleyDmg','volleyTotal','primaryCount','syncPause',
-  'hangarGroups','hangarLayout','drawMissileIcon','drawBombIcon',
+  'hangarGroups','hangarLayout','drawMissileIcon','drawBombIcon','drawKeyChip',
+  'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','thButton','thDivider','drawSwapIcon','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
@@ -371,6 +372,44 @@ ok('the hangar draws in Void too', CALLS.length>50);
 ok('and the rows did not move',
    W.run('window._shipRects').map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|')===hlpCells);
 W.run("ECO.scheme='fire'");
+
+console.log('Everything is drawn from the surface kit');
+{
+  reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
+  CLR(); W.run('drawShipMenu()');
+  const grads = CALLS.filter(c=>c.fn==='createLinearGradient');
+  ok('no gradient anywhere: the plates are flat', grads.length===0);
+  // A chamfered outline is six corners. A rectangle would be four.
+  const closes = CALLS.filter(c=>c.fn==='closePath').length;
+  ok('the panel and every plate are chamfered, not rectangles', closes>=9);
+  ok('one scale under each of the two group headings',
+     CALLS.filter(c=>c.fn==='set lineWidth' && c.args[0]===1).length>0 && closes>=9);
+  ok('a ring is drawn, and only around the active row',
+     CALLS.filter(c=>c.fn==='set shadowBlur' && c.args[0]===6).length===2);
+  ok('nothing leaks out of a save/restore', balanced());
+}
+{
+  // The kit is shared, so the hangar must not reach past it for a shape of
+  // its own. thBevel and thPanel belong to the screens not yet rebuilt.
+  const a = src.indexOf('function drawShipMenu()');
+  const body = src.slice(a, src.indexOf('function drawCallMenu()'));
+  ok('the hangar uses no bevel and no gradient panel',
+     body.indexOf('thBevel')<0 && body.indexOf('thPanel')<0);
+  ok('and no dialog frame of its own', body.indexOf('uiDialog')<0);
+}
+{
+  // The digit is the keyboard shortcut, so it has to follow the hull through
+  // the regrouping rather than count rows.
+  reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
+  CLR(); W.run('drawShipMenu()');
+  const rs = W.run('window._shipRects');
+  const chipX = W.run('HG_NUM') + W.run('HG_NUM_W')/2;
+  const chip = (key)=>{ const r=rs.find(r=>r.ship===key);
+    return texts().find(t=> t.x===r.x+chipX && t.y>=r.y && t.y<=r.y+r.h); };
+  ok('the Osiris shows 3, the digit that takes it, not its row number 6',
+     chip('boosiris') && chip('boosiris').s==='3');
+  ok('and the Bakha shows 6', chip('bobakha') && chip('bobakha').s==='6');
+}
 
 console.log('The panel grows with what is open');
 {
