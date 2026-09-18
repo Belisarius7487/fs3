@@ -31,8 +31,18 @@ const hullFacDecl = src.match(/const HULL_FAC = \{[\s\S]*?\};/)[0];
 const menuBgDecl = src.match(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/)[0];
 const hangarDecl = src.match(/const HG_W[\s\S]*?\n\];/)[0];
 const themesDecl = src.match(/const THEMES = \{[\s\S]*?\n\};/)[0];
+// The weapon tables and the rearm panel's measurements.
+const wpnDecl  = src.match(/const PLAYER_FR_BASE[\s\S]*?\n\];/)[0];
+const wpnDecl2 = src.match(/const SECONDARIES = \[[\s\S]*?\n\];/)[0];
+const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/)[0];
+const wpnState = 'let rearmMenu = false; const WPN_SEEN = {};';
+
 const volleyDecl = src.match(/const VOLLEY_BASE[\s\S]*?const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/)[0];
 const names = [
+  'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
+  'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
+  'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
+  'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell','hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
@@ -94,6 +104,10 @@ const world = `
   let shipUnlocked=1, shipSwapWave=-1, shipMenu=false, gameOverAt=0;
   const ALLY_KEYS=[], ALLY_ORDER=[], ALLY_SPECIAL='x', ALLY_SPECIAL_KEY='Q';
   ${hullFacDecl}
+  ${wpnDecl}
+  ${wpnDecl2}
+  ${rmDecl}
+  ${wpnState}
   ${themesDecl}
   let ECO={hud:'hlp', scheme:'fire'};
   ${menuBgDecl}
@@ -470,14 +484,131 @@ console.log('The panel grows with what is open');
      W.run('window._shipRects').every(r=>r.y>=0 && r.y+r.h<=500));
 }
 
+console.log('Rearm needs a corvette, not any ship at all');
+{
+  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
+  reset(); W.set('allies', []);
+  ok('nothing on the field, no rearm', W.run('rearmReady()')===false);
+  W.set('allies', [destroyer()]);
+  ok('a destroyer is a hangar, not an armoury', W.run('rearmReady()')===false);
+  W.set('allies', [corvette()]);
+  ok('a corvette opens it', W.run('rearmReady()')===true);
+  const warping = corvette(); warping.warp = 40;
+  W.set('allies', [warping]);
+  ok('one still coming out of the vortex does not', W.run('rearmReady()')===false);
+  const dead = corvette(); dead.dead = true;
+  W.set('allies', [dead]);
+  ok('nor does a wreck', W.run('rearmReady()')===false);
+  W.set('allies', [corvette()]);
+  W.run('toggleRearmMenu()');
+  ok('and the panel opens', W.get('rearmMenu')===true);
+  W.run('setRearmMenu(false)');
+}
+
+console.log('The standard fit is provably the gun the game had');
+{
+  const p = W.run("priDef('prometheus')");
+  ok('the Prometheus carries no factors at all', p.dmg===1 && p.rate===1);
+  ok('and no limit on its reach', p.range===0);
+  reset(); W.run("player.pri='prometheus'; applyLoadout()");
+  ok('so the rate of fire is the old 28 steps', W.get('player').fR===28);
+  const m = W.run("secDef('mx64')");
+  ok('the MX-64 is the old missile, to the number',
+     m.dmg===35 && m.cd===45 && m.spd===3.5 && m.life===220 && m.homing===true);
+  const c = W.run("secDef('cyclops')");
+  ok('and the Cyclops the old bomb',
+     c.dmg===80 && c.cd===90 && c.spd===1.5 && c.life===300);
+}
+
+console.log('A hull can only carry what it can carry');
+{
+  reset(); W.run("applyShip('fitoth')");
+  ok('a fighter is given a missile', W.run("curSec().cls")==='missile');
+  ok('and the bar is told so', W.get('player').secType==='missile');
+  W.run("applyShip('boosiris')");
+  ok('a bomber cannot keep it, and gets a bomb', W.run("curSec().cls")==='bomb');
+  ok('and the bar again', W.get('player').secType==='bomb');
+  ok('only bombs are offered to it',
+     W.run("secondariesFor('boosiris')").every(w=>w.cls==='bomb'));
+  ok('and only missiles to a fighter',
+     W.run("secondariesFor('fitoth')").every(w=>w.cls==='missile'));
+  ok('the rack size still comes from the hull',
+     W.get('player').secMax === W.run("shipStats('boosiris').sec"));
+}
+
+console.log('A refit fills the rack - that is what makes it a rearm');
+{
+  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
+  reset(); W.run("applyShip('fitoth'); score=0"); W.set('allies', [corvette()]);
+  W.run('player.secAmmo=3');
+  W.run('toggleRearmMenu()');
+  W.run("fitWeapon('mx64')");
+  ok('fitting what is already fitted tops the rack up',
+     W.get('player').secAmmo === W.get('player').secMax);
+  ok('and closes the panel', W.get('rearmMenu')===false);
+  // Locked weapons cannot be taken, however they are reached.
+  W.run('player.secAmmo=3; toggleRearmMenu()');
+  W.run("fitWeapon('hl7')");
+  ok('a weapon above the score cannot be fitted', W.get('player').pri==='prometheus');
+  ok('and the panel stays open', W.get('rearmMenu')===true);
+  W.run('score=6000');
+  W.run("fitWeapon('hl7')");
+  ok('past the threshold it can', W.get('player').pri==='hl7');
+  ok('and the rate of fire follows the weapon', W.get('player').fR===17);
+  W.run('score=0; player.pri="prometheus"; applyLoadout()');
+}
+
+console.log('The rearm panel');
+{
+  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
+  reset(); W.run("applyShip('fitoth'); score=9000"); W.set('allies', [corvette()]);
+  W.run('toggleRearmMenu()');
+  CLR(); W.run('drawRearmMenu()');
+  const rs = W.run('window._rearmRects');
+  const pr = W.run('window._rearmPanelRect');
+  ok('one row per weapon on offer', rs.length===3);
+  ok('every row is inside the panel',
+     rs.every(r=>r.x>=pr.x && r.x+r.w<=pr.x+pr.w && r.y>=pr.y && r.y+r.h<=pr.y+pr.h));
+  ok('the panel fits on the field', pr.y>=0 && pr.y+pr.h<=500 && pr.x>=0 && pr.x+pr.w<=800);
+  ok('no Courier anywhere',
+     CALLS.filter(c=>c.fn==='set font').every(c=>String(c.args[0]).indexOf('Courier')<0));
+  ok('the fitted weapon gets the ring', CALLS.some(c=>c.fn==='set shadowBlur'));
+  ok('nothing leaks out of a save/restore', balanced());
+  // A click inside the panel that hit no row must not close it, the same
+  // rule the hangar and the support menu follow.
+  W.run(`pointerConsumed({x:${pr.x+40},y:${pr.y+6}})`);
+  ok('a click on the header keeps it open', W.get('rearmMenu')===true);
+  W.run(`pointerConsumed({x:${pr.x-12},y:${pr.y+pr.h/2}})`);
+  ok('a click beside it closes it', W.get('rearmMenu')===false);
+}
+{
+  // Below the threshold the HL-7 is a thin line, not a row that can be taken.
+  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
+  reset(); W.run("applyShip('fitoth'); score=0"); W.set('allies', [corvette()]);
+  W.run('toggleRearmMenu(); drawRearmMenu()');
+  const rs = W.run('window._rearmRects');
+  ok('a locked weapon reports no key', rs.some(r=>r.key===null));
+  ok('and its line is thinner than a row that can be taken',
+     Math.min(...rs.map(r=>r.h)) < Math.max(...rs.map(r=>r.h)));
+  W.run('setRearmMenu(false); score=0');
+}
+
 console.log('Bar button placement');
 {
-  const a = src.indexOf('  // SHIP SWITCH\n'), b = src.indexOf('  // SETTINGS and PAUSE');
+  // The ship switch and the rearm button are drawn as one pair now, so the
+  // snippet covers both and both are checked.
+  const a = src.indexOf('  // SHIP SWITCH and REARM'), b = src.indexOf('  // SETTINGS and PAUSE');
   const snip = src.slice(a, b);
-  W.run("var H2=54; shipMenu=false; window._shipBtnRect=undefined; " + snip);
-  const r = W.run('window._shipBtnRect');
-  ok('button sits between tickets (665) and gear (748)', r && r.x>665 && r.x+r.w<748);
-  W.run("FS1_MODE=true; " + snip); ok('no button in FS1 mode', W.run('window._shipBtnRect')===null);
+  W.run("var H2=54; shipMenu=false; rearmMenu=false; allies=[];"
+      + " window._shipBtnRect=undefined; window._rearmBtnRect=undefined; " + snip);
+  const r = W.run('window._shipBtnRect'), rm = W.run('window._rearmBtnRect');
+  ok('the ship button sits between tickets (665) and gear (748)', r && r.x>665 && r.x+r.w<748);
+  ok('the rearm button sits beside it, also clear of the gear',
+     rm && rm.x >= r.x+r.w && rm.x+rm.w < 748);
+  ok('they do not overlap', rm && rm.x >= r.x + r.w);
+  W.run("FS1_MODE=true; " + snip);
+  ok('neither button in FS1 mode',
+     W.run('window._shipBtnRect')===null && W.run('window._rearmBtnRect')===null);
   W.run('FS1_MODE=false');
 }
 console.log('Cycle scaling keeps the hull');

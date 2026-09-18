@@ -31,7 +31,19 @@ function decl(re){
 }
 
 const themes = decl(/const THEMES = \{[\s\S]*?\n\};/);
+// The weapon tables and the rearm panel's measurements.
+const wpnDecl  = decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/);
+const wpnDecl2 = decl(/const SECONDARIES = \[[\s\S]*?\n\];/);
+const rmDecl   = decl(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/);
+// The bar asks rearmReady(), which asks inJump(), which reads the jump
+// clock. None of that is what this file tests, so it gets a resting value.
+const wpnState = 'let rearmMenu = false; const WPN_SEEN = {}; let arriveT = 0; let waveOver = false; let waveCd = 0; const TRANS_OUT = 30;';
+
 const names = [
+  'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
+  'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
+  'inJump','rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
+  'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'thFit',
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','drawHUD', 'drawHUDHLP', 'TH', 'thLabel', 'thValue',
@@ -83,6 +95,10 @@ const world = `
   function drawMissileIcon(){}
   function drawBombIcon(){}
   ${themes}
+  ${wpnDecl}
+  ${wpnDecl2}
+  ${rmDecl}
+  ${wpnState}
   ${names.map(fn).join('\n')}
   return {get:(k)=>eval(k), set:(k,v)=>eval(k+'=v'), run:(code)=>eval(code)};`;
 

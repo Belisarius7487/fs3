@@ -40,6 +40,10 @@ const colT   = decl(/const COLOSSUS_TIME = \d+;/);
 const refine = decl(/const REFINE_COST = \d+;/);
 
 const names = [
+  'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
+  'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
+  'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
+  'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell',
   
   'insidePanel',
@@ -53,6 +57,12 @@ const callDecl   = decl(/const CM_W[\s\S]*?const CM_FAC_HEAD = \{[^}]*\};/);
 // have to come along.
 const hangarDecl = decl(/const HG_W[\s\S]*?\n\];/);
 const themesDecl = decl(/const THEMES = \{[\s\S]*?\n\};/);
+// The weapon tables and the rearm panel's measurements.
+const wpnDecl  = decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/);
+const wpnDecl2 = decl(/const SECONDARIES = \[[\s\S]*?\n\];/);
+const rmDecl   = decl(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/);
+const wpnState = 'let rearmMenu = false; const WPN_SEEN = {};';
+
 
 const CALLS = [];
 const ctxStub = new Proxy({}, {
@@ -113,6 +123,10 @@ const world = `
   ${colT}
   ${refine}
   ${themesDecl}
+  ${wpnDecl}
+  ${wpnDecl2}
+  ${rmDecl}
+  ${wpnState}
   let ECO={hud:'hlp', scheme:'fire'};
   ${menuBgDecl}
   ${callDecl}

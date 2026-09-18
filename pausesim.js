@@ -30,7 +30,17 @@ function fn(name, optional){
   return src.slice(i + 1, blockEnd(src, i));
 }
 
+// The weapon tables and the rearm panel's measurements, so the bar and the
+// pause logic can see what they now reach for.
+const wpnDecl  = src.match(/const PLAYER_FR_BASE[\s\S]*?\n\];/)[0];
+const wpnDecl2 = src.match(/const SECONDARIES = \[[\s\S]*?\n\];/)[0];
+const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/)[0];
+const wpnState = 'let rearmMenu = false; const WPN_SEEN = {};';
 const names = [
+  'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
+  'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
+  'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
+  'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','setShipMenu', 'toggleShipMenu', 'shipSwapReady', 'setCallMenu', 'toggleCallMenu',
                'setSettings', 'pointerConsumed', 'shipOffered', 'shipFac', 'hullFac',
@@ -56,6 +66,10 @@ const world = `
   function callAlly(){}
   function settingsClick(){}
   function fireSecondary(){}
+  ${wpnDecl}
+  ${wpnDecl2}
+  ${rmDecl}
+  ${wpnState}
   ${names.map(n=>fn(n)).join('\n')}
   ${optional.map(n=>fn(n, true)).join('\n')}
   // The three HUD buttons, laid out as the bar does.
