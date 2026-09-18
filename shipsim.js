@@ -34,7 +34,7 @@ const names = ['hullClass','isBomberHull','shipStats','applyShip','tickShipUnloc
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
-  'mountsFor','spriteFacing','drawHullBg','volleyDmg','volleyTotal','primaryCount'];
+  'mountsFor','spriteFacing','drawHullBg','volleyDmg','volleyTotal','primaryCount','syncPause'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
 const mouseHandler = src.slice(src.indexOf('function', downStart), blockEnd(src, src.indexOf('function', downStart)));
@@ -65,6 +65,7 @@ function balanced(){
 const world = `
   const W=800,H=500,HUD_H=54, PLAYER_SPD_FIGHTER=3.2, PLAYER_SPD_BOMBER=2.4, PLAYER_TURN=0.14;
   let FS1_MODE=false, GS='playing', paused=false, callMenu=false, wave=1, score=0, allies=[], jump=false;
+  let settingsOpen=false, userPaused=false;
   let SUB_MSGS=[], MOUSE={x:0,y:0}, lives=3, player={x:100,y:200,hullMult:1};
   let eraOff=false, IMGS={}, isFiring=false, launched=0;
   const ctx=CTX, document={body:{classList:{add(){},remove(){}}}, getElementById(){return {style:{}};}};
@@ -301,7 +302,8 @@ ok('one barrel is the fallback of the formula, not a crash', W.run('volleyTotal(
   // Positions are checked against the cell rectangles the menu itself
   // reported, not against arithmetic repeated from the drawing code.
   const cells = W.run('window._shipRects');
-  const inSomeCell = (t)=> cells.some(c=> t.x===c.x+c.w-6 && t.y===c.y+37);
+  // Baseline 35 since v110: the same line SPD and AGI sit on.
+  const inSomeCell = (t)=> cells.some(c=> t.x===c.x+c.w-6 && t.y===c.y+35);
   ok('right aligned at the edge of its own cell', gunLines().every(inSomeCell));
   ok('inside the cell, clear of the agility pips',
      gunLines().every(t=> cells.some(c=> t.x<=c.x+c.w && t.x - t.s.length*4.8 > c.x+161)));
