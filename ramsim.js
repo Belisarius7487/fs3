@@ -135,15 +135,23 @@ console.log('\nContact is the visible hull, not the image rectangle');
 // above and below. Between 126 and 210 there is nothing but transparent file.
 {
   const t = destroyer();
+  const b = bomber('hol', 400+100, 250);
   set('RAM_TARGET', t); set('allies', [t]);
-  set('enemies', [bomber('hol', 400+100, 250)]);
+  set('enemies', [b]);
   run('EFFECTS.length=0; tickRamming()');
-  ok('a bomber on her bow goes up', get('enemies')[0].dead===true);
+  // Hold the bomber here rather than reading it back out of the list: a
+  // successful ram takes it out of the list, which is the point.
+  ok('a bomber on her bow goes up', b.dead===true);
   ok('and she takes the damage', t.hp < 6500);
   ok('the hull was marked at the point of contact',
      get('EFFECTS').some(e=>e.fn==='hullHit'));
   ok('it explodes with the heavier profile, not the usual bomber death',
      get('EFFECTS').some(e=>e.fn==='expl' && e.kind==='corvette'));
+  // And it leaves the field. ramBlast sets dead and hp=0, and the reaper only
+  // takes ships that are hp<=0 AND NOT dead, so anything left behind here is a
+  // ghost: no chevron, not shootable, not counted, still flying and firing.
+  ok('and it is taken off the field, not left behind as a ghost',
+     get('enemies').length===0);
 }
 {
   // This is the one that used to go off for no visible reason: inside her
@@ -215,6 +223,27 @@ console.log('\nA ram course keeps the whole height of the field');
   run("applySpawnOpts(_e, {still:true})");
   ok('a ship that is merely still is still pinned, as before',
      e.minY===e.y && e.maxY===e.y && e.vy===0);
+}
+
+console.log('\nNothing that blows itself up stays in the list');
+{
+  // The same guarantee for the ramming capital ship, which has always done it
+  // right, so the two cannot drift apart again.
+  const t = {uid:'A1', img:'dehatshepsut', x:400, y:250, sc:1, small:false,
+             dead:false, hp:6500, maxHp:6500, vy:0};
+  const e = {uid:'V1', img:'crmentu', x:400, y:250, sc:1, capRam:0.9,
+             dead:false, warp:0, rollT:null, minY:64, maxY:490};
+  set('allies', [t]); set('enemies', [e]);
+  run('tickCapRam()');
+  ok('the ramming cruiser leaves the field on impact', get('enemies').length===0);
+}
+{
+  // A bomber that has NOT hit anything must of course stay.
+  const t = destroyer();
+  set('RAM_TARGET', t); set('allies', [t]);
+  set('enemies', [bomber('hol', 400+260, 250)]);
+  run('tickRamming()');
+  ok('one that has hit nothing stays where it is', get('enemies').length===1);
 }
 
 console.log('\nA ram course has to be buried, not brushed');
