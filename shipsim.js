@@ -500,8 +500,17 @@ console.log('Rearm needs a corvette, not any ship at all');
   W.set('allies', [dead]);
   ok('nor does a wreck', W.run('rearmReady()')===false);
   W.set('allies', [corvette()]);
-  W.run('toggleRearmMenu()');
-  ok('and the panel opens', W.get('rearmMenu')===true);
+  W.set('allies', [corvette()]);   // a live one again, after the wreck above
+  // Press the rectangle the bar reports, the way a player does. Calling
+  // toggleRearmMenu() here tested the panel and not the button, which is how
+  // a button that was never wired to anything passed.
+  // Clear the ship button first: an earlier case left a rectangle standing
+  // that covers this spot, and pointerConsumed asks about it one line sooner.
+  W.run("window._shipBtnRect=null; window._rearmBtnRect={x:709,y:4,w:22,h:46};"
+      + " pointerConsumed({x:714,y:12})");
+  ok('pressing the button in the bar opens the panel', W.get('rearmMenu')===true);
+  W.run("pointerConsumed({x:714,y:12})");
+  ok('and pressing it again closes it', W.get('rearmMenu')===false);
   W.run('setRearmMenu(false)');
 }
 
