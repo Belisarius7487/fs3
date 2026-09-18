@@ -31,7 +31,7 @@ function decl(re){
 }
 
 const themes = decl(/const THEMES = \{[\s\S]*?\n\};/);
-const names = ['drawHUD', 'drawHUDHLP', 'drawHUDClassic', 'TH', 'thLabel', 'thValue',
+const names = ['drawHUD', 'drawHUDHLP', 'TH', 'thLabel', 'thValue',
                'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton'];
 
 const CALLS = [];
@@ -87,31 +87,28 @@ function rects(){
   return out;
 }
 
-console.log('Both bars draw');
-W.run("ECO.hud='classic'"); CLR(); W.run('drawHUD()');
-const classicRects = rects(), classicCalls = CALLS.length;
-ok('the old bar still draws', classicCalls > 50);
-W.run("ECO.hud='hlp'"); CLR(); W.run('drawHUD()');
+console.log('The bar draws');
+CLR(); W.run('drawHUD()');
 const hlpRects = rects(), hlpCalls = CALLS.length;
-ok('the new bar draws', hlpCalls > 50);
+ok('the bar draws', hlpCalls > 50);
+ok('there is only one bar left', !/function drawHUDClassic/.test(src));
+ok('and nothing chooses between two', !/ECO\.hud/.test(src));
 
-console.log('\nEvery tap stays where it was');
+console.log('\nEvery tap has a rectangle');
 for(const r of RECTS){
-  const a = classicRects[r], b = hlpRects[r];
-  ok(r.replace('_','').replace('Rect','') + ' is in the same place',
-     !!a && !!b && a.x===b.x && a.y===b.y && a.w===b.w && a.h===b.h);
+  const a = hlpRects[r];
+  ok(r.replace('_','').replace('Rect','') + ' is reported',
+     !!a && a.w > 0 && a.h > 0 && a.x >= 0 && a.y >= 0 && a.x + a.w <= 800);
 }
 
 console.log('\nType comes from the theme, not from Courier');
-W.run("ECO.hud='hlp'"); CLR(); W.run('drawHUD()');
-ok('no Courier anywhere in the new bar', fonts().every(f=>f.indexOf('Courier')<0));
+CLR(); W.run('drawHUD()');
+ok('no Courier anywhere in the bar', fonts().every(f=>f.indexOf('Courier')<0));
 ok('Tahoma leads the label font stack', fonts().some(f=>/bold \d+px Tahoma/.test(f)));
 ok('Segoe UI is used for values', fonts().some(f=>f.indexOf('Segoe UI')>=0));
-W.run("ECO.hud='classic'"); CLR(); W.run('drawHUD()');
-ok('the old bar still uses Courier', fonts().some(f=>f.indexOf('Courier')>=0));
 
 console.log('\nBoth schemes resolve');
-W.run("ECO.hud='hlp'; ECO.scheme='fire'");
+W.run("ECO.scheme='fire'");
 ok('Fire glow is the forum red', W.run("TH('glow')")==='160,58,35');
 W.run("ECO.scheme='void'");
 ok('Void glow is the forum violet', W.run("TH('glow')")==='155,48,225');

@@ -29,14 +29,16 @@ function between(startText){
 const shipsDecl = src.match(/const PLAYER_SHIPS = \[[\s\S]*?\];/)[0];
 const hullFacDecl = src.match(/const HULL_FAC = \{[\s\S]*?\};/)[0];
 const menuBgDecl = src.match(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/)[0];
+const hangarDecl = src.match(/const HG_W[\s\S]*?\n\];/)[0];
 const themesDecl = src.match(/const THEMES = \{[\s\S]*?\n\};/)[0];
 const volleyDecl = src.match(/const VOLLEY_BASE[\s\S]*?const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/)[0];
 const names = ['hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
-  'mountsFor','spriteFacing','drawHullBg','volleyDmg','volleyTotal','primaryCount','syncPause',
-  'TH','thLabel','thValue','thBevel','thGlow','thPanel','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
+  'mountsFor','spriteFacing','drawHullBg','drawHullCell','volleyDmg','volleyTotal','primaryCount','syncPause',
+  'hangarGroups','hangarLayout','drawMissileIcon','drawBombIcon',
+  'TH','thLabel','thValue','thBevel','thGlow','thPanel','thButton','thDivider','drawSwapIcon','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
 const mouseHandler = src.slice(src.indexOf('function', downStart), blockEnd(src, src.indexOf('function', downStart)));
@@ -85,6 +87,7 @@ const world = `
   ${themesDecl}
   let ECO={hud:'hlp', scheme:'fire'};
   ${menuBgDecl}
+  ${hangarDecl}
   ${volleyDecl}
   let MOUNTS={};
   ${shipsDecl}
@@ -158,12 +161,20 @@ W.run('toggleShipMenu()'); ok('opening the switch closes the call menu', W.get('
 console.log('Menu drawing and taps');
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu(); drawShipMenu()');
 const rects = W.run('window._shipRects');
-ok('eight cells drawn', rects.length===8);
+const rowOf = (key)=>W.run('window._shipRects').find(r=>r.ship===key);
+ok('eight rows drawn', rects.length===8);
 ok('menu fits on the 800x500 field', rects.every(r=>r.x>=0 && r.y>=0 && r.x+r.w<=800 && r.y+r.h<=500));
+ok('fighters first, then bombers',
+   rects.map(r=>r.ship).join()==='fitoth,fihorus,fiserapis,fiseth,fitauret,boosiris,bobakha,bosekhmet');
+ok('every row is full width and they do not overlap',
+   rects.every(r=>r.w===rects[0].w) &&
+   rects.every((r,i)=>i===0 || r.y >= rects[i-1].y+rects[i-1].h));
+ok('a locked row is thinner than one that can be taken',
+   rowOf('bobakha').h < rowOf('fihorus').h);
 ok('only Horus and Osiris are tappable', rects.filter(r=>r.key).map(r=>r.key).join()==='fihorus,boosiris');
-const locked = rects[5];
+const locked = rowOf('bobakha');
 W.run(`pointerConsumed({x:${locked.x+5},y:${locked.y+5}})`); ok('tap on locked Bakha keeps the menu open', W.get('shipMenu')===true && P().ship==='fitoth');
-const horus = rects[1];
+const horus = rowOf('fihorus');
 W.run(`pointerConsumed({x:${horus.x+5},y:${horus.y+5}})`); ok('tap on Horus switches', P().ship==='fihorus' && W.get('shipMenu')===false);
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
 W.run('pointerConsumed({x:2,y:2})'); ok('tap outside closes without switching', W.get('shipMenu')===false && P().ship==='fitoth' && W.run('shipSwapReady()')===true);
@@ -257,101 +268,127 @@ ok('the call is gated inside callAlly, not only in the menu',
 ok('the menu no longer uses the fixed two column split', !src.includes('ALLY_TER_N?0:1'));
 ok('the Colossus is a GTVA ship now', /colossus:\s*\{cls:'destroyer', fac:'gtva'/.test(src));
 
-console.log('Hull sprites behind the cells');
+console.log('Hull pictures in their own cell');
 const IMG = (w,h)=>({width:w, height:h});
-reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
+const ALL_IMGS = {fitoth:IMG(120,90), fihorus:IMG(120,90), boosiris:IMG(150,110),
+                  fiserapis:IMG(120,90), fiseth:IMG(120,90), bobakha:IMG(150,110),
+                  fitauret:IMG(120,90), bosekhmet:IMG(150,110)};
+const PICW = W.run('HG_PIC_W'), PICH = W.run('HG_ROW')-6;
+reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
 W.set('IMGS', {});
 CLR(); W.run('drawShipMenu()');
-ok('nothing loaded yet: no sprite, no crash, cells still there',
+ok('nothing loaded yet: no picture, no crash, rows still there',
    draws().length===0 && W.run('window._shipRects').length===8);
-W.set('IMGS', {fitoth:IMG(120,90), fihorus:IMG(120,90), boosiris:IMG(150,110),
-               fiserapis:IMG(120,90), fiseth:IMG(120,90), bobakha:IMG(150,110),
-               fitauret:IMG(120,90), bosekhmet:IMG(150,110)});
+W.set('IMGS', ALL_IMGS);
 CLR(); W.run('drawShipMenu()');
-ok('one hull drawn per cell', draws().length===8);
-ok('each one clipped to its cell first', clips().length===8);
-ok('each one fits inside the 236x50 cell',
-   draws().every(d=>d.args[3]<=236-5 && d.args[4]<=50-5 && d.args[3]>0 && d.args[4]>0));
+ok('one hull drawn per open row', draws().length===8);
+ok('each one clipped to its own cell first', clips().length===8);
+ok('each one fits inside the picture cell',
+   draws().every(d=>d.args[3]<=PICW-5 && d.args[4]<=PICH-5 && d.args[3]>0 && d.args[4]>0));
 ok('aspect ratio kept', draws().every(d=>Math.abs((d.args[3]/d.args[4]) - (120/90))<0.01
                                       || Math.abs((d.args[3]/d.args[4]) - (150/110))<0.01));
 ok('save and restore stay balanced, no leaking clip or alpha', balanced());
-ok('never fully opaque', alphas().every(a=>a>0 && a<0.4));
+ok('a picture is a picture now, not a watermark', alphas().every(a=>a>0.9 && a<=1));
 {
-  const a = alphas();
-  ok('the three unlocked cells are brighter than the five locked ones',
-     a.length===8 && a.slice(0,3).every(v=>v===0.26) && a.slice(3).every(v=>v===0.11));
+  // Three open, five locked: a locked hull has no row tall enough for a
+  // picture, so it gets none at all.
+  reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
+  W.set('IMGS', ALL_IMGS); CLR(); W.run('drawShipMenu()');
+  ok('a locked hull shows no picture', draws().length===3);
 }
+reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
 W.set('IMGS', {fitoth:IMG(0,0)});
 CLR(); W.run('drawShipMenu()');
 ok('a zero sized sprite is skipped instead of dividing by zero', draws().length===0);
 W.set('IMGS', {});
 
-console.log('Barrels and volley damage in the cells');
+console.log('Barrels and volley damage, in their own columns');
 const texts = ()=> CALLS.filter(c=>c.fn==='fillText').map(c=>({s:String(c.args[0]), x:c.args[1], y:c.args[2]}));
-const gunLines = ()=> texts().filter(t=>t.s.indexOf('GUN ')===0);
+// A column is checked by where it actually lands: the x of the column in the
+// layout, added to the x of a row the menu itself reported.
+const colX = (k)=> W.run('HG_COLS').find(c=>c.k===k).x;
+// The column titles sit on the same x, so a value only counts when it also
+// sits inside a row.
+const inCol = (k)=>{
+  const x0 = colX(k), rs = W.run('window._shipRects');
+  return texts().filter(t=> rs.some(r=> t.x === r.x + x0 && t.y >= r.y && t.y <= r.y + r.h));
+};
 reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
 W.set('MOUNTS', {});
 CLR(); W.run('drawShipMenu()');
-ok('no mount data: no claim about guns at all', gunLines().length===0);
+ok('no mount data: no claim about guns or volley at all',
+   inCol('guns').length===0 && inCol('volley').length===0);
 W.set('MOUNTS', {fitoth:{primary:[1,1]}, fihorus:{primary:[1,1]}, boosiris:{primary:[1,1]},
                  fiserapis:{primary:[1,1]}, fiseth:{primary:[1,1]}, bobakha:{primary:[1,1]},
                  fitauret:{primary:[1,1,1]}, bosekhmet:{primary:[1,1]}});
 CLR(); W.run('drawShipMenu()');
-ok('a line on every one of the eight cells', gunLines().length===8);
-ok('the seven two barrel hulls read GUN 2  DMG 51',
-   gunLines().filter(t=>t.s==='GUN 2  DMG 51').length===7);
-ok('the Tauret reads GUN 3  DMG 57',
-   gunLines().filter(t=>t.s==='GUN 3  DMG 57').length===1);
+ok('a figure on every one of the eight rows',
+   inCol('guns').length===8 && inCol('volley').length===8);
+ok('the seven two barrel hulls read 2 and 51',
+   inCol('guns').filter(t=>t.s==='2').length===7 &&
+   inCol('volley').filter(t=>t.s==='51').length===7);
+ok('the Tauret reads 3 and 57',
+   inCol('guns').filter(t=>t.s==='3').length===1 &&
+   inCol('volley').filter(t=>t.s==='57').length===1);
 ok('the figure matches what volleyDmg actually does',
    Math.round(W.run('volleyTotal(2)'))===51 && Math.round(W.run('volleyTotal(3)'))===57
    && Math.round(W.run('volleyTotal(1)'))===44);
 ok('one barrel is the fallback of the formula, not a crash', W.run('volleyTotal(0)')===44);
 {
-  // Positions are checked against the cell rectangles the menu itself
-  // reported, not against arithmetic repeated from the drawing code.
-  const cells = W.run('window._shipRects');
-  // Baseline 35 since v110: the same line SPD and AGI sit on.
-  const inSomeCell = (t)=> cells.some(c=> t.x===c.x+c.w-6 && t.y===c.y+35);
-  ok('right aligned at the edge of its own cell', gunLines().every(inSomeCell));
-  ok('inside the cell, clear of the agility pips',
-     gunLines().every(t=> cells.some(c=> t.x<=c.x+c.w && t.x - t.s.length*4.8 > c.x+161)));
+  // The point of the columns: hull sits under hull on every row.
+  const hulls = inCol('hull').map(t=>t.s).join();
+  ok('the hull column reads down the list in order', hulls==='100,80,80,125,100,140,100,140');
+  const shields = inCol('shield').map(t=>t.s).join();
+  ok('the shield column too', shields==='100,100,70,130,130,100,100,130');
+  ok('every value in a column shares one x',
+     new Set(inCol('hull').map(t=>t.x)).size===1);
 }
 {
   // Two unlocked of eight: the menu needs two to open at all.
   reset(); W.run("shipUnlocked=2"); W.set('allies',[destroyer()]);
   W.set('MOUNTS', {fitoth:{primary:[1,1]}, fihorus:{primary:[1,1]}, fitauret:{primary:[1,1,1]}});
   W.run('toggleShipMenu()'); CLR(); W.run('drawShipMenu()');
-  ok('only the two unlocked cells make a claim', gunLines().length===2);
+  ok('only the two unlocked rows make a claim', inCol('guns').length===2);
   ok('the locked Tauret stays silent even with mount data',
-     gunLines().every(t=>t.s!=='GUN 3  DMG 57'));
+     inCol('volley').every(t=>t.s!=='57'));
 }
 W.set('MOUNTS', {});
 
-console.log('Both looks draw the hangar');
+console.log('One look, and it is the forum one');
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
-W.run("ECO.hud='classic'"); CLR(); W.run('drawShipMenu()');
-const classicFonts = CALLS.filter(c=>c.fn==='set font').map(c=>String(c.args[0]));
-const classicCells = W.run('window._shipRects').map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|');
-ok('the old hangar still uses Courier', classicFonts.some(f=>f.indexOf('Courier')>=0));
-W.run("ECO.hud='hlp'"); CLR(); W.run('drawShipMenu()');
+CLR(); W.run('drawShipMenu()');
 const hlpFonts = CALLS.filter(c=>c.fn==='set font').map(c=>String(c.args[0]));
 const hlpCells = W.run('window._shipRects').map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|');
-ok('the new hangar has no Courier left', hlpFonts.every(f=>f.indexOf('Courier')<0));
+ok('no Courier left in the hangar', hlpFonts.every(f=>f.indexOf('Courier')<0));
 ok('it uses the forum faces', hlpFonts.some(f=>f.indexOf('Tahoma')>=0) && hlpFonts.some(f=>f.indexOf('Segoe UI')>=0));
-ok('the cells sit in exactly the same places', classicCells===hlpCells && classicCells.length>0);
-ok('the active cell gets a glow ring', CALLS.some(c=>c.fn==='set shadowBlur'));
+ok('values are no longer set in 8 and 9 pixels',
+   hlpFonts.filter(f=>/Segoe UI/.test(f)).some(f=>/1[4-9]px/.test(f)));
+ok('the active row gets a glow ring', CALLS.some(c=>c.fn==='set shadowBlur'));
 ok('no ring leaks out of its save/restore', balanced());
+ok('nothing chooses between two looks any more', !/ECO\\.hud/.test(src));
 W.run("ECO.scheme='void'"); CLR(); W.run('drawShipMenu()');
 ok('the hangar draws in Void too', CALLS.length>50);
-ok('and the cells did not move',
+ok('and the rows did not move',
    W.run('window._shipRects').map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|')===hlpCells);
 W.run("ECO.scheme='fire'");
 
+console.log('The panel grows with what is open');
+{
+  const height = ()=>{ const r=W.run('window._shipRects'); return r[r.length-1].y+r[r.length-1].h - r[0].y; };
+  reset(); W.run("shipUnlocked=2"); W.set('allies',[destroyer()]); W.run('toggleShipMenu(); drawShipMenu()');
+  const small = height();
+  reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu(); drawShipMenu()');
+  const big = height();
+  ok('eight open hulls need more room than two', big > small);
+  ok('and it still fits on the field',
+     W.run('window._shipRects').every(r=>r.y>=0 && r.y+r.h<=500));
+}
+
 console.log('Bar button placement');
 {
-  const a = src.indexOf('// ── SHIP SWITCH BUTTON'), b = src.indexOf('// ── PAUSE BUTTON');
+  const a = src.indexOf('  // SHIP SWITCH\n'), b = src.indexOf('  // SETTINGS and PAUSE');
   const snip = src.slice(a, b);
-  W.run("var H2=44; shipMenu=false; window._shipBtnRect=undefined; " + JSON.stringify(snip).slice(1,-1).replace(/\\n/g,'\n').replace(/\\'/g,"'").replace(/\\"/g,'"'));
+  W.run("var H2=54; shipMenu=false; window._shipBtnRect=undefined; " + snip);
   const r = W.run('window._shipBtnRect');
   ok('button sits between tickets (665) and gear (748)', r && r.x>665 && r.x+r.w<748);
   W.run("FS1_MODE=true; " + snip); ok('no button in FS1 mode', W.run('window._shipBtnRect')===null);
