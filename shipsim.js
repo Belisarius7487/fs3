@@ -38,7 +38,8 @@ const names = ['hullClass','isBomberHull','shipStats','applyShip','tickShipUnloc
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
   'mountsFor','spriteFacing','drawHullBg','drawHullCell','volleyDmg','volleyTotal','primaryCount','syncPause',
   'hangarGroups','hangarLayout','drawMissileIcon','drawBombIcon','drawKeyChip',
-  'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame',
+  'hangarOrder','insidePanel',
+  'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','thButton','thDivider','drawSwapIcon','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
@@ -181,12 +182,42 @@ reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleSh
 W.run('pointerConsumed({x:2,y:2})'); ok('tap outside closes without switching', W.get('shipMenu')===false && P().ship==='fitoth' && W.run('shipSwapReady()')===true);
 W.run("window._shipBtnRect={x:695,y:4,w:22,h:20}; pointerConsumed({x:700,y:10})"); ok('tap on the bar button opens the menu', W.get('shipMenu')===true);
 
+console.log('The panel swallows its own clicks');
+{
+  reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]);
+  W.run('toggleShipMenu()'); W.run('drawShipMenu()');
+  const pr = W.run('window._shipPanelRect');
+  ok('the panel reports its outline', pr && pr.w>0 && pr.h>0);
+  // The header line: inside the panel, on no row at all.
+  W.run(`pointerConsumed({x:${pr.x+40},y:${pr.y+6}})`);
+  ok('a click on the header keeps the panel open', W.get('shipMenu')===true);
+  // A gap between two rows.
+  const rs = W.run('window._shipRects');
+  const gapY = rs[0].y + rs[0].h + 2;
+  W.run(`pointerConsumed({x:${rs[0].x+40},y:${gapY}})`);
+  ok('a click in the gap between rows keeps it open too', W.get('shipMenu')===true);
+  // The footer.
+  W.run(`pointerConsumed({x:${pr.x+pr.w/2},y:${pr.y+pr.h-6}})`);
+  ok('and one on the footer', W.get('shipMenu')===true);
+  ok('none of them switched the ship', P().ship==='fitoth');
+  // Outside the outline is still outside.
+  W.run(`pointerConsumed({x:${pr.x-12},y:${pr.y+pr.h/2}})`);
+  ok('a click beside the panel closes it', W.get('shipMenu')===false);
+}
+
 console.log('Keyboard');
 const key = (code)=>W.run(`onKey({code:'${code}', preventDefault(){}})`);
 reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]);
 key('KeyV'); ok('V opens', W.get('shipMenu')===true);
-key('Digit6'); ok('6 (locked Bakha) does nothing', W.get('shipMenu')===true && P().ship==='fitoth');
-key('Digit4'); ok('4 takes the Serapis', P().ship==='fiserapis' && W.get('shipMenu')===false);
+// Four hulls open: roster 0 to 3. The digits follow the panel, so 4 is the
+// Seth, which is still locked, and 6 is the first bomber.
+key('Digit4'); ok('4 (the Seth, not unlocked yet) does nothing',
+                  W.get('shipMenu')===true && P().ship==='fitoth');
+key('Digit6'); ok('6 takes the Osiris, first row of the bombers',
+                  P().ship==='boosiris' && W.get('shipMenu')===false);
+reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]); key('KeyV');
+key('Digit3'); ok('3 takes the Serapis, third row down',
+                  P().ship==='fiserapis' && W.get('shipMenu')===false);
 reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]); key('KeyV'); key('Escape');
 ok('Escape closes', W.get('shipMenu')===false && W.get('paused')===false);
 reset(); key('KeyV'); ok('V without a destroyer does nothing', W.get('shipMenu')===false);
@@ -283,7 +314,9 @@ ok('nothing loaded yet: no picture, no crash, rows still there',
 W.set('IMGS', ALL_IMGS);
 CLR(); W.run('drawShipMenu()');
 ok('one hull drawn per open row', draws().length===8);
-ok('each one clipped to its own cell first', clips().length===8);
+// The gloss on each plate clips as well, so this counts at least one clip
+// per picture rather than exactly one in total.
+ok('each one clipped to its own cell first', clips().length>=8);
 ok('each one fits inside the picture cell',
    draws().every(d=>d.args[3]<=PICW-5 && d.args[4]<=PICH-5 && d.args[3]>0 && d.args[4]>0));
 ok('aspect ratio kept', draws().every(d=>Math.abs((d.args[3]/d.args[4]) - (120/90))<0.01
@@ -377,8 +410,12 @@ console.log('Everything is drawn from the surface kit');
 {
   reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
   CLR(); W.run('drawShipMenu()');
+  // Gradients are allowed again, but only as gloss: a short fall of light
+  // over the top of a plate. None may run the height of a panel the way the
+  // old box gradient did.
   const grads = CALLS.filter(c=>c.fn==='createLinearGradient');
-  ok('no gradient anywhere: the plates are flat', grads.length===0);
+  ok('every gradient is a gloss, not a full height fill',
+     grads.length>0 && grads.every(g=>(g.args[3]-g.args[1])<=200));
   // A chamfered outline is six corners. A rectangle would be four.
   const closes = CALLS.filter(c=>c.fn==='closePath').length;
   ok('the panel and every plate are chamfered, not rectangles', closes>=9);
@@ -406,9 +443,11 @@ console.log('Everything is drawn from the surface kit');
   const chipX = W.run('HG_NUM') + W.run('HG_NUM_W')/2;
   const chip = (key)=>{ const r=rs.find(r=>r.ship===key);
     return texts().find(t=> t.x===r.x+chipX && t.y>=r.y && t.y<=r.y+r.h); };
-  ok('the Osiris shows 3, the digit that takes it, not its row number 6',
-     chip('boosiris') && chip('boosiris').s==='3');
-  ok('and the Bakha shows 6', chip('bobakha') && chip('bobakha').s==='6');
+  ok('the Osiris shows 6: first bomber, sixth row',
+     chip('boosiris') && chip('boosiris').s==='6');
+  ok('and the Bakha shows 7', chip('bobakha') && chip('bobakha').s==='7');
+  ok('the digits run 1 to 8 straight down the panel',
+     rs.map(r=>chip(r.ship).s).join()==='1,2,3,4,5,6,7,8');
 }
 
 console.log('The panel grows with what is open');

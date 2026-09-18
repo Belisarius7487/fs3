@@ -30,7 +30,9 @@ function fn(name, optional){
   return src.slice(i + 1, blockEnd(src, i));
 }
 
-const names = ['setShipMenu', 'toggleShipMenu', 'shipSwapReady', 'setCallMenu', 'toggleCallMenu',
+const names = [
+  'insidePanel',
+  'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','setShipMenu', 'toggleShipMenu', 'shipSwapReady', 'setCallMenu', 'toggleCallMenu',
                'setSettings', 'pointerConsumed', 'shipOffered', 'shipFac', 'hullFac',
                'hangarFacs', 'isHangarShip', 'colossusOnField', 'hangarServes', 'hullClass'];
 const optional = ['syncPause'];

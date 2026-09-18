@@ -39,7 +39,10 @@ const facOn  = decl(/const ALLY_FAC_ON = \{[^}]*\};/);
 const colT   = decl(/const COLOSSUS_TIME = \d+;/);
 const refine = decl(/const REFINE_COST = \d+;/);
 
-const names = ['allyFacOn', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
+const names = [
+  
+  'insidePanel',
+  'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','allyFacOn', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
   'mountsFor', 'spriteFacing', 'drawHullBg',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const menuBgDecl = decl(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/);
@@ -180,7 +183,8 @@ W.set('IMGS', {craten:IMG(200,120), crmentu:IMG(200,120), cosobek:IMG(300,120),
                detyphon:IMG(420,150), dehatshepsut:IMG(420,150), sdcolossus:IMG(560,200)});
 CLR(); W.run('drawCallMenu()');
 ok('five Vasudan rows plus the Colossus row', draws().length===6);
-ok('each one clipped to its row', clips().length===6);
+// Each plate's gloss clips too, so this is at least one clip per hull.
+ok('each one clipped to its row', clips().length>=6);
 ok('each one fits inside its row', draws().every(d=>d.args[3]<=190-5 && d.args[4]<=38-5 && d.args[3]>0));
 ok('save and restore stay balanced', balanced());
 ok('faint, not opaque', alphas().every(a=>a>0 && a<0.4));
@@ -200,6 +204,21 @@ ok('nothing leaks out of a save/restore', balanced());
 W.run("ECO.scheme='void'"); CLR(); W.run('drawCallMenu()');
 ok('it draws in Void as well', CALLS.length>50);
 W.run("ECO.scheme='fire'");
+
+console.log('The call menu swallows its own clicks too');
+{
+  W.run('drawCallMenu()');
+  const pr = W.run('window._callPanelRect');
+  ok('the panel reports its outline', pr && pr.w>0 && pr.h>0);
+  // pointerConsumed asks insidePanel before it closes anything, so this is
+  // the decision itself: on the header yes, beside the panel no.
+  ok('the header counts as inside',
+     W.run(`insidePanel(window._callPanelRect,{x:${pr.x+30},y:${pr.y+5}})`)===true);
+  ok('a gap below the last row counts as inside',
+     W.run(`insidePanel(window._callPanelRect,{x:${pr.x+30},y:${pr.y+pr.h-3}})`)===true);
+  ok('beside the panel does not',
+     W.run(`insidePanel(window._callPanelRect,{x:${pr.x-14},y:${pr.y+pr.h/2}})`)===false);
+}
 
 console.log('\n' + (fails ? fails + ' FAILED' : 'all passed'));
 process.exit(fails ? 1 : 0);

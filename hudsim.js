@@ -31,7 +31,9 @@ function decl(re){
 }
 
 const themes = decl(/const THEMES = \{[\s\S]*?\n\};/);
-const names = ['drawHUD', 'drawHUDHLP', 'TH', 'thLabel', 'thValue',
+const names = [
+  'insidePanel',
+  'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','drawHUD', 'drawHUDHLP', 'TH', 'thLabel', 'thValue',
                'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton'];
 
 const CALLS = [];
