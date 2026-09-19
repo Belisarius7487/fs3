@@ -35,8 +35,11 @@ function fn(name, optional){
 const wpnDecl  = src.match(/const PLAYER_FR_BASE[\s\S]*?\n\];/)[0];
 const wpnDecl2 = src.match(/const SECONDARIES = \[[\s\S]*?\n\];/)[0];
 const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/)[0];
-const wpnState = 'let rearmMenu = false; const WPN_SEEN = {}; const UI_WEAPONS = false;';
+// pointerConsumed reaches for the title on a finished run. Starting a run
+// is not what these files test, so it is a stub.
+const wpnState = 'let rearmMenu = false; let resumeHold = false; function toTitleOrLaunch(){}; const WPN_SEEN = {}; const UI_WEAPONS = false;';
 const names = [
+  'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
@@ -165,8 +168,13 @@ ok('no sequence of three actions leaves a panel over a running game', bad.length
 
 console.log('\nClosing everything has to give the game back');
 reset(); W.run('toggleShipMenu()'); W.run('setShipMenu(false)');
-ok('closing the switch menu resumes', W.get('paused')===false);
-reset(); W.run(`tap(${PAUSE[0]}, ${PAUSE[1]})`);
+// Closing a panel no longer hands the game straight back: it is held until
+// one further tap, the same for every panel and every way of leaving one.
+ok('closing the switch menu holds rather than resumes',
+   W.get('paused')===true && W.get('resumeHold')===true);
+W.run('clearResumeHold()');
+ok('and the tap gives the game back', W.get('paused')===false);
+reset(); W.run('clearResumeHold()'); W.run(`tap(${PAUSE[0]}, ${PAUSE[1]})`);
 ok('the pause button still pauses on its own', W.get('paused')===true);
 W.run('setSettings(true)'); W.run('setSettings(false)');
 ok('settings opened and closed on top of a manual pause keeps the pause', W.get('paused')===true);

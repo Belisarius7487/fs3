@@ -35,10 +35,13 @@ const themesDecl = src.match(/const THEMES = \{[\s\S]*?\n\};/)[0];
 const wpnDecl  = src.match(/const PLAYER_FR_BASE[\s\S]*?\n\];/)[0];
 const wpnDecl2 = src.match(/const SECONDARIES = \[[\s\S]*?\n\];/)[0];
 const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/)[0];
-const wpnState = 'let rearmMenu = false; const WPN_SEEN = {}; const UI_WEAPONS = false;';
+// pointerConsumed reaches for the title on a finished run. Starting a run
+// is not what these files test, so it is a stub.
+const wpnState = 'let rearmMenu = false; let resumeHold = false; function toTitleOrLaunch(){}; const WPN_SEEN = {}; const UI_WEAPONS = false;';
 
 const volleyDecl = src.match(/const VOLLEY_BASE[\s\S]*?const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/)[0];
 const names = [
+  'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
@@ -125,7 +128,7 @@ const W = new Function('CTX', world)(ctxStub);
 let fails = 0;
 function ok(label, cond){ console.log((cond?'  ok    ':'  FAIL  ')+label); if(!cond) fails++; }
 const P = ()=>W.get('player');
-const reset = ()=>{ W.run("GS='playing';paused=false;callMenu=false;shipMenu=false;wave=1;score=0;allies=[];jump=false;FS1_MODE=false;shipUnlocked=1;shipSwapWave=-1;SUB_MSGS=[];player={x:100,y:200,hullMult:1};applyShip(PLAYER_SHIPS[0].key)"); };
+const reset = ()=>{ W.run("GS='playing';paused=false;resumeHold=false;callMenu=false;shipMenu=false;wave=1;score=0;allies=[];jump=false;FS1_MODE=false;shipUnlocked=1;shipSwapWave=-1;SUB_MSGS=[];player={x:100,y:200,hullMult:1};applyShip(PLAYER_SHIPS[0].key)"); };
 const destroyer = (o)=>Object.assign({img:'dehatshepsut', small:false, dead:false, warpOut:false}, o||{});
 
 console.log('Start ship');
@@ -164,7 +167,13 @@ W.run('toggleShipMenu()'); ok('button opens the menu and pauses', W.get('shipMen
 W.run("swapShip('fiserapis')"); ok('locked hull (Serapis) refused', P().ship==='fitoth' && W.get('shipMenu')===true);
 W.run("swapShip('fitoth')"); ok('current hull refused', W.get('shipMenu')===true && W.get('shipSwapWave')===-1);
 W.run("swapShip('boosiris')");
-ok('Osiris taken: menu closed, unpaused', P().ship==='boosiris' && W.get('shipMenu')===false && W.get('paused')===false);
+// The panel closes, but the game stays stopped: coming back into the
+// fight is the player's to time now, whatever the panel and however it
+// was left.
+ok('Osiris taken and the menu closed', P().ship==='boosiris' && W.get('shipMenu')===false);
+ok('but the game is still held', W.get('paused')===true && W.get('resumeHold')===true);
+W.run('pointerConsumed({x:400,y:300})');
+ok('and one tap puts you back in it', W.get('paused')===false && W.get('resumeHold')===false);
 ok('Osiris stats 2.5 / 0.10 / 140 / 100 / 10 bombs', P().spd===2.5 && P().turn===0.10 && P().maxHp===140 && P().maxSh===100 && P().secMax===10 && P().secType==='bomb');
 ok('refilled: hull 140, shields 100, 10 bombs', P().hp===140 && P().sh===100 && P().secAmmo===10);
 ok('switch spent for this wave', W.run('shipSwapReady()')===false);
@@ -202,6 +211,8 @@ const horus = rowOf('fihorus');
 W.run(`pointerConsumed({x:${horus.x+5},y:${horus.y+5}})`); ok('tap on Horus switches', P().ship==='fihorus' && W.get('shipMenu')===false);
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
 W.run('pointerConsumed({x:2,y:2})'); ok('tap outside closes without switching', W.get('shipMenu')===false && P().ship==='fitoth' && W.run('shipSwapReady()')===true);
+ok('cancelling holds the pause just the same', W.get('resumeHold')===true);
+W.run('clearResumeHold()');
 W.run("window._shipBtnRect={x:695,y:4,w:22,h:20}; pointerConsumed({x:700,y:10})"); ok('tap on the bar button opens the menu', W.get('shipMenu')===true);
 
 console.log('The panel swallows its own clicks');
@@ -241,15 +252,24 @@ reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]); key('KeyV');
 key('Digit3'); ok('3 takes the Serapis, third row down',
                   P().ship==='fiserapis' && W.get('shipMenu')===false);
 reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]); key('KeyV'); key('Escape');
-ok('Escape closes', W.get('shipMenu')===false && W.get('paused')===false);
+ok('Escape closes', W.get('shipMenu')===false);
+ok('and holds the pause, like every other way of leaving a panel',
+   W.get('paused')===true && W.get('resumeHold')===true);
+W.run('clearResumeHold()');
+ok('after the tap the game runs again', W.get('paused')===false);
 reset(); key('KeyV'); ok('V without a destroyer does nothing', W.get('shipMenu')===false);
 
 console.log('Restart guard');
 W.run("launchGame=function(){launched++}");
+// The title and the game over screen both go through toTitleOrLaunch now,
+// so that is what has to be in place for the restart guard to be tested.
+W.run("toTitleOrLaunch=function(){ if(GS==='gameover'){ GS='title'; return; } launchGame(); }");
 const down = ()=>W.run("onDown({button:0, clientX:400, clientY:300})");
 W.run("GS='title'; launched=0"); down(); ok('tap on title starts at once', W.get('launched')===1);
 W.run("GS='gameover'; gameOverAt=performance.now(); launched=0"); down(); ok('tap right after dying does not restart', W.get('launched')===0);
-W.run("gameOverAt=performance.now()-2000"); down(); ok('tap after 2 s restarts', W.get('launched')===1);
+W.run("gameOverAt=performance.now()-2000"); down();
+ok('tap after 2 s goes back to the title, not into the next run',
+   W.get('launched')===0 && W.get('GS')==='title');
 
 
 console.log('Hangars by faction');
@@ -501,6 +521,7 @@ console.log('Rearm needs a corvette, not any ship at all');
   ok('nor does a wreck', W.run('rearmReady()')===false);
   W.set('allies', [corvette()]);
   W.set('allies', [corvette()]);   // a live one again, after the wreck above
+  W.run('clearResumeHold()');      // and no hold left over from earlier
   // Press the rectangle the bar reports, the way a player does. Calling
   // toggleRearmMenu() here tested the panel and not the button, which is how
   // a button that was never wired to anything passed.
@@ -605,6 +626,26 @@ console.log('The rearm panel');
      Math.min(...rs.map(r=>r.h)) < Math.max(...rs.map(r=>r.h)));
   W.run('setRearmMenu(false); score=0');
 }
+
+console.log('The title screen');
+// drawTitle is too tangled up with the backdrop to run here, so what is
+// checked is the two things that made it look the way it did.
+ok('no opaque sheet over the sky any more', !/fillStyle='rgba\(0,0,8,0\.78\)';ctx\.fillRect\(0,0,W,H\)/.test(src));
+ok('what is left is a gradient, so the backdrop shows through the top',
+   /createLinearGradient\(0, 0, 0, H\)[\s\S]{0,260}?rgba\(0,0,8,0\.20\)/.test(src));
+ok('the pasted logo and its 3 are gone',
+   !/_logoProcessed/.test(src) && !/fs_logo/.test(src));
+ok('the title is set in the theme face instead', /FREESPACE/.test(src) && /thLabel\(54\)/.test(src));
+ok('a fresh backdrop is rolled every time the title comes up',
+   /function enterTitle\(\)\{[\s\S]{0,300}?nebCur = NEB_NAMES[\s\S]{0,120}?rollBodies\(\)/.test(src));
+ok('and a body that leaves the title is replaced, not wrapped round',
+   /if\(GS==='title'\)\{ rollBodies\(\); return; \}/.test(src));
+ok('the title keeps moving while it sits there',
+   /if\(GS==='title'\)\{ fc\+\+; tickStars\(\); tickNebula\(\); return; \}/.test(src));
+ok('Try Again goes back to the title rather than into the next run',
+   /function toTitleOrLaunch\(\)\{[\s\S]{0,160}?GS==='gameover'\){ enterTitle\(\)/.test(src));
+ok('and nothing calls launchGame straight from the game over screen',
+   !/gameOverAt>1500\) launchGame\(\)/.test(src));
 
 console.log('Bar button placement');
 {
