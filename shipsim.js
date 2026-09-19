@@ -575,7 +575,11 @@ console.log('The rearm panel');
   CLR(); W.run('drawRearmMenu()');
   const rs = W.run('window._rearmRects');
   const pr = W.run('window._rearmPanelRect');
-  ok('one row per weapon on offer', rs.length===3);
+  // One row per weapon that exists, open or not: a locked one is a thin
+  // line, and it is still a row. The count follows the tables so a new
+  // weapon does not make this fail for no reason.
+  const offered = W.run('PRIMARIES').length + W.run("secondariesFor('fitoth')").length;
+  ok('one row per weapon on offer', rs.length===offered);
   ok('every row is inside the panel',
      rs.every(r=>r.x>=pr.x && r.x+r.w<=pr.x+pr.w && r.y>=pr.y && r.y+r.h<=pr.y+pr.h));
   ok('the panel fits on the field', pr.y>=0 && pr.y+pr.h<=500 && pr.x>=0 && pr.x+pr.w<=800);
