@@ -37,17 +37,19 @@ function decl(re){
 const names = ['priDef','secDef','curPri','curSec','hullSecCls','weaponName','weaponOpen',
                'secondariesFor','defaultSec','applyLoadout','rearmFull',
                'shardBurst','subStrike','pShoot','fireSecondary',
-               'liveBurstRound','burstRound','volleyDmg','volleyTotal','primaryCount'];
+               'liveBurstRound','burstRound','volleyDmg','volleyTotal','primaryCount',
+               'flakHas','flakBurst','flakReach','flakFire'];
 const consts = [
   decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/),
   decl(/const SECONDARIES = \[[\s\S]*?\n\];/),
   decl(/const VOLLEY_BASE\s*=\s*[\d.]+;/),
-  decl(/const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/)
+  decl(/const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/),
+  decl(/const FLAK_TYPES[\s\S]*?const FLAK_SHARD_RANGE = \d+;/)
 ];
 
 const WORLD = `
 const W = 800, H = 500, HUD_H = 54;
-var pBullets = [], PARTS = [], SUB_MSGS = [], enemies = [], allies = [];
+var pBullets = [], eBullets = [], PARTS = [], SUB_MSGS = [], enemies = [], allies = [];
 var fc = 0, score = 0, FS1_MODE = false, UI_WEAPONS = false;
 const UI_TICKETS = false;
 const STATS = {shots:0, hits:0, subsKilled:0};
@@ -66,6 +68,14 @@ function spawnDebris(){}
 function spawnRing(){}
 function spawnSmoke(){}
 function secMount(){ return {x:player.x+20, y:player.y}; }
+// Capitals: one mount, a fixed target, so what is under test is where the
+// wall ends up and not how a turret picks a ship.
+var FLAK_TARGET = null;
+function entMounts(e){ return [{x:e.x, y:e.y}]; }
+function nearestEnemy(){ return FLAK_TARGET; }
+function capGunTarget(){ return FLAK_TARGET; }
+function subOK(){ return true; }
+function rndR(r){ return (r[0]+r[1])/2; }
 // Subsystems: subHit is the real one, the geometry around it is not what is
 // under test here.
 function subPos(e, s){ return {x:e.x+s.ox, y:e.y}; }
@@ -240,6 +250,80 @@ console.log('\nWhat a hull may carry is unchanged');
      run("secondariesFor('boosiris')").some(w=>w.key==='stiletto') &&
      run("secondariesFor('boosiris')").every(w=>w.key!=='infyrno'));
 }
+
+console.log('\nCapital flak: a wall, not a shot');
+{
+  ok('a cruiser carries one', run("flakHas({type:'cruiser'})")===true);
+  ok('so do corvettes and destroyers',
+     run("flakHas({type:'corvette'})")===true && run("flakHas({type:'destroyer'})")===true);
+  ok('a fighter does not', run("flakHas({type:'fighter'})")===false);
+  ok('nor a bomber or a freighter',
+     run("flakHas({type:'bomber'})")===false && run("flakHas({type:'freighter'})")===false);
+}
+{
+  // The wall must stand out in front, not on the gun and not off the far edge.
+  const MIN = run('FLAK_MIN'), MAX = run('FLAK_DIST'), KEEP = run('FLAK_EDGE_KEEP');
+  ok('a target further than the gun reaches: the wall stops at its limit',
+     run('flakReach(700, 250, Math.PI, 900)') === MAX);
+  ok('a target sitting on the muzzle: it never bursts nearer than the minimum',
+     run('flakReach(700, 250, Math.PI, 5)') === MIN);
+  // Firing left from x=700 at full reach would burst at 400, which is fine.
+  // Firing left from x=300 would burst at 0 - off the field. It has to pull in.
+  const d = run('flakReach(300, 250, Math.PI, 900)');
+  ok('a gun close to the far edge pulls its wall in', d < MAX);
+  ok('and the burst lands inside the field with room to spare',
+     300 - d >= KEEP - 22);
+}
+{
+  // Shrapnel, on the right side of the fight.
+  set('FLAK_TARGET', {x:100, y:250});
+  run('pBullets.length=0; eBullets.length=0');
+  run("flakBurst(400, 250, true, 'vasudan')");
+  const p = get('pBullets');
+  ok('an allied gun throws its shrapnel at the enemies',
+     p.length===run('FLAK_SHARDS') && p.every(b=>b.ally===true) && get('eBullets').length===0);
+  const sx = p.reduce((a,b)=>a+b.vx,0), sy = p.reduce((a,b)=>a+b.vy,0);
+  ok('star shaped, not thrown one way', Math.abs(sx)<0.001 && Math.abs(sy)<0.001);
+  ok('and it gives out rather than flying to the edge', p.every(b=>b.pLife>0));
+  run('pBullets.length=0; eBullets.length=0');
+  run("flakBurst(400, 250, false, 'shivan')");
+  ok('an enemy gun the other way round',
+     get('eBullets').length===run('FLAK_SHARDS') && get('pBullets').length===0);
+  ok('with a life of its own too', get('eBullets').every(b=>b.eLife>0));
+}
+{
+  // The gun itself: one round, on a fuse, from the mount.
+  set('FLAK_TARGET', {x:100, y:250});
+  run('pBullets.length=0; eBullets.length=0');
+  const cruiser = {type:'cruiser', x:600, y:250, faction:'vasudan', dead:false, warp:0, warpOut:0};
+  set('_c', cruiser);
+  run('_c.flakT = 1; flakFire(_c, true)');
+  const b = get('pBullets');
+  ok('one round leaves, not a burst at the muzzle', b.length===1);
+  ok('it carries a fuse', b[0].fuse > 0);
+  ok('it is flagged as flak so the fuse knows what to do', b[0].flak===true);
+  ok('and it travels towards the target', b[0].vx < 0);
+  ok('the clock is reset rather than firing every step', cruiser.flakT > 1);
+  run('pBullets.length=0');
+  run('flakFire(_c, true)');
+  ok('and it does not fire again on the next step', get('pBullets').length===0);
+}
+{
+  // A wreck or a ship still in the vortex does not shoot.
+  set('FLAK_TARGET', {x:100, y:250});
+  run('pBullets.length=0');
+  set('_c', {type:'cruiser', x:600, y:250, faction:'vasudan', dead:true, warp:0, warpOut:0, flakT:1});
+  run('flakFire(_c, true)');
+  set('_c', {type:'cruiser', x:600, y:250, faction:'vasudan', dead:false, warp:30, warpOut:0, flakT:1});
+  run('flakFire(_c, true)');
+  ok('neither a wreck nor a ship still warping in fires', get('pBullets').length===0);
+  set('_c', {type:'fighter', x:600, y:250, faction:'vasudan', dead:false, warp:0, warpOut:0, flakT:1});
+  run('flakFire(_c, true)');
+  ok('and a fighter has no flak gun to fire', get('pBullets').length===0);
+}
+ok('both sides run the gun', /flakFire\(e, false\)/.test(src) && /flakFire\(a, true\)/.test(src));
+ok('the enemy fuse bursts where it runs out',
+   /if\(b\.fuse && --b\.fuse<=0\)\{\n\s*flakBurst\(b\.x, b\.y, false, b\.faction\)/.test(src));
 
 console.log('\nEvery weapon is reachable and none of them is free');
 {
