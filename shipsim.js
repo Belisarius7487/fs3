@@ -35,7 +35,7 @@ const themesDecl = src.match(/const THEMES = \{[\s\S]*?\n\};/)[0];
 const wpnDecl  = src.match(/const PLAYER_FR_BASE[\s\S]*?\n\];/)[0];
 const wpnDecl2 = src.match(/const SECONDARIES = \[[\s\S]*?\n\];/)[0];
 const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/)[0];
-const wpnState = 'let rearmMenu = false; const WPN_SEEN = {};';
+const wpnState = 'let rearmMenu = false; const WPN_SEEN = {}; const UI_WEAPONS = false;';
 
 const volleyDecl = src.match(/const VOLLEY_BASE[\s\S]*?const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/)[0];
 const names = [

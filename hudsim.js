@@ -37,7 +37,7 @@ const wpnDecl2 = decl(/const SECONDARIES = \[[\s\S]*?\n\];/);
 const rmDecl   = decl(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/);
 // The bar asks rearmReady(), which asks inJump(), which reads the jump
 // clock. None of that is what this file tests, so it gets a resting value.
-const wpnState = 'let rearmMenu = false; const WPN_SEEN = {}; let arriveT = 0; let waveOver = false; let waveCd = 0; const TRANS_OUT = 30;';
+const wpnState = 'let rearmMenu = false; const WPN_SEEN = {}; const UI_WEAPONS = false; let arriveT = 0; let waveOver = false; let waveCd = 0; const TRANS_OUT = 30;';
 
 const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',

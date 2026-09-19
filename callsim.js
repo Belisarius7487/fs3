@@ -61,7 +61,7 @@ const themesDecl = decl(/const THEMES = \{[\s\S]*?\n\};/);
 const wpnDecl  = decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/);
 const wpnDecl2 = decl(/const SECONDARIES = \[[\s\S]*?\n\];/);
 const rmDecl   = decl(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/);
-const wpnState = 'let rearmMenu = false; const WPN_SEEN = {};';
+const wpnState = 'let rearmMenu = false; const WPN_SEEN = {}; const UI_WEAPONS = false;';
 
 
 const CALLS = [];

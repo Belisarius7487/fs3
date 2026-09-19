@@ -35,7 +35,7 @@ function fn(name, optional){
 const wpnDecl  = src.match(/const PLAYER_FR_BASE[\s\S]*?\n\];/)[0];
 const wpnDecl2 = src.match(/const SECONDARIES = \[[\s\S]*?\n\];/)[0];
 const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/)[0];
-const wpnState = 'let rearmMenu = false; const WPN_SEEN = {};';
+const wpnState = 'let rearmMenu = false; const WPN_SEEN = {}; const UI_WEAPONS = false;';
 const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
