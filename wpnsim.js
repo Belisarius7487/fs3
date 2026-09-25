@@ -1,9 +1,9 @@
 // Weapon simulation. Pulls the REAL firing routines out of the logic file and
 // runs them against stand-ins for the world.
 //
-// What it is for: four of the weapons do something rather than merely weigh
-// something - a cone, a bolt that carries on through, a round that bursts,
-// a warhead that goes for the innards. Numbers can be read off the table;
+// What it is for: several of the weapons do something rather than merely
+// weigh something - a cone, a round that bursts, a warhead that goes for the
+// innards, a salvo that splits over several targets. Numbers can be read off the table;
 // behaviour cannot.
 //
 // Usage: node wpnsim.js <logic.html>
@@ -38,13 +38,15 @@ const names = ['priDef','secDef','curPri','curSec','hullSecCls','weaponName','we
                'secondariesFor','defaultSec','applyLoadout','rearmFull',
                'shardBurst','subStrike','pShoot','fireSecondary',
                'liveBurstRound','burstRound','volleyDmg','volleyTotal','primaryCount',
-               'flakHas','flakBurst','flakReach','flakFire'];
+               'flakHas','flakBurst','flakReach','flakFire',
+               'swarmTargets','swarmRetarget','swarmHolds','updateSecBullets','rmValue'];
 const consts = [
   decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/),
   decl(/const SECONDARIES = \[[\s\S]*?\n\];/),
   decl(/const VOLLEY_BASE\s*=\s*[\d.]+;/),
   decl(/const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/),
-  decl(/const FLAK_TYPES[\s\S]*?const FLAK_SHARD_RANGE = \d+;/)
+  decl(/const FLAK_TYPES[\s\S]*?const FLAK_SHARD_RANGE = \d+;/),
+  decl(/let swarmSalvo = 0;/)
 ];
 
 const WORLD = `
@@ -76,6 +78,17 @@ function nearestEnemy(){ return FLAK_TARGET; }
 function capGunTarget(){ return FLAK_TARGET; }
 function subOK(){ return true; }
 function rndR(r){ return (r[0]+r[1])/2; }
+// Locking and impact. LOCK_OK stands for the nebula and the EMP storm: off,
+// nothing can be held. Every ship is a 30 point square, and a hit is
+// written down per ship so the test can ask who was struck.
+var LOCK_OK = true, HITS = [];
+function canLockOn(o){ return LOCK_OK && !!o; }
+function eBox(e){ return [e.x-15, e.y-15, 30, 30]; }
+function overlap(ax,ay,aw,ah,bx,by,bw,bh){ return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by; }
+function bulletOnHull(){ return true; }
+function playerOnly(){ return false; }
+function damageEnemy(e, d){ e.hp -= d; HITS.push({e:e, d:d}); }
+function killEnemy(e, j){ e.dead = true; enemies.splice(j, 1); }
 // Subsystems: subHit is the real one, the geometry around it is not what is
 // under test here.
 function subPos(e, s){ return {x:e.x+s.ox, y:e.y}; }
@@ -140,20 +153,92 @@ fire('scatter');
   ok('the reach is short', b[0].pLife>0 && b[0].pLife*w.spd <= w.range+w.spd);
 }
 
-console.log('\nDurchschlag: a line, once each');
-fire('pierce');
+console.log('\nDurchschlag is gone');
 {
-  const b = bullets(), w = run("priDef('pierce')");
-  ok('one bolt per barrel again', b.length===2);
-  ok('it is allowed four hulls', b[0].pierce===w.pierce);
-  ok('and it carries no fuse', !b[0].fuse);
-  ok('no reach limit, so the line runs the field', !b[0].pLife);
-  // The rule that stops a long hull being hit once per step lives in the
-  // collision loop, which is too entangled to run here.
-  ok('a pierced hull is remembered so it cannot be hit twice',
-     /b\.hitList && b\.hitList\.indexOf\(e\)>=0\) continue/.test(src));
-  ok('and piercing decrements rather than removing the bolt',
-     /b\.pierce--/.test(src) && /b\.hitList\.push\(e\)/.test(src));
+  ok('it is no longer in the table', run('PRIMARIES').every(w=>w.key!=='pierce'));
+  run("player.pri='pierce'; applyLoadout()");
+  ok('a ship that still had it fitted falls back to the Prometheus',
+     get('player').pri==='prometheus');
+  ok('and nothing is left of the piercing mechanism',
+     !/b\.pierce/.test(src) && !/hitList/.test(src));
+}
+
+console.log('\nTornado: one press, four seekers, four targets');
+// A fresh field: four enemies ahead of the ship, spread top to bottom.
+function field(ys){
+  run('enemies.length=0; HITS.length=0; pBullets.length=0; LOCK_OK=true');
+  for(const y of ys) run('enemies.push({x:500, y:'+y+', hp:100, dead:false})');
+  run("player.pri='prometheus'; player.sec='tornado'; player.ship='fitoth'; applyLoadout(); player.secAmmo=player.secMax; player.secTimer=0");
+}
+// Runs the real flight and impact routine, the one the game runs every step.
+function fly(steps){ for(let i=0;i<steps;i++){ run('fc++'); run('updateSecBullets()'); } }
+{
+  const w = run("secDef('tornado')");
+  ok('it is in the table as a missile', !!w && w.key==='tornado' && w.cls==='missile');
+  ok('it opens at 22,000, where the Durchschlag was', w.unlock===22000);
+  ok('a fighter is offered it', run("secondariesFor('fitoth')").some(x=>x.key==='tornado'));
+  ok('a bomber is not', run("secondariesFor('boosiris')").every(x=>x.key!=='tornado'));
+  ok('the rearm panel shows the salvo, not one missile',
+     run("rmValue(secDef('tornado'), 'dmg', false)")===w.swarm+'\u00d7'+w.dmg);
+}
+{
+  field([150, 220, 290, 360]);
+  const before = get('player').secAmmo;
+  run('fireSecondary()');
+  const b = bullets().filter(x=>x.sec);
+  ok('four missiles leave', b.length===4);
+  ok('and they cost one round, not four', get('player').secAmmo===before-1);
+  ok('every one of them seeks', b.every(x=>x.homing));
+  ok('each has a different target', new Set(b.map(x=>x.target)).size===4);
+  const ang = b.map(x=>Math.atan2(x.vy, x.vx));
+  ok('they leave in a fan, not in a line', Math.max(...ang)-Math.min(...ang) > 0.5);
+  fly(200);
+  const struck = new Set(get('HITS').map(h=>h.e.y));
+  ok('in flight, all four targets are struck - not the nearest one four times',
+     struck.size===4);
+  ok('four impacts, each carrying one missile\'s damage',
+     get('HITS').length===4 && get('HITS').every(h=>h.d===run("secDef('tornado').dmg")));
+}
+{
+  field([200, 300]);
+  run('fireSecondary()');
+  fly(200);
+  const ys = get('HITS').map(h=>h.e.y);
+  ok('two targets: the salvo splits over both instead of dropping missiles',
+     ys.filter(y=>y===200).length===2 && ys.filter(y=>y===300).length===2);
+}
+{
+  // A target that dies on the way: its missile has to find a free one.
+  field([150, 250, 350]);
+  run("player.secTimer=0");
+  run('fireSecondary()');
+  const lost = run('enemies[0]');
+  fly(3);
+  run('enemies[0].dead=true; enemies.splice(0,1)');
+  fly(200);
+  ok('a missile whose target is gone does not fly on into nothing',
+     get('HITS').length===4);
+  ok('and it never strikes the dead one', get('HITS').every(h=>h.e!==lost));
+}
+{
+  // No lock in a nebula or a storm: straight flight, like every other seeker.
+  field([150, 250, 350, 450]);
+  run('LOCK_OK=false');
+  run('fireSecondary()');
+  const b = bullets().filter(x=>x.sec);
+  ok('without a lock the missiles leave with no target', b.every(x=>x.target===null));
+  const v0 = b.map(x=>x.vy);
+  fly(10);
+  ok('and they keep their heading', bullets().filter(x=>x.sec).every((x,i)=>Math.abs(x.vy-v0[i])<1e-9));
+}
+{
+  // Other seekers are unchanged: the MX-64 still goes for the nearest.
+  field([240, 400]);
+  run("player.sec='mx64'; applyLoadout(); player.secAmmo=5; player.secTimer=0");
+  run('fireSecondary()');
+  ok('the MX-64 still fires a single missile', bullets().filter(x=>x.sec).length===1);
+  fly(200);
+  ok('and it still takes the nearest', get('HITS').length===1 && get('HITS')[0].e.y===240);
 }
 
 console.log('\nDante: a burst on impact and a burst by itself');
