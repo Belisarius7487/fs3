@@ -37,8 +37,11 @@ const wpnDecl2 = src.match(/const SECONDARIES = \[[\s\S]*?\n\];/)[0];
 const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/)[0];
 // pointerConsumed reaches for the title on a finished run. Starting a run
 // is not what these files test, so it is a stub.
-const wpnState = 'let rearmMenu = false; let resumeHold = false; function toTitleOrLaunch(){}; const WPN_SEEN = {}; const UI_WEAPONS = false;';
+const wpnState = 'let rearmMenu = false; let resumeHold = false;'
+  // The bar asks where the pointer is sitting; nothing hovers in a test.
+  + ' const HOVER = {x:-1, y:-1}; function toTitleOrLaunch(){}; const WPN_SEEN = {}; const UI_WEAPONS = false;';
 const names = [
+  'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',

@@ -39,9 +39,18 @@ const rmDecl   = decl(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/);
 // clock. None of that is what this file tests, so it gets a resting value.
 // pointerConsumed reaches for the title on a finished run. Starting a run
 // is not what these files test, so it is a stub.
-const wpnState = 'let rearmMenu = false; let resumeHold = false; function toTitleOrLaunch(){}; const WPN_SEEN = {}; const UI_WEAPONS = false; let arriveT = 0; let waveOver = false; let waveCd = 0; const TRANS_OUT = 30;';
+const wpnState = 'let rearmMenu = false; let resumeHold = false;'
+  // The bar asks where the pointer is sitting; nothing hovers in a test.
+  + ' const HOVER = {x:-1, y:-1};'
+  // syncCursor talks to the page. A set stands in for the class list, so
+  // the test can read back what it decided.
+  + ' const NOCUR = new Set();'
+  + ' const document = {body:{classList:{'
+  + '   add:function(c){NOCUR.add(c);}, remove:function(c){NOCUR.delete(c);},'
+  + '   contains:function(c){return NOCUR.has(c);}}}}; function toTitleOrLaunch(){}; const WPN_SEEN = {}; const UI_WEAPONS = false; let arriveT = 0; let waveOver = false; let waveCd = 0; const TRANS_OUT = 30;';
 
 const names = [
+  'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
@@ -135,6 +144,31 @@ CLR(); W.run('drawHUD()');
 ok('no Courier anywhere in the bar', fonts().every(f=>f.indexOf('Courier')<0));
 ok('Tahoma leads the label font stack', fonts().some(f=>/bold \d+px Tahoma/.test(f)));
 ok('Segoe UI is used for values', fonts().some(f=>f.indexOf('Segoe UI')>=0));
+
+console.log('\nThe pointer, and what it is pointing at');
+{
+  // Over the field the ship is the pointer, so the pointer itself goes away.
+  // Over the bar there are four buttons to hit, so it has to be there.
+  const cls = ()=>W.run("NOCUR.has('nocursor')");
+  W.run("GS='playing'; paused=false; HOVER.x=400; HOVER.y=300; syncCursor()");
+  ok('hidden over the field', cls()===true);
+  W.run("HOVER.y=10; syncCursor()");
+  ok('shown over the bar', cls()===false);
+  W.run("HOVER.y=300; syncCursor()");
+  ok('and hidden again on the way back', cls()===true);
+  W.run("paused=true; syncCursor()");
+  ok('shown whenever the game is not running', cls()===false);
+  W.run("paused=false; GS='title'; syncCursor()");
+  ok('and on the title screen', cls()===false);
+  W.run("GS='playing'; syncCursor()");
+}
+{
+  // Hover is a lookup on the rectangles the bar already reports.
+  ok('a point inside a button counts', W.run("HOVER.x=700; HOVER.y=12; hovering(695,4,22,46)")===true);
+  ok('one beside it does not',        W.run("hovering(600,4,22,46)")===false);
+  ok('and off the canvas nothing is hovered',
+     W.run("HOVER.x=-1; HOVER.y=-1; hovering(0,0,800,500)")===false);
+}
 
 console.log('\nBoth schemes resolve');
 W.run("ECO.scheme='fire'");
