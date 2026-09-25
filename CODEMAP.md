@@ -56,7 +56,7 @@ git add CODEMAP.md
 ## Full index
 
 <!-- AUTO:START -->
-Generated from `hlp_shooter_v127_logic.html` by `codemap.py` — do not edit by hand.
+Generated from `hlp_shooter_v128_logic.html` by `codemap.py` — do not edit by hand.
 
 ### (file start) (line 1)
 - `ecoSave()` 109
@@ -563,148 +563,151 @@ Generated from `hlp_shooter_v127_logic.html` by `codemap.py` — do not edit by 
 - `secMount()` 8266
 - `liveBurstRound()` 8273 — The one Infyrno in the air, if there is one.
 - `burstRound()` 8277
-- `fireSecondary()` 8285
-- `updateSecBullets()` 8304
-- data: `shieldFlash`, `hullFlash`
+- `swarmTargets()` 8289 — Who the missiles of one Tornado salvo go for: the nearest n targets t…
+- `swarmRetarget()` 8302 — A swarm missile whose target is gone looks again: first for the neare…
+- `swarmHolds()` 8317 — A target is still worth flying at while it is on the field, alive and
+- `fireSecondary()` 8321
+- `updateSecBullets()` 8351
+- data: `shieldFlash`, `hullFlash`, `swarmSalvo`
 
-### EXPLOSIONSSYSTEM (line 8391)
-- `lerpRGB()` 8395 — Helper: RGB interpolation for gradients
-- `spawnFireball()` 8402 — Erweiterte Partikel: sq=Quadrat, ring=Schockwelle, fb=Fireball-Disc
-- `spawnRing()` 8405
-- `spawnDebris()` 8409
-- `spawnSmoke()` 8424
-- `scheduleExpl()` 8437
-- `triggerExpl()` 8441
-- `tickExplQueue()` 8547
+### EXPLOSIONSSYSTEM (line 8442)
+- `lerpRGB()` 8446 — Helper: RGB interpolation for gradients
+- `spawnFireball()` 8453 — Erweiterte Partikel: sq=Quadrat, ring=Schockwelle, fb=Fireball-Disc
+- `spawnRing()` 8456
+- `spawnDebris()` 8460
+- `spawnSmoke()` 8475
+- `scheduleExpl()` 8488
+- `triggerExpl()` 8492
+- `tickExplQueue()` 8598
 - data: `EXPL_Q`
 
-### COLLISION (line 8569)
-- `overlap()` 8570
-- `rotExtent()` 8576 — A rotated sprite covers more of the screen than its own width and
-- `eBox()` 8581
-- `pBox()` 8586
-- `playerDie()` 8593
-- `launchGame()` 8607
-- `nextWave()` 8647
+### COLLISION (line 8620)
+- `overlap()` 8621
+- `rotExtent()` 8627 — A rotated sprite covers more of the screen than its own width and
+- `eBox()` 8632
+- `pBox()` 8637
+- `playerDie()` 8644
+- `launchGame()` 8658
+- `nextWave()` 8698
 
-### UPDATE (line 8697)
-- `update()` 8698
+### UPDATE (line 8748)
+- `update()` 8749
 
-### DRAW (line 9272)
-- `draw()` 9273
-- `shipName()` 9702
-- `objectiveText()` 9719 — ein Ziel, das erledigt ist, verschwindet damit von selbst.
-- `drawWaveTitle()` 9757
-- `drawHostileMark()` 9782
-- `drawFieldBanner()` 9827
-- `drawFleeWarning()` 9880
-- `drawGear()` 9913 — A gear, drawn rather than an image, so it needs no asset and scales.
+### DRAW (line 9315)
+- `draw()` 9316
+- `shipName()` 9745
+- `objectiveText()` 9762 — ein Ziel, das erledigt ist, verschwindet damit von selbst.
+- `drawWaveTitle()` 9800
+- `drawHostileMark()` 9825
+- `drawFieldBanner()` 9870
+- `drawFleeWarning()` 9923
+- `drawGear()` 9956 — A gear, drawn rather than an image, so it needs no asset and scales.
 - data: `NAME_ALT`, `OBJ_DONE_TIME`, `objWasSet`, `protSaved`, `waveTitle`, `TITLE_TIME`, `CHEV_FULL`, `CHEV_FADE`, `FLEE_ROWS`
 
-### SETTINGS PANEL (line 9928)
-- `tickFps()` 9939
-- `drawFps()` 9952 — Oben rechts unter der Leiste, wo nichts anderes liegt. Courier ist ei…
-- `drawObjCount()` 9971
-- `setSettings()` 9991 — No need to remember the previous pause any more: closing the panel
-- `setRow()` 10001 — Eine Zeile des Fensters. Alle Zeilen sehen gleich aus, damit eine neue
-- `settingsRows()` 10023
-- `drawSettings()` 10058
-- `settingsClick()` 10108 — Returns true when the tap was consumed by the panel.
-- `drawPauseIcon()` 10137 — Symbole statt Text in der Leiste, gezeichnet wie drawGear() und in
-- `drawMissileIcon()` 10150 — Schlank, mit Spitze und drei Finnen.
-- `drawBombIcon()` 10167 — Gedrungen, stumpfe Nase, breites Leitwerk. Auf 34 px Breite muss der
-- `drawHUD()` 10178
-- `drawHUDHLP()` 10189 — one palette, a bevel at rest, a glow ring for emphasis, and colour ke…
-- `hovering()` 10373
-- `syncCursor()` 10379 — a panel, a held pause, a manual one, the title, the end of a run.
+### SETTINGS PANEL (line 9971)
+- `tickFps()` 9982
+- `drawFps()` 9995 — Oben rechts unter der Leiste, wo nichts anderes liegt. Courier ist ei…
+- `drawObjCount()` 10014
+- `setSettings()` 10034 — No need to remember the previous pause any more: closing the panel
+- `setRow()` 10044 — Eine Zeile des Fensters. Alle Zeilen sehen gleich aus, damit eine neue
+- `settingsRows()` 10066
+- `drawSettings()` 10101
+- `settingsClick()` 10151 — Returns true when the tap was consumed by the panel.
+- `drawPauseIcon()` 10180 — Symbole statt Text in der Leiste, gezeichnet wie drawGear() und in
+- `drawMissileIcon()` 10193 — Schlank, mit Spitze und drei Finnen.
+- `drawBombIcon()` 10210 — Gedrungen, stumpfe Nase, breites Leitwerk. Auf 34 px Breite muss der
+- `drawHUD()` 10221
+- `drawHUDHLP()` 10232 — one palette, a bevel at rest, a glow ring for emphasis, and colour ke…
+- `hovering()` 10416
+- `syncCursor()` 10422 — a panel, a held pause, a manual one, the title, the end of a run.
 - data: `settingsOpen`, `settingsPage`, `GAME_VERSION`, `showFps`, `fpsVal`, `showObj`, `SETTINGS_PAGES`, `SETTINGS_TITLES`, `HOVER`
 
-### SHIP SWITCH (line 10387)
-- `isBomberHull()` 10390 — Stats for any hull. Hulls outside PLAYER_SHIPS (the FS1 roster) get t…
-- `hullFac()` 10400
-- `shipFac()` 10401
-- `hangarServes()` 10407 — A hangar hands out hulls of its own faction. The Colossus is a joint…
-- `isHangarShip()` 10412 — The Colossus counts as a hangar although her class is sd, no other sd…
-- `hangarFacs()` 10418 — Every friendly hangar out there right now. Two destroyers of different
-- `colossusOnField()` 10427
-- `shipOffered()` 10432 — Is this hull on offer from anything currently on the field?
-- `shipStats()` 10438
-- `applyShip()` 10448 — Puts the player into a hull. Without keep everything is refilled. With
-- `tickShipUnlocks()` 10471 — Unlocks follow the score within a run. Several thresholds can fall in
-- `shipSwapReady()` 10480 — The switch lands from an allied destroyer's hangar, so one has to be…
-- `setShipMenu()` 10494
-- `toggleShipMenu()` 10504
-- `swapShip()` 10510
-- `drawSwapIcon()` 10530 — Two arrows passing each other.
-- `statPips()` 10541 — Filled pips for a value against its steps, so players compare hulls
-- `drawHullBg()` 10563
-- `primaryCount()` 10582 — How many primary barrels a hull really fires with. Read from the mount
-- `volleyTotal()` 10588 — volleyDmg() is the damage of a single barrel, which is why more barre…
+### SHIP SWITCH (line 10430)
+- `isBomberHull()` 10433 — Stats for any hull. Hulls outside PLAYER_SHIPS (the FS1 roster) get t…
+- `hullFac()` 10443
+- `shipFac()` 10444
+- `hangarServes()` 10450 — A hangar hands out hulls of its own faction. The Colossus is a joint…
+- `isHangarShip()` 10455 — The Colossus counts as a hangar although her class is sd, no other sd…
+- `hangarFacs()` 10461 — Every friendly hangar out there right now. Two destroyers of different
+- `colossusOnField()` 10470
+- `shipOffered()` 10475 — Is this hull on offer from anything currently on the field?
+- `shipStats()` 10481
+- `applyShip()` 10491 — Puts the player into a hull. Without keep everything is refilled. With
+- `tickShipUnlocks()` 10514 — Unlocks follow the score within a run. Several thresholds can fall in
+- `shipSwapReady()` 10523 — The switch lands from an allied destroyer's hangar, so one has to be…
+- `setShipMenu()` 10537
+- `toggleShipMenu()` 10547
+- `swapShip()` 10553
+- `drawSwapIcon()` 10573 — Two arrows passing each other.
+- `statPips()` 10584 — Filled pips for a value against its steps, so players compare hulls
+- `drawHullBg()` 10606
+- `primaryCount()` 10625 — How many primary barrels a hull really fires with. Read from the mount
+- `volleyTotal()` 10631 — volleyDmg() is the damage of a single barrel, which is why more barre…
 - data: `HULL_FAC`, `MENU_BG_ALPHA`, `MENU_BG_ALPHA_OFF`, `MENU_BG_PAD`
 
-### WEAPONS (line 10589)
-- `shardBurst()` 10663 — Shrapnel, star shaped from a point. Three weapons make it - the Dante…
-- `subStrike()` 10679 — A warhead that goes for the innards. subHit only touches whatever
-- `priDef()` 10692
-- `secDef()` 10696
-- `curPri()` 10700
-- `curSec()` 10701
-- `hullSecCls()` 10702
-- `weaponName()` 10704 — A weapon's name can depend on who is flying it.
-- `weaponOpen()` 10709 — Unlocks follow the score within a run, the same way the hulls do.
-- `secondariesFor()` 10710
-- `defaultSec()` 10717 — The default rack for a hull, used when a switch of hull makes the fit…
-- `applyLoadout()` 10723 — The one place that puts a choice onto the ship. The firing routines r…
-- `rearmFull()` 10733 — A refit fills the rack. This is what makes the panel a rearm rather t…
-- `tickWeaponUnlocks()` 10741
-- `corvetteOnField()` 10752 — A rearm comes off an allied corvette, the way a hull comes out of a
-- `rearmReady()` 10757
-- `setRearmMenu()` 10762
-- `toggleRearmMenu()` 10770
-- `fitWeapon()` 10777 — Fitting a weapon. Both kinds go through here so the refill rule lives…
+### WEAPONS (line 10632)
+- `shardBurst()` 10707 — Shrapnel, star shaped from a point. Three weapons make it - the Dante…
+- `subStrike()` 10723 — A warhead that goes for the innards. subHit only touches whatever
+- `priDef()` 10736
+- `secDef()` 10740
+- `curPri()` 10744
+- `curSec()` 10745
+- `hullSecCls()` 10746
+- `weaponName()` 10748 — A weapon's name can depend on who is flying it.
+- `weaponOpen()` 10753 — Unlocks follow the score within a run, the same way the hulls do.
+- `secondariesFor()` 10754
+- `defaultSec()` 10761 — The default rack for a hull, used when a switch of hull makes the fit…
+- `applyLoadout()` 10767 — The one place that puts a choice onto the ship. The firing routines r…
+- `rearmFull()` 10777 — A refit fills the rack. This is what makes the panel a rearm rather t…
+- `tickWeaponUnlocks()` 10785
+- `corvetteOnField()` 10796 — A rearm comes off an allied corvette, the way a hull comes out of a
+- `rearmReady()` 10801
+- `setRearmMenu()` 10806
+- `toggleRearmMenu()` 10814
+- `fitWeapon()` 10821 — Fitting a weapon. Both kinds go through here so the refill rule lives…
 - data: `PLAYER_FR_BASE`, `PRIMARIES`, `SECONDARIES`, `WPN_SEEN`, `rearmMenu`
 
-### HANGAR LAYOUT (line 10791)
-- `hangarGroups()` 10830 — Which hull belongs in which group. Read from the hull key, the same w…
-- `hangarOrder()` 10842 — The order the rows appear in, as roster indices. The groups reorder t…
-- `hangarLayout()` 10847
-- `drawHullCell()` 10875 — The sprite in its own cell, fitted whole and always facing right. Eve…
-- `drawKeyChip()` 10893 — fighters 1 to 5, bombers 6 to 8. The key handler reads the same order.
-- `drawShipMenu()` 10901
-- `drawResumeHint()` 11018 — A stopped field with nothing on it looks broken, so it says what it is
+### HANGAR LAYOUT (line 10835)
+- `hangarGroups()` 10874 — Which hull belongs in which group. Read from the hull key, the same w…
+- `hangarOrder()` 10886 — The order the rows appear in, as roster indices. The groups reorder t…
+- `hangarLayout()` 10891
+- `drawHullCell()` 10919 — The sprite in its own cell, fitted whole and always facing right. Eve…
+- `drawKeyChip()` 10937 — fighters 1 to 5, bombers 6 to 8. The key handler reads the same order.
+- `drawShipMenu()` 10945
+- `drawResumeHint()` 11062 — A stopped field with nothing on it looks broken, so it says what it is
 - data: `HG_W`, `HG_PAD`, `HG_ROW`, `HG_ROW_LOCK`, `HG_GAP`, `HG_HEAD`, `HG_TITLE`, `HG_FOOT`, `HG_GROUPGAP`, `HG_NUM`, `HG_NUM_W`, `HG_PIC`, `HG_PIC_W`, `HG_NAME`, `HG_PIC_ALPHA`, `HG_PIC_ALPHA_OFF`, `HG_COLS`
 
-### REARM PANEL (line 11029)
-- `rmValue()` 11062 — What each column actually says for a weapon. Kept beside the columns…
-- `rearmGroups()` 11077
-- `rearmLayout()` 11082
-- `drawRearmMenu()` 11102
-- `drawRearmIcon()` 11171 — Three rounds stacked, the way a rack is loaded.
+### REARM PANEL (line 11073)
+- `rmValue()` 11106 — What each column actually says for a weapon. Kept beside the columns…
+- `rearmGroups()` 11121
+- `rearmLayout()` 11126
+- `drawRearmMenu()` 11146
+- `drawRearmIcon()` 11215 — Three rounds stacked, the way a rack is loaded.
 - data: `RM_W`, `RM_PAD`, `RM_ROW`, `RM_ROW_LOCK`, `RM_GAP`, `RM_HEAD`, `RM_TITLE`, `RM_FOOT`, `RM_GROUPGAP`, `RM_NUM`, `RM_NUM_W`, `RM_NAME`, `RM_COLS_PRI`, `RM_COLS_SEC`
 
-### SUPPORT MENU LAYOUT (line 11188)
-- `callMenuLayout()` 11210 — Where everything sits, before anything is drawn. Both the drawing and…
-- `drawAllyRow()` 11235 — One ship, on its own plate. Same parts and the same order as a hangar…
-- `drawCallMenu()` 11291
-- `setCallMenu()` 11338
-- `toggleCallMenu()` 11347
-- `insidePanel()` 11358 — A panel outline, as reported by whatever drew it last. Anything landi…
-- `pointerConsumed()` 11361
-- `toTitleOrLaunch()` 11414 — From the title a run starts; from a finished run you go back to the
-- `enterTitle()` 11420 — A fresh sky every time the title comes up: another backdrop, another
-- `drawTitle()` 11427
-- `drawGO()` 11509 — Shown at the end as well, since that is the number a ranking would us…
+### SUPPORT MENU LAYOUT (line 11232)
+- `callMenuLayout()` 11254 — Where everything sits, before anything is drawn. Both the drawing and…
+- `drawAllyRow()` 11279 — One ship, on its own plate. Same parts and the same order as a hangar…
+- `drawCallMenu()` 11335
+- `setCallMenu()` 11382
+- `toggleCallMenu()` 11391
+- `insidePanel()` 11402 — A panel outline, as reported by whatever drew it last. Anything landi…
+- `pointerConsumed()` 11405
+- `toTitleOrLaunch()` 11458 — From the title a run starts; from a finished run you go back to the
+- `enterTitle()` 11464 — A fresh sky every time the title comes up: another backdrop, another
+- `drawTitle()` 11471
+- `drawGO()` 11553 — Shown at the end as well, since that is the number a ranking would us…
 - data: `CM_W`, `CM_PAD`, `CM_ROW`, `CM_GAP`, `CM_HEAD`, `CM_TITLE`, `CM_FOOT`, `CM_GROUPGAP`, `CM_NUM`, `CM_NUM_W`, `CM_PIC`, `CM_PIC_W`, `CM_NAME`, `CM_REFINE_W`, `CM_TICKET_W`, `CM_FAC_HEAD`
 
-### TOUCH & MAUS STEUERUNG (line 11555)
-- `toGC()` 11558
-- `secBtnDown()` 11657
-- `secBtnUp()` 11658
-- `updateSecBtn()` 11661
+### TOUCH & MAUS STEUERUNG (line 11599)
+- `toGC()` 11602
+- `secBtnDown()` 11701
+- `secBtnUp()` 11702
+- `updateSecBtn()` 11705
 - data: `isFiring`, `lastErr`
 
-### FIXED TIME STEP (line 11737)
-- `stepUpdate()` 11751
+### FIXED TIME STEP (line 11781)
+- `stepUpdate()` 11795
 - data: `TICK_HZ`, `TICK_MS`, `MAX_CATCHUP`, `_acc`
 
 <!-- AUTO:END -->

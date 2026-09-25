@@ -831,7 +831,7 @@ function pShoot(){
       pBullets.push({x:px, y:py, vx:Math.cos(ja)*wp.spd, vy:Math.sin(ja)*wp.spd,
                      w:n>1?8:14, h:3, dmg:d/n,
                      col:wp.col, glow:wp.glow, pLife:life,
-                     pierce:wp.pierce||0, fuse:wp.fuse ? Math.max(1, Math.round(wp.fuse/wp.spd)) : 0,
+                     fuse:wp.fuse ? Math.max(1, Math.round(wp.fuse/wp.spd)) : 0,
                      wpn:wp.key});
     }
   }

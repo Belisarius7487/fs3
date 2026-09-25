@@ -56,6 +56,42 @@ function burstRound(b){
   const i=pBullets.indexOf(b);
   if(i>=0) pBullets.splice(i,1);
 }
+// Who the missiles of one Tornado salvo go for: the nearest n targets that
+// can be locked, one each. With fewer targets than missiles they double
+// up from the nearest. Nothing lockable at all gives nulls, and the
+// missiles fly straight until something turns up.
+function swarmTargets(x, y, n){
+  const list = [];
+  for(const e of enemies){
+    if(e.dead || !canLockOn(e)) continue;
+    list.push({e:e, d:Math.hypot(e.x-x, e.y-y)});
+  }
+  list.sort(function(a,b){ return a.d-b.d; });
+  const out = [];
+  for(let k=0;k<n;k++) out.push(list.length ? list[k%list.length].e : null);
+  return out;
+}
+// A swarm missile whose target is gone looks again: first for the nearest
+// target none of its own salvo is flying at, then for the nearest at all.
+function swarmRetarget(b){
+  const taken = [];
+  for(const o of pBullets)
+    if(o!==b && o.salvo===b.salvo && o.target) taken.push(o.target);
+  let free=null, fd=Infinity, any=null, ad=Infinity;
+  for(const e of enemies){
+    if(e.dead || !canLockOn(e)) continue;
+    const d = Math.hypot(e.x-b.x, e.y-b.y);
+    if(d<ad){ ad=d; any=e; }
+    if(taken.indexOf(e)<0 && d<fd){ fd=d; free=e; }
+  }
+  return free || any;
+}
+// A target is still worth flying at while it is on the field, alive and
+// lockable. The lock rule is the one every seeker uses.
+function swarmHolds(t){
+  return !!t && !t.dead && enemies.indexOf(t)>=0 && canLockOn(t);
+}
+let swarmSalvo = 0;
 function fireSecondary(){
   // While one is up, the button belongs to it. That is what makes the
   // control unambiguous without a key of its own, and it is why only one
@@ -68,6 +104,17 @@ function fireSecondary(){
   const wp=curSec(), bomb=(wp.cls==='bomb');
   const sp=secMount(), sa=player.head||0;
   player.secTimer=wp.cd;
+  if(wp.swarm){
+    const tg=swarmTargets(sp.x, sp.y, wp.swarm), id=++swarmSalvo;
+    for(let k=0;k<wp.swarm;k++){
+      const a=sa+(wp.swarm>1 ? (k/(wp.swarm-1)-0.5)*wp.fan : 0);
+      pBullets.push({x:sp.x, y:sp.y,
+        vx:Math.cos(a)*wp.spd, vy:Math.sin(a)*wp.spd,
+        w:12, h:4, sec:true, type:'missile', homing:true, life:wp.life,
+        target:tg[k], swarm:true, salvo:id, dmg:wp.dmg, wpn:wp.key, burst:false});
+    }
+    return;
+  }
   pBullets.push({x:sp.x, y:sp.y,
     vx:Math.cos(sa)*wp.spd, vy:Math.sin(sa)*wp.spd,
     w:bomb?16:18, h:bomb?16:6, sec:true,
@@ -85,6 +132,10 @@ function updateSecBullets(){
     // Missile: mild homing onto the nearest enemy
     if(b.homing){
       var nearest=null,minD=Infinity;
+      if(b.swarm){
+        if(!swarmHolds(b.target)) b.target=swarmRetarget(b);
+        nearest=b.target;
+      } else
       for(var j=0;j<enemies.length;j++){
         if(!canLockOn(enemies[j])) continue;   // stealth hulls cannot be held
         if(b.ally && playerOnly(enemies[j])) continue;
@@ -873,9 +924,6 @@ function update(){
       if(overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ex,ey,ew,eh)){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
-        // A bolt that pierces must not take the same hull twice on its way
-        // through: a long hull would otherwise be hit once per step.
-        if(b.hitList && b.hitList.indexOf(e)>=0) continue;
         laserHit(b.x,b.y);STATS.hits++;e.shotAt=true;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt');
         if(b.flak){
           flakBurst(b.x, b.y, true, b.fac);
@@ -885,11 +933,6 @@ function update(){
           if(fw.shards) shardBurst(b.x, b.y, fw.shards, b.dmg*fw.shardDmg,
                                    fw.shardSpd, fw.shardRange, fw.col, fw.glow);
           pBullets.splice(i,1); hit=true;
-        } else if(b.pierce>0){
-          b.pierce--;
-          if(!b.hitList) b.hitList=[];
-          b.hitList.push(e);
-          hit=false;
         } else {
           pBullets.splice(i,1); hit=true;
         }

@@ -1346,13 +1346,6 @@ const PRIMARIES = [
    dmg:2.60, rate:1.85, spd:8, range:300, pellets:7, spread:0.30,
    col:'#ffd08a', glow:'rgba(255,170,70,0.30)',
    note:'a cone of pellets - murder in a crowd, nothing at range'},
-  // pierce is how many hulls one bolt may take before it gives out. It
-  // never takes the same ship twice, so a big hull is one hit and not one
-  // per step of its length.
-  {key:'pierce', name:'Durchschlag', unlock:22000,
-   dmg:0.85, rate:1.55, spd:11, range:0, pierce:4,
-   col:'#e6b9ff', glow:'rgba(200,120,255,0.32)',
-   note:'takes everything on its line, once each'},
   // fuse is the distance at which it bursts of its own accord. That is
   // what makes it more than a round with a bonus: held on the trigger it
   // lays shrapnel across a fixed range and an attack run has to come
@@ -1379,6 +1372,14 @@ const SECONDARIES = [
    ammoMul:0.7, dmg:40, cd:55, spd:4.2, life:200, homing:false,
    burst:true, shards:12, shardDmg:30, shardSpd:3.0, shardRange:90,
    note:'fired straight - press again to burst it into shrapnel'},
+  // swarm: one press lets go this many small seekers in a fan of the
+  // given width (radians). dmg is per missile. Each one is handed a
+  // different target at launch, see swarmTargets(). One salvo is one
+  // round off the rack.
+  {key:'tornado', name:'Tornado', cls:'missile', unlock:22000,
+   ammoMul:0.5, dmg:14, cd:60, spd:3.2, life:210, homing:true,
+   swarm:4, fan:0.9,
+   note:'four seekers in a fan - each goes for a different target'},
   // subs: the warhead goes into the innards rather than the hull. A
   // corvette without engines does not leave.
   {key:'stiletto', name:'Stiletto', cls:'bomb', unlock:26000,
@@ -1796,7 +1797,7 @@ function rmValue(w, k, pri){
     if(k==='range') return w.range ? String(w.range) : 'FULL';
     return '';
   }
-  if(k==='dmg')    return String(w.dmg);
+  if(k==='dmg')    return w.swarm ? (w.swarm+'\u00d7'+w.dmg) : String(w.dmg);
   if(k==='ammo')   return String(Math.max(1, Math.round((shipStats(player.ship).sec||0)*w.ammoMul)));
   if(k==='reload') return (Math.round(w.cd/6)/10).toFixed(1)+'s';
   if(k==='spd')    return String(w.spd);
