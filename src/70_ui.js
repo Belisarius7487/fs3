@@ -29,7 +29,7 @@ function draw(){
 
   const loaded=imgsLoaded+nebsLoaded;
   if(loaded<TOTAL){
-    ctx.fillStyle='#00ff88';ctx.font='16px Courier New';
+    ctx.fillStyle=TH('text');ctx.font=thValue(16, false);
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText('Loading... '+loaded+'/'+TOTAL,W/2,H/2);return;}
 
@@ -307,10 +307,14 @@ function draw(){
       drawShield(e);
       drawScanRing(e);
 
+      // Freighters count too: transports, miners and hospital ships are
+      // often what a mission is about, and how much hull they have left is
+      // what decides how hard to fight for them.
       if(e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer'||
-         e.type==='boss'||e.type==='station'){
+         e.type==='boss'||e.type==='station'||e.type==='freighter'){
         const hbImg=IMGS[e.img];if(hbImg){
-          var bwMult=(e.type==='boss'?0.75:(e.type==='destroyer'?0.55:0.70));
+          var bwMult=(e.type==='boss'?0.75:(e.type==='destroyer'?0.55:
+                     (e.type==='freighter'?0.80:0.70)));
           const bw=hbImg.width*e.sc*bwMult;
           const bx=(e.x-bw*.5)|0,by=(e.y-hbImg.height*e.sc*.5-6)|0;
           ctx.globalAlpha=1;
@@ -397,15 +401,24 @@ function draw(){
   drawSettings();
   // Opening the settings pauses the game, so without this the pause
   // notice printed straight across the panel it had just opened.
-  if(paused && !settingsOpen){
-    ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='#ffffff';ctx.font='bold 32px Courier New';
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('PAUSED',W/2,H/2-20);
-    ctx.font='14px Courier New';ctx.fillStyle='#aaaaaa';
-    ctx.fillText('Press P or tap to resume',W/2,H/2+20);
-    ctx.textAlign='left';ctx.textBaseline='top';
-  }
+  if(paused && !settingsOpen) drawPaused();
+}
+
+// The pause notice: a panel from the kit over a dimmed field.
+function drawPaused(){
+  ctx.fillStyle='rgba(0,0,8,0.50)'; ctx.fillRect(0,0,W,H);
+  const pw=300, ph=92, px=((W-pw)/2)|0, py=((H-ph)/2)|0;
+  thPlate(px, py, pw, ph, thRGBA('panelBack', 0.90), 12);
+  thGlowPath(px, py, pw, ph, 12, 0.9);
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.save();
+  ctx.shadowColor='rgba('+TH('glow')+',0.55)'; ctx.shadowBlur=ecoBlur(18);
+  ctx.fillStyle=TH('textBright'); ctx.font=thLabel(28);
+  ctx.fillText('PAUSED', W/2, py+36);
+  ctx.restore();
+  ctx.fillStyle=TH('textDim'); ctx.font=thValue(12, false);
+  ctx.fillText('Press P or tap to resume', W/2, py+68);
+  ctx.textAlign='left'; ctx.textBaseline='top';
 }
 
 // The countdown used to live in the HUD bar, in the same strip as the
@@ -553,66 +566,168 @@ function drawHostileMark(e){
   ctx.restore();
 }
 
+// ── OBJECTIVES ───────────────────────────────────────────────
+// Two parts. A card comes in at the top of the field whenever there is
+// something new to know - a new objective, one met, one failed - and goes
+// again after a couple of seconds. A line under the bar, on the left,
+// keeps the current objective in view afterwards without covering the
+// fight. Nothing blinks: the card arriving is the signal.
+const OBJ_CARD_TIME = 230;    // steps a card stays, fades included
+const OBJ_CARD_FADE = 18;     // steps to come in, and to go
+const OBJ_TONE = {done:'#4dff88', fail:'#ff5533', part:'#ffcc44'};
+let objCard = null;           // {head, txt, tone, t0}
+let objPinned = '';           // the objective the last card announced
+let missionObj = '';          // a mission's own objective, see 'ziel'
+let missionObjUsed = false;   // this wave speaks for itself
+function objStrip(t){ return String(t||'').replace(/^\[\s*/, '').replace(/\s*\]$/, ''); }
+function objAnnounce(head, txt, tone){ objCard = {head:head, txt:txt, tone:tone, t0:fc}; }
+// What the player is to do right now, or null. A mission's own words
+// come first; otherwise whatever the field says.
+function currentObjective(){
+  if(missionObj) return {txt:missionObj, col:TH('accentWarm')};
+  // A mission that speaks for itself is not talked over by the field:
+  // between its own objectives there is nothing automatic to announce.
+  if(missionObjUsed) return null;
+  const ob = objectiveText();
+  return ob ? {txt:objStrip(ob.txt), col:ob.col} : null;
+}
 function drawFieldBanner(){
   if(GS!=='playing') return;
-  // The countdowns no longer suppress it, they just push it down a row.
-  let txt=null, col='#ff2200', ink='#ff4422';
-  const ob=objectiveText();
-  if(ob){
-    txt=ob.txt; col=ob.col; ink=ob.ink;
-    objWasSet = true; objSeenOnce = true;
-  } else {
-    // Gab es einen Auftrag und ist er jetzt weg, war er erledigt. Ohne
-    // diese Meldung verschwindet die Zeile stumm und der Spieler weiss
-    // nicht, ob er fertig ist oder etwas uebersehen hat.
-    if(objWasSet){ objWasSet = false; objDoneT = OBJ_DONE_TIME; objFailed = guardLost; }
-    const bossInQ=spawnQ.some(function(s){return s.type==='boss_ntf'||s.type==='boss_sh';});
-    if(objDoneT>0){
-      if(!paused) objDoneT--;
-      if(objFailed && protSaved>0){
-        // Ein Teil ist durchgekommen: weder Erfolg noch Fehlschlag.
-        txt='[ PARTIAL SUCCESS  '+protSaved+'/'+(protSaved+protLost)+' ]';
-        col='#bb8800'; ink='#ffcc44';
-      }
-      else if(objFailed){ txt='[ OBJECTIVE FAILED ]'; col='#cc2200'; ink='#ff5533'; }
-      else              { txt='[ OBJECTIVE COMPLETE ]'; col='#00cc44'; ink='#4dff88'; }
+  const ob = objectiveText();
+  const prev = objPinned;
+  // Bookkeeping of the automatic objectives, as before: while one stands
+  // it counts as set, and when it goes it was met or failed.
+  if(ob){ objWasSet = true; objSeenOnce = true; }
+  else if(objWasSet){
+    objWasSet = false; objDoneT = OBJ_DONE_TIME; objFailed = guardLost;
+    if(!missionObjUsed){
+      if(objFailed && protSaved>0)
+        objAnnounce('PARTIAL SUCCESS', protSaved+' OF '+(protSaved+protLost)+' GOT THROUGH', 'part');
+      else objAnnounce(objFailed ? 'OBJECTIVE FAILED' : 'OBJECTIVE COMPLETE',
+                       prev || 'OBJECTIVE', objFailed ? 'fail' : 'done');
     }
-    else if(bossInQ||bossAlive) txt='[ BOSS FIGHT ]';
-    // Sonst: aufraeumen. Die Zeile bleibt stehen, solange noch etwas im
-    // Feld oder in der Warteschlange steht.
-    else if(!spawnQ.length && liveThreatCount()>0)
-      { txt='[ CLEAR THE FIELD ]'; col='#ff2200'; ink='#ff4422'; }
   }
-  if(!txt) return;
-  if(fc%60>=42) return;
+  if(objDoneT>0 && !paused) objDoneT--;
+  const cur = currentObjective();
+  if(cur){ if(cur.txt!==objPinned){ objPinned = cur.txt; objAnnounce('NEW OBJECTIVE', cur.txt, 'new'); } }
+  else objPinned = '';
+  // A card waits for the jump in to finish: nobody reads it in the dark.
+  if(objCard && arriveT>0) objCard.t0 = fc;
+  // The line: the objective, or failing that what is left to do.
+  let pin = cur;
+  if(!pin){
+    const bossInQ = spawnQ.some(function(s){ return s.type==='boss_ntf'||s.type==='boss_sh'; });
+    if(bossInQ || bossAlive) pin = {txt:'BOSS FIGHT', col:'#ff5533'};
+    else if(!spawnQ.length && liveThreatCount()>0) pin = {txt:'CLEAR THE FIELD', col:'#ff5533'};
+  }
+  // While the card is announcing this very objective, the line waits.
+  const cardAge = objCard ? fc - objCard.t0 : 1e9;
+  const cardUp = objCard && cardAge < OBJ_CARD_TIME - OBJ_CARD_FADE;
+  const lineUp = pin && arriveT<=0 && !(cardUp && objCard.tone==='new' && objCard.txt===pin.txt);
+  if(lineUp) drawObjLine(pin);
+  drawNotices(HUD_H + 6 + (lineUp ? 26 : 0));
+  drawObjCard();
+}
+// ── NOTICES ──────────────────────────────────────────────────
+// What concerns the whole fight rather than one ship: a hull or weapon
+// becoming available, a radio line from the mission, a refit. A small
+// column under the objective line, never in the middle of the field.
+// Newest on top, at most NOTICE_MAX, each for NOTICE_TIME steps. Steps
+// of the game, so a pause holds them.
+const NOTICE_TIME = 320, NOTICE_FADE = 40, NOTICE_IN = 10, NOTICE_MAX = 3;
+const NOTICE_TONE = {unlock:null, info:'#7fd6ff', good:'#4dff88', bad:'#ff5533'};
+let NOTICES = [];
+function notice(txt, tone){
+  NOTICES.unshift({txt:String(txt), tone:tone||'info', t0:fc});
+  if(NOTICES.length > NOTICE_MAX) NOTICES.length = NOTICE_MAX;
+}
+function drawNotices(y0){
+  for(let i=NOTICES.length-1;i>=0;i--) if(fc-NOTICES[i].t0 >= NOTICE_TIME) NOTICES.splice(i,1);
+  let y = y0;
+  for(const n of NOTICES){
+    const age = fc - n.t0;
+    let a = 1;
+    if(age < NOTICE_IN) a = age/NOTICE_IN;
+    else if(age > NOTICE_TIME-NOTICE_FADE) a = (NOTICE_TIME-age)/NOTICE_FADE;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, a);
+    ctx.font = thValue(11, true);
+    const txt = thFit(n.txt, 360);
+    const pw = Math.round(ctx.measureText(txt).width + 24), ph = 18;
+    thPlate(8, y, pw, ph, thRGBA('panelBack', 0.62), 4);
+    // The mark on the left says what kind of news it is.
+    ctx.fillStyle = NOTICE_TONE[n.tone] || TH('accentWarm');
+    ctx.fillRect(13, y+4, 2, ph-8);
+    ctx.fillStyle = TH('text'); ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(txt, 20, y+ph/2+1);
+    ctx.restore();
+    y += ph + 4;
+  }
+  ctx.textAlign='left'; ctx.textBaseline='top';
+}
+// The line under the bar: a plate from the kit, a small wedge in the
+// objective's colour, the words.
+function drawObjLine(pin){
   ctx.save();
-  ctx.font='bold 12px Courier New';
-  ctx.textAlign='center'; ctx.textBaseline='top';
-  // Pushed below whatever countdowns are running.
-  const rows=Math.min(FLEE_ROWS, fleeingEnemies().length);
-  const tw=ctx.measureText(txt).width;
-  const bx=((W-tw)/2-10)|0, by=HUD_H+6+rows*23;
-  ctx.globalAlpha=0.72; ctx.fillStyle='#000';
-  ctx.fillRect(bx,by,(tw+20)|0,20);
-  ctx.globalAlpha=1;
-  ctx.strokeStyle=col; ctx.lineWidth=1;
-  ctx.strokeRect(bx,by,(tw+20)|0,20);
-  ctx.fillStyle=ink;
-  ctx.fillText(txt,W/2,by+5);
+  ctx.font = thValue(12, true);
+  const txt = thFit(pin.txt, 380);
+  const tw = ctx.measureText(txt).width;
+  const px = 8, py = HUD_H+6, pw = Math.round(tw+32), ph = 20;
+  thPlate(px, py, pw, ph, thRGBA('panelBack', 0.66), 5);
+  ctx.fillStyle = pin.col;
+  ctx.beginPath(); ctx.moveTo(px+10, py+6); ctx.lineTo(px+16, py+10); ctx.lineTo(px+10, py+14);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = TH('textBright'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(txt, px+23, py+ph/2+1);
+  ctx.restore();
+  ctx.textAlign='left'; ctx.textBaseline='top';
+}
+// The card: comes down a few points as it fades in, stands, fades out.
+// Below any jump-out countdowns, so the two never overlap.
+function drawObjCard(){
+  if(!objCard) return;
+  const age = fc - objCard.t0;
+  if(age >= OBJ_CARD_TIME){ objCard = null; return; }
+  let a = 1;
+  if(age < OBJ_CARD_FADE) a = age/OBJ_CARD_FADE;
+  else if(age > OBJ_CARD_TIME-OBJ_CARD_FADE) a = (OBJ_CARD_TIME-age)/OBJ_CARD_FADE;
+  if(arriveT>0) return;
+  const col = objCard.tone==='new' ? TH('accentWarm') : OBJ_TONE[objCard.tone];
+  ctx.save();
+  ctx.font = thValue(16, true);
+  const maxW = W-160;
+  const txt = thFit(objCard.txt, maxW-40);
+  const cw = Math.round(Math.max(280, Math.min(maxW, ctx.measureText(txt).width+56)));
+  const ch = 54;
+  const rows = Math.min(FLEE_ROWS, fleeingEnemies().length);
+  const cx = ((W-cw)/2)|0;
+  const cy = (HUD_H + 12 + rows*26 - (1-a)*10)|0;
+  ctx.globalAlpha = a;
+  thPlate(cx, cy, cw, ch, thRGBA('panelBack', 0.80), 8);
+  thGlowPath(cx, cy, cw, ch, 8, 0.8);
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle = col; ctx.font = thLabel(10);
+  ctx.fillText(objCard.head, W/2, cy+15);
+  // A short rule in the card's colour under the heading.
+  ctx.fillRect(W/2-22, cy+23, 44, 2);
+  ctx.fillStyle = TH('textBright'); ctx.font = thValue(16, true);
+  ctx.fillText(txt, W/2, cy+38);
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
 
 // Stacked, most urgent at the top. Three at once is already more capital
 // ships than any wave fields, so the list is capped there.
+// Right aligned under the bar: the objective line and the notices own
+// the left side, and a long objective reached into a centred plate.
 const FLEE_ROWS = 3;
 function drawFleeWarning(){
   if(GS!=='playing') return;
   const list=fleeingEnemies();
   if(!list.length) return;
   ctx.save();
-  ctx.font='bold 12px Courier New';
-  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.font=thValue(12, true);
+  ctx.textAlign='center'; ctx.textBaseline='middle';
   let row=0;
   for(const flr of list){
     if(row>=FLEE_ROWS) break;
@@ -621,18 +736,13 @@ function drawFleeWarning(){
     const by=HUD_H+6+row*23;
     row++;
     if(urgent && fc%40>=28) continue;      // blink once it gets tight
-    const txt=(flr.label||(flr.type||'CAPITAL SHIP').toUpperCase())+
+    const txt=(flr.label ? flr.label.toUpperCase() : shipName(flr.img, flr.type||'capital ship'))+
               (flr.disarmed?' WITHDRAWING IN ':' JUMPING OUT IN ')+sec+'s';
     const tw=ctx.measureText(txt).width;
-    const bx=((W-tw)/2-10)|0;
-    ctx.globalAlpha=0.72;
-    ctx.fillStyle='#000';
-    ctx.fillRect(bx, by, (tw+20)|0, 20);
-    ctx.globalAlpha=1;
-    ctx.strokeStyle=urgent?'#ff5500':'#ffbb22'; ctx.lineWidth=1;
-    ctx.strokeRect(bx, by, (tw+20)|0, 20);
+    const bw=(tw+28)|0, bx=(W-8-bw)|0;
+    thPlate(bx, by, bw, 20, thRGBA('panelBack', 0.72), 5);
     ctx.fillStyle=urgent?'#ff7733':'#ffcc44';
-    ctx.fillText(txt, W/2, by+5);
+    ctx.fillText(txt, bx+bw/2, by+11);
   }
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
@@ -678,40 +788,34 @@ function tickFps(){
 // Festbreitenschrift, ein Zeichen ist 0.6 mal die Schriftgroesse breit -
 // bei 11 px also 6.6 px. 'FPS 120' sind sieben Zeichen und damit 46.2 px,
 // der Kasten ist 54 breit.
+// A small plate from the kit, right aligned under the bar.
+function drawReadout(txt, row, col){
+  ctx.save();
+  ctx.font = thValue(11, true);
+  const tw = ctx.measureText(txt).width;
+  const pw = Math.round(tw+16), ph = 16;
+  // Below the jump-out countdowns, which share the right edge.
+  const fr = (GS==='playing') ? Math.min(FLEE_ROWS, fleeingEnemies().length) : 0;
+  const px = W-6-pw, py = HUD_H+6+fr*23+row*20;
+  thPlate(px, py, pw, ph, thRGBA('panelBack', 0.66), 4);
+  ctx.fillStyle = col; ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText(txt, px+8, py+ph/2+1);
+  ctx.restore();
+  ctx.textAlign='left'; ctx.textBaseline='top';
+}
 function drawFps(){
   if(!showFps) return;
-  const txt='FPS '+(fpsVal||'--');
-  ctx.save();
-  ctx.font='bold 11px Courier New';
-  ctx.textAlign='left'; ctx.textBaseline='top';
-  ctx.globalAlpha=0.72; ctx.fillStyle='#000';
-  ctx.fillRect(W-60, HUD_H+4, 54, 15);
-  ctx.globalAlpha=1;
-  ctx.fillStyle = fpsVal && fpsVal<40 ? '#ff9900' : '#00ee55';
-  ctx.fillText(txt, W-56, HUD_H+6);
-  ctx.restore();
+  drawReadout('FPS '+(fpsVal||'--'), 0, fpsVal && fpsVal<40 ? '#ff9900' : TH('textBright'));
 }
-// Objektzaehler. Drei Zahlen statt einer Summe: eine Summe sagt, dass es
-// waechst, drei sagen welche Liste waechst. Courier ist eine
-// Festbreitenschrift, ein Zeichen ist 0.6 mal die Schriftgroesse breit -
-// bei 11 px also 6.6. Der laengste denkbare Text 'OBJ 999/9999/999' hat
-// 16 Zeichen und damit 105.6 px, der Kasten ist 112 breit.
+// Object counter. Three numbers instead of a sum: a sum says that it
+// grows, three say which list grows.
 let showObj=false;
 function drawObjCount(){
   if(!showObj) return;
   const ships = enemies.length + allies.length;
   const shots = pBullets.length + eBullets.length;
   const junk  = debris.length + PARTS.length + ITEMS.length;
-  const txt = 'OBJ '+ships+'/'+shots+'/'+junk;
-  ctx.save();
-  ctx.font='bold 11px Courier New';
-  ctx.textAlign='left'; ctx.textBaseline='top';
-  ctx.globalAlpha=0.72; ctx.fillStyle='#000';
-  ctx.fillRect(W-118, HUD_H+22, 112, 15);
-  ctx.globalAlpha=1;
-  ctx.fillStyle='#66ccff';
-  ctx.fillText(txt, W-114, HUD_H+24);
-  ctx.restore();
+  drawReadout('OBJ '+ships+'/'+shots+'/'+junk, showFps ? 1 : 0, TH('text'));
 }
 
 // No need to remember the previous pause any more: closing the panel
@@ -904,6 +1008,36 @@ function drawBombIcon(cx, cy, col){
   ctx.restore();
 }
 
+// ── BAR PULSE ────────────────────────────────────────────────
+// Something in the bar calls attention to itself: soft pulses of the
+// kit's glow ring, n of them over t steps. weak: the same, dimmed - a
+// pickup that changed nothing. Keys: 'hull', 'lives', 'swap', 'rearm',
+// 'ticket:<kind>'. Game steps, so a pause holds them.
+const BAR_PULSE_T = 150, BAR_PULSE_N = 3;      // pickups
+const BAR_CALL_T  = 240, BAR_CALL_N  = 4;      // a button that can now be used
+const BAR_WEAK    = 0.4;
+let BAR_PULSE = {};
+function barPulse(key, weak, t, n){
+  BAR_PULSE[key] = {t0:fc, weak:!!weak, t:t||BAR_PULSE_T, n:n||BAR_PULSE_N};
+}
+function barPulseLevel(key){
+  const p = BAR_PULSE[key];
+  if(!p) return 0;
+  const age = fc - p.t0;
+  if(age >= p.t){ delete BAR_PULSE[key]; return 0; }
+  const v = 0.5 - 0.5*Math.cos(age/p.t*Math.PI*2*p.n);
+  return v * (p.weak ? BAR_WEAK : 1);
+}
+// A button becoming usable is news once, when it happens - not every
+// step it stays usable.
+let barSwapWas = false, barRearmWas = false;
+function tickBarAttention(){
+  if(GS!=='playing' || FS1_MODE){ barSwapWas = false; barRearmWas = false; return; }
+  const s = shipSwapReady(), r = rearmReady();
+  if(s && !barSwapWas)  barPulse('swap',  false, BAR_CALL_T, BAR_CALL_N);
+  if(r && !barRearmWas) barPulse('rearm', false, BAR_CALL_T, BAR_CALL_N);
+  barSwapWas = s; barRearmWas = r;
+}
 function drawHUD(){
   if(GS!=='playing') return;
   drawHUDHLP();
@@ -953,6 +1087,12 @@ function drawHUDHLP(){
   ctx.fillRect(hx, hy+11, (hw*hR)|0, hh);
   ctx.globalAlpha=1;
   thBevel(hx, hy+11, hw, hh);
+  var hPl=barPulseLevel('hull');
+  if(hPl>0){
+    ctx.fillStyle='rgba(77,255,136,'+(0.35*hPl).toFixed(3)+')';
+    ctx.fillRect(hx, hy+11, hw, hh);
+    thGlowPath(hx-3, hy+8, hw+6, hh+6, 3, hPl);
+  }
 
   var sy=hy+24;
   var sR=player.sh/player.maxSh;
@@ -987,6 +1127,8 @@ function drawHUDHLP(){
   }
   ctx.fillStyle=TH('textBright'); ctx.font=thValue(15, true);
   ctx.fillText(String(lives), lx+usedW+7, lsy+2);
+  var lPl=barPulseLevel('lives');
+  if(lPl>0) thGlowPath(lx-5, 5, 88, H2-10, 4, lPl);
 
   thDivider(406, 4, H2-4);
 
@@ -1032,10 +1174,11 @@ function drawHUDHLP(){
     for(var ti=0; ti<TICKET_ORDER.length; ti++){
       var tk=TICKET_ORDER[ti], tn=tickets[tk]||0;
       var lit=tn>0;
-      var fresh=(ticketFlash>0 && ticketFlashKind===tk && fc%16<10);
-      var col=fresh?TH('accentWarm'):(lit?TH('accent'):TH('textDim'));
+      var tPl=barPulseLevel('ticket:'+tk);
+      var col=(tPl>0.3)?TH('accentWarm'):(lit?TH('accent'):TH('textDim'));
       var tico=ICONS[TICKET_ICON[tk]];
       var tcx=tkX+(ti%2)*tkW, tcy=tkY+((ti/2)|0)*tkH;
+      if(tPl>0) thGlowPath(tcx-4, tcy+2, tkW-6, tkH-2, 3, tPl);
       ctx.textAlign='left'; ctx.textBaseline='top';
       ctx.fillStyle=col; ctx.font=thValue(13, true);
       ctx.fillText(tn+'x', tcx, tcy+5);
@@ -1063,12 +1206,16 @@ function drawHUDHLP(){
     var swOn=shipSwapReady()||shipMenu;
     var swHv=hovering(swX, swY, swW, swH);
     thButton(swX, swY, swW, swH, (shipMenu||swHv)?'on':(swOn?'ready':null));
+    var swPl=barPulseLevel('swap');
+    if(swPl>0) thGlowPath(swX-3, swY-2, swW+6, swH+4, 5, swPl);
     drawSwapIcon(swX+swW/2, swY+swH/2,
                  swOn?TH('accentWarm'):(swHv?TH('text'):TH('textDim')));
     window._shipBtnRect={x:swX, y:swY, w:swW, h:swH};
     var rmOn=rearmReady()||rearmMenu;
     var rmHv=hovering(rmX, swY, swW, swH);
     thButton(rmX, swY, swW, swH, (rearmMenu||rmHv)?'on':(rmOn?'ready':null));
+    var rmPl=barPulseLevel('rearm');
+    if(rmPl>0) thGlowPath(rmX-3, swY-2, swW+6, swH+4, 5, rmPl);
     drawRearmIcon(rmX+swW/2, swY+swH/2,
                   rmOn?TH('accentWarm'):(rmHv?TH('text'):TH('textDim')));
     window._rearmBtnRect={x:rmX, y:swY, w:swW, h:swH};
@@ -1164,8 +1311,27 @@ function shipOffered(key){
   for(let i=0;i<hf.length;i++) if(hangarServes(hf[i], sf)) return true;
   return false;
 }
+// Hulls a mission can put the player into that no roster offers.
+const EXTRA_SHIPS = {
+  fipegasus: {key:'fipegasus', name:'GTF Pegasus', fac:'terran', spd:3.6, turn:0.17,
+              hp:80, sh:80, sec:20}
+};
+// The player's own hull while a mission lends another, or ''.
+let forcedPrev = '';
+function forceShip(key){
+  if(!forcedPrev) forcedPrev = player.ship;
+  applyShip(key);
+  notice(shipStats(key).name.toUpperCase()+' ASSIGNED', 'info');
+}
+// The next wave hands the player's own hull back, refitted.
+function releaseShip(){
+  if(!forcedPrev) return;
+  const k = forcedPrev; forcedPrev = '';
+  applyShip(k);
+}
 function shipStats(key){
   for(const s of PLAYER_SHIPS) if(s.key===key) return s;
+  if(EXTRA_SHIPS[key]) return EXTRA_SHIPS[key];
   const b = isBomberHull(key);
   return {key:key, name:key, spd:b?PLAYER_SPD_BOMBER:PLAYER_SPD_FIGHTER, turn:PLAYER_TURN,
           hp:100, sh:100, sec:b?10:20};
@@ -1202,13 +1368,14 @@ function tickShipUnlocks(){
   // Counted from the start of the cycle: every cycle opens its own roster.
   while(shipUnlocked < PLAYER_SHIPS.length && score-cycleBase >= PLAYER_SHIPS[shipUnlocked].unlock){
     const s = PLAYER_SHIPS[shipUnlocked++];
-    SUB_MSGS.push({x:W/2, y:H*0.34, txt:s.name.toUpperCase()+' AVAILABLE', life:260, ml:260, ally:true});
+    notice(s.name.toUpperCase()+' AVAILABLE', 'unlock');
   }
 }
 // The switch lands from an allied destroyer's hangar, so one has to be on
 // the field. The campaign mode assigns its hulls itself.
 function shipSwapReady(){
   if(GS!=='playing' || FS1_MODE || inJump()) return false;
+  if(forcedPrev) return false;      // this mission's hull is not negotiable
   if(shipUnlocked<2) return false;
   // One switch per wave, except while the Colossus is on station: her yard
   // stays open, and only the first switch of a wave refits.
@@ -1252,9 +1419,7 @@ function swapShip(key){
   setShipMenu(false);
   applyShip(key, keep);
   shipSwapWave = wave;
-  SUB_MSGS.push({x:player.x+60, y:player.y-30,
-                 txt:PLAYER_SHIPS[i].name.toUpperCase()+(again?'  NO REFIT':''),
-                 life:170, ml:170, ally:true});
+  notice(PLAYER_SHIPS[i].name.toUpperCase()+(again?' - NO REFIT':''), 'good');
 }
 // Two arrows passing each other.
 function drawSwapIcon(cx, cy, col){
@@ -1474,8 +1639,7 @@ function tickWeaponUnlocks(){
   for(const w of PRIMARIES.concat(SECONDARIES)){
     if(!w.unlock || WPN_SEEN[w.key] || score < w.unlock) continue;
     WPN_SEEN[w.key] = true;
-    SUB_MSGS.push({x:W/2, y:H*0.40, txt:weaponName(w).toUpperCase()+' AVAILABLE',
-                   life:260, ml:260, ally:true});
+    notice(weaponName(w).toUpperCase()+' AVAILABLE', 'unlock');
   }
 }
 // A rearm comes off an allied corvette, the way a hull comes out of a
@@ -1515,8 +1679,7 @@ function fitWeapon(key){
   if(kind==='pri') player.pri = w.key; else player.sec = w.key;
   setRearmMenu(false);
   rearmFull();
-  SUB_MSGS.push({x:player.x+60, y:player.y-30, txt:weaponName(w).toUpperCase()+'  REARMED',
-                 life:170, ml:170, ally:true});
+  notice(weaponName(w).toUpperCase()+' REARMED', 'good');
 }
 
 // ── HANGAR LAYOUT ────────────────────────────────────────────
@@ -2143,6 +2306,7 @@ function pointerConsumed(p){
 // title first. Reading your score and then being dropped into the next
 // wave in the same breath left no moment to stop.
 function toTitleOrLaunch(){
+  NOTICES = [];
   if(GS==='gameover'){ enterTitle(); return; }
   launchGame();
 }

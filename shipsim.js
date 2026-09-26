@@ -30,6 +30,7 @@ const shipsDecl = src.match(/const PLAYER_SHIPS = \[[\s\S]*?\];/)[0];
 // The cycle tables and the support columns they switch.
 const cycleDecl = src.match(/const ROSTER_HOL[\s\S]*?\nlet cycleBase = 0;[^\n]*/)[0];
 const facOnDecl = src.match(/const ALLY_FAC_ON = \{[^}]*\};/)[0];
+const extraDecl = src.match(/const EXTRA_SHIPS = (\{[\s\S]*?\n\});/)[1];
 const hullFacDecl = src.match(/const HULL_FAC = \{[\s\S]*?\};/)[0];
 const menuBgDecl = src.match(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/)[0];
 const hangarDecl = src.match(/const HG_W[\s\S]*?\n\];/)[0];
@@ -58,7 +59,7 @@ const names = [
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
   'mountsFor','spriteFacing','drawHullBg','drawHullCell','volleyDmg','volleyTotal','primaryCount','syncPause',
   'hangarGroups','hangarLayout','drawMissileIcon','drawBombIcon','drawKeyChip',
-  'hangarOrder','insidePanel','cycleAt','enterCycle','titleFsHit',
+  'hangarOrder','insidePanel','cycleAt','enterCycle','titleFsHit','forceShip','releaseShip',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','thButton','thDivider','drawSwapIcon','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
@@ -104,6 +105,13 @@ const world = `
   let FS1_MODE=false, GS='playing', paused=false, callMenu=false, wave=1, score=0, allies=[], jump=false;
   let settingsOpen=false, userPaused=false;
   let SUB_MSGS=[], MOUSE={x:0,y:0}, lives=3, player={x:100,y:200,hullMult:1};
+  // Notices go to the column under the objective line; the column itself
+  // is not under test here, only what is announced.
+  let NOTICE_LOG=[]; function notice(t, tone){ NOTICE_LOG.push({txt:t, tone:tone}); }
+  // The bar's attention pulses are the field simulation's business.
+  let BAR_PULSE={}; function barPulseLevel(){ return 0; } function barPulse(){}
+  // A hull lent by a mission (see forceShip).
+  let forcedPrev='';
   let eraOff=false, IMGS={}, isFiring=false, launched=0;
   const ctx=CTX, document={body:{classList:{add(){},remove(){}}}, getElementById(){return {style:{}};}};
   const window={};
@@ -125,6 +133,7 @@ const world = `
   let MOUNTS={};
   ${shipsDecl}
   let UI_SHIPS=1;
+  const EXTRA_SHIPS = ${extraDecl};
   ${facOnDecl}
   ${cycleDecl}
   ${names.map(fn).join('\n')}
@@ -137,7 +146,7 @@ const W = new Function('CTX', world)(ctxStub);
 let fails = 0;
 function ok(label, cond){ console.log((cond?'  ok    ':'  FAIL  ')+label); if(!cond) fails++; }
 const P = ()=>W.get('player');
-const reset = ()=>{ W.run("GS='playing';paused=false;resumeHold=false;callMenu=false;shipMenu=false;wave=1;score=0;allies=[];jump=false;FS1_MODE=false;shipUnlocked=1;shipSwapWave=-1;SUB_MSGS=[];player={x:100,y:200,hullMult:1};applyShip(PLAYER_SHIPS[0].key)"); };
+const reset = ()=>{ W.run("GS='playing';paused=false;resumeHold=false;callMenu=false;shipMenu=false;wave=1;score=0;allies=[];jump=false;FS1_MODE=false;shipUnlocked=1;shipSwapWave=-1;SUB_MSGS=[];NOTICE_LOG=[];player={x:100,y:200,hullMult:1};applyShip(PLAYER_SHIPS[0].key)"); };
 const destroyer = (o)=>Object.assign({img:'dehatshepsut', small:false, dead:false, warpOut:false}, o||{});
 
 console.log('Start ship');
@@ -148,10 +157,10 @@ ok('Thoth stats 3.5 / 0.17 / 100 / 100 / 20 missiles', P().spd===3.5 && P().turn
 console.log('Unlocks');
 reset();
 W.run("score=3999; tickShipUnlocks()"); ok('3999 points: nothing unlocked', W.get('shipUnlocked')===1);
-W.run("score=4000; tickShipUnlocks()"); ok('4000 points: Horus unlocked, one message', W.get('shipUnlocked')===2 && W.get('SUB_MSGS').length===1 && /HORUS/.test(W.get('SUB_MSGS')[0].txt));
-W.run("score=23000; tickShipUnlocks()"); ok('jump to 23000: Osiris, Serapis, Seth at once', W.get('shipUnlocked')===5 && W.get('SUB_MSGS').length===4);
+W.run("score=4000; tickShipUnlocks()"); ok('4000 points: Horus unlocked, one message', W.get('shipUnlocked')===2 && W.get('NOTICE_LOG').length===1 && /HORUS/.test(W.get('NOTICE_LOG')[0].txt));
+W.run("score=23000; tickShipUnlocks()"); ok('jump to 23000: Osiris, Serapis, Seth at once', W.get('shipUnlocked')===5 && W.get('NOTICE_LOG').length===4);
 W.run("score=999999; tickShipUnlocks()"); ok('never past the end of the list', W.get('shipUnlocked')===8);
-W.run("tickShipUnlocks()"); ok('seven unlock messages in total, none repeated', W.get('SUB_MSGS').length===7);
+W.run("tickShipUnlocks()"); ok('seven unlock messages in total, none repeated', W.get('NOTICE_LOG').length===7);
 reset(); W.run("FS1_MODE=true; score=99999; tickShipUnlocks()"); ok('FS1 mode: no unlocks', W.get('shipUnlocked')===1);
 reset(); W.run("GS='gameover'; score=99999; tickShipUnlocks()"); ok('not outside play', W.get('shipUnlocked')===1);
 
@@ -360,7 +369,7 @@ console.log('Cycles: each brings its own fleet');
   W.run("score=95000+3999; tickShipUnlocks()");
   ok('the points brought into the cycle do not count', W.get('shipUnlocked')===1);
   W.run("score=95000+4000; tickShipUnlocks()");
-  ok('4000 points scored IN the cycle open the Hercules', W.get('shipUnlocked')===2 && /HERCULES/.test(W.get('SUB_MSGS').slice(-1)[0].txt));
+  ok('4000 points scored IN the cycle open the Hercules', W.get('shipUnlocked')===2 && /HERCULES/.test(W.get('NOTICE_LOG').slice(-1)[0].txt));
   ok('the Terran support column answers, the Vasudan one does not',
      W.run('ALLY_FAC_ON.terran')===true && W.run('ALLY_FAC_ON.vasudan')===false);
   // The hangar follows the hull, so the Terran roster needs a Terran destroyer.
@@ -378,6 +387,27 @@ ok('crossing into a new cycle hands over the fleet',
    /if\(_c!==cycleNow\) enterCycle\(_c\);/.test(fn('nextWave')));
 ok('?m= starts the run at that wave instead of repeating it',
    /SCRIPT_ONE\?SCRIPT_ONE-1:0/.test(fn('launchGame')) && !/SCRIPT_ONE \? SCRIPT_ONE : n/.test(src));
+
+console.log('A mission can lend a hull');
+{
+  reset(); W.run("score=95000; enterCycle(cycleAt(31)); shipUnlocked=8");
+  W.set('allies',[destroyer({img:'deorionright'})]);
+  ok('before: a Terran destroyer offers a switch', W.run('shipSwapReady()')===true);
+  W.run("forceShip('fipegasus')");
+  ok('the player flies the lent hull', P().ship==='fipegasus');
+  ok('with its own figures, not the fighter defaults',
+     P().maxSh===80 && P().spd===3.6 && W.run("shipStats('fipegasus').name")==='GTF Pegasus');
+  ok('and the hangar is closed for this mission', W.run('shipSwapReady()')===false);
+  ok('it is announced in the column', W.get('NOTICE_LOG').some(n=>/PEGASUS ASSIGNED/.test(n.txt)));
+  W.run("player.hp=10; releaseShip()");
+  ok('the next wave hands the own hull back, refitted', P().ship==='fimyrmidon' && P().hp===P().maxHp);
+  ok('and the hangar opens again', W.run('shipSwapReady()')===true);
+  W.run("releaseShip()");
+  ok('releasing twice changes nothing', P().ship==='fimyrmidon');
+  W.run("enterCycle(cycleAt(1))");   // the tests below expect the first fleet
+}
+ok('the next wave releases a lent hull before anything else',
+   /releaseShip\(\);[\s\S]{0,200}enterCycle/.test(fn('nextWave')));
 
 console.log('Support calls by faction');
 ok('the Terran column is off in this cycle', src.includes("const ALLY_FAC_ON = {terran:false, vasudan:true, gtva:true};"));

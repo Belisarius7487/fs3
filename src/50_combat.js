@@ -426,7 +426,7 @@ function drawEmpHudGlitch(){
     ctx.fillRect(x0,y,x1-x0,2);
   }
   if(fc%40<14){
-    ctx.fillStyle='#ffdd44'; ctx.font='bold 9px Courier New';
+    ctx.fillStyle='#ffdd44'; ctx.font=thLabel(9);
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('SENSOR FAULT', (EMP_TIME_X+x1)/2, (HUD_H/2)|0);
     ctx.textAlign='left'; ctx.textBaseline='top';
@@ -903,6 +903,9 @@ function nearestOf(list, e, want){
     if(want==='small' && !isSmallShip(o)) continue;
     if(want==='bomber' && o.type!=='bomber') continue;
     if(list===enemies && playerOnly(o)) continue;
+    // The same things nearestEnemy() leaves alone: scenery that cannot
+    // be hurt, and ships that are only there to be scanned or taken.
+    if(list===enemies && (o.invuln || o.noTarget)) continue;
     const d=(o.x-e.x)*(o.x-e.x)+(o.y-e.y)*(o.y-e.y);
     if(d<bd){bd=d;best=o;}
   }
@@ -1108,6 +1111,9 @@ function flySmall(e){
 // Guns only bear within a cone ahead, and the further out the target sits
 // the wider the shot scatters.
 function smallFire(e, t){
+  // No target: smallTarget() then hands back the ship itself, and a
+  // lead angle onto its own position reads as dead ahead.
+  if(!t || t===e){ e.fT=12; return; }
   const d=Math.hypot(t.x-e.x, t.y-e.y);
   if(d>fireRange()){ e.fT=12; return; }
   const aim=leadAngle(e.x, e.y, t, EBULLET_SPD);
@@ -1190,8 +1196,13 @@ function canLockOn(o){
   if(nebulaOn()) return false;
   if(empOut>0) return false;
   if(o === player) return player.ship !== STEALTH_HULL;
+  // The NTF flies the Loki as a stealth fighter: nothing holds a lock on
+  // one. Only on the enemy side - and only the lock. It stays in plain
+  // sight; FreeSpace has no visual cloak and neither does this game.
+  if(o.side==='enemy' && LOCKLESS_HULLS[o.img]) return false;
   return o.img !== STEALTH_HULL;
 }
+const LOCKLESS_HULLS = {filoki:true};
 
 // All valid targets for one turret on ship e.
 function beamTargets(e, wantLarge){
@@ -1740,6 +1751,9 @@ function beamCol(faction, large) {
   // vasudanische Ruempfe. Die Triebwerke bleiben orange: die tragen die
   // Feind-Freund-Kennung, die Strahlen nicht.
   if(faction==='hol') faction = 'vasudan';
+  // The Colossus belongs to no side's column any more ('gtva'), but she
+  // is a Terran-built ship and fires Terran beams.
+  if(faction==='gtva') faction = 'terran';
   if(faction==='ntf' || faction==='terran') return large ? '#00ff55' : '#4499ff';
   if(faction==='shivan') return large ? '#ff2200' : '#ff4422';
   if(faction==='vasudan')return large ? '#ffcc00' : '#ffaa00';
@@ -1864,6 +1878,13 @@ function fireSecondaries(e, cfg){
   if(e.secAmmo!=null && e.secAmmo<=0) return;   // out of ordnance, guns only
   const pts = entMounts(e,'secondary');
   if(!pts || !pts.length) return;
+  // An escort launches only when there is something to launch at.
+  // Without this the load went out on the clock, straight to the right.
+  const atg = (e.side==='ally') ? nearestEnemy(e.x, e.y) : null;
+  if(e.side==='ally' && !atg){
+    for(let i=0;i<e.secT.length;i++) if(e.secT[i]<30) e.secT[i]=30;
+    return;
+  }
   for(let i=0;i<pts.length && i<e.secT.length;i++){
     if(--e.secT[i] <= 0){
       e.secT[i] = (rndR(cfg.sec.rate) * (e.fireBoost||1))|0;
@@ -1903,7 +1924,9 @@ function capGunTarget(e){
     const d=(a.x-e.x)*(a.x-e.x)+(a.y-e.y)*(a.y-e.y);
     if(d<bd){ bd=d; best=a; }
   }
-  return best || player;
+  // A ship that cannot be locked (the Pegasus) is not a target for the
+  // guns either; with nothing else in reach they hold fire.
+  return best || (canLockOn(player) ? player : null);
 }
 
 // -- CAPITAL FLAK ---------------------------------------------
@@ -1992,6 +2015,7 @@ function capitalFire(e){
         // Sensoren, wie vorher - nur wirkt sie jetzt um die Zielrichtung
         // herum und nicht um die Waagerechte.
         const gt = capGunTarget(e);
+        if(!gt) continue;
         const ga = Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x)
                  + (Math.random()-0.5)*0.10*eScat;
         if(Math.random() < cfg.big) eBig(pts[i].x, pts[i].y, e.faction);

@@ -64,6 +64,7 @@ const world = `
   const window={};
   const HULL_FAC={detyphon:'vasudan', dehatshepsut:'vasudan', deorionright:'terran', sdcolossus:'gtva'};
   const PLAYER_SHIPS=[{key:'fitoth', fac:'vasudan'}, {key:'fihorus', fac:'vasudan'}, {key:'boosiris', fac:'vasudan'}];
+  let forcedPrev='';   // no mission-lent hull in these tests
   let player={ship:'fitoth', x:400, y:250};
   function inJump(){ return false; }
   function allyReady(){ return true; }

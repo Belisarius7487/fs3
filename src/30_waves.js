@@ -339,12 +339,16 @@ function disableDone(){
 const SCAN_R    = 110;     // px, a little over two ship lengths
 const SCAN_TIME = 210;     // steps at 100 Hz, so 2.1 s of undisturbed dwell
 const SCAN_DECAY = 2;      // lost per step when out of range or under fire
+// Set by a mission (scanUnderFire) whose targets sit inside an escort's
+// fire all the time: there a hit does not stop the fill, only leaving
+// the range does. Cleared at every wave start.
+let scanUnderFire = false;
 function tickScan(){
   if(GS!=='playing') return;
   for(const e of enemies){
     if(!e.scan || e.scanned || e.dead) continue;
     const d = Math.hypot(player.x-e.x, player.y-e.y);
-    if(d<=SCAN_R && player.shDelay<=0){
+    if(d<=SCAN_R && (scanUnderFire || player.shDelay<=0)){
       e.scanT = (e.scanT||0)+1;
       if(e.scanT>=SCAN_TIME){
         e.scanned = true;
@@ -362,7 +366,65 @@ function tickScan(){
 // The ring sits at the object, not at the player, so it reads as a
 // property of the thing being scanned. Same visual language as the hold
 // ring around the player: a soft arc that fills clockwise from the top.
+// ── SUBSYSTEM SCAN ───────────────────────────────────────────
+// A ship that is read system by system: hold within SUB_SCAN_R of one of
+// its subsystems, undisturbed, until its ring fills. The nearest one in
+// reach is the one being read. When all five are done, so is the ship.
+const SUB_SCAN_R = 60, SUB_SCAN_TIME = 150;
+function tickSubScan(){
+  if(GS!=='playing') return;
+  for(const e of enemies){
+    if(!e.scanSubs || e.scanned || e.dead || e.warp>0) continue;
+    let best = null, bd = SUB_SCAN_R;
+    for(const s of e.subs){
+      if(s.scanned) continue;
+      const p = subPos(e, s), d = Math.hypot(player.x-p.x, player.y-p.y);
+      if(d <= bd){ bd = d; best = s; }
+    }
+    for(const s of e.subs){
+      if(s.scanned) continue;
+      if(s===best && player.shDelay<=0) s.scanT++;
+      else if(s.scanT>0) s.scanT = Math.max(0, s.scanT-SCAN_DECAY);
+      if(s.scanT >= SUB_SCAN_TIME){
+        s.scanned = true; score += 100;
+        const p = subPos(e, s);
+        SUB_MSGS.push({x:p.x, y:p.y-18, txt:s.label+' SCANNED', life:170, ml:170,
+                       ally:true, tone:'good'});
+      }
+    }
+    if(e.subs.every(function(s){ return s.scanned; })){
+      e.scanned = true; score += 500;
+      if(STATS.scans==null) STATS.scans = 0;
+      STATS.scans++;
+    }
+  }
+}
+function drawSubScan(e){
+  const pulse = 0.5 + 0.5*Math.sin(fc*0.10);
+  for(const s of e.subs){
+    const p = subPos(e, s);
+    ctx.save();
+    ctx.translate(p.x|0, p.y|0);
+    ctx.lineWidth = 1.5;
+    if(s.scanned){
+      ctx.strokeStyle = 'rgba(77,255,136,0.85)';
+      ctx.beginPath(); ctx.arc(0, 0, 11, 0, Math.PI*2); ctx.stroke();
+    } else {
+      ctx.strokeStyle = 'rgba(127,214,255,'+(0.35+0.35*pulse).toFixed(2)+')';
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      const t = Math.min(1, (s.scanT||0)/SUB_SCAN_TIME);
+      if(t>0){
+        ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(0, 0, 12, -Math.PI/2, -Math.PI/2 + t*Math.PI*2); ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+}
 function drawScanRing(e){
+  if(e.scanSubs && !e.scanned){ drawSubScan(e); return; }
   if(!e.scan) return;
   const img = IMGS[e.img];
   const r = (img ? Math.max(img.width,img.height)*e.sc*0.62 : 24) + 8;
@@ -428,6 +490,9 @@ function spawnProtected(sp){
   // Schuetzlinge nicht, weil sie ueber diesen Weg entstehen.
   if(sp.dockTo){
     a.dockTo = sp.dockTo;
+    // dockHold: seconds she stays docked before the dock counts, and
+    // then jumps out instead of flying on.
+    if(sp.dockHold) a.dockHold = Math.round(sp.dockHold*TICK_HZ);
     a.crossAfter = sp.cross || 0.38;
     // Die Hoehe darf nicht gepinnt sein, sonst kommt er nie zum
     // Andockpunkt hoch.
@@ -522,7 +587,7 @@ function evPending(){
     if(e.w!=='einwarpen' && e.w!=='seite') continue;
     // Ein Ausloeser, dessen Ziel nie im Feld war oder schon weg ist, kann
     // nicht mehr feuern. Sonst haengt die Welle fuer immer.
-    if(['zerstoert','alleZerstoert','verlaesst','anzahlUnter','rumpfUnter','subsystem'].indexOf(e.t)>=0){
+    if(['zerstoert','vernichtet','alleZerstoert','verlaesst','anzahlUnter','rumpfUnter','subsystem'].indexOf(e.t)>=0){
       if(evSeen(e.a) && byId(e.a).length===0) continue;
     }
     // Ein Andockauftrag, dessen Ziel nicht mehr existiert, kann nicht
@@ -700,10 +765,21 @@ function tickDocking(){
       e.y += Math.max(-sy, Math.min(sy, dy));
       continue;
     }
+    // Boarding: she stays on the spot for dockHold steps before the
+    // dock counts. Lost in that time, nothing was taken.
+    if(e.dockHold>0){
+      if(e.holdT==null){
+        e.holdT = e.dockHold;
+        SUB_MSGS.push({x:e.x, y:e.y-28, txt:'BOARDING', life:e.dockHold, ml:e.dockHold,
+                       ally:true, tone:'good'});
+      }
+      if(--e.holdT > 0) continue;
+    }
     // Docked.
     EV_DOCK[e.uid] = true;
-    SUB_MSGS.push({x:e.x, y:e.y-28, txt:'DOCKED', life:150, ml:150,
-                   ally:true, tone:'good'});
+    if(!e.dockHold)
+      SUB_MSGS.push({x:e.x, y:e.y-28, txt:'DOCKED', life:150, ml:150,
+                     ally:true, tone:'good'});
     if(t.type==='container'){
       e.dockedTo = t; t.carrier = e; t.resBy = e;
       t.carried = true; t.guard = false; t.scenery = true;
@@ -711,6 +787,14 @@ function tickDocking(){
       carryCargo(e);
     }
     e.dockTo = null; e.dockRes = null;
+    // A boarding party leaves with its prize: a jump, not a drive on.
+    if(e.dockHold){
+      e.warpOut = e.warpMax = 160; e.warpX = e.x; e.warpY = e.y;
+      // Left, not lost: 'vernichtet' must not read the jump as a kill.
+      if(e.uid) EV_LEFT[e.uid] = true;
+      protSaved++;
+      continue;
+    }
     // Load first, then leave.
     if(e.crossAfter) e.crossing = e.crossAfter;
   }
@@ -817,6 +901,7 @@ function tickCrossGuards(){
         const _ce = enemies.indexOf(a.dockedTo);
         if(_ce>=0) enemies.splice(_ce,1); }
       crossDone++; if(!a.emptyRun) protSaved++;
+      if(a.uid) EV_LEFT[a.uid] = true;
       { const _fi = allies.indexOf(a); if(_fi>=0) allies.splice(_fi,1); }
       SUB_MSGS.push({x:W-90, y:a.y,
                      txt: (hullClass(a.img)==='ep') ? 'RESCUED'
@@ -864,7 +949,7 @@ function tickComms(){
     const t = spawnQ[i].type;
     if(t && WING_TYPES[t]){ spawnQ.splice(i,1); weg++; }
   }
-  SUB_MSGS.push({x:W/2, y:H*0.42, txt:'ENEMY COMMS DOWN', life:200, ml:200, ally:true});
+  notice('ENEMY COMMS DOWN', 'good');
 }
 
 function tickDefectors(){
@@ -966,6 +1051,16 @@ function applySpawnOpts(e, sp){
   // A jump nobody can stop: there is no navigation subsystem to shoot.
   if(sp.navProof && e.subs) e.subs = e.subs.filter(function(s){ return s.id!=='navigation'; });
   if(sp.fleeFree) e.fleeFree = true;
+  // Jumps as soon as it reaches the right edge instead of driving out.
+  if(sp.escWarp) e.escWarp = true;
+  // To be taken, not destroyed: held above the hull floor until the
+  // capture happens or is called off ('kapern', 'freigeben').
+  if(sp.capture) e.captureLock = true;
+  // Scanned before it may die: the scan is the point of it.
+  if(sp.scanFirst) e.scanLock = true;
+  // Scanned subsystem by subsystem, see tickSubScan().
+  if(sp.scanSubs && e.subs){ e.scanSubs = true; e.noTarget = true;
+    for(const s of e.subs){ s.scanT = 0; s.scanned = false; } }
   // Unshielded on purpose. Vasudan fighters carry none in the early part
   // of FS1, and the wave says so rather than the ship class deciding.
   if(sp.noShield){ e.maxSh = 0; e.sh = 0; }
@@ -1852,7 +1947,8 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'E2'}
      ]},
 
-  33:{name:'Die Relaisstation', fac:'ntf', o:'clear', live:5, u:[
+  33:{name:'Die Relaisstation', fac:'ntf', o:'clear', live:5,
+      ziel:'DESTROY THE FAUSTUS RELAY', u:[
        // A Faustus parked as a relay. While she stands, wings keep coming.
        // Weak hull, few guns, no flak - and a big blast when she goes.
        {id:'S1', c:'cr', n:1, spr:'scfaustus', still:true, x:560, y:250,
@@ -1861,7 +1957,8 @@ const SCRIPT_WAVES = {
        {id:'E1', c:'fi', n:1}
      ], ev:[
        {t:'sek', a:1, w:'nachschub', a2:'an'},
-       {t:'zerstoert', a:'S1', w:'nachschub', a2:'aus'}
+       {t:'zerstoert', a:'S1', w:'nachschub', a2:'aus'},
+       {t:'vernichtet', a:'S1', w:'zielerfuellt', a2:'RELAY DESTROYED'}
      ]},
 
   34:{name:'Die Flakwand', fac:'ntf', o:'clear', live:5, u:[
@@ -1910,6 +2007,227 @@ const SCRIPT_WAVES = {
        {id:'E2', c:'fi', n:1, wait:true}
      ], ev:[
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
+     ]},
+
+  37:{name:'Die Unsichtbaren', fac:'ntf', o:'clear', live:5, u:[
+       // Lokis, and more than one lot of them. No missile holds one, so
+       // this is a gun fight - they are in plain sight all the same.
+       {id:'E1', c:'fi', n:2, spr:'filoki'},
+       {id:'E2', c:'fi', n:2, spr:'filoki', wait:true},
+       {id:'E3', c:'fi', n:2, spr:'filoki', wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'E2', w:'einwarpen', a2:'E3'}
+     ]},
+
+  38:{name:'Die Kaperung', fac:'ntf', o:'clear', live:5,
+      ziel:'DISABLE THE DEIMOS - ENGINES AND WEAPONS', u:[
+       // An NTF Deimos makes for the right edge and jumps there. With
+       // her engines AND her weapons down an Elysium comes to take her -
+       // with her guns still up it would not live to dock. She keeps a
+       // fixed height mid-field, so both subsystems can be reached.
+       // Until the Elysium is lost she cannot be destroyed.
+       {id:'D1', c:'co', n:1, spr:'ntfcodeimos', x:-60, y:260, escape:0.22,
+        escWarp:true, capture:true},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:1, wait:true},
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40,
+        dockTo:'D1', dockHold:6, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'subsystem', a:'D1', b:'engines+weapons', w:'einwarpen', a2:'T1'},
+       {t:'subsystem', a:'D1', b:'engines+weapons', w:'ziel', a2:'COVER THE ELYSIUM'},
+       {t:'angedockt', a:'T1', w:'kapern', a2:'D1'},
+       {t:'angedockt', a:'T1', w:'zielerfuellt', a2:'DEIMOS CAPTURED'},
+       {t:'vernichtet', a:'T1', w:'freigeben', a2:'D1'},
+       {t:'vernichtet', a:'T1', w:'zielverfehlt', a2:'ELYSIUM LOST'},
+       {t:'verlaesst', a:'D1', w:'zielverfehlt', a2:'THE DEIMOS GOT AWAY'}
+     ]},
+
+  39:{name:'Die Gasernte', fac:'ntf', o:'clear', live:5, mod:'nebula', u:[
+       // In a gas giant's haze. Three miners run for the right edge under
+       // a Fenris. A miner goes up with a very big blast (BIG_BLAST) -
+       // it takes the NTF fighters near it along, and the player too.
+       // One after the other: a ship placed far off the left edge is
+       // cleared away as lost, so they start at the edge, seconds apart.
+       {id:'M1', c:'fr', n:1, spr:'gmzephyrus', escape:0.30, x:-60, y:170},
+       {id:'M2', c:'fr', n:1, spr:'gmzephyrus', escape:0.30, x:-60, y:300, t:7},
+       {id:'M3', c:'fr', n:1, spr:'gmzephyrus', escape:0.30, x:-60, y:420, t:14},
+       {id:'K1', c:'cr', n:1, spr:'ntfcrfenris'},
+       {id:'E1', c:'fi', n:1},
+       {id:'E2', c:'fi', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
+     ]},
+
+  40:{name:'Der Sensorsturm', fac:'ntf', o:'guard', live:5, mod:'emp', u:[
+       // An EMP storm, which is a nebula phenomenon: haze, and now and
+       // then no lock for anybody. Three rounds of Hercules Mk II and
+       // Ursa go for an Orion, with reinforcements until the last
+       // bombers are down.
+       {id:'A1', c:'de', n:1, spr:'deorionright', side:'ally', hp:1.2},
+       {id:'E1', c:'fi', n:2, spr:'fihercmk2'},
+       {id:'B1', c:'bo', n:1, spr:'boursa', wait:true},
+       {id:'E2', c:'fi', n:2, spr:'fihercmk2', wait:true},
+       {id:'B2', c:'bo', n:1, spr:'boursa', wait:true},
+       {id:'E3', c:'fi', n:2, spr:'fihercmk2', wait:true},
+       {id:'B3', c:'bo', n:2, spr:'boursa', wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'B2'},
+       {t:'alleZerstoert', a:'E2', w:'einwarpen', a2:'E3'},
+       {t:'alleZerstoert', a:'B2', w:'einwarpen', a2:'B3'},
+       {t:'alleZerstoert', a:'B3', w:'nachschub', a2:'aus'}
+     ]},
+
+  41:{name:'Das Lazarett', fac:'ntf', o:'protect', live:5, hunt:'H1', u:[
+       // The Hippocrates crosses slowly, and her hull is weak. Medusa
+       // and Ursa bombers go for her: the bombs have to be shot down.
+       {id:'H1', c:'fr', n:1, spr:'mehippocrates', side:'ally', cross:0.25, x:-80},
+       {id:'B1', c:'bo', n:1, spr:'bomedusa'},
+       {id:'E1', c:'fi', n:1},
+       {id:'B2', c:'bo', n:1, spr:'boursa', wait:true},
+       {id:'B3', c:'bo', n:1, spr:'bomedusa', wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'B2'},
+       {t:'alleZerstoert', a:'B2', w:'einwarpen', a2:'B3'}
+     ]},
+
+  42:{name:'Die Hecate', fac:'ntf', o:'guard', live:5,
+      ziel:'DISABLE HECATE WEAPONS', u:[
+       // An NTF Hecate against an Orion. Her beams would win that, so her
+       // weapons subsystem comes first. Disarmed, she withdraws after the
+       // usual deadline unless she is finished before.
+       {id:'A1', c:'de', n:1, spr:'deorionright', side:'ally', hp:1.2},
+       {id:'V1', c:'de', n:1, spr:'ntfdehecate'},
+       {id:'E1', c:'fi', n:2},
+       {id:'B1', c:'bo', n:1, spr:'bomedusa', wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
+       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
+       {t:'subsystem', a:'V1', b:'weapons', w:'ziel', a2:'DESTROY THE HECATE'},
+       {t:'vernichtet', a:'V1', w:'zielerfuellt', a2:'HECATE DESTROYED'},
+       {t:'verlaesst', a:'V1', w:'zielverfehlt', a2:'THE HECATE WITHDREW'},
+       {t:'zerstoert', a:'V1', w:'nachschub', a2:'aus'}
+     ]},
+
+  43:{name:'Der NTF-Konvoi', fac:'ntf', o:'scan', live:5, scanUnderFire:true,
+      ziel:'SCAN THE TRITONS', u:[
+       // Three Tritons run for the right edge. They are to be scanned
+       // before anything else - until then they cannot be destroyed -
+       // and then the convoy is to be stopped for good.
+       {id:'T1', c:'fr', n:3, spr:'frtriton', escape:0.18, x:-60, scan:true,
+        scanFirst:true},
+       // One escort wing, one more once it is down. Being hit does not
+       // stop the scan here (scanUnderFire), staying close does.
+       {id:'E1', c:'fi', n:1},
+       {id:'E2', c:'fi', n:1, wait:true},
+       // The convoy calls for help once it knows it has been scanned.
+       {id:'K1', c:'cr', n:1, spr:'ntfcraeolus', wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'gescannt', a:'T1', w:'einwarpen', a2:'K1'},
+       {t:'gescannt', a:'T1', w:'ziel', a2:'DESTROY THE CONVOY'},
+       {t:'vernichtet', a:'T1', w:'zielerfuellt', a2:'CONVOY DESTROYED'},
+       {t:'verlaesst', a:'T1', w:'zielverfehlt', a2:'A TRITON GOT AWAY'}
+     ]},
+
+  44:{name:'Der Schwarm', fac:'ntf', o:'clear', live:7, u:[
+       // Wing after wing - the Tornado's hour. A Deimos to rearm at; one
+       // allied wing arrives once the first enemy wing is down.
+       // The Deimos launches no wings of her own here (noWings).
+       {id:'A1', c:'co', n:1, spr:'codeimos', side:'ally', still:true, hp:1.3,
+        noWings:true},
+       {id:'W2', c:'fi', n:1, side:'ally', wait:true},
+       {id:'E1', c:'fi', n:3},
+       {id:'E2', c:'fi', n:3, wait:true},
+       {id:'E3', c:'fi', n:3, wait:true},
+       {id:'B1', c:'bo', n:2, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'W2'},
+       {t:'alleZerstoert', a:'E2', w:'einwarpen', a2:'E3'},
+       {t:'alleZerstoert', a:'E2', w:'einwarpen', a2:'B1'}
+     ]},
+
+  45:{name:'Das Nadeloehr', fac:'ntf', o:'guard', live:5, crossEnds:true,
+      noRocks:true,
+      ziel:'GET THE ORION THROUGH', u:[
+       // Three NTF Fenris hold the line, each in her own lane and
+       // holding it. An Orion has to cross the field through them.
+       {id:'K1', c:'cr', n:1, spr:'ntfcrfenris', y:150, still:true},
+       {id:'K2', c:'cr', n:1, spr:'ntfcrfenris', y:265, still:true},
+       {id:'K3', c:'cr', n:1, spr:'ntfcrfenris', y:380, still:true},
+       {id:'A1', c:'de', n:1, spr:'deorionright', side:'ally', crossSecs:70, hp:1.2},
+       {id:'E1', c:'fi', n:2}
+     ], ev:[
+       {t:'sek', a:3, w:'nachschub', a2:'an'},
+       {t:'verlaesst', a:'A1', w:'zielerfuellt', a2:'THE ORION IS THROUGH'},
+       {t:'verlaesst', a:'A1', w:'ende', a2:''},
+       {t:'vernichtet', a:'A1', w:'zielverfehlt', a2:'ORION LOST'},
+       {t:'vernichtet', a:'A1', w:'ende', a2:''}
+     ]},
+
+  46:{name:'Die Wissenschaftler', fac:'ntf', o:'clear', live:5,
+      ziel:'DISABLE THE FAUSTUS - NAVIGATION AND WEAPONS', u:[
+       // A Faustus parked under guard. She jumps when her deadline runs
+       // out - unless her navigation is gone. With navigation and weapons
+       // down an Argo comes to take her; until the Argo is lost she
+       // cannot be destroyed.
+       {id:'F1', c:'cr', n:1, spr:'scfaustus', still:true, x:560, y:250,
+        noFlak:true, capture:true, flee:60},
+       {id:'K1', c:'cr', n:1, spr:'ntfcraeolus'},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:1, wait:true},
+       {id:'T1', c:'tr', n:1, spr:'trargo', side:'ally', x:-40,
+        dockTo:'F1', dockHold:6, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'subsystem', a:'F1', b:'navigation+weapons', w:'einwarpen', a2:'T1'},
+       {t:'subsystem', a:'F1', b:'navigation+weapons', w:'ziel', a2:'COVER THE ARGO'},
+       {t:'angedockt', a:'T1', w:'kapern', a2:'F1'},
+       {t:'angedockt', a:'T1', w:'zielerfuellt', a2:'FAUSTUS CAPTURED'},
+       {t:'vernichtet', a:'T1', w:'freigeben', a2:'F1'},
+       {t:'vernichtet', a:'T1', w:'zielverfehlt', a2:'ARGO LOST'},
+       {t:'verlaesst', a:'F1', w:'zielverfehlt', a2:'THE FAUSTUS GOT AWAY'}
+     ]},
+
+  47:{name:'Die zweite Flucht', fac:'ntf', o:'clear', live:6,
+      ziel:'DESTROY THE HECATE', u:[
+       // A forlorn hope, and nobody on the player's side. The Iceni gets
+       // away - forty seconds, and no navigation to shoot - and comes
+       // back heavier for it. The Hecate does not have to. Both hold
+       // their height: two capitals this size have no room to drift.
+       // A fixed run of wings, no endless reinforcement.
+       {id:'V1', c:'ic', n:1, flee:40, navProof:true, fleeFree:true,
+        still:true, y:150},
+       {id:'V2', c:'de', n:1, spr:'ntfdehecate', still:true, y:350, hp:0.8},
+       {id:'E1', c:'fi', n:2},
+       {id:'B1', c:'bo', n:1, wait:true},
+       {id:'E2', c:'fi', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'E2'},
+       {t:'vernichtet', a:'V2', w:'zielerfuellt', a2:'HECATE DESTROYED'},
+       {t:'verlaesst', a:'V2', w:'zielverfehlt', a2:'THE HECATE WITHDREW'}
+     ]},
+
+  48:{name:'Die Aufklaerung', fac:'ntf', o:'clear', live:4, ship:'fipegasus',
+      ziel:'SCAN THE NTD ORION - ALL FIVE SUBSYSTEMS', u:[
+       // The player flies a Pegasus for this one. Nothing can lock her -
+       // not the beams, not the missiles, not the destroyer's guns - but
+       // the fighters see her. Each subsystem of the Orion has to be
+       // held close until its ring fills. Then the Orion leaves.
+       {id:'V1', c:'de', n:1, spr:'ntfdeorion', still:true, x:520, y:260, scanSubs:true,
+        fleeFree:true},
+       {id:'E1', c:'fi', n:1},
+       {id:'E2', c:'fi', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'gescannt', a:'V1', w:'zielerfuellt', a2:'ORION SCANNED'},
+       {t:'gescannt', a:'V1', w:'raus', a2:'V1'}
      ]}
 };
 // Die Ereignisliste benutzt a fuer das Ziel des Ausloesers und a2 fuer das
@@ -1964,6 +2282,9 @@ const CAT_FAC = {fi:1, bo:1, cr:1, co:1, de:1, in:1};
 // da, und ist es jetzt weg. Ohne das Erste feuert jeder Ausloeser
 // sofort, weil zu Wellenbeginn nichts existiert.
 let EV = [], EV_HELD = {}, EV_SEEN = {}, EV_LEFT = {}, EV_DOCK = {};
+// EV_TAKEN: captured ('kapern'). EV_FLED: jumped out on a deadline.
+// Neither is a kill, and 'vernichtet' asks for a kill.
+let EV_TAKEN = {}, EV_FLED = {};
 // Letzter bekannter Ort je Kennung. Wer nach dem Tod eines Schiffs
 // eingewarpt wird, soll dort erscheinen und nicht am Bildrand.
 let EV_POS = {};
@@ -1972,6 +2293,7 @@ const EV_REINF_GAP = 520;      // 5,2 s zwischen zwei Nachschubstaffeln
 
 function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_POS = {};
+  EV_TAKEN = {}; EV_FLED = {};
   evReinf = false; evReinfCd = 0;
 }
 function byId(id){
@@ -1993,9 +2315,14 @@ function evWillDefect(id){
 function evTrig(ev){
   switch(ev.t){
     case 'sek':          return spawnT >= (ev.a||0)*TICK_HZ;
-    case 'zerstoert':    return evSeen(ev.a) && byId(ev.a).length===0 && !EV_LEFT[ev.a];
+    case 'zerstoert':    return evSeen(ev.a) && byId(ev.a).length===0 && !EV_LEFT[ev.a] && !EV_TAKEN[ev.a];
+    // Destroyed and nothing else: not left, not fled on a deadline, not
+    // taken. 'zerstoert' stays as it was, because written missions rely
+    // on it firing for a ship that jumped out.
+    case 'vernichtet':   return evSeen(ev.a) && byId(ev.a).length===0
+                              && !EV_LEFT[ev.a] && !EV_FLED[ev.a] && !EV_TAKEN[ev.a];
     case 'alleZerstoert':return evSeen(ev.a) && byId(ev.a).length===0;
-    case 'verlaesst':    return !!EV_LEFT[ev.a];
+    case 'verlaesst':    return !!EV_LEFT[ev.a] || !!EV_FLED[ev.a];
     case 'angedockt':    return !!EV_DOCK[ev.a];
     case 'anzahlUnter':
       // Erst wenn nichts mehr fuer diese Kennung in der Warteschlange
@@ -2011,7 +2338,16 @@ function evTrig(ev){
     case 'subsystem': {
       const su = byId(ev.a)[0];
       if(!su || !hasSubsystems(su)) return false;
-      return !subOK(su, ev.b || 'communication');
+      // Several may be named, joined with '+': all of them have to be down.
+      return String(ev.b || 'communication').split('+')
+               .every(function(id){ return !subOK(su, id); });
+    }
+    case 'gescannt': {
+      // Every ship of this id has been scanned - by any kind of scan.
+      if(!evSeen(ev.a)) return false;
+      for(const q of spawnQ) if(q.uid===ev.a) return false;
+      const us = byId(ev.a);
+      return us.length>0 && us.every(function(u){ return u.scanned; });
     }
     case 'erfuellt':
       // Zu Wellenbeginn ist noch nichts im Feld, und "nichts zu tun" sieht
@@ -2079,12 +2415,44 @@ function evFire(ev){
       evReinf = (arg !== 'aus');
       break;
     case 'meldung':
-      SUB_MSGS.push({x:W/2, y:H*0.40, txt:String(arg||'').toUpperCase(),
-                     life:200, ml:200, ally:true});
+      notice(String(arg||'').toUpperCase(), 'info');
       break;
     case 'ende':
       for(let i=spawnQ.length-1;i>=0;i--) spawnQ.splice(i,1);
       evReinf = false;
+      break;
+    case 'kapern':
+      // Taken. She stops fighting and jumps away with her captors - no
+      // escape penalty, and her points go to the player as for a kill.
+      for(const u of byId(arg)){
+        if(u.side==='ally') continue;
+        u.captureLock = false; u.captured = true; u.fleeFree = true;
+        u.escaping = 0; u.fleeT = 0;
+        u.warpOut = u.warpMax > 1 ? u.warpMax : 160;
+        u.warpX = u.x; u.warpY = u.y;
+        EV_TAKEN[arg] = true;
+        score += u.pts || 0;
+        SUB_MSGS.push({x:u.x, y:u.y-40, txt:'CAPTURED', life:200, ml:200,
+                       ally:true, tone:'good'});
+      }
+      break;
+    case 'ziel':
+      // The mission's own objective, in words. Announced by a card and
+      // kept in the line under the bar.
+      missionObj = String(arg || '').toUpperCase();
+      missionObjUsed = true;
+      break;
+    case 'zielerfuellt':
+    case 'zielverfehlt':
+      missionObj = '';
+      missionObjUsed = true;
+      objAnnounce(ev.w==='zielerfuellt' ? 'OBJECTIVE COMPLETE' : 'OBJECTIVE FAILED',
+                  String(arg || '').toUpperCase(),
+                  ev.w==='zielerfuellt' ? 'done' : 'fail');
+      break;
+    case 'freigeben':
+      // The capture is off - her captors are gone. Now she can die.
+      for(const u of byId(arg)) u.captureLock = false;
       break;
   }
 }
@@ -2223,9 +2591,11 @@ function scriptUnit(u, fac, q){
         put(ally
           ? {time:t0+i*140, type:'ally', allyId:ALLY_ID[u.spr]||'vas_aten', spr:u.spr,
              crossSecs:u.crossSecs, still:u.still,
-             crossDir:u.crossDir, defectRun:u.defectRun}
+             crossDir:u.crossDir, defectRun:u.defectRun, noWings:u.noWings}
           : {time:t0+i*140, type:ty, spr:u.spr||'', y:(u.c==='in'?(u.y!=null?u.y:H*0.5):yy),
              x:u.x, escape:u.escape, invuln:u.invuln, edge:u.edge, capRam:u.capRam,
+             escWarp:u.escWarp, capture:u.capture, flee:u.flee, scanSubs:u.scanSubs,
+             fleeFree:u.fleeFree,
              still:u.still, noFlak:u.noFlak, fixY:(u.y!=null),
              capIndex:(n>1)? i : 0});
       }
@@ -2238,7 +2608,8 @@ function scriptUnit(u, fac, q){
     // so the jump cannot be stopped. fleeFree: her escape costs nothing.
     put({time:t0, type:'iceni', spr:'coiceni',
          y:(u.y!=null) ? u.y : H*0.5, x:u.x,
-         flee:u.flee, navProof:u.navProof, fleeFree:u.fleeFree});
+         flee:u.flee, navProof:u.navProof, fleeFree:u.fleeFree,
+         still:u.still, fixY:(u.y!=null)});
     return;
   }
   const fix = CAT_FIX[u.c];
@@ -2257,11 +2628,11 @@ function scriptUnit(u, fac, q){
     if(ally && fix!=='ast')
       put({time:t0+i*70, type:'protect', spr:u.spr,
            fac:(fac==='hol') ? 'vasudan' : 'terran', noWarp:1,
-           x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo,
+           x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
            pickup:u.pickup?1:0});
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:fac, noWarp:(fix!=='ast')?1:0,
-           x:xx, y:yy, scan:u.scan?1:0, escape:u.escape,
+           x:xx, y:yy, scan:u.scan?1:0, escape:u.escape, scanFirst:u.scanFirst,
            scenery:(fix==='ast')?1:0, pickup:u.pickup?1:0});
   }
 }
@@ -2295,6 +2666,11 @@ function buildScripted(def){
   disableTarget=null; waveFeud=false;
   astStreamCd = AST_STREAM_MEAN;
   waveMod = def.mod || MOD_NONE;
+  // A mission that states its objective in words speaks for itself for
+  // the whole wave; the automatic result cards then stay quiet.
+  missionObj = String(def.ziel || '').toUpperCase();
+  if(def.ship) forceShip(def.ship);
+  missionObjUsed = !!def.ziel || (def.ev||[]).some(function(e){ return /^ziel/.test(e.w); });
   if(nebulaOn()) nebTint = NEB_TINTS[(Math.random()*NEB_TINTS.length)|0];
   empOut=0; empWarn=0; empNext = waveMod==='emp' ? 1400 : 0;
   BOMB_PORTALS=[]; bombRaidLeft=0; reinfAt=0; reinfDone=true;
@@ -2304,9 +2680,11 @@ function buildScripted(def){
   for(const u of (def.u||[])) if(u.escape) escTotal += (u.n||1);
   waveHunt = def.hunt || '';
   astStill = !!def.stillRocks;
+  scanUnderFire = !!def.scanUnderFire;
   // Ein stehendes Feld wird gesetzt, nicht gespeist. Sonst sammeln sich
   // unbewegliche Brocken ausserhalb des rechten Randes.
-  astStreamCd = astStill ? 1e9 : AST_STREAM_MEAN;
+  // noRocks: a crossing without the belt feeding rocks into it.
+  astStreamCd = (astStill || def.noRocks) ? 1e9 : AST_STREAM_MEAN;
   // Eine geschriebene Querung endet, wenn der Schuetzling drueben ist.
   transitSecs = def.crossEnds ? 1 : 0;
   for(const u of scriptUnitsResolved(def)) scriptUnit(u, def.fac, q);

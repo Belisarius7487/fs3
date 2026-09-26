@@ -45,7 +45,7 @@ const SCRIPT_WAVES = eval('(' + body('const SCRIPT_WAVES =').replace(/^const SCR
 
 // Triggers without a unit as target, and effects whose argument is a unit.
 const TRIG_NO_ID  = new Set(['sek', 'erfuellt']);
-const EFFECT_UNIT = new Set(['einwarpen', 'seite', 'raus', 'heilen']);
+const EFFECT_UNIT = new Set(['einwarpen', 'seite', 'raus', 'heilen', 'kapern', 'freigeben']);
 
 let errors = 0, missions = 0;
 for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){

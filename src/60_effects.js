@@ -462,7 +462,7 @@ function launchGame(){
     tickets.cruiser+=1; tickets.corvette+=1;
     tickets.destroyer+=1; tickets.colossus+=1;
   }
-  ITEMS=[];ticketFlash=0;TICKET_MSGS=[];SUB_MSGS=[];
+  ITEMS=[];ticketFlash=0;TICKET_MSGS=[];SUB_MSGS=[];BAR_PULSE={};forcedPrev='';
   player={x:80,y:H/2,ang:0,head:0,aimAng:0,flip:false,vx:0,vy:0,
           hp:100,maxHp:100,sh:100,maxSh:100,
           shRecharge:0.22,shDelay:0,
@@ -489,6 +489,8 @@ window.launchGame=launchGame;
 
 function nextWave(){
   wave++;waveOver=false;waveCd=0;bossAlive=false;bossSlain=false;
+  // A hull lent for the last mission goes back first.
+  releaseShip();
   // Crossing into the next cycle hands over the fleet.
   if(!FS1_MODE && !TEST_MODE){ const _c = cycleAt(wave); if(_c!==cycleNow) enterCycle(_c); }
   // Die verbuendete Staffel wird nach dem Wellenaufbau gestellt, weil
@@ -504,6 +506,8 @@ function nextWave(){
   // der vorigen erbt. buildFS1Wave setzt ihn gleich danach.
   waveTitle=''; titleT=0;
   objWasSet=false; objDoneT=0; objFailed=false; objSeenOnce=false;
+  missionObj=''; missionObjUsed=false; objCard=null; objPinned='';
+  scanUnderFire=false;
   protSaved=0; protLost=0;
   crossDone=0; crossTotal=0; commsCut=false; commsSeen=false;
   enemies=[];eBullets=[];allies=[];debris=[];empOut=0;allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;spawnQ=getWaveDef(wave);spawnT=0;
@@ -552,6 +556,7 @@ function update(){
   // Hier oben laeuft der Ruettler der Todesexplosion sauber aus.
   if(shakeT>0 && --shakeT<=0) shakeMag=0;
   tickScan();
+  tickSubScan();
   tickDefectors();
   tickDocking();
   tickCapRam();
@@ -563,6 +568,7 @@ function update(){
   tickEvents();
   tickShipUnlocks();
   tickWeaponUnlocks();
+  tickBarAttention();
   if(arriveT>0) arriveT--;
   // Clearing beat: everything loose is pushed off the field under its own
   // power. Der Dunst wird hier NICHT mehr angefasst.
@@ -733,6 +739,7 @@ function update(){
         if(_a){ _a.uid=_sp.uid; if(_sp.uid) EV_SEEN[_sp.uid]=true;
                 _a.defectLock = evWillDefect(_sp.uid);
                 if(_sp.defectRun) _a.defectRun = _sp.defectRun;
+                if(_sp.noWings) _a.noWings = true;
                 if(_sp.hpMul) { _a.hp=Math.round(_a.hp*_sp.hpMul); _a.maxHp=Math.max(_a.maxHp,_a.hp); }
                 allies.push(_a); }
         continue;
@@ -768,7 +775,8 @@ function update(){
         guardWanted=false;
         tickets[guardReward]=(tickets[guardReward]||0)+1;
         ticketFlash=120; ticketFlashKind=guardReward;
-        TICKET_MSGS.push({x:W/2,y:H/2,kind:guardReward,life:190,ml:190,rep:false});
+        // In the bar, where it lands - no longer in the middle of the field.
+        barPulse('ticket:'+guardReward);
       }
       waveOver=true;
       // The clearing beat stretches if escorts are still jumping out, the

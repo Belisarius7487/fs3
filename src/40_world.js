@@ -383,7 +383,9 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind){
   }
   // Ein Schiff, das ueberlaufen soll, kann vorher nicht sterben - sonst
   // haengt die Pointe der Welle am Zufall des Gefechts.
-  if(e.defectLock){
+  // captureLock: a ship that is to be taken cannot be destroyed first.
+  // scanLock: a scan target that is to be scanned before it may die.
+  if(e.defectLock || e.captureLock || (e.scanLock && !e.scanned)){
     const dfl = e.maxHp * DISABLE_HULL_FLOOR;
     if(e.hp < dfl) e.hp = dfl;
   }
@@ -595,31 +597,54 @@ function hullSegCount(bw){
   const n = Math.floor((bw + HB_SEG_GAP) / (HB_SEG_W + HB_SEG_GAP));
   return Math.max(3, Math.min(10, n));
 }
+// ── HULL BAND ────────────────────────────────────────────────
+// One narrow band with slanted ends, like the plates of the interface.
+// Calm by default: half transparent. A hit brings it up to full for
+// HB_HOT steps and it settles again; a ship close to death stays full
+// and pulses. Hits are noticed from the hull (or shield) going down, so
+// every source of damage counts, enemy and allied alike.
+const HB_H = 4, HB_SLANT = 3, HB_CALM = 0.5, HB_HOT = 200;
+// Green through yellow to red, smoothly rather than in steps.
+function hullBandCol(r){
+  const g=[60,224,106], y=[255,204,68], d=[255,74,51];
+  const t = Math.max(0, Math.min(1, r));
+  const a = t>0.5 ? y : d, b = t>0.5 ? g : y, k = t>0.5 ? (t-0.5)*2 : t*2;
+  return 'rgb('+Math.round(a[0]+(b[0]-a[0])*k)+','+Math.round(a[1]+(b[1]-a[1])*k)+','
+        +Math.round(a[2]+(b[2]-a[2])*k)+')';
+}
+function hullBandPath(x, y, w){
+  ctx.beginPath();
+  ctx.moveTo(x+HB_SLANT, y); ctx.lineTo(x+w, y);
+  ctx.lineTo(x+w-HB_SLANT, y+HB_H); ctx.lineTo(x, y+HB_H);
+  ctx.closePath();
+}
 function drawHullBlocks(e, bx, by, bw, ratio, showShield){
   if(e.invuln) return;
-  const n = hullSegCount(bw);
-  const full = n*HB_SEG_W + (n-1)*HB_SEG_GAP;
-  const x0 = (e.x - full*0.5)|0;
-  const lit = Math.max(0, Math.min(n, Math.ceil(ratio*n)));
-  const col = showShield ? '#6fd8ff' : hullCol(ratio);
+  const cur = showShield ? e.bShield : e.hp;
+  if(e._hbLast!=null && cur < e._hbLast) e._hbHit = fc;
+  e._hbLast = cur;
+  const hot = (e._hbHit!=null) ? Math.max(0, 1-(fc-e._hbHit)/HB_HOT) : 0;
   const crit = (ratio<=HULL_CRIT && !showShield);
-  for(let i=0;i<n;i++){
-    const sx = x0 + i*(HB_SEG_W+HB_SEG_GAP);
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(sx, by, HB_SEG_W, HB_SEG_H);
-    if(i < lit){
-      // Nur der letzte verbleibende Block pulsiert, nicht die ganze Reihe.
-      ctx.globalAlpha = (crit && i===lit-1) ? (0.45+0.55*Math.sin(fc*0.22)) : 1;
-      ctx.fillStyle = col;
-      ctx.fillRect(sx, by, HB_SEG_W, HB_SEG_H);
-    }
-  }
-  ctx.globalAlpha = 1;
-  ctx.strokeStyle = (e.side==='ally') ? 'rgba(120,190,255,0.75)' : 'rgba(255,110,90,0.75)';
+  let a = crit ? 1 : HB_CALM + (1-HB_CALM)*hot;
+  e._hbAlpha = a;
+  const w = Math.max(24, Math.round(bw)), x0 = Math.round(e.x - w/2), y = Math.round(by);
+  ctx.save();
+  ctx.globalAlpha = a;
+  hullBandPath(x0, y, w);
+  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fill();
+  // The fill, clipped to the band so the slant holds at both ends.
+  ctx.save();
+  hullBandPath(x0, y, w); ctx.clip();
+  if(crit) ctx.globalAlpha = 0.55 + 0.45*Math.sin(fc*0.22);
+  ctx.fillStyle = showShield ? '#6fd8ff' : hullBandCol(ratio);
+  ctx.fillRect(x0, y, Math.max(0, Math.min(1, ratio))*w, HB_H);
+  ctx.restore();
+  // The edge says the side, as before: blue ours, red theirs.
+  hullBandPath(x0-0.5, y-0.5, w+1);
   ctx.lineWidth = 1;
-  ctx.strokeRect(x0-1.5, by-1.5, full+3, HB_SEG_H+3);
-  ctx.globalAlpha = 1;
+  ctx.strokeStyle = (e.side==='ally') ? 'rgba(120,190,255,0.7)' : 'rgba(255,110,90,0.7)';
+  ctx.stroke();
+  ctx.restore();
 
   // Subsysteme, dieselben Symbole wie auf dem Rumpf - aber OBERHALB des
   // Balkens, sonst liegen sie auf dem Schiff.
@@ -654,7 +679,7 @@ function drawHullBlocks(e, bx, by, bw, ratio, showShield){
   const nm = e.label || shipName(e.img, '');
   if(nm){
     ctx.save();
-    ctx.font = 'bold 9px Courier New';
+    ctx.font = thLabel(9);
     ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
     ctx.globalAlpha = 0.85;
     ctx.fillStyle = (e.side==='ally') ? '#9fd0ff' : '#ffb0a0';
@@ -722,12 +747,10 @@ function drawSubsystems(e){
   }
   if(near){
     ctx.save();
-    ctx.font='bold 9px Courier New';
+    ctx.font=thLabel(9);
     ctx.textAlign='center'; ctx.textBaseline='bottom';
-    const tw=ctx.measureText(near.label).width;
-    ctx.globalAlpha=0.7; ctx.fillStyle='#000';
-    ctx.fillRect((nearP.x-tw/2-4)|0,(nearP.y-25)|0,(tw+8)|0,13);
-    ctx.globalAlpha=1;
+    ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
+    ctx.strokeText(near.label,nearP.x,nearP.y-13);
     ctx.fillStyle=hullCol(near.hp/near.maxHp);
     ctx.fillText(near.label,nearP.x,nearP.y-13);
     ctx.restore();
@@ -743,13 +766,14 @@ function drawSubMsgs(){
     ctx.save();
     // Fades only over the last quarter, so the three seconds are readable
     // rather than three seconds of fading.
-    ctx.globalAlpha=Math.min(1,t*4);
-    ctx.font='bold 10px Courier New';
+    // Smaller and quieter than before: no box, a dark edge around the
+    // letters for contrast, and a shorter rise.
+    ctx.globalAlpha=Math.min(1,t*4)*0.92;
+    ctx.font=thValue(10, true);
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    const y=m.y-(1-t)*30;
-    const tw=ctx.measureText(m.txt).width;
-    ctx.fillStyle='#100600';
-    ctx.fillRect((m.x-tw/2-5)|0,(y-8)|0,(tw+10)|0,16);
+    const y=m.y-(1-t)*18;
+    ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
+    ctx.strokeText(m.txt,m.x,y);
     ctx.fillStyle = (m.tone==='good') ? '#3ce06a'
                   : (m.tone==='bad')  ? '#ff4a33'
                   : (m.tone==='warn') ? '#ffcc44'
@@ -1262,19 +1286,20 @@ function updateItems(){
     if(GS==='playing' && player.hp>0){
       const dx=it.x-player.x, dy=it.y-player.y;
       if(dx*dx+dy*dy < pr*pr){
+        // What was collected lights up where it lands, in the bar. A
+        // pickup that changes nothing still shows, dimmed.
         if(it.kind==='repair'){
+          barPulse('hull', player.hp >= player.maxHp);
           player.hp = Math.min(player.maxHp, player.hp + player.maxHp*REPAIR_PCT);
         } else if(it.kind==='life'){
+          barPulse('lives', lives >= LIVES_MAX);
           lives = Math.min(LIVES_MAX, lives+1);
         } else {
           tickets[it.kind] = (tickets[it.kind]||0) + 1;
           STATS.ticketsEarned++;
           ticketFlash = 90; ticketFlashKind = it.kind;
+          barPulse('ticket:'+it.kind);
         }
-        // Say what was collected, in words. A row of two letter
-        // abbreviations is not enough to tell CV from DE at a glance.
-        TICKET_MSGS.push({x:it.x, y:it.y, kind:it.kind, life:150, ml:150,
-                          rep:(it.kind==='repair'||it.kind==='life')});
         ITEMS.splice(i,1);
       }
     }
@@ -1292,15 +1317,15 @@ function drawTicketMsgs(){
     if(--m.life<=0){ TICKET_MSGS.splice(i,1); continue; }
     const t=m.life/m.ml;
     ctx.save();
-    ctx.globalAlpha=Math.min(1, t*2.2);
-    ctx.font='bold 11px Courier New';
+    ctx.globalAlpha=Math.min(1, t*2.2)*0.92;
+    ctx.font=thValue(10, true);
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    const y=m.y-(1-t)*34;
-    ctx.fillStyle='#001018';
-    const w=ctx.measureText('+1 '+(TICKET_NAME[m.kind]||'')).width;
-    ctx.fillRect((m.x-w/2-6)|0,(y-9)|0,(w+12)|0,18);
+    const y=m.y-(1-t)*20;
+    const tt=(m.kind==='repair'?'+':'+1 ')+(TICKET_NAME[m.kind]||'');
+    ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
+    ctx.strokeText(tt, m.x, y);
     ctx.fillStyle=m.rep?REPAIR_COL:'#8fe4ff';
-    ctx.fillText((m.kind==='repair'?'+':'+1 ')+(TICKET_NAME[m.kind]||''), m.x, y);
+    ctx.fillText(tt, m.x, y);
     ctx.restore();
   }
   ctx.textAlign='left'; ctx.textBaseline='top';
@@ -1358,7 +1383,7 @@ function drawItems(){
       ctx.lineWidth=1.6;
       ctx.strokeRect(-10,-8,20,16);
       ctx.fillStyle=REPAIR_COL;
-      ctx.font='bold 10px Courier New';
+      ctx.font=thValue(10, true);
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('1UP',0,1);
     } else if(it.kind==='repair'){
@@ -1375,7 +1400,7 @@ function drawItems(){
       ctx.lineWidth=1.6;
       ctx.strokeRect(-11,-8,22,16);
       ctx.fillStyle='#bfefff';
-      ctx.font='bold 10px Courier New';
+      ctx.font=thValue(10, true);
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(TICKET_ABBR[it.kind]||'??',0,1);
     }
@@ -1463,6 +1488,7 @@ function refineTicket(kind){
   const up = REFINE_UP[kind];
   tickets[up] = (tickets[up]||0) + 1;
   ticketFlash = 90; ticketFlashKind = up;
+  barPulse('ticket:'+up);
   return true;
 }
 
@@ -1707,7 +1733,7 @@ function updateCapResponse(){
   sendCapBombers();
   // Whoever was called is the one that scrambles the screen.
   for(const a of allies){
-    if(!a.small && !a.dead && !a.warpOut && subOK(a,'communication')){ sendInterceptors(a); break; }
+    if(!a.small && !a.dead && !a.warpOut && !a.noWings && subOK(a,'communication')){ sendInterceptors(a); break; }
   }
   capBomberLeft--;
   capBomberCd = CAP_BOMBER_DELAY;
@@ -1867,7 +1893,9 @@ function updateAllies(){
     allyFire(a);
     updateBeams(a);
     // Destroyers put wings into the fight of their own accord.
-    if(a.type==='destroyer'){
+    // noWings: the mission hands out the allied fighters itself - no
+    // launches and no interceptor scramble from this ship.
+    if(a.type==='destroyer' && !a.noWings){
       if(a.wingCd==null) a.wingCd = 120;
       if(a.wingCd>0) a.wingCd--;
       else if(countAllySmall() < ALLY_WING_MAX*ALLY_WING_SIZE && subOK(a,'communication')){
@@ -1917,7 +1945,7 @@ function checkDisarmFlee(e){
     // Ohne Fluchtuhr waere die Entwaffnung eines Bosses unsichtbar: er
     // hoert einfach auf zu schiessen. Die Meldung macht aus einem
     // Nebeneffekt eine sichtbare Leistung.
-    SUB_MSGS.push({x:e.x, y:e.y-40, txt:'BOSS DISARMED', life:420, ml:420, ally:false});
+    notice('BOSS DISARMED', 'good');
     return;
   }
   e.fleeT = (DISARM_FLEE[e.type]||15)*TICK_HZ;
@@ -1940,6 +1968,7 @@ function runFlee(e, i){
     if(!subOK(e,'navigation')) return false;
     e.fleeT--;
     if(e.fleeT<=0){
+      if(e.uid) EV_FLED[e.uid] = true;     // she jumps on her deadline
       e.warpOut = e.warpMax || 160;
       e.warpX = e.x; e.warpY = e.y;
     }

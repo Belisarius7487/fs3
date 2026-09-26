@@ -81,6 +81,9 @@ const CLR = ()=>{ CALLS.length = 0; };
 const fonts = ()=> CALLS.filter(c=>c.fn==='set font').map(c=>String(c.args[0]));
 
 const world = `
+  // The bar's attention pulses are the field simulation's business.
+  let BAR_PULSE={}; function barPulseLevel(){ return 0; } function barPulse(){}
+
   const W=800, H=500, HUD_H=54;
   const ctx=CTX; const window={};
   let GS='playing', score=29910, wave=10, runTime=361, lives=8, fc=7;

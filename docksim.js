@@ -40,7 +40,7 @@ const NAMES = ['dockPoint','dockOffset','unitAlive','idPending','cargoLost','cla
   'liveThreatCount','scriptUnitsResolved'];
 
 const world = `
-let enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, spawnQ=[];
+let enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, spawnQ=[];
 let protSaved=0, protLost=0, guardLost=false, guardGone=false, crossDone=0, crossTotal=0;
 let score=0, bossAlive=false, bossSlain=false, expl=0;
 const W=800, H=500, HUD_H=44, DOCK_SPD=0.55, DOCK_NEAR=22;
