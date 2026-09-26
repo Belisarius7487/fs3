@@ -720,6 +720,17 @@ function update(){
         // initSubsystems fehlte hier seit v90: verbuendete
         // Grosskampfschiffe in geschriebenen Wellen hatten keine.
         if(_a) initSubsystems(_a);
+        // A place the mission gives. Allied capital ships do not drive
+        // anywhere in x, so x is simply where she stands.
+        if(_a && _sp.x!=null){ _a.x=_sp.x; _a.warpX=_sp.x; _a.targetX=_sp.x; }
+        if(_a && _sp.y!=null){ _a.y=_sp.y; _a.warpY=_sp.y;
+                               if(_a.platform){ _a.minY=_sp.y; _a.maxY=_sp.y; } }
+        if(_a && _a.platform) _a.subs = null;
+        if(_a && _sp.callsOk) _a.callsOk = true;
+        // beamDelay: seconds before her beams first look for a target,
+        // so two platforms do not open up together.
+        if(_a && _a.beams && _sp.beamDelay!=null)
+          for(const _b of _a.beams){ _b.state='idle'; _b.timer = 30 + _sp.beamDelay*TICK_HZ; }
         if(_a && _sp.still){ _a.vy=0; _a.minY=_a.y; _a.maxY=_a.y; }
         if(_a && _sp.crossSecs){
           // Fahrt aus der Querungszeit, damit Uhr und Bild dasselbe sagen:
@@ -730,7 +741,11 @@ function update(){
           const _gh = _gi ? _gi.width*_a.sc*0.5 : 120;
           // crossDir 'left': in from the right edge, out on the left.
           const _toLeft = (_sp.crossDir === 'left');
-          _a.x = _toLeft ? W + 20 : -20;  _a.warpX = _a.x;  _a.warp = 0;
+          // She warps in on screen, like every other capital ship, and
+          // sets off once through. Starting half outside the edge with
+          // no vortex read as popping into existence.
+          _a.x = _toLeft ? W - _gh - TRANS_EDGE_PAD : _gh + TRANS_EDGE_PAD;
+          _a.warpX = _a.x;
           _a.transitEnd = _toLeft ? _gh + TRANS_EDGE_PAD : W - _gh - TRANS_EDGE_PAD;
           _a.transitV = (_a.transitEnd - _a.x) / (_sp.crossSecs*TICK_HZ);
           _a.flip = needsFlip(_a.img, _toLeft);
@@ -781,7 +796,10 @@ function update(){
       waveOver=true;
       // The clearing beat stretches if escorts are still jumping out, the
       // jump itself always gets its full TRANS_OUT.
-      waveCd=Math.max(TRANS_CLEAR+TRANS_OUT, allies.length?(allies[0].warpMax+TRANS_OUT):0);
+      // The longest jump among the escorts, not just the first one's.
+      let _wmax = 0;
+      for(const _al of allies) if(!_al.platform) _wmax = Math.max(_wmax, _al.warpMax||0);
+      waveCd=Math.max(TRANS_CLEAR+TRANS_OUT, _wmax ? _wmax+TRANS_OUT : 0);
       // startNebFade() stand hier, volle 1.6 s bevor das Feld dunkel
       // wurde: der Hintergrund loeste sich sichtbar auf waehrend der
       // Spieler noch flog. Gestartet wird jetzt aus der Dunkelheit.
@@ -998,6 +1016,11 @@ function update(){
     }
     else if(e.type==='freighter'){
       if(e.warp>0){ e.warp--; e.x-=0.3; continue; }
+      // Leaving after a dock: through the vortex, then gone.
+      if(e.warpOut>0){ e.warpOut--; if(e.warpOut<=0) enemies.splice(i,1); continue; }
+      // On its way to a dock tickDocking() does the driving, and a
+      // transport with a job does not turn and run when shot at.
+      if(e.dockTo) continue;
       // Being shot at, not damage, is what sends it running. The first
       // version asked whether the hull was below maximum, which a drifting
       // asteroid answers just as well as a laser: in the test the freighter
@@ -1032,6 +1055,11 @@ function update(){
       e.x+=e.vx;e.y+=e.vy;e.rot+=e.rotS;
       if(e.y<20||e.y>H-20)e.vy*=-1;
       if(e.x<-60){enemies.splice(i,1);continue;}}
+    else if(e.type==='station'){
+      // An armed installation fires until its guns are out or it is
+      // taken. The unarmed ones are scenery or targets and stay quiet.
+      if(e.armed && !e.captured) capitalFire(e);
+    }
     else if(e.type==='corvette'||e.type==='destroyer'){
       if(e.warp>0){e.warp--;e.x-=0.2;continue;}
       if(runFlee(e,i)) continue;

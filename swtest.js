@@ -44,8 +44,9 @@ const CYCLE_FAC = n => n <= 30 ? 'hol' : n <= 60 ? 'ntf' : 'shivan';
 const SCRIPT_WAVES = eval('(' + body('const SCRIPT_WAVES =').replace(/^const SCRIPT_WAVES =\s*/, '') + ')');
 
 // Triggers without a unit as target, and effects whose argument is a unit.
-const TRIG_NO_ID  = new Set(['sek', 'erfuellt']);
-const EFFECT_UNIT = new Set(['einwarpen', 'seite', 'raus', 'heilen', 'kapern', 'freigeben']);
+// gerettet / verloren count protected ships, they name no unit.
+const TRIG_NO_ID  = new Set(['sek', 'erfuellt', 'gerettet', 'verloren']);
+const EFFECT_UNIT = new Set(['einwarpen', 'seite', 'raus', 'heilen', 'kapern', 'freigeben', 'kulisse', 'ruf']);
 
 let errors = 0, missions = 0;
 for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
@@ -77,8 +78,10 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
     const arg = (e.a2 !== undefined) ? e.a2 : e.a;
     if(!TRIGGERS.has(e.t)) bad.push(where + ': unknown trigger "' + e.t + '"');
     if(!EFFECTS.has(e.w))  bad.push(where + ': unknown effect "' + e.w + '"');
-    if(TRIGGERS.has(e.t) && !TRIG_NO_ID.has(e.t) && !ids.has(e.a))
-      bad.push(where + ': trigger points at missing id ' + e.a);
+    // A trigger may name several ids joined with '+'.
+    if(TRIGGERS.has(e.t) && !TRIG_NO_ID.has(e.t))
+      for(const id of String(e.a).split('+'))
+        if(!ids.has(id)) bad.push(where + ': trigger points at missing id ' + id);
     if(e.t === 'angedockt' && ids.has(e.a) && !ids.get(e.a).dockTo)
       bad.push(where + ': ' + e.a + ' has no dockTo, it can never dock');
     if(EFFECT_UNIT.has(e.w) && !ids.has(arg))

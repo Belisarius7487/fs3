@@ -256,7 +256,7 @@ scenario('M13 both transports on time', 'm=13', `
 // with nothing thrown on the way. Enemy ships are cleared every two seconds
 // once they are out of their vortex - a player who hits everything.
 // Scan missions (12, 23) need the player to fly the scan and are left out.
-for(let m=1;m<=48;m++) if(m!==12 && m!==23) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
+for(let m=1;m<=54;m++) if(m!==12 && m!==23) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
   const t = FS.until(()=>waveOver, 40000, false, true);
   ITEMS.length = 0;     // pickups hold the jump open until they expire
   const j = FS.until(()=>wave === ${m}+1, 6000, false, false);
@@ -596,6 +596,230 @@ scenario('A destroyer arrives: SHIP SWITCH calls', 'm=34&ships=8', `
   const t = FS.until(()=>shipSwapReady(), 6000, true);
   FS.step(2);
   return {notBeforeTheOrion: !before, swapCalls: t>=0 && !!BAR_PULSE.swap};`);
+
+scenario('M49 Das Reparaturdock', 'm=49', `
+  const r = {};
+  FS.step(300);
+  const d = enemies.find(e=>e.uid==='D1');
+  r.arcadiaBehind = enemies.some(e=>e.uid==='S1' && e.img==='inarcadia' && e.invuln);
+  r.deimosHurt = !!d && Math.abs(d.hp/d.maxHp - 0.25) < 0.02;
+  r.saysWhat = missionObj==='DESTROY THE DEIMOS BEFORE HER REPAIRS ARE DONE';
+  let t1 = null;
+  FS.until(()=>{ t1 = enemies.find(e=>e.uid==='T1'); return !!t1; }, 2000, true);
+  r.transportComes = !!t1 && t1.img==='trargo';
+  // Hull just before the dock, stepped singly so nothing else gets in.
+  let h0 = d.hp, got = -1;
+  for(let i=0;i<6000;i++){ if(EV_DOCK['T1']){ got = i; break; } h0 = d.hp; if(i%200===0) FS.killSmall(); FS.step(1); }
+  r.dockRepairsAQuarter = got>=0 && Math.abs((d.hp-h0)/d.maxHp - 0.25) < 0.03;
+  r.transportJumpsOut = t1.warpOut>0 || !enemies.includes(t1);
+  // All three through: she is whole and jumps. That is a failure.
+  for(const e of enemies) if(e.type==='fighter'||e.type==='bomber') e.hp = 0;
+  const f = FS.until(()=>!!objCard && objCard.tone==='fail', 9000, true);
+  r.repairedSheJumps = f>=0 && objCard.txt==='THE DEIMOS WAS REPAIRED' && !!EV_DOCK['T3'];
+  return r;`);
+
+scenario('M49 destroyed in time', 'm=49', `
+  const r = {};
+  FS.step(700);
+  const d = enemies.find(e=>e.uid==='D1');
+  d.hp = 0;
+  const c = FS.until(()=>!!objCard && objCard.txt==='DEIMOS DESTROYED', 1500, false);
+  r.completeCard = c>=0;
+  r.noMoreTransports = !spawnQ.some(q=>/^T/.test(q.uid||''));
+  // One already on its way has nothing left to dock with and leaves.
+  const t = enemies.find(e=>/^T/.test(e.uid||''));
+  if(t){ FS.step(300); r.strayLeaves = !enemies.includes(t) || t.warpOut>0; } else r.strayLeaves = true;
+  return r;`);
+
+scenario('M50 Der Durchbruch', 'm=50', `
+  const r = {};
+  FS.step(500);
+  const k = enemies.filter(e=>e.uid==='K1');
+  r.twoAeolus = k.length===2 && k.every(e=>e.img==='ntfcraeolus');
+  r.sentryLine = enemies.filter(e=>e.uid==='G1' && e.type==='sentry').length===4;
+  r.noOrionYet = !allies.some(a=>a.uid==='A1');
+  r.saysBreak = missionObj==='BREAK THE BLOCKADE - DESTROY AN AEOLUS';
+  k[0].hp = 0;
+  let o = null;
+  FS.until(()=>{ o = allies.find(a=>a.uid==='A1'); return !!o; }, 2000, true);
+  r.orionThroughTheGap = !!o && o.transit===true;
+  // She warps in on screen instead of popping up at the edge.
+  const _oi = IMGS[o.img], _oh = _oi ? _oi.width*o.sc*0.5 : 0;
+  r.orionWarpsIn = o.warp>0 && o.x - _oh >= 0;
+  FS.step(2);
+  r.newObjective = missionObj==='GET THE ORION THROUGH';
+  o.hp = o.maxHp = 1e7; for(const s of o.subs||[]) s.hp = s.maxHp = 1e7;
+  const t = FS.until(()=>{ if(allies.includes(o)) o.hp = o.maxHp; return !!objCard && objCard.txt==='THE ORION IS THROUGH'; }, 9000, true);
+  r.throughCard = t>=0;
+  return r;`);
+
+scenario('M51 Die Rueckeroberung', 'm=51', `
+  const r = {};
+  score = 1000;
+  FS.step(300);
+  const s = enemies.find(e=>e.uid==='S1');
+  r.armedArcadia = !!s && s.type==='station' && s.armed && !!s.subs && s.subs.some(x=>x.id==='weapons');
+  r.noEnginesNoNavigation = !!s && !s.subs.some(x=>x.id==='engines' || x.id==='navigation');
+  // Her guns fire.
+  FS.killSmall(); eBullets.length = 0;
+  let shots = 0;
+  for(let i=0;i<400;i++){ FS.killSmall(); const n0 = eBullets.length; FS.step(1); shots += Math.max(0, eBullets.length-n0); }
+  r.gunsFire = shots > 0;
+  damageEnemy(s, s.maxHp*5, s.x, s.y, true, 'bolt'); FS.step(3);
+  r.cannotBeDestroyed = enemies.includes(s) && s.rollT==null && s.hp>0;
+  r.noElysiumYet = !allies.some(a=>a.uid==='T1');
+  for(const x of s.subs) if(x.id==='weapons'){ x.dead = true; x.hp = 0; }
+  FS.step(3);
+  r.coverTheElysium = missionObj==='COVER THE ELYSIUM';
+  // Guns out: she falls silent.
+  shots = 0;
+  for(let i=0;i<300;i++){ FS.killSmall(); const n0 = eBullets.length; FS.step(1); shots += Math.max(0, eBullets.length-n0); }
+  r.silentWithoutGuns = shots===0;
+  let el = null;
+  FS.until(()=>{ el = allies.find(a=>a.uid==='T1'); return !!el; }, 3000, true);
+  el.hp = el.maxHp = 1e7;
+  const hold = FS.until(()=>{ el.hp = el.maxHp; return el.holdT!=null; }, 9000, true);
+  FS.step(400);
+  r.boardingTakesTime = hold>=0 && !s.captured;
+  const got = FS.until(()=>{ if(allies.includes(el)) el.hp = el.maxHp; return !!EV_DOCK['T1']; }, 3000, true);
+  FS.step(3);
+  r.takenAndStays = got>=0 && s.captured===true && enemies.includes(s) && !(s.warpOut>0) && s.scenery===true;
+  r.completeCard = !!objCard && objCard.txt==='ARCADIA RETAKEN';
+  const w = FS.until(()=>waveOver, 6000, true);
+  r.waveEnds = w>=0;
+  return r;`);
+
+scenario('M51 both Elysiums lost: failed', 'm=51', `
+  const r = {};
+  FS.step(300);
+  const s = enemies.find(e=>e.uid==='S1');
+  for(const x of s.subs) if(x.id==='weapons'){ x.dead = true; x.hp = 0; }
+  let el = null;
+  FS.until(()=>{ el = allies.find(a=>a.uid==='T1'); return !!el; }, 3000, true);
+  el.hp = 0;
+  let e2 = null;
+  FS.until(()=>{ e2 = allies.find(a=>a.uid==='T2'); return !!e2; }, 3000, true);
+  r.secondComes = !!e2;
+  e2.hp = 0;
+  const f = FS.until(()=>!!objCard && objCard.tone==='fail', 1500, false);
+  r.failCard = f>=0 && objCard.txt==='BOTH ELYSIUMS LOST';
+  r.ntfKeepsHer = enemies.includes(s) && s.scenery===true && !s.captured;
+  const w = FS.until(()=>waveOver, 6000, true, true);
+  r.waveEnds = w>=0;
+  return r;`);
+
+scenario('M52 Das Artilleriefeuer', 'm=52', `
+  const r = {};
+  tickets.cruiser = 1;
+  FS.step(400);
+  const ms = allies.filter(a=>a.uid==='M1' || a.uid==='M2');
+  r.twoMjolnirs = ms.length===2 && ms.every(m=>m.img==='sgmjolnir' && m.platform && !m.subs && m.beams && m.beams.some(b=>b.large));
+  const m1 = ms.find(m=>m.uid==='M1'), m2 = ms.find(m=>m.uid==='M2');
+  r.inPlace = !!m1 && !!m2 && Math.abs(m1.x-70)<1 && Math.abs(m1.y-140)<1 && Math.abs(m2.y-360)<1;
+  r.deimosAtTheBottom = allies.some(a=>a.uid==='A1' && a.img==='codeimos' && Math.abs(a.y-440)<1);
+  r.supportStillCallable = allyReady();
+  const _v1 = enemies.find(e=>e.uid==='V1');
+  r.shorterDeadline = !!_v1 && _v1.fleeT>0 && _v1.fleeT <= 30*TICK_HZ;
+  // They take turns: never both early in their charge together.
+  let together = 0, charged = {M1:0, M2:0};
+  for(let i=0;i<4000;i+=10){ FS.killSmall(); for(const e of enemies) if(e.fleeT>0) e.fleeT = 1e6;
+    FS.step(10);
+    const early = ms.filter(m=>m.beams.some(b=>b.state==='charging' && (b.chargeMax - b.timer) < b.chargeMax*0.4));
+    if(early.length===2) together++;
+    for(const m of ms) if(m.beams.some(b=>b.state==='firing')) charged[m.uid]++; }
+  r.takeTurns = together===0 && charged.M1>0 && charged.M2>0;
+  // Two lanes, never more than two NTF capital ships at once.
+  let most = 0; const seen = {};
+  FS.until(()=>{ const caps = enemies.filter(e=>/^V/.test(e.uid||'') && !(e.warp>0));
+    most = Math.max(most, caps.length); for(const e of caps) seen[e.uid] = e;
+    for(const e of caps) if(e.warp<=0 && e.x < W-60){ e.hp = 0; }
+    return ['V1','V2','V3','V4','V5','V6'].every(k=>EV_SEEN[k]) && !byId('V5').length && !byId('V6').length; }, 20000, true);
+  r.allSixCome = wave===52 && ['V1','V2','V3','V4','V5','V6'].every(k=>EV_SEEN[k]);
+  r.neverMoreThanTwo = most<=2;
+  r.completeCard = FS.until(()=>!!objCard && objCard.txt==='NTF BATTLE GROUP DESTROYED', 300, false) >= 0;
+  // No jump drive: the Mjolnirs stay until the field goes dark.
+  FS.until(()=>waveOver, 6000, true, true);
+  FS.step(60);
+  r.mjolnirsStay = allies.includes(m1) && !(m1.warpOut>0) && allies.includes(m2);
+  return r;`);
+
+scenario('M53 Der Gegenangriff', 'm=53', `
+  const r = {};
+  tickets.cruiser = 1;
+  FS.step(300);
+  const a1 = allies.find(a=>a.uid==='A1'), a2 = allies.find(a=>a.uid==='A2');
+  r.fleetPlaced = !!a1 && !!a2 && Math.abs(a1.y-170)<60 && Math.abs(a2.y-390)<60;
+  r.noCallWhileBothStand = !allyReady();
+  r.noEnemyDestroyersYet = !enemies.some(e=>e.uid==='V1'||e.uid==='V2');
+  FS.until(()=>enemies.some(e=>e.uid==='V1') && enemies.some(e=>e.uid==='V2'), 2000, true);
+  r.theyJumpIn = enemies.some(e=>e.uid==='V1' && e.img==='ntfdehecate') && enemies.some(e=>e.uid==='V2' && e.img==='ntfdeorion');
+  FS.step(2);
+  r.newObjective = missionObj==='DESTROY THE HECATE AND THE ORION';
+  const v1 = enemies.find(e=>e.uid==='V1'); v1.hp = 0;
+  FS.step(400);
+  r.notDoneWithOne = !(objCard && objCard.txt==='COUNTERATTACK BROKEN');
+  // One of ours lost: now the call is free.
+  a2.hp = 0; FS.step(300);
+  r.callFreeAfterALoss = allyReady();
+  const v2 = enemies.find(e=>e.uid==='V2'); if(v2) v2.hp = 0;
+  r.completeCard = FS.until(()=>!!objCard && objCard.txt==='COUNTERATTACK BROKEN', 3000, false) >= 0;
+  // Our ships jump out at the end of the wave: that is not a loss.
+  const said = new Set();
+  FS.until(()=>{ for(const n of NOTICES) said.add(n.txt); return wave===54; }, 9000, true, true);
+  r.jumpIsNoLoss = !said.has('GTD ORION LOST');
+  return r;`);
+
+scenario('M54 Die Evakuierung', 'm=54', `
+  const r = {};
+  let t1 = null;
+  FS.until(()=>{ t1 = allies.find(a=>a.uid==='T1'); return !!t1; }, 1000, false);
+  r.leavesTheStation = !!t1 && Math.abs(t1.x-560) < 15 && t1.crossing < 0 && t1.flip===needsFlip(t1.img, true);
+  const x0 = t1.x; FS.step(100);
+  r.fliesLeft = t1.x < x0 - 30;
+  // Keep them alive; they fly out to the left.
+  const keep = ()=>{ for(const a of allies) if(/^T/.test(a.uid||'')) a.hp = a.maxHp = 1e7; };
+  const t = FS.until(()=>{ keep(); return protSaved>=1; }, 3000, true);
+  r.firstOut = t>=0;
+  FS.step(5);
+  r.noticeForIt = NOTICES.some(n=>n.txt==='FIRST ELYSIUM IS OUT');
+  // Three out while the fourth is still flying: not yet complete.
+  FS.until(()=>{ keep(); return protSaved>=3; }, 9000, true);
+  const t4 = allies.find(a=>a.uid==='T4');
+  r.notCompleteWhileOneFlies = !!t4 && !(objCard && objCard.txt==='EVACUATION COMPLETE');
+  const c = FS.until(()=>{ keep(); return !!objCard && objCard.txt==='EVACUATION COMPLETE'; }, 9000, true);
+  r.threeOutComplete = c>=0 && protSaved>=3;
+  const w = FS.until(()=>{ keep(); return waveOver; }, 9000, true, true);
+  r.waveEnds = w>=0;
+  return r;`);
+
+scenario('M54 two lost: failed', 'm=54', `
+  const r = {};
+  let n = 0;
+  const f = FS.until(()=>{ for(const a of allies) if(/^T[12]$/.test(a.uid||'')) a.hp = 0;
+    return !!objCard && objCard.tone==='fail'; }, 3000, true);
+  r.failCard = f>=0 && objCard.txt==='TOO MANY ELYSIUMS LOST';
+  return r;`);
+
+scenario('Beams run under the hulls', 'm=42', `
+  const r = {};
+  FS.step(300);
+  const shooter = allies.concat(enemies).find(o=>o.beams && o.beams.length);
+  const b = shooter.beams[0];
+  b.state = 'firing'; b.timer = 1e6; b.angle = 0; b.curAngle = 0;
+  const order = [];
+  const _r = drawBeamRays, _s = drawShip;
+  drawBeamRays = function(e, own){ if(e.beams && e.beams.some(x=>x.state==='firing')) order.push(own ? 'own' : 'ray'); return _r.apply(this, arguments); };
+  drawShip = function(img){ order.push(img===shooter.img ? 'shooter' : 'ship'); return _s.apply(this, arguments); };
+  try { draw(); } finally { drawBeamRays = _r; drawShip = _s; }
+  const lastRay = order.lastIndexOf('ray'), firstShip = Math.min(...['ship','shooter'].map(k=>order.indexOf(k)).filter(i=>i>=0));
+  r.rayDrawn = lastRay>=0;
+  // Under the ships it hits...
+  r.underTheTargets = lastRay>=0 && firstShip>lastRay;
+  // ...but on top of the ship that fires it.
+  const sh = order.indexOf('shooter'), own = order.indexOf('own');
+  r.onTopOfTheShooter = sh>=0 && own>sh;
+  r.ownStretchShort = ownHullRun(shooter, shooter.x, shooter.y, 0) > 0 && ownHullRun(shooter, shooter.x, shooter.y, 0) < 1000;
+  return r;`);
 
 scenario('allied craft hold fire with nothing to shoot', 'm=44', `
   const r = {};

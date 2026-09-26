@@ -367,7 +367,9 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind){
   if(e.invuln) return;      // Station, die nicht fallen soll
   if(e.rollT!=null) return; // bricht schon auseinander
   e.hp -= dmg;
-  if(e.hp <= 0 && !e.dead &&
+  // A ship that is to be taken does not start to break up: the lock
+  // below holds her hull instead.
+  if(e.hp <= 0 && !e.dead && !e.captureLock &&
      (e.type==='destroyer'||e.type==='boss'||e.type==='station')){
     // Sie stirbt nicht sofort: erst die Sekundaerexplosionen.
     e.hp = 1; e.rollT = DEATH_ROLL; e.noFire = true;
@@ -1436,7 +1438,12 @@ const ALLY_DEFS = {
                    ticket:'colossus', colossus:true},
   // Mission use only, never on the call menu (not in ALLY_ORDER): an NTF
   // Deimos coming over, still in NTF markings.
-  ntf_deimos:     {cls:'corvette',  fac:'terran',  spr:'ntfcodeimos',  label:'NTF Deimos'}
+  ntf_deimos:     {cls:'corvette',  fac:'terran',  spr:'ntfcodeimos',  label:'NTF Deimos'},
+  // Mission use only: a gun platform. One heavy beam against capital
+  // ships, no drive and no subsystems. Cruiser class for hull and
+  // targeting, so bombers and beams treat her as a capital ship.
+  ter_mjolnir:    {cls:'cruiser',   fac:'terran',  spr:'sgmjolnir',    label:'GTSG Mjolnir',
+                   platform:true}
 };
 const COLOSSUS_TIME = 60;     // seconds on station before she jumps out
 const COLOSSUS_HULL_MULT = 3; // she is not meant to be destructible in a minute
@@ -1506,7 +1513,8 @@ function allyReady(){
   if(GS!=='playing' || allyCd>0) return false;
   // The guarded cruiser is not a called escort. Blocking the call would
   // stop the player defending the very ship the wave is about.
-  for(const a of allies) if(!a.small && !a.guard) return false;
+  // callsOk: a mission ship that does not stand in for a called escort.
+  for(const a of allies) if(!a.small && !a.guard && !a.callsOk) return false;
   return true;
 }
 // Anything at all to spend?
@@ -1554,6 +1562,9 @@ function mkAlly(id){
     lifeT:d.colossus?COLOSSUS_TIME*TICK_HZ:0,
     flip: needsFlip(spr, false)     // escorts face right
   };
+  // A platform is already in place and does not move.
+  if(d.platform){ a.platform = true; a.vy = 0; a.minY = a.y; a.maxY = a.y;
+                  a.warp = 0; a.warpMax = 1; }
   initBeams(a);
   initWeapons(a);
   return a;
@@ -1853,10 +1864,15 @@ function updateAllies(){
 
     // Once the wave is over the escort jumps out in good order
     // instead of simply vanishing.
-    if(waveOver && !a.warpOut){ a.warpOut = a.warpMax; a.warpX = a.x; a.warpY = a.y; }
+    // A gun platform has no jump drive. It stays until the field goes
+    // dark and the next wave clears it away.
+    if(waveOver && !a.warpOut && !a.platform){ a.warpOut = a.warpMax; a.warpX = a.x; a.warpY = a.y; }
     if(a.warpOut > 0){
       a.warpOut--;
-      if(a.warpOut <= 0){ if(a.guard) guardGone = true; allies.splice(i,1); }
+      // Jumped out: she left. Without this 'vernichtet' read her as
+      // destroyed the moment she was gone.
+      if(a.warpOut <= 0){ if(a.uid) EV_LEFT[a.uid] = true;
+                          if(a.guard) guardGone = true; allies.splice(i,1); }
       continue;                       // no firing while jumping out
     }
 

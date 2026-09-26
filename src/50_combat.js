@@ -1452,7 +1452,9 @@ function subPositions(key){
 }
 
 function hasSubsystems(e){
-  return e && (e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer'||e.type==='boss');
+  // An installation only when a mission arms it (subsOn).
+  return e && (e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer'||e.type==='boss'
+               || (e.type==='station' && !!e.subsOn));
 }
 function initSubsystems(e){
   if(!hasSubsystems(e)) return;
@@ -1461,6 +1463,9 @@ function initSubsystems(e){
     return {id:p.id, label:p.label, dx:p.dx, dy:p.dy, r:p.r || null,
             hp:hp, maxHp:hp, dead:false};
   });
+  // An installation neither moves nor jumps.
+  if(e.type==='station')
+    e.subs = e.subs.filter(function(s){ return s.id!=='engines' && s.id!=='navigation'; });
 }
 // True while the named system is still alive. Ships without subsystems
 // answer true, so small craft are unaffected by any of this.
@@ -1830,6 +1835,9 @@ const WPN = {
               sec:{type:'missile', rate:[400,660], dmg:16, spd:2.6, turn:0.026}},
   destroyer: {rate:[95,165],  big:0.32,
               sec:{type:'missile', rate:[340,580], dmg:18, spd:2.7, turn:0.026}},
+  // An armed installation: many mounts, so each one fires slowly.
+  station:   {rate:[260,420], big:0.30,
+              sec:{type:'missile', rate:[520,860], dmg:16, spd:2.6, turn:0.026}},
   boss:      {rate:[80,140],  big:0.38,
               sec:{type:'missile', rate:[280,470], dmg:20, spd:2.8, turn:0.028}}
 };
@@ -2369,6 +2377,9 @@ function updateBeams(e) {
   for(const b of e.beams) {
     b.timer--;
     if(b.state==='idle') {
+      // Gun platforms take turns: while another one is in the first
+      // half of its charge, this one waits.
+      if(b.timer<=0 && e.platform && platformCharging(e)) { b.timer = 60; continue; }
       if(b.timer<=0) {
         // Find a target first. With no target it will not charge, the
         // turret holds fire and retries shortly after.
@@ -2449,8 +2460,77 @@ function updateBeams(e) {
   }
 }
 
+// Is another gun platform on this side early in its charge?
+function platformCharging(self){
+  for(const o of allies){
+    if(o===self || !o.platform || o.dead || !o.beams) continue;
+    for(const b of o.beams){
+      if(b.state!=='charging') continue;
+      const cm = b.chargeMax || b.chargeT;
+      if(cm - b.timer < cm*0.5) return true;
+    }
+  }
+  return false;
+}
+
+// The ray itself. Drawn before any hull, so every ship lies on top of
+// it and a hit looks like the beam running through the target rather
+// than being painted across it.
+// own: only the stretch from the mount to the edge of the firing ship's
+// own hull. That part is drawn again on top of her, so the beam leaves
+// the ship that fires it instead of disappearing under her.
+function drawBeamRays(e, own) {
+  if(!e.beams) return;
+  for(const b of e.beams) {
+    if(b.state!=='firing') continue;
+    const col=beamCol(e.faction, b.large);
+    const ang = b.type==='slash' ? b.curAngle : b.angle;
+    const mpF=mountPos(e,b);
+    const len = own ? ownHullRun(e, mpF.x, mpF.y, ang) : 2000;
+    if(len <= 0) continue;
+    const ex=mpF.x+Math.cos(ang)*len, ey=mpF.y+Math.sin(ang)*len;
+    const flicker=0.85+0.15*Math.sin(fc*0.8);
+    ctx.save();
+    // Outer glow
+    ctx.globalAlpha=0.15*flicker;
+    ctx.strokeStyle=col; ctx.lineWidth=b.large?22:10;
+    ctx.shadowColor=col; ctx.shadowBlur=ecoBlur(30);
+    ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
+    // Mid glow
+    ctx.globalAlpha=0.35*flicker;
+    ctx.lineWidth=b.large?10:5;
+    ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
+    // Core
+    ctx.globalAlpha=0.95*flicker;
+    ctx.strokeStyle='#ffffff';
+    ctx.lineWidth=b.large?2.5:1.5;
+    ctx.shadowBlur=ecoBlur(6);
+    ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// How far a ray from (x,y) at angle a runs before it leaves the box of
+// ship e.
+function ownHullRun(e, x, y, a){
+  const img = IMGS[e.img];
+  if(!img) return 0;
+  const hw = img.width*e.sc/2, hh = img.height*e.sc/2;
+  const c = Math.cos(a), s = Math.sin(a);
+  let t = Infinity;
+  if(c > 1e-6)  t = Math.min(t, (e.x+hw - x)/c);
+  if(c < -1e-6) t = Math.min(t, (e.x-hw - x)/c);
+  if(s > 1e-6)  t = Math.min(t, (e.y+hh - y)/s);
+  if(s < -1e-6) t = Math.min(t, (e.y-hh - y)/s);
+  return (t === Infinity) ? 0 : Math.max(0, t);
+}
+
+// Charge glow and muzzle orb, on top of the firing ship, together with
+// the stretch of the ray across her own hull. The rest of the ray is
+// drawn under all hulls by drawBeamRays(e) before the ships.
 function drawBeams(e) {
   if(!e.beams) return;
+  drawBeamRays(e, true);
   for(const b of e.beams) {
     const mp=mountPos(e,b);
     const col=beamCol(e.faction, b.large);
@@ -2491,25 +2571,8 @@ function drawBeams(e) {
     } else if(b.state==='firing') {
       const ang = b.type==='slash' ? b.curAngle : b.angle;
       const mpF=mountPos(e,b);
-      const len=2000;
-      const ex=mpF.x+Math.cos(ang)*len, ey=mpF.y+Math.sin(ang)*len;
       const flicker=0.85+0.15*Math.sin(fc*0.8);
       ctx.save();
-      // Outer glow
-      ctx.globalAlpha=0.15*flicker;
-      ctx.strokeStyle=col; ctx.lineWidth=b.large?22:10;
-      ctx.shadowColor=col; ctx.shadowBlur=ecoBlur(30);
-      ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
-      // Mid glow
-      ctx.globalAlpha=0.35*flicker;
-      ctx.lineWidth=b.large?10:5;
-      ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
-      // Core
-      ctx.globalAlpha=0.95*flicker;
-      ctx.strokeStyle='#ffffff';
-      ctx.lineWidth=b.large?2.5:1.5;
-      ctx.shadowBlur=ecoBlur(6);
-      ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
       // Muzzle orb. This is the same sphere that builds up while charging,
       // held at full size for the whole discharge. Only the inrushing
       // magnetic particles stop, the glow itself does not collapse into

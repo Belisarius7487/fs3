@@ -260,6 +260,13 @@ function draw(){
     }
   }
 
+  // Beam rays under every hull: a ship lies on top of the beam that
+  // hits it, which reads as the beam running through her.
+  for(const e of SHIPS_ON_FIELD){
+    try{ drawBeamRays(e); }catch(eb){ ctx.restore(); }
+  }
+  ctx.globalAlpha=1;
+
   // Wreckage sits behind the ships: it is scenery that bites, not a unit.
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
   drawDebris();
