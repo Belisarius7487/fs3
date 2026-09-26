@@ -27,6 +27,9 @@ function between(startText){
   return src.slice(j, blockEnd(src, j));
 }
 const shipsDecl = src.match(/const PLAYER_SHIPS = \[[\s\S]*?\];/)[0];
+// The cycle tables and the support columns they switch.
+const cycleDecl = src.match(/const ROSTER_HOL[\s\S]*?\nlet cycleBase = 0;[^\n]*/)[0];
+const facOnDecl = src.match(/const ALLY_FAC_ON = \{[^}]*\};/)[0];
 const hullFacDecl = src.match(/const HULL_FAC = \{[\s\S]*?\};/)[0];
 const menuBgDecl = src.match(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/)[0];
 const hangarDecl = src.match(/const HG_W[\s\S]*?\n\];/)[0];
@@ -55,7 +58,7 @@ const names = [
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
   'mountsFor','spriteFacing','drawHullBg','drawHullCell','volleyDmg','volleyTotal','primaryCount','syncPause',
   'hangarGroups','hangarLayout','drawMissileIcon','drawBombIcon','drawKeyChip',
-  'hangarOrder','insidePanel',
+  'hangarOrder','insidePanel','cycleAt','enterCycle','titleFsHit',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','thButton','thDivider','drawSwapIcon','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
@@ -121,6 +124,9 @@ const world = `
   ${volleyDecl}
   let MOUNTS={};
   ${shipsDecl}
+  let UI_SHIPS=1;
+  ${facOnDecl}
+  ${cycleDecl}
   ${names.map(fn).join('\n')}
   const onKey = ${keyHandler};
   const onDown = ${mouseHandler};
@@ -337,6 +343,41 @@ ok('back onto the start hull at the Colossus, 20/80 of 100 = 25', P().ship==='fi
 W.run('wave=2');
 ok('new wave with the Colossus still there: refits again', W.run('shipSwapReady()')===true);
 W.run("toggleShipMenu(); swapShip('fihorus')"); ok('and it is a full hull', P().hp===80);
+
+console.log('Cycles: each brings its own fleet');
+{
+  const hol = W.run('cycleAt(1)'), ntf = W.run('cycleAt(31)');
+  ok('waves 1 to 30 are the Hammer of Light cycle', W.run('cycleAt(30)')===hol && hol.first===1);
+  ok('wave 31 opens the NTF cycle, and it holds after that', ntf.first===31 && W.run('cycleAt(59)')===ntf && W.run('cycleAt(140)')===ntf);
+  reset();
+  W.run("score=95000; enterCycle(cycleAt(31))");
+  ok('entering it puts the player in a Myrmidon, fresh', P().ship==='fimyrmidon' && P().hp===P().maxHp);
+  ok('the roster is the Terran one, eight hulls',
+     W.run('PLAYER_SHIPS.length')===8 && W.run("PLAYER_SHIPS.every(s=>s.fac==='terran')"));
+  ok('in the agreed order',
+     W.run("PLAYER_SHIPS.map(s=>s.key).join()")==='fimyrmidon,fiherc,boartemis,fihercmk2,bomedusa,fierinyes,boursa,fiares');
+  ok('only the first hull is open', W.get('shipUnlocked')===1);
+  W.run("score=95000+3999; tickShipUnlocks()");
+  ok('the points brought into the cycle do not count', W.get('shipUnlocked')===1);
+  W.run("score=95000+4000; tickShipUnlocks()");
+  ok('4000 points scored IN the cycle open the Hercules', W.get('shipUnlocked')===2 && /HERCULES/.test(W.get('SUB_MSGS').slice(-1)[0].txt));
+  ok('the Terran support column answers, the Vasudan one does not',
+     W.run('ALLY_FAC_ON.terran')===true && W.run('ALLY_FAC_ON.vasudan')===false);
+  // The hangar follows the hull, so the Terran roster needs a Terran destroyer.
+  W.set('allies',[destroyer({img:'deorionright'})]);
+  ok('a Terran destroyer offers the Hercules', W.run("shipOffered('fiherc')")===true && W.run('shipSwapReady()')===true);
+  W.set('allies',[destroyer()]);
+  ok('a Vasudan one does not', W.run("shipOffered('fiherc')")===false && W.run('shipSwapReady()')===false);
+  W.run("enterCycle(cycleAt(1))");
+  ok('and back: the Vasudan roster and column', P().ship==='fitoth' &&
+     W.run('ALLY_FAC_ON.terran')===false && W.run('ALLY_FAC_ON.vasudan')===true);
+}
+ok('the run starts in the cycle of its first wave',
+   /else enterCycle\(cycleAt\(wave\+1\)\);/.test(fn('launchGame')));
+ok('crossing into a new cycle hands over the fleet',
+   /if\(_c!==cycleNow\) enterCycle\(_c\);/.test(fn('nextWave')));
+ok('?m= starts the run at that wave instead of repeating it',
+   /SCRIPT_ONE\?SCRIPT_ONE-1:0/.test(fn('launchGame')) && !/SCRIPT_ONE \? SCRIPT_ONE : n/.test(src));
 
 console.log('Support calls by faction');
 ok('the Terran column is off in this cycle', src.includes("const ALLY_FAC_ON = {terran:false, vasudan:true, gtva:true};"));

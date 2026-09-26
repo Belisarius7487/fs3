@@ -263,6 +263,15 @@ function scheduleExpl(delay, x, y, r, type) {
   EXPL_Q.push({t:fc+delay, x:x, y:y, r:r, type:type});
 }
 
+// r: reach of the wave, pct: share of the player's hull it takes at full
+// strength. A destroyer's own wave is 260 and 0.040 for comparison.
+const BIG_BLAST = {
+  scfaustus:  {r:300, force:5.0, pct:0.070, shake:12},
+  incommnode: {r:320, force:5.2, pct:0.080, shake:14},
+  gmanuket:   {r:380, force:6.0, pct:0.100, shake:16},
+  gmrahu:     {r:380, force:6.0, pct:0.100, shake:16},
+  gmzephyrus: {r:400, force:6.4, pct:0.110, shake:16}
+};
 function triggerExpl(x, y, shipType, faction, src) {
   // The branch chain below has no else. Any type that is not in it dies
   // silently, with no fireball, no ring and no debris - which is what the
@@ -276,6 +285,13 @@ function triggerExpl(x, y, shipType, faction, src) {
   // Wreckage is spawned here rather than at each of the five death sites,
   // so nothing is forgotten when a sixth one is added.
   if(src) spawnWreck(src, shipType, x, y);
+  // Hulls the mount data calls out for a big blast radius. The class
+  // profile below still runs; this is the extra wave on top of it.
+  if(src && BIG_BLAST[src.img]){
+    const bb = BIG_BLAST[src.img];
+    spawnShock(x, y, bb.r, bb.force, bb.pct);
+    addShake(bb.shake, bb.shake*3);
+  }
   var isShiv = faction==='shivan';
   // Fraktions-Farbpalette
   var r1=255,g1=isShiv?80:200,b1=isShiv?0:50;
@@ -434,7 +450,7 @@ function launchGame(){
   if(btn) btn.style.display='none';
   document.body.classList.add('nocursor');
   shipUnlocked=UI_SHIPS; shipSwapWave=-1; shipMenu=false;
-  score=0;lives=LIVES_START;wave=(FS1_MODE?fs1First()-1:0);fc=0;currentFaction='ntf';icenEscapes=0;runTime=0;
+  score=0;lives=LIVES_START;wave=(FS1_MODE?fs1First()-1:(SCRIPT_ONE?SCRIPT_ONE-1:0));fc=0;currentFaction='ntf';icenEscapes=0;runTime=0;
   statsReset();
   // Tickets are cleared here and nowhere else: they survive losing a life
   // and are lost on game over.
@@ -458,7 +474,9 @@ function launchGame(){
           ship:PLAYER_SHIPS[0].key,
           secAmmo:0,secMax:0,
           secTimer:0,secType:'missile'};
-  applyShip(PLAYER_SHIPS[0].key);
+  // The cycle of the first wave decides the fleet. FS1 has its own.
+  if(FS1_MODE || TEST_MODE) applyShip(PLAYER_SHIPS[0].key);
+  else enterCycle(cycleAt(wave+1));
   // Without this the ship would set off towards wherever the launch button
   // was pressed, which since the speed cap is a visible drive across the field.
   MOUSE.x=player.x; MOUSE.y=player.y;
@@ -471,6 +489,8 @@ window.launchGame=launchGame;
 
 function nextWave(){
   wave++;waveOver=false;waveCd=0;bossAlive=false;bossSlain=false;
+  // Crossing into the next cycle hands over the fleet.
+  if(!FS1_MODE && !TEST_MODE){ const _c = cycleAt(wave); if(_c!==cycleNow) enterCycle(_c); }
   // Die verbuendete Staffel wird nach dem Wellenaufbau gestellt, weil
   // getWaveDef ihre Zahl erst dort setzt.
   window._allyWingDue = true;
@@ -667,7 +687,8 @@ function update(){
       if(WING_TYPES[_nx.type] && gateWings && _nx.wing && _nx.wing!==gateWing
          && liveSmallCount()>0){
         for(const s of spawnQ) if(s.wing===_nx.wing) s.time=spawnT+GATE_RETRY;
-        break;
+        spawnQ.sort(function(a,b){ return a.time-b.time; });
+        continue;
       }
       if(WING_TYPES[_nx.type] && liveSmallCount()>=smallCap()){
         // Defer the whole wing, not just its leader, or a formation would
@@ -675,7 +696,8 @@ function update(){
         if(_nx.wing){
           for(const s of spawnQ) if(s.wing===_nx.wing) s.time=spawnT+LIVE_SMALL_RETRY;
         } else { _nx.time=spawnT+LIVE_SMALL_RETRY; }
-        break;
+        spawnQ.sort(function(a,b){ return a.time-b.time; });
+        continue;
       }
       const _sp=spawnQ.shift();
       if(WING_TYPES[_sp.type] && _sp.wing) gateWing=_sp.wing;
@@ -697,16 +719,20 @@ function update(){
           // Fahrt aus der Querungszeit, damit Uhr und Bild dasselbe sagen:
           // ihre Position IST der Fortschrittsbalken.
           _a.guard = true;
-          _a.x = -20;  _a.warpX = _a.x;  _a.warp = 0;
           _a.transit = true;
           const _gi = IMGS[_a.img];
           const _gh = _gi ? _gi.width*_a.sc*0.5 : 120;
-          _a.transitEnd = W - _gh - TRANS_EDGE_PAD;
+          // crossDir 'left': in from the right edge, out on the left.
+          const _toLeft = (_sp.crossDir === 'left');
+          _a.x = _toLeft ? W + 20 : -20;  _a.warpX = _a.x;  _a.warp = 0;
+          _a.transitEnd = _toLeft ? _gh + TRANS_EDGE_PAD : W - _gh - TRANS_EDGE_PAD;
           _a.transitV = (_a.transitEnd - _a.x) / (_sp.crossSecs*TICK_HZ);
-          _a.flip = needsFlip(_a.img, false);
+          _a.flip = needsFlip(_a.img, _toLeft);
           guardWanted = true; guardSpawned = true;
         }
         if(_a){ _a.uid=_sp.uid; if(_sp.uid) EV_SEEN[_sp.uid]=true;
+                _a.defectLock = evWillDefect(_sp.uid);
+                if(_sp.defectRun) _a.defectRun = _sp.defectRun;
                 if(_sp.hpMul) { _a.hp=Math.round(_a.hp*_sp.hpMul); _a.maxHp=Math.max(_a.maxHp,_a.hp); }
                 allies.push(_a); }
         continue;

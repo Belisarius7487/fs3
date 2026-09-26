@@ -1922,7 +1922,7 @@ const FLAK_SHARDS      = 8;
 const FLAK_SHARD_DMG   = 3;
 const FLAK_SHARD_SPD   = 2.6;
 const FLAK_SHARD_RANGE = 62;
-function flakHas(e){ return !!FLAK_TYPES[e.type]; }
+function flakHas(e){ return !!FLAK_TYPES[e.type] && !e.noFlak; }
 // The shrapnel. An allied gun throws it into the player's list so it bites
 // enemies; an enemy gun into the enemy list so it bites the player and the
 // escorts. Same star shape either way.

@@ -452,6 +452,7 @@ function spawnDefector(y, spr){
   allies.push(a);
 }
 function defect(a){
+  if(!a.small) return defectCap(a);
   const _i = allies.indexOf(a);
   if(_i >= 0) allies.splice(_i, 1);    // sonst steht es in beiden Listen
   a.side = 'enemy';
@@ -462,6 +463,48 @@ function defect(a){
   a.small = true;
   enemies.push(a);
   SUB_MSGS.push({x:a.x, y:a.y, txt:'TURNING HOSTILE',
+                 life:200, ml:200, ally:false});
+}
+// A capital ship going over. The allied object is built for the allied
+// paths and the enemy paths expect other fields, so rather than convert
+// it, it is rebuilt as an enemy of the same class exactly the way the
+// spawn queue builds one. It keeps its place, its share of hull and its
+// mission id, and in the NTF cycle it flies on as the NTF variant.
+const DEFECT_MIN_HULL = 0.6;
+function defectCap(a){
+  const spr = (currentFaction==='ntf' && NTF_HULL[a.img]) || a.img;
+  const e = mkEnemy(hullClass(spr) + '_' + FAC_TAG[currentFaction], spr, a.y);
+  if(!e) return;
+  const _i = allies.indexOf(a);
+  if(_i >= 0) allies.splice(_i, 1);
+  e.side = 'enemy';
+  e.x = a.x; e.y = a.y; e.warpX = a.x; e.warpY = a.y;
+  e.warp = 0; e.warpMax = 1;
+  e.flip = needsFlip(e.img, true);
+  // No assignStation(): that picks a free lane for a ship that arrives,
+  // and a ship that changes sides keeps the place she is in.
+  initWeapons(e); initSecAmmo(e); initLuciShield(e); initSubsystems(e);
+  e.hp = Math.max(1, Math.round(e.maxHp * (a.maxHp ? a.hp/a.maxHp : 1)));
+  e.uid = a.uid;
+  // She turns with at least DEFECT_MIN_HULL of her hull. Held at the
+  // lock's floor until the turn, she would otherwise go over as a wreck
+  // that the allied wings finish before the player gets a shot in.
+  e.hp = Math.max(e.hp, Math.round(e.maxHp*DEFECT_MIN_HULL));
+  // defectRun: after the turn she makes for the right edge, facing where
+  // she goes, and jumps out the moment she gets there. The same course
+  // as any escaper, so killing her engines stops her.
+  if(a.defectRun){
+    e.escaping = a.defectRun;
+    e.escWarp = true;
+    e.noFlee = true;
+    const _ri = IMGS[e.img];
+    e.targetX = W + (_ri ? _ri.width*e.sc : 120)*2;
+    e.vx = 0;
+    e.flip = needsFlip(e.img, false);
+    escTotal++;
+  }
+  enemies.push(e);
+  SUB_MSGS.push({x:e.x, y:e.y, txt:'TURNING HOSTILE',
                  life:200, ml:200, ally:false});
 }
 // Waagerechte Fahrt eines Schuetzlings. Verlaesst er rechts das Feld, ist
@@ -742,6 +785,16 @@ function tickEscapers(){
     // den Rand erreicht und das Heck noch im Bild steht.
     const _ei = IMGS[e.img];
     const _ew = _ei ? _ei.width*e.sc : 120;
+    if(e.escWarp && e.x + _ew*0.5 >= W - TRANS_EDGE_PAD){
+      e.escaping = 0;
+      escGone++;
+      EV_LEFT[e.uid] = true;
+      e.warpOut = e.warpMax > 1 ? e.warpMax : 160;
+      e.warpX = e.x; e.warpY = e.y;
+      SUB_MSGS.push({x:W-110, y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
+                     ally:false, tone:'bad'});
+      continue;
+    }
     // Ganz draussen heisst: die linke Kante hat den rechten Rand passiert.
     if(e.x - _ew*0.5 > W + 8){
       escGone++;
@@ -875,6 +928,10 @@ function applySpawnOpts(e, sp){
   // capRam-Zeile, hat ihr also die volle Hoehe wieder weggenommen. Ein
   // Rammkurs traf dadurch nur, wenn er zufaellig auf der Hoehe seines
   // Zieles erschien, und zog sonst am Ziel vorbei bis an den linken Rand.
+  // A height the mission gives is kept. assignStation() picks a free
+  // lane on its own, which is right for ships that simply arrive. Set
+  // before still, which pins the ship to whatever height it has.
+  if(sp.fixY && !sp.capRam){ e.y = sp.y; e.warpY = sp.y; }
   if(sp.still){
     e.vy = 0;
     if(!e.capRam){ e.minY = e.y; e.maxY = e.y; }
@@ -902,6 +959,13 @@ function applySpawnOpts(e, sp){
     e.flip = needsFlip(e.img, false);
   }
   if(sp.disable) e.noFlee = true;
+  // A stationary ship placed with x stays at x. Without this the station
+  // drive takes it to the class's usual spot at the right.
+  if(sp.still && sp.x!=null && !sp.capRam) e.targetX = sp.x;
+  if(sp.noFlak) e.noFlak = true;
+  // A jump nobody can stop: there is no navigation subsystem to shoot.
+  if(sp.navProof && e.subs) e.subs = e.subs.filter(function(s){ return s.id!=='navigation'; });
+  if(sp.fleeFree) e.fleeFree = true;
   // Unshielded on purpose. Vasudan fighters carry none in the early part
   // of FS1, and the wave says so rather than the ship class deciding.
   if(sp.noShield){ e.maxSh = 0; e.sh = 0; }
@@ -1105,6 +1169,52 @@ const PLAYER_SHIPS = [
   {key:'fitauret',  name:'GVF Tauret',  fac:'vasudan', unlock:43000, spd:2.9, turn:0.10, hp:100, sh:130, sec:20},
   {key:'bosekhmet', name:'GVB Sekhmet', fac:'vasudan', unlock:58000, spd:2.5, turn:0.12, hp:140, sh:130, sec:12}
 ];
+
+// ── CYCLES ───────────────────────────────────────────────────
+// A run is made of cycles of written missions, and each cycle brings its
+// own fleet: the hulls the player flies, the order they open in, and who
+// answers a support call. PLAYER_SHIPS above is the Hammer of Light roster
+// and stays the one array everything reads - entering a cycle refills it
+// in place, so no reader has to know that cycles exist.
+//
+// Inside a cycle, unlock counts the points scored SINCE the cycle began.
+// Every cycle opens its roster from the bottom, whatever the run brought
+// into it.
+const ROSTER_HOL = PLAYER_SHIPS.slice();
+const ROSTER_NTF = [
+  {key:'fimyrmidon', name:'GTF Myrmidon',      fac:'terran', unlock:0,     spd:3.4, turn:0.16, hp:100, sh:100, sec:20},
+  {key:'fiherc',     name:'GTF Hercules',      fac:'terran', unlock:4000,  spd:3.0, turn:0.14, hp:120, sh:110, sec:20},
+  {key:'boartemis',  name:'GTB Artemis',       fac:'terran', unlock:9000,  spd:2.6, turn:0.11, hp:130, sh:100, sec:10},
+  {key:'fihercmk2',  name:'GTF Hercules Mk II',fac:'terran', unlock:15000, spd:3.2, turn:0.16, hp:110, sh:120, sec:20},
+  {key:'bomedusa',   name:'GTB Medusa',        fac:'terran', unlock:22000, spd:2.4, turn:0.10, hp:150, sh:110, sec:12},
+  {key:'fierinyes',  name:'GTF Erinyes',       fac:'terran', unlock:31000, spd:2.8, turn:0.12, hp:130, sh:140, sec:20},
+  {key:'boursa',     name:'GTB Ursa',          fac:'terran', unlock:43000, spd:2.3, turn:0.10, hp:170, sh:130, sec:14},
+  {key:'fiares',     name:'GTF Ares',          fac:'terran', unlock:58000, spd:3.3, turn:0.15, hp:120, sh:140, sec:20}
+];
+// first: the first wave of the cycle. call: which support columns answer.
+const CYCLES = [
+  {first:1,  roster:ROSTER_HOL, call:{terran:false, vasudan:true}},
+  {first:31, roster:ROSTER_NTF, call:{terran:true,  vasudan:false}}
+];
+let cycleNow  = null;   // the CYCLES entry the run is in
+let cycleBase = 0;      // score when it began; hull unlocks count from here
+function cycleAt(n){
+  let c = CYCLES[0];
+  for(const x of CYCLES) if(n >= x.first) c = x;
+  return c;
+}
+// Puts the run into a cycle: its roster, its support columns, and its
+// first hull, fresh. The hull the player had belongs to the old fleet.
+function enterCycle(c){
+  cycleNow  = c;
+  cycleBase = score;
+  PLAYER_SHIPS.length = 0;
+  for(const s of c.roster) PLAYER_SHIPS.push(s);
+  for(const k in c.call) ALLY_FAC_ON[k] = c.call[k];
+  shipUnlocked = Math.max(1, Math.min(UI_SHIPS, PLAYER_SHIPS.length));
+  shipSwapWave = -1;
+  applyShip(PLAYER_SHIPS[0].key);
+}
 
 // ── WAVE ARCHETYPES ──────────────────────────────────────────
 // A wave is described by what it is, not by a pile of numbers. fi and bo
@@ -1709,6 +1819,97 @@ const SCRIPT_WAVES = {
      ], ev:[
        {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
        {t:'alleZerstoert', a:'V1', w:'nachschub', a2:'aus'}
+     ]},
+
+  // ── NTF CYCLE ─────────────────────────────────────────────
+  // Waves 31 to 60. The player flies Terran hulls from here on, see
+  // CYCLES. The thread through the cycle is the Iceni: 36, 47 and 60.
+
+  31:{name:'Der Aufstand', fac:'ntf', o:'clear', live:4, u:[
+       // A patrol with a Leviathan. When the first NTF wing is down, she
+       // goes over - as the NTF hull - and has to be taken down as well.
+       // Until then she cannot die: the turn is the point of the mission.
+       // After the turn she runs for the right edge and jumps out there.
+       {id:'A1', c:'cr', n:1, spr:'crleviathan', side:'ally', defectRun:0.25},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'meldung', a2:'GTC Leviathan turning hostile'},
+       {t:'alleZerstoert', a:'E1', w:'seite', a2:'A1'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
+     ]},
+
+  32:{name:'Die Frachtroute', fac:'ntf', o:'protect', live:5, hunt:'F1', u:[
+       // Two Poseidons cross. Medusa bombers go for them, with fighters
+       // along to keep the player busy.
+       {id:'F1', c:'fr', n:2, spr:'frposeidon', side:'ally', cross:0.40, x:-40},
+       {id:'B1', c:'bo', n:1, spr:'bomedusa'},
+       {id:'E1', c:'fi', n:1},
+       {id:'B2', c:'bo', n:1, spr:'bomedusa', wait:true},
+       {id:'E2', c:'fi', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'B2'},
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'E2'}
+     ]},
+
+  33:{name:'Die Relaisstation', fac:'ntf', o:'clear', live:5, u:[
+       // A Faustus parked as a relay. While she stands, wings keep coming.
+       // Weak hull, few guns, no flak - and a big blast when she goes.
+       {id:'S1', c:'cr', n:1, spr:'scfaustus', still:true, x:560, y:250,
+        hp:0.6, noFlak:true},
+       {id:'G1', c:'sg', n:4, spr:'sgcerberus'},
+       {id:'E1', c:'fi', n:1}
+     ], ev:[
+       {t:'sek', a:1, w:'nachschub', a2:'an'},
+       {t:'zerstoert', a:'S1', w:'nachschub', a2:'aus'}
+     ]},
+
+  34:{name:'Die Flakwand', fac:'ntf', o:'clear', live:5, u:[
+       // Two NTF Aeolus throwing flak. Once the first wing is down an
+       // Orion arrives, and with her the hangar: a bomber is the answer.
+       {id:'K1', c:'cr', n:2, spr:'ntfcraeolus'},
+       {id:'E1', c:'fi', n:1},
+       {id:'E2', c:'fi', n:1, wait:true},
+       {id:'A1', c:'de', n:1, spr:'deorionright', side:'ally', wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'A1'},
+       {t:'alleZerstoert', a:'E1', w:'meldung',   a2:'GTD Orion inbound - hangar open'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
+     ]},
+
+  35:{name:'Der Ueberlaeufer', fac:'ntf', o:'guard', live:5, hunt:'A1',
+      crossEnds:true, u:[
+       // An NTF Deimos coming over to the GTVA, still in NTF markings.
+       // She crosses right to left, away from the NTF side, and her own
+       // side keeps coming until she is across. When she jumps, the
+       // fight is over: nothing still queued arrives.
+       // Half again her hull: with her own side coming the whole way,
+       // the standard one did not last the crossing.
+       {id:'A1', c:'co', n:1, spr:'ntfcodeimos', side:'ally', crossSecs:55,
+        crossDir:'left', hp:1.5},
+       {id:'E1', c:'fi', n:2},
+       {id:'B1', c:'bo', n:1, spr:'boartemis', wait:true},
+       {id:'E2', c:'fi', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
+       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
+       // The first wing hunts her; what follows is a screen for the
+       // player to cut through. All of it diving on her was too much.
+       {t:'alleZerstoert', a:'E1', w:'jagd', a2:''},
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'E2'},
+       {t:'verlaesst', a:'A1', w:'ende', a2:''}
+     ]},
+
+  36:{name:'Die Iceni', fac:'ntf', o:'clear', live:5, u:[
+       // First meeting. She cannot be had yet: a short deadline and no
+       // navigation subsystem to stop the jump. Her getting away costs
+       // nothing - but she comes back heavier, as she always does.
+       {id:'V1', c:'ic', n:1, flee:25, navProof:true, fleeFree:true},
+       {id:'K1', c:'cr', n:1, spr:'ntfcrfenris'},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
      ]}
 };
 // Die Ereignisliste benutzt a fuer das Ziel des Ausloesers und a2 fuer das
@@ -1741,13 +1942,21 @@ const ALLY_ID = {
   craten:'vas_aten', crmentu:'vas_mentu', cosobek:'vas_sobek',
   detyphon:'vas_typhon', dehatshepsut:'vas_hatshepsut',
   crfenris:'ter_fenris', crleviathan:'ter_leviathan', craeolus:'ter_aeolus',
-  codeimos:'ter_deimos', deorionright:'ter_orion', dehecate:'ter_hecate'
+  codeimos:'ter_deimos', deorionright:'ter_orion', dehecate:'ter_hecate',
+  ntfcodeimos:'ntf_deimos'
+};
+// The NTF variant of a Terran capital hull. A ship that goes over to the
+// NTF flies on as this: same class, same size, NTF markings.
+const NTF_HULL = {
+  crleviathan:'ntfcrleviathan', crfenris:'ntfcrfenris', craeolus:'ntfcraeolus',
+  codeimos:'ntfcodeimos', deorionright:'ntfdeorion', deorionleft:'ntfdeorion',
+  dehecate:'ntfdehecate'
 };
 // Kategorien, die keinen Fraktionszusatz tragen.
 // ROLES wird vom Packer erzeugt und kennt keine Installationen.
 const INSTALLATIONS = ['inarcadia','incommnode','inpharos'];
 const CAT_FIX = {sg:'sentry', fc:'container', fr:'freighter', tr:'freighter',
-                 ast:'ast', ep:'container'};
+                 ast:'ast', ep:'container', ic:'iceni'};
 const CAT_FAC = {fi:1, bo:1, cr:1, co:1, de:1, in:1};
 
 // ── Zustand der benannten Einheiten ──────────────────────────
@@ -2013,16 +2222,25 @@ function scriptUnit(u, fac, q){
         const yy = (u.y!=null) ? u.y : H*(0.28+0.44*((i+0.5)/n));
         put(ally
           ? {time:t0+i*140, type:'ally', allyId:ALLY_ID[u.spr]||'vas_aten', spr:u.spr,
-             crossSecs:u.crossSecs, still:u.still}
+             crossSecs:u.crossSecs, still:u.still,
+             crossDir:u.crossDir, defectRun:u.defectRun}
           : {time:t0+i*140, type:ty, spr:u.spr||'', y:(u.c==='in'?(u.y!=null?u.y:H*0.5):yy),
              x:u.x, escape:u.escape, invuln:u.invuln, edge:u.edge, capRam:u.capRam,
-             still:u.still,
+             still:u.still, noFlak:u.noFlak, fixY:(u.y!=null),
              capIndex:(n>1)? i : 0});
       }
     }
     return;
   }
 
+  if(u.c==='ic'){
+    // flee: seconds until she jumps. navProof: no navigation subsystem,
+    // so the jump cannot be stopped. fleeFree: her escape costs nothing.
+    put({time:t0, type:'iceni', spr:'coiceni',
+         y:(u.y!=null) ? u.y : H*0.5, x:u.x,
+         flee:u.flee, navProof:u.navProof, fleeFree:u.fleeFree});
+    return;
+  }
   const fix = CAT_FIX[u.c];
   if(!fix) return;                     // Klasse noch nicht spawnbar
   for(let i=0;i<n;i++){
@@ -2037,7 +2255,8 @@ function scriptUnit(u, fac, q){
     // sie muessen auch sofort da sein und nicht ueber Sekunden eintropfen.
     const stagger = 0;   // alles steht ab dem ersten Bild da
     if(ally && fix!=='ast')
-      put({time:t0+i*70, type:'protect', spr:u.spr, fac:'vasudan', noWarp:1,
+      put({time:t0+i*70, type:'protect', spr:u.spr,
+           fac:(fac==='hol') ? 'vasudan' : 'terran', noWarp:1,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo,
            pickup:u.pickup?1:0});
     else
@@ -2101,16 +2320,18 @@ function getWaveDef(n){
   // none of this is reachable and the normal game is untouched.
   if(TEST_MODE) return buildTestWave(((n-2+TEST_FIRST)%4)+1);
   if(FS1_MODE)  return buildFS1Wave(n);
-  // Geschriebene Welle, falls vorhanden. Mit ?m=3 laesst sich eine
-  // einzelne zum Pruefen anspringen; ohne den Parameter laufen sie der
-  // Reihe nach und der Wuerfel uebernimmt erst danach.
+  // Written mission, if there is one for this wave. ?m=36 starts the run
+  // at wave 36 (see launchGame) and it carries on from there; the dice
+  // take over after the last written one.
   {
-    const sk = SCRIPT_ONE ? SCRIPT_ONE : n;
-    const def = SCRIPT_WAVES[sk];
+    const def = SCRIPT_WAVES[n];
     if(def) return buildScripted(def);
   }
 
-  if(n===1){ lastBossWave = 0; rollNextBoss(SEQ_LEN); lastK=''; lastO=''; }
+  // The generator is set up on the first wave the run actually plays,
+  // which is not wave 1 when ?m= starts it further in.
+  if(n===1 || n===SCRIPT_ONE){ lastBossWave = 0; rollNextBoss(Math.max(SEQ_LEN, n));
+                              lastK=''; lastO=''; }
 
   let pick;
   if(n <= SEQ_LEN){

@@ -36,6 +36,11 @@ const EFFECTS  = casesOf(body('function evFire('));
 const CAT_FIX  = eval('(' + body('const CAT_FIX =').replace(/^const CAT_FIX =\s*/, '') + ')');
 const CAT_FAC  = eval('(' + body('const CAT_FAC =').replace(/^const CAT_FAC =\s*/, '') + ')');
 const W = 800, H = 500, HUD_H = 44, TICK_HZ = 100;
+// Every hull a mission names has to exist. A misspelt key spawns nothing,
+// or a ship of the wrong size, and says nothing about it.
+const HULL_KEYS = new Set(Object.keys(eval('(' + src.match(/const HULL_LEN = (\{[^}]*\})/)[1] + ')')));
+// Which faction each block of missions is fought against.
+const CYCLE_FAC = n => n <= 30 ? 'hol' : n <= 60 ? 'ntf' : 'shivan';
 const SCRIPT_WAVES = eval('(' + body('const SCRIPT_WAVES =').replace(/^const SCRIPT_WAVES =\s*/, '') + ')');
 
 // Triggers without a unit as target, and effects whose argument is a unit.
@@ -57,6 +62,9 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
     if(!CAT_FAC[u.c] && !CAT_FIX[u.c])
       bad.push(u.id + ': unknown category "' + u.c + '" - would never spawn');
   }
+  for(const u of units)
+    if(u.spr && !HULL_KEYS.has(u.spr)) bad.push(u.id + ': unknown hull "' + u.spr + '"');
+  if(m.fac !== CYCLE_FAC(+key)) bad.push('faction ' + m.fac + ', but this wave belongs to the ' + CYCLE_FAC(+key) + ' cycle');
   for(const u of units){
     if(u.dockTo && !ids.has(u.dockTo)) bad.push(u.id + ': dockTo points at missing id ' + u.dockTo);
     if(u.at && !ids.has(u.at))         bad.push(u.id + ': at points at missing id ' + u.at);

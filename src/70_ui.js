@@ -1199,7 +1199,8 @@ function applyShip(key, keep){
 // one step, e.g. after a big bonus, so this loops.
 function tickShipUnlocks(){
   if(GS!=='playing' || FS1_MODE) return;
-  while(shipUnlocked < PLAYER_SHIPS.length && score >= PLAYER_SHIPS[shipUnlocked].unlock){
+  // Counted from the start of the cycle: every cycle opens its own roster.
+  while(shipUnlocked < PLAYER_SHIPS.length && score-cycleBase >= PLAYER_SHIPS[shipUnlocked].unlock){
     const s = PLAYER_SHIPS[shipUnlocked++];
     SUB_MSGS.push({x:W/2, y:H*0.34, txt:s.name.toUpperCase()+' AVAILABLE', life:260, ml:260, ally:true});
   }
@@ -1672,7 +1673,7 @@ function drawShipMenu(){
       ctx.textAlign='left'; ctx.textBaseline='middle';
       ctx.fillStyle=TH('textDim'); ctx.font=thValue(11, false);
       ctx.fillText(s.name, rx+HG_NAME, ry+p.h/2);
-      ctx.fillText('unlocks at '+s.unlock.toLocaleString('en-US')+' points',
+      ctx.fillText('unlocks at '+(cycleBase+s.unlock).toLocaleString('en-US')+' points',
                    rx+HG_COLS[0].x, ry+p.h/2);
       window._shipRects.push({x:rx, y:ry, w:rw, h:p.h, ship:s.key, key:null});
       continue;
@@ -2154,6 +2155,34 @@ function enterTitle(){
   nebFading = false; nebAlpha = 1.0;
   rollBodies();
 }
+// Full screen from the title. The settings panel has the same switch, but
+// it only opens during a run, and on a PC the full screen is wanted
+// before the first wave, not after it. Built from the kit like the
+// buttons in the bar: lit while pointed at, nothing otherwise.
+const TFS_W = 136, TFS_H = 26, TFS_PAD = 14;
+function titleFsRect(){
+  if(!fullscreenAvailable()) return null;
+  return {x:W-TFS_W-TFS_PAD, y:TFS_PAD, w:TFS_W, h:TFS_H};
+}
+function drawTitleFullscreen(){
+  const r = titleFsRect();
+  window._titleFsRect = r;
+  if(!r) return;
+  const hv = hovering(r.x, r.y, r.w, r.h);
+  thButton(r.x, r.y, r.w, r.h, hv ? 'on' : null);
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle = hv ? TH('textBright') : TH('text');
+  ctx.font = thLabel(11);
+  ctx.fillText(thFit(isFullscreen() ? 'EXIT FULLSCREEN' : 'FULLSCREEN', r.w-16),
+               r.x+r.w/2, r.y+r.h/2+1);
+}
+// A click on the button switches full screen and does nothing else - it
+// must not also start the run the rest of the title starts.
+function titleFsHit(p){
+  if(GS!=='title') return false;
+  const r = window._titleFsRect;
+  return !!r && p.x>=r.x && p.x<=r.x+r.w && p.y>=r.y && p.y<=r.y+r.h;
+}
 function drawTitle(){
   // The backdrop and the bodies are already on the canvas by the time this
   // runs. What used to happen here was a 78 percent black sheet over the lot,
@@ -2231,6 +2260,7 @@ function drawTitle(){
   ctx.fillText('PRESS SPACE OR ENTER', W/2, H-52);
   ctx.restore();
 
+  drawTitleFullscreen();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
 
@@ -2293,6 +2323,7 @@ function toGC(clientX, clientY) {
 
 // Maus
 CVS.addEventListener('mousedown',function(ev){
+  if(ev.button===0 && titleFsHit(toGC(ev.clientX,ev.clientY))){ toggleFullscreen(); return; }
   if(ev.button===0&&GS==='playing'){
     var p=toGC(ev.clientX,ev.clientY);
     if(pointerConsumed(p)) return;
@@ -2340,6 +2371,7 @@ CVS.addEventListener('touchstart',function(ev){
   if(!ev.touches.length) return;
   var t=ev.touches[0];
   var p=toGC(t.clientX,t.clientY);
+  if(titleFsHit(p)){ toggleFullscreen(); return; }
   if(pointerConsumed(p)) return;
   // HUD area: button check only, no movement input
   if(p.y<HUD_H&&GS==='playing'){
@@ -2406,7 +2438,7 @@ document.addEventListener('keydown',function(ev){
     setSettings(!settingsOpen); ev.preventDefault(); return;
   }
   if(settingsOpen && ev.code==='Escape'){ setSettings(false); ev.preventDefault(); return; }
-  if(ev.code==='KeyF' && GS==='playing'){
+  if(ev.code==='KeyF' && (GS==='playing'||GS==='title'||GS==='gameover')){
     toggleFullscreen(); ev.preventDefault(); return;
   }
   if((ev.code==='KeyP'||ev.code==='Escape')&&GS==='playing'){

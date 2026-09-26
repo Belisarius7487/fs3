@@ -180,7 +180,9 @@ function mkEnemy(type, spr0, yWant){
     const hp=capHull(Math.round(ICENI_HULL*tough));
     const ent={type:'corvette',iceni:true,label:'NTF Iceni',img:spr,faction:'ntf',
       pts:900,x:W-20,y,warpX:W-20,warpY:y,
-      targetX:W-74-Math.random()*34,
+      // From her width, so the whole hull is on screen. A fixed distance
+      // from the edge left the stern of a ship this size outside.
+      targetX:W-(img ? img.width*sc*0.5 : 150)-12-Math.random()*34,
       hp:hp,maxHp:hp,
       vy:(Math.random()<.5?1:-1)*(0.2+Math.random()*0.3),
       minY:HUD_H+60,maxY:H-60,fT:70,fR:70,pat:0,dead:false,sc,warp:200};
@@ -1190,6 +1192,12 @@ let ITEMS = [];
 const ITEM_LIFE = 20*100;      // twenty seconds before it is gone
 const ITEM_DRIFT = -0.45;
 const ITEM_R = 15;             // pickup radius on top of the ship's own size
+// The magnet. Within MAGNET_R of the ship a pickup is caught and from then
+// on flies to it, gaining MAGNET_PULL per step up to MAGNET_MAX - faster
+// than any hull flies, so a caught pickup always arrives.
+const MAGNET_R    = 120;
+const MAGNET_PULL = 0.45;
+const MAGNET_MAX  = 7.5;
 // Pickups used to drift off the left edge and vanish long before their
 // timer ran out, so one dropped on the left was often unreachable through
 // no fault of the player. They now bounce inside the field and disappear
@@ -1236,6 +1244,15 @@ function updateItems(){
   for(let i=ITEMS.length-1;i>=0;i--){
     const it=ITEMS[i];
     if(it.vx==null) it.vx=ITEM_DRIFT;
+    if(GS==='playing' && player.hp>0){
+      const mdx=player.x-it.x, mdy=player.y-it.y, md=Math.hypot(mdx,mdy);
+      if(md < MAGNET_R) it.caught = true;
+      if(it.caught && md > 0){
+        it.vx += mdx/md*MAGNET_PULL; it.vy += mdy/md*MAGNET_PULL;
+        const ms=Math.hypot(it.vx, it.vy);
+        if(ms > MAGNET_MAX){ it.vx=it.vx/ms*MAGNET_MAX; it.vy=it.vy/ms*MAGNET_MAX; }
+      }
+    }
     it.x += it.vx; it.y += it.vy;
     if(it.x<ITEM_MARGIN){ it.x=ITEM_MARGIN; it.vx=Math.abs(it.vx); }
     else if(it.x>W-ITEM_MARGIN){ it.x=W-ITEM_MARGIN; it.vx=-Math.abs(it.vx); }
@@ -1391,7 +1408,10 @@ const ALLY_DEFS = {
   // Only her placement and her deadline are special.
   // Joint Terran and Vasudan project, so she belongs to neither column.
   colossus:       {cls:'destroyer', fac:'gtva',    spr:'sdcolossus',   label:'GTVA Colossus',
-                   ticket:'colossus', colossus:true}
+                   ticket:'colossus', colossus:true},
+  // Mission use only, never on the call menu (not in ALLY_ORDER): an NTF
+  // Deimos coming over, still in NTF markings.
+  ntf_deimos:     {cls:'corvette',  fac:'terran',  spr:'ntfcodeimos',  label:'NTF Deimos'}
 };
 const COLOSSUS_TIME = 60;     // seconds on station before she jumps out
 const COLOSSUS_HULL_MULT = 3; // she is not meant to be destructible in a minute
@@ -1780,6 +1800,13 @@ function updateAllies(){
   if(allyCd>0) allyCd--;
   for(let i=allies.length-1;i>=0;i--){
     const a = allies[i];
+    // An ally that is due to go over cannot die first. Enemy fire on
+    // allies does not pass through damageEnemy(), so the lock that sits
+    // there never reached them.
+    if(a.defectLock){
+      const dfl = a.maxHp * DISABLE_HULL_FLOOR;
+      if(a.hp < dfl) a.hp = dfl;
+    }
     if(a.hp<=0 && !a.dead){
       a.dead = true;
       triggerExpl(a.x, a.y, a.type, a.faction==='vasudan' ? 'vasudan' : 'terran', a);
@@ -1822,8 +1849,12 @@ function updateAllies(){
     }
     if(a.transit && subOK(a,'engines')){
       a.x += a.transitV;
-      if(a.x >= a.transitEnd && !a.warpOut){
+      // transitV is negative on a crossing to the left.
+      const _there = (a.transitV >= 0) ? (a.x >= a.transitEnd) : (a.x <= a.transitEnd);
+      if(_there && !a.warpOut){
         a.warpOut = a.warpMax; a.warpX = a.x; a.warpY = a.y;
+        // She has left, as far as the mission's events are concerned.
+        if(a.uid) EV_LEFT[a.uid] = true;
         // The job is done the moment she engages her drive. The belt stops
         // feeding rocks at her while she is on her way out.
         if(a.guard) guardGone = true;
@@ -1859,7 +1890,10 @@ function updateAllies(){
 // asteroids can repair. A cruiser is worth 400 on the kill, so 1000 lost
 // is a clear net loss rather than an inconvenience.
 const FLEE_PENALTY = {cruiser:1000, corvette:2000, destroyer:4000, boss:8000};
-function fleePenalty(e){ return (e && FLEE_PENALTY[e.type]) || 1000; }
+function fleePenalty(e){
+  if(e && e.fleeFree) return 0;      // an escape the mission intends
+  return (e && FLEE_PENALTY[e.type]) || 1000;
+}
 
 // How long a ship keeps station once its guns are gone, before it gives up
 // and jumps. Bigger ships are slower to decide and cost more when they go.
