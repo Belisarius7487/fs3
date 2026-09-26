@@ -291,6 +291,12 @@ const WARP_IMG=document.getElementById('warp_img');
 // picked from each ship's own warp progress, so every vortex opens and
 // closes with the ship that is coming through it.
 const WARP_COLS=9, WARP_CELL=100, WARP_FRAMES=75;
+// The Knossos vortex, turquoise. Same frame sheet layout as the normal
+// one; should it ever be a single picture instead, it is drawn whole.
+const KNOSSOS_WARP_IMG=document.getElementById('warp_knossos_img');
+function knossosWarpOk(){
+  return !!KNOSSOS_WARP_IMG && KNOSSOS_WARP_IMG.complete && KNOSSOS_WARP_IMG.naturalWidth>0;
+}
 const HULL_IMG=document.getElementById('hull_img');
 const WARP_SIZE=120; // Rendered size of the vortex in px
 
@@ -650,6 +656,26 @@ function makeBody(kind){
     y: HUD_H - w*0.25 + Math.random()*(H-HUD_H+w*0.5),
     spd: BODY_SPD_MIN + (w/SUN_W_MAX)*(BODY_SPD_MAX-BODY_SPD_MIN)
   };
+}
+
+// A place that comes back within a run keeps its sky: the same backdrop,
+// the same planets and suns where they stood the first time, the same
+// light. The first mission of a scene takes whatever was rolled and
+// writes it down; every later one puts it back. A new run starts empty.
+let SCENES = {};
+function useScene(key){
+  const s = SCENES[key];
+  if(!s){
+    SCENES[key] = {neb: nebFading ? nebNxt : nebCur, light: lightAng,
+                   bodies: bodies.map(function(b){ return Object.assign({}, b); })};
+    return;
+  }
+  bodies = s.bodies.map(function(b){ return Object.assign({}, b); });
+  lightAng = s.light; lightSun = null;
+  for(const b of bodies) if(b.kind==='sun'){ lightSun = b; break; }
+  // Under the blackout the backdrop may still be fading over: then the
+  // one it fades to is the one that has to be right.
+  if(nebFading) nebNxt = s.neb; else nebCur = s.neb;
 }
 
 function rollBodies(){

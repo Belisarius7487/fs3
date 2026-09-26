@@ -48,6 +48,8 @@ const MOUNTS = ${JSON.stringify(MOUNTS)};
 const IMGS = { frbast:{width:60,height:26}, fcvc3:{width:30,height:22},
   trisis:{width:60,height:24}, dehatshepsut:{width:391,height:150} };
 function statKill(){} function maybeDropTicket(){}
+// The practice log is not what is tested here.
+function plogKill(){} function plogRearm(){} function plogSec(){} function plogHit(){} function plogPick(){} function plogSrc(){} function plogLoss(){} function plogEvent(){} function plogName(){ return ''; } function plogAllyLost(){} function plogDeath(){} function plogSync(){}
 function triggerExpl(){ expl++; }
 ${NAMES.map(fn).join('\n')}
 ${constObj('SCRIPT_WAVES')}

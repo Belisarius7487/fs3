@@ -95,7 +95,17 @@ function fs1First(){
 
 // Uebungsmodus. Nur in der Kampagne: im Endlosmodus ist der Lebensverlust
 // die einzige Uhr, die laeuft.
-let practiceMode = false;
+// Now in every mode, and ?practice=1 starts with it on. Lives are not
+// lost, and every ticket kind is topped up to PRACTICE_TICKETS at the
+// start of every wave - a test bench, not a way to play.
+let practiceMode = /[?&]practice=1/.test(location.search);
+const PRACTICE_TICKETS = 10;
+function practiceTickets(){
+  if(!practiceMode) return;
+  for(const k of TICKET_ORDER) tickets[k] = Math.max(tickets[k]||0, PRACTICE_TICKETS);
+  // A top-up is no ticket earned.
+  if(PL) PL._tickets = Object.assign({}, tickets);
+}
 
 // What the player is allowed to fly, checked against the command briefings
 // of Acts 1 and 2, where each of these is announced as new technology.
@@ -296,6 +306,7 @@ function killEnemy(e, idx, award, drop){
   if(e.pickup) cargoLost(e);
   if(award) score += e.pts;
   statKill(e.type);
+  plogKill(e);
   if(drop) maybeDropTicket(e);
   triggerExpl(e.x, e.y, e.type, e.faction||'ntf', e);
   if(e.type==='boss'){ bossAlive=false; bossSlain=true; }
@@ -559,6 +570,13 @@ function defectCap(a){
   // defectRun: after the turn she makes for the right edge, facing where
   // she goes, and jumps out the moment she gets there. The same course
   // as any escaper, so killing her engines stops her.
+  // She stays where she was and fights from there. Turned the usual
+  // enemy way she would face the edge behind her; she faces into the
+  // field instead, and does not drive off to an enemy station.
+  if(!a.defectRun){
+    e.targetX = e.x;
+    e.flip = needsFlip(e.img, e.x > W*0.5);
+  }
   if(a.defectRun){
     e.escaping = a.defectRun;
     e.escWarp = true;
@@ -869,6 +887,10 @@ function tickDeathRoll(){
     }
   }
 }
+// Set by a mission with the Knossos in it (portal). Where the runners
+// jump: a little inside the right edge, at the ring.
+let portalOn = false;
+const PORTAL_X = 670;
 function tickEscapers(){
   for(let i=enemies.length-1;i>=0;i--){
     const e = enemies[i];
@@ -880,7 +902,12 @@ function tickEscapers(){
     // den Rand erreicht und das Heck noch im Bild steht.
     const _ei = IMGS[e.img];
     const _ew = _ei ? _ei.width*e.sc : 120;
-    if(e.escWarp && e.x + _ew*0.5 >= W - TRANS_EDGE_PAD){
+    // With the Knossos on the field they jump at the portal, through its
+    // own vortex, instead of at the edge.
+    const _atJump = portalOn ? (e.x >= PORTAL_X) : (e.x + _ew*0.5 >= W - TRANS_EDGE_PAD);
+    if(e.escWarp && _atJump){
+      plogEvent(plogName(e)+(portalOn ? ' reached the portal' : ' reached the edge'), 'bad');
+      if(portalOn) e.portalWarp = true;
       e.escaping = 0;
       escGone++;
       EV_LEFT[e.uid] = true;
@@ -894,6 +921,7 @@ function tickEscapers(){
     if(e.x - _ew*0.5 > W + 8){
       escGone++;
       EV_LEFT[e.uid] = true;
+      plogLoss('escaped', e);
       score = Math.max(0, score - Math.round((e.pts||200)*ESCAPE_PENALTY));
       SUB_MSGS.push({x:W-110, y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
                      ally:false, tone:'bad'});
@@ -1062,6 +1090,10 @@ function applySpawnOpts(e, sp){
   if(sp.noFlak) e.noFlak = true;
   // A jump nobody can stop: there is no navigation subsystem to shoot.
   if(sp.navProof && e.subs) e.subs = e.subs.filter(function(s){ return s.id!=='navigation'; });
+  // A run nobody can stop: no engines to shoot either.
+  if(sp.engineProof && e.subs) e.subs = e.subs.filter(function(s){ return s.id!=='engines'; });
+  // Held above her hull floor for the whole wave: she is not to die here.
+  if(sp.noKill) e.keepAlive = true;
   if(sp.fleeFree) e.fleeFree = true;
   // Jumps as soon as it reaches the right edge instead of driving out.
   if(sp.escWarp) e.escWarp = true;
@@ -2416,6 +2448,133 @@ const SCRIPT_WAVES = {
        {t:'gerettet', a:3, w:'zielerfuellt', a2:'EVACUATION COMPLETE'},
        {t:'verloren', a:2, w:'zielverfehlt', a2:'TOO MANY ELYSIUMS LOST'},
        {t:'alleZerstoert', a:'T1+T2+T3+T4', w:'nachschub', a2:'aus'}
+     ]},
+
+  // 55, 58, 59 and 60 are the same place: the Knossos at the right edge,
+  // under the same sky within a run (scene).
+  55:{name:'Der Anflug', fac:'ntf', o:'clear', live:5, scene:'knossos', portal:true,
+      ziel:'STOP THE CRUISERS BEFORE THEY REACH THE PORTAL', u:[
+       // Four NTF cruisers come in from the left one after another and
+       // make for the portal. None may reach it; engines out stops one.
+       {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
+       {id:'K1', c:'cr', n:1, spr:'ntfcraeolus',    t:2,  x:-80, y:170, escape:0.28, escWarp:true},
+       {id:'K2', c:'cr', n:1, spr:'ntfcrfenris',    t:16, x:-80, y:340, escape:0.28, escWarp:true},
+       {id:'K3', c:'cr', n:1, spr:'ntfcrleviathan', t:32, x:-80, y:210, escape:0.28, escWarp:true},
+       {id:'K4', c:'cr', n:1, spr:'ntfcraeolus',    t:48, x:-80, y:360, escape:0.28, escWarp:true},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'sek', a:6, w:'nachschub', a2:'an'},
+       {t:'alleZerstoert', a:'K1+K2+K3+K4', w:'nachschub', a2:'aus'},
+       {t:'entkommen', a:1, w:'zielverfehlt', a2:'A CRUISER REACHED THE PORTAL'},
+       {t:'vernichtet', a:'K1+K2+K3+K4', w:'zielerfuellt', a2:'ALL CRUISERS STOPPED'}
+     ]},
+
+  56:{name:'Die Verraeter', fac:'ntf', o:'clear', live:5,
+      ziel:'COVER THE FLEET', u:[
+       // A Leviathan and a Deimos of ours against fighters. Once the
+       // first wing is down the Leviathan goes over to the NTF, and more
+       // fighters and bombers come.
+       {id:'A1', c:'cr', n:1, spr:'crleviathan', side:'ally', y:170},
+       {id:'A2', c:'co', n:1, spr:'codeimos', side:'ally', y:390},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:2, wait:true},
+       {id:'B1', c:'bo', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'seite', a2:'A1'},
+       {t:'alleZerstoert', a:'E1', w:'meldung', a2:'the leviathan has gone over to the ntf'},
+       {t:'alleZerstoert', a:'E1', w:'ziel', a2:'DESTROY THE LEVIATHAN'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
+       {t:'vernichtet', a:'A2', w:'meldung', a2:'gtcv deimos lost'},
+       {t:'vernichtet', a:'A1', w:'zielerfuellt', a2:'TRAITOR DESTROYED'}
+     ]},
+
+  57:{name:'Die Nachhut', fac:'ntf', o:'clear', live:5, ship:'boursa', sec:'stiletto',
+      ziel:'DISABLE THE REARGUARD - ENGINES AND WEAPONS OF ALL THREE', u:[
+       // The player flies an Ursa with Stiletto bombs for this one. Two
+       // Aeolus and a Deimos hold the rear; they are to be left dead in
+       // space, not destroyed - until then they cannot be.
+       {id:'K1', c:'cr', n:1, spr:'ntfcraeolus', still:true, x:580, y:140,
+        capture:true, noFlee:true},
+       {id:'K2', c:'cr', n:1, spr:'ntfcraeolus', still:true, x:580, y:380,
+        capture:true, noFlee:true},
+       {id:'D1', c:'co', n:1, spr:'ntfcodeimos', still:true, x:440, y:260,
+        capture:true, noFlee:true},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:2, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'subsystem', a:'K1', b:'engines+weapons', w:'meldung', a2:'first aeolus disabled'},
+       {t:'subsystem', a:'K2', b:'engines+weapons', w:'meldung', a2:'second aeolus disabled'},
+       {t:'subsystem', a:'D1', b:'engines+weapons', w:'meldung', a2:'deimos disabled'},
+       {t:'subsystem', a:'K1+K2+D1', b:'engines+weapons', w:'zielerfuellt', a2:'REARGUARD DISABLED'},
+       {t:'subsystem', a:'K1+K2+D1', b:'engines+weapons', w:'kulisse', a2:'K1'},
+       {t:'subsystem', a:'K1+K2+D1', b:'engines+weapons', w:'kulisse', a2:'K2'},
+       {t:'subsystem', a:'K1+K2+D1', b:'engines+weapons', w:'kulisse', a2:'D1'}
+     ]},
+
+  58:{name:'Das Tor', fac:'ntf', o:'clear', live:5, scene:'knossos', portal:true,
+      ziel:'BREAK THE DEFENCE IN FRONT OF THE PORTAL', u:[
+       // In front of the portal: a line of sentry guns, a Fenris and an
+       // Aeolus. Fighters until both cruisers are down.
+       {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
+       {id:'G1', c:'sg', n:6, spr:'sgcerberus', x:540},
+       {id:'K1', c:'cr', n:1, spr:'ntfcrfenris', still:true, x:620, y:150},
+       {id:'K2', c:'cr', n:1, spr:'ntfcraeolus', still:true, x:620, y:380},
+       {id:'E1', c:'fi', n:2},
+       {id:'B1', c:'bo', n:1, wait:true},
+       {id:'E2', c:'fi', n:2, wait:true}
+     ], ev:[
+       {t:'sek', a:4, w:'nachschub', a2:'an'},
+       {t:'alleZerstoert', a:'K1+K2', w:'nachschub', a2:'aus'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'K1+K2+G1', w:'zielerfuellt', a2:'PORTAL DEFENCE BROKEN'}
+     ]},
+
+  59:{name:'Die letzte Sperre', fac:'ntf', o:'clear', live:5, scene:'knossos', portal:true,
+      ziel:'DESTROY THE HECATE AND THE ORION', u:[
+       // The last two destroyers of the NTF, in front of the portal.
+       {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
+       {id:'V1', c:'de', n:1, spr:'ntfdehecate', still:true, y:160, noFlee:true},
+       {id:'V2', c:'de', n:1, spr:'ntfdeorion',  still:true, y:370, noFlee:true},
+       // Fighter cover for the player: two wings from the start, one
+       // more once the first enemy wing is down.
+       {id:'W1', c:'fi', n:2, side:'ally'},
+       {id:'W2', c:'fi', n:1, side:'ally', wait:true},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:1, wait:true},
+       {id:'B1', c:'bo', n:2, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'W2'},
+       {t:'sek', a:15, w:'einwarpen', a2:'B1'},
+       {t:'vernichtet', a:'V1', w:'meldung', a2:'hecate destroyed'},
+       {t:'vernichtet', a:'V2', w:'meldung', a2:'orion destroyed'},
+       {t:'vernichtet', a:'V1+V2', w:'zielerfuellt', a2:'THE WAY TO THE PORTAL IS OPEN'}
+     ]},
+
+  60:{name:'Der Sprung', fac:'ntf', o:'clear', live:6, scene:'knossos', portal:true,
+      ziel:'DESTROY THE ESCORT OF THE ICENI', u:[
+       // The Iceni runs for the portal and goes through. She cannot be
+       // stopped - no engines, no navigation to shoot, and she does not
+       // die here. Her escort can be destroyed.
+       {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
+       {id:'V1', c:'ic', n:1, x:-150, y:270, escape:0.2, escWarp:true, noKill:true,
+        engineProof:true, navProof:true, fleeFree:true},
+       {id:'K1', c:'cr', n:1, spr:'ntfcraeolus', still:true, x:560, y:130},
+       {id:'K2', c:'cr', n:1, spr:'ntfcrfenris', still:true, x:600, y:410},
+       {id:'C1', c:'co', n:1, spr:'ntfcodeimos', still:true, x:400, y:420},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:2, wait:true},
+       {id:'B1', c:'bo', n:1, wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
+       {t:'verlaesst', a:'V1', w:'meldung', a2:'the iceni is through the knossos'},
+       {t:'vernichtet', a:'K1+K2+C1', w:'zielerfuellt', a2:'ESCORT DESTROYED'}
      ]}
 };
 // Die Ereignisliste benutzt a fuer das Ziel des Ausloesers und a2 fuer das
@@ -2535,12 +2694,17 @@ function evTrig(ev){
       return !!u && u.maxHp && (u.hp/u.maxHp)*100 < (ev.b||50);
     }
     case 'subsystem': {
-      const su = byId(ev.a)[0];
-      if(!su || !hasSubsystems(su)) return false;
-      // Several may be named, joined with '+': all of them have to be down.
-      return String(ev.b || 'communication').split('+')
-               .every(function(id){ return !subOK(su, id); });
+      // Several ships joined with '+': on every one of them. Several
+      // systems joined with '+': all of them have to be down.
+      return evIds(ev.a).every(function(uid){
+        const su = byId(uid)[0];
+        if(!su || !hasSubsystems(su)) return false;
+        return String(ev.b || 'communication').split('+')
+                 .every(function(id){ return !subOK(su, id); });
+      });
     }
+    // Ships that got away this wave (ran off the field or jumped).
+    case 'entkommen':    return escGone >= (ev.a||1);
     case 'gescannt': {
       // Every ship of this id has been scanned - by any kind of scan.
       if(!evSeen(ev.a)) return false;
@@ -2704,6 +2868,7 @@ function tickRamming(){
     const pct = (e.type==='bomber') ? RAM_PCT_BOMBER : RAM_PCT_FIGHTER;
     if(t===player){
       const dm = Math.max(1, Math.round(player.maxHp*pct));
+      plogSrc('rammed', e);
       if(player.sh>0){ const abs=Math.min(player.sh,dm); player.sh-=abs;
         player.shDelay=90; player.shHit=SH_FLASH; shieldHit(e.x,e.y);
         if(dm>abs){ player.hp-=dm-abs; hullHit(e.x,e.y); } }
@@ -2822,6 +2987,7 @@ function scriptUnit(u, fac, q){
              x:u.x, escape:u.escape, invuln:u.invuln, edge:u.edge, capRam:u.capRam,
              escWarp:u.escWarp, capture:u.capture, flee:u.flee, scanSubs:u.scanSubs,
              fleeFree:u.fleeFree, hurt:u.hurt, armed:u.armed, noFlee:u.noFlee,
+             noKill:u.noKill,
              still:u.still, noFlak:u.noFlak, fixY:(u.y!=null),
              capIndex:(n>1)? i : 0});
       }
@@ -2835,7 +3001,8 @@ function scriptUnit(u, fac, q){
     put({time:t0, type:'iceni', spr:'coiceni',
          y:(u.y!=null) ? u.y : H*0.5, x:u.x,
          flee:u.flee, navProof:u.navProof, fleeFree:u.fleeFree,
-         still:u.still, fixY:(u.y!=null)});
+         still:u.still, fixY:(u.y!=null),
+         escape:u.escape, escWarp:u.escWarp, noKill:u.noKill, engineProof:u.engineProof});
     return;
   }
   const fix = CAT_FIX[u.c];
@@ -2896,7 +3063,7 @@ function buildScripted(def){
   // A mission that states its objective in words speaks for itself for
   // the whole wave; the automatic result cards then stay quiet.
   missionObj = String(def.ziel || '').toUpperCase();
-  if(def.ship) forceShip(def.ship);
+  if(def.ship) forceShip(def.ship, def.sec);
   missionObjUsed = !!def.ziel || (def.ev||[]).some(function(e){ return /^ziel/.test(e.w); });
   if(nebulaOn()) nebTint = NEB_TINTS[(Math.random()*NEB_TINTS.length)|0];
   empOut=0; empWarn=0; empNext = waveMod==='emp' ? 1400 : 0;
@@ -2908,6 +3075,8 @@ function buildScripted(def){
   waveHunt = def.hunt || '';
   astStill = !!def.stillRocks;
   scanUnderFire = !!def.scanUnderFire;
+  portalOn = !!def.portal;
+  if(def.scene) useScene(def.scene);
   // Ein stehendes Feld wird gesetzt, nicht gespeist. Sonst sammeln sich
   // unbewegliche Brocken ausserhalb des rechten Randes.
   // noRocks: a crossing without the belt feeding rocks into it.

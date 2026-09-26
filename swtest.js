@@ -45,7 +45,7 @@ const SCRIPT_WAVES = eval('(' + body('const SCRIPT_WAVES =').replace(/^const SCR
 
 // Triggers without a unit as target, and effects whose argument is a unit.
 // gerettet / verloren count protected ships, they name no unit.
-const TRIG_NO_ID  = new Set(['sek', 'erfuellt', 'gerettet', 'verloren']);
+const TRIG_NO_ID  = new Set(['sek', 'erfuellt', 'gerettet', 'verloren', 'entkommen']);
 const EFFECT_UNIT = new Set(['einwarpen', 'seite', 'raus', 'heilen', 'kapern', 'freigeben', 'kulisse', 'ruf']);
 
 let errors = 0, missions = 0;

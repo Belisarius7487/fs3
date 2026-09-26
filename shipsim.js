@@ -110,6 +110,8 @@ const world = `
   let NOTICE_LOG=[]; function notice(t, tone){ NOTICE_LOG.push({txt:t, tone:tone}); }
   // The bar's attention pulses are the field simulation's business.
   let BAR_PULSE={}; function barPulseLevel(){ return 0; } function barPulse(){}
+  // The practice log is not what is tested here.
+  function plogRearm(){} function plogSec(){} function plogSync(){} function plogEvent(){}
   // A hull lent by a mission (see forceShip).
   let forcedPrev='';
   let eraOff=false, IMGS={}, isFiring=false, launched=0;

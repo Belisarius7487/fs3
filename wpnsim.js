@@ -36,13 +36,14 @@ function decl(re){
 
 const names = ['priDef','secDef','curPri','curSec','hullSecCls','weaponName','weaponOpen',
                'secondariesFor','defaultSec','applyLoadout','rearmFull',
-               'shardBurst','subStrike','pShoot','fireSecondary',
+               'shardBurst','subStrike','subStrikeRaw','pShoot','fireSecondary',
                'liveBurstRound','burstRound','volleyDmg','volleyTotal','primaryCount',
                'flakHas','flakBurst','flakReach','flakFire',
                'swarmTargets','swarmRetarget','swarmHolds','updateSecBullets','rmValue'];
 const consts = [
   decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/),
   decl(/const SECONDARIES = \[[\s\S]*?\n\];/),
+  decl(/const SUB_WARHEAD_MUL = [^;]*;/),
   decl(/const VOLLEY_BASE\s*=\s*[\d.]+;/),
   decl(/const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/),
   decl(/const FLAK_TYPES[\s\S]*?const FLAK_SHARD_RANGE = \d+;/),
@@ -66,6 +67,8 @@ function isBomberHull(k){ return k.indexOf('bo')===0; }
 function shipFac(k){ return 'vasudan'; }
 function shipStats(k){ return {sec: isBomberHull(k) ? 10 : 20}; }
 function spawnFireball(){} 
+// The practice log is not what is tested here.
+function plogKill(){} function plogRearm(){} function plogSec(){} function plogHit(){} function plogPick(){} function plogSrc(){} function plogLoss(){} function plogEvent(){} function plogName(){ return ''; } function plogAllyLost(){} function plogDeath(){} function plogSync(){}
 function spawnDebris(){}
 function spawnRing(){}
 function spawnSmoke(){}
@@ -321,6 +324,14 @@ console.log('\nStiletto: the warhead goes inside');
   set('_e', {x:400, y:250, side:'enemy'});
   ok('a ship with no subsystems at all is the same',
      run("subStrike(_e, 70, 400, 250)")===70);
+}
+{
+  // Into a system it hits 5.5 times as hard: one bomb, one cruiser system.
+  const ship = {x:400, y:250, side:'enemy', subs:[{label:'ENGINES', ox:0, hp:370, dead:false}]};
+  set('_e', ship);
+  const bleed = run("subStrike(_e, 70, 400, 250)");
+  ok('one Stiletto takes a 370 point system', ship.subs[0].dead === true);
+  ok('the hull still gets only the plain bleed', Math.abs(bleed - 70*0.25) < 1e-9);
 }
 ok('the secondary impact asks the weapon, not the projectile shape',
    /sw && sw\.subs\) damageEnemy\(e,subStrike/.test(src));

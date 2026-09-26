@@ -100,6 +100,7 @@ function fireSecondary(){
   if(up){ burstRound(up); return; }
   if(player.secAmmo<=0||player.secTimer>0) return;
   player.secAmmo--;
+  plogSec();
   // One rail for both kinds: what differs is in the table, not here.
   const wp=curSec(), bomb=(wp.cls==='bomb');
   const sp=secMount(), sa=player.head||0;
@@ -432,17 +433,19 @@ function pBox(){
   return[player.x-bx[0]*.5,player.y-bx[1]*.5,bx[0],bx[1]];}
 
 function playerDie(){STATS.livesLost++;
+  plogDeath();
   triggerExpl(player.x,player.y,'cruiser','terran',{img:player.ship,sc:playerSc()});
   // Im Uebungsmodus kostet der Tod nichts. Die Explosion, der Rueckwurf
   // an den Rand und der Schild laufen unveraendert, damit sich der Fehler
   // trotzdem wie einer anfuehlt.
-  if(!(practiceMode && FS1_MODE)){
+  if(!practiceMode){
     if(--lives<=0){GS='gameover';gameOverAt=performance.now();return;}
   }
   player.hp=player.maxHp;player.x=80;player.y=H/2;eBullets=[];
   // Was player.sh=100. In an era without shields that handed back
   // something the player is not supposed to have yet.
-  resetPlayerShield();}
+  resetPlayerShield();
+  plogSync();}           // the refill is no repair
 
 
 function launchGame(){
@@ -450,7 +453,7 @@ function launchGame(){
   if(btn) btn.style.display='none';
   document.body.classList.add('nocursor');
   shipUnlocked=UI_SHIPS; shipSwapWave=-1; shipMenu=false;
-  score=0;lives=LIVES_START;wave=(FS1_MODE?fs1First()-1:(SCRIPT_ONE?SCRIPT_ONE-1:0));fc=0;currentFaction='ntf';icenEscapes=0;runTime=0;
+  score=0;lives=LIVES_START;wave=(FS1_MODE?fs1First()-1:(SCRIPT_ONE?SCRIPT_ONE-1:0));fc=0;currentFaction='ntf';icenEscapes=0;runTime=0;SCENES={};PLOG=[];PL=null;plogSel=-1;plogTop=0;
   statsReset();
   // Tickets are cleared here and nowhere else: they survive losing a life
   // and are lost on game over.
@@ -488,6 +491,7 @@ function launchGame(){
 window.launchGame=launchGame;
 
 function nextWave(){
+  plogEnd();              // the wave that just finished goes into the log
   wave++;waveOver=false;waveCd=0;bossAlive=false;bossSlain=false;
   // A hull lent for the last mission goes back first.
   releaseShip();
@@ -507,10 +511,12 @@ function nextWave(){
   waveTitle=''; titleT=0;
   objWasSet=false; objDoneT=0; objFailed=false; objSeenOnce=false;
   missionObj=''; missionObjUsed=false; objCard=null; objPinned='';
-  scanUnderFire=false;
+  scanUnderFire=false; portalOn=false;
+  practiceTickets();
   protSaved=0; protLost=0;
   crossDone=0; crossTotal=0; commsCut=false; commsSeen=false;
   enemies=[];eBullets=[];allies=[];debris=[];empOut=0;allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;spawnQ=getWaveDef(wave);spawnT=0;
+  plogStart();
   for(let i=0;i<allyWingWanted;i++){
     const a = mkAllySmall('fighter','terran',
                           rnd(ROLES.ally_ter_fighters||ROLES.ter_fighters||['fiherc']),
@@ -550,6 +556,7 @@ function update(){
   if(GS==='title'){ fc++; tickStars(); tickNebula(); return; }
   if(paused) return;                  // covers the settings panel too
   fc++;tickStars();tickParts();tickNebula();
+  plogTick();
   // Der Abbau stand unter "if(GS!=='playing')return;". Nach einem Game
   // Over lief update() also nie mehr bis dorthin, waehrend draw() den
   // Versatz weiter anlegte: der Schirm ruettelte bis zum naechsten Start.
@@ -919,6 +926,7 @@ function update(){
       if(overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,px,py,pw,ph)){
         if(!bulletOnPlayer(b)) continue;   // impact landed on empty space
         const dmg=b.dmg||(b.big?20:8);
+        plogSrc(b.kind || (b.flak ? 'flak' : (b.big ? 'heavy bolt' : 'bolt')));
         if(player.sh>0){
           const absorbed=Math.min(player.sh,dmg);
           player.sh-=absorbed; player.shDelay=90; player.shHit=SH_FLASH;
@@ -966,7 +974,7 @@ function update(){
         if(eb.kind==='bomb'){ bombBlast(eb.x,eb.y); STATS.bombsShot++; }
         else { spawnFireball(eb.x,eb.y,18,20);
                spawnDebris(eb.x,eb.y,8,255,200,80,255,120,0,true); }
-        STATS.hits++;
+        STATS.hits++; plogHit(b);
         eBullets.splice(k,1); pBullets.splice(i,1); hit=true; break;
       }
     }
@@ -976,7 +984,7 @@ function update(){
       if(overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ex,ey,ew,eh)){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
-        laserHit(b.x,b.y);STATS.hits++;e.shotAt=true;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt');
+        laserHit(b.x,b.y);STATS.hits++;plogHit(b);e.shotAt=true;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt');
         if(b.flak){
           flakBurst(b.x, b.y, true, b.fac);
           pBullets.splice(i,1); hit=true;
@@ -1033,6 +1041,7 @@ function update(){
         // that this is a defeat, so it is charged like one.
         if(e.runner){
           fleeEscaped++;
+          plogLoss('runner escaped', e);
           score = Math.max(0, score - RUNNER_PENALTY);
           if(STATS.runnersEscaped==null) STATS.runnersEscaped = 0;
           STATS.runnersEscaped++;

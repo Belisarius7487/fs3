@@ -249,6 +249,14 @@ function draw(){
           if(wImg) WS=Math.max(100, wImg.height*e.sc*1.9, wImg.width*e.sc*0.62);
           var wF=Math.floor(elapsed/mW*WARP_FRAMES);
           if(wF<0) wF=0; if(wF>WARP_FRAMES-1) wF=WARP_FRAMES-1;
+          // Through the Knossos: the turquoise vortex.
+          if(e.portalWarp && knossosWarpOk()){
+            const _kw = KNOSSOS_WARP_IMG;
+            if(_kw.naturalWidth > WARP_CELL*1.5)
+              ctx.drawImage(_kw, (wF%WARP_COLS)*WARP_CELL, ((wF/WARP_COLS)|0)*WARP_CELL,
+                            WARP_CELL, WARP_CELL, -WS/2,-WS/2,WS,WS);
+            else ctx.drawImage(_kw, -WS/2,-WS/2,WS,WS);
+          } else
           ctx.drawImage(WARP_IMG,
             (wF%WARP_COLS)*WARP_CELL, ((wF/WARP_COLS)|0)*WARP_CELL,
             WARP_CELL, WARP_CELL,
@@ -400,6 +408,7 @@ function draw(){
   // instruments visibly fail instead of quietly disappearing.
   drawEmpHudGlitch();
   drawFleeWarning();
+  drawPlogCard();
   drawFieldBanner();
   tickFps();
   drawFps();
@@ -832,7 +841,7 @@ function setSettings(v){
   v=!!v;
   settingsOpen=v;
   syncPause();
-  if(!v) settingsPage=0;     // beim naechsten Oeffnen wieder Seite 1
+  if(!v){ settingsPage=0; plogOpen=false; }   // beim naechsten Oeffnen wieder Seite 1
   window._setRects=[];
 }
 
@@ -884,10 +893,11 @@ function settingsRows(){
      value:isFullscreen()?'ON':'OFF', on:isFullscreen(),
      act:'fullscreen', enabled:avail},
     {label:'PRACTICE MODE',
-     hint:FS1_MODE?'no lives are lost, campaign only'
-                  :'campaign only, start with ?fs1=1',
+     hint:'no lives are lost, 10 tickets of each kind every wave',
      value:practiceMode?'ON':'OFF', on:practiceMode,
-     act:'practice', enabled:FS1_MODE},
+     act:'practice', enabled:true},
+    {label:'PRACTICE LOG', hint:'every wave of this run - copy it for balancing',
+     value:'OPEN', on:false, act:'plog', enabled:true},
     {label:'FRAME RATE', hint:'shows the frame rate below the top bar',
      value:showFps?'ON':'OFF', on:showFps, act:'fps', enabled:true},
     {label:'OBJECT COUNT', hint:'ships / shots / debris, below the rate',
@@ -897,6 +907,7 @@ function settingsRows(){
 
 function drawSettings(){
   if(!settingsOpen) return;
+  if(plogOpen){ drawPlog(); return; }
   window._setRects=[];
   const bw=300, bh=40, gap=8;
   // The height follows the page, so a shorter page leaves no hole.
@@ -947,13 +958,15 @@ function drawSettings(){
 // Returns true when the tap was consumed by the panel.
 function settingsClick(mx,my){
   if(!settingsOpen) return false;
+  if(plogOpen) return plogClick(mx, my);
   const rs=window._setRects||[];
   for(const r of rs){
     if(mx>=r.x&&mx<=r.x+r.w&&my>=r.y&&my<=r.y+r.h){
       if(r.act==='fullscreen') toggleFullscreen();
       else if(r.act==='fps'){ showFps=!showFps; fpsFrames=0; fpsLast=0; }
       else if(r.act==='obj'){ showObj=!showObj; }
-      else if(r.act==='practice'){ practiceMode=!practiceMode; }
+      else if(r.act==='practice'){ practiceMode=!practiceMode; practiceTickets(); }
+      else if(r.act==='plog'){ plogOpen=true; plogSel=-1; plogTop=Math.max(0, plogRows().length-PLOG_ROWS); }
       else if(r.act==='pagenext'){ settingsPage=(settingsPage+1)%SETTINGS_PAGES; }
       else if(r.act==='pageprev'){ settingsPage=(settingsPage+SETTINGS_PAGES-1)%SETTINGS_PAGES; }
       else if(r.act==='scheme'){ ECO.scheme=(ECO.scheme==='void')?'fire':'void'; ecoSave(); }
@@ -1325,8 +1338,11 @@ const EXTRA_SHIPS = {
 };
 // The player's own hull while a mission lends another, or ''.
 let forcedPrev = '';
-function forceShip(key){
-  if(!forcedPrev) forcedPrev = player.ship;
+// sec: the secondary that goes with the hull for this mission.
+let forcedSecPrev = '';
+function forceShip(key, sec){
+  if(!forcedPrev){ forcedPrev = player.ship; forcedSecPrev = player.sec; }
+  if(sec) player.sec = sec;
   applyShip(key);
   notice(shipStats(key).name.toUpperCase()+' ASSIGNED', 'info');
 }
@@ -1334,6 +1350,8 @@ function forceShip(key){
 function releaseShip(){
   if(!forcedPrev) return;
   const k = forcedPrev; forcedPrev = '';
+  if(forcedSecPrev) player.sec = forcedSecPrev;
+  forcedSecPrev = '';
   applyShip(k);
 }
 function shipStats(key){
@@ -1579,8 +1597,16 @@ function shardBurst(x, y, n, dmg, spd, range, col, glow){
 // happens to lie under the impact; this looks for the nearest living
 // subsystem and puts the whole warhead into that, which is the entire
 // point of carrying one.
+// What a subsystem warhead puts into the system it finds. At 1 a
+// Stiletto took five or six bombs per cruiser system, more than an
+// Ursa carries for a single ship. The hull only gets the usual bleed
+// of the plain warhead, so this is no way to kill a ship faster.
+const SUB_WARHEAD_MUL = 5.5;
 function subStrike(e, dmg, hx, hy){
   if(!e.subs || !e.subs.length) return dmg;
+  return subStrikeRaw(e, dmg*SUB_WARHEAD_MUL, hx, hy) / SUB_WARHEAD_MUL;
+}
+function subStrikeRaw(e, dmg, hx, hy){
   let best = null, bd = Infinity;
   for(const s of e.subs){
     if(s.dead) continue;
@@ -1686,6 +1712,7 @@ function fitWeapon(key){
   if(kind==='pri') player.pri = w.key; else player.sec = w.key;
   setRearmMenu(false);
   rearmFull();
+  plogRearm();
   notice(weaponName(w).toUpperCase()+' REARMED', 'good');
 }
 
@@ -2711,3 +2738,351 @@ function stepUpdate(){
   try{drawResumeHint();}catch(e){}
   try{drawCtxNotice();}catch(e){}
 })();
+
+// ── PRACTICE LOG ─────────────────────────────────────────────
+// One record per wave of the run: points won and lost, objectives, deaths
+// and what caused them, tickets in and out, pickups, damage by source,
+// kills, losses, weapons and a timeline. Recorded in every run, shown only
+// in practice mode - at the end of each wave as a card, and as a table in
+// the settings, from where it can be copied or saved for balancing.
+let PLOG = [], PL = null;
+let plogOpen = false, plogSel = -1, plogTop = 0, plogMsg = '', plogMsgT = 0;
+const PLOG_ROWS = 10;
+const PLOG_STAT_KEYS = ['shots','hits','killFighter','killBomber','killCruiser','killCorvette',
+  'killDestroyer','killBoss','killSentry','killFreighter','killContainer','killAsteroid',
+  'subsKilled','bombsShot','scans','escortsCalled'];
+
+function plogTime(steps){
+  const s = Math.floor((steps||0)/TICK_HZ);
+  return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+}
+function plogName(e){
+  if(!e) return '';
+  if(e===player) return 'you';
+  return String(e.label || (typeof shipName==='function' ? shipName(e.img, e.type||'') : e.type) || '').toUpperCase();
+}
+function plogEvent(txt, tone){
+  if(!PL) return;
+  PL.events.push({t:PL.t, txt:txt, tone:tone||'info'});
+}
+function plogSync(){
+  if(!PL) return;
+  PL._score = score; PL._lives = lives;
+  PL._tickets = Object.assign({}, tickets);
+  PL._hp = player.hp; PL._sh = player.sh;
+}
+// A new wave: the previous one is closed first.
+function plogStart(){
+  plogEnd();
+  const def = (!FS1_MODE && !TEST_MODE && SCRIPT_WAVES[wave]) ? SCRIPT_WAVES[wave] : null;
+  PL = {wave:wave, name:def ? def.name : (waveTitle || 'random wave'), scripted:!!def,
+        fac:currentFaction, ship:player.ship, t:0, tEnd:null,
+        gain:0, loss:0, cards:[], deaths:[], tGot:{}, tUsed:{}, picked:{},
+        hull:0, shield:0, dmgBy:{}, stats0:Object.assign({}, STATS), stats:{},
+        secFired:0, rearms:0, bolts:0, hits:0, allyLost:0, capLost:[], saved:0, lost:0, escaped:0,
+        events:[], src:null, who:''};
+  PL._card = objCard;
+  plogSync();
+}
+function plogEnd(){
+  if(!PL) return;
+  plogFinish(PL);
+  PLOG.push(PL);
+  PL = null;
+}
+// The numbers that are read off the game at the end rather than counted.
+function plogFinish(r){
+  for(const k of PLOG_STAT_KEYS) r.stats[k] = (STATS[k]||0) - (r.stats0[k]||0);
+  r.saved = protSaved; r.lost = protLost;
+  r.escaped = (escGone||0) + (fleeEscaped||0);
+}
+// Where the next damage to the player comes from.
+function plogSrc(src, who){
+  if(!PL) return;
+  PL.src = src; PL.who = who ? plogName(who) : '';
+}
+function plogLoss(why, who){
+  if(!PL) return;
+  PL._lossWhy = why + (who ? ' - '+plogName(who) : '');
+}
+function plogKill(e){
+  if(!PL || !e) return;
+  if(e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer'||e.type==='boss'||e.type==='station')
+    plogEvent(plogName(e)+' destroyed (+'+(e.pts||0)+')', 'good');
+}
+function plogAllyLost(a){
+  if(!PL || !a) return;
+  PL.allyLost++;
+  if(!a.small){ PL.capLost.push(plogName(a)); plogEvent(plogName(a)+' lost', 'bad'); }
+}
+function plogPick(kind){
+  if(!PL) return;
+  if(kind==='repair'){ PL.picked.repair = (PL.picked.repair||0) + 1; plogEvent('repair picked up', 'good'); }
+}
+function plogHit(b){ if(PL && b && !b.ally && !b.sec && !b.shard) PL.hits++; }
+function plogSec(){ if(PL) PL.secFired++; }
+function plogRearm(){ if(PL){ PL.rearms++; plogEvent('rearmed', 'info'); } }
+function plogDeath(){
+  if(!PL) return;
+  const dh = PL._hp - Math.max(0, player.hp);
+  if(dh>0){ PL.hull += dh; const k = PL.src || 'other'; PL.dmgBy[k] = (PL.dmgBy[k]||0) + dh; }
+  const cause = (PL.src || 'unknown') + (PL.who ? ' - '+PL.who : '');
+  PL.deaths.push({t:PL.t, cause:cause});
+  plogEvent('died: '+cause, 'bad');
+  PL.src = null; PL.who = '';
+}
+// Every step while a wave is played: what changed since the last one.
+function plogTick(){
+  if(!PL || GS!=='playing') return;
+  PL.t++;
+  // Bolts the player fired since the last step; secondaries and shards
+  // are counted on their own.
+  for(const b of pBullets) if(!b.ally && !b._pl){ b._pl = 1; if(!b.sec && !b.shard) PL.bolts++; }
+  if(waveOver && PL.tEnd==null){ PL.tEnd = PL.t; plogEvent('wave clear', 'info'); }
+  const ds = score - PL._score;
+  if(ds>0) PL.gain += ds;
+  else if(ds<0){
+    PL.loss -= ds;
+    plogEvent((PL._lossWhy || 'points lost')+' ('+ds+')', 'bad');
+  }
+  PL._lossWhy = '';
+  for(const k of TICKET_ORDER){
+    const d = (tickets[k]||0) - (PL._tickets[k]||0);
+    if(d>0){ PL.tGot[k] = (PL.tGot[k]||0) + d; plogEvent('+'+d+' '+k+' ticket', 'good'); }
+    else if(d<0){ PL.tUsed[k] = (PL.tUsed[k]||0) - d; plogEvent(d+' '+k+' ticket', 'info'); }
+  }
+  if(lives > PL._lives){ PL.picked.life = (PL.picked.life||0) + (lives-PL._lives); plogEvent('life picked up', 'good'); }
+  const dh = PL._hp - player.hp, dsh = PL._sh - player.sh;
+  if(dh>0){ PL.hull += dh; const k = PL.src || 'other'; PL.dmgBy[k] = (PL.dmgBy[k]||0) + dh; }
+  if(dsh>0) PL.shield += dsh;
+  if(objCard && objCard !== PL._card){
+    PL.cards.push({t:PL.t, head:objCard.head, txt:objCard.txt, tone:objCard.tone});
+    plogEvent(objCard.head+': '+objCard.txt, objCard.tone==='fail' ? 'bad' : (objCard.tone==='done' ? 'good' : 'info'));
+  }
+  PL._card = objCard;
+  PL.src = null; PL.who = '';
+  plogSync();
+}
+function plogRows(){
+  const rows = PLOG.slice();
+  if(PL){ const c = Object.assign({}, PL, {stats:{}}); plogFinish(c); c.running = true; rows.push(c); }
+  return rows;
+}
+function plogSum(o){ let n = 0; for(const k in o) n += o[k]; return n; }
+function plogObj(r){
+  let ok = 0, bad = 0;
+  for(const c of r.cards){ if(c.tone==='done') ok++; else if(c.tone==='fail') bad++; }
+  return {ok:ok, bad:bad};
+}
+function plogKills(r){
+  const s = r.stats;
+  return {small:(s.killFighter||0)+(s.killBomber||0),
+          cap:(s.killCruiser||0)+(s.killCorvette||0)+(s.killDestroyer||0)+(s.killBoss||0)};
+}
+
+// The whole log as plain text, for copying out of the game.
+function plogText(){
+  const L = [];
+  L.push('FS3 '+GAME_VERSION+' - practice log - '+new Date().toISOString().replace('T',' ').substr(0,16));
+  L.push('run score '+score+', lives '+lives+', ship '+player.ship);
+  for(const r of plogRows()){
+    const o = plogObj(r), k = plogKills(r), s = r.stats;
+    L.push('');
+    L.push('WAVE '+r.wave+' - '+r.name+(r.scripted?'':' (random)')+' - '+r.fac+' - ship '+r.ship+
+           (r.running ? ' - still running' : ''));
+    L.push('  time '+plogTime(r.tEnd!=null ? r.tEnd : r.t)+(r.tEnd!=null && r.t>r.tEnd ? ' (+'+plogTime(r.t-r.tEnd)+' until the jump)' : ''));
+    L.push('  score +'+r.gain+' / -'+r.loss);
+    L.push('  objectives: '+o.ok+' complete, '+o.bad+' failed'+
+           (r.cards.length ? '  ['+r.cards.map(c=>c.head+': '+c.txt).join(' | ')+']' : ''));
+    L.push('  deaths '+r.deaths.length+(r.deaths.length ? '  ['+r.deaths.map(d=>plogTime(d.t)+' '+d.cause).join(' | ')+']' : ''));
+    L.push('  picked up: lives '+(r.picked.life||0)+', repairs '+(r.picked.repair||0));
+    L.push('  tickets in '+JSON.stringify(r.tGot)+', out '+JSON.stringify(r.tUsed));
+    L.push('  damage taken: hull '+Math.round(r.hull)+', shield '+Math.round(r.shield)+
+           '  by source '+Object.keys(r.dmgBy).map(x=>x+' '+Math.round(r.dmgBy[x])).join(', '));
+    L.push('  kills: fighters/bombers '+k.small+', capital ships '+k.cap+
+           ' (cruiser '+(s.killCruiser||0)+', corvette '+(s.killCorvette||0)+', destroyer '+(s.killDestroyer||0)+
+           '), sentries '+(s.killSentry||0)+', freighters '+(s.killFreighter||0)+', subsystems '+(s.subsKilled||0)+
+           ', bombs shot down '+(s.bombsShot||0));
+    L.push('  losses: allies '+r.allyLost+(r.capLost.length ? ' ['+r.capLost.join(', ')+']' : '')+
+           ', protected lost '+r.lost+', protected through '+r.saved+', enemies escaped '+r.escaped);
+    L.push('  weapons: bolts '+r.bolts+', hits '+r.hits+
+           (r.bolts ? ' ('+Math.round(100*r.hits/r.bolts)+' %)' : '')+
+           ', secondaries '+r.secFired+', rearms '+r.rearms+', support calls '+(s.escortsCalled||0));
+    L.push('  timeline:');
+    for(const ev of r.events) L.push('    '+plogTime(ev.t)+'  '+ev.txt);
+  }
+  return L.join('\n');
+}
+function plogCopy(){
+  const t = plogText();
+  let ok = false;
+  try{
+    if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(t); ok = true; }
+    else {
+      const ta = document.createElement('textarea');
+      ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+  }catch(e){ ok = false; }
+  plogMsg = ok ? 'COPIED - PASTE IT INTO THE CHAT' : 'COPY NOT ALLOWED HERE - USE SAVE FILE';
+  plogMsgT = 240;
+}
+function plogSave(){
+  try{
+    const blob = new Blob([plogText()], {type:'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'fs3_practice_log_'+GAME_VERSION+'_'+new Date().toISOString().substr(0,16).replace(/[:T]/g,'-')+'.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+    plogMsg = 'SAVED';
+  }catch(e){ plogMsg = 'SAVE FAILED'; }
+  plogMsgT = 240;
+}
+
+// The card at the end of each wave, practice mode only.
+function drawPlogCard(){
+  if(!practiceMode || !PL || PL.tEnd==null || GS!=='playing') return;
+  const r = Object.assign({}, PL, {stats:{}}); plogFinish(r);
+  const o = plogObj(r), k = plogKills(r);
+  const cw = 420, ch = 104, cx = ((W-cw)/2)|0, cy = H - ch - 14;
+  ctx.save();
+  thPlate(cx, cy, cw, ch, thRGBA('panelBack', 0.86), 8);
+  thGlowPath(cx, cy, cw, ch, 8, 0.6);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillStyle = TH('accentWarm'); ctx.font = thLabel(11);
+  ctx.fillText(thFit('WAVE '+r.wave+'  '+String(r.name).toUpperCase()+'  '+plogTime(r.tEnd), cw-24), cx+12, cy+9);
+  ctx.font = thValue(11, false); ctx.fillStyle = TH('textBright');
+  const col1 = cx+12, col2 = cx+cw/2+6;
+  const line = function(x, y, a, b){ ctx.fillStyle = TH('text'); ctx.fillText(a, x, y);
+    ctx.fillStyle = TH('textBright'); ctx.fillText(b, x+92, y); };
+  line(col1, cy+30, 'SCORE', '+'+r.gain+'  / -'+r.loss);
+  line(col1, cy+47, 'OBJECTIVES', o.ok+' done, '+o.bad+' failed');
+  line(col1, cy+64, 'DEATHS', String(r.deaths.length));
+  line(col1, cy+81, 'HULL LOST', String(Math.round(r.hull)));
+  line(col2, cy+30, 'TICKETS', '+'+plogSum(r.tGot)+'  / -'+plogSum(r.tUsed));
+  line(col2, cy+47, 'KILLS', k.small+' small, '+k.cap+' capital');
+  line(col2, cy+64, 'PICKED UP', (r.picked.life||0)+' lives, '+(r.picked.repair||0)+' repairs');
+  line(col2, cy+81, 'LOSSES', r.allyLost+' allies, '+r.lost+' protected');
+  ctx.restore();
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+}
+
+// The table, opened from the settings.
+function drawPlog(){
+  window._plogRects = [];
+  const rows = plogRows();
+  if(plogSel < 0 || plogSel >= rows.length) plogSel = rows.length-1;
+  const px = 14, py = 14, pw = W-28, ph = H-28;
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,8,0.55)'; ctx.fillRect(0, 0, W, H);
+  thPlate(px, py, pw, ph, thRGBA('panelBack', 0.96), 10);
+  thGlowPath(px, py, pw, ph, 10, 0.7);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillStyle = TH('accentWarm'); ctx.font = thLabel(13);
+  ctx.fillText('PRACTICE LOG', px+14, py+10);
+  ctx.fillStyle = TH('textDim'); ctx.font = thValue(10, false);
+  ctx.fillText(rows.length+' waves this run  -  tap a row for its details', px+140, py+13);
+  // Columns.
+  const C = [['WAVE',0],['MISSION',38],['TIME',210],['+SCORE',254],['-SCORE',314],['OBJ',370],
+             ['DEATHS',420],['TICKETS',472],['KILLS',540],['HULL',600],['ESC',650],['LOST',700]];
+  const tx = px+14, ty = py+34;
+  ctx.fillStyle = TH('text'); ctx.font = thLabel(9);
+  for(const c of C) ctx.fillText(c[0], tx+c[1], ty);
+  if(plogTop > Math.max(0, rows.length-PLOG_ROWS)) plogTop = Math.max(0, rows.length-PLOG_ROWS);
+  ctx.font = thValue(10, false);
+  for(let i=0; i<PLOG_ROWS; i++){
+    const n = plogTop + i; if(n >= rows.length) break;
+    const r = rows[n], o = plogObj(r), k = plogKills(r);
+    const y = ty + 16 + i*17;
+    if(n===plogSel){ ctx.fillStyle = 'rgba(255,160,70,0.16)'; ctx.fillRect(tx-6, y-2, pw-16, 16); }
+    const cells = [String(r.wave), thFit(String(r.name), 166)+(r.running?' *':''), plogTime(r.tEnd!=null?r.tEnd:r.t),
+                   '+'+r.gain, '-'+r.loss, o.ok+' / '+o.bad, String(r.deaths.length),
+                   '+'+plogSum(r.tGot)+' / -'+plogSum(r.tUsed), k.small+' / '+k.cap,
+                   String(Math.round(r.hull)), String(r.escaped), String(r.allyLost+r.lost)];
+    for(let c=0; c<C.length; c++){
+      ctx.fillStyle = (c===5 && o.bad) || (c===6 && r.deaths.length) ? '#ff8866' : TH('textBright');
+      ctx.fillText(cells[c], tx+C[c][1], y);
+    }
+    window._plogRects.push({x:tx-6, y:y-2, w:pw-16, h:16, act:'row', n:n});
+  }
+  // Scrolling, when there are more waves than rows.
+  if(rows.length > PLOG_ROWS){
+    const ax = px+pw-40;
+    thButton(ax, ty+14, 26, 18, null); thButton(ax, ty+14+PLOG_ROWS*17-18, 26, 18, null);
+    ctx.fillStyle = TH('textBright'); ctx.textAlign = 'center';
+    ctx.fillText('^', ax+13, ty+17); ctx.fillText('v', ax+13, ty+14+PLOG_ROWS*17-15);
+    ctx.textAlign = 'left';
+    window._plogRects.push({x:ax, y:ty+14, w:26, h:18, act:'up'});
+    window._plogRects.push({x:ax, y:ty+14+PLOG_ROWS*17-18, w:26, h:18, act:'down'});
+  }
+  // The selected wave in detail: numbers on the left, timeline on the right.
+  const dy = ty + 22 + PLOG_ROWS*17;
+  ctx.fillStyle = 'rgba(255,160,70,0.45)'; ctx.fillRect(px+10, dy-4, pw-20, 1);
+  const r = rows[plogSel];
+  if(r){
+    const s = r.stats, k = plogKills(r);
+    const lines = [
+      'WAVE '+r.wave+'  '+String(r.name).toUpperCase()+(r.running?'  (running)':''),
+      'damage: hull '+Math.round(r.hull)+', shield '+Math.round(r.shield),
+      '  '+(Object.keys(r.dmgBy).map(x=>x+' '+Math.round(r.dmgBy[x])).join(', ') || 'none'),
+      'deaths: '+(r.deaths.map(d=>plogTime(d.t)+' '+d.cause).join(', ') || 'none'),
+      'kills: '+k.small+' small, cruiser '+(s.killCruiser||0)+', corvette '+(s.killCorvette||0)+
+        ', destroyer '+(s.killDestroyer||0)+', sentry '+(s.killSentry||0),
+      'subsystems '+(s.subsKilled||0)+', bombs shot down '+(s.bombsShot||0)+', escaped '+r.escaped,
+      'bolts '+r.bolts+', hits '+r.hits+(r.bolts?' ('+Math.round(100*r.hits/r.bolts)+' %)':'')+
+        ', secondaries '+r.secFired+', rearms '+r.rearms,
+      'tickets in '+(Object.keys(r.tGot).map(x=>x+' '+r.tGot[x]).join(', ')||'-')+
+        ', out '+(Object.keys(r.tUsed).map(x=>x+' '+r.tUsed[x]).join(', ')||'-'),
+      'allies lost '+r.allyLost+', protected lost '+r.lost+' / through '+r.saved
+    ];
+    ctx.font = thValue(10, false);
+    for(let i=0;i<lines.length;i++){
+      ctx.fillStyle = i===0 ? TH('accentWarm') : TH('textBright');
+      ctx.fillText(thFit(lines[i], 380), px+16, dy+4+i*15);
+    }
+    const ev = r.events.slice(-9);
+    ctx.fillStyle = TH('text'); ctx.font = thLabel(9);
+    ctx.fillText('TIMELINE (LAST '+ev.length+' OF '+r.events.length+')', px+410, dy+4);
+    ctx.font = thValue(10, false);
+    for(let i=0;i<ev.length;i++){
+      ctx.fillStyle = ev[i].tone==='bad' ? '#ff8866' : (ev[i].tone==='good' ? '#7fe0a0' : TH('textBright'));
+      ctx.fillText(thFit(plogTime(ev[i].t)+'  '+ev[i].txt, 340), px+410, dy+19+i*14);
+    }
+  }
+  // Buttons.
+  const by = py+ph-34, bw = 130;
+  const btns = [['COPY AS TEXT','copy'],['SAVE FILE','save'],['CLOSE','close']];
+  for(let i=0;i<btns.length;i++){
+    const bx = px+14+i*(bw+10);
+    thButton(bx, by, bw, 24, 'ready');
+    ctx.fillStyle = TH('textBright'); ctx.font = thLabel(11); ctx.textAlign = 'center';
+    ctx.fillText(btns[i][0], bx+bw/2, by+6);
+    ctx.textAlign = 'left';
+    window._plogRects.push({x:bx, y:by, w:bw, h:24, act:btns[i][1]});
+  }
+  if(plogMsgT > 0){
+    plogMsgT--;
+    ctx.fillStyle = TH('accentWarm'); ctx.font = thLabel(10);
+    ctx.fillText(plogMsg, px+14+3*(bw+10)+6, by+7);
+  }
+  ctx.restore();
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+}
+function plogClick(mx, my){
+  const rs = window._plogRects || [];
+  for(const r of rs){
+    if(mx>=r.x && mx<=r.x+r.w && my>=r.y && my<=r.y+r.h){
+      if(r.act==='row') plogSel = r.n;
+      else if(r.act==='up') plogTop = Math.max(0, plogTop-1);
+      else if(r.act==='down') plogTop = plogTop+1;
+      else if(r.act==='copy') plogCopy();
+      else if(r.act==='save') plogSave();
+      else if(r.act==='close') plogOpen = false;
+      return true;
+    }
+  }
+  return true;          // a tap on the panel does not close the settings
+}

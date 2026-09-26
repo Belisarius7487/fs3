@@ -256,7 +256,7 @@ scenario('M13 both transports on time', 'm=13', `
 // with nothing thrown on the way. Enemy ships are cleared every two seconds
 // once they are out of their vortex - a player who hits everything.
 // Scan missions (12, 23) need the player to fly the scan and are left out.
-for(let m=1;m<=54;m++) if(m!==12 && m!==23) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
+for(let m=1;m<=60;m++) if(m!==12 && m!==23) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
   const t = FS.until(()=>waveOver, 40000, false, true);
   ITEMS.length = 0;     // pickups hold the jump open until they expire
   const j = FS.until(()=>wave === ${m}+1, 6000, false, false);
@@ -819,6 +819,205 @@ scenario('Beams run under the hulls', 'm=42', `
   const sh = order.indexOf('shooter'), own = order.indexOf('own');
   r.onTopOfTheShooter = sh>=0 && own>sh;
   r.ownStretchShort = ownHullRun(shooter, shooter.x, shooter.y, 0) > 0 && ownHullRun(shooter, shooter.x, shooter.y, 0) < 1000;
+  return r;`);
+
+scenario('Knossos scene: same sky within a run', 'm=55', `
+  const r = {};
+  FS.step(50);
+  // Make sure there is something in the sky to compare, then write the
+  // scene down again from that.
+  // The harness has no planet pictures, so two stand-ins.
+  bodies = [{key:'testplanet', kind:'planet', meta:{r:0,cx:0.5,cy:0.5}, w:220, x:310, y:190, spd:0.05},
+            {key:'testsun', kind:'sun', meta:{r:0,cx:0.5,cy:0.5}, w:120, x:620, y:120, spd:0.04}];
+  delete SCENES.knossos; useScene('knossos');
+  const neb = nebCur, keys = bodies.map(b=>b.key).join(','), pos = bodies.map(b=>Math.round(b.x)+'/'+Math.round(b.y)).join(','), la = lightAng;
+  r.portalThere = enemies.some(e=>e.uid==='P1' && e.img==='inknossos45deg' && e.invuln && e.scenery);
+  // To 56: a different place, a fresh roll.
+  startNebFade(); for(let i=0;i<200;i++) tickNebula();
+  waveOver = false; nextWave(); FS.step(5);
+  // On to 58 through 57, with the backdrop fading over each time.
+  startNebFade(); FS.step(5); nextWave(); FS.step(5);
+  startNebFade(); FS.step(5); nextWave();
+  r.atTheGate = wave===58;
+  const placesNow = bodies.map(b=>Math.round(b.x)+'/'+Math.round(b.y)).join(',');
+  for(let i=0;i<200;i++) tickNebula();
+  r.sameBackdrop = nebCur===neb;
+  r.sameBodies = bodies.map(b=>b.key).join(',')===keys;
+  r.samePlaces = placesNow===pos;
+  r.sameLight = lightAng===la;
+  // A new run rolls anew: the book is empty.
+  launchGame();
+  r.newRunForgets = (SCRIPT_ONE===55) ? !!SCENES.knossos && Object.keys(SCENES).length===1 : Object.keys(SCENES).length===0;
+  return r;`);
+
+scenario('M55 Der Anflug', 'm=55', `
+  const r = {};
+  let k = null;
+  FS.until(()=>{ k = enemies.find(e=>e.uid==='K1' && !(e.warp>0)); return !!k; }, 2000, true);
+  r.cruiserFromTheLeft = !!k && k.x < 100 && k.escaping>0 && k.escWarp;
+  k.hp = k.maxHp = 1e7;
+  const f = FS.until(()=>{ k.hp = k.maxHp; return k.warpOut>0; }, 6000, true);
+  r.jumpsAtThePortal = f>=0 && k.x >= PORTAL_X && k.x < W && k.portalWarp===true;
+  FS.step(5);
+  r.failCard = !!objCard && objCard.txt==='A CRUISER REACHED THE PORTAL';
+  return r;`);
+
+scenario('M55 all stopped', 'm=55', `
+  const r = {};
+  let k = null;
+  FS.until(()=>{ k = enemies.find(e=>e.uid==='K1' && !(e.warp>0)); return !!k; }, 2000, true);
+  for(const s of k.subs) if(s.id==='engines'){ s.dead = true; s.hp = 0; }
+  const x0 = k.x; FS.step(200);
+  r.enginesStopHer = Math.abs(k.x-x0) < 0.01;
+  const seen = {};
+  const t = FS.until(()=>{ for(const e of enemies) if(/^K/.test(e.uid||'') && !(e.warp>0)){ seen[e.uid]=1; e.hp = 0; }
+    return !!objCard && objCard.txt==='ALL CRUISERS STOPPED'; }, 12000, true);
+  r.completeCard = t>=0 && Object.keys(seen).length===4;
+  return r;`);
+
+scenario('M56 Die Verraeter', 'm=56', `
+  const r = {};
+  FS.step(300);
+  const a1 = allies.find(a=>a.uid==='A1');
+  r.alliedLeviathan = !!a1 && a1.img==='crleviathan';
+  r.deimosToo = allies.some(a=>a.uid==='A2' && a.img==='codeimos');
+  FS.until(()=>!allies.includes(a1), 3000, true);
+  const t = enemies.find(e=>e.uid==='A1');
+  r.goesOver = !!t && t.side==='enemy' && t.img==='ntfcrleviathan';
+  // She stays on the left and faces into the field, not the edge behind her.
+  r.facesIntoTheField = !!t && t.x < W*0.5 && t.flip===needsFlip(t.img, false);
+  const _tx = t.x; FS.step(200);
+  r.staysWhereSheIs = Math.abs(t.x-_tx) < 1;
+  FS.step(3);
+  r.newObjective = missionObj==='DESTROY THE LEVIATHAN';
+  r.moreComing = enemies.some(e=>e.uid==='E2') || spawnQ.some(q=>q.uid==='E2' || q.uid==='B1') || enemies.some(e=>e.uid==='B1');
+  t.hp = 0;
+  r.completeCard = FS.until(()=>!!objCard && objCard.txt==='TRAITOR DESTROYED', 1500, false) >= 0;
+  return r;`);
+
+scenario('M57 Die Nachhut', 'm=57', `
+  const r = {};
+  const prevSec = player.sec;
+  FS.step(300);
+  r.ursaWithStiletto = player.ship==='boursa' && player.sec==='stiletto';
+  const us = ['K1','K2','D1'].map(id=>enemies.find(e=>e.uid===id));
+  r.threeHoldTheRear = us.every(Boolean);
+  damageEnemy(us[0], us[0].maxHp*5, us[0].x, us[0].y, true, 'bolt'); FS.step(2);
+  r.cannotBeDestroyedYet = enemies.includes(us[0]);
+  // A Stiletto takes a cruiser's system with one bomb, a corvette's with two.
+  const bombs = u=>{ const s = u.subs.find(x=>x.id==='engines'); let n = 0;
+    while(!s.dead && n<10){ const p = subPos(u, s); subStrike(u, secDef('stiletto').dmg, p.x, p.y); n++; } return n; };
+  r.oneBombPerCruiserSystem = bombs(us[0])===1;
+  r.twoBombsPerCorvetteSystem = bombs(us[2])===2;
+  for(const u of us) for(const s of u.subs) if(s.id==='engines'||s.id==='weapons'){ s.dead = true; s.hp = 0; }
+  const c = FS.until(()=>!!objCard && objCard.txt==='REARGUARD DISABLED', 1500, false);
+  r.completeCard = c>=0;
+  r.leftAsWrecks = us.every(u=>enemies.includes(u) && u.scenery);
+  const w = FS.until(()=>wave===58, 9000, true, true);
+  r.nextWaveOwnShipBack = w>=0 && player.ship!=='boursa' && player.sec!=='stiletto';
+  return r;`);
+
+scenario('M58 Das Tor', 'm=58', `
+  const r = {};
+  FS.step(400);
+  r.portalThere = enemies.some(e=>e.uid==='P1' && e.img==='inknossos45deg');
+  r.sentryLine = enemies.filter(e=>e.uid==='G1').length===6;
+  r.twoCruisers = enemies.some(e=>e.uid==='K1' && e.img==='ntfcrfenris') && enemies.some(e=>e.uid==='K2' && e.img==='ntfcraeolus');
+  for(const e of enemies) if(/^(K|G)/.test(e.uid||'')) e.hp = 0;
+  r.completeCard = FS.until(()=>!!objCard && objCard.txt==='PORTAL DEFENCE BROKEN', 1500, false) >= 0;
+  return r;`);
+
+scenario('M59 Die letzte Sperre', 'm=59', `
+  const r = {};
+  FS.step(500);
+  const v1 = enemies.find(e=>e.uid==='V1'), v2 = enemies.find(e=>e.uid==='V2');
+  r.twoDestroyers = !!v1 && !!v2 && v1.img==='ntfdehecate' && v2.img==='ntfdeorion';
+  r.inFrontOfThePortal = enemies.some(e=>e.uid==='P1');
+  r.fighterCover = allies.filter(a=>a.small && a.uid==='W1').length >= 2;
+  v1.hp = 0; FS.step(300);
+  r.notYet = !(objCard && objCard.txt==='THE WAY TO THE PORTAL IS OPEN');
+  v2.hp = 0;
+  r.completeCard = FS.until(()=>!!objCard && objCard.txt==='THE WAY TO THE PORTAL IS OPEN', 3000, false) >= 0;
+  return r;`);
+
+scenario('M60 Der Sprung', 'm=60', `
+  const r = {};
+  score = 3000;
+  const esc0 = icenEscapes;
+  let v = null;
+  FS.until(()=>{ v = enemies.find(e=>e.uid==='V1' && !(e.warp>0)); return !!v; }, 3000, true);
+  r.iceniRuns = !!v && v.iceni && v.escaping>0;
+  r.nothingToShootOut = !!v && !v.subs.some(s=>s.id==='engines' || s.id==='navigation');
+  damageEnemy(v, v.maxHp*5, v.x, v.y, true, 'bolt'); FS.step(2);
+  r.cannotBeDestroyed = enemies.includes(v) && v.hp>0;
+  const j = FS.until(()=>v.warpOut>0, 9000, true);
+  r.throughThePortal = j>=0 && v.portalWarp===true && v.x >= PORTAL_X;
+  FS.until(()=>!enemies.includes(v), 1000, false);
+  FS.step(5);
+  r.sheGotAway = icenEscapes===esc0+1 && NOTICES.some(n=>n.txt==='THE ICENI IS THROUGH THE KNOSSOS');
+  for(const e of enemies) if(/^(K|C)/.test(e.uid||'')) e.hp = 0;
+  r.completeCard = FS.until(()=>!!objCard && objCard.txt==='ESCORT DESTROYED', 3000, false) >= 0;
+  return r;`);
+
+scenario('Practice mode', 'm=40&practice=1', `
+  const r = {};
+  FS.step(100);
+  r.onFromTheAddress = practiceMode===true;
+  r.tenOfEach = TICKET_ORDER.every(k=>tickets[k]>=10);
+  const l0 = lives; playerDie();
+  r.noLifeLost = lives===l0;
+  tickets.cruiser = 2;
+  FS.until(()=>waveOver, 40000, false, true); ITEMS.length = 0;
+  const w = wave; FS.until(()=>wave===w+1, 6000, false, false);
+  r.toppedUpNextWave = tickets.cruiser>=10;
+  practiceMode = false; const l1 = lives; playerDie();
+  r.offCostsALife = lives===l1-1;
+  return r;`);
+
+scenario('Practice log', 'm=42&practice=1', `
+  const r = {};
+  FS.step(200);
+  r.recording = !!PL && PL.wave===42 && PL.name==='Die Hecate';
+  // A death by a beam of a named ship.
+  const v = enemies.find(e=>e.beams && e.beams.length) || enemies[0];
+  plogSrc('beam', v); player.hp = 0; playerDie(); FS.step(2);
+  r.deathWithCause = PL.deaths.length===1 && /^beam - /.test(PL.deaths[0].cause);
+  // Points lost and why.
+  score = 1000; FS.step(1);
+  plogLoss('escaped', v); score = Math.max(0, score-100); FS.step(2);
+  r.lossWithReason = PL.loss>=100 && PL.events.some(e=>/escaped/.test(e.txt));
+  // Tickets used are counted, the practice top-up is not counted as earned.
+  const got0 = plogSum(PL.tGot);
+  tickets.cruiser--; FS.step(2);
+  r.ticketUsed = PL.tUsed.cruiser===1;
+  practiceTickets(); FS.step(2);
+  r.topUpNotEarned = plogSum(PL.tGot)===got0;
+  // An objective card goes into the log.
+  objAnnounce('OBJECTIVE COMPLETE', 'TEST DONE', 'done'); FS.step(2);
+  r.objectiveLogged = PL.cards.some(c=>c.txt==='TEST DONE' && c.tone==='done');
+  // Damage by source.
+  // FS.step heals the ship first, so one plain update here.
+  plogSrc('bolt'); player.hp -= 10; update();
+  r.damageBySource = (PL.dmgBy.bolt||0) >= 10;
+  // The player's own bolts are counted, the escorts' are not.
+  const b0 = PL.bolts; player.fT = 0; pShoot(); FS.step(1);
+  r.boltsCounted = PL.bolts > b0;
+  // Clear the wave: it is closed and the next one opens.
+  FS.until(()=>waveOver, 40000, false, true); ITEMS.length = 0;
+  FS.step(2);
+  r.cardShown = (function(){ let n=0; const _t=thPlate; thPlate=function(){ n++; return _t.apply(this, arguments); };
+    try{ drawPlogCard(); } finally { thPlate=_t; } return n>0; })();
+  const w = wave; FS.until(()=>wave===w+1, 6000, false, false);
+  r.closedAndNext = PLOG.length===1 && PLOG[0].wave===42 && PL.wave===43;
+  const t = plogText();
+  r.textExport = /WAVE 42 - Die Hecate/.test(t) && /died: beam/.test(t) && /timeline:/.test(t);
+  // The table draws, and a new run starts an empty log.
+  setSettings(true); plogOpen = true; draw();
+  r.tableDraws = (window._plogRects||[]).some(x=>x.act==='copy');
+  setSettings(false);
+  r.closesWithSettings = plogOpen===false;
+  launchGame();
+  r.newRunEmpty = PLOG.length===0;
   return r;`);
 
 scenario('allied craft hold fire with nothing to shoot', 'm=44', `

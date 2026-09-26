@@ -328,6 +328,7 @@ function updateDebris(){
       const pb = pBox();
       if(overlap(b[0],b[1],b[2],b[3],pb[0],pb[1],pb[2],pb[3]) && bulletOnPlayer(probe)){
         const dm = debRamDmg(d, player.maxHp);
+        plogSrc('debris');
         if(player.sh>0){
           const abs=Math.min(player.sh,dm);
           player.sh-=abs; player.shDelay=90; player.shHit=SH_FLASH; shieldHit(d.x,d.y);
@@ -516,7 +517,8 @@ function updateShocks(){
     s.r += s.spd;
     if(GS==='playing' && player.hp>0 && !inJump()){
       const f=shockPush(player, s, 1);
-      if(f){ player.hp -= Math.max(1, Math.round(player.maxHp*s.pct*f)); hullHit(player.x,player.y);
+      if(f){ plogSrc('blast wave');
+             player.hp -= Math.max(1, Math.round(player.maxHp*s.pct*f)); hullHit(player.x,player.y);
              if(player.hp<=0) playerDie(); }
     }
     for(const e of enemies){
@@ -2432,6 +2434,7 @@ function updateBeams(e) {
             // other hull the beam holds. Anti fighter beams are the only
             // ones that ever take the player as a target, large beams do
             // not carry him in their list at all.
+            plogSrc('beam', e);
             player.hp -= beamDmg(e, b);
             hullHit(player.x, player.y);
             if(fc%2===0) spawnFireball(player.x, player.y, 10, 12);

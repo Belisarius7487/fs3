@@ -369,7 +369,7 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind){
   e.hp -= dmg;
   // A ship that is to be taken does not start to break up: the lock
   // below holds her hull instead.
-  if(e.hp <= 0 && !e.dead && !e.captureLock &&
+  if(e.hp <= 0 && !e.dead && !e.captureLock && !e.keepAlive &&
      (e.type==='destroyer'||e.type==='boss'||e.type==='station')){
     // Sie stirbt nicht sofort: erst die Sekundaerexplosionen.
     e.hp = 1; e.rollT = DEATH_ROLL; e.noFire = true;
@@ -387,7 +387,7 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind){
   // haengt die Pointe der Welle am Zufall des Gefechts.
   // captureLock: a ship that is to be taken cannot be destroyed first.
   // scanLock: a scan target that is to be scanned before it may die.
-  if(e.defectLock || e.captureLock || (e.scanLock && !e.scanned)){
+  if(e.defectLock || e.captureLock || e.keepAlive || (e.scanLock && !e.scanned)){
     const dfl = e.maxHp * DISABLE_HULL_FLOOR;
     if(e.hp < dfl) e.hp = dfl;
   }
@@ -1291,6 +1291,7 @@ function updateItems(){
         // What was collected lights up where it lands, in the bar. A
         // pickup that changes nothing still shows, dimmed.
         if(it.kind==='repair'){
+          plogPick('repair');
           barPulse('hull', player.hp >= player.maxHp);
           player.hp = Math.min(player.maxHp, player.hp + player.maxHp*REPAIR_PCT);
         } else if(it.kind==='life'){
@@ -1848,7 +1849,9 @@ function updateAllies(){
       a.dead = true;
       triggerExpl(a.x, a.y, a.type, a.faction==='vasudan' ? 'vasudan' : 'terran', a);
       allies.splice(i,1);
-      if(a.guard){ protLost++; guardLost = true; guardGone = true; score = Math.max(0, score-GUARD_PENALTY);
+      plogAllyLost(a);
+      if(a.guard){ plogLoss('protected ship lost', a);
+        protLost++; guardLost = true; guardGone = true; score = Math.max(0, score-GUARD_PENALTY);
         // The Orff coming through decides whether the Vasudan ace shows up
         // in the wave after this one.
         if(FS1_MODE && wave===1) CAMP.orffOk = false; }
@@ -1972,6 +1975,7 @@ function runFlee(e, i){
   if(e.warpOut>0){
     e.warpOut--;
     if(e.warpOut<=0){
+      plogLoss('jumped out', e);
       score = Math.max(0, score-fleePenalty(e));
       fleeEscaped++;
       if(e.iceni) icenEscapes++;      // she will be back, and heavier
@@ -2011,7 +2015,7 @@ function reapEnemies(){
   for(let i=enemies.length-1;i>=0;i--){
     const e = enemies[i];
     if(e.hp<=0 && !e.dead){
-      e.dead = true; score += e.pts; statKill(e.type);
+      e.dead = true; score += e.pts; statKill(e.type); plogKill(e);
       maybeDropTicket(e);
       triggerExpl(e.x, e.y, e.type, e.faction||'ntf', e);
       if(e.type==='boss'){ bossAlive=false; bossSlain=true; }
@@ -2052,6 +2056,7 @@ function updateAsteroidImpacts(){
       const pb = pBox();
       if(overlap(a.x-r,a.y-r,r*2,r*2,pb[0],pb[1],pb[2],pb[3]) && bulletOnPlayer(probe)){
         const d = astRamDmg(a, player.maxHp);
+        plogSrc('rock');
         if(player.sh>0){
           const abs = Math.min(player.sh, d);
           player.sh -= abs; player.shDelay = 90; player.shHit = SH_FLASH;
