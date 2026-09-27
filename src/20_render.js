@@ -311,8 +311,14 @@ const WARP_GLOW_SIZE = 2.0;     // glow width as a multiple of the vortex
 const WARP_FPS = 30;
 // Turn of the vortex, radians a second (1.6 is about a quarter turn).
 const WARP_SPIN = 1.6;
-// ?warp=oval or ?warp=rund: ships come out of the vortex as in FreeSpace.
-const WARP_STYLE = (/[?&]warp=(oval|rund)/.exec(location.search) || [])[1] || '';
+// Ships come out of the vortex as in FreeSpace, through a side-on oval.
+// ?warp=rund: the same with a round vortex; ?warp=alt: the old fade in
+// at the centre of the vortex.
+const WARP_STYLE = (function(){
+  const m = /[?&]warp=(oval|rund|alt)/.exec(location.search);
+  if(!m) return 'oval';
+  return m[1]==='alt' ? '' : m[1];
+})();
 const WARP_OVAL = 0.35;   // width of the side-on vortex against its height
 // Where ship and vortex are drawn during a FreeSpace style jump, or null
 // for the old look. Picture only: the ship's place in the game is e.x/e.y.
