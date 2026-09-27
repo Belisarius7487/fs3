@@ -1864,6 +1864,9 @@ function updateAllies(){
     }
     if(a.warp>0){
       a.warp--;
+      // Out of the vortex inside the field, where the flight model keeps it.
+      if(a.warp<=0 && a.small){ const b = shipBound(a);
+        a.x = Math.max(b, Math.min(W-b, a.x)); a.y = Math.max(HUD_H+b, Math.min(H-b, a.y)); }
       if(a.small){ const wp=poseFor(a.head,a.flip); a.ang=wp.ang; a.flip=wp.flip; }
       continue;
     }

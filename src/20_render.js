@@ -311,6 +311,165 @@ const WARP_GLOW_SIZE = 2.0;     // glow width as a multiple of the vortex
 const WARP_FPS = 30;
 // Turn of the vortex, radians a second (1.6 is about a quarter turn).
 const WARP_SPIN = 1.6;
+// ?warp=oval or ?warp=rund: ships come out of the vortex as in FreeSpace.
+const WARP_STYLE = (/[?&]warp=(oval|rund)/.exec(location.search) || [])[1] || '';
+const WARP_OVAL = 0.35;   // width of the side-on vortex against its height
+// Where ship and vortex are drawn during a FreeSpace style jump, or null
+// for the old look. Picture only: the ship's place in the game is e.x/e.y.
+//   warp in:  vortex opens, the ship comes out nose first and brakes down
+//             to the speed it flies on at, ending with the jump
+//   warp out: the ship keeps its speed and speeds up into the vortex
+// Where the vortex stands and which way the nose points are fixed at the
+// first tick of the jump, so the cut and the vortex stay together.
+function fsNose(e){
+  // The way the picture faces, turned by ang, then mirrored. Most
+  // pictures face right, some big hulls face left.
+  const s = (e.flip ? -1 : 1) * (spriteFacing(e.img)==='left' ? -1 : 1), a = e.ang||0;
+  return {x: Math.cos(a)*s, y: Math.sin(a)*s};
+}
+function fsSmall(e){ return e.small || e.type==='fighter' || e.type==='bomber'; }
+// Where a ship ends up after the jump. Fighters and bombers are held
+// inside the field once they fly (shipBound); one that jumps in on the
+// edge is put there at once, so its picture comes out to that spot.
+function fsLanding(e){
+  if(!fsSmall(e)) return {x: e.x, y: e.y};
+  const b = shipBound(e);
+  return {x: Math.max(b, Math.min(W-b, e.x)), y: Math.max(HUD_H+b, Math.min(H-b, e.y))};
+}
+function fsWarp(e){
+  if(!WARP_STYLE || e.portalWarp || e.type==='asteroid') return null;
+  if(!(e.warp>0) && !(e.warpOut>0)) return null;
+  const img = IMGS[e.img]; const mW = e.warpMax||100;
+  if(!img || mW<=1) return null;
+  const out = e.warpOut>0;
+  const t = out ? (mW-e.warpOut)/mW : (mW-e.warp)/mW;
+  let q = e._fsG;
+  if(!q || q.out !== out){
+    const f = fsNose(e), L = img.width*e.sc, G = L*0.6;   // G: vortex to ship centre
+    const sg = out ? 1 : -1;               // ahead when leaving, behind when coming
+    const at = out ? {x: e.x, y: e.y} : fsLanding(e);
+    // On the screen edge at the most: what sticks out beyond it cannot be
+    // seen, so nothing pops into view when the cut goes.
+    const px = Math.max(0, Math.min(W, at.x + sg*f.x*G));
+    e._fsG = q = {out, fx: f.x, fy: f.y, L, G, px, py: at.y + sg*f.y*G,
+                  x0: e.x, y0: e.y, lx: at.x, ly: at.y, e0: out ? mW-e.warpOut : mW-e.warp, v0: null};
+  }
+  const fx = q.fx, fy = q.fy, L = q.L, D = q.G + L/2;   // D: the whole way through
+  const wS = t<0.30 ? 0.05+0.95*t/0.30 : (t<0.75 ? 1 : Math.max(0, 1-(t-0.75)/0.25));
+  // Going out the picture leaves from where the jump began, whatever the
+  // game still does with the ship meanwhile.
+  let u, vis = true, bx = out ? q.x0 : e.x, by = out ? q.y0 : e.y;
+  if(!out){
+    const at = fsLanding(e); bx = at.x; by = at.y;
+    // Speed wanted at the end, less what the game already moves the ship
+    // during the jump - so it carries on without a stop.
+    const el = mW - e.warp, dt = el - q.e0;
+    const drift = dt > 0 ? ((at.x-q.lx)*fx + (at.y-q.ly)*fy)/dt : 0;
+    const v = Math.max(0, fsExitSpeed(e) - drift);
+    // Coming out takes the last three quarters of the jump, or less for a
+    // fast, short ship: it has to leave at least as fast as it goes on.
+    const Dk = Math.min(mW*0.75, v > 0 ? 1.4*D/v : 1e9);
+    const c = Math.min(1.45*D, v*Dk);
+    const k = 1 - (mW - el)/Dk; if(k<=0) vis = false;
+    const w = 1 - Math.min(1, Math.max(0, k));
+    u = -D*w*w*w - c*(w - w*w*w);
+  } else {
+    // Keeps the speed it had and speeds up from there.
+    if(q.v0 == null) q.v0 = fsSmall(e)
+      ? Math.max(0, (e._fvx1||0)*fx + (e._fvy1||0)*fy)
+      : Math.max(0, (e._fvx||0)*fx + (e._fvy||0)*fy);
+    const Dk = Math.min(mW*0.75, q.v0 > 0 ? 1.4*D/q.v0 : 1e9);
+    const c = Math.min(1.45*D, q.v0*Dk);
+    const k = Math.min(1, Math.max(0, (mW - e.warpOut)/Dk)); if(k>=1) vis = false;
+    u = c*k + (D-c)*k*k*k;
+  }
+  return {out, fx, fy, px: q.px, py: q.py, wS, wA: Math.min(1, wS*1.4),
+          dx: bx - e.x + fx*u, dy: by - e.y + fy*u, vis};
+}
+// Speed along the nose a ship flies at right after coming in, in points
+// a tick - the same numbers the game moves it by.
+function fsExitSpeed(e){
+  if(e.transit) return Math.abs(e.transitV||0);
+  if(e.escaping) return Math.abs(e.escaping);
+  // A fighter flies along its heading, which the picture only follows
+  // roughly: what counts is the part along the nose.
+  if(fsSmall(e)){ const f = fsNose(e), h = e.head||0;
+    return (e.spd || 1.5)*Math.max(0, Math.cos(h)*f.x + Math.sin(h)*f.y); }
+  if(allies.indexOf(e) >= 0 || e.targetX == null || !(e.x > e.targetX)) return 0;
+  if(e.type==='cruiser') return 0.8;
+  if(e.type==='corvette' || e.type==='destroyer') return 0.6;
+  if(e.type==='boss') return Math.max(0.25, Math.min(1.5, (e.x-e.targetX)*0.04));
+  return 0;
+}
+// Speed of a ship outside a jump, smoothed, so a jump out can start
+// from it. Measured on the picture, per game tick.
+function fsTrack(e){
+  if(!WARP_STYLE || e.warp>0 || e.warpOut>0) return;
+  e._fsG = null;
+  if(e._lfc != null && fc > e._lfc){
+    const n = fc - e._lfc;
+    e._fvx = (e._fvx||0)*0.8 + 0.2*(e.x - e._lx)/n;
+    e._fvy = (e._fvy||0)*0.8 + 0.2*(e.y - e._ly)/n;
+    e._fvx1 = (e.x - e._lx)/n; e._fvy1 = (e.y - e._ly)/n;
+  }
+  e._lfc = fc; e._lx = e.x; e._ly = e.y;
+}
+// The vortex of a ship coming in lives on its own: it opens with the
+// jump, stays open until the stern has passed it (also after the jump
+// is over and the ship flies on) and only then closes.
+let FS_PORTALS = [];
+const FS_PORTAL_LINGER = 3;    // seconds after the jump before it closes anyway
+function fsPortalOpen(e, g, WS){
+  if(e._fsp) return;
+  e._fsp = {e, px:g.px, py:g.py, fx:g.fx, fy:g.fy, WS, mW:e.warpMax||100,
+            t0:fc - ((e.warpMax||100) - e.warp), closeT:-1};
+  FS_PORTALS.push(e._fsp);
+}
+function fsPortalCleared(p){
+  const e = p.e;
+  if(e.dead || (enemies.indexOf(e)<0 && allies.indexOf(e)<0)) return true;
+  const img = IMGS[e.img]; if(!img) return true;
+  const g = (e.warp>0) ? fsWarp(e) : null;
+  const cx = e.x + (g ? g.dx : 0), cy = e.y + (g ? g.dy : 0), L = img.width*e.sc;
+  // Distance of the stern past the vortex, along the flight path.
+  return ((cx - p.fx*L/2) - p.px)*p.fx + ((cy - p.fy*L/2) - p.py)*p.fy > 0;
+}
+const FS_PORTAL_MAX = 20;      // seconds after the jump, for a ship still moving out
+// The ship still moving on along its nose (measured by fsTrack).
+function fsPortalMoving(p){
+  const e = p.e;
+  return ((e._fvx||0)*p.fx + (e._fvy||0)*p.fy) > 0.05;
+}
+function drawFsPortals(){
+  for(let i=FS_PORTALS.length-1; i>=0; i--){
+    const p = FS_PORTALS[i], age = fc - p.t0;
+    if(p.closeT < 0 && age >= p.mW*0.75 && (fsPortalCleared(p) ||
+       (age > p.mW + FS_PORTAL_LINGER*TICK_HZ && !fsPortalMoving(p)) ||
+       age > p.mW + FS_PORTAL_MAX*TICK_HZ)) p.closeT = fc;
+    let wS = Math.min(1, 0.05 + 0.95*age/(p.mW*0.30));
+    if(p.closeT >= 0) wS = Math.min(wS, 1 - (fc - p.closeT)/(p.mW*0.25));
+    if(wS <= 0){ FS_PORTALS.splice(i,1); if(p.e._fsp===p) p.e._fsp = null; continue; }
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, wS*1.4);
+    ctx.translate(p.px|0, p.py|0);
+    if(WARP_STYLE==='oval'){ ctx.rotate(Math.atan2(p.fy, p.fx)); ctx.scale(WARP_OVAL*wS, wS); }
+    else ctx.scale(wS, wS);
+    drawWarpFrame(warpSeed(p.e), p.WS, false);
+    ctx.restore(); ctx.globalAlpha = 1;
+  }
+}
+// Clip to the side of the vortex the ship is on: in front of it when
+// coming out, behind it when going in.
+function fsWarpClip(g){
+  const B = 5000, sg = g.out ? -1 : 1, tx = -g.fy, ty = g.fx;
+  ctx.beginPath();
+  ctx.moveTo(g.px+tx*B, g.py+ty*B);
+  ctx.lineTo(g.px+tx*B+g.fx*B*sg, g.py+ty*B+g.fy*B*sg);
+  ctx.lineTo(g.px-tx*B+g.fx*B*sg, g.py-ty*B+g.fy*B*sg);
+  ctx.lineTo(g.px-tx*B, g.py-ty*B);
+  ctx.closePath();
+  ctx.clip();
+}
 function warpSeed(o){
   if(o._wseed == null) o._wseed = Math.random()*WARP_FRAMES;
   return o._wseed;

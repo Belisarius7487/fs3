@@ -223,6 +223,24 @@ function draw(){
   if(WARP_IMG&&WARP_IMG.complete&&WARP_IMG.naturalWidth>0){
     for(const e of SHIPS_ON_FIELD){
       if(e.warp>0 || e.warpOut>0){
+        // FreeSpace style: the vortex stands across the flight path.
+        const fg = fsWarp(e);
+        if(fg){
+          try{
+            let WSf = 120; const fImg = IMGS[e.img];
+            if(fImg) WSf = Math.max(100, fImg.height*e.sc*1.9, fImg.width*e.sc*0.62);
+            // Coming in: the vortex is drawn by drawFsPortals() below.
+            if(!fg.out){ fsPortalOpen(e, fg, WSf); continue; }
+            ctx.save();
+            ctx.globalAlpha = fg.wA;
+            ctx.translate(fg.px|0, fg.py|0);
+            if(WARP_STYLE==='oval'){ ctx.rotate(Math.atan2(fg.fy, fg.fx)); ctx.scale(WARP_OVAL*fg.wS, fg.wS); }
+            else ctx.scale(fg.wS, fg.wS);
+            drawWarpFrame(warpSeed(e), WSf, false);
+            ctx.restore(); ctx.globalAlpha = 1;
+          }catch(ef){ ctx.restore(); ctx.globalAlpha = 1; }
+          continue;
+        }
         try{
           // The same duration that drives the ship's visibility.
           var mW=e.warpMax||100;
@@ -256,6 +274,7 @@ function draw(){
         }catch(ew){ctx.restore();ctx.globalAlpha=1;}
       }
     }
+    try{ drawFsPortals(); }catch(ep){ ctx.restore(); ctx.globalAlpha=1; }
   }
 
   // Beam rays under every hull: a ship lies on top of the beam that
@@ -278,6 +297,21 @@ function draw(){
     // wiped out one line later by globalAlpha=1,
     // which is why ships used to pop in.
     var wAlpha=1;
+    // FreeSpace style: the hull slides through the vortex and is cut off
+    // where it has not come through yet. Nothing else is drawn until the
+    // jump is over.
+    fsTrack(e);
+    const fgs = fsWarp(e);
+    if(fgs){
+      if(!fgs.vis) continue;
+      ctx.save();
+      fsWarpClip(fgs);
+      ctx.translate(fgs.dx, fgs.dy);
+      drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,fgs.out?1:0.6,e.ang||0);
+      drawShip(e.img,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
+      ctx.restore();
+      continue;
+    }
     if(e.warp>0){
       var mWw=e.warpMax||100;
       var elW=mWw-e.warp;
