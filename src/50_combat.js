@@ -618,9 +618,7 @@ function drawJumpVortex(){
   ctx.globalAlpha = Math.min(1, grow*2.2);
   ctx.translate(player.x|0, player.y|0);
   ctx.scale(wS, wS);
-  ctx.drawImage(WARP_IMG,
-    (wF%WARP_COLS)*WARP_CELL, ((wF/WARP_COLS)|0)*WARP_CELL,
-    WARP_CELL, WARP_CELL, -WS/2, -WS/2, WS, WS);
+  drawWarpFrame(0, WS, false);
   ctx.restore();
   ctx.globalAlpha = 1;
   // One darkness, sitting exactly on the changeover. The outbound half

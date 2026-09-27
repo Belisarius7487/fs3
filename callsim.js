@@ -111,6 +111,8 @@ const world = `
   let IMGS={};
   const HULL={cruiser:1200, corvette:1800, destroyer:2600};
   const STATS={escortsCalled:0};
+  // The practice log is not what is tested here.
+  function plogCall(){} function plogRefine(){}
   function capHull(v){ return Math.round(v); }
   function allyReady(){ return true; }
   function allyAffordable(id){ return affordAll; }

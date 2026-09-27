@@ -250,17 +250,7 @@ function draw(){
           var wF=Math.floor(elapsed/mW*WARP_FRAMES);
           if(wF<0) wF=0; if(wF>WARP_FRAMES-1) wF=WARP_FRAMES-1;
           // Through the Knossos: the turquoise vortex.
-          if(e.portalWarp && knossosWarpOk()){
-            const _kw = KNOSSOS_WARP_IMG;
-            if(_kw.naturalWidth > WARP_CELL*1.5)
-              ctx.drawImage(_kw, (wF%WARP_COLS)*WARP_CELL, ((wF/WARP_COLS)|0)*WARP_CELL,
-                            WARP_CELL, WARP_CELL, -WS/2,-WS/2,WS,WS);
-            else ctx.drawImage(_kw, -WS/2,-WS/2,WS,WS);
-          } else
-          ctx.drawImage(WARP_IMG,
-            (wF%WARP_COLS)*WARP_CELL, ((wF/WARP_COLS)|0)*WARP_CELL,
-            WARP_CELL, WARP_CELL,
-            -WS/2,-WS/2,WS,WS);
+          drawWarpFrame(warpSeed(e), WS, !!e.portalWarp);
           ctx.restore();
           ctx.globalAlpha=1;
         }catch(ew){ctx.restore();ctx.globalAlpha=1;}
@@ -1533,7 +1523,8 @@ const PRIMARIES = [
   // pellets and spread turn one trigger pull into a cone. dmg is the
   // damage of the WHOLE volley, shared out, so a single pellet is slight
   // and a face full of them is not.
-  {key:'scatter', name:'Streuschuss', unlock:14000,
+  // Named after the primary of Blue Planet: War in Heaven.
+  {key:'scatter', name:'Sidhe', unlock:14000,
    dmg:2.60, rate:1.85, spd:8, range:300, pellets:7, spread:0.30,
    col:'#ffd08a', glow:'rgba(255,170,70,0.30)',
    note:'a cone of pellets - murder in a crowd, nothing at range'},
@@ -2780,6 +2771,7 @@ function plogStart(){
         gain:0, loss:0, cards:[], deaths:[], tGot:{}, tUsed:{}, picked:{},
         hull:0, shield:0, dmgBy:{}, stats0:Object.assign({}, STATS), stats:{},
         secFired:0, rearms:0, bolts:0, hits:0, allyLost:0, capLost:[], saved:0, lost:0, escaped:0,
+        calls:[], refined:[],
         events:[], src:null, who:''};
   PL._card = objCard;
   plogSync();
@@ -2815,9 +2807,30 @@ function plogAllyLost(a){
   PL.allyLost++;
   if(!a.small){ PL.capLost.push(plogName(a)); plogEvent(plogName(a)+' lost', 'bad'); }
 }
-function plogPick(kind){
+// full: the pickup changed nothing (lives already at their maximum).
+function plogPick(kind, full){
   if(!PL) return;
   if(kind==='repair'){ PL.picked.repair = (PL.picked.repair||0) + 1; plogEvent('repair picked up', 'good'); }
+  if(kind==='life'){
+    PL.picked.life = (PL.picked.life||0) + 1;
+    if(full) PL.picked.lifeFull = (PL.picked.lifeFull||0) + 1;
+    plogEvent(full ? 'life picked up (already at maximum)' : 'life picked up', 'good');
+  }
+}
+// A support call, with what it cost.
+function plogCall(a, kind){
+  if(!PL || !a) return;
+  PL.calls.push(plogName(a));
+  PL.tUsed[kind] = (PL.tUsed[kind]||0) + 1;
+  plogEvent('called '+plogName(a)+' (-1 '+kind+' ticket)', 'info');
+  PL._tickets = Object.assign({}, tickets);
+}
+// Tickets turned into a bigger one: neither used nor earned.
+function plogRefine(kind, n, up){
+  if(!PL) return;
+  PL.refined.push(n+' '+kind+' -> 1 '+up);
+  plogEvent('refined '+n+' '+kind+' -> 1 '+up, 'info');
+  PL._tickets = Object.assign({}, tickets);
 }
 function plogHit(b){ if(PL && b && !b.ally && !b.sec && !b.shard) PL.hits++; }
 function plogSec(){ if(PL) PL.secFired++; }
@@ -2851,7 +2864,6 @@ function plogTick(){
     if(d>0){ PL.tGot[k] = (PL.tGot[k]||0) + d; plogEvent('+'+d+' '+k+' ticket', 'good'); }
     else if(d<0){ PL.tUsed[k] = (PL.tUsed[k]||0) - d; plogEvent(d+' '+k+' ticket', 'info'); }
   }
-  if(lives > PL._lives){ PL.picked.life = (PL.picked.life||0) + (lives-PL._lives); plogEvent('life picked up', 'good'); }
   const dh = PL._hp - player.hp, dsh = PL._sh - player.sh;
   if(dh>0){ PL.hull += dh; const k = PL.src || 'other'; PL.dmgBy[k] = (PL.dmgBy[k]||0) + dh; }
   if(dsh>0) PL.shield += dsh;
@@ -2895,8 +2907,12 @@ function plogText(){
     L.push('  objectives: '+o.ok+' complete, '+o.bad+' failed'+
            (r.cards.length ? '  ['+r.cards.map(c=>c.head+': '+c.txt).join(' | ')+']' : ''));
     L.push('  deaths '+r.deaths.length+(r.deaths.length ? '  ['+r.deaths.map(d=>plogTime(d.t)+' '+d.cause).join(' | ')+']' : ''));
-    L.push('  picked up: lives '+(r.picked.life||0)+', repairs '+(r.picked.repair||0));
-    L.push('  tickets in '+JSON.stringify(r.tGot)+', out '+JSON.stringify(r.tUsed));
+    L.push('  picked up: lives '+(r.picked.life||0)+
+           (r.picked.lifeFull ? ' ('+r.picked.lifeFull+' at the maximum)' : '')+
+           ', repairs '+(r.picked.repair||0));
+    L.push('  tickets in '+JSON.stringify(r.tGot)+', out '+JSON.stringify(r.tUsed)+
+           (r.calls.length ? '  calls ['+r.calls.join(', ')+']' : '')+
+           (r.refined.length ? '  refined ['+r.refined.join(', ')+']' : ''));
     L.push('  damage taken: hull '+Math.round(r.hull)+', shield '+Math.round(r.shield)+
            '  by source '+Object.keys(r.dmgBy).map(x=>x+' '+Math.round(r.dmgBy[x])).join(', '));
     L.push('  kills: fighters/bombers '+k.small+', capital ships '+k.cap+
@@ -3035,7 +3051,10 @@ function drawPlog(){
       'bolts '+r.bolts+', hits '+r.hits+(r.bolts?' ('+Math.round(100*r.hits/r.bolts)+' %)':'')+
         ', secondaries '+r.secFired+', rearms '+r.rearms,
       'tickets in '+(Object.keys(r.tGot).map(x=>x+' '+r.tGot[x]).join(', ')||'-')+
-        ', out '+(Object.keys(r.tUsed).map(x=>x+' '+r.tUsed[x]).join(', ')||'-'),
+        ', out '+(Object.keys(r.tUsed).map(x=>x+' '+r.tUsed[x]).join(', ')||'-')+
+        (r.refined.length ? ', refined '+r.refined.length+'x' : ''),
+      'lives picked up '+(r.picked.life||0)+(r.picked.lifeFull ? ' ('+r.picked.lifeFull+' at max)' : '')+
+        ', repairs '+(r.picked.repair||0)+', calls '+(r.calls.join(', ')||'-'),
       'allies lost '+r.allyLost+', protected lost '+r.lost+' / through '+r.saved
     ];
     ctx.font = thValue(10, false);

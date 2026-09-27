@@ -1295,6 +1295,7 @@ function updateItems(){
           barPulse('hull', player.hp >= player.maxHp);
           player.hp = Math.min(player.maxHp, player.hp + player.maxHp*REPAIR_PCT);
         } else if(it.kind==='life'){
+          plogPick('life', lives >= LIVES_MAX);
           barPulse('lives', lives >= LIVES_MAX);
           lives = Math.min(LIVES_MAX, lives+1);
         } else {
@@ -1495,6 +1496,7 @@ function refineTicket(kind){
   tickets[kind] -= REFINE_COST;
   const up = REFINE_UP[kind];
   tickets[up] = (tickets[up]||0) + 1;
+  plogRefine(kind, REFINE_COST, up);
   ticketFlash = 90; ticketFlashKind = up;
   barPulse('ticket:'+up);
   return true;
@@ -1763,6 +1765,7 @@ function callAlly(id){
   initSubsystems(a);
   tickets[allyTicket(id)]--;
   STATS.escortsCalled++;
+  plogCall(a, allyTicket(id));
   if(!a.colossus) assignStation(a);   // she has one station and it is the top
   allies.push(a);
   setCallMenu(false);
@@ -2246,9 +2249,7 @@ function drawBombPortals(){
     ctx.globalAlpha=wA;
     ctx.translate(p.x|0,p.y|0);
     ctx.scale(wS,wS);
-    ctx.drawImage(WARP_IMG,
-      (wF%WARP_COLS)*WARP_CELL, ((wF/WARP_COLS)|0)*WARP_CELL,
-      WARP_CELL, WARP_CELL, -WS/2, -WS/2, WS, WS);
+    drawWarpFrame(warpSeed(p), WS, false);
     ctx.restore();
     ctx.globalAlpha=1;
   }

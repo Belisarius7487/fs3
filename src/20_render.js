@@ -290,12 +290,52 @@ const WARP_IMG=document.getElementById('warp_img');
 // file is now baked into a frame sheet at build time and the frame is
 // picked from each ship's own warp progress, so every vortex opens and
 // closes with the ship that is coming through it.
-const WARP_COLS=9, WARP_CELL=100, WARP_FRAMES=75;
+// The size of one frame is read off the sheet: nine frames across, so
+// a 2304 pixel sheet has 256 pixel frames and the old one 100.
+const WARP_COLS=9, WARP_FRAMES=75;
 // The Knossos vortex, turquoise. Same frame sheet layout as the normal
 // one; should it ever be a single picture instead, it is drawn whole.
 const KNOSSOS_WARP_IMG=document.getElementById('warp_knossos_img');
 function knossosWarpOk(){
   return !!KNOSSOS_WARP_IMG && KNOSSOS_WARP_IMG.complete && KNOSSOS_WARP_IMG.naturalWidth>0;
+}
+// The glow behind the vortex, one per kind.
+const WARP_GLOW_IMG=document.getElementById('warp_glow_img');
+const KNOSSOS_GLOW_IMG=document.getElementById('warp_glow_knossos_img');
+function imgReady(im){ return !!im && im.complete && im.naturalWidth>0; }
+// One vortex frame at the current transform, centred, WS across, with
+// its glow behind it. knossos: the turquoise one of the portal.
+const WARP_GLOW_SIZE = 2.0;     // glow width as a multiple of the vortex
+// The frames are a loop, played at its own pace from the vortex's own
+// starting frame (seed), however long the vortex stays open.
+const WARP_FPS = 30;
+// Turn of the vortex, radians a second (1.6 is about a quarter turn).
+const WARP_SPIN = 1.6;
+function warpSeed(o){
+  if(o._wseed == null) o._wseed = Math.random()*WARP_FRAMES;
+  return o._wseed;
+}
+function drawWarpFrame(seed, WS, knossos){
+  const wF = Math.floor(fc*WARP_FPS/TICK_HZ + (seed||0)) % WARP_FRAMES;
+  const sheet = (knossos && imgReady(KNOSSOS_WARP_IMG)) ? KNOSSOS_WARP_IMG : WARP_IMG;
+  const glow  = (knossos && imgReady(KNOSSOS_GLOW_IMG)) ? KNOSSOS_GLOW_IMG : WARP_GLOW_IMG;
+  if(imgReady(glow)){
+    const G = WS*WARP_GLOW_SIZE, op = ctx.globalCompositeOperation;
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.drawImage(glow, -G/2, -G/2, G, G);
+    ctx.globalCompositeOperation = op;
+  }
+  if(!imgReady(sheet)) return;
+  // The vortex turns; the glow above stays level.
+  ctx.save();
+  ctx.rotate(fc*WARP_SPIN/TICK_HZ + (seed||0));
+  // A single picture rather than a sheet is drawn whole.
+  if(sheet.naturalWidth < WARP_COLS*40) ctx.drawImage(sheet, -WS/2, -WS/2, WS, WS);
+  else {
+    const C = sheet.naturalWidth/WARP_COLS;
+    ctx.drawImage(sheet, (wF%WARP_COLS)*C, ((wF/WARP_COLS)|0)*C, C, C, -WS/2, -WS/2, WS, WS);
+  }
+  ctx.restore();
 }
 const HULL_IMG=document.getElementById('hull_img');
 const WARP_SIZE=120; // Rendered size of the vortex in px

@@ -1008,6 +1008,19 @@ scenario('Practice log', 'm=42&practice=1', `
   r.cardShown = (function(){ let n=0; const _t=thPlate; thPlate=function(){ n++; return _t.apply(this, arguments); };
     try{ drawPlogCard(); } finally { thPlate=_t; } return n>0; })();
   const w = wave; FS.until(()=>wave===w+1, 6000, false, false);
+  // Lives: every pickup counts, also at the maximum.
+  lives = LIVES_MAX; const l0 = PL.picked.life||0;
+  // Plain updates: FS.step puts the lives back to 3 every step.
+  ITEMS.push({x:player.x, y:player.y, vx:0, vy:0, kind:'life', life:5000}); update(); update(); update();
+  r.lifeAtMaxCounted = (PL.picked.life||0)===l0+1 && PL.picked.lifeFull===1;
+  // A refit is neither used nor earned; a call is logged by name.
+  const u0 = plogSum(PL.tUsed), g0 = plogSum(PL.tGot);
+  tickets.cruiser = 10; PL._tickets = Object.assign({}, tickets);
+  refineTicket('cruiser'); FS.step(2);
+  r.refineNotUsed = plogSum(PL.tUsed)===u0 && plogSum(PL.tGot)===g0 && PL.refined.length===1;
+  const _ar = allyReady; allyReady = function(){ return true; };
+  const called = callAlly('ter_fenris'); allyReady = _ar; FS.step(2);
+  r.callLogged = called && PL.calls.length===1 && /FENRIS/.test(PL.calls[0]) && PL.tUsed.cruiser>=1;
   r.closedAndNext = PLOG.length===1 && PLOG[0].wave===42 && PL.wave===43;
   const t = plogText();
   r.textExport = /WAVE 42 - Die Hecate/.test(t) && /died: beam/.test(t) && /timeline:/.test(t);
@@ -1018,6 +1031,34 @@ scenario('Practice log', 'm=42&practice=1', `
   r.closesWithSettings = plogOpen===false;
   launchGame();
   r.newRunEmpty = PLOG.length===0;
+  return r;`);
+
+scenario('Warp sheets and the Sidhe', 'm=1', `
+  const r = {};
+  r.sidhe = priDef('scatter').name==='Sidhe';
+  // The frame size comes from the sheet: 256 in a 2304 sheet, 100 in the old one.
+  const mk = w=>{ const c=document.createElement('canvas'); c.width=w; c.height=w; c.complete=true; return c; };
+  const calls = []; const _d = ctx.drawImage;
+  ctx.drawImage = function(){ calls.push([...arguments].slice(1)); };
+  const _s = WARP_IMG;
+  try{
+    Object.defineProperty(WARP_IMG, 'naturalWidth', {value:2304, configurable:true});
+    Object.defineProperty(WARP_IMG, 'complete', {value:true, configurable:true});
+    drawWarpFrame(0, 200, false);
+    fc += 20; drawWarpFrame(0, 200, false);
+  } finally { ctx.drawImage = _d; }
+  const f = calls[calls.length-1] || [], f0 = calls[calls.length-2] || [];
+  r.cellFromSheet = f[2]===256 && f[3]===256;
+  // It keeps turning on its own clock, 30 frames a second: 20 steps later
+  // (0.2 s) it is 6 frames on, whatever the jump is doing.
+  const idx = a=>Math.round(a[0]/256) + 9*Math.round(a[1]/256);
+  r.turnsOnItsOwn = ((idx(f) - idx(f0) + 75) % 75)===6;
+  // And it spins: the angle it is drawn at moves on with the clock.
+  const rots = []; const _r = ctx.rotate, _d2 = ctx.drawImage;
+  ctx.rotate = function(a){ rots.push(a); return _r.apply(this, arguments); };
+  ctx.drawImage = function(){};
+  try { drawWarpFrame(0, 200, false); fc += 50; drawWarpFrame(0, 200, false); } finally { ctx.rotate = _r; ctx.drawImage = _d2; }
+  r.spins = rots.length===2 && Math.abs((rots[1]-rots[0]) - 50*WARP_SPIN/TICK_HZ) < 1e-6;
   return r;`);
 
 scenario('allied craft hold fire with nothing to shoot', 'm=44', `
