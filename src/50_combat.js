@@ -467,6 +467,7 @@ function addShake(mag, dur){
 // or shot down in flight produced nothing at all, and that is the only
 // kind of bomb detonation most of a run contains.
 function bombBlast(x, y){
+  sndPlay('sec_cyclops_hit', x);
   spawnFireball(x,y,52,44);
   spawnRing(x,y,86,36,4,255,225,170);
   spawnRing(x,y,52,52,2,255,255,215);
@@ -816,6 +817,7 @@ function pShoot(){
   const nx=Math.cos(a), ny=Math.sin(a);
   // Speed, damage, colour and reach all come off the fitted gun now.
   const wp=curPri();
+  sndPlay(PRI_SND[wp.key] || 'wpn_prometheus', player.x);
   const bvx=nx*wp.spd, bvy=ny*wp.spd;
   // range is a distance, the bullet counts steps, so one is turned into
   // the other here rather than at every place that makes a bullet.
@@ -1146,6 +1148,7 @@ function smallFire(e, t){
     shot(e.x,e.y, aim+(Math.random()*2-1)*spread, dpb);
     if(e.type==='bomber') shot(e.x,e.y, aim+(Math.random()*2-1)*spread, dpb);
   }
+  sndAiShot(e.x);
   e.fT=e.fR;
 }
 
@@ -1515,6 +1518,7 @@ function subHit(e, dmg, hx, hy){
   s.hp -= dmg;
   if(s.hp <= 0){
     s.dead = true;
+    sndPlay('sub_destroyed', e.x);
     if(e.side!=='ally') STATS.subsKilled++;
     const p = subPos(e, s);
     spawnFireball(p.x, p.y, 34, 28);
@@ -1859,6 +1863,7 @@ function initWeapons(e){
 function eSecondary(x, y, fac, s){
   const ang = Math.atan2(player.y-y, player.x-x);
   const isBomb = (s.type === 'bomb');
+  sndAiSec(x, isBomb);
   eBullets.push({
     x:x, y:y,
     vx:Math.cos(ang)*s.spd, vy:Math.sin(ang)*s.spd,
@@ -1913,6 +1918,7 @@ function aSecondary(x, y, fac, s){
   const tg = nearestEnemy(x, y);
   const ang = tg ? Math.atan2(tg.y-y, tg.x-x) : 0;
   const isBomb = (s.type === 'bomb');
+  sndAiSec(x, isBomb);
   pBullets.push({
     x:x, y:y,
     vx:Math.cos(ang)*s.spd, vy:Math.sin(ang)*s.spd,
@@ -2026,6 +2032,7 @@ function capitalFire(e){
         if(!gt) continue;
         const ga = Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x)
                  + (Math.random()-0.5)*0.10*eScat;
+        sndAiShot(pts[i].x);
         if(Math.random() < cfg.big) eBig(pts[i].x, pts[i].y, e.faction);
         else                        eSmall(pts[i].x, pts[i].y, e.faction, ga);
       }
@@ -2369,6 +2376,7 @@ function updateBeams(e) {
     // state forever, harmless but drawn across the screen until the ship
     // died. The battery has to be put down properly instead.
     for(const b of e.beams){
+      if(b.state==='charging') sndBeam(e, b, 'abort');
       if(b.state!=='idle'){ b.state='idle'; b.timer=1e9; b.target=null; }
     }
     return;
@@ -2389,7 +2397,10 @@ function updateBeams(e) {
         else {
           b.tgt = tgt;
           b.state='charging';
-          b.chargeMax = b.chargeT*(b.jit||1);
+          // As long as the charge sound runs up to the loop (see
+          // BEAM_SND_CHARGE). The pauses keep their spread.
+          b.chargeMax = beamChargeTicks(e, b);
+          sndBeam(e, b, 'charge');
           b.timer = b.chargeMax;
         }
       }
@@ -2398,10 +2409,11 @@ function updateBeams(e) {
       if(!targetAlive(e,b.tgt)){
         const alt = pickBeamTarget(e,b);
         if(alt) b.tgt = alt;
-        else { b.state='idle'; b.timer=45+Math.random()*45; continue; }
+        else { b.state='idle'; b.timer=45+Math.random()*45; sndBeam(e, b, 'abort'); continue; }
       }
       if(b.timer<=0) {
         b.state='firing'; b.timer=b.fireT;
+        sndBeam(e, b, 'fire');
         const mp=mountPos(e,b);
         const tg=b.tgt;
         b.angle=Math.atan2(tg.y-mp.y, tg.x-mp.x);
@@ -2481,7 +2493,7 @@ function platformCharging(self){
 // own hull. That part is drawn again on top of her, so the beam leaves
 // the ship that fires it instead of disappearing under her.
 function drawBeamRays(e, own) {
-  if(!e.beams) return;
+  if(!e.beams || e.warpOut>0) return;
   for(const b of e.beams) {
     if(b.state!=='firing') continue;
     const col=beamCol(e.faction, b.large);
@@ -2530,7 +2542,7 @@ function ownHullRun(e, x, y, a){
 // the stretch of the ray across her own hull. The rest of the ray is
 // drawn under all hulls by drawBeamRays(e) before the ships.
 function drawBeams(e) {
-  if(!e.beams) return;
+  if(!e.beams || e.warpOut>0) return;
   drawBeamRays(e, true);
   for(const b of e.beams) {
     const mp=mountPos(e,b);

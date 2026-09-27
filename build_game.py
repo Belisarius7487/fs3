@@ -432,6 +432,31 @@ def inline_assets(html):
     html, n = re.subn(r"@@FS3_ASSET:([A-Za-z0-9_./-]+)@@", repl, html)
     if n:
         print("Bilddateien eingebettet: %d" % n)
+    return inline_sounds(html)
+
+
+SOUND_MIME = {".mp3": "audio/mpeg", ".wav": "audio/wav", ".ogg": "audio/ogg"}
+
+
+def inline_sounds(html):
+    """Replace @@FS3_SOUND:path@@ tokens with data URIs. Unlike a picture a
+    missing sound does not stop the build: the token becomes an empty
+    string and the game leaves that sound silent."""
+    missing = []
+    def repl(m):
+        path = m.group(1)
+        ext = os.path.splitext(path)[1].lower()
+        if ext not in SOUND_MIME or not os.path.isfile(path):
+            missing.append(path)
+            return ""
+        with open(path, "rb") as fh:
+            data = fh.read()
+        return "data:%s;base64,%s" % (SOUND_MIME[ext], base64.b64encode(data).decode("ascii"))
+    html, n = re.subn(r"@@FS3_SOUND:([A-Za-z0-9_./-]+)@@", repl, html)
+    if n:
+        print("Sounddateien eingebettet: %d von %d" % (n - len(missing), n))
+    if missing:
+        print("Sounds fehlen (bleiben stumm): %s" % ", ".join(os.path.basename(p) for p in missing))
     return html
 
 

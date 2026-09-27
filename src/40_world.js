@@ -1829,6 +1829,7 @@ function allyFire(a){
         ang += (Math.random()-0.5)*0.06*aScat;    // slight spread, wide when blind
         ang = Math.max(-1.15, Math.min(1.15, ang)); // never fire backwards
       }
+      sndAiShot(pts[i].x);
       pBullets.push({x:pts[i].x, y:pts[i].y,
         vx: Math.cos(ang)*spd, vy: Math.sin(ang)*spd,
         w: big?13:11, h: big?13:4,

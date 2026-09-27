@@ -977,7 +977,7 @@ scenario('Practice mode', 'm=40&practice=1', `
 scenario('Practice log', 'm=42&practice=1', `
   const r = {};
   FS.step(200);
-  r.recording = !!PL && PL.wave===42 && PL.name==='Die Hecate';
+  r.recording = !!PL && PL.wave===42 && PL.name==='The Hecate';
   // A death by a beam of a named ship.
   const v = enemies.find(e=>e.beams && e.beams.length) || enemies[0];
   plogSrc('beam', v); player.hp = 0; playerDie(); FS.step(2);
@@ -1023,7 +1023,7 @@ scenario('Practice log', 'm=42&practice=1', `
   r.callLogged = called && PL.calls.length===1 && /FENRIS/.test(PL.calls[0]) && PL.tUsed.cruiser>=1;
   r.closedAndNext = PLOG.length===1 && PLOG[0].wave===42 && PL.wave===43;
   const t = plogText();
-  r.textExport = /WAVE 42 - Die Hecate/.test(t) && /died: beam/.test(t) && /timeline:/.test(t);
+  r.textExport = /WAVE 42 - The Hecate/.test(t) && /died: beam/.test(t) && /timeline:/.test(t);
   // The table draws, and a new run starts an empty log.
   setSettings(true); plogOpen = true; draw();
   r.tableDraws = (window._plogRects||[]).some(x=>x.act==='copy');
@@ -1259,6 +1259,49 @@ scenario('M48 Die Aufklaerung', 'm=48', `
 
 scenario('Colossus beams are Terran', '', `
   return {main: beamCol('gtva', true)==='#00ff55', antiFighter: beamCol('gtva', false)==='#4499ff'};`, true);
+
+scenario('Sound build: beams, log, names', 'm=52', `
+  const r = {};
+  // No sound before the first input, and nothing breaks for it.
+  r.silentUntilInput = sndCtx===null;
+  let threw = false;
+  try{ sndPlay('expl_big', 100); sndAiShot(100); sndTick(); }catch(ex){ threw = true; }
+  r.soundCallsSafe = !threw;
+  // Charge times as long as the charge sounds run up to the loop.
+  const T = (img, fac, large) => beamChargeTicks({img:img, faction:fac}, {large:large});
+  r.chargeTerranLarge  = T('ntfdeorion', 'ntf', true) === 3*TICK_HZ;
+  r.chargeTervasSmall  = T('ntfdeorion', 'ntf', false) === 1.5*TICK_HZ;
+  r.chargeVasLarge     = T('dehatshepsut', 'vasudan', true) === 2*TICK_HZ;
+  r.chargeShivanSmall  = T('dedemon', 'shivan', false) === 1*TICK_HZ;
+  r.chargeShivanLarge  = T('dedemon', 'shivan', true) === 1.5*TICK_HZ;
+  r.chargeLucifer      = T('sdlucifer', 'shivan', true) === 3*TICK_HZ;
+  // A ship jumping out takes its beams along.
+  FS.step(300);
+  const sh = enemies.concat(allies).find(x => x.beams && x.beams.length && !(x.warp>0));
+  r.beamShipFound = !!sh;
+  if(sh){
+    for(const b of sh.beams){ b.state='firing'; b.angle=Math.PI; b.curAngle=Math.PI; }
+    let n = 0; const st = ctx.stroke;
+    ctx.stroke = function(){ n++; return st.apply(this, arguments); };
+    sh.warpOut = 0; drawBeams(sh); const firing = n;
+    n = 0; sh.warpOut = 50; drawBeams(sh); const jumping = n;
+    ctx.stroke = st;
+    r.beamDrawnWhileFiring = firing > 0;
+    r.noBeamWhileJumpingOut = jumping === 0;
+    sh.warpOut = 0;
+  }
+  // The log's scroll arrows win over the row beneath them.
+  window._plogRects = [{x:0, y:0, w:500, h:20, act:'row', n:7}, {x:400, y:0, w:26, h:18, act:'up'}];
+  plogSel = 2; plogTop = 9;
+  plogClick(410, 5);
+  r.arrowScrolls = plogTop < 9 && plogSel === 2;
+  plogClick(100, 5);
+  r.rowStillOpens = plogSel === 7;
+  // Mission names in English.
+  const german = Object.keys(SCRIPT_WAVES).filter(k => /^(Der|Die|Das) |ue|oe|ae|Erstkontakt|Nachschub|Begegnung/.test(SCRIPT_WAVES[k].name));
+  r.namesEnglish = german.length === 0;
+  if(german.length) r.germanLeft = german.join(',');
+  return r;`);
 
 scenario('HoL start unchanged', 'm=1', `
   return {wave: wave, thoth: player.ship==='fitoth', vasudanCall: ALLY_FAC_ON.vasudan===true && ALLY_FAC_ON.terran===false};`);

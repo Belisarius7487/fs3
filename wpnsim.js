@@ -68,6 +68,7 @@ function shipFac(k){ return 'vasudan'; }
 function shipStats(k){ return {sec: isBomberHull(k) ? 10 : 20}; }
 function spawnFireball(){} 
 // The practice log is not what is tested here.
+function sndPlay(){} function sndAiShot(){} function sndAiSec(){} function sndExpl(){} function sndBeam(){} const PRI_SND = {};
 function plogKill(){} function plogRearm(){} function plogSec(){} function plogHit(){} function plogPick(){} function plogSrc(){} function plogLoss(){} function plogEvent(){} function plogName(){ return ''; } function plogAllyLost(){} function plogDeath(){} function plogSync(){}
 function spawnDebris(){}
 function spawnRing(){}

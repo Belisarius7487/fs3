@@ -1,6 +1,9 @@
 sprites/
 *.png
 *.webp
+*.mp3
+*.wav
+*.ogg
 *.jpg
 __pycache__/
 *.pyc

@@ -364,6 +364,7 @@ function tickScan(){
       if(e.scanT>=SCAN_TIME){
         e.scanned = true;
         score += 200;
+        sndPlay('scan', e.x);
         if(STATS.scans==null) STATS.scans=0;
         STATS.scans++;
         SUB_MSGS.push({x:e.x, y:e.y, txt:'SCAN COMPLETE',
@@ -398,6 +399,7 @@ function tickSubScan(){
       else if(s.scanT>0) s.scanT = Math.max(0, s.scanT-SCAN_DECAY);
       if(s.scanT >= SUB_SCAN_TIME){
         s.scanned = true; score += 100;
+        sndPlay('scan', e.x);
         const p = subPos(e, s);
         SUB_MSGS.push({x:p.x, y:p.y-18, txt:s.label+' SCANNED', life:170, ml:170,
                        ally:true, tone:'good'});
@@ -1636,18 +1638,18 @@ function rollWave(n){
 //           side:'ally', t:Sekunde, x, y, hp:Faktor, wait:true}
 // wait heisst: kommt nur, wenn ein Ereignis es einwarpen laesst.
 const SCRIPT_WAVES = {
-  1: {name:'Erstkontakt', fac:'hol', o:'clear', live:4, u:[
+  1: {name:'First Contact', fac:'hol', o:'clear', live:4, u:[
        {id:'E1', c:'fi', n:3}
      ]},
 
-  2: {name:'Geschuetzstellung', fac:'hol', o:'clear', live:4, u:[
+  2: {name:'The Gun Emplacement', fac:'hol', o:'clear', live:4, u:[
        {id:'G1', c:'sg', n:6, spr:'sgankh'},
        {id:'E1', c:'fi', n:2, wait:true}
      ], ev:[
        {t:'alleZerstoert', a:'G1', w:'einwarpen', a2:'E1'}
      ]},
 
-  3: {name:'Nachschub', fac:'hol', o:'clear', live:4, u:[
+  3: {name:'Reinforcements', fac:'hol', o:'clear', live:4, u:[
        {id:'E1', c:'fi', n:2},
        {id:'K1', c:'cr', n:1, spr:'craten', wait:true},
        {id:'E2', c:'fi', n:1, wait:true}
@@ -1658,7 +1660,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'K1', w:'nachschub', a2:'aus'}
      ]},
 
-  6: {name:'Begegnung', fac:'hol', o:'guard', live:5, u:[
+  6: {name:'Encounter', fac:'hol', o:'guard', live:5, u:[
        {id:'A1', c:'co', n:1, spr:'cosobek', side:'ally'},
        {id:'V1', c:'co', n:1, spr:'cosobek'},
        {id:'E1', c:'fi', n:2},
@@ -1669,7 +1671,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'V1', w:'nachschub', a2:'aus'}
      ]},
 
-  7: {name:'Der Angriff', fac:'hol', o:'guard', live:5, u:[
+  7: {name:'The Assault', fac:'hol', o:'guard', live:5, u:[
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally'},
        {id:'V1', c:'de', n:1, spr:'detyphon'},
        {id:'E1', c:'fi', n:1},
@@ -1681,7 +1683,7 @@ const SCRIPT_WAVES = {
        {t:'zerstoert', a:'V1', w:'nachschub', a2:'aus'}
      ]},
 
-  8: {name:'Der Rueckzug', fac:'hol', o:'guard', live:4, u:[
+  8: {name:'The Retreat', fac:'hol', o:'guard', live:4, u:[
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:0.88},
        {id:'B1', c:'bo', n:2},
        {id:'B2', c:'bo', n:2, wait:true}
@@ -1689,7 +1691,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'B2'}
      ]},
 
-  13:{name:'Die Transporter', fac:'hol', o:'protect', live:4, hunt:'T1', stillRocks:true, u:[
+  13:{name:'The Transports', fac:'hol', o:'protect', live:4, hunt:'T1', stillRocks:true, u:[
        {id:'T1', c:'tr', n:2, spr:'trisis', side:'ally', cross:0.42, x:-40},
        {id:'R1', c:'ast', n:26},
        {id:'E1', c:'fi', n:2},
@@ -1698,7 +1700,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
      ]},
 
-  14:{name:'Die Tarnung', fac:'hol', o:'clear', live:5, u:[
+  14:{name:'The Stealth', fac:'hol', o:'clear', live:5, u:[
        {id:'A1', c:'fi', n:2, side:'ally'},
        {id:'E1', c:'fi', n:3}
      ], ev:[
@@ -1706,7 +1708,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'seite', a2:'A1'}
      ]},
 
-  15:{name:'Der Vorratsspeicher', fac:'hol', o:'clear', live:4, stillRocks:true, u:[
+  15:{name:'The Supply Depot', fac:'hol', o:'clear', live:4, stillRocks:true, u:[
        {id:'C1', c:'fc', n:5, spr:'fcvc3'},
        {id:'G1', c:'sg', n:3, spr:'sgankh'},
        {id:'R1', c:'ast', n:34},
@@ -1715,7 +1717,7 @@ const SCRIPT_WAVES = {
        {t:'anzahlUnter', a:'C1', b:3, w:'einwarpen', a2:'E1'}
      ]},
 
-  16:{name:'Die Meuterei', fac:'hol', o:'guard', live:5, u:[
+  16:{name:'The Mutiny', fac:'hol', o:'guard', live:5, u:[
        {id:'A1', c:'cr', n:1, spr:'craten', side:'ally'},
        {id:'A2', c:'fi', n:2, side:'ally'},
        {id:'E1', c:'fi', n:3},
@@ -1728,14 +1730,14 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'A2', w:'nachschub', a2:'aus'}
      ]},
 
-  4: {name:'Der Ausbrecher', fac:'hol', o:'clear', live:5, u:[
+  4: {name:'The Breakout', fac:'hol', o:'clear', live:5, u:[
        // Sie ist angeschlagen und faehrt nach rechts. Wer sie ziehen
        // laesst, verliert Punkte - das ist die ganze Uhr dieser Welle.
        {id:'V1', c:'co', n:1, spr:'cosobek', hp:0.55, escape:0.30, x:-40},
        {id:'E1', c:'fi', n:2}
      ]},
 
-  25:{name:'Die Flucht', fac:'hol', o:'clear', live:5, u:[
+  25:{name:'The Escape', fac:'hol', o:'clear', live:5, u:[
        {id:'F1', c:'fr', n:2, spr:'frbast', escape:0.55, x:-40},
        {id:'T1', c:'tr', n:1, spr:'trisis', escape:0.62, x:-40},
        {id:'E1', c:'fi', n:2}
@@ -1744,7 +1746,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'F1', w:'nachschub', a2:'aus'}
      ]},
 
-  5: {name:'Durch den Guertel', fac:'hol', o:'guard', live:4,
+  5: {name:'Through the Belt', fac:'hol', o:'guard', live:4,
       stillRocks:true, crossEnds:true, u:[
        {id:'A1', c:'co', n:1, spr:'codeimos', side:'ally', crossSecs:55},
        {id:'R1', c:'ast', n:30},
@@ -1757,7 +1759,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst',     a:'A1', w:'nachschub', a2:'aus'}
      ]},
 
-  12:{name:'Die Fracht', fac:'hol', o:'scan', live:5, hunt:'C1', u:[
+  12:{name:'The Cargo', fac:'hol', o:'scan', live:5, hunt:'C1', u:[
        {id:'C1', c:'fc', n:4, spr:'fcvc3', scan:true},
        {id:'E1', c:'fi', n:2, wait:true}
      ], ev:[
@@ -1769,7 +1771,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert',a:'C1', w:'nachschub', a2:'aus'}
      ]},
 
-  17:{name:'Die Tsunami', fac:'hol', o:'clear', live:6, u:[
+  17:{name:'The Tsunami', fac:'hol', o:'clear', live:6, u:[
        {id:'K1', c:'cr', n:1, spr:'craten'},
        {id:'K2', c:'cr', n:1, spr:'crmentu'},
        // n counts wings, not ships: one wing is WING_MIN..WING_MAX
@@ -1799,7 +1801,7 @@ const SCRIPT_WAVES = {
        {id:'K2', c:'fi', n:3, wait:true, ram:true}
      ]},
 
-  26:{name:'Das Minenfeld', fac:'hol', o:'guard', live:4,
+  26:{name:'The Minefield', fac:'hol', o:'guard', live:4,
       stillRocks:true, crossEnds:true, u:[
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', crossSecs:70, hp:1.5},
        {id:'R1', c:'ast', n:40},
@@ -1810,7 +1812,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'A1', w:'nachschub', a2:'aus'}
      ]},
 
-  10:{name:'Die Werft', fac:'hol', o:'guard', live:5, u:[
+  10:{name:'The Shipyard', fac:'hol', o:'guard', live:5, u:[
        // Die Arcadia ist ein Ort, kein Gegner: unverwundbar und zu zwei
        // Dritteln ausserhalb des rechten Randes.
        {id:'S1', c:'in', n:1, spr:'inarcadia', invuln:true, edge:0.36},
@@ -1823,7 +1825,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'aus'}
      ]},
 
-  11:{name:'Der Sturm', fac:'hol', o:'guard', live:5, keepSky:true, u:[
+  11:{name:'The Storm', fac:'hol', o:'guard', live:5, keepSky:true, u:[
        {id:'S1', c:'in', n:1, spr:'inarcadia', invuln:true, edge:0.36},
        {id:'V1', c:'de', n:1, spr:'detyphon'},
        {id:'A1', c:'cr', n:1, spr:'craten', side:'ally'},
@@ -1834,7 +1836,7 @@ const SCRIPT_WAVES = {
        {t:'zerstoert', a:'V1', w:'ende', a2:''}
      ]},
 
-  19:{name:'Der Tempel', fac:'hol', o:'clear', live:5, u:[
+  19:{name:'The Temple', fac:'hol', o:'clear', live:5, u:[
        // Hier ist die Installation das Ziel, also verwundbar.
        {id:'S1', c:'in', n:1, spr:'inarcadia', hp:2.2, x:560},
        {id:'G1', c:'sg', n:8, spr:'sgankh'},
@@ -1846,7 +1848,7 @@ const SCRIPT_WAVES = {
        {t:'zerstoert', a:'S1', w:'nachschub', a2:'aus'}
      ]},
 
-  22:{name:'Der Fluechtling', fac:'hol', o:'clear', live:5, u:[
+  22:{name:'The Fugitive', fac:'hol', o:'clear', live:5, u:[
        // Er faehrt nach rechts und du kommst nicht an ihn heran, solange
        // die Geschuetze stehen. Genau das ist die Mission.
        {id:'V1', c:'de', n:1, spr:'detyphon', escape:0.22, x:-60},
@@ -1854,7 +1856,7 @@ const SCRIPT_WAVES = {
        {id:'E1', c:'fi', n:2}
      ]},
 
-  20:{name:'Die Ueberlebenden', fac:'hol', o:'clear', live:6, hunt:'K1', u:[
+  20:{name:'The Survivors', fac:'hol', o:'clear', live:6, hunt:'K1', u:[
        // Er steht brennend im Feld und wird bereits beschossen. Zu retten
        // ist er nicht: solange er lebt, kommt Nachschub, und jeder frueh
        // getoetete Jaeger verlaengert nur sein Leben - und damit die Zahl
@@ -1871,7 +1873,7 @@ const SCRIPT_WAVES = {
        {t:'zerstoert', a:'K1', w:'jagd', a2:'P1'}
      ]},
 
-  24:{name:'Der Hinterhalt', fac:'hol', o:'clear', live:6, u:[
+  24:{name:'The Ambush', fac:'hol', o:'clear', live:6, u:[
        {id:'A1', c:'fi', n:2, side:'ally'},
        {id:'E1', c:'fi', n:3},
        {id:'V1', c:'cr', n:2, spr:'craten', wait:true}
@@ -1881,7 +1883,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'V1'}
      ]},
 
-  28:{name:'Der Rammstoss', fac:'hol', o:'guard', live:5, u:[
+  28:{name:'The Ramming', fac:'hol', o:'guard', live:5, u:[
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:1.1, still:true},
        {id:'V1', c:'cr', n:1, spr:'crmentu', capRam:0.9, still:true},
        {id:'E1', c:'fi', n:2}
@@ -1889,7 +1891,7 @@ const SCRIPT_WAVES = {
        {t:'sek', a:2, w:'meldung', a2:'cruiser on ramming course'}
      ]},
 
-  30:{name:'Der Boss', fac:'hol', o:'clear', live:6, u:[
+  30:{name:'The Boss', fac:'hol', o:'clear', live:6, u:[
        // Die Hatshepsut, die du vier Wellen lang beschuetzt hast, steht
        // mit im Feld. Faellt eines der beiden feindlichen Schiffe, kommt
        // die dritte - erst dann ist Platz fuer sie.
@@ -1907,7 +1909,7 @@ const SCRIPT_WAVES = {
        {t:'zerstoert', a:'V3', w:'nachschub', a2:'aus'}
      ]},
 
-  9: {name:'Der Konvoi', fac:'hol', o:'protect', live:6, hunt:'F1', u:[
+  9: {name:'The Convoy', fac:'hol', o:'protect', live:6, hunt:'F1', u:[
        // Aten und zwei Frachter queren gemeinsam. Die Container haengen
        // an den Frachtern, sobald sie angedockt haben.
        {id:'A1', c:'cr', n:1, spr:'craten', side:'ally', crossSecs:75},
@@ -1920,7 +1922,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'A1', w:'nachschub', a2:'aus'}
      ]},
 
-  23:{name:'Die Abholung', fac:'hol', o:'scan', live:6, hunt:'C1', u:[
+  23:{name:'The Pickup', fac:'hol', o:'scan', live:6, hunt:'C1', u:[
        {id:'C1', c:'fc', n:3, spr:'fcvc3', scan:true, x:200},
        {id:'E1', c:'fi', n:2},
        {id:'F1', c:'fr', n:2, spr:'frbast', side:'ally', cross:0.34, x:-40,
@@ -1933,7 +1935,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'F1', w:'nachschub', a2:'aus'}
      ]},
 
-  27:{name:'Die Reparatur', fac:'hol', o:'guard', live:6, u:[
+  27:{name:'The Repair', fac:'hol', o:'guard', live:6, u:[
        // Jeder angedockte Transporter setzt den Rumpf ein Viertel hoch.
        // Wer schlecht verteidigt, wartet laenger - das ist die Uhr.
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:0.30, still:true},
@@ -1953,12 +1955,12 @@ const SCRIPT_WAVES = {
        {t:'angedockt', a:'T3', w:'nachschub', a2:'aus'}
      ]},
 
-  21:{name:'Die Sperre', fac:'hol', o:'clear', live:4, u:[
+  21:{name:'The Barricade', fac:'hol', o:'clear', live:4, u:[
        {id:'K1', c:'cr', n:3, spr:'craten', lanes:true},
        {id:'E1', c:'fi', n:2}
      ]},
 
-  29:{name:'Die Blockade', fac:'hol', o:'guard', live:5, u:[
+  29:{name:'The Blockade', fac:'hol', o:'guard', live:5, u:[
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:1.1},
        {id:'V1', c:'co', n:2, spr:'cosobek', hp:0.7},
        {id:'E1', c:'fi', n:2}
@@ -1971,7 +1973,7 @@ const SCRIPT_WAVES = {
   // Waves 31 to 60. The player flies Terran hulls from here on, see
   // CYCLES. The thread through the cycle is the Iceni: 36, 47 and 60.
 
-  31:{name:'Der Aufstand', fac:'ntf', o:'clear', live:4, u:[
+  31:{name:'The Uprising', fac:'ntf', o:'clear', live:4, u:[
        // A patrol with a Leviathan. When the first NTF wing is down, she
        // goes over - as the NTF hull - and has to be taken down as well.
        // Until then she cannot die: the turn is the point of the mission.
@@ -1985,7 +1987,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
      ]},
 
-  32:{name:'Die Frachtroute', fac:'ntf', o:'protect', live:5, hunt:'F1', u:[
+  32:{name:'The Freight Route', fac:'ntf', o:'protect', live:5, hunt:'F1', u:[
        // Two Poseidons cross. Medusa bombers go for them, with fighters
        // along to keep the player busy.
        {id:'F1', c:'fr', n:2, spr:'frposeidon', side:'ally', cross:0.40, x:-40},
@@ -1998,7 +2000,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'E2'}
      ]},
 
-  33:{name:'Die Relaisstation', fac:'ntf', o:'clear', live:5,
+  33:{name:'The Relay Station', fac:'ntf', o:'clear', live:5,
       ziel:'DESTROY THE FAUSTUS RELAY', u:[
        // A Faustus parked as a relay. While she stands, wings keep coming.
        // Weak hull, few guns, no flak - and a big blast when she goes.
@@ -2012,7 +2014,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'S1', w:'zielerfuellt', a2:'RELAY DESTROYED'}
      ]},
 
-  34:{name:'Die Flakwand', fac:'ntf', o:'clear', live:5, u:[
+  34:{name:'The Flak Wall', fac:'ntf', o:'clear', live:5, u:[
        // Two NTF Aeolus throwing flak. Once the first wing is down an
        // Orion arrives, and with her the hangar: a bomber is the answer.
        {id:'K1', c:'cr', n:2, spr:'ntfcraeolus'},
@@ -2025,7 +2027,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
      ]},
 
-  35:{name:'Der Ueberlaeufer', fac:'ntf', o:'guard', live:5, hunt:'A1',
+  35:{name:'The Defector', fac:'ntf', o:'guard', live:5, hunt:'A1',
       crossEnds:true, u:[
        // An NTF Deimos coming over to the GTVA, still in NTF markings.
        // She crosses right to left, away from the NTF side, and her own
@@ -2048,7 +2050,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'A1', w:'ende', a2:''}
      ]},
 
-  36:{name:'Die Iceni', fac:'ntf', o:'clear', live:5, u:[
+  36:{name:'The Iceni', fac:'ntf', o:'clear', live:5, u:[
        // First meeting. She cannot be had yet: a short deadline and no
        // navigation subsystem to stop the jump. Her getting away costs
        // nothing - but she comes back heavier, as she always does.
@@ -2060,7 +2062,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
      ]},
 
-  37:{name:'Die Unsichtbaren', fac:'ntf', o:'clear', live:5, u:[
+  37:{name:'The Unseen', fac:'ntf', o:'clear', live:5, u:[
        // Lokis, and more than one lot of them. No missile holds one, so
        // this is a gun fight - they are in plain sight all the same.
        {id:'E1', c:'fi', n:2, spr:'filoki'},
@@ -2071,7 +2073,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E2', w:'einwarpen', a2:'E3'}
      ]},
 
-  38:{name:'Die Kaperung', fac:'ntf', o:'clear', live:5,
+  38:{name:'The Boarding', fac:'ntf', o:'clear', live:5,
       ziel:'DISABLE THE DEIMOS - ENGINES AND WEAPONS', u:[
        // An NTF Deimos makes for the right edge and jumps there. With
        // her engines AND her weapons down an Elysium comes to take her -
@@ -2095,7 +2097,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'D1', w:'zielverfehlt', a2:'THE DEIMOS GOT AWAY'}
      ]},
 
-  39:{name:'Die Gasernte', fac:'ntf', o:'clear', live:5, mod:'nebula', u:[
+  39:{name:'The Gas Harvest', fac:'ntf', o:'clear', live:5, mod:'nebula', u:[
        // In a gas giant's haze. Three miners run for the right edge under
        // a Fenris. A miner goes up with a very big blast (BIG_BLAST) -
        // it takes the NTF fighters near it along, and the player too.
@@ -2111,7 +2113,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
      ]},
 
-  40:{name:'Der Sensorsturm', fac:'ntf', o:'guard', live:5, mod:'emp', u:[
+  40:{name:'The Sensor Storm', fac:'ntf', o:'guard', live:5, mod:'emp', u:[
        // An EMP storm, which is a nebula phenomenon: haze, and now and
        // then no lock for anybody. Three rounds of Hercules Mk II and
        // Ursa go for an Orion, with reinforcements until the last
@@ -2133,7 +2135,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'B3', w:'nachschub', a2:'aus'}
      ]},
 
-  41:{name:'Das Lazarett', fac:'ntf', o:'protect', live:5, hunt:'H1', u:[
+  41:{name:'The Hospital Ship', fac:'ntf', o:'protect', live:5, hunt:'H1', u:[
        // The Hippocrates crosses slowly, and her hull is weak. Medusa
        // and Ursa bombers go for her: the bombs have to be shot down.
        {id:'H1', c:'fr', n:1, spr:'mehippocrates', side:'ally', cross:0.25, x:-80},
@@ -2146,7 +2148,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'B2', w:'einwarpen', a2:'B3'}
      ]},
 
-  42:{name:'Die Hecate', fac:'ntf', o:'guard', live:5,
+  42:{name:'The Hecate', fac:'ntf', o:'guard', live:5,
       ziel:'DISABLE HECATE WEAPONS', u:[
        // An NTF Hecate against an Orion. Her beams would win that, so her
        // weapons subsystem comes first. Disarmed, she withdraws after the
@@ -2164,7 +2166,7 @@ const SCRIPT_WAVES = {
        {t:'zerstoert', a:'V1', w:'nachschub', a2:'aus'}
      ]},
 
-  43:{name:'Der NTF-Konvoi', fac:'ntf', o:'scan', live:5, scanUnderFire:true,
+  43:{name:'The NTF Convoy', fac:'ntf', o:'scan', live:5, scanUnderFire:true,
       ziel:'SCAN THE TRITONS', u:[
        // Three Tritons run for the right edge. They are to be scanned
        // before anything else - until then they cannot be destroyed -
@@ -2185,7 +2187,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'T1', w:'zielverfehlt', a2:'A TRITON GOT AWAY'}
      ]},
 
-  44:{name:'Der Schwarm', fac:'ntf', o:'clear', live:7, u:[
+  44:{name:'The Swarm', fac:'ntf', o:'clear', live:7, u:[
        // Wing after wing - the Tornado's hour. A Deimos to rearm at; one
        // allied wing arrives once the first enemy wing is down.
        // The Deimos launches no wings of her own here (noWings).
@@ -2203,7 +2205,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E2', w:'einwarpen', a2:'B1'}
      ]},
 
-  45:{name:'Das Nadeloehr', fac:'ntf', o:'guard', live:5, crossEnds:true,
+  45:{name:'The Bottleneck', fac:'ntf', o:'guard', live:5, crossEnds:true,
       noRocks:true,
       ziel:'GET THE ORION THROUGH', u:[
        // Three NTF Fenris hold the line, each in her own lane and
@@ -2221,7 +2223,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'A1', w:'ende', a2:''}
      ]},
 
-  46:{name:'Die Wissenschaftler', fac:'ntf', o:'clear', live:5,
+  46:{name:'The Scientists', fac:'ntf', o:'clear', live:5,
       ziel:'DISABLE THE FAUSTUS - NAVIGATION AND WEAPONS', u:[
        // A Faustus parked under guard. She jumps when her deadline runs
        // out - unless her navigation is gone. With navigation and weapons
@@ -2245,7 +2247,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'F1', w:'zielverfehlt', a2:'THE FAUSTUS GOT AWAY'}
      ]},
 
-  47:{name:'Die zweite Flucht', fac:'ntf', o:'clear', live:6,
+  47:{name:'The Second Escape', fac:'ntf', o:'clear', live:6,
       ziel:'DESTROY THE HECATE', u:[
        // A forlorn hope, and nobody on the player's side. The Iceni gets
        // away - forty seconds, and no navigation to shoot - and comes
@@ -2265,7 +2267,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'V2', w:'zielverfehlt', a2:'THE HECATE WITHDREW'}
      ]},
 
-  48:{name:'Die Aufklaerung', fac:'ntf', o:'clear', live:4, ship:'fipegasus',
+  48:{name:'The Reconnaissance', fac:'ntf', o:'clear', live:4, ship:'fipegasus',
       ziel:'SCAN THE NTD ORION - ALL FIVE SUBSYSTEMS', u:[
        // The player flies a Pegasus for this one. Nothing can lock her -
        // not the beams, not the missiles, not the destroyer's guns - but
@@ -2281,7 +2283,7 @@ const SCRIPT_WAVES = {
        {t:'gescannt', a:'V1', w:'raus', a2:'V1'}
      ]},
 
-  49:{name:'Das Reparaturdock', fac:'ntf', o:'clear', live:5,
+  49:{name:'The Repair Dock', fac:'ntf', o:'clear', live:5,
       ziel:'DESTROY THE DEIMOS BEFORE HER REPAIRS ARE DONE', u:[
        // In front of the Arcadia the NTF patches up a Deimos. Three
        // transports come one after another; each that docks puts a
@@ -2308,7 +2310,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'D1', w:'ende', a2:''}
      ]},
 
-  50:{name:'Der Durchbruch', fac:'ntf', o:'guard', live:5, crossEnds:true,
+  50:{name:'The Breakthrough', fac:'ntf', o:'guard', live:5, crossEnds:true,
       noRocks:true, ziel:'BREAK THE BLOCKADE - DESTROY AN AEOLUS', u:[
        // Two Aeolus and a line of sentry guns hold the field. Once one
        // Aeolus is down, an Orion comes through the gap and has to get
@@ -2328,7 +2330,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'A1', w:'ende', a2:''}
      ]},
 
-  51:{name:'Die Rueckeroberung', fac:'ntf', o:'clear', live:5,
+  51:{name:'The Recapture', fac:'ntf', o:'clear', live:5,
       ziel:'TAKE OUT THE WEAPONS OF THE ARCADIA', u:[
        // The NTF holds the Arcadia and her guns hold the field. With the
        // guns shot out an Elysium comes and boards her; until then she
@@ -2357,7 +2359,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'T2', w:'zielverfehlt', a2:'BOTH ELYSIUMS LOST'}
      ]},
 
-  52:{name:'Das Artilleriefeuer', fac:'ntf', o:'clear', live:5,
+  52:{name:'The Barrage', fac:'ntf', o:'clear', live:5,
       ziel:'STOP THE NTF SHIPS BEFORE THEY JUMP', u:[
        // A GTVA Mjolnir holds the field with a Deimos beside her. NTF
        // capital ships come one after another, each on a deadline. Kept
@@ -2398,7 +2400,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'V6', w:'zielverfehlt', a2:'THE ORION GOT AWAY'}
      ]},
 
-  53:{name:'Der Gegenangriff', fac:'ntf', o:'clear', live:6,
+  53:{name:'The Counterattack', fac:'ntf', o:'clear', live:6,
       ziel:'COVER THE FLEET', u:[
        // Our Orion and a Deimos. An NTF Hecate and an NTF Orion jump in
        // on top of them, bombers follow. Their loss is a blow, not the
@@ -2424,7 +2426,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'V1+V2', w:'zielerfuellt', a2:'COUNTERATTACK BROKEN'}
      ]},
 
-  54:{name:'Die Evakuierung', fac:'ntf', o:'protect', live:5, hunt:'T1',
+  54:{name:'The Evacuation', fac:'ntf', o:'protect', live:5, hunt:'T1',
       ziel:'GET THE ELYSIUMS OUT - AT LEAST THREE', u:[
        // Four Elysiums leave the Arcadia one after another and fly out
        // to the left, away from the NTF coming in from the right.
@@ -2452,7 +2454,7 @@ const SCRIPT_WAVES = {
 
   // 55, 58, 59 and 60 are the same place: the Knossos at the right edge,
   // under the same sky within a run (scene).
-  55:{name:'Der Anflug', fac:'ntf', o:'clear', live:5, scene:'knossos', portal:true,
+  55:{name:'The Approach', fac:'ntf', o:'clear', live:5, scene:'knossos', portal:true,
       ziel:'STOP THE CRUISERS BEFORE THEY REACH THE PORTAL', u:[
        // Four NTF cruisers come in from the left one after another and
        // make for the portal. None may reach it; engines out stops one.
@@ -2471,7 +2473,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'K1+K2+K3+K4', w:'zielerfuellt', a2:'ALL CRUISERS STOPPED'}
      ]},
 
-  56:{name:'Die Verraeter', fac:'ntf', o:'clear', live:5,
+  56:{name:'The Traitors', fac:'ntf', o:'clear', live:5,
       ziel:'COVER THE FLEET', u:[
        // A Leviathan and a Deimos of ours against fighters. Once the
        // first wing is down the Leviathan goes over to the NTF, and more
@@ -2491,7 +2493,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'A1', w:'zielerfuellt', a2:'TRAITOR DESTROYED'}
      ]},
 
-  57:{name:'Die Nachhut', fac:'ntf', o:'clear', live:5, ship:'boursa', sec:'stiletto',
+  57:{name:'The Rearguard', fac:'ntf', o:'clear', live:5, ship:'boursa', sec:'stiletto',
       ziel:'DISABLE THE REARGUARD - ENGINES AND WEAPONS OF ALL THREE', u:[
        // The player flies an Ursa with Stiletto bombs for this one. Two
        // Aeolus and a Deimos hold the rear; they are to be left dead in
@@ -2515,7 +2517,7 @@ const SCRIPT_WAVES = {
        {t:'subsystem', a:'K1+K2+D1', b:'engines+weapons', w:'kulisse', a2:'D1'}
      ]},
 
-  58:{name:'Das Tor', fac:'ntf', o:'clear', live:5, scene:'knossos', portal:true,
+  58:{name:'The Gate', fac:'ntf', o:'clear', live:5, scene:'knossos', portal:true,
       ziel:'BREAK THE DEFENCE IN FRONT OF THE PORTAL', u:[
        // In front of the portal: a line of sentry guns, a Fenris and an
        // Aeolus. Fighters until both cruisers are down.
@@ -2534,7 +2536,7 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'K1+K2+G1', w:'zielerfuellt', a2:'PORTAL DEFENCE BROKEN'}
      ]},
 
-  59:{name:'Die letzte Sperre', fac:'ntf', o:'clear', live:5, scene:'knossos', portal:true,
+  59:{name:'The Last Line', fac:'ntf', o:'clear', live:5, scene:'knossos', portal:true,
       ziel:'DESTROY THE HECATE AND THE ORION', u:[
        // The last two destroyers of the NTF, in front of the portal.
        {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
@@ -2556,7 +2558,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'V1+V2', w:'zielerfuellt', a2:'THE WAY TO THE PORTAL IS OPEN'}
      ]},
 
-  60:{name:'Der Sprung', fac:'ntf', o:'clear', live:6, scene:'knossos', portal:true,
+  60:{name:'The Jump', fac:'ntf', o:'clear', live:6, scene:'knossos', portal:true,
       ziel:'DESTROY THE ESCORT OF THE ICENI', u:[
        // The Iceni runs for the portal and goes through. She cannot be
        // stopped - no engines, no navigation to shoot, and she does not

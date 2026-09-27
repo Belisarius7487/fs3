@@ -50,6 +50,7 @@ function liveBurstRound(){
 }
 function burstRound(b){
   const wp=secDef(b.wpn);
+  sndPlay('burst_infyrno', b.x);
   shardBurst(b.x, b.y, wp.shards, wp.shardDmg, wp.shardSpd, wp.shardRange,
              '#ffb066', 'rgba(255,140,50,0.34)');
   spawnRing(b.x, b.y, 54, 24, 3, 255,140,40);
@@ -98,13 +99,16 @@ function fireSecondary(){
   // may be in the air at a time.
   const up=liveBurstRound();
   if(up){ burstRound(up); return; }
-  if(player.secAmmo<=0||player.secTimer>0) return;
+  // Empty rack: the click of a launcher with nothing in it.
+  if(player.secAmmo<=0){ if(player.secTimer<=0) sndPlay('sec_empty', player.x); return; }
+  if(player.secTimer>0) return;
   player.secAmmo--;
   plogSec();
   // One rail for both kinds: what differs is in the table, not here.
   const wp=curSec(), bomb=(wp.cls==='bomb');
   const sp=secMount(), sa=player.head||0;
   player.secTimer=wp.cd;
+  sndPlay('sec_'+wp.key, player.x);
   if(wp.swarm){
     const tg=swarmTargets(sp.x, sp.y, wp.swarm), id=++swarmSalvo;
     for(let k=0;k<wp.swarm;k++){
@@ -196,11 +200,13 @@ function updateSecBullets(){
           break;
         }
         if(b.type==='bomb'){
+          sndPlay('sec_cyclops_hit', b.x);
           spawnFireball(b.x,b.y,45,40);
           spawnRing(b.x,b.y,70,30,4,255,120,0);
           spawnDebris(b.x,b.y,25,255,180,50,200,60,0,true);
           spawnSmoke(b.x,b.y,8);
         } else {
+          sndPlay('missile_explosion', b.x);
           spawnFireball(b.x,b.y,20,22);
           spawnDebris(b.x,b.y,10,255,220,100,255,100,0,true);
         }
@@ -260,8 +266,9 @@ function spawnSmoke(x, y, n) {
   }
 }
 
-function scheduleExpl(delay, x, y, r, type) {
-  EXPL_Q.push({t:fc+delay, x:x, y:y, r:r, type:type});
+// snd: the sound of a final blast (expl_medium or expl_big).
+function scheduleExpl(delay, x, y, r, type, snd) {
+  EXPL_Q.push({t:fc+delay, x:x, y:y, r:r, type:type, snd:snd});
 }
 
 // r: reach of the wave, pct: share of the player's hull it takes at full
@@ -274,6 +281,7 @@ const BIG_BLAST = {
   gmzephyrus: {r:400, force:6.4, pct:0.110, shake:16}
 };
 function triggerExpl(x, y, shipType, faction, src) {
+  sndExpl(x, shipType, src);
   // The branch chain below has no else. Any type that is not in it dies
   // silently, with no fireball, no ring and no debris - which is what the
   // non-combatants did when they were first added. They borrow the
@@ -326,7 +334,7 @@ function triggerExpl(x, y, shipType, faction, src) {
       scheduleExpl(10+i*20, x+(Math.random()-0.5)*100, y+(Math.random()-0.5)*40,
         22+Math.random()*10, 'mini');
     }
-    scheduleExpl(140, x, y, 40, 'final');
+    scheduleExpl(140, x, y, 40, 'final', 'expl_medium');
 
   } else if(shipType==='corvette') {
     // Corvettes are much larger than cruisers, so this runs longer
@@ -343,7 +351,7 @@ function triggerExpl(x, y, shipType, faction, src) {
       scheduleExpl(8+i*20, x+(Math.random()-0.5)*150, y+(Math.random()-0.5)*50,
         24+Math.random()*14, i%3===0 ? 'medium' : 'mini');
     }
-    scheduleExpl(180, x, y, 52, 'final');
+    scheduleExpl(180, x, y, 52, 'final', 'expl_medium');
 
   } else if(shipType==='destroyer') {
     // Destroyers come apart along their whole length
@@ -361,7 +369,7 @@ function triggerExpl(x, y, shipType, faction, src) {
       scheduleExpl(8+i*21, x+(Math.random()-0.5)*260, y+(Math.random()-0.5)*70,
         26+Math.random()*20, i%3===0 ? 'medium' : 'mini');
     }
-    scheduleExpl(230, x, y, 58, 'final');
+    scheduleExpl(230, x, y, 58, 'final', 'expl_big');
 
   } else if(shipType==='boss') {
     // Hauptexplosion
@@ -382,7 +390,7 @@ function triggerExpl(x, y, shipType, faction, src) {
         30+Math.random()*25, 'medium');
     }
     // Abschlussexplosion
-    scheduleExpl(200, x, y, 60, 'final');
+    scheduleExpl(200, x, y, 60, 'final', 'expl_big');
   }
 }
 
@@ -390,6 +398,8 @@ function tickExplQueue() {
   for(var i=EXPL_Q.length-1;i>=0;i--) {
     if(fc>=EXPL_Q[i].t) {
       var e=EXPL_Q[i];
+      if(e.type!=='final') sndPlay('expl_secondary', e.x, 0.8);
+      else sndPlay(e.snd || 'expl_medium', e.x);
       if(e.type==='mini') {
         spawnFireball(e.x,e.y,e.r,22);
         spawnDebris(e.x,e.y,8,255,180,50,200,60,0,true);
@@ -434,7 +444,7 @@ function pBox(){
 
 function playerDie(){STATS.livesLost++;
   plogDeath();
-  triggerExpl(player.x,player.y,'cruiser','terran',{img:player.ship,sc:playerSc()});
+  triggerExpl(player.x,player.y,'cruiser','terran',{img:player.ship,sc:playerSc(),player:true});
   // Im Uebungsmodus kostet der Tod nichts. Die Explosion, der Rueckwurf
   // an den Rand und der Schild laufen unveraendert, damit sich der Fehler
   // trotzdem wie einer anfuehlt.
@@ -485,7 +495,7 @@ function launchGame(){
   MOUSE.x=player.x; MOUSE.y=player.y;
   runTime=0;
   pBullets=[];eBullets=[];enemies=[];allies=[];allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;PARTS=[];ITEMS=[];
-  resumeHold=false;
+  resumeHold=false; sndAllOff();
   bossAlive=false;bossSlain=false;shakeT=0;shakeMag=0;campReset();rollBodies();nextWave();GS='playing';
 }
 window.launchGame=launchGame;
@@ -554,6 +564,7 @@ function update(){
   // The title screen is not a still picture: the stars and the bodies keep
   // moving there, so that much of the update runs before anything else.
   if(GS==='title'){ fc++; tickStars(); tickNebula(); return; }
+  sndTick();                          // freezes the sound while paused
   if(paused) return;                  // covers the settings panel too
   fc++;tickStars();tickParts();tickNebula();
   plogTick();
@@ -888,7 +899,7 @@ function update(){
         if(!bulletOnHull(o,b)) continue;
         damageEnemy(o, b.dmg||(b.big?20:8), b.x, b.y, false, 'bolt');
         hullHit(b.x,b.y);
-        if(b.kind==='bomb') bombBlast(b.x,b.y);
+        if(b.kind==='bomb') bombBlast(b.x,b.y); else if(b.kind==='missile') sndPlay('missile_explosion', b.x);
         // No points and no pickups: the player did not earn this one.
         if(o.hp<=0 && !o.dead) killEnemy(o, fi, false, false);
         eBullets.splice(i,1);
@@ -913,7 +924,7 @@ function update(){
         if(a.subs) adm=subHit(a, adm, b.x, b.y);   // escorts have them too
         a.hp-=adm;
         hullHit(b.x,b.y);
-        if(b.kind==='bomb') bombBlast(b.x,b.y);
+        if(b.kind==='bomb') bombBlast(b.x,b.y); else if(b.kind==='missile') sndPlay('missile_explosion', b.x);
         eBullets.splice(i,1);
         consumed=true;
         break;
@@ -935,7 +946,7 @@ function update(){
         } else {
           player.hp-=dmg; hullHit(b.x,b.y);
         }
-        if(b.kind==='bomb') bombBlast(b.x,b.y);
+        if(b.kind==='bomb') bombBlast(b.x,b.y); else if(b.kind==='missile') sndPlay('missile_explosion', b.x);
         eBullets.splice(i,1);if(player.hp<=0)playerDie();}}}
 
   for(let i=pBullets.length-1;i>=0;i--){
@@ -948,6 +959,7 @@ function update(){
       if(b.flak) flakBurst(b.x, b.y, true, b.fac);
       else {
         const fw=priDef(b.wpn);
+        if(fw.shards) sndPlay('burst_dante', b.x);
         shardBurst(b.x, b.y, fw.shards, b.dmg*fw.shardDmg,
                    fw.shardSpd, fw.shardRange, fw.col, fw.glow);
       }
@@ -990,6 +1002,7 @@ function update(){
           pBullets.splice(i,1); hit=true;
         } else if(b.fuse!==undefined && b.fuse>0 && b.wpn){
           const fw=priDef(b.wpn);
+          if(fw.shards) sndPlay('burst_dante', b.x);
           if(fw.shards) shardBurst(b.x, b.y, fw.shards, b.dmg*fw.shardDmg,
                                    fw.shardSpd, fw.shardRange, fw.col, fw.glow);
           pBullets.splice(i,1); hit=true;

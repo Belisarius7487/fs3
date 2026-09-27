@@ -891,9 +891,15 @@ function setRow(bx, by, bw, bh, label, hint, value, on, act, enabled){
 
 // Zwei Seiten zu vier Zeilen. Acht Zeilen am Stueck waeren 460 von 500
 // Bildpunkten Hoehe gewesen.
-const SETTINGS_PAGES = 3;
-const SETTINGS_TITLES = ['SETTINGS', 'ECONOMY', 'APPEARANCE'];
+const SETTINGS_PAGES = 4;
+const SETTINGS_TITLES = ['SETTINGS', 'ECONOMY', 'APPEARANCE', 'SOUND'];
 function settingsRows(){
+  if(settingsPage===3) return [
+    {label:'SOUND', hint:'all sound effects on or off',
+     value:SND.on?'ON':'OFF', on:SND.on, act:'sndon', enabled:true},
+    {label:'EFFECTS VOLUME', hint:'tap to step through 100 / 75 / 50 / 25 %',
+     value:Math.round(SND.vol*100)+' %', on:SND.on, act:'sndvol', enabled:true}
+  ];
   if(settingsPage===2) return [
     {label:'COLOUR SCHEME', hint:'the two schemes of the forum theme',
      value:ECO.scheme==='void'?'VOID':'FIRE', on:true,
@@ -999,6 +1005,11 @@ function settingsClick(mx,my){
         ecoSetRes(ECO_RES_STEPS[(_i+1)%ECO_RES_STEPS.length]);
       }
       else if(r.act==='blur'){ ECO.blur=!ECO.blur; ecoSave(); }
+      else if(r.act==='sndon'){ SND.on=!SND.on; sndApplyVolume(); sndSave(); }
+      else if(r.act==='sndvol'){
+        const _v=SND_VOL_STEPS.indexOf(SND.vol);
+        SND.vol=SND_VOL_STEPS[(_v+1)%SND_VOL_STEPS.length]; sndApplyVolume(); sndSave();
+      }
       else if(r.act==='rim'){ ECO.rim=!ECO.rim; ecoSave(); }
       else if(r.act==='glint'){ ECO.glint=!ECO.glint; ecoSave(); }
       return true;
@@ -2372,7 +2383,7 @@ function toTitleOrLaunch(){
 // A fresh sky every time the title comes up: another backdrop, another
 // set of bodies.
 function enterTitle(){
-  GS='title';
+  GS='title'; sndAllOff();
   resumeHold=false; userPaused=false; paused=false;
   nebCur = NEB_NAMES[(Math.random()*NEB_NAMES.length)|0];
   nebFading = false; nebAlpha = 1.0;
@@ -3124,13 +3135,17 @@ function drawPlog(){
   ctx.restore();
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
 }
+const PLOG_STEP = 3;      // rows moved per tap on an arrow
 function plogClick(mx, my){
   const rs = window._plogRects || [];
-  for(const r of rs){
+  // Latest first: the scroll arrows are drawn over the rows and have to
+  // win the tap, otherwise it opened the row underneath.
+  for(let q=rs.length-1; q>=0; q--){
+    const r = rs[q];
     if(mx>=r.x && mx<=r.x+r.w && my>=r.y && my<=r.y+r.h){
       if(r.act==='row') plogSel = r.n;
-      else if(r.act==='up') plogTop = Math.max(0, plogTop-1);
-      else if(r.act==='down') plogTop = plogTop+1;
+      else if(r.act==='up') plogTop = Math.max(0, plogTop-PLOG_STEP);
+      else if(r.act==='down') plogTop = plogTop+PLOG_STEP;
       else if(r.act==='copy') plogCopy();
       else if(r.act==='save') plogSave();
       else if(r.act==='close') plogOpen = false;
