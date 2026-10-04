@@ -2741,6 +2741,9 @@ function initBeams(e){
     const af = !d.large;
     return {
       ...d,
+      // Shivans have no slash beams (Silvio, v173): every Shivan beam,
+      // anti-fighter ones included, fires static. Damage values unchanged.
+      type: (e.faction==='shivan') ? 'static' : d.type,
       chargeT: Math.round((d.chargeT||400) * (af?AF_CHARGE_MUL:1)),
       coolT:   Math.round((d.coolT||400)   * (af?AF_COOL_MUL:1)),
       state:'idle',

@@ -2176,6 +2176,19 @@ scenario('v172: M74 two cruisers and a corvette', 'm=74', `
   const ids = enemies.filter(e=>!e.invuln && (e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer')).map(e=>e.uid);
   return {escort: JSON.stringify(ids), noDestroyer: FS.ids('D1').length===0 && !enemies.some(e=>e.type==='destroyer')};`);
 
+scenario('v173: Shivan beams are static, others keep their slash', 'm=62', `
+  FS.step(2500);
+  const r = {};
+  const sh = enemies.filter(e=>e.faction==='shivan' && e.beams && e.beams.length);
+  r.shivanBeams = sh.length > 0;
+  r.allStatic = sh.every(e=>e.beams.every(b=>b.type==='static'));
+  const a = FS.ids('A1')[0];
+  r.orionStillSlashes = !!a && a.beams.some(b=>b.type==='slash');
+  const raw = mountsFor('crcain').beams.map(b=>b.dmg).join(',');
+  const cain = enemies.find(e=>e.img==='crcain' && e.beams);
+  r.dmgUnchanged = !cain || cain.beams.map(b=>b.dmg).join(',') === raw;
+  return r;`);
+
 scenario('HoL start unchanged', 'm=1', `
   return {wave: wave, thoth: player.ship==='fitoth', vasudanCall: ALLY_FAC_ON.vasudan===true && ALLY_FAC_ON.terran===false};`);
 
