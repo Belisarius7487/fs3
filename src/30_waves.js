@@ -958,14 +958,16 @@ function tickEscapers(){
       plogEvent(plogName(e)+(portalOn ? ' reached the portal' : ' reached the edge'), 'bad');
       if(portalOn) e.portalWarp = true;
       e.escaping = 0;
-      escGone++;
+      if(!e.invuln) escGone++;
       EV_LEFT[e.uid] = true;
       // warpMax set as well: a ship placed without a vortex has warpMax 1,
       // and a jump timed against 1 drew a glaring, inside-out vortex (M70).
       e.warpMax = e.warpMax > 1 ? e.warpMax : 160; e.warpOut = e.warpMax;
       e.warpX = e.x; e.warpY = e.y;
-      SUB_MSGS.push({x:W-110, y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
-                     ally:false, tone:'bad'});
+      // An untouchable ship leaving is the story, not a miss (the Azrael).
+      if(!e.invuln)
+        SUB_MSGS.push({x:W-110, y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
+                       ally:false, tone:'bad'});
       continue;
     }
     // Ganz draussen heisst: die linke Kante hat den rechten Rand passiert.
@@ -2756,6 +2758,11 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'K3+K4', w:'einwarpen', a2:'K5'},
        {t:'vernichtet', a:'K3+K4', w:'meldung', a2:'another cruiser through the portal'},
        {t:'vernichtet', a:'K1+K2+K3+K4+K5', w:'nachschub', a2:'aus'},
+       // The last bombers come at once when the cruisers are down, not on
+       // their clock: an empty field for seconds read as a hang (Silvio, v171).
+       {t:'vernichtet', a:'K1+K2+K3+K4+K5', w:'einwarpen', a2:'B2'},
+       {t:'vernichtet', a:'K1+K2+K3+K4+K5', w:'einwarpen', a2:'B3'},
+       {t:'vernichtet', a:'K1+K2+K3+K4+K5', w:'meldung', a2:'last shivan bombers through the portal'},
        {t:'vernichtet', a:'K1+K2+K3+K4+K5', w:'zielerfuellt', a2:'BRIDGEHEAD HELD'},
        {t:'vernichtet', a:'A1', w:'zielverfehlt', a2:'GTD ORION LOST'}
      ]},
@@ -2955,20 +2962,22 @@ const SCRIPT_WAVES = {
        // has docked and taken her crew off; after that she is theirs.
        {id:'I1', c:'co', n:1, spr:'coiceni', side:'ally', x:430, y:270, still:true,
         noKill:true, callsOk:true, noWarp:true},
-       {id:'X1', c:'fr', n:1, spr:'trazrael', x:500, y:215, escape:0.45, escWarp:true, escDelay:5},
+       // Untouchable (Silvio): she gets away, that is the story.
+       {id:'X1', c:'fr', n:1, spr:'trazrael', x:500, y:215, escape:0.45, escWarp:true, escDelay:5,
+        invuln:true},
        {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:330,
         dockTo:'I1', dockHold:8, wait:true},
        {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:200,
         dockTo:'I1', dockHold:8, wait:true},
        {id:'E1', c:'fi', n:2},
        {id:'B1', c:'bo', n:1, wait:true},
-       {id:'K1', c:'cr', n:1, spr:'crlilith', wait:true, noFlee:true}
+       // On station when we arrive, not jumping in late (Silvio, v171).
+       {id:'K1', c:'cr', n:1, spr:'crlilith', x:600, y:120, noWarp:true, noFlee:true}
      ], ev:[
        {t:'sek', a:5,  w:'meldung', a2:'a shivan azrael is pulling away from the iceni'},
        {t:'sek', a:6,  w:'einwarpen', a2:'T1'},
        {t:'sek', a:6,  w:'nachschub', a2:'an'},
        {t:'sek', a:18, w:'einwarpen', a2:'B1'},
-       {t:'sek', a:30, w:'einwarpen', a2:'K1'},
        {t:'angedockt', a:'T1', w:'zielerfuellt', a2:'ICENI CREW RESCUED'},
        {t:'angedockt', a:'T1', w:'freigeben', a2:'I1'},
        {t:'angedockt', a:'T1', w:'nachschub', a2:'aus'},
@@ -3051,18 +3060,19 @@ const SCRIPT_WAVES = {
        // In the nebula (Silvio). The Lucifer crosses from right to left,
        // slowly, and nothing stops her. What counts is how much of her
        // escort is left behind.
-       {id:'L1', c:'sd', n:1, spr:'sdlucifer', invuln:true, crossLeft:0.12, y:250},
+       // Escort cut to two cruisers and a corvette, and she drives a little
+       // slower: with the Demon as well it could not be done (Silvio, v171).
+       {id:'L1', c:'sd', n:1, spr:'sdlucifer', invuln:true, crossLeft:0.10, y:250},
        {id:'K1', c:'cr', n:1, spr:'crrakshasa', x:520, y:110, noFlee:true},
        {id:'K2', c:'cr', n:1, spr:'crlilith',   x:560, y:420, noFlee:true},
-       {id:'M1', c:'co', n:1, spr:'comoloch',   t:15, noFlee:true},
-       {id:'D1', c:'de', n:1, spr:'dedemon',    t:35, noFlee:true},
+       {id:'M1', c:'co', n:1, spr:'comoloch',   t:10, noFlee:true},
        {id:'E1', c:'fi', n:2}
      ], ev:[
        {t:'sek', a:2,  w:'meldung', a2:'the lucifer cannot be stopped - hit her escort'},
        {t:'sek', a:5,  w:'nachschub', a2:'an'},
        {t:'sek', a:30, w:'mehr', a2:'1'},
        {t:'sek', a:60, w:'mehr', a2:'1'},
-       {t:'vernichtet', a:'K1+K2+M1+D1', w:'zielerfuellt', a2:'HER ESCORT IS DESTROYED'},
+       {t:'vernichtet', a:'K1+K2+M1', w:'zielerfuellt', a2:'HER ESCORT IS DESTROYED'},
        {t:'verlaesst', a:'L1', w:'meldung', a2:'the lucifer is through'},
        {t:'verlaesst', a:'L1', w:'abzug', a2:''}
      ]},
@@ -3586,7 +3596,7 @@ function scriptUnit(u, fac, q){
              x:u.x, escape:u.escape, invuln:u.invuln, edge:u.edge, capRam:u.capRam,
              escWarp:u.escWarp, capture:u.capture, flee:u.flee, scanSubs:u.scanSubs,
              fleeFree:u.fleeFree, hurt:u.hurt, armed:u.armed, noFlee:u.noFlee,
-             noKill:u.noKill,
+             noKill:u.noKill, noWarp:u.noWarp,
              still:u.still, noFlak:u.noFlak, fixY:(u.y!=null),
              capIndex:(n>1)? i : 0});
       }
@@ -3639,7 +3649,7 @@ function scriptUnit(u, fac, q){
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:fac, noWarp:(fix!=='ast')?1:0,
            x:xx, y:yy, scan:u.scan?1:0, escape:u.escape, scanFirst:u.scanFirst,
            still:u.still, escWarp:u.escWarp, fleeFree:u.fleeFree, escDelay:u.escDelay,
-           dockTo:u.dockTo, dockHold:u.dockHold,
+           invuln:u.invuln, dockTo:u.dockTo, dockHold:u.dockHold,
            scenery:(fix==='ast')?1:0, pickup:u.pickup?1:0});
   }
 }

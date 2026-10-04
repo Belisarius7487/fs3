@@ -2139,6 +2139,43 @@ scenario('v171: M75 not alone, and a sheet without a seam', 'm=75', `
   r.sheet = !s || (s.width % 2 === 0 && s.height % 2 === 0);
   return r;`);
 
+scenario('v172: M62 the last bombers come at once', 'm=62', `
+  // Cruisers die fast, small craft as they come; from the last cruiser on,
+  // the bombers should be under way at once.
+  const r = {}; let tK = -1, tB = -1;
+  const ks = ['K1','K2','K3','K4','K5'];
+  for(let t=0;t<12000 && !waveOver;t+=20){
+    if(t%200===0) for(const e of enemies){ if(e.warp>0||e.invuln||e.scenery) continue; if(e.type==='cruiser'&&e._a==null) e._a=t; if(e._a!=null&&t-e._a<1000) continue; e.hp=0; }
+    FS.step(20);
+    if(tK<0 && ks.every(id=>EV_SEEN[id] && FS.ids(id).length===0)) tK = t;
+    if(tK>=0 && tB<0 && (FS.ids('B3').length || EV_SEEN['B3'])) tB = t;
+  }
+  r.ends = waveOver;
+  r.bombersAtOnce = tK>=0 && tB>=0 && tB - tK < 3*TICK_HZ;
+  return r;`);
+
+scenario('v172: M63 the Charybdis is lighter', 'm=63', `
+  FS.step(20);
+  const c = FS.ids('C1')[0], a = FS.ids('A1')[0];
+  return {lighter: !!c && !!a && c.maxHp < a.maxHp * 0.6};`);
+
+scenario('v172: M70 Lilith on station, Azrael untouchable', 'm=70', `
+  const r = {};
+  FS.step(5);
+  const k = FS.ids('K1')[0], x = FS.ids('X1')[0];
+  r.lilithThere = !!k && !(k.warp>0);
+  const h = x.hp; damageEnemy(x, 5000, x.x, x.y, true, 'bolt');
+  r.azraelUnhurt = x.hp === h && !x.dead;
+  FS.until(()=>!!EV_LEFT['X1'], 20000, true, false);
+  r.azraelGone = !!EV_LEFT['X1'];
+  r.noEscapeCount = escGone === 0;
+  return r;`);
+
+scenario('v172: M74 two cruisers and a corvette', 'm=74', `
+  FS.step(4500);
+  const ids = enemies.filter(e=>!e.invuln && (e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer')).map(e=>e.uid);
+  return {escort: JSON.stringify(ids), noDestroyer: FS.ids('D1').length===0 && !enemies.some(e=>e.type==='destroyer')};`);
+
 scenario('HoL start unchanged', 'm=1', `
   return {wave: wave, thoth: player.ship==='fitoth', vasudanCall: ALLY_FAC_ON.vasudan===true && ALLY_FAC_ON.terran===false};`);
 

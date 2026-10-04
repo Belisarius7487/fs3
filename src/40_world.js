@@ -1549,7 +1549,7 @@ const ALLY_DEFS = {
   // awacs: in a nebula our anti-fighter beams find what is inside her
   // sensor circle (Silvio, Shivan cycle).
   ter_charybdis:  {cls:'cruiser',   fac:'terran',  spr:'cacharybdis',  label:'GTA Charybdis',
-                   awacs:true, hullMul:0.5},
+                   awacs:true, hullMul:0.3},     // v172: was 0.5, still too tough
   // Mission use only: the other AWACS. jammer: while she lives the Shivans
   // cannot call reinforcements, and answer with subspace bombs (v169).
   ter_setekh:     {cls:'cruiser',   fac:'terran',  spr:'casetekh',     label:'GTA Setekh',
