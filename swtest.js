@@ -45,7 +45,7 @@ const SCRIPT_WAVES = eval('(' + body('const SCRIPT_WAVES =').replace(/^const SCR
 
 // Triggers without a unit as target, and effects whose argument is a unit.
 // gerettet / verloren count protected ships, they name no unit.
-const TRIG_NO_ID  = new Set(['sek', 'erfuellt', 'gerettet', 'verloren', 'entkommen']);
+const TRIG_NO_ID  = new Set(['sek', 'zeit', 'erfuellt', 'gerettet', 'verloren', 'entkommen']);
 const EFFECT_UNIT = new Set(['einwarpen', 'seite', 'raus', 'heilen', 'kapern', 'freigeben', 'kulisse', 'ruf']);
 
 let errors = 0, missions = 0;
@@ -60,7 +60,8 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
     if(!u.id) bad.push('unit without id (' + u.c + ')');
     else if(ids.has(u.id)) bad.push('id used twice: ' + u.id);
     ids.set(u.id, u);
-    if(!CAT_FAC[u.c] && !CAT_FIX[u.c])
+    // sd: a super destroyer by name (v169).
+    if(!CAT_FAC[u.c] && !CAT_FIX[u.c] && u.c!=='sd')
       bad.push(u.id + ': unknown category "' + u.c + '" - would never spawn');
   }
   for(const u of units)
@@ -94,7 +95,7 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
         bad.push(where + ': ' + arg + ' is not waiting - warping it in does nothing');
     }
     if(e.w === 'nachschub'){ if(arg === 'aus') reinfOff = true; else reinfOn = true; }
-    if(e.w === 'ende') reinfOff = true;
+    if(e.w === 'ende' || e.w === 'abzug') reinfOff = true;
   });
   for(const u of units)
     if(u.wait && !warpedIn.has(u.id)) bad.push(u.id + ': waits, but no event ever warps it in');

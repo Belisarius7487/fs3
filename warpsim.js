@@ -92,7 +92,7 @@ const BODY = `
     }
     update(); draw(); t++;
     for(const e of enemies.concat(allies)){
-      if(e.type==='asteroid' || e.portalWarp) continue;
+      if(e.type==='asteroid') continue;   // portal jumps too, since v161
       const inJump = e.warp>0 || e.warpOut>0;
       let tr = T.get(e);
       if(!tr){ if(!inJump) continue; tr = {prev:null}; T.set(e, tr); }

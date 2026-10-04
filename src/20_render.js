@@ -343,7 +343,9 @@ function fsLanding(e){
   return {x: Math.max(b, Math.min(W-b, e.x)), y: Math.max(HUD_H+b, Math.min(H-b, e.y))};
 }
 function fsWarp(e){
-  if(!WARP_STYLE || e.portalWarp || e.type==='asteroid') return null;
+  // A ship going through the Knossos jumps the same way, into a vortex
+  // ahead of her; only its colour is the portal's (drawFsPortals).
+  if(!WARP_STYLE || e.type==='asteroid') return null;
   if(!(e.warp>0) && !(e.warpOut>0)) return null;
   const img = IMGS[e.img]; const mW = e.warpMax||100;
   if(!img || mW<=1) return null;
@@ -396,6 +398,7 @@ function fsWarp(e){
 // a tick - the same numbers the game moves it by.
 function fsExitSpeed(e){
   if(e.transit) return Math.abs(e.transitV||0);
+  if(e.crossLeft) return e.crossLeft;     // the Lucifer driving across (M74)
   if(e.escaping) return Math.abs(e.escaping);
   // A fighter flies along its heading, which the picture only follows
   // roughly: what counts is the part along the nose.
@@ -460,7 +463,7 @@ function drawFsPortals(){
     ctx.translate(p.px|0, p.py|0);
     if(WARP_STYLE==='oval'){ ctx.rotate(Math.atan2(p.fy, p.fx)); ctx.scale(WARP_OVAL*wS, wS); }
     else ctx.scale(wS, wS);
-    drawWarpFrame(warpSeed(p.e), p.WS, false);
+    drawWarpFrame(warpSeed(p.e), p.WS, !!p.e.portalWarp);
     ctx.restore(); ctx.globalAlpha = 1;
   }
 }
@@ -776,6 +779,63 @@ function drawNebFit(img, alpha){
   ctx.drawImage(img, (W-dw)/2, (H-dh)/2, dw, dh);
 }
 
+// ── SUBSPACE (v170) ─────────────────────────────────────────
+// Seen from the side, the tunnel of FreeSpace is a band: Silvio's two noise
+// textures run across it at two speeds, squeezed flat, darkened towards
+// the walls at top and bottom, and dimmed so the shots stay readable.
+// Speeds as in the approved probe (about 140 and 200 px/s).
+const SUB_A_IMG = document.getElementById('subspace_a_img');
+const SUB_B_IMG = document.getElementById('subspace_b_img');
+const SUB_LAYERS = [
+  {img:SUB_A_IMG, vx:1.4, vy:0.16, sw:0.8, sh:0.2, a:1.0,  op:'source-over'},
+  {img:SUB_B_IMG, vx:2.0, vy:0.34, sw:0.8, sh:0.2, a:0.75, op:'lighter'}
+];
+// Each layer is built once into a canvas of 2 x 2 tiles - the texture, its
+// mirror image across, down and both - at whole-pixel sizes. That sheet
+// tiles without a seam and without an overlap (v171, Silvio: a faint line
+// where tiles overlapped), and a canvas is not thrown away by the browser
+// while the tab is in the background, which is where the flicker after
+// switching tabs came from.
+function subSheet(L){
+  if(L.sheet) return L.sheet;
+  if(!imgReady(L.img)) return null;
+  const tw = Math.round(L.img.width*L.sw), th = Math.round(L.img.height*L.sh);
+  const c = document.createElement('canvas');
+  c.width = tw*2; c.height = th*2;
+  const g = c.getContext('2d');
+  for(let i=0;i<2;i++) for(let j=0;j<2;j++){
+    g.save();
+    g.translate(i*tw + (i ? tw : 0), j*th + (j ? th : 0));
+    g.scale(i ? -1 : 1, j ? -1 : 1);
+    g.drawImage(L.img, 0, 0, tw, th);
+    g.restore();
+  }
+  L.sheet = c;
+  return c;
+}
+function subspaceOn(){ return waveMod==='subspace'; }
+function drawSubspace(){
+  const top = HUD_H, h = H - HUD_H;
+  ctx.fillStyle = '#03040c'; ctx.fillRect(0, top, W, h);
+  for(const L of SUB_LAYERS){
+    const s = subSheet(L);
+    if(!s) continue;
+    const sw = s.width, sh = s.height;
+    const ox = -Math.floor((fc*L.vx) % sw), oy = -Math.floor((fc*L.vy) % sh);
+    ctx.save();
+    ctx.globalAlpha = L.a; ctx.globalCompositeOperation = L.op;
+    for(let x = ox; x < W; x += sw)
+      for(let y = top + oy - sh; y < H; y += sh)
+        ctx.drawImage(s, x, y);
+    ctx.restore();
+  }
+  // The tube's walls, and a general dimming for readability.
+  const g = ctx.createLinearGradient(0, top, 0, H);
+  g.addColorStop(0, 'rgba(0,0,0,0.88)'); g.addColorStop(0.2, 'rgba(0,0,0,0.38)');
+  g.addColorStop(0.5, 'rgba(0,0,0,0.22)'); g.addColorStop(0.8, 'rgba(0,0,0,0.38)');
+  g.addColorStop(1, 'rgba(0,0,0,0.88)');
+  ctx.fillStyle = g; ctx.fillRect(0, top, W, h);
+}
 function drawNebula(){
   const imgA=NEBS[nebCur];
   if(imgA) drawNebFit(imgA, nebFading?nebAlpha:1.0);

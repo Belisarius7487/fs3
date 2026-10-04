@@ -46,6 +46,8 @@ const SIZE_REF_L = 20, SIZE_REF_W = 60;
 // Die Manticore fuellt bei gleicher Breite mehr Flaeche als die uebrigen
 // Jaeger und wirkt dadurch massiger. Zehn Prozent schmaler.
 const SIZE_FIXED = {sdcolossus: 556, fimanticore: 50};
+// Drawn smaller than its length gives (Silvio, v166: the buoys by a third).
+const SIZE_KEY_MUL = {inpharos: 0.67};
 const SIZE_CLASS_FIXED = {fi: 60, bo: 65, ep: 60};
 // Eigener Boden je Klasse, wo der Jaegerboden nicht passt. Ein
 // Geschuetzturm ist kein Schiff und wird nicht mit einem Jaeger verglichen.
@@ -67,7 +69,7 @@ function hullWidth(key){
   const floor = (SIZE_CLASS_MIN[c] != null)
     ? SIZE_CLASS_MIN[c]
     : Math.min(SIZE_REF_W, SIZE_REF_W*Math.pow(L/SIZE_REF_L, SIZE_E));
-  const mul = SIZE_CLASS_MUL[c] || 1;
+  const mul = (SIZE_CLASS_MUL[c] || 1) * (SIZE_KEY_MUL[key] || 1);
   return Math.round(Math.min(SIZE_MAX, Math.max(floor, curve)*mul));
 }
 // Zielbreite geteilt durch die tatsaechliche Spritebreite. Kein Deckel
@@ -299,7 +301,8 @@ function mkEnemy(type, spr0, yWant){
     initBeams(bn);return bn;}
   if(type==='boss_sh'){
     bossAlive=true;
-    const spr=rnd(ROLES.shivan_super);
+    // A mission may name the hull (the Lucifer, v169).
+    const spr=spr0||rnd(ROLES.shivan_super);
     const img=IMGS[spr];
     const sc=hullScale(spr,1.1);
     // Marker used below to find the arms, since only she has them.
@@ -318,10 +321,36 @@ function mkEnemy(type, spr0, yWant){
 // destroyer rarely dies to the player's last bolt and a last hit rule
 // would make calling an escort actively harmful.
 // kind is 'bolt', 'sec' or 'beam' and only matters to the Lucifer's shield.
-function damageEnemy(e, dmg, hx, hy, fromPlayer, kind){
+function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   if(!e || e.dead) return;
   if(fromPlayer) e.pDmg = (e.pDmg||0) + dmg;
+  if(e.type==='fighter' || e.type==='bomber') e.jinkReq = true;   // it jinks (flySmall)
+  // The Lucifer in subspace (v170): no shield, and nothing reaches her but
+  // through a reactor. The hull bar reads the reactors still standing;
+  // the last one going takes her with it.
+  if(e.reactorOnly){
+    const r = reactorAt(e, hx, hy, kind==='sec' ? LUCI_REACTOR_R_SEC : 0);
+    if(!r){ if(hx!=null && Math.random()<0.3) spawnFireball(hx, hy, 4, 6); return; }
+    r.hp -= dmg;
+    if(hx!=null) addShieldFlare(e, hx, hy, 1.4);
+    if(r.hp <= 0){
+      r.dead = true;
+      const p = reactorPos(e, r);
+      spawnFireball(p.x, p.y, 60, 50);
+      spawnShock(p.x, p.y, 140, 2.0, 0.015);
+      spawnDebris(p.x, p.y, 22, 255,220,120, 255,120,0, true);
+      addShake(5, 24);
+      SUB_MSGS.push({x:p.x, y:p.y-26, txt:'REACTOR DESTROYED', life:170, ml:170, ally:true, tone:'good'});
+      const left = e.reactors.filter(function(q){ return !q.dead; }).length;
+      e.hp = left ? Math.max(1, Math.round(e.maxHp*left/e.reactors.length)) : 0;
+      if(!left) luciFinale(e);
+    }
+    return;
+  }
   if(e.bShield > 0){
+    // Scenery with a shield (the Lucifer in passing, v169): it flares, and
+    // nothing gets through, not even at a reactor.
+    if(e.invuln){ if(hx!=null) addShieldFlare(e, hx, hy, 1); return; }
     // A reactor is a hole in the shield rather than something under it.
     // Covering its own weak point would make it not a weak point.
     const r = reactorAt(e, hx, hy);
@@ -366,7 +395,8 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind){
   }
   if(e.invuln) return;      // Station, die nicht fallen soll
   if(e.rollT!=null) return; // bricht schon auseinander
-  e.hp -= dmg;
+  // The plating: see hullMul() in 55_arms.js.
+  e.hp -= dmg * hullMul(e, src || (kind==='beam' ? 'beam' : ''));
   // A ship that is to be taken does not start to break up: the lock
   // below holds her hull instead.
   if(e.hp <= 0 && !e.dead && !e.captureLock && !e.keepAlive &&
@@ -454,6 +484,71 @@ function shieldBubble(cx, cy, rx, ry, frac, hit, col, ang){
   ctx.beginPath(); ctx.ellipse(cx, cy, ex, ey, a, 0, Math.PI*2); ctx.stroke();
 
   ctx.restore();
+}
+
+// Small ships: the shield flares along the hull's own outline when hit,
+// in the colour of the side - Vasudan yellow orange, Terran blue white,
+// Shivan red white. The skin is the sprite's silhouette, blurred outward
+// in the side's colour with a white rim just outside the edge and the
+// inside left almost clear, so the hull stays readable. Built once per
+// hull and side, at a small size (sprites are large, drawn small).
+const HULL_SH = {};
+const HULL_SH_W = 170;
+function hullShieldCol(fac){
+  if(fac==='shivan') return {glow:'#ff3b24', rim:'#fff0ea'};
+  if(fac==='vasudan' || fac==='hol') return {glow:'#ffa21f', rim:'#fff4d2'};
+  return {glow:'#48a6ff', rim:'#ffffff'};
+}
+function hullShieldSkin(key, fac){
+  const col = hullShieldCol(fac), id = key+'|'+col.glow;
+  if(HULL_SH[id] !== undefined) return HULL_SH[id];
+  const img = IMGS[key];
+  if(!img || !img.width) return null;
+  const s = Math.min(1, HULL_SH_W/img.width), P = 14;
+  const iw = Math.max(1, Math.round(img.width*s)), ih = Math.max(1, Math.round(img.height*s));
+  const w = iw+P*2, h = ih+P*2;
+  const mk = function(){ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+  try{
+    // Silhouette in the glow colour, and in white.
+    const sil = mk(), sc = sil.getContext('2d');
+    sc.drawImage(img, P, P, iw, ih);
+    sc.globalCompositeOperation = 'source-in'; sc.fillStyle = col.glow; sc.fillRect(0, 0, w, h);
+    const wht = mk(), wc = wht.getContext('2d');
+    wc.drawImage(img, P, P, iw, ih);
+    wc.globalCompositeOperation = 'source-in'; wc.fillStyle = col.rim; wc.fillRect(0, 0, w, h);
+    const out = mk(), oc = out.getContext('2d');
+    oc.shadowColor = col.glow;
+    for(let p=0;p<3;p++){ oc.shadowBlur = 3 + p*4; oc.drawImage(sil, 0, 0); }
+    oc.shadowBlur = 0;
+    // The rim: the white silhouette nudged a little in every direction.
+    for(let k=0;k<8;k++){
+      const r = k*Math.PI/4;
+      oc.drawImage(wht, Math.round(Math.cos(r)*1.6), Math.round(Math.sin(r)*1.6));
+    }
+    // The inside nearly clear again.
+    oc.globalCompositeOperation = 'destination-out';
+    oc.globalAlpha = 0.82; oc.drawImage(sil, 0, 0);
+    HULL_SH[id] = {cv:out, s:s, P:P, w:w, h:h};
+  }catch(ex){ HULL_SH[id] = null; }
+  return HULL_SH[id];
+}
+// Draws it; false if there is no skin (then the old bubble is drawn).
+function hullShield(key, fac, x, y, sc, flip, ang, frac, hit){
+  const k = hullShieldSkin(key, fac);
+  if(!k) return false;
+  const t = hit/SH_FLASH, base = 0.35 + 0.65*frac;
+  const f = sc/k.s;                       // skin pixels to screen
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = Math.min(1, 1.25*t*base);
+  ctx.translate(x|0, y|0);
+  if(ang) ctx.rotate(ang);
+  if(flip) ctx.scale(-1, 1);
+  // A touch larger right after the hit, settling onto the hull.
+  const g = 1 + 0.06*t;
+  ctx.drawImage(k.cv, -k.w*f*g/2, -k.h*f*g/2, k.w*f*g, k.h*f*g);
+  ctx.restore();
+  return true;
 }
 
 // The shield is the ship's own outline, not an ellipse laid over it. The
@@ -569,7 +664,7 @@ function drawLuciShield(e){
 // Reactors are only worth marking while the shield is up, since after that
 // there is nothing left for them to do.
 function drawReactors(e){
-  if(!e.reactors || !(e.bShield > 0)) return;
+  if(!e.reactors || !(e.bShield > 0 || e.reactorOnly)) return;
   const pulse = 0.5 + 0.5*Math.sin(fc*0.16);
   for(const r of e.reactors){
     if(r.dead) continue;
@@ -789,6 +884,7 @@ function drawSubMsgs(){
 function drawShield(e){
   if(!e.maxSh || e.shHit <= 0 || e.sh <= 0) return;
   const img = IMGS[e.img]; if(!img) return;
+  if(hullShield(e.img, e.faction, e.x, e.y, e.sc, e.flip, e.ang||0, e.sh/e.maxSh, e.shHit)) return;
   const col = e.faction==='shivan' ? 'rgba(255,110,70,COL)' : 'rgba(90,190,255,COL)';
   shieldBubble(e.x, e.y, img.width*e.sc*0.66, img.height*e.sc*0.78,
                e.sh/e.maxSh, e.shHit, col, e.ang||0);
@@ -829,6 +925,9 @@ function drawPlayerShield(){
   if(player.shHit <= 0 || player.sh <= 0) return;
   const img = IMGS[player.ship]; if(!img) return;
   const sc = playerSc();
+  const pf = (shipStats(player.ship).fac) || 'terran';
+  if(hullShield(player.ship, pf, player.x, player.y, sc, player.flip, player.ang||0,
+                player.sh/player.maxSh, player.shHit)) return;
   shieldBubble(player.x, player.y, img.width*sc*0.72, img.height*sc*0.85,
                player.sh/player.maxSh, player.shHit, 'rgba(120,215,255,COL)', player.ang||0);
 }
@@ -1018,9 +1117,9 @@ function separateCapitals(){
       if(a.minY!=null) a.y = Math.max(a.minY, Math.min(a.maxY, a.y));
       if(b.minY!=null) b.y = Math.max(b.minY, Math.min(b.maxY, b.y));
 
-      // steer their patrol away from each other as well
-      if(a.vy*(-dir) < 0) a.vy *= -1;
-      if(b.vy*( dir) < 0) b.vy *= -1;
+      // steer their patrol away from each other as well - by turning
+      // their drift round, not by flipping it on the spot (capDrift)
+      capSteer(a, -dir); capSteer(b, dir);
     }
   }
 }
@@ -1445,7 +1544,18 @@ const ALLY_DEFS = {
   // ships, no drive and no subsystems. Cruiser class for hull and
   // targeting, so bombers and beams treat her as a capital ship.
   ter_mjolnir:    {cls:'cruiser',   fac:'terran',  spr:'sgmjolnir',    label:'GTSG Mjolnir',
-                   platform:true}
+                   platform:true},
+  // Mission use only: the AWACS. Cruiser class for hull and targeting.
+  // awacs: in a nebula our anti-fighter beams find what is inside her
+  // sensor circle (Silvio, Shivan cycle).
+  ter_charybdis:  {cls:'cruiser',   fac:'terran',  spr:'cacharybdis',  label:'GTA Charybdis',
+                   awacs:true, hullMul:0.5},
+  // Mission use only: the other AWACS. jammer: while she lives the Shivans
+  // cannot call reinforcements, and answer with subspace bombs (v169).
+  ter_setekh:     {cls:'cruiser',   fac:'terran',  spr:'casetekh',     label:'GTA Setekh',
+                   jammer:true, hullMul:0.75},
+  // Mission use only: the Iceni on our side of a fight (M70).
+  ntf_iceni:      {cls:'corvette',  fac:'terran',  spr:'coiceni',      label:'NTF Iceni'}
 };
 const COLOSSUS_TIME = 60;     // seconds on station before she jumps out
 const COLOSSUS_HULL_MULT = 3; // she is not meant to be destructible in a minute
@@ -1468,6 +1578,8 @@ function callCols(){
   const cols=[];
   for(const fac of ['terran','vasudan']){
     if(!allyFacOn(fac)) continue;
+    // With fleet tabs (Shivan cycle) the menu shows the one open tab.
+    if(cycleTabs() && fac!==callTab) continue;
     const col=[];
     for(let i=0;i<ALLY_ORDER.length;i++){
       const d=ALLY_DEFS[ALLY_ORDER[i]];
@@ -1514,6 +1626,8 @@ let callMenu = false;      // is the call menu open?
 // bomber wings launched by a destroyer are not a called escort.
 function allyReady(){
   if(GS!=='playing' || allyCd>0) return false;
+  // No support can be called into subspace (Silvio, v170).
+  if(typeof subspaceOn==='function' && subspaceOn()) return false;
   // The guarded cruiser is not a called escort. Blocking the call would
   // stop the player defending the very ship the wave is about.
   // callsOk: a mission ship that does not stand in for a called escort.
@@ -1555,8 +1669,9 @@ function mkAlly(id){
     type:d.cls, side:'ally', id:id, label:d.label,
     img:spr, faction:d.fac,
     x:cx, y:y, warpX:cx, warpY:y, targetX:cx,
-    hp:capHull(HULL[d.cls]*(d.colossus?COLOSSUS_HULL_MULT:1)),
-    maxHp:capHull(HULL[d.cls]*(d.colossus?COLOSSUS_HULL_MULT:1)),
+    // hullMul: a lighter hull than the class gives (the Charybdis, v166).
+    hp:capHull(HULL[d.cls]*(d.colossus?COLOSSUS_HULL_MULT:1)*(d.hullMul||1)),
+    maxHp:capHull(HULL[d.cls]*(d.colossus?COLOSSUS_HULL_MULT:1)*(d.hullMul||1)),
     vy:d.colossus?0:(Math.random()<.5?1:-1)*(0.2+Math.random()*0.25),
     minY:d.colossus?y:HUD_H+geo.mar, maxY:d.colossus?y:H-geo.mar,
     fT:60, fR:70, pat:0, dead:false, sc:colSc, ang:0,
@@ -1568,6 +1683,8 @@ function mkAlly(id){
   // A platform is already in place and does not move.
   if(d.platform){ a.platform = true; a.vy = 0; a.minY = a.y; a.maxY = a.y;
                   a.warp = 0; a.warpMax = 1; }
+  if(d.awacs) a.awacs = true;
+  if(d.jammer) a.jammer = true;
   initBeams(a);
   initWeapons(a);
   return a;
@@ -1717,8 +1834,13 @@ function bossCallWing(boss, type, size){
 }
 
 function updateBossCalls(){
+  // Jammed, nobody calls (v169).
+  if(jammerAlive()) return;
   for(const e of enemies){
     if(e.type!=='boss' || e.dead || e.warp>0 || e.warpOut>0) continue;
+    // A boss that is scenery in this mission (the Lucifer passing by) sends
+    // nothing of her own; the mission brings her wings.
+    if(e.invuln) continue;
     if(!subOK(e,'communication')) continue;      // the radio room is the way out
     if(e.callCd>0){ e.callCd--; continue; }
     if(liveEnemySmall()>0) continue;             // the last wing is still up
@@ -1734,6 +1856,7 @@ function updateCapResponse(){
   if(capBomberCd>0){ capBomberCd--; return; }
   if(capBomberLeft<=0) return;
   if(!hasAllyCapital()) return;
+  if(jammerAlive()) return;           // the Setekh has the radio (v169)
   if(countEnemyBombers()>=2) return;
   // Somebody has to make the call. With a capital ship on the field it is
   // theirs, and a wrecked radio room ends the answer.
@@ -1759,6 +1882,9 @@ function callAlly(id){
   // caller come through this function too.
   const cdef = ALLY_DEFS[id];
   if(!cdef || !allyFacOn(cdef.fac)) return false;
+  // A fleet whose tab is shut does not answer, and with tabs only the tab
+  // on show takes a key.
+  if(cycleTabs() && cdef.fac!=='gtva' && (!callTabOpen(cdef.fac) || cdef.fac!==callTab)) return false;
   if(!allyAffordable(id)) return false;
   const a = mkAlly(id);
   if(!a) return false;
@@ -1785,10 +1911,20 @@ function callAlly(id){
 // target and allied fire passes through them.
 function playerOnly(o){
   if(!o) return false;
+  // Marked with a TAG it is fair game for our ships too (v170, M67).
+  if(o.tagT > 0) return false;
   if(o.type==='container') return true;
   return o.type==='freighter' && !WPN[o.type];
 }
 
+// Ships the escorts leave alone because the mission wants them whole:
+// scanned first, disabled, or boarded (the Faustus, the Arcadia). Before
+// v162 only scan targets were spared, so escorts shot at ships that were
+// only to be disabled and taken. noTarget also covers what is taken.
+function escortSpares(o){
+  return !!(o.noTarget || o.captureLock || (o.disableTgt && !o.disableMet) ||
+            (o.scanLock && !o.scanned));
+}
 function nearestEnemy(x, y){
   let best=null, bd=Infinity;
   for(const o of enemies){
@@ -1798,7 +1934,7 @@ function nearestEnemy(x, y){
     if(o.invuln) continue;
     // Fracht, die gescannt oder abgeholt werden soll, ist kein Ziel -
     // sonst raeumen die eigenen Verbuendeten den Auftrag weg.
-    if(o.noTarget || playerOnly(o)) continue;
+    if(escortSpares(o) || playerOnly(o)) continue;
     const d=(o.x-x)**2 + (o.y-y)**2;
     if(d<bd){ bd=d; best=o; }
   }
@@ -1806,6 +1942,7 @@ function nearestEnemy(x, y){
 }
 
 function allyFire(a){
+  hullTraitsOnce(a);
   // The flak gun is its own gun on its own clock, not one of the barrels
   // taking a turn, so it fires whether or not the main guns have a target.
   flakFire(a, true);
@@ -1816,24 +1953,18 @@ function allyFire(a){
   if(!pts || !pts.length || !a.gunT) return;
   for(let i=0;i<pts.length && i<a.gunT.length;i++){
     if(--a.gunT[i] <= 0){
-      a.gunT[i] = (rndR(cfg.rate) * corneredMult(a))|0;
-      const big = Math.random() < cfg.big;
-      const spd = big ? 5.5 : 7.5;
-      // Turrets traverse onto a target instead of firing straight ahead.
-      // Fighters and bombers keep their fixed forward guns later on.
-      const tg = nearestEnemy(pts[i].x, pts[i].y);
+      // Each mount carries its own gun (57_turrets.js) at its own beat.
+      const g = capGun(a, i);
+      a.gunT[i] = (rndR(cfg.rate) * g.rate * corneredMult(a))|0;
+      // A bomb on its way in comes first (point defence).
+      const tg = pdTarget(a, pts[i], true) || nearestEnemy(pts[i].x, pts[i].y);
       if(!tg) continue;                 // kein Ziel, kein Schuss
-      let ang = 0;
-      if(tg){
-        ang = Math.atan2(tg.y-pts[i].y, tg.x-pts[i].x);
-        ang += (Math.random()-0.5)*0.06*aScat;    // slight spread, wide when blind
-        ang = Math.max(-1.15, Math.min(1.15, ang)); // never fire backwards
-      }
-      sndAiShot(pts[i].x);
-      pBullets.push({x:pts[i].x, y:pts[i].y,
-        vx: Math.cos(ang)*spd, vy: Math.sin(ang)*spd,
-        w: big?13:11, h: big?13:4,
-        dmg: big?34:18, ally:true, fac:a.faction});
+      // Aimed where the target will be, not where it is (M35, v159).
+      // Turrets cover the full circle.
+      const ang = leadAngle(pts[i].x, pts[i].y, tg, g.aspd)
+                + (Math.random()-0.5)*0.06*aScat*g.scat;
+      sndAiShot(pts[i].x, pts[i].y, g.snd);
+      capGunShot(a, pts[i].x, pts[i].y, ang, g, true, false);
     }
   }
 }
@@ -1849,6 +1980,8 @@ function updateAllies(){
       const dfl = a.maxHp * DISABLE_HULL_FLOOR;
       if(a.hp < dfl) a.hp = dfl;
     }
+    // Held above a sliver while the mission needs her (noKill, v169).
+    if(a.keepAlive && a.hp < a.maxHp*0.05) a.hp = a.maxHp*0.05;
     if(a.hp<=0 && !a.dead){
       a.dead = true;
       triggerExpl(a.x, a.y, a.type, a.faction==='vasudan' ? 'vasudan' : 'terran', a);
@@ -1876,7 +2009,7 @@ function updateAllies(){
     // instead of simply vanishing.
     // A gun platform has no jump drive. It stays until the field goes
     // dark and the next wave clears it away.
-    if(waveOver && !a.warpOut && !a.platform){ a.warpOut = a.warpMax; a.warpX = a.x; a.warpY = a.y; }
+    if(waveOver && !a.warpOut && !a.platform && !a.stay){ a.warpOut = a.warpMax; a.warpX = a.x; a.warpY = a.y; }
     if(a.warpOut > 0){
       a.warpOut--;
       // Jumped out: she left. Without this 'vernichtet' read her as
@@ -1890,6 +2023,7 @@ function updateAllies(){
       // Same flight model as the enemy small craft.
       const tg = flySmall(a);
       if(--a.fT<=0) smallFire(a, tg);
+      turretTick(a, false);
       fireSecondaries(a, WPN[a.type]);
       continue;
     }
@@ -1912,9 +2046,7 @@ function updateAllies(){
         if(a.guard) guardGone = true;
       }
     }
-    if(!subOK(a,'engines')) a.vy = 0;       // dead in the water
-    a.y += a.vy;
-    if(a.y<a.minY || a.y>a.maxY) a.vy *= -1;
+    capDrift(a, 1);                         // dead in the water without engines
     a.y = Math.max(a.minY, Math.min(a.maxY, a.y));
     allyFire(a);
     updateBeams(a);
@@ -1982,6 +2114,8 @@ function runFlee(e, i){
   if(e.warpOut>0){
     e.warpOut--;
     if(e.warpOut<=0){
+      // Withdrawn by the mission ('abzug'): not an escape.
+      if(e.withdrawn){ enemies.splice(i,1); return true; }
       plogLoss('jumped out', e);
       score = Math.max(0, score-fleePenalty(e));
       fleeEscaped++;
@@ -1996,7 +2130,8 @@ function runFlee(e, i){
     e.fleeT--;
     if(e.fleeT<=0){
       if(e.uid) EV_FLED[e.uid] = true;     // she jumps on her deadline
-      e.warpOut = e.warpMax || 160;
+      e.warpMax = e.warpMax > 1 ? e.warpMax : 160;
+      e.warpOut = e.warpMax;
       e.warpX = e.x; e.warpY = e.y;
     }
   }
@@ -2199,17 +2334,55 @@ function launchBombRaid(){
 
 // Gleiche Werte wie eine abgefeuerte Bombe: 26 Schaden, 1 Trefferpunkt,
 // also mit einem Schuss zu raeumen, und langsam genug zum Ausweichen.
-function portalBomb(x, y, ang){
+function portalBomb(x, y, ang, tgt){
   eBullets.push({
     x:x, y:y,
     vx:Math.cos(ang)*1.7, vy:Math.sin(ang)*1.7,
     w:15, h:15, big:false, faction:currentFaction,
-    kind:'bomb', dmg:26, hom:true, turn:0.013, spd:1.7,
-    life:560, hp:1
+    kind:'bomb', dmg:tgt ? SSB_DMG : 26, hom:true, turn:tgt ? 0.02 : 0.013, spd:1.7,
+    life:tgt ? 900 : 560, hp:1, tgt:tgt||null
   });
+}
+// ── SETEKH (v169) ───────────────────────────────────────────
+// While a jammer of ours lives the Shivans call no reinforcements; they
+// send subspace bombs at her instead. Each comes out of a small vortex
+// far from her (Silvio: not right beside her) - at least SSB_MIN_D away,
+// mostly at the edge of the field - which shows a good second before the
+// bomb is through, and the bomb then has several seconds to fly.
+const SSB_MIN_D = 350;
+const SSB_GAP = [420, 650];      // steps between two volleys
+const SSB_DMG = 160;             // one bomb is a real dent in an AWACS
+let ssbOn = false, ssbCd = 0;
+function jammerAlive(){
+  // Jamming from the moment she comes out of her jump in.
+  for(const a of allies) if(a.jammer && !a.dead && !(a.warpOut>0)) return a;
+  return null;
+}
+function ssbSpot(j){
+  for(let k=0;k<30;k++){
+    let x, y;
+    const side = Math.random();
+    if(side < 0.5){ x = W - 30 - Math.random()*90;  y = HUD_H + 40 + Math.random()*(H-HUD_H-80); }
+    else if(side < 0.75){ x = W*0.35 + Math.random()*W*0.6; y = HUD_H + 40 + Math.random()*40; }
+    else { x = W*0.35 + Math.random()*W*0.6; y = H - 40 - Math.random()*40; }
+    if(Math.hypot(x-j.x, y-j.y) >= SSB_MIN_D) return {x:x, y:y};
+  }
+  return {x: W-40, y: (j.y < H/2) ? H-60 : HUD_H+60};
+}
+function tickSetekhBombs(){
+  if(!ssbOn || waveOver || inJump()) return;
+  const j = jammerAlive(); if(!j) return;
+  if(--ssbCd > 0) return;
+  ssbCd = SSB_GAP[0] + ((Math.random()*(SSB_GAP[1]-SSB_GAP[0]))|0);
+  const n = 1 + (Math.random() < 0.45 ? 1 : 0);
+  for(let i=0;i<n;i++){
+    const s = ssbSpot(j);
+    BOMB_PORTALS.push({x:s.x, y:s.y, t:-i*PORTAL_STAGGER*3, max:PORTAL_LIFE, fired:false, tgt:j, n:1});
+  }
 }
 
 function updateBombPortals(){
+  tickSetekhBombs();
   // Kein Angriff waehrend des Uebergangs und nicht im Raeumtakt: eine
   // uebrige Bombe wuerde dem Spieler durch den Sprung folgen.
   if(bombRaidLeft>0 && !waveOver && !inJump()){
@@ -2223,6 +2396,10 @@ function updateBombPortals(){
     // waehrend es sich noch oeffnet.
     if(!p.fired && p.t>=p.max*0.65){
       p.fired=true;
+      if(p.tgt){
+        // A Setekh volley: one bomb, straight at her.
+        if(!p.tgt.dead) portalBomb(p.x, p.y, Math.atan2(p.tgt.y-p.y, p.tgt.x-p.x), p.tgt);
+      } else
       for(let b=0;b<PORTAL_BOMBS;b++){
         const ang = Math.atan2(player.y-p.y, player.x-p.x)
                   + (b-(PORTAL_BOMBS-1)/2)*0.22;

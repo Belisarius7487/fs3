@@ -43,7 +43,7 @@ const names = [
   'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
-  'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
+  'weaponName','weaponOpen','waveReached','secondariesFor','defaultSec','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
   'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell',
@@ -121,6 +121,8 @@ const world = `
   function assignStation(){}
   function setCallMenu(){}
   let capBomberCd=0; const CAP_BOMBER_DELAY=0;
+  // One fleet per cycle here; the Shivan cycle's tabs are fieldsim's.
+  function cycleTabs(){ return false; }
   ${defs}
   ${order}
   ${keys}

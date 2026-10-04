@@ -29,6 +29,8 @@ function between(startText){
 const shipsDecl = src.match(/const PLAYER_SHIPS = \[[\s\S]*?\];/)[0];
 // The cycle tables and the support columns they switch.
 const cycleDecl = src.match(/const ROSTER_HOL[\s\S]*?\nlet cycleBase = 0;[^\n]*/)[0];
+// The fleet tabs of the Shivan cycle (v163).
+const fleetDecl = src.match(/const FLEET_TABS = [\s\S]*?let hangarTab = 'terran', callTab = 'terran';/)[0];
 const facOnDecl = src.match(/const ALLY_FAC_ON = \{[^}]*\};/)[0];
 const extraDecl = src.match(/const EXTRA_SHIPS = (\{[\s\S]*?\n\});/)[1];
 const hullFacDecl = src.match(/const HULL_FAC = \{[\s\S]*?\};/)[0];
@@ -50,7 +52,7 @@ const names = [
   'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
-  'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
+  'weaponName','weaponOpen','waveReached','secondariesFor','defaultSec','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
   'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell','hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
@@ -59,7 +61,8 @@ const names = [
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
   'mountsFor','spriteFacing','drawHullBg','drawHullCell','volleyDmg','volleyTotal','primaryCount','syncPause',
   'hangarGroups','hangarLayout','drawMissileIcon','drawBombIcon','drawKeyChip',
-  'hangarOrder','insidePanel','cycleAt','enterCycle','titleFsHit','forceShip','releaseShip',
+  'hangarOrder','insidePanel','cycleAt','enterCycle','cycleTabs','facShips','shipIsOpen',
+  'hangarTabOpen','callTabOpen','pickTab','nextTab','drawFleetTabs','allyFacOn','titleFsHit','forceShip','releaseShip',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','thButton','thDivider','drawSwapIcon','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
@@ -112,6 +115,7 @@ const world = `
   let BAR_PULSE={}; function barPulseLevel(){ return 0; } function barPulse(){}
   // The practice log is not what is tested here.
   function plogRearm(){} function plogSec(){} function plogSync(){} function plogEvent(){}
+  function muteHit(){ return false; } function sndToggleMute(){}
   // A hull lent by a mission (see forceShip).
   let forcedPrev='';
   let eraOff=false, IMGS={}, isFiring=false, launched=0;
@@ -138,6 +142,8 @@ const world = `
   const EXTRA_SHIPS = ${extraDecl};
   ${facOnDecl}
   ${cycleDecl}
+  let shipUnlockedFac = {terran:1, vasudan:1};
+  ${fleetDecl}
   ${names.map(fn).join('\n')}
   const onKey = ${keyHandler};
   const onDown = ${mouseHandler};
@@ -359,19 +365,23 @@ console.log('Cycles: each brings its own fleet');
 {
   const hol = W.run('cycleAt(1)'), ntf = W.run('cycleAt(31)');
   ok('waves 1 to 30 are the Hammer of Light cycle', W.run('cycleAt(30)')===hol && hol.first===1);
-  ok('wave 31 opens the NTF cycle, and it holds after that', ntf.first===31 && W.run('cycleAt(59)')===ntf && W.run('cycleAt(140)')===ntf);
+  ok('wave 31 opens the NTF cycle, and it holds to 60', ntf.first===31 && W.run('cycleAt(59)')===ntf && W.run('cycleAt(60)')===ntf);
+  ok('wave 61 opens the Shivan cycle, and it holds after that',
+     W.run('cycleAt(61)').first===61 && W.run('cycleAt(140)')===W.run('cycleAt(61)'));
   reset();
   W.run("score=95000; enterCycle(cycleAt(31))");
   ok('entering it puts the player in a Myrmidon, fresh', P().ship==='fimyrmidon' && P().hp===P().maxHp);
-  ok('the roster is the Terran one, eight hulls',
-     W.run('PLAYER_SHIPS.length')===8 && W.run("PLAYER_SHIPS.every(s=>s.fac==='terran')"));
-  ok('in the agreed order',
-     W.run("PLAYER_SHIPS.map(s=>s.key).join()")==='fimyrmidon,fiherc,boartemis,fihercmk2,bomedusa,fierinyes,boursa,fiares');
+  ok('the roster is the Terran one, nine hulls',
+     W.run('PLAYER_SHIPS.length')===9 && W.run("PLAYER_SHIPS.every(s=>s.fac==='terran')"));
+  ok('in the agreed order (the Perseus second, v159)',
+     W.run("PLAYER_SHIPS.map(s=>s.key).join()")==='fimyrmidon,fiperseus,fiherc,boartemis,fihercmk2,bomedusa,fierinyes,boursa,fiares');
   ok('only the first hull is open', W.get('shipUnlocked')===1);
-  W.run("score=95000+3999; tickShipUnlocks()");
+  W.run("score=95000+1999; tickShipUnlocks()");
   ok('the points brought into the cycle do not count', W.get('shipUnlocked')===1);
+  W.run("score=95000+2000; tickShipUnlocks()");
+  ok('2000 points scored IN the cycle open the Perseus', W.get('shipUnlocked')===2 && /PERSEUS/.test(W.get('NOTICE_LOG').slice(-1)[0].txt));
   W.run("score=95000+4000; tickShipUnlocks()");
-  ok('4000 points scored IN the cycle open the Hercules', W.get('shipUnlocked')===2 && /HERCULES/.test(W.get('NOTICE_LOG').slice(-1)[0].txt));
+  ok('4000 open the Hercules', W.get('shipUnlocked')===3 && /HERCULES/.test(W.get('NOTICE_LOG').slice(-1)[0].txt));
   ok('the Terran support column answers, the Vasudan one does not',
      W.run('ALLY_FAC_ON.terran')===true && W.run('ALLY_FAC_ON.vasudan')===false);
   // The hangar follows the hull, so the Terran roster needs a Terran destroyer.
@@ -389,6 +399,50 @@ ok('crossing into a new cycle hands over the fleet',
    /if\(_c!==cycleNow\) enterCycle\(_c\);/.test(fn('nextWave')));
 ok('?m= starts the run at that wave instead of repeating it',
    /SCRIPT_ONE\?SCRIPT_ONE-1:0/.test(fn('launchGame')) && !/SCRIPT_ONE \? SCRIPT_ONE : n/.test(src));
+
+console.log('Shivan cycle: both fleets, each on its own tab (v163)');
+{
+  reset(); W.run("score=200000; enterCycle(cycleAt(61))");
+  ok('tabs are on', W.run('cycleTabs()')===true);
+  ok('the roster holds both fleets, Terran first',
+     W.run("PLAYER_SHIPS.filter(s=>s.fac==='terran').length")===9 && W.run("PLAYER_SHIPS.filter(s=>s.fac==='vasudan').length")===8
+     && W.run('PLAYER_SHIPS[0].key')==='fimyrmidon');
+  ok('the player starts in a Myrmidon', P().ship==='fimyrmidon');
+  ok('the first hull of each fleet is open, nothing more',
+     W.run('shipUnlockedFac.terran')===1 && W.run('shipUnlockedFac.vasudan')===1 && W.get('shipUnlocked')===2
+     && W.run("shipIsOpen(PLAYER_SHIPS.findIndex(s=>s.key==='fitoth'))")===true
+     && W.run("shipIsOpen(PLAYER_SHIPS.findIndex(s=>s.key==='fiperseus'))")===false);
+  W.run("score=200000+4000; tickShipUnlocks()");
+  ok('points in the cycle open each fleet down its own list (Perseus, Hercules, Horus)',
+     W.run('shipUnlockedFac.terran')===3 && W.run('shipUnlockedFac.vasudan')===2 && W.get('shipUnlocked')===5);
+  ok('both support fleets answer', W.run('ALLY_FAC_ON.terran')===true && W.run('ALLY_FAC_ON.vasudan')===true);
+  W.set('allies',[]);
+  ok('no allied destroyer: no switch at all', W.run('shipSwapReady()')===false);
+  ok('no allied destroyer: both support tabs open', W.run("callTabOpen('terran') && callTabOpen('vasudan')")===true);
+  W.set('allies',[destroyer({img:'detyphon'})]);
+  ok('a Vasudan destroyer: the Vasudan hangar tab is open, the Terran one shut',
+     W.run("hangarTabOpen('vasudan')")===true && W.run("hangarTabOpen('terran')")===false);
+  ok('and the support tabs follow it', W.run("callTabOpen('vasudan')")===true && W.run("callTabOpen('terran')")===false);
+  ok('a switch is on offer (Thoth, Horus)', W.run('shipSwapReady()')===true);
+  W.run('toggleShipMenu()');
+  ok('the menu opens on the open tab', W.get('shipMenu')===true && W.get('hangarTab')==='vasudan');
+  ok('it lists only that fleet', W.run("hangarOrder().every(i=>PLAYER_SHIPS[i].fac==='vasudan')"));
+  W.run("hangarTab = nextTab(hangarTab, hangarTabOpen)");
+  ok('a shut tab cannot be switched to', W.get('hangarTab')==='vasudan');
+  W.run('setShipMenu(false)');
+  W.set('allies',[destroyer({img:'detyphon'}), destroyer({img:'deorionright'})]);
+  ok('destroyers of both fleets: both tabs open',
+     W.run("hangarTabOpen('terran') && hangarTabOpen('vasudan') && callTabOpen('terran') && callTabOpen('vasudan')")===true);
+  W.run('toggleShipMenu()');
+  ok('the menu opens on the fleet of the hull being flown', W.get('hangarTab')==='terran');
+  W.run("hangarTab = nextTab(hangarTab, hangarTabOpen)");
+  ok('and switches to the other', W.get('hangarTab')==='vasudan');
+  W.run('setShipMenu(false)');
+  W.set('allies',[colossus()]);
+  ok('the Colossus serves both', W.run("hangarTabOpen('terran') && hangarTabOpen('vasudan')")===true);
+  reset(); W.run("score=95000; enterCycle(cycleAt(31))");
+  ok('the NTF cycle has no tabs', W.run('cycleTabs()')===false);
+}
 
 console.log('A mission can lend a hull');
 {
@@ -736,6 +790,7 @@ console.log('Bar button placement');
   ok('the rearm button sits beside it, also clear of the gear',
      rm && rm.x >= r.x+r.w && rm.x+rm.w < 748);
   ok('they do not overlap', rm && rm.x >= r.x + r.w);
+  ok('and both stay clear of the speaker (722)', rm && rm.x+rm.w < 722);
   W.run("FS1_MODE=true; " + snip);
   ok('neither button in FS1 mode',
      W.run('window._shipBtnRect')===null && W.run('window._rearmBtnRect')===null);

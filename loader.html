@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>FreeSpace 3</title>
+<!--
+  FS3 loading page. It appears at once, fetches the game file (about 28 MB)
+  with a progress bar and then puts the game in its place, without a
+  reload, so the address (and its ?m=... options) stays as it is.
+  build_game.py fills in the file name, its size and a stamp that makes a
+  new build bypass the browser cache. The server compresses the game with
+  gzip and sends no total size, which is why the size is written in here.
+-->
+<style>
+:root{
+  /* HLP theme, Fire (the default). Void is set below from the saved
+     settings of the game. */
+  --back:rgb(19,19,19); --panel:rgb(37,18,18); --front:rgb(43,22,23);
+  --edge:rgb(75,35,35); --text:rgb(185,170,153); --bright:rgb(225,205,182);
+  --dim:rgb(122,101,88); --warm:rgb(208,128,66); --glow:160,58,35;
+}
+html.void{
+  --back:rgb(14,10,24); --panel:rgb(22,10,44); --front:rgb(28,13,54);
+  --edge:rgb(72,28,112); --text:rgb(185,170,220); --bright:rgb(225,205,255);
+  --dim:rgb(120,104,150); --warm:rgb(195,95,255); --glow:155,48,225;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
+     display:flex;align-items:center;justify-content:center;overflow:hidden;
+     user-select:none;-webkit-user-select:none}
+#box{position:relative;width:min(94vw,600px);padding:30px 26px 22px;background:var(--panel);
+     border:1px solid var(--edge);text-align:center;box-shadow:0 0 36px rgba(var(--glow),0.28)}
+/* Corner brackets like the game's windows. */
+#box i{position:absolute;width:16px;height:16px;border:0 solid var(--warm)}
+#box i.tl{left:-1px;top:-1px;border-left-width:2px;border-top-width:2px}
+#box i.tr{right:-1px;top:-1px;border-right-width:2px;border-top-width:2px}
+#box i.bl{left:-1px;bottom:-1px;border-left-width:2px;border-bottom-width:2px}
+#box i.br{right:-1px;bottom:-1px;border-right-width:2px;border-bottom-width:2px}
+#title{font-weight:bold;font-size:30px;letter-spacing:7px;color:var(--bright);
+       text-shadow:0 0 18px rgba(var(--glow),0.6)}
+#title span{color:var(--warm);letter-spacing:0;margin-left:10px}
+#rule{height:2px;background:var(--warm);margin:12px auto 22px;width:78%}
+/* A wide, flat bar of slanted segments across the whole box: no gloss,
+   no rounding. Only the segment being filled glows. */
+#bar{display:flex;gap:3px;padding:0 6px;height:16px}
+.seg{position:relative;flex:1;background:var(--front);border:1px solid var(--edge);
+     transform:skewX(-24deg);overflow:hidden}
+.seg.on{background:var(--warm);border-color:var(--warm)}
+.seg .fill{position:absolute;left:0;top:0;bottom:0;background:var(--warm)}
+.seg.now{border-color:var(--warm);box-shadow:0 0 8px rgba(var(--glow),0.9)}
+#info{display:flex;justify-content:space-between;margin:12px 6px 0}
+#status,#size{font-family:"Segoe UI",Tahoma,sans-serif;font-size:13px;color:var(--dim)}
+#status b{color:var(--bright);font-weight:normal}
+#retry{display:none;margin-top:14px;background:var(--front);color:var(--bright);border:1px solid var(--warm);
+       border-radius:0;padding:6px 18px;font:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="box"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i>
+  <div id="title">FREESPACE<span>3</span></div>
+  <div id="rule"></div>
+  <div id="bar"></div>
+  <div id="info"><div id="status">LOADING</div><div id="size"></div></div>
+  <button id="retry" onclick="location.reload()">TRY AGAIN</button>
+</div>
+<script>
+(function(){
+  var GAME = "@@GAME_FILE@@", BYTES = @@GAME_BYTES@@, STAMP = "@@STAMP@@";
+  // The colour scheme the player chose in the game.
+  try{ var eco = JSON.parse(localStorage.getItem('fs3_eco') || 'null');
+       if(eco && eco.scheme === 'void') document.documentElement.className = 'void'; }catch(e){}
+  var bar = document.getElementById('bar'), st = document.getElementById('status'),
+      sz = document.getElementById('size'), N = 20, segs = [];
+  for(var i=0;i<N;i++){ var s = document.createElement('div'); s.className = 'seg';
+    var f = document.createElement('div'); f.className = 'fill'; f.style.width = '0'; s.appendChild(f);
+    bar.appendChild(s); segs.push(s); }
+  function mb(n){ return (n/1048576).toFixed(1); }
+  function show(got){
+    var p = BYTES > 0 ? Math.min(1, got/BYTES) : 0, full = Math.floor(p*N);
+    for(var i=0;i<N;i++){
+      segs[i].className = 'seg' + (i < full ? ' on' : (i === full && p < 1 ? ' now' : ''));
+      segs[i].firstChild.style.width = (i === full ? Math.round((p*N - full)*100) : 0) + '%';
+    }
+    st.innerHTML = 'LOADING <b>' + Math.round(p*100) + ' %</b>';
+    sz.textContent = mb(got) + ' / ' + mb(BYTES) + ' MB';
+  }
+  function fail(){
+    st.textContent = 'The game could not be loaded.';
+    sz.textContent = '';
+    document.getElementById('retry').style.display = 'inline-block';
+  }
+  // Puts the game in the place of this page.
+  function start(text){
+    for(var i=0;i<N;i++) segs[i].className = 'seg on';
+    st.textContent = 'STARTING';
+    setTimeout(function(){ document.open(); document.write(text); document.close(); }, 30);
+  }
+  show(0);
+  var url = GAME + '?b=' + STAMP;
+  fetch(url).then(function(r){
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    // No streams (old browsers): no progress, but it still loads.
+    if(!r.body || !r.body.getReader || typeof TextDecoder === 'undefined') return r.text().then(start);
+    var reader = r.body.getReader(), dec = new TextDecoder('utf-8'), parts = [], got = 0;
+    function pump(){
+      return reader.read().then(function(res){
+        if(res.done){ parts.push(dec.decode()); start(parts.join('')); return; }
+        got += res.value.length;
+        parts.push(dec.decode(res.value, {stream:true}));
+        show(got);
+        return pump();
+      });
+    }
+    return pump();
+  }).catch(fail);
+})();
+</script>
+</body>
+</html>

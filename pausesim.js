@@ -44,7 +44,7 @@ const names = [
   'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
-  'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
+  'weaponName','weaponOpen','waveReached','secondariesFor','defaultSec','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
   'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'insidePanel',
@@ -67,6 +67,9 @@ const world = `
   let forcedPrev='';   // no mission-lent hull in these tests
   let player={ship:'fitoth', x:400, y:250};
   function inJump(){ return false; }
+  function subspaceOn(){ return false; }
+  // One fleet per cycle here; the Shivan cycle's tabs are fieldsim's.
+  function cycleTabs(){ return false; } function shipIsOpen(i){ return i < shipUnlocked; }
   function allyReady(){ return true; }
   function swapShip(){}
   function refineTicket(){}

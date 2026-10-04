@@ -457,7 +457,30 @@ def inline_sounds(html):
         print("Sounddateien eingebettet: %d von %d" % (n - len(missing), n))
     if missing:
         print("Sounds fehlen (bleiben stumm): %s" % ", ".join(os.path.basename(p) for p in missing))
+    # Music is not put into the page: only the names of the pieces in
+    # music/, which build.sh copies next to the page.
+    tracks = sorted(n for n in os.listdir("music") if n.lower().endswith(".mp3")) if os.path.isdir("music") else []
+    if "@@FS3_MUSIC_LIST@@" in html:
+        html = html.replace("@@FS3_MUSIC_LIST@@", ",".join(tracks))
+        print("Musikstuecke: %d" % len(tracks))
     return html
+
+
+def write_loader(path, game):
+    """The loading page: shows at once and fetches the game with a progress
+    bar. It needs the game's file name (beside it), its size in bytes (the
+    server sends none with gzip) and a stamp against a stale cache."""
+    if not os.path.isfile("loader.html"):
+        sys.exit("Abbruch: loader.html fehlt.")
+    tpl = open("loader.html", encoding="utf-8").read()
+    st = os.stat(game)
+    stamp = "%d-%d" % (int(st.st_mtime), st.st_size)
+    page = (tpl.replace("@@GAME_FILE@@", os.path.basename(game))
+               .replace("@@GAME_BYTES@@", str(st.st_size))
+               .replace("@@STAMP@@", stamp))
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(page)
+    print("Ladeseite: %s" % path)
 
 
 def main():
@@ -469,6 +492,8 @@ def main():
     ap.add_argument("--mounts", default="hlp_mounts_final.json", help="Mount-JSON aus dem Editor")
     ap.add_argument("--game", default="hlp_shooter_v3.html", help="Eingabe-Spieldatei")
     ap.add_argument("--out", default="hlp_shooter_v4.html", help="Ausgabe-Spieldatei")
+    ap.add_argument("--loader", default=None,
+                    help="Ladeseite (index.html), die die Spieldatei mit Fortschrittsbalken laedt")
     ap.add_argument("--hz", type=int, default=None,
                     help="Spieltempo in Logikschritten pro Sekunde (ueberschreibt TICK_HZ, Standard 100)")
     args = ap.parse_args()
@@ -580,6 +605,8 @@ def main():
 
     size = os.path.getsize(args.out) / (1024 * 1024)
     print("\nGeschrieben: %s (%.1f MB)" % (args.out, size))
+    if args.loader:
+        write_loader(args.loader, args.out)
 
 
 if __name__ == "__main__":

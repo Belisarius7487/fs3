@@ -5,4 +5,10 @@ python3 build_game.py \
   --icons icons \
   --mounts hlp_mounts_final.json \
   --game "$(ls -1 hlp_shooter_v*_logic.html | sort -V | tail -1)" \
-  --out /var/www/html/fs3/index.html
+  --out /var/www/html/fs3/game.html \
+  --loader /var/www/html/fs3/index.html
+# Music is not in the page; the game fetches it from here while it plays.
+if [ -d music ]; then
+  mkdir -p /var/www/html/fs3/music && cp -u music/*.mp3 /var/www/html/fs3/music/ 2>/dev/null
+  echo "Musik kopiert: $(ls -1 music/*.mp3 2>/dev/null | wc -l) Stuecke"
+fi

@@ -112,6 +112,17 @@ function drawRockLight(e, r){
 
 function debSpan(d){ return Math.max(d.sw, d.sh)*d.sc; }
 
+// Wreckage and rammers hurt by a share of the hull they hit. Against a
+// capital ship that share of thousands of points made every fighter shot
+// down beside her a heavy blow: the defector Deimos of M35 lost more hull to
+// the wrecks of her attackers than to their guns (v161 practice run), and
+// enemy capital ships went down the same way. A capital ship now takes the
+// share of IMPACT_CAP_HULL at most.
+const IMPACT_CAP_HULL = 500;
+function impactBase(t){
+  if(!t) return 100;
+  return ARMOR_BY_TYPE[t.type] ? Math.min(t.maxHp||100, IMPACT_CAP_HULL) : (t.maxHp||100);
+}
 function debRamDmg(d, maxHp){
   const t = Math.max(0, Math.min(1, (debSpan(d)-12)/48));
   return Math.max(1, Math.round((maxHp||100)*(DEB_PCT_MIN+(DEB_PCT_MAX-DEB_PCT_MIN)*t)));
@@ -342,14 +353,14 @@ function updateDebris(){
       if(t.dead||t.warp>0||t.warpOut>0) continue;
       const tb=eBox(t);
       if(overlap(b[0],b[1],b[2],b[3],tb[0],tb[1],tb[2],tb[3]) && bulletOnHull(t,probe)){
-        t.hp -= debRamDmg(d,t.maxHp); hullHit(d.x,d.y); struck=true; break;
+        t.hp -= debRamDmg(d,impactBase(t)); hullHit(d.x,d.y); struck=true; break;
       }
     }
     if(!struck) for(const t of enemies){
       if(t.dead||t.type==='asteroid'||t.warp>0) continue;
       const tb=eBox(t);
       if(overlap(b[0],b[1],b[2],b[3],tb[0],tb[1],tb[2],tb[3]) && bulletOnHull(t,probe)){
-        damageEnemy(t, debRamDmg(d,t.maxHp), d.x, d.y, false, 'bolt'); struck=true; break;
+        damageEnemy(t, debRamDmg(d,impactBase(t)), d.x, d.y, false, 'bolt'); struck=true; break;
       }
     }
     if(struck) breakDebris(i);
@@ -456,6 +467,39 @@ let shakeT = 0, shakeMag = 0;
 // Dauer eher stoerend als wirkungsvoll. Eine Zeile statt neun Aufrufen,
 // damit es sich mit einem Schnitt zurueckholen laesst.
 const SHAKE_ON = false;
+// ── THE LUCIFER'S END (v170) ────────────────────────────────
+// The last reactor takes her: a run of blasts across the hull, one great
+// shockwave, a white-out, and the hull goes up.
+const WHITEOUT_T = 90;
+let whiteOut = 0;
+let FINALE = [];
+function luciFinale(e){
+  const img = IMGS[e.img];
+  const hw = img ? img.width*e.sc*0.5 : 200, hh = img ? img.height*e.sc*0.5 : 60;
+  for(let k=0;k<14;k++)
+    FINALE.push({t: k*9 + ((Math.random()*6)|0), x: e.x + (Math.random()*2-1)*hw*0.9,
+                 y: e.y + (Math.random()*2-1)*hh*0.7, r: 30 + Math.random()*40});
+  FINALE.push({t: 140, x: e.x, y: e.y, r: 0, big: true});
+  addShake(8, 160);
+}
+function tickFinale(){
+  if(whiteOut>0) whiteOut--;
+  for(let i=FINALE.length-1;i>=0;i--){
+    const f = FINALE[i];
+    if(--f.t > 0) continue;
+    FINALE.splice(i,1);
+    if(f.big){
+      spawnShock(f.x, f.y, 520, 3.0, 0.02);
+      spawnFireball(f.x, f.y, 140, 90);
+      whiteOut = WHITEOUT_T; addShake(14, 80);
+      sndPlay('expl_big', f.x, 1, f.y);
+    } else {
+      spawnFireball(f.x, f.y, f.r, f.r*0.8);
+      spawnDebris(f.x, f.y, 12, 255,210,120, 255,110,0, true);
+      sndPlay('expl_secondary', f.x, 1, f.y);
+    }
+  }
+}
 function addShake(mag, dur){
   if(!SHAKE_ON) return;
   shakeMag = Math.max(shakeMag, mag);
@@ -484,7 +528,24 @@ function bombBlast(x, y){
 const SHOCK_LIFE = 66;
 const SHOCK_SPARK_PER = 12;   // ein Funke je 12 px Endradius
 
+// ── DANGER ZONES (v170) ─────────────────────────────────────
+// A big blast is a place small craft get out of, ours and theirs alike
+// (Silvio): while a wave of 200 points or more is under way - or a big
+// blast is about to go off - fighters and bombers inside it turn away and
+// run for the edge of it.
+let DANGER = [];
+const DANGER_MARGIN = 40;
+function addDanger(x, y, r, t){ DANGER.push({x:x, y:y, r:r+DANGER_MARGIN, t:t}); }
+function tickDanger(){ for(let i=DANGER.length-1;i>=0;i--) if(--DANGER[i].t<=0) DANGER.splice(i,1); }
+function dangerNear(e){
+  for(const z of DANGER){
+    const dx = e.x-z.x, dy = e.y-z.y;
+    if(dx*dx + dy*dy < z.r*z.r) return z;
+  }
+  return null;
+}
 function spawnShock(x, y, rMax, force, pct){
+  if(rMax >= 200) addDanger(x, y, rMax, SHOCK_LIFE + 10);
   // Die Funken werden einmal beim Entstehen ausgewuerfelt und reiten
   // dann auf der Front mit, statt jedes Bild neu gestreut zu werden.
   const n = Math.max(5, (rMax/SHOCK_SPARK_PER)|0);
@@ -860,8 +921,14 @@ function eSmall(ex,ey,fac,ang,spd,dmg,scatter){
     return;
   }
   eBullets.push({x:ex,y:ey,vx:Math.cos(ang)*s,vy:Math.sin(ang)*s,w:8,h:4,big:false,faction:fac||'ntf',dmg:dmg});}
-function eBig(ex,ey,fac){
-  eBullets.push({x:ex,y:ey,vx:-2.5,vy:(Math.random()-.5)*1.2,w:12,h:12,big:true,faction:fac||'ntf'});}
+// The heavy round. With an angle it leaves towards the target like every
+// other turret shot; without one it keeps the old slow drift to the left.
+function eBig(ex,ey,fac,ang){
+  if(ang==null){
+    eBullets.push({x:ex,y:ey,vx:-2.5,vy:(Math.random()-.5)*1.2,w:12,h:12,big:true,faction:fac||'ntf'});
+    return;
+  }
+  eBullets.push({x:ex,y:ey,vx:Math.cos(ang)*2.5,vy:Math.sin(ang)*2.5,w:12,h:12,big:true,faction:fac||'ntf'});}
 function eSpread(ex,ey,fac){const base=Math.atan2(player.y-ey,player.x-ex);
   for(const da of[-0.35,-0.175,0,0.175,0.35]){const a=base+da;
     eBullets.push({x:ex,y:ey,vx:Math.cos(a)*2.2,vy:Math.sin(a)*2.2,w:6,h:6,big:false,
@@ -907,7 +974,7 @@ function nearestOf(list, e, want){
     if(list===enemies && playerOnly(o)) continue;
     // The same things nearestEnemy() leaves alone: scenery that cannot
     // be hurt, and ships that are only there to be scanned or taken.
-    if(list===enemies && (o.invuln || o.noTarget)) continue;
+    if(list===enemies && (o.invuln || escortSpares(o))) continue;
     const d=(o.x-e.x)*(o.x-e.x)+(o.y-e.y)*(o.y-e.y);
     if(d<bd){bd=d;best=o;}
   }
@@ -951,11 +1018,34 @@ function claimTarget(e, first, list, want){
 // Enemy bombers go for escorts, enemy fighters for the player. Escort
 // bombers go for enemy capital ships, escort fighters for whatever is
 // threatening the player, nearest first.
+// ── PTAH (v170) ─────────────────────────────────────────────
+// The Ptah is a stealth fighter: nothing holds her - not gunners, not
+// beams, not fighters - except for a few seconds after she fires
+// (Silvio). Enemy small craft that cannot see her patrol instead, and a
+// patrol point is no target to shoot at.
+const PTAH_HULL = 'fiptah';
+const PTAH_SEEN = 300;          // steps she stays visible after a shot
+function playerSeen(){
+  if(player.ship !== PTAH_HULL) return true;
+  return fc - (player.lastShot||-1e9) < PTAH_SEEN;
+}
+function unseenTarget(e){
+  if(playerSeen()) return player;
+  const a = nearestOf(allies, e, 'any');
+  if(a) return a;
+  if(!e.wpt || Math.hypot(e.wpt.x-e.x, e.wpt.y-e.y) < 60 || --e.wptT <= 0){
+    e.wpt = {x: W*(0.35+Math.random()*0.55), y: HUD_H+50+Math.random()*(H-HUD_H-100), pseudo:true};
+    e.wptT = 500;
+  }
+  return e.wpt;
+}
 function smallTarget(e){
   if(e.side==='ally'){
     if(e.type==='bomber'){
       const big = nearestOf(enemies, e, 'large');
       if(big){
+        // A boss takes every bomber we have (the Lucifer's reactors, M75).
+        if(big.type==='boss'){ e.focusOn = big; return big; }
         const got = claimTarget(e, big, enemies, 'large');
         if(got) return got;
       }
@@ -987,7 +1077,7 @@ function smallTarget(e){
       // Escort already has its two attackers: this one goes for the player
       // rather than joining the queue.
       e.focusOn=null;
-      return player;
+      return unseenTarget(e);
     }
     const any = nearestOf(allies, e, 'any');
     if(any){ e.focusOn=null; return any; }
@@ -998,7 +1088,7 @@ function smallTarget(e){
     if(h){ e.focusOn=null; return h; }
   }
   e.focusOn=null;
-  return player;
+  return unseenTarget(e);
 }
 
 // Hands out the attack slots. Whoever is closest to its target gets to go
@@ -1022,28 +1112,107 @@ function assignAttackRoles(list){
 }
 
 // One step of flight for one small ship. Returns nothing, edits in place.
+// Flight of fighters and bombers (v162: smoother, Silvio).
+//   - the turn itself builds up and dies away (FLY_TURN_ACC), no snapping;
+//   - speed changes gradually: slower in hard turns, full on an attack
+//     run, a little more through the pass, cruising when holding station;
+//   - a run goes in beside the target, not at its middle, and carries on
+//     well past it, so ships come round in wide loops instead of piling up;
+//   - wingmen hold a slot beside their leader while he is not on a run;
+//   - a ship that is hit jinks sideways for a moment.
+// v166 (Silvio: small craft more aggressive, turning on their target
+// rather than wandering): turns build faster, passes are shorter.
+const FLY_TURN_ACC = 0.35;       // share of the turn rate gained per step (0.22 in v162)
+const FLY_ACC      = 0.022;      // share of full speed gained or lost per step
+const FLY_CRUISE   = 0.82;       // speed while holding station
+const FLY_PASS     = 1.08;       // speed through the pass
+const RUN_OFF_MIN = 26, RUN_OFF_MAX = 48;   // how far beside the target a run goes in
+const RUN_SIDE_D = 150;          // inside this the run starts to slide beside the target (v166)
+const JINK_T = [30, 55], JINK_CD = 130;     // evasion, in steps (45-80 / 110 before v166)
+const JINK_P = {fighter:0.65, bomber:0.3};
+const FORM_BACK = 30, FORM_SIDE = 28;      // slot behind and beside the leader
+function wingLeader(e){
+  if(!e.wing) return null;
+  for(const o of sideOf(e)){
+    if(o.wing!==e.wing || o.dead || o.warp>0 || o.warpOut>0 || !isSmallEnemy(o)) continue;
+    return o===e ? null : o;
+  }
+  return null;
+}
+function wingSlot(e){
+  let k=0;
+  for(const o of sideOf(e)){
+    if(o.wing!==e.wing || o.dead || !isSmallEnemy(o)) continue;
+    if(o===e) return k;
+    k++;
+  }
+  return k;
+}
 function flySmall(e){
   const t=smallTarget(e);
   const dx=t.x-e.x, dy=t.y-e.y;
   const d=Math.sqrt(dx*dx+dy*dy)||0.001;
   let wx, wy;                       // where it wants to go, unnormalised
-  if(e.role==='attack'){
+  let want = FLY_CRUISE;            // speed it wants, against its full speed
+  // Evasion: hit, it throws itself sideways for a moment.
+  if(e.jinkReq){
+    e.jinkReq=false;
+    if(!(e.jinkT>0) && !(e.jinkCd>0) && !ramsOnContact(e) && Math.random()<(JINK_P[e.type]||0.4)){
+      e.jinkT=JINK_T[0]+((Math.random()*(JINK_T[1]-JINK_T[0]))|0);
+      e.jinkS=Math.random()<0.5?-1:1;
+    }
+  }
+  if(e.jinkCd>0) e.jinkCd--;
+  const lead = (e.role!=='attack') ? wingLeader(e) : null;
+  // Out of a blast zone before anything else (v170).
+  const _dz = (DANGER.length && !ramsOnContact(e)) ? dangerNear(e) : null;
+  if(_dz){
+    wx = (e.x - _dz.x) || 1; wy = (e.y - _dz.y) || 0;
+    want = FLY_PASS * 1.1;
+  } else if(lead && lead.role!=='attack' && !(e.jinkT>0)){
+    // In formation: a slot behind and beside the leader, alternating sides.
+    const k = wingSlot(e), row = 1 + ((k-1)>>1), side = (k%2) ? 1 : -1;
+    const hx = Math.cos(lead.head||0), hy = Math.sin(lead.head||0);
+    const px = lead.x - hx*FORM_BACK*row - hy*FORM_SIDE*row*side;
+    const py = lead.y - hy*FORM_BACK*row + hx*FORM_SIDE*row*side;
+    const fx = px-e.x, fy = py-e.y, fd = Math.hypot(fx, fy);
+    if(fd < 10){ wx = hx; wy = hy; }
+    else { wx = fx/fd + hx*0.5; wy = fy/fd + hy*0.5; }
+    // Keeps up: faster when behind its slot, slower when ahead of it.
+    const along = fx*hx + fy*hy;
+    want = Math.max(0.55, Math.min(1.15, ((lead.cs||lead.spd*FLY_CRUISE)/(e.spd||1)) + along/90));
+  } else if(e.role==='attack'){
     if(e.passT>0){
       // Flying through after a run. Braking on top of the target is what
       // made everything cluster, so it keeps going and comes back around.
       e.passT--;
       wx=Math.cos(e.head); wy=Math.sin(e.head);
-      if(e.passT===0) e.role='stand';
+      want=FLY_PASS;
+      if(e.passT===0){ e.role='stand'; e.runOff=0; }
     } else if(d<ATTACK_BREAK && !ramsOnContact(e)){
       // Ein Rammkurs bricht nicht ab. Der Durchflug ist richtig fuer einen
       // Bomber, der seine Last los ist, und falsch fuer einen, dessen
       // ganzer Zweck der Aufprall ist: sowohl die Aufprallpruefung als auch
       // der gelbe Doppelwinkel verlangen passT gleich null, also verschwand
       // die Warnung genau in dem Augenblick, in dem er ueber dem Rumpf war.
-      e.passT=ATTACK_PASS;
+      // Fighters break off short and turn straight back in; a bomber
+      // clears out further before it comes round again.
+      e.passT=(e.type==='fighter') ? ATTACK_PASS_FI : ATTACK_PASS;
       wx=Math.cos(e.head); wy=Math.sin(e.head);
+      want=FLY_PASS;
     } else {
-      wx=dx/d; wy=dy/d;
+      // The run goes in beside the target, at a side picked once per run.
+      // Rammers go straight for it.
+      if(!e.runOff && !ramsOnContact(e))
+        e.runOff=(Math.random()<0.5?-1:1)*(RUN_OFF_MIN+Math.random()*(RUN_OFF_MAX-RUN_OFF_MIN));
+      // v166: nose straight on the target for the run in, so the attack
+      // reads as one; only the last stretch slides beside it, so it passes
+      // instead of ramming. Before, the whole approach aimed beside the
+      // target and only the end straightened up - which looked aimless.
+      const off = (d < RUN_SIDE_D && d > ATTACK_BREAK) ? (e.runOff||0)*(1 - (d-ATTACK_BREAK)/(RUN_SIDE_D-ATTACK_BREAK)) : 0;
+      const ax = dx - dy/d*off, ay = dy + dx/d*off, ad = Math.hypot(ax, ay)||0.001;
+      wx=ax/ad; wy=ay/ad;
+      want=1;
     }
   } else {
     // Holding station: close in or back off until the preferred distance
@@ -1079,16 +1248,34 @@ function flySmall(e){
   else if(e.y>H-EDGE_M){ const u=1-(H-e.y)/EDGE_M; wy -= u*u*EDGE_F; }
   // Nothing sensible left to want: head for the middle rather than freeze.
   if(wx*wx+wy*wy < 0.0004){ wx=W*0.5-e.x; wy=(HUD_H+H)*0.5-e.y; }
-  // Turn towards the wish, then move along the nose.
+  // Jinking: most of the wish goes sideways for a moment.
+  if(e.jinkT>0){
+    e.jinkT--;
+    const px=-Math.sin(e.head)*e.jinkS, py=Math.cos(e.head)*e.jinkS;
+    wx=wx*0.35+px*0.9; wy=wy*0.35+py*0.9;
+    want=Math.max(want, 1.05);
+    if(e.jinkT===0) e.jinkCd=JINK_CD;
+  }
+  // Turn towards the wish, then move along the nose. The turn builds up
+  // and dies away instead of snapping to full rate.
+  let df=0;
   if(wx*wx+wy*wy > 0.0001){
-    let df=Math.atan2(wy,wx)-e.head;
+    df=Math.atan2(wy,wx)-e.head;
     while(df> Math.PI) df-=Math.PI*2;
     while(df<-Math.PI) df+=Math.PI*2;
-    e.head+=Math.max(-e.turn,Math.min(e.turn,df));
-    if(e.head> Math.PI) e.head-=Math.PI*2;
-    else if(e.head<-Math.PI) e.head+=Math.PI*2;
   }
-  e.vx=Math.cos(e.head)*e.spd; e.vy=Math.sin(e.head)*e.spd;
+  const tw=Math.max(-e.turn,Math.min(e.turn,df));
+  e.tv=(e.tv||0);
+  e.tv+=Math.max(-e.turn*FLY_TURN_ACC,Math.min(e.turn*FLY_TURN_ACC,tw-e.tv));
+  e.head+=e.tv;
+  if(e.head> Math.PI) e.head-=Math.PI*2;
+  else if(e.head<-Math.PI) e.head+=Math.PI*2;
+  // Speed: slower in a hard turn, and it never jumps.
+  want*=1-0.3*Math.min(1, Math.abs(df)/1.2);
+  if(e.cs==null) e.cs=e.spd*want;
+  const ws=e.spd*want, ca=e.spd*FLY_ACC;
+  e.cs+=Math.max(-ca,Math.min(ca,ws-e.cs));
+  e.vx=Math.cos(e.head)*e.cs; e.vy=Math.sin(e.head)*e.cs;
   // Drop thrust that only pushes into the clamp. The component along the
   // boundary is kept, so a ship that arrives nose first slides clear
   // while its turn comes round instead of grinding against the glass.
@@ -1115,7 +1302,7 @@ function flySmall(e){
 function smallFire(e, t){
   // No target: smallTarget() then hands back the ship itself, and a
   // lead angle onto its own position reads as dead ahead.
-  if(!t || t===e){ e.fT=12; return; }
+  if(!t || t===e || t.pseudo){ e.fT=12; return; }
   const d=Math.hypot(t.x-e.x, t.y-e.y);
   if(d>fireRange()){ e.fT=12; return; }
   const aim=leadAngle(e.x, e.y, t, EBULLET_SPD);
@@ -1138,8 +1325,12 @@ function smallFire(e, t){
           a = Math.atan2(_t.y-y, _t.x-x);
         }
         eSmall(x,y,e.faction,a,null,d);
+        eBullets[eBullets.length-1].sm = true;   // a fighter's gun, see hullMul()
       };
   const pts=entMounts(e,'primary');
+  // Hulls with a loadout fire its guns, each mount on its own beat.
+  const lo=aiLoadout(e);
+  if(lo && pts && pts.length){ e.fT=aiGunVolley(e, t, lo, pts, spread); return; }
   if(pts&&pts.length){
     const dpb=eVolleyDmg(pts.length);
     for(const p of pts) shot(p.x,p.y, aim+(Math.random()*2-1)*spread, dpb);
@@ -1148,7 +1339,7 @@ function smallFire(e, t){
     shot(e.x,e.y, aim+(Math.random()*2-1)*spread, dpb);
     if(e.type==='bomber') shot(e.x,e.y, aim+(Math.random()*2-1)*spread, dpb);
   }
-  sndAiShot(e.x);
+  sndAiShot(e.x, e.y);
   e.fT=e.fR;
 }
 
@@ -1198,7 +1389,7 @@ function canLockOn(o){
   // storm has the sensors down. Guided rounds fall back to dumbfire.
   if(nebulaOn()) return false;
   if(empOut>0) return false;
-  if(o === player) return player.ship !== STEALTH_HULL;
+  if(o === player) return player.ship !== STEALTH_HULL && playerSeen();
   // The NTF flies the Loki as a stealth fighter: nothing holds a lock on
   // one. Only on the enemy side - and only the lock. It stays in plain
   // sight; FreeSpace has no visual cloak and neither does this game.
@@ -1208,19 +1399,82 @@ function canLockOn(o){
 const LOCKLESS_HULLS = {filoki:true};
 
 // All valid targets for one turret on ship e.
+// ── AWACS (v165) ────────────────────────────────────────────
+// In a nebula nothing holds a lock. A living AWACS of ours (the Charybdis)
+// gives our anti-fighter beams the small craft inside her sensor circle,
+// and only those (Silvio). The circle is drawn, faintly, so the player can
+// see where the beams reach.
+const AWACS_R = 300;
+function awacsSees(o){
+  if(!nebulaOn() || empOut>0) return false;
+  for(const a of allies){
+    if(!a.awacs || a.dead || a.warp>0 || a.warpOut>0) continue;
+    if((o.x-a.x)*(o.x-a.x) + (o.y-a.y)*(o.y-a.y) <= AWACS_R*AWACS_R) return true;
+  }
+  return false;
+}
+function drawAwacsRings(){
+  if(!nebulaOn()) return;
+  for(const a of allies){
+    if(!a.awacs || a.dead || a.warp>0) continue;
+    ctx.save();
+    ctx.globalAlpha = 0.35 + 0.10*Math.sin(fc*0.05);
+    ctx.strokeStyle = '#7fe0ff'; ctx.lineWidth = 1.2;
+    ctx.setLineDash([6, 6]); ctx.lineDashOffset = -(fc*0.3);
+    ctx.beginPath(); ctx.arc(a.x, a.y, AWACS_R, 0, Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+}
+// From mission 72 on Shivan beams find their targets in the nebula too
+// (Silvio). A Ptah out of sight stays out of sight.
+const SHIVAN_GAS_BEAMS = 72;
+function shivanGasSight(o, shooter){
+  if(!nebulaOn() || empOut>0 || currentFaction!=='shivan') return false;
+  // gasBeams: one ship that already sees in the gas (the Lucifer in 69).
+  if(wave < SHIVAN_GAS_BEAMS && !(shooter && shooter.gasBeams)) return false;
+  if(o === player) return player.ship !== STEALTH_HULL && playerSeen();
+  return true;
+}
+// ── TAG (v169) ──────────────────────────────────────────────
+// A ship hit by a TAG missile can be held by our beams for TAG_TIME steps,
+// nebula or not; a marked gas miner or freighter counts as a target for
+// the heavy beams.
+const TAG_TIME = 1200;
+function tagged(o){ return o.tagT > 0; }
+function drawTagMark(e){
+  if(!tagged(e)) return;
+  const img = IMGS[e.img]; if(!img) return;
+  const hw = img.width*e.sc*0.5 + 6, hh = img.height*e.sc*0.5 + 6;
+  const L = 10, k = 0.6 + 0.4*Math.sin(fc*0.2);
+  ctx.save();
+  ctx.globalAlpha = (e.tagT < 200 && fc%20 < 8) ? 0.25 : k;
+  ctx.strokeStyle = '#ffb030'; ctx.lineWidth = 2;
+  const x0 = e.x-hw, x1 = e.x+hw, y0 = e.y-hh, y1 = e.y+hh;
+  ctx.beginPath();
+  ctx.moveTo(x0, y0+L); ctx.lineTo(x0, y0); ctx.lineTo(x0+L, y0);
+  ctx.moveTo(x1-L, y0); ctx.lineTo(x1, y0); ctx.lineTo(x1, y0+L);
+  ctx.moveTo(x1, y1-L); ctx.lineTo(x1, y1); ctx.lineTo(x1-L, y1);
+  ctx.moveTo(x0+L, y1); ctx.lineTo(x0, y1); ctx.lineTo(x0, y1-L);
+  ctx.stroke();
+  ctx.restore();
+}
 function beamTargets(e, wantLarge){
   const out=[];
   if(e.side === 'ally'){
     for(const o of enemies){
-      if(o.dead || o.warp>0 || o.type==='asteroid' || o.invuln || o.noTarget) continue;
-      if(!canLockOn(o)) continue;
-      if(wantLarge ? isLargeShip(o) : isSmallShip(o)) out.push(o);
+      if(o.dead || o.warp>0 || o.type==='asteroid' || escortSpares(o)) continue;
+      // Untouchable ships are left alone - unless the player has tagged one
+      // (v170: the Hecate answers a TAG on the Lucifer, on her shield).
+      if(o.invuln && !tagged(o)) continue;
+      if(!canLockOn(o) && !(!wantLarge && awacsSees(o)) && !tagged(o)) continue;
+      if(wantLarge ? (isLargeShip(o) || (tagged(o) && !isSmallShip(o))) : isSmallShip(o)) out.push(o);
     }
   } else {
-    if(!wantLarge && GS==='playing' && player.hp>0 && canLockOn(player)) out.push(player);
+    if(!wantLarge && GS==='playing' && player.hp>0 && (canLockOn(player) || shivanGasSight(player, e))) out.push(player);
     for(const o of allies){
       if(o.dead || o.warp>0) continue;
-      if(!canLockOn(o)) continue;
+      if(!canLockOn(o) && !shivanGasSight(o, e)) continue;
       if(wantLarge ? isLargeShip(o) : isSmallShip(o)) out.push(o);
     }
   }
@@ -1518,7 +1772,7 @@ function subHit(e, dmg, hx, hy){
   s.hp -= dmg;
   if(s.hp <= 0){
     s.dead = true;
-    sndPlay('sub_destroyed', e.x);
+    sndPlay('sub_destroyed', e.x, 1, e.y);
     if(e.side!=='ally') STATS.subsKilled++;
     const p = subPos(e, s);
     spawnFireball(p.x, p.y, 34, 28);
@@ -1555,6 +1809,7 @@ function beamDmg(e, b){
 }
 const LUCI_REACTORS = 5;
 const LUCI_REACTOR_HP = 500;
+const LUCI_REACTOR_HP_SUB = 1500;   // in subspace they are the whole fight (v170)
 const LUCI_REACTOR_CUT = 0.20;      // share of the pool each one takes with it
 const LUCI_REACTOR_R = 22;          // hit radius around a reactor, in screen px
 // Which mount positions carry a reactor. Spread across the hull so they
@@ -1590,16 +1845,29 @@ function reactorPos(e, r){
 }
 
 // Returns the reactor an impact landed on, or null.
-function reactorAt(e, hx, hy){
+function reactorAt(e, hx, hy, reach){
   if(!e.reactors || hx==null) return null;
+  const R = reach || LUCI_REACTOR_R;
+  let best = null, bd = R*R;
   for(const r of e.reactors){
     if(r.dead) continue;
     const p = reactorPos(e, r);
-    const dx = hx-p.x, dy = hy-p.y;
-    if(dx*dx+dy*dy <= LUCI_REACTOR_R*LUCI_REACTOR_R) return r;
+    const dx = hx-p.x, dy = hy-p.y, d = dx*dx+dy*dy;
+    if(d <= bd){ bd = d; best = r; }
   }
-  return null;
+  return best;
 }
+// The live reactor nearest to a point - where a bomb aimed at her goes.
+function nearestReactor(e, x, y){
+  let best = null, bd = Infinity;
+  for(const r of (e.reactors||[])){
+    if(r.dead) continue;
+    const p = reactorPos(e, r), d = (p.x-x)*(p.x-x) + (p.y-y)*(p.y-y);
+    if(d < bd){ bd = d; best = r; }
+  }
+  return best;
+}
+const LUCI_REACTOR_R_SEC = 44;    // a bomb or missile bursts wider than a bolt
 
 // ── BEAM IMPACTS ───────────────────────────────────────────
 // A beam strikes the hull, passes through and exits on the
@@ -1861,9 +2129,10 @@ function initWeapons(e){
 
 // Sluggish but homing secondary weapon.
 function eSecondary(x, y, fac, s){
+  if(!playerSeen()) return;          // nothing to aim at: a Ptah out of sight (v170)
   const ang = Math.atan2(player.y-y, player.x-x);
   const isBomb = (s.type === 'bomb');
-  sndAiSec(x, isBomb);
+  sndAiSec(x, isBomb, y);
   eBullets.push({
     x:x, y:y,
     vx:Math.cos(ang)*s.spd, vy:Math.sin(ang)*s.spd,
@@ -1905,7 +2174,13 @@ function fireSecondaries(e, cfg){
         if(e.secAmmo<=0) return;
         e.secAmmo--;
       }
-      if(e.side==='ally') aSecondary(pts[i].x, pts[i].y, e.faction, cfg.sec);
+      const lo = aiLoadout(e);
+      if(lo && lo.s){
+        // A launcher with nothing worth its load in sight waits.
+        if(!aiSecondary(e, pts[i].x, pts[i].y, lo, cfg.sec)){ e.secT[i] = 60; if(e.secAmmo!=null) e.secAmmo++; continue; }
+        e.secT[i] = (e.secT[i]*(AI_SEC_RATE[lo.s]||1))|0;
+      }
+      else if(e.side==='ally') aSecondary(pts[i].x, pts[i].y, e.faction, cfg.sec);
       else                eSecondary(pts[i].x, pts[i].y, e.faction, cfg.sec);
     }
   }
@@ -1918,7 +2193,7 @@ function aSecondary(x, y, fac, s){
   const tg = nearestEnemy(x, y);
   const ang = tg ? Math.atan2(tg.y-y, tg.x-x) : 0;
   const isBomb = (s.type === 'bomb');
-  sndAiSec(x, isBomb);
+  sndAiSec(x, isBomb, y);
   pBullets.push({
     x:x, y:y,
     vx:Math.cos(ang)*s.spd, vy:Math.sin(ang)*s.spd,
@@ -1933,15 +2208,25 @@ function aSecondary(x, y, fac, s){
 // dafuer sind die Geschuetze gebaut. Sonst der Spieler.
 function capGunTarget(e){
   let best=null, bd=1e9;
+  // In the gas the gunners see our ships no further than the player
+  // (v169): a capital across the field is out of their sight.
+  const fog = nebulaOn() ? CAP_NEBULA_SIGHT*CAP_NEBULA_SIGHT : Infinity;
   for(const a of allies){
     if(a.dead || a.small) continue;
     const d=(a.x-e.x)*(a.x-e.x)+(a.y-e.y)*(a.y-e.y);
+    if(d > fog && !tagged(a)) continue;
     if(d<bd){ bd=d; best=a; }
   }
   // A ship that cannot be locked (the Pegasus) is not a target for the
   // guns either; with nothing else in reach they hold fire.
-  return best || (canLockOn(player) ? player : null);
+  if(best || canLockOn(player)) return best || player;
+  // In a nebula nobody holds a lock, but gunners still see a ship that
+  // comes close enough - and fire wider. Beams stay blind.
+  if(nebulaOn() && player.ship!==STEALTH_HULL && playerSeen() && GS==='playing' &&
+     Math.hypot(player.x-e.x, player.y-e.y) < CAP_NEBULA_SIGHT) return player;
+  return null;
 }
+const CAP_NEBULA_SIGHT = 460;   // how far a capital's gunners see in the gas
 
 // -- CAPITAL FLAK ---------------------------------------------
 // One flak gun on every capital from a cruiser up, firing off a primary mount
@@ -1964,19 +2249,20 @@ function flakHas(e){ return !!FLAK_TYPES[e.type] && !e.noFlak; }
 // enemies; an enemy gun into the enemy list so it bites the player and the
 // escorts. Same star shape either way.
 function flakBurst(x, y, ally, fac){
-  const off  = Math.random()*Math.PI*2;
-  const life = Math.max(1, Math.round(FLAK_SHARD_RANGE/FLAK_SHARD_SPD));
-  for(let i=0;i<FLAK_SHARDS;i++){
-    const a  = off + (i/FLAK_SHARDS)*Math.PI*2;
-    const vx = Math.cos(a)*FLAK_SHARD_SPD, vy = Math.sin(a)*FLAK_SHARD_SPD;
-    if(ally) pBullets.push({x:x, y:y, vx:vx, vy:vy, w:7, h:3,
-                            dmg:FLAK_SHARD_DMG, ally:true, fac:fac,
-                            pLife:life, shard:true});
-    else     eBullets.push({x:x, y:y, vx:vx, vy:vy, w:7, h:3,
-                            dmg:FLAK_SHARD_DMG, faction:fac, big:false,
-                            eLife:life, shard:true});
+  const dw = priDef('dante');     // the flak is the Dante
+  // Uneven like every other burst, see shardSpread().
+  for(const q of shardSpread(FLAK_SHARDS, FLAK_SHARD_SPD, FLAK_SHARD_RANGE)){
+    const vx = Math.cos(q.a)*q.spd, vy = Math.sin(q.a)*q.spd;
+    if(ally) pBullets.push({x:x, y:y, vx:vx, vy:vy, w:q.w, h:q.h,
+                            dmg:FLAK_SHARD_DMG*q.mul, ally:true, fac:fac,
+                            pLife:q.life, shard:true, col:dw.col, glow:dw.glow});
+    else     eBullets.push({x:x, y:y, vx:vx, vy:vy, w:q.w, h:q.h,
+                            dmg:FLAK_SHARD_DMG*q.mul, faction:fac, big:false,
+                            eLife:q.life, shard:true, col:dw.col, glow:dw.glow});
   }
-  spawnFireball(x, y, 20, 16);
+  sndStart('burst_dante', x, 1, false, 'ai_sec', y);
+  spawnFireball(x + (Math.random()-0.5)*8, y + (Math.random()-0.5)*8,
+                16 + Math.random()*8, 13 + Math.random()*6);
 }
 // Where the wall stands: as far out as the target, inside the two limits, and
 // pulled back again if that would put the burst off the far side.
@@ -1996,7 +2282,9 @@ function flakFire(e, ally){
   if(e.noFire || !subOK(e,'weapons')) return;
   if(e.flakT===undefined) e.flakT = rndR(FLAK_RATE)|0;
   if(--e.flakT > 0) return;
-  e.flakT = rndR(FLAK_RATE)|0;
+  // An anti fighter platform (Aten) fires its flak more often.
+  const _tr = HULL_TRAITS[e.img];
+  e.flakT = (rndR(FLAK_RATE) / ((_tr && _tr.flak) || 1))|0;
   const pts = entMounts(e,'primary');
   if(!pts || !pts.length) return;
   const p  = pts[(Math.random()*pts.length)|0];
@@ -2007,15 +2295,20 @@ function flakFire(e, ally){
   const d    = flakReach(p.x, p.y, ang, want);
   const fuse = Math.max(1, Math.round(d/FLAK_SPD));
   const vx = Math.cos(ang)*FLAK_SPD, vy = Math.sin(ang)*FLAK_SPD;
-  if(ally) pBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:9, h:5,
+  // The flak of a capital ship is the Dante (Silvio): its shell, its
+  // colours and its sound.
+  const dw = priDef('dante');
+  sndStart('wpn_dante', p.x, 1, false, 'ai_fire', p.y);
+  if(ally) pBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
                           dmg:FLAK_SHARD_DMG, ally:true, fac:e.faction,
-                          flak:true, fuse:fuse});
-  else     eBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:9, h:5,
+                          flak:true, fuse:fuse, col:dw.col, glow:dw.glow});
+  else     eBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
                           dmg:FLAK_SHARD_DMG, faction:e.faction, big:false,
-                          flak:true, fuse:fuse});
+                          flak:true, fuse:fuse, col:dw.col, glow:dw.glow});
 }
 
 function capitalFire(e){
+  hullTraitsOnce(e);
   if(e.noFire) return;
   if(!subOK(e,'weapons')) return;          // guns are out
   const cfg = WPN[e.type] || WPN.cruiser;
@@ -2023,18 +2316,20 @@ function capitalFire(e){
   if(pts && pts.length && e.gunT){
     for(let i=0;i<pts.length && i<e.gunT.length;i++){
       if(--e.gunT[i] <= 0){
-        e.gunT[i] = (rndR(cfg.rate) * (e.fireBoost||1) * corneredMult(e))|0;
+        // Each mount carries its own gun (57_turrets.js) at its own beat.
+        const g = capGun(e, i);
+        e.gunT[i] = (rndR(cfg.rate) * g.rate * (e.fireBoost||1) * corneredMult(e))|0;
         const eScat = subOK(e,'sensors') ? 1 : 4;   // blind gunnery sprays
-        // Zielen statt geradeaus. Die Streuung waechst mit zerstoerten
-        // Sensoren, wie vorher - nur wirkt sie jetzt um die Zielrichtung
-        // herum und nicht um die Waagerechte.
-        const gt = capGunTarget(e);
+        // A bomb on its way in comes first (point defence), then the
+        // usual target. Turrets cover the full circle.
+        const bomb = pdTarget(e, pts[i], false);
+        const gt = bomb || capGunTarget(e);
         if(!gt) continue;
-        const ga = Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x)
-                 + (Math.random()-0.5)*0.10*eScat;
-        sndAiShot(pts[i].x);
-        if(Math.random() < cfg.big) eBig(pts[i].x, pts[i].y, e.faction);
-        else                        eSmall(pts[i].x, pts[i].y, e.faction, ga);
+        const ga = (bomb ? leadAngle(pts[i].x, pts[i].y, bomb, g.spd)
+                         : Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x))
+                 + (Math.random()-0.5)*0.10*eScat*g.scat;
+        sndAiShot(pts[i].x, pts[i].y, g.snd);
+        capGunShot(e, pts[i].x, pts[i].y, ga, g, false, !!bomb);
       }
     }
     // Bosses also throw out a spread pattern
@@ -2045,13 +2340,93 @@ function capitalFire(e){
     }
   } else if(--e.fT <= 0){
     // Fallback in case a ship has no primary mounts
+    // Aimed as well, not straight to the left.
     e.pat++;
-    if(e.pat%3===0) eBig(e.x,e.y,e.faction);
-    else { eSmall(e.x,e.y,e.faction); eSmall(e.x,e.y-20,e.faction); eSmall(e.x,e.y+20,e.faction); }
+    const ft = capGunTarget(e);
+    if(ft){
+      const fa = (x,y) => Math.atan2(ft.y-y, ft.x-x) + (Math.random()-0.5)*0.10;
+      if(e.pat%3===0) eBig(e.x,e.y,e.faction,fa(e.x,e.y));
+      else { eSmall(e.x,e.y,e.faction,fa(e.x,e.y)); eSmall(e.x,e.y-20,e.faction,fa(e.x,e.y-20)); eSmall(e.x,e.y+20,e.faction,fa(e.x,e.y+20)); }
+    }
     e.fT = e.fR;
   }
   fireSecondaries(e, cfg);
   flakFire(e, false);
+}
+
+// A turret of its own, as in FreeSpace (the dorsal gun of the Ursa and
+// the Medusa, mount list 'turret'): it fires by itself at the nearest
+// hostile in reach within the half circle above the hull, also when
+// the player flies the ship - he has no say over it. Always a Subach,
+// whatever the main guns are, and at half the weight of one Subach
+// barrel and a slower beat, so it helps without taking over.
+const TURRET_WPN = 'hl7', TURRET_CD = 30, TURRET_DMG = 0.5;
+function turretTick(o, isPlayer){
+  const key = isPlayer ? player.ship : o.img;
+  const m = mountsFor(key);
+  if(!m || !m.turret || !m.turret.length) return;
+  if(o.turT > 0){ o.turT--; return; }
+  const sc = isPlayer ? playerSc() : o.sc, a = o.ang || 0;
+  const pts = mountList(key, o.x, o.y, sc, o.flip||false, 'turret', a);
+  if(!pts || !pts.length) return;
+  // Shivan hulls (Nephilim, Seraphim) carry a Shivan Light Laser up there.
+  const shiv = !isPlayer && o.faction==='shivan';
+  const wp = priDef(shiv ? 'shl' : TURRET_WPN), reach = wp.range || 330;
+  // Above the hull: the sprite's up, turned with the ship.
+  const ux = Math.sin(a), uy = -Math.cos(a);
+  const mine = isPlayer || o.side==='ally';
+  const list = mine ? enemies : [player].concat(allies);
+  let best = null, bd = reach;
+  for(const t of list){
+    if(!t || t===o || t.dead || t.warp>0 || t.warpOut>0 || t.scenery || t.invuln) continue;
+    if(t.type==='asteroid' || (mine && !isPlayer && (playerOnly(t) || escortSpares(t)))) continue;
+    if(t===player && (GS!=='playing' || !playerSeen())) continue;
+    const dx = t.x-pts[0].x, dy = t.y-pts[0].y, d = Math.hypot(dx, dy);
+    if(d >= bd || dx*ux + dy*uy < 0) continue;
+    bd = d; best = t;
+  }
+  if(!best){ o.turT = 10; return; }
+  o.turT = TURRET_CD;
+  for(const p of pts){
+    const ang = leadAngle(p.x, p.y, best, wp.spd) + (Math.random()-0.5)*0.06;
+    if(mine){
+      pBullets.push({x:p.x, y:p.y, vx:Math.cos(ang)*wp.spd, vy:Math.sin(ang)*wp.spd,
+                     w:14, h:3, dmg:volleyDmg(1)*wp.dmg*TURRET_DMG,
+                     col:wp.col, glow:wp.glow, pLife:Math.max(1, Math.round(reach/wp.spd)),
+                     ally:!isPlayer, fac:o.faction, turret:true});
+    } else {
+      eSmall(p.x, p.y, o.faction, ang, aiBoltSpd(wp), eVolleyDmg(1)*wp.dmg);
+      const tb = eBullets[eBullets.length-1];
+      tb.sm = true; tb.col = wp.col; tb.glow = wp.glow;
+    }
+  }
+  if(isPlayer) sndPlay('wpn_subach', o.x, 0.6);
+  else sndStart(shiv ? 'wpn_shivan_light' : 'wpn_subach', o.x, 1, false, 'ai_fire', o.y);
+}
+
+// Freighters that carry guns (the gas miners): their primary mounts fire
+// like a slow cruiser battery, at allied capital ships first, else the
+// player. No missiles and no flak - they are working ships.
+const FREIGHTER_GUNS = {gmzephyrus:1, gmanuket:1, gmrahu:1};
+const FREIGHTER_GUN_RATE = [150, 240];
+function freighterGuns(e){
+  if(e.dead || e.warp>0 || e.warpOut>0 || e.noFire) return;
+  if(!subOK(e,'weapons')) return;
+  const m = mountsFor(e.img);
+  if(!m || !m.primary || !m.primary.length) return;
+  if(!e.gunT) e.gunT = m.primary.map(function(){ return (rndR(FREIGHTER_GUN_RATE)*Math.random())|0; });
+  const pts = entMounts(e, 'primary');
+  if(!pts) return;
+  for(let i=0;i<pts.length && i<e.gunT.length;i++){
+    if(--e.gunT[i] > 0) continue;
+    e.gunT[i] = rndR(FREIGHTER_GUN_RATE)|0;
+    // Aimed by eye: in the gas of M39 nobody holds a lock, but these
+    // gunners still see the ship they are shooting at.
+    const gt = capGunTarget(e) || (GS==='playing' ? player : null);
+    if(!gt) continue;
+    sndAiShot(pts[i].x, pts[i].y);
+    eSmall(pts[i].x, pts[i].y, e.faction, Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x)+(Math.random()-0.5)*0.10);
+  }
 }
 
 // Damage of one primary volley. A ship with four barrels should
@@ -2096,10 +2471,32 @@ const PLAYER_TURN = 0.14;    // max heading change per logic step, half turn in 
 const HOLD_R_MULT = 1.2;     // multiple of the half sprite extent
 const HOLD_R_MIN  = 26;
 const HOLD_BAND   = 45;      // px over which speed climbs from zero to full
+// Inertia of the player's ship, by how nimble the hull is (its turn rate):
+// the time it takes to reach full speed from a standstill, and to stop
+// again. An interceptor (turn 0.18) takes about a fifth of a second, a heavy
+// bomber (0.10) twice as long. Stopping takes a little longer than speeding
+// up, so the ship glides.
+const INERTIA_T_FAST = 0.20, INERTIA_T_SLOW = 0.42;   // seconds, turn 0.18 and 0.10
+const INERTIA_BRAKE  = 1.25;                         // stopping time against speeding up
+function playerInertia(){
+  const tr = Math.max(0, Math.min(1, ((player.turn||0.14) - 0.10) / 0.08));
+  const ta = INERTIA_T_SLOW + (INERTIA_T_FAST - INERTIA_T_SLOW)*tr;
+  const spd = player.spd || 3;
+  return {acc: spd/(ta*TICK_HZ), brake: spd/(ta*INERTIA_BRAKE*TICK_HZ)};
+}
+// How hard the drive burns: with the speed along the nose, for the flame.
+function playerThrust(){
+  const a = player.head||0, spd = player.spd||3;
+  const f = ((player.mvx||0)*Math.cos(a) + (player.mvy||0)*Math.sin(a)) / spd;
+  return Math.max(0.45, Math.min(1.35, 0.85 + 0.5*f));
+}
 
 // Enemy small ship flight.
-const EFIGHTER_SPD = 2.2, EBOMBER_SPD = 1.5;      // player does 3.2, so he can disengage
-const EFIGHTER_TURN = 0.050, EBOMBER_TURN = 0.032;
+// v166: a little faster and noticeably tighter in the turn, so they come
+// back round onto the target instead of drifting through wide loops.
+// Fighters 2.2 / 0.050 and bombers 1.5 / 0.032 before.
+const EFIGHTER_SPD = 2.4, EBOMBER_SPD = 1.6;      // player does 3.2, so he can disengage
+const EFIGHTER_TURN = 0.066, EBOMBER_TURN = 0.038;
 const ATTACK_QUOTA = 3;      // how many may run in at the same time
 // Rammstoss. Ein Bomber traegt Bomben, deshalb reisst er ein Loch und
 // stirbt dabei selbst. Der Wert ist ein Anteil des Ziels, nicht fest:
@@ -2130,8 +2527,9 @@ const CAP_RAM_BITE = 0.85;
 // Ohne das kriecht er die Hoehe hoch und ist laengst da, bevor er auf Hoehe
 // ist.
 const CAP_RAM_CLIMB = 3.4;
-const ATTACK_BREAK = 55;     // distance at which a run counts as delivered
-const ATTACK_PASS  = 70;     // steps of flying straight through afterwards
+const ATTACK_BREAK = 45;     // distance at which a run counts as delivered (55 before v166)
+const ATTACK_PASS  = 55;     // steps of flying straight through afterwards (95 in v162-v165)
+const ATTACK_PASS_FI = 30;   // fighters (v166): short break, then straight back in
 const STAND_BAND   = 30;     // tolerance around the preferred distance
 // Separation has to start early: a fighter turns at 0.05 rad per step
 // and moves at 2.2, so its turning circle is about 44 px. Reacting only
@@ -2154,7 +2552,7 @@ function shipBound(e){
   if(!img) return BOUND_MIN;
   return Math.max(BOUND_MIN, Math.max(img.width, img.height)*e.sc*0.5);
 }
-const EFIRE_CONE = 0.42;     // half angle in rad within which they will shoot
+const EFIRE_CONE = 0.50;     // half angle in rad within which they will shoot (0.42 before v166)
 const EFIRE_RANGE = 430;
 const EBULLET_SPD = 4.5;
 // Fire from a distance has to be inaccurate, otherwise standing off is
@@ -2436,7 +2834,12 @@ function updateBeams(e) {
       {
         const mp=mountPos(e,b);
         const ang = b.type==='slash' ? b.curAngle : b.angle;
-        for(const o of beamTargets(e, !!b.large)){
+        // The target the beam was locked onto stays in it until the beam
+        // is done, even if the reason for the lock ran out meanwhile - a
+        // TAG expiring mid-shot left a beam that cut nothing (Silvio, M67).
+        const _bl = beamTargets(e, !!b.large);
+        if(b.tgt && b.tgt!==player && targetAlive(e, b.tgt) && _bl.indexOf(b.tgt)<0) _bl.push(b.tgt);
+        for(const o of _bl){
           if(!beamHits(mp.x, mp.y, ang, o.x, o.y, targetRadius(o))) continue;
           if(o === player){
             // Beams cut straight through shields, this is deliberate.

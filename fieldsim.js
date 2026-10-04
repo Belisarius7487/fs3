@@ -168,7 +168,8 @@ scenario('M33 Die Relaisstation', 'm=33', `
   FS.killSmall(); FS.step(900);
   r.reinforced = enemies.some(e=>e.type==='fighter' && !e.uid) || spawnQ.some(q=>!q.uid && /^fi_/.test(q.type));
   const before = SHOCKS.length;
-  FS.killId('S1'); FS.step(3);
+  // Since v170 the big wave follows a short fuse.
+  FS.killId('S1'); FS.step(3 + BIG_BLAST_FUSE);
   r.bigBlast = SHOCKS.some(k=>k.rMax===300);
   FS.killSmall(); FS.step(1200); FS.killSmall(); FS.step(600);
   r.reinfOff = evReinf===false;
@@ -256,7 +257,9 @@ scenario('M13 both transports on time', 'm=13', `
 // with nothing thrown on the way. Enemy ships are cleared every two seconds
 // once they are out of their vortex - a player who hits everything.
 // Scan missions (12, 23) need the player to fly the scan and are left out.
-for(let m=1;m<=60;m++) if(m!==12 && m!==23) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
+// 61 ends only when the Aeolus is lost; its own scenario covers that.
+// 71 is a scan, flown in its own scenario like 12 and 23.
+for(const m of Array.from({length:75},(_,i)=>i+1)) if(m!==12 && m!==23 && m!==61 && m!==71) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
   const t = FS.until(()=>waveOver, 40000, false, true);
   ITEMS.length = 0;     // pickups hold the jump open until they expire
   const j = FS.until(()=>wave === ${m}+1, 6000, false, false);
@@ -387,7 +390,7 @@ scenario('M39 Die Gasernte', 'm=39', `
   r.running = m.every(e=>e.escaping>0);
   r.fenris = enemies.some(e=>e.uid==='K1' && e.img==='ntfcrfenris');
   const m1 = enemies.find(e=>e.uid==='M1');
-  m1.hp = 0; FS.step(3);
+  m1.hp = 0; FS.step(3 + BIG_BLAST_FUSE);
   r.giantBlast = SHOCKS.some(k=>k.rMax===400);
   return r;`);
 
@@ -509,7 +512,9 @@ scenario('Notices: a column, not the field', 'm=31', `
   for(let i=0;i<5;i++) notice('N'+i, 'info');
   r.atMostThreeNewestFirst = NOTICES.length===3 && NOTICES[0].txt==='N4' && NOTICES[2].txt==='N2';
   FS.step(NOTICE_TIME+30); draw();
-  r.theyGoAgain = NOTICES.length===0;
+  // Only the test's own notices: the mission may post one of its own
+  // meanwhile (M31: the Leviathan turning hostile).
+  r.theyGoAgain = !NOTICES.some(n=>/^N\d$/.test(n.txt));
   return r;`);
 
 scenario('Notices: radio lines of a mission', 'm=34', `
@@ -559,7 +564,8 @@ scenario('Pickups light up the bar, not the field', 'm=31', `
   thGlowPath = function(x,y,w,h){ rings.push({x,y,w,h}); return og.apply(this, arguments); };
   barPulse('hull'); barPulse('ticket:cruiser'); FS.step(40); draw(); thGlowPath = og;
   r.ringAroundHull = rings.some(g=>g.x===181 && g.w===116);
-  r.ringAroundTicket = rings.some(g=>g.x===533 && g.w===58);
+  // The ring follows what is drawn in the cell (v162), within the cell.
+  r.ringAroundTicket = rings.some(g=>g.x===533 && g.w>=30 && g.w<=64);
   // Its time is up: the pulse is over and gone. (Stepping the game to get
   // there would let loot from the fight light it up again.)
   barPulse('hull'); BAR_PULSE.hull.t0 = fc - BAR_PULSE_T;
@@ -781,7 +787,7 @@ scenario('M54 Die Evakuierung', 'm=54', `
   const t = FS.until(()=>{ keep(); return protSaved>=1; }, 3000, true);
   r.firstOut = t>=0;
   FS.step(5);
-  r.noticeForIt = NOTICES.some(n=>n.txt==='FIRST ELYSIUM IS OUT');
+  r.noticeForIt = NOTICES.some(n=>n.txt==='AN ELYSIUM IS OUT - 1 SAFE SO FAR');
   // Three out while the fourth is still flying: not yet complete.
   FS.until(()=>{ keep(); return protSaved>=3; }, 9000, true);
   const t4 = allies.find(a=>a.uid==='T4');
@@ -1301,6 +1307,836 @@ scenario('Sound build: beams, log, names', 'm=52', `
   const german = Object.keys(SCRIPT_WAVES).filter(k => /^(Der|Die|Das) |ue|oe|ae|Erstkontakt|Nachschub|Begegnung/.test(SCRIPT_WAVES[k].name));
   r.namesEnglish = german.length === 0;
   if(german.length) r.germanLeft = german.join(',');
+  return r;`);
+
+scenario('Sound build 2: mute, tabs, scan, music', 'm=43', `
+  const r = {};
+  // Mute: one switch for everything, kept in the browser.
+  const on0 = SND.on;
+  sndToggleMute();
+  r.muteToggles = SND.on === !on0;
+  r.muteKept = JSON.parse(localStorage.getItem('fs3_snd')).on === SND.on;
+  sndToggleMute();
+  // The speaker sits in the bar, clear of the gear.
+  draw();
+  const mr = window._muteRect;
+  r.speakerInBar = !!mr && mr.y < HUD_H && mr.x + mr.w <= W-52;
+  r.speakerHit = muteHit({x:mr.x+5, y:mr.y+5}) && !muteHit({x:mr.x-40, y:mr.y+5});
+  // Settings: tabs instead of pages.
+  setSettings(true); draw();
+  const tabs = (window._setRects||[]).filter(q => /^tab/.test(q.act));
+  r.fourTabs = tabs.length === 4;
+  const t3 = tabs[3];
+  settingsClick(t3.x+4, t3.y+4);
+  r.tabOpensSound = settingsPage === 3;
+  draw();
+  r.musicRow = (window._setRects||[]).some(q => q.act === 'musvol');
+  r.noPageArrows = !(window._setRects||[]).some(q => q.act === 'pagenext' || q.act === 'pageprev');
+  setSettings(false);
+  // Scan: the start sound once when a scan begins, again only after it broke off.
+  const o = {}; let n = 0; const sp = sndStart, sst = sndStop;
+  sndStart = function(k){ if(k==='scan_start') n++; return {}; };
+  sndStop = function(){};
+  sndScanStep(o, 0, 0, true); sndScanStep(o, 0, 0, true);
+  const once = n === 1;
+  sndScanStep(o, 0, 0, false); sndScanStep(o, 0, 0, true);
+  sndScanStep(o, 0, 0, false);
+  sndStart = sp; sndStop = sst;
+  r.scanStartOnce = once && n === 2;
+  // Music: what plays when.
+  const L = ['title_screen_01.mp3','fight_01.mp3','fight_02.mp3','boss_01.mp3','boss_vasudan.mp3','game_over_01.mp3','credits.mp3'];
+  r.pickTitle = musicPick('title', null, L) === 'title_screen_01.mp3';
+  r.pickFightNotSame = musicPick('fight', 'fight_01.mp3', L) === 'fight_02.mp3';
+  r.pickBossNotVasudan = musicPick('boss', null, L) === 'boss_01.mp3';
+  r.pickVasudanBoss = musicPick('boss_vasudan', null, L) === 'boss_vasudan.mp3';
+  r.pickFallback = musicPick('boss', null, ['fight_01.mp3']) === 'fight_01.mp3';
+  r.wantFight = musicWant() === 'fight';
+  enemies.push({type:'boss', faction:'hol', x:500, y:200, warp:0, dead:false});
+  r.wantVasudanBoss = musicWant() === 'boss_vasudan';
+  enemies.pop();
+  r.noListNoMusic = musicFiles().length === 0;
+  return r;`);
+
+scenario('v157: turrets, miners, shields, sounds', 'm=39', `
+  const r = {};
+  FS.step(50);
+  // Mounts: the dorsal guns are turrets now, the Ares has a nose gun.
+  r.ursaTurret = mountsFor('boursa').turret.length===1 && mountsFor('boursa').primary.length===3;
+  r.medusaTurret = mountsFor('bomedusa').turret.length===1 && mountsFor('bomedusa').primary.length===1;
+  r.aresThreeGuns = mountsFor('fiares').primary.length===3;
+  // The player's Ursa: the turret fires by itself at an enemy above, not below.
+  applyShip('boursa');
+  isFiring=false; MOUSE.down=false;
+  enemies.length = 0; pBullets.length = 0;
+  player.x = 300; player.y = 300; player.ang = 0; player.flip = false; player.turT = 0;
+  const e = {type:'fighter', img:'fiherc', sc:0.3, x:360, y:180, hp:1e6, maxHp:1e6, side:'enemy', faction:'ntf', warp:0};
+  enemies.push(e);
+  for(let i=0;i<40;i++) turretTick(player, true);
+  const above = pBullets.filter(b => b.turret).length;
+  pBullets.length = 0; e.y = 420; player.turT = 0;
+  for(let i=0;i<40;i++) turretTick(player, true);
+  const below = pBullets.filter(b => b.turret).length;
+  r.turretFiresAbove = above > 0;
+  r.turretHoldsBelow = below === 0;
+  // An enemy Medusa's turret shoots at the player above it.
+  enemies.length = 0; eBullets.length = 0;
+  const m = {type:'bomber', img:'bomedusa', sc:0.3, x:400, y:400, ang:0, flip:true, side:'enemy', faction:'ntf', hp:100, turT:0};
+  player.x = 380; player.y = 250;
+  for(let i=0;i<40;i++) turretTick(m, false);
+  r.enemyTurretFires = eBullets.length > 0;
+  // The gas miners fire.
+  const z = {type:'freighter', img:'gmzephyrus', sc:0.5, x:500, y:250, faction:'ntf', side:'enemy', hp:100};
+  eBullets.length = 0;
+  for(let i=0;i<600;i++) freighterGuns(z);
+  r.minerFires = eBullets.length > 0;
+  // Sounds: the Subach has its own, the player's guns cut old voices.
+  r.subachSound = PRI_SND.hl7 === 'wpn_subach';
+  r.danteSteals = !!SND_STEAL.wpn_dante;
+  // Scan loop: runs while scanning, stops when done or when not continued.
+  const started = [], stopped = [];
+  const ss = sndStart, st = sndStop;
+  sndStart = function(n){ const o = {n:n}; started.push(o); return o; };
+  sndStop = function(o){ stopped.push(o); };
+  const o1 = {};
+  sndScanStep(o1, 0, 0, true); sndScanStep(o1, 0, 0, true);
+  const oneLoop = started.length === 1 && SND_SCANS.length === 1;
+  sndScanStep(o1, 0, 0, false);
+  r.scanLoopStartsOnceStopsOnEnd = oneLoop && stopped.length === 1 && SND_SCANS.length === 0;
+  const o2 = {};
+  sndScanStep(o2, 0, 0, true);
+  sndCtx = sndCtx || {state:'running'};
+  const fc0 = fc; fc += 5;
+  const hp = player.hp; sndTick(); fc = fc0;
+  r.scanLoopStopsWhenAbandoned = SND_SCANS.length === 0 && stopped.length === 2;
+  sndStart = ss; sndStop = st;
+  // Shields: the hull skin is built and drawn.
+  r.hullShield = hullShield('fiherc', 'terran', 100, 100, 0.3, false, 0, 1, SH_FLASH) === true;
+  r.shieldColours = hullShieldCol('vasudan').glow !== hullShieldCol('terran').glow && hullShieldCol('shivan').glow !== hullShieldCol('terran').glow;
+  return r;`);
+
+scenario('v158: arms of the other ships', 'm=52', `
+  const r = {};
+  FS.step(30);
+  const mk = (img, type, side, x, y) => { const o = {type:type, img:img, sc:0.3, x:x, y:y, ang:Math.PI, head:Math.PI, flip:false,
+      side:side, faction:side==='ally'?'terran':'ntf', hp:100, maxHp:100, fR:100, fT:0, warp:0}; return o; };
+  // An enemy Perseus fires Subach bolts with the Subach's reach.
+  player.x = 300; player.y = 250; eBullets.length = 0;
+  const pe = mk('fiperseus', 'fighter', 'enemy', 500, 250);
+  smallFire(pe, player);
+  r.subachReach = eBullets.length > 0 && eBullets.every(b => b.eLife > 0);
+  // A Myrmidon: a cone of pellets from one mount, bolts from the others.
+  eBullets.length = 0;
+  const my = mk('fimyrmidon', 'fighter', 'enemy', 500, 250);
+  smallFire(my, player);
+  r.myrmidonMixed = eBullets.length === 7 + 2;
+  // An Ares fires Dante shells that burst into shrapnel at range.
+  eBullets.length = 0;
+  const ar = mk('fiares', 'fighter', 'enemy', 700, 250);
+  smallFire(ar, player);
+  const shell = eBullets.find(b => b.dfuse);
+  r.danteShell = !!shell;
+  if(shell){ shell.dfuse = 1; shell.x = 400; shell.y = 250; const n0 = eBullets.length; update();
+             r.danteBursts = eBullets.filter(b => b.shard).length >= 6; }
+  // Heavy bombers drop two bombs at a time on a capital ship of ours.
+  eBullets.length = 0;
+  const cap = allies.find(a => !a.small) || (allies.push(mk('codeimos','corvette','ally',200,300)), allies[allies.length-1]);
+  cap.small = false; cap.type = cap.type || 'corvette';
+  const ur = mk('boursa', 'bomber', 'enemy', 600, 200);
+  const lo = aiLoadout(ur);
+  aiSecondary(ur, 600, 200, lo, WPN.bomber.sec);
+  r.twoBombsAtCapital = eBullets.filter(b => b.kind==='bomb').length === 2 && eBullets.every(b => b.tgt === cap);
+  // A Stiletto bomber with no capital ship in sight holds its fire.
+  eBullets.length = 0;
+  const saved = allies.slice(); allies.length = 0;
+  const ze = mk('bozeus', 'bomber', 'enemy', 600, 200);
+  r.stilettoHolds = aiSecondary(ze, 600, 200, aiLoadout(ze), WPN.bomber.sec) === false && eBullets.length === 0;
+  allies.push(...saved);
+  // An enemy Infyrno bursts by itself near the player.
+  eBullets.length = 0;
+  const he = mk('fiherc', 'fighter', 'enemy', 520, 250);
+  player.x = 300; player.y = 250;
+  aiSecondary(he, 520, 250, aiLoadout(he), WPN.fighter.sec);
+  let burst = false;
+  for(let i=0;i<200 && !burst;i++){ player.x = 300; player.y = 250; update(); burst = eBullets.some(b => b.shard); }
+  r.enemyInfyrnoBursts = burst;
+  // An escort's Infyrno bursts by itself and is not the player's round.
+  pBullets.length = 0;
+  const ah = mk('fiherc', 'fighter', 'ally', 200, 250);
+  const tg = mk('fimyrmidon', 'fighter', 'enemy', 420, 250); tg.hp = 1e6; enemies.push(tg);
+  aiSecondary(ah, 200, 250, aiLoadout(ah), WPN.fighter.sec);
+  r.escortRoundNotPlayers = liveBurstRound() === null;
+  let ab = false;
+  for(let i=0;i<200 && !ab;i++){ tg.x = 420; tg.y = 250; update(); ab = pBullets.some(b => b.shard && b.ally); }
+  r.escortInfyrnoBursts = ab;
+  // Shivans fly their own lasers (since v161).
+  r.shivanOwn = aiLoadout({img:'fibasilisk', faction:'shivan'}).p === 'shh';
+  // Capital guns see the player in the nebula when he comes close.
+  const wm = waveMod; waveMod = 'nebula';
+  const cg = {x:500, y:250};
+  const al = allies.slice(); allies.length = 0;
+  player.x = 300; player.y = 250; const near = capGunTarget(cg) === player;
+  player.x = 20; player.y = 480; const far = capGunTarget(cg) === null;
+  allies.push(...al); waveMod = wm;
+  r.nebulaCapGuns = near && far;
+  r.ulyssesNtf = ROLES.ntf_fighters.indexOf('fiulysses') >= 0;
+  return r;`);
+
+scenario('v159: fire delay, held secondary, turrets, bursts, Perseus', 'm=31', `
+  const r = {};
+  FS.step(20);
+  // Out of the jump first: in it the old code cooled down as well.
+  for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  r.outOfJump = !inJump();
+  // The primary cools down while the trigger is released (broken v157-v158).
+  isFiring = false; MOUSE.down = false; K['Space'] = false; K['KeyZ'] = false;
+  player.fT = player.fR;
+  FS.step(player.fR + 1);
+  r.cooldownOnRelease = player.fT === 0;
+  // A held secondary keeps firing as the launcher comes ready.
+  player.secAmmo = 6; player.secTimer = 0;
+  const a0 = player.secAmmo;
+  SEC_HOLD.rmb = true;
+  FS.step(curSec().cd * 3 + 5);
+  r.heldSecondaryRefires = a0 - player.secAmmo >= 3;
+  SEC_HOLD.rmb = false;
+  const a1 = player.secAmmo; player.secTimer = 0;
+  FS.step(curSec().cd * 2);
+  r.releasedStops = player.secAmmo === a1;
+  // ...but a live Infyrno is not set off by a held button.
+  const fake = {x:400, y:250, vx:0, vy:0, sec:true, burst:true, wpn:'infyrno', life:999, w:4, h:4};
+  pBullets.push(fake); player.secTimer = 0; player.secAmmo = 5;
+  SEC_HOLD.btn = true; secHoldTick(); SEC_HOLD.btn = false;
+  r.heldLeavesInfyrno = pBullets.indexOf(fake) >= 0 && player.secAmmo === 5;
+  pBullets.splice(pBullets.indexOf(fake), 1);
+  // Capacity after the FreeSpace banks.
+  r.aresSec32 = shipStats('fiares').sec === 32;
+  r.hercMk2Sec30 = shipStats('fihercmk2').sec === 30;
+  r.hercSec20 = shipStats('fiherc').sec === 20;
+  // The Perseus: player hull in the NTF cycle, escort and NTF enemy.
+  const ps = ROSTER_NTF.find(s => s.key === 'fiperseus');
+  r.perseusRoster = !!ps && ps.unlock === 2000 && ROSTER_NTF.indexOf(ps) === 1;
+  r.perseusEscort = ROLES.ally_ter_fighters.indexOf('fiperseus') >= 0;
+  r.perseusNtf = ROLES.ntf_fighters.indexOf('fiperseus') >= 0;
+  // An escort capital ship fires at a target behind it.
+  const cap = {type:'cruiser', img:'craeolus', sc:0.3, x:500, y:250, ang:0, head:0, flip:false,
+               side:'ally', faction:'terran', hp:1000, maxHp:1000, warp:0};
+  cap.gunT = (entMounts(cap,'primary')||[]).map(() => 1);
+  const foe = {type:'fighter', img:'fiherc', sc:0.3, x:150, y:250, hp:1e6, maxHp:1e6, faction:'ntf', side:'enemy', warp:0};
+  const saved = enemies.slice(); enemies.length = 0; enemies.push(foe);
+  pBullets.length = 0;
+  allyFire(cap);
+  const shots = pBullets.filter(b => !b.shard && !b.flak && !b.sec);
+  r.escortTurretFiresBehind = shots.length > 0 && shots.every(b => b.vx < 0);
+  enemies.length = 0; enemies.push(...saved);
+  // The heavy round of an enemy capital goes where it is aimed.
+  eBullets.length = 0; eBig(300, 200, 'ntf', Math.PI/2);
+  r.heavyRoundAimed = eBullets.length === 1 && eBullets[0].vy > 2 && Math.abs(eBullets[0].vx) < 0.01;
+  // Bursts are uneven, the damage stays.
+  let even = 0, dmgOk = true;
+  for(let k=0;k<20;k++){
+    pBullets.length = 0;
+    shardBurst(400, 250, 9, 5, 3.4, 70, '#fff', '#fff', false);
+    const sp = pBullets.map(b => Math.hypot(b.vx, b.vy));
+    if(Math.max(...sp) - Math.min(...sp) < 0.2) even++;
+    const tot = pBullets.reduce((s,b) => s + b.dmg, 0);
+    if(Math.abs(tot - 45) > 0.01) dmgOk = false;
+  }
+  pBullets.length = 0;
+  r.burstsUneven = even === 0;
+  r.burstDamageKept = dmgOk;
+  return r;`);
+
+scenario('v160: plated capital ships, traits, lead, log', 'm=33', `
+  const r = {};
+  FS.step(10);
+  const mk = (img, type) => { const o = {type:type, img:img, x:500, y:250, hp:1000, maxHp:1000, faction:'ntf', side:'enemy', warp:0}; return o; };
+  const hit = (o, src, kind) => { o.hp = 1000; damageEnemy(o, 100, null, null, true, kind||'bolt', src); return 1000 - o.hp; };
+  const de = mk('ntfcodeimos', 'corvette');
+  r.deimosStrongVsGuns = Math.abs(hit(de, 'gun') - 55) < 0.01;
+  r.shardsLoseMore = Math.abs(hit(de, 'shard') - 100*ARMOR.strong*ARMOR_SHARD) < 0.01;
+  r.bombsFull = Math.abs(hit(de, 'bomb', 'sec') - 100) < 0.01 && Math.abs(hit(de, 'missile', 'sec') - 100) < 0.01;
+  r.capitalGunsFull = Math.abs(hit(de, 'capgun') - 100) < 0.01;
+  const fe = mk('ntfcrfenris', 'cruiser');
+  r.fenrisProneToBeams = Math.abs(hit(fe, 'beam', 'beam') - 150) < 0.01 && Math.abs(hit(fe, 'gun') - 70) < 0.01;
+  const he = mk('ntfdehecate', 'destroyer');
+  r.hecateProneToBombs = Math.abs(hit(he, 'bomb', 'sec') - 150) < 0.01;
+  const fi = {type:'fighter', img:'fiherc', x:500, y:250, hp:1000, maxHp:1000, sh:0, faction:'ntf', warp:0};
+  r.fightersUnplated = Math.abs(hit(fi, 'gun') - 100) < 0.01;
+  const fr = {type:'freighter', img:'frbes', x:500, y:250, hp:1000, maxHp:1000, faction:'ntf', warp:0};
+  r.freightersUnplated = Math.abs(hit(fr, 'gun') - 100) < 0.01;
+  // An enemy fighter's bolt on one of our corvettes is plated too.
+  r.enemyBoltMarked = eSrc({sm:true}) === 'gun' && eSrc({kind:'bomb'}) === 'bomb' && eSrc({}) === 'capgun';
+  // Traits that move: the Mentu drifts faster, once.
+  const me = {type:'cruiser', img:'crmentu', vy:0.3};
+  hullTraitsOnce(me); hullTraitsOnce(me);
+  r.mentuAgile = Math.abs(me.vy - 0.54) < 0.001;
+  // The Aten fires its flak twice as often.
+  r.atenFlak = HULL_TRAITS.craten.flak === 2;
+  // Escort capital guns lead a moving target.
+  const cap = {type:'cruiser', img:'craeolus', sc:0.3, x:200, y:250, ang:0, head:0, flip:false,
+               side:'ally', faction:'terran', hp:1000, maxHp:1000, warp:0};
+  cap.gunT = (entMounts(cap,'primary')||[]).map(() => 1);
+  const foe = {type:'fighter', img:'fiherc', sc:0.3, x:600, y:250, vx:0, vy:3, hp:1e6, maxHp:1e6, faction:'ntf', side:'enemy', warp:0};
+  const saved = enemies.slice(); enemies.length = 0; enemies.push(foe);
+  pBullets.length = 0; allyFire(cap);
+  const cs = pBullets.filter(b => b.cap);
+  r.escortGunsLead = cs.length > 0 && cs.every(b => b.vy > 0.3);
+  r.escortGunsMarked = cs.length > 0;
+  enemies.length = 0; enemies.push(...saved); pBullets.length = 0;
+  // The practice log says what was flown.
+  FS.step(30);
+  r.logFlown = !!PL && !!PL.fits && Object.keys(PL.fits).some(k => k.indexOf(player.ship) === 0);
+  return r;`);
+
+scenario('v161: capital turrets, point defence, Shivan arms, colours, portal jump', 'm=52', `
+  const r = {};
+  FS.step(20);
+  const mkC = (img, type, fac, side) => { const o = {type:type, img:img, sc:0.3, x:560, y:250, ang:0, head:0,
+      flip:(side!=='ally'), side:side||'enemy', faction:fac, hp:5000, maxHp:5000, warp:0, pts:0}; return o; };
+  // One gun per mount, for good.
+  const cr = mkC('ntfcraeolus', 'cruiser', 'ntf');
+  r.cruiserLightOnly = [0,1,2,3,4,5].every(i => capGun(cr, i) === CAP_GUNS.tt);
+  const de = mkC('ntfdeorion', 'destroyer', 'ntf');
+  r.destroyerHeavyThird = capGun(de, 2) === CAP_GUNS.tht && capGun(de, 0) === CAP_GUNS.tt && capGun(de, 5) === CAP_GUNS.tht;
+  const sd = mkC('dedemon', 'destroyer', 'shivan');
+  r.shivanGuns = capGun(sd, 0) === CAP_GUNS.stl && capGun(sd, 2) === CAP_GUNS.mf;
+  // The Orion's heavy turrets fire in threes, in her race's colour.
+  eBullets.length = 0;
+  capGunShot(de, 500, 250, Math.PI, CAP_GUNS.tht, false, false);
+  r.orionTriple = eBullets.length === 3 && eBullets.every(b => b.big && b.col === RACE_COL.terran.core);
+  eBullets.length = 0;
+  capGunShot(sd, 500, 250, Math.PI, CAP_GUNS.stl, false, false);
+  r.shivanRed = eBullets.length === 1 && eBullets[0].col === RACE_COL.shivan.core;
+  // Point defence: an enemy capital shoots at a bomb of ours first.
+  pBullets.length = 0; eBullets.length = 0;
+  const bomb = {x:520, y:250, vx:1.5, vy:0, w:16, h:16, sec:true, type:'bomb', life:300, dmg:80};
+  pBullets.push(bomb);
+  r.pdSeesBomb = pdTarget(cr, {x:560, y:250}, false) === bomb;
+  const pdr = {x:bomb.x, y:bomb.y, vx:0, vy:0, w:8, h:4, pd:true};
+  r.pdKillsBomb = pdHit(pdr) === true && pBullets.indexOf(bomb) < 0;
+  // ...and an escort at an enemy bomb.
+  const eb = {x:220, y:250, vx:-1, vy:0, w:15, h:15, kind:'bomb', hp:1, faction:'ntf'};
+  eBullets.push(eb);
+  const al = mkC('craeolus', 'cruiser', 'terran', 'ally');
+  r.escortPdSeesBomb = pdTarget(al, {x:200, y:250}, true) === eb;
+  eBullets.length = 0;
+  // Shivan fighters: red lasers, the Mega one heavy and short.
+  const sh = {type:'fighter', img:'fimanticore', faction:'shivan'};
+  const bo = {type:'bomber', img:'bonephilim', faction:'shivan'};
+  r.shivanLoadouts = aiLoadout(sh).p === 'shh' && aiLoadout(bo).p === 'shm' && aiLoadout(bo).pair === true;
+  r.megaLaser = priDef('shm').range > 0 && priDef('shm').dmg === 2 && /^#ff/.test(priDef('shm').col);
+  r.nephilimTurret = !!(mountsFor('bonephilim').turret && mountsFor('boseraphim').turret);
+  // Flak is the Dante.
+  eBullets.length = 0; flakBurst(400, 250, false, 'ntf');
+  r.flakDanteColours = eBullets.length > 0 && eBullets.every(b => b.col === priDef('dante').col);
+  eBullets.length = 0;
+  // A ship through the Knossos jumps into a vortex ahead of her.
+  const ic = mkC('coiceni', 'cruiser', 'ntf'); ic.portalWarp = true; ic.warpOut = 100; ic.warpMax = 100;
+  IMGS.coiceni = IMGS.coiceni || IMGS.ntfcraeolus;
+  r.portalJumpFs = !!fsWarp(ic);
+  // Everything draws: lasers of every side, ordnance of every race.
+  pBullets.push({x:300, y:200, vx:6, vy:0, w:11, h:4, dmg:1, col:'#ccff88', glow:'rgba(180,255,80,0.3)'});
+  eBullets.push({x:400, y:200, vx:-4, vy:0, w:8, h:4, dmg:1, faction:'shivan', col:'#ff4a30', glow:'rgba(255,40,20,0.4)'});
+  eBullets.push({x:420, y:220, vx:-2, vy:0, w:11, h:6, kind:'missile', faction:'vasudan', dmg:1});
+  let drew = true; try{ draw(); draw(); }catch(ex){ drew = String(ex); }
+  r.drawsLasers = drew === true;
+  pBullets.length = 0; eBullets.length = 0;
+  // The log names the secondary even before one was chosen.
+  r.logNoUndefined = !Object.keys(PL.fits||{}).some(k => /undefined/.test(k));
+  return r;`);
+
+scenario('v162: inertia, keys, flight, drift, debris, escorts', 'm=31', `
+  const r = {};
+  FS.step(20);
+  for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  // Inertia: from rest the ship takes several steps to reach full speed,
+  // and it glides on when the pointer stops asking.
+  player.x = 200; player.y = 300; player.mvx = 0; player.mvy = 0;
+  MOUSE.x = 700; MOUSE.y = 300;
+  FS.step(1);
+  const v1 = Math.hypot(player.mvx, player.mvy);
+  FS.step(60);
+  const vFull = Math.hypot(player.mvx, player.mvy);
+  r.speedsUp = v1 > 0 && v1 < player.spd*0.3 && vFull > player.spd*0.9;
+  MOUSE.x = player.x; MOUSE.y = player.y;
+  const x0 = player.x; FS.step(1);
+  r.glides = player.x > x0 + 0.5;
+  FS.step(120);
+  r.stops = Math.hypot(player.mvx, player.mvy) < 0.01;
+  r.nimbleFaster = (function(){ const t0 = player.turn; player.turn = 0.18; const a = playerInertia().acc/player.spd;
+                    player.turn = 0.10; const b = playerInertia().acc/player.spd; player.turn = t0; return a > b*1.8; })();
+  // WASD no longer flies the ship.
+  const y0 = player.y; K['KeyW'] = true; FS.step(10); K['KeyW'] = false;
+  r.noWasd = Math.abs(player.y - y0) < 0.5;
+  // The bar shows the keys of the buttons that open a window.
+  const keys = []; const of = ctx.fillText;
+  ctx.fillText = function(s){ keys.push(String(s)); return of.apply(this, arguments); };
+  draw(); ctx.fillText = of;
+  r.keyHints = ['V','R','S'].every(k => keys.indexOf(k) >= 0);
+  // Capital ships turn their drift round, they do not flip it.
+  const c = {type:'cruiser', y:300, vy:0.4, minY:200, maxY:320, subs:null};
+  let flips = 0, prev = c.vy;
+  for(let i=0;i<400;i++){ capDrift(c, 1); if(Math.abs(c.vy - prev) > 0.05) flips++; prev = c.vy; }
+  r.driftEases = flips === 0 && c.y <= 320.5 && c.y >= 199.5;
+  // Wreckage and rammers take a share of at most 500 hull from a capital ship.
+  r.debrisCapped = impactBase({type:'corvette', maxHp:4688}) === 500 && impactBase({type:'fighter', maxHp:48}) === 48;
+  // Escorts leave ships alone that are to be taken, disabled or scanned.
+  r.escortsSpare = escortSpares({captureLock:true}) && escortSpares({disableTgt:true, disableMet:false})
+                && !escortSpares({disableTgt:true, disableMet:true}) && !escortSpares({});
+  // Fighters: a hit makes them jink; wingmen keep a slot by the leader.
+  const f = enemies.find(e => e.type==='fighter' && !(e.warp>0));
+  if(f){ f.jinkCd = 0; f.jinkT = 0; let jinked = false;
+         for(let i=0;i<20 && !jinked;i++){ f.jinkReq = true; f.jinkCd = 0; flySmall(f); jinked = f.jinkT > 0; }
+         r.jinksWhenHit = jinked; }
+  else r.jinksWhenHit = 'no fighter';
+  return r;`);
+
+scenario('v163: M61 The Reconnaissance', 'm=61', `
+  const r = {};
+  r.shivanCycle = cycleTabs() && player.ship==='fimyrmidon' && ALLY_FAC_ON.terran && ALLY_FAC_ON.vasudan;
+  FS.step(20);
+  for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  const a = FS.ids('A1')[0];
+  r.aeolusGuarded = !!a && a.guard === true && a.callsOk === true;
+  // Only an allied destroyer opens the hangar; there is none here.
+  shipUnlockedFac = {terran:3, vasudan:3}; shipUnlocked = 6;
+  r.noSwitchWithoutDestroyer = shipSwapReady() === false;
+  r.bothSupportTabs = callTabOpen('terran') && callTabOpen('vasudan');
+  // The Shivans come out of the portal, in its vortex.
+  FS.step(600);
+  const rk = FS.ids('R1')[0];
+  r.throughPortal = !!rk && rk.portalWarp === true;
+  r.smallThroughPortal = enemies.some(e => (e.type==='fighter'||e.type==='bomber') && e.portalWarp);
+  r.danteOpen = weaponOpen(priDef('dante'));
+  // A Rakshasa that goes down is replaced, each one tougher (v164).
+  const hp1 = rk ? rk.maxHp : 0;
+  if(rk){ FS.killId('R1'); FS.step(300); }
+  const rk2 = FS.ids('R1')[0];
+  r.replaced = !!rk2 && rk2 !== rk;
+  r.tougher = !!rk2 && rk2.maxHp > hp1*1.2;
+  if(rk2){ rk2.warp = 0; FS.killId('R1'); FS.step(300); }
+  const rk3 = FS.ids('R1')[0];
+  r.tougherStill = !!rk3 && rk3.maxHp > rk2.maxHp*1.2;
+  r.noDestroyer = !SCRIPT_WAVES[61].u.some(u => u.c==='de');
+  // Escalation: more small craft at once as time goes on.
+  const live0 = waveLive;
+  FS.until(()=>spawnT > 62*TICK_HZ, 8000, true);
+  r.escalates = waveLive > live0;
+  // The end: the Aeolus goes down, the Shivans jump out, the wave ends.
+  const s0 = score;
+  const aa = FS.ids('A1')[0]; if(aa) aa.hp = 0;
+  FS.step(40);
+  r.penalty = score <= s0 - 900 + 400;     // 900 off, give or take a kill
+  r.withdraw = enemies.filter(e => !e.scenery && !e.invuln).every(e => e.warpOut > 0 || e.dead);
+  const t = FS.until(()=>waveOver, 2000, false, false);
+  r.ends = t >= 0;
+  return r;`);
+
+scenario('v163: Dante not before the Shivan cycle', 'm=60', `
+  score = 99999;
+  return {danteLocked: !weaponOpen(priDef('dante')), sidheOpen: weaponOpen(priDef('scatter')), noTabs: !cycleTabs()};`);
+
+scenario('v163: support tabs follow the destroyers', 'm=61', `
+  const r = {};
+  FS.step(20);
+  for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  for(const a of allies) a.callsOk = true;
+  // callsOk: placed by a mission, so she does not block the call herself.
+  const ty = mkAlly('vas_typhon'); ty.warp = 0; ty.callsOk = true; allies.push(ty);
+  toggleCallMenu();
+  r.opensOnVasudan = callMenu && callTab === 'vasudan';
+  r.oneColumn = callCols().length === 1 && callCols()[0].every(e => e.d.fac === 'vasudan');
+  r.terranShut = !callTabOpen('terran');
+  // A Terran call is refused while its tab is shut.
+  const n = allies.length;
+  r.refused = callAlly('ter_fenris') === false && allies.length === n;
+  drawCallMenu();      // drawn by the frame loop, after draw()
+  r.tabRects = (window._callRects||[]).filter(x => x.tab).length === 1;
+  setCallMenu(false);
+  allies.splice(allies.indexOf(ty), 1);
+  toggleCallMenu();
+  r.bothWithout = callTabOpen('terran') && callTabOpen('vasudan');
+  drawCallMenu();      // drawn by the frame loop, after draw()
+  r.twoTabRects = (window._callRects||[]).filter(x => x.tab).length === 2;
+  setCallMenu(false);
+  return r;`);
+
+scenario('v165: M62 the Orion opens the Terran tab', 'm=62', `
+  FS.step(20);
+  for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  FS.step(300);
+  shipUnlockedFac = {terran:3, vasudan:3}; shipUnlocked = 6;
+  return {orion: FS.ids('A1').length===1 && FS.ids('A1')[0].guard===true,
+          terranOnly: hangarTabOpen('terran') && !hangarTabOpen('vasudan'),
+          switchReady: shipSwapReady(),
+          cruisersThroughPortal: FS.ids('K1').length===1 && FS.ids('K1')[0].portalWarp===true};`);
+
+scenario('v165: M63 Charybdis lets the beams see', 'm=63', `
+  const r = {};
+  FS.step(20);
+  for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  const c = FS.ids('C1')[0];
+  for(let i=0;i<600 && c.warp>0;i++) FS.step(1);
+  r.awacs = !!c && c.awacs===true && nebulaOn();
+  // A fighter inside her circle can be locked by our anti-fighter beams,
+  // one outside cannot, and heavy beams stay blind.
+  const near = {x:c.x+120, y:c.y, type:'fighter', side:'enemy', dead:false, warp:0, img:'fiastaroth', sc:0.3};
+  const far  = {x:c.x+420, y:c.y, type:'fighter', side:'enemy', dead:false, warp:0, img:'fiastaroth', sc:0.3};
+  enemies.push(near, far);
+  const tg = beamTargets(c, false);
+  r.insideSeen = tg.indexOf(near) >= 0;
+  r.outsideBlind = tg.indexOf(far) < 0;
+  r.heavyBlind = beamTargets(c, true).length === 0;
+  enemies.splice(enemies.indexOf(near),1); enemies.splice(enemies.indexOf(far),1);
+  // Without her, nothing.
+  c.dead = true; const n2 = {x:c.x+60, y:c.y, type:'fighter', side:'enemy', dead:false, warp:0, img:'fiastaroth', sc:0.3};
+  enemies.push(n2); r.goneBlind = beamTargets(FS.ids('A1')[0], false).indexOf(n2) < 0; enemies.pop(); c.dead = false;
+  // In play the beams actually fire at small craft.
+  let fired = 0;
+  for(let i=0;i<3000;i+=20){ FS.step(20); for(const a of allies) for(const b of (a.beams||[])) if(!b.large && b.state==='firing' && b.tgt && (b.tgt.type==='fighter'||b.tgt.type==='bomber')) fired++; }
+  r.beamsFire = fired > 0;
+  let ringDrawn = false; const arc = ctx.arc; ctx.arc = function(x,y,rad){ if(rad===AWACS_R) ringDrawn = true; return arc.apply(this, arguments); };
+  draw(); ctx.arc = arc;
+  r.ringDrawn = ringDrawn;
+  return r;`);
+
+scenario('v165: M64 stragglers', 'm=64', `
+  const r = {};
+  FS.step(400);
+  const k = FS.ids('K1')[0];
+  r.ntfCruiser = !!k && k.faction==='ntf' && k.escaping>0 && waveFeud;
+  r.bothFlags = enemies.some(e=>e.type==='fighter'&&e.faction==='ntf') && enemies.some(e=>e.type==='fighter'&&e.faction==='shivan');
+  for(const s of k.subs) if(s.id==='engines'){ s.hp=0; s.dead=true; }
+  FS.step(100);
+  r.stopped = k.escaping===0 && k.scenery===true;
+  return r;`);
+
+scenario('v165: M65 one buoy more lost than allowed: no success card', 'm=65', `
+  const cards=[]; const oa=objAnnounce; objAnnounce=function(a,b){ cards.push(b); return oa.apply(this,arguments); };
+  FS.step(200);
+  for(const id of ['P1','P2']){ const p=FS.ids(id)[0]; if(p) p.hp=0; FS.step(40); }
+  FS.until(()=>waveOver, 30000, true, true);
+  return {failed: cards.indexOf('TOO MANY BUOYS LOST')>=0, noSuccess: cards.indexOf('THE BUOY CHAIN STANDS')<0};`);
+
+scenario('v166: M66 freighters come in from the edge', 'm=66', `
+  const xs = [];
+  for(let i=0;i<2000;i++){ FS.step(1); for(const a of allies) if(/^T/.test(a.uid||'') && a._x0==null){ a._x0 = a.x; xs.push(Math.round(a.x)); } }
+  return {fromEdge: xs.length>=2 && xs.every(x => x < 0)};`);
+
+scenario('v166: M65 buoys smaller, and they stay to the end', 'm=65', `
+  FS.step(300);
+  const p = FS.ids('P1')[0];
+  const r = {smaller: hullWidth('inpharos') < 0.7*Math.round(Math.min(SIZE_MAX, Math.max(Math.min(SIZE_REF_W, SIZE_REF_W*Math.pow(HULL_LEN.inpharos/SIZE_REF_L, SIZE_E)), SIZE_K*Math.pow(HULL_LEN.inpharos, SIZE_E))))+1,
+             stays: !!p && p.stay===true};
+  FS.until(()=>waveOver, 30000, true, true);
+  FS.step(60);
+  r.stillThere = FS.ids('P1').length + FS.ids('P2').length + FS.ids('P3').length + FS.ids('P4').length >= 3
+                 && allies.filter(a=>a.stay).every(a=>!(a.warpOut>0));
+  return r;`);
+
+scenario('v166: no subsystem marks on our own ships, Charybdis lighter', 'm=63', `
+  FS.step(400);
+  const c = FS.ids('C1')[0], a = FS.ids('A1')[0];
+  let drawnOn = []; const ds = drawSubsystems; drawSubsystems = function(e){ drawnOn.push(e.side); return ds.apply(this, arguments); };
+  draw(); drawSubsystems = ds;
+  return {noAllyMarks: drawnOn.indexOf('ally') < 0, lighter: c.maxHp <= a.maxHp*0.6};`);
+
+scenario('v168: arrivals open inside the ring', 'm=61', `
+  FS.step(20);
+  const p = enemies.find(o=>o.img==='inknossos45deg');
+  const rx = IMGS[p.img].width*p.sc*0.5, ry = IMGS[p.img].height*p.sc*0.5;
+  let inside = 0, n = 0;
+  for(let i=0;i<200;i++){ const q = portalPoint(); n++;
+    const u = (q.x-p.x)/rx, w = (q.y-p.y)/ry;
+    if(u*u + w*w <= 0.56*0.56 && q.x <= p.x && q.x <= W-14) inside++; }
+  return {inside: inside === n};`);
+
+scenario('v168: M65 done means the Shivans pull out', 'm=65', `
+  const cards=[]; const oa=objAnnounce; objAnnounce=function(a,b){ cards.push(b); return oa.apply(this,arguments); };
+  let doneAt = -1;
+  for(let t=0;t<30000 && !waveOver;t+=20){
+    if(t%200===0) FS.killSmall(); FS.step(20);
+    if(doneAt<0 && cards.indexOf('THE BUOY CHAIN STANDS')>=0){ doneAt = spawnT; }
+  }
+  return {success: doneAt >= 0, endsSoon: waveOver, noReinf: !evReinf};`);
+
+scenario('v168: M66 notices count what got through', 'm=66', `
+  const notes=[]; const nt=notice; notice=function(t){ notes.push(t); return nt.apply(this,arguments); };
+  for(let t=0;t<9000 && !waveOver;t+=20){ if(t%200===0) FS.killSmall(); FS.step(20); }
+  const thr = notes.filter(n=>/THROUGH/.test(n) && /SAFE SO FAR/.test(n));
+  return {counted: thr.length>0 && thr.every((n,i)=>n.indexOf(String(i+1)+' SAFE')>=0)};`);
+
+scenario('v169: M67 TAG', 'm=67', `
+  const r = {};
+  r.tagOpen = weaponOpen(secDef('tag'));
+  r.fitted = player.sec==='tag' || isBomberHull(player.ship);
+  FS.step(400);
+  const g = FS.ids('G1')[0], o = FS.ids('A1')[0];
+  r.notWithout = beamTargets(o, true).indexOf(g) < 0;
+  // A TAG missile on the miner marks it, and the Orion's heavy beams take it.
+  pBullets.push({x:g.x-20, y:g.y, vx:2, vy:0, w:18, h:6, sec:true, type:'missile', homing:false, life:50, dmg:6, wpn:'tag'});
+  FS.step(30);
+  r.tagged = g.tagT > 0;
+  r.beamsSeeIt = beamTargets(o, true).indexOf(g) >= 0;
+  let mark = false; const ds = ctx.strokeStyle; draw(); r.drawn = true;
+  return r;`);
+
+scenario('v169: Dante and TAG not before their missions', 'm=66', `
+  score = 99999; return {tagLocked: !weaponOpen(secDef('tag'))};`);
+
+scenario('v169: M68 the Setekh jams, the bombs come from afar', 'm=68', `
+  const r = {};
+  FS.step(20); for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  const c = FS.ids('C1')[0];
+  let spawnedSmall = 0, far = true, n = 0;
+  const seen = new Set(enemies);
+  for(let t=0;t<4000;t+=20){ FS.step(20);
+    for(const e of enemies) if(!seen.has(e)){ seen.add(e); if((e.type==='fighter'||e.type==='bomber') && !e.uid) spawnedSmall++; }
+    for(const p of BOMB_PORTALS) if(p.tgt && !p._chk){ p._chk = 1; n++; if(Math.hypot(p.x-c.x, p.y-c.y) < SSB_MIN_D) far = false; }
+    for(const e of enemies) if((e.type==='fighter'||e.type==='bomber') && !(e.warp>0)) e.hp = 0; }
+  // Only the patrol's own wings (with an id) come; no reinforcement wing.
+  r.reinfOnButJammed = evReinf && spawnedSmall === 0;
+  r.bombsCame = n > 0; r.allFar = far;
+  c.hp = 0; FS.step(40);
+  let after = 0; for(let t=0;t<4000;t+=20){ FS.step(20); for(const e of enemies) if(!seen.has(e)){ seen.add(e); if(e.type==='fighter' && !e.uid) after++; }
+    for(const e of enemies) if((e.type==='fighter'||e.type==='bomber') && !(e.warp>0)) e.hp = 0; }
+  r.reinfAfterLoss = after > 0;
+  return r;`);
+
+scenario('v169: M69 the Lucifer cannot be hurt, the clock holds the wave', 'm=69', `
+  const r = {};
+  FS.step(600);
+  const l = FS.ids('L1')[0];
+  r.lucifer = !!l && l.img==='sdlucifer' && l.invuln && l.bShield > 0 && !bossAlive;
+  const s0 = l.bShield, h0 = l.hp;
+  const rp = reactorPos(l, l.reactors[0]);
+  damageEnemy(l, 5000, rp.x, rp.y, true, 'beam');
+  r.untouched = l.bShield === s0 && l.hp === h0 && !l.reactors[0].dead;
+  r.timer = missionTimerLeft() > 0;
+  for(let i=0;i<20;i++){ for(const e of enemies) if(!e.scenery && !e.invuln && !(e.warp>0)) e.hp = 0; spawnQ.length = 0; evReinf = false; FS.step(50); }
+  r.heldByClock = !waveOver && missionTimerLeft() > 0;
+  FS.until(()=>waveOver, 12000, true, false);
+  r.endsAfter = waveOver;
+  return r;`);
+
+scenario('v169: M70 the Iceni holds until her crew is off', 'm=70', `
+  const r = {};
+  FS.step(400);
+  const i1 = FS.ids('I1')[0];
+  i1.hp = -500; FS.step(2);
+  r.holds = FS.ids('I1').length === 1 && i1.hp > 0;
+  const t0 = FS.until(()=>EV_DOCK['T1'] || EV_DOCK['T2'], 20000, true, false);
+  FS.step(5);
+  r.rescued = t0 >= 0;
+  r.released = FS.ids('I1').length===0 || FS.ids('I1')[0].keepAlive === false;
+  return r;`);
+
+scenario('v170: M71 the Ptah is unseen until she fires', 'm=71', `
+  const r = {};
+  FS.step(20); for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  r.ptah = player.ship==='fiptah';
+  r.unseen = !playerSeen() && !canLockOn(player) && aiSmallTarget({side:'enemy'}, 300, 300)===null;
+  FS.step(500);
+  const f = enemies.find(e=>e.type==='fighter' && !(e.warp>0));
+  r.patrols = !f || smallTarget(f) !== player;
+  pShoot(); player.lastShot = fc;
+  r.seenAfterShot = playerSeen();   // seen - a lock is still impossible in the gas
+  FS.step(PTAH_SEEN + 5);
+  r.goneAgain = !playerSeen();
+  const l = FS.ids('L1')[0];
+  r.reactorsToScan = !!l && l.scanSubs && l.subs.length === l.reactors.length;
+  for(const e of enemies) if(!e.scenery && !e.invuln && !(e.warp>0)) e.hp = 0; spawnQ.length = 0; evReinf = false;
+  FS.step(300);
+  r.scanHoldsTheWave = !waveOver;
+  for(const s of l.subs) s.scanT = 1e9;
+  FS.step(30);
+  r.scanned = l.scanned === true;
+  r.ends = FS.until(()=>waveOver, 8000, true, false) >= 0;
+  return r;`);
+
+scenario('v170: M72 Shivan beams see in the gas', 'm=72', `
+  FS.step(600);
+  const k = FS.ids('K1')[0];
+  return {gas: nebulaOn(), seen: beamTargets(k, false).indexOf(player) >= 0,
+          allies: beamTargets(k, true).some(a=>a.uid==='A1')};`);
+
+scenario('v170: no Shivan beams in the gas before 72', 'm=68', `
+  FS.step(600);
+  const k = FS.ids('K1')[0];
+  return {blind: beamTargets(k, false).indexOf(player) < 0};`);
+
+scenario('v170: M73 our bombers, their point defence', 'm=73', `
+  const r = {};
+  FS.step(400);
+  r.bombers = allies.filter(a=>a.small && a.type==='bomber').length >= 2;
+  const k = FS.ids('K1')[0];
+  pBullets.push({x:k.x-120, y:k.y, vx:1, vy:0, w:16, h:16, sec:true, type:'bomb', ally:true, life:300, dmg:80});
+  const pts = entMounts(k,'primary');
+  r.pdSees = !!pdTarget(k, pts[0], false);
+  for(const s of k.subs) if(s.id==='weapons'){ s.hp = 0; s.dead = true; }
+  r.weaponsOut = !subOK(k,'weapons');
+  return r;`);
+
+scenario('v170: M74 the Lucifer crosses and is through', 'm=74', `
+  const r = {};
+  FS.step(400);
+  const l = FS.ids('L1')[0];
+  r.crossing = !!l && l.crossLeft > 0 && l.invuln;
+  const x0 = l.x; FS.step(500);
+  r.movesLeft = l.x < x0 - 30;
+  const s0 = score;
+  for(let i=0;i<20000 && FS.ids('L1').length;i+=50){ FS.step(50); for(const e of enemies) if(!e.scenery && !e.invuln && !(e.warp>0) && !e.crossLeft) e.hp=0; }
+  r.through = FS.ids('L1').length===0 && EV_LEFT['L1'] === true;
+  r.noPenalty = score >= s0;
+  r.ends = FS.until(()=>waveOver, 8000, true, true) >= 0;
+  return r;`);
+
+scenario('v170: M75 subspace', 'm=75', `
+  const r = {};
+  FS.step(20); for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  r.subspace = subspaceOn();
+  r.noShield = player.maxSh === 0 && player.sh === 0;
+  FS.step(400);
+  r.enemyNoShield = enemies.filter(e=>e.type==='fighter').every(e=>!e.maxSh);
+  r.noSupport = !allyReady();
+  toggleCallMenu(); r.menuShut = !callMenu;
+  const l = FS.ids('L1')[0];
+  r.reactorOnly = !!l && l.reactorOnly && !(l.bShield>0) && !l.subs;
+  const h0 = l.hp; damageEnemy(l, 3000, l.x, l.y-200, true, 'bolt');
+  r.hullUntouched = l.hp === h0;
+  let n = 0;
+  for(const rr of l.reactors){ const p = reactorPos(l, rr); damageEnemy(l, 99999, p.x, p.y, true, 'bolt'); n++; if(n < l.reactors.length) r['stillAlive'+n] = l.hp > 0; }
+  r.dead = l.hp <= 0;
+  if(!l.dead) killEnemy(l, null, true, false);
+  r.finale = FINALE.length > 0;
+  FS.step(200);
+  r.whiteOut = whiteOut > 0 || FINALE.length === 0;
+  r.ends = FS.until(()=>waveOver, 8000, true, true) >= 0;
+  ITEMS.length = 0;
+  r.next = FS.until(()=>wave===76, 6000, false, false) >= 0;
+  r.shieldBack = player.maxSh > 0;
+  return r;`);
+
+scenario('v170: TAG fixes (Silvio, v169)', 'm=67', `
+  const r = {};
+  FS.step(400);
+  const g = FS.ids('G1')[0], o = FS.ids('A1')[0];
+  // A missile always strikes through the secondary path now, so it tags.
+  let tagged = 0;
+  for(let k=0;k<6;k++){
+    g.tagT = 0;
+    pBullets.push({x:g.x-30, y:g.y, vx:3, vy:0, w:18, h:6, sec:true, type:'missile', homing:false, life:60, dmg:6, wpn:'tag'});
+    FS.step(25); if(g.tagT > 0) tagged++;
+  }
+  r.alwaysTags = tagged === 6;
+  r.fairGame = !playerOnly(g);
+  const h0 = g.hp;
+  for(let i=0;i<800 && g.hp===h0;i+=20){ g.tagT = TAG_TIME; FS.step(20); }
+  r.beamsHurtIt = g.hp < h0 || g.dead;
+  return r;`);
+
+scenario('v170: M69 the Lucifer fires, a TAG on her draws the beams', 'm=69', `
+  FS.step(700);
+  const l = FS.ids('L1')[0], a = FS.ids('A1')[0];
+  const r = {fires: !l.noFire};
+  r.notUntagged = beamTargets(a, true).indexOf(l) < 0;
+  l.tagT = TAG_TIME;
+  r.tagDraws = beamTargets(a, true).indexOf(l) >= 0;
+  return r;`);
+
+scenario('v170: M70 an Azrael, a clean jump, the Iceni scuttled', 'm=70', `
+  const r = {};
+  FS.step(20);
+  let x = null, jumped = false, mOK = true;
+  for(let i=0;i<2000;i++){ FS.step(1); x = FS.ids('X1')[0] || x;
+    if(x && x.warpOut>0){ jumped = true; mOK = x.warpMax > 1 && x.warpOut <= x.warpMax; break; } }
+  r.azrael = !!x && x.img==='trazrael';
+  r.cleanJump = jumped && mOK;
+  const t0 = FS.until(()=>EV_DOCK['T1'] || EV_DOCK['T2'], 20000, true, false);
+  r.rescued = t0 >= 0;
+  FS.step(20);
+  r.countdown = missionTimerLeft() > 0;
+  FS.until(()=>FS.ids('I1').length===0, 3000, true, false);
+  r.scuttled = FS.ids('I1').length === 0 && !EV_LEFT['I1'];
+  return r;`);
+
+scenario('v170: small craft clear out of a big blast', 'm=67', `
+  const r = {};
+  FS.step(500);
+  const g = FS.ids('G2')[0];
+  // One of ours right beside the miner.
+  const f = mkAllySmall('fighter', 'terran', 'fiherc', g.y); f.warp = 0; f.x = g.x - 40; f.y = g.y; allies.push(f);
+  const d0 = Math.hypot(f.x-g.x, f.y-g.y);
+  g.hp = 0; FS.step(2);
+  r.fuse = BLAST_FUSE.length > 0 && DANGER.length > 0;
+  FS.step(BIG_BLAST_FUSE - 10);
+  r.ranAway = Math.hypot(f.x-g.x, f.y-g.y) > d0 + 120 || f.dead;
+  FS.step(30);
+  r.waveCame = BLAST_FUSE.length === 0;
+  return r;`);
+
+scenario('v171: a beam keeps biting after the TAG runs out', 'm=67', `
+  const r = {};
+  FS.step(400);
+  const g = FS.ids('G1')[0];
+  // Tag her, wait until a beam is on her, then let the TAG lapse.
+  g.tagT = TAG_TIME;
+  let b = null;
+  for(let i=0;i<1500 && !b;i+=5){ g.tagT = TAG_TIME; FS.step(5);
+    for(const a of allies) for(const bb of (a.beams||[])) if(bb.tgt===g && bb.state==='firing') b = bb; }
+  r.beamOn = !!b;
+  if(b){
+    g.tagT = 0; const h0 = g.hp;
+    for(let i=0;i<60 && b.state==='firing';i++) FS.step(1);
+    r.stillHurts = g.hp < h0 || g.dead;
+  }
+  return r;`);
+
+scenario('v171: M69 the Lucifer beams the Hecate in the gas', 'm=69', `
+  FS.step(200);
+  const l = FS.ids('L1')[0], a = FS.ids('A1')[0];
+  const r = {gasBeams: !!l.gasBeams, sees: shivanGasSight(a, l)};
+  const h0 = a.hp;
+  FS.step(1500);
+  r.hecateHurt = a.hp < h0;
+  r.othersStillBlind = !shivanGasSight(a, {});
+  return r;`);
+
+scenario('v171: M70 the Iceni is there, the Azrael waits', 'm=70', `
+  const r = {};
+  FS.step(5);
+  const i1 = FS.ids('I1')[0];
+  r.iceniThere = !!i1 && !(i1.warp>0);
+  // She sits alongside for a few seconds before she pulls away.
+  let x = null, x0 = null, t = -1;
+  for(let i=0;i<1200 && t<0;i++){ FS.step(1); x = FS.ids('X1')[0] || x;
+    if(x && x.warp<=0){ if(x0===null) x0 = x.x; else if(x.x > x0 + 1) t = i; } }
+  r.azraelWaits = t >= Math.round(4*TICK_HZ);
+  r.azraelLeaves = t > 0;
+  return r;`);
+
+scenario('v171: M74 in the nebula', 'm=74', `
+  FS.step(20);
+  return {nebula: waveMod==='nebula', noPortal: !portalIn};`);
+
+scenario('v171: M75 not alone, and a sheet without a seam', 'm=75', `
+  const r = {};
+  FS.step(20); for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  FS.step(300);
+  const u = FS.ids('W1').filter(a=>!a.dead), h = FS.ids('H1').filter(a=>!a.dead);
+  r.ursas = u.length >= 2; r.hercs = h.length >= 2;
+  r.alliesNoShield = allies.filter(a=>a.small||a.type==='fighter'||a.type==='bomber').every(a=>!a.maxSh);
+  // Ursa bombs head for a reactor.
+  let aimed = false;
+  for(let i=0;i<1200 && !aimed;i+=5){ FS.step(5);
+    aimed = eBullets.concat(pBullets).some(b=>b.aimR) || FS.ids('L1')[0].reactors.some(x=>x.dead); }
+  r.aimsReactor = aimed;
+  // Kill a flight: it comes back.
+  for(const a of FS.ids('W1')) a.hp = 0;
+  FS.step(30*TICK_HZ);
+  r.replaced = FS.ids('W1').filter(a=>!a.dead).length > 0;
+  const s = subSheet(SUB_LAYERS[0]);
+  r.sheet = !s || (s.width % 2 === 0 && s.height % 2 === 0);
   return r;`);
 
 scenario('HoL start unchanged', 'm=1', `

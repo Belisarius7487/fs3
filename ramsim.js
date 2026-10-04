@@ -36,11 +36,13 @@ function decl(re){
   return m[0];
 }
 
-const names = ['ramsOnContact', 'tickRamming', 'tickCapRam', 'ramBlast',
+const names = ['ramsOnContact', 'tickRamming', 'tickCapRam', 'ramBlast', 'impactBase',
                'applySpawnOpts', 'halfW', 'halfH',
                'spriteBox', 'hullBox', 'hullsTouch', 'hullDepth', 'hullsBite'];
 const consts = [
   decl(/const RAM_PCT_CAPITAL = [\d.]+;/),
+  decl(/const IMPACT_CAP_HULL = [\d.]+;/),
+  decl(/const ARMOR_BY_TYPE = \{[^}]*\};/),
   decl(/const RAM_PCT_BOMBER  = [\d.]+;/),
   decl(/const RAM_PCT_FIGHTER = [\d.]+;/),
   decl(/const RAM_OVERLAP = \d+;/),
@@ -59,6 +61,7 @@ const W = 800, H = 500, HUD_H = 54;
 var enemies = [], allies = [], PARTS = [], SUB_MSGS = [], spawnQ = [];
 var fc = 0, wave = 1, protLost = 0, guardLost = false;
 const EV_HELD = {}, EV_SEEN = {}, EV_POS = {};
+var waveMod = '';   // no subspace here (v170)
 var player = {x:100, y:250, hp:100, maxHp:100, sh:0, maxSh:100, small:true, side:'ally'};
 const IMGS = {
   dehatshepsut:{width:420, height:150},
@@ -283,7 +286,7 @@ console.log('\nA ram course does not break off its run');
 ok('the break off is skipped for a ram course',
    /else if\(d<ATTACK_BREAK && !ramsOnContact\(e\)\)/.test(src));
 ok('and it is still there for everyone else',
-   /e\.passT=ATTACK_PASS/.test(src));
+   /e\.passT=\(e\.type==='fighter'\) \? ATTACK_PASS_FI : ATTACK_PASS;/.test(src));
 
 console.log('\nNothing but the ram course moves a ram course');
 // This is the check that was missing. ramsim ran tickCapRam on its own and

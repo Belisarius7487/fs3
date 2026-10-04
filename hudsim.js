@@ -53,7 +53,7 @@ const names = [
   'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
-  'weaponName','weaponOpen','secondariesFor','defaultSec','corvetteOnField',
+  'weaponName','weaponOpen','waveReached','secondariesFor','defaultSec','corvetteOnField',
   'inJump','rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
   'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'thFit',
@@ -106,6 +106,7 @@ const world = `
   function shipSwapReady(){ return true; }
   function drawSwapIcon(){}
   function drawGear(){}
+  function drawMuteButton(){}
   function drawPauseIcon(){}
   function drawMissileIcon(){}
   function drawBombIcon(){}

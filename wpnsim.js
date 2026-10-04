@@ -34,12 +34,13 @@ function decl(re){
   return m[0];
 }
 
-const names = ['priDef','secDef','curPri','curSec','hullSecCls','weaponName','weaponOpen',
+const names = ['priDef','secDef','curPri','curSec','hullSecCls','weaponName','weaponOpen','waveReached',
                'secondariesFor','defaultSec','applyLoadout','rearmFull',
                'shardBurst','subStrike','subStrikeRaw','pShoot','fireSecondary',
                'liveBurstRound','burstRound','volleyDmg','volleyTotal','primaryCount',
                'flakHas','flakBurst','flakReach','flakFire',
-               'swarmTargets','swarmRetarget','swarmHolds','updateSecBullets','rmValue'];
+               'swarmTargets','swarmRetarget','swarmHolds','updateSecBullets','rmValue',
+               'secHoldTick','shardSpread'];
 const consts = [
   decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/),
   decl(/const SECONDARIES = \[[\s\S]*?\n\];/),
@@ -47,7 +48,9 @@ const consts = [
   decl(/const VOLLEY_BASE\s*=\s*[\d.]+;/),
   decl(/const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/),
   decl(/const FLAK_TYPES[\s\S]*?const FLAK_SHARD_RANGE = \d+;/),
-  decl(/let swarmSalvo = 0;/)
+  decl(/let swarmSalvo = 0;/),
+  decl(/const SEC_HOLD = \{[^}]*\};/),
+  decl(/const HULL_TRAITS = \{[\s\S]*?\n\};/)
 ];
 
 const WORLD = `
@@ -68,7 +71,7 @@ function shipFac(k){ return 'vasudan'; }
 function shipStats(k){ return {sec: isBomberHull(k) ? 10 : 20}; }
 function spawnFireball(){} 
 // The practice log is not what is tested here.
-function sndPlay(){} function sndAiShot(){} function sndAiSec(){} function sndExpl(){} function sndBeam(){} const PRI_SND = {};
+function sndPlay(){} function sndStart(){} function sndAiShot(){} function sndAiSec(){} function sndExpl(){} function sndBeam(){} const PRI_SND = {};
 function plogKill(){} function plogRearm(){} function plogSec(){} function plogHit(){} function plogPick(){} function plogSrc(){} function plogLoss(){} function plogEvent(){} function plogName(){ return ''; } function plogAllyLost(){} function plogDeath(){} function plogSync(){}
 function spawnDebris(){}
 function spawnRing(){}
@@ -183,7 +186,9 @@ function fly(steps){ for(let i=0;i<steps;i++){ run('fc++'); run('updateSecBullet
   ok('a fighter is offered it', run("secondariesFor('fitoth')").some(x=>x.key==='tornado'));
   ok('a bomber is not', run("secondariesFor('boosiris')").every(x=>x.key!=='tornado'));
   ok('the rearm panel shows the salvo, not one missile',
-     run("rmValue(secDef('tornado'), 'dmg', false)")===w.swarm+'\u00d7'+w.dmg);
+     run("rmValue(secDef('tornado'), 'dmg', false)")===(w.swarm*w.dmg)+' ('+w.swarm+'\u00d7'+w.dmg+')');
+  ok('and the rack counts salvos for the flown hull',
+     /^\d+ salvos$/.test(run("rmValue(secDef('tornado'), 'ammo', false)")));
 }
 {
   field([150, 220, 290, 360]);
@@ -259,18 +264,26 @@ fire('dante');
   ok('the fuse is counted down and burst where it stands',
      /if\(b\.fuse && --b\.fuse<=0\)/.test(src));
 }
+// All round: sorted by direction, no gap between neighbours wider than
+// 100 degrees. A cone would leave a gap of half the circle or more.
+function allRound(list){
+  const a = list.map(x=>Math.atan2(x.vy,x.vx)).sort((p,q)=>p-q);
+  let gap = a[0] + Math.PI*2 - a[a.length-1];
+  for(let i=1;i<a.length;i++) gap = Math.max(gap, a[i]-a[i-1]);
+  return gap < 100*Math.PI/180;
+}
 {
   // The burst itself.
   clear();
   run("shardBurst(400, 250, 9, 5, 3.4, 70, '#fff', 'rgba(0,0,0,0)')");
   const s = bullets();
-  ok('nine shards leave the point', s.length===9);
-  ok('every one of them carries the damage it was given', s.every(x=>x.dmg===5));
-  ok('all at the same speed', s.every(x=>Math.abs(Math.hypot(x.vx,x.vy)-3.4)<0.001));
-  ok('and they are short lived', s.every(x=>x.pLife>0 && x.pLife<=Math.ceil(70/3.4)));
-  // Star shaped means the directions cancel out. A cone would not.
-  const sx = s.reduce((a,x)=>a+x.vx, 0), sy = s.reduce((a,x)=>a+x.vy, 0);
-  ok('star shaped, not thrown one way', Math.abs(sx)<0.001 && Math.abs(sy)<0.001);
+  // Uneven since v159: one piece more or less now and then, each with its
+  // own direction, speed and reach. The damage of the burst stays.
+  ok('nine shards leave the point, give or take one', s.length>=8 && s.length<=10);
+  ok('together they carry the damage of nine', Math.abs(s.reduce((a,x)=>a+x.dmg,0)-45)<0.001);
+  ok('each at its own speed, around the given one', s.every(x=>{const v=Math.hypot(x.vx,x.vy); return v>3.4*0.7 && v<3.4*1.3;}));
+  ok('and they are short lived', s.every(x=>x.pLife>0 && x.pLife<=Math.ceil(70*1.35/(3.4*0.72))));
+  ok('star shaped, not thrown one way', allRound(s));
   ok('they all start where the round was', s.every(x=>x.x===400 && x.y===250));
 }
 
@@ -289,7 +302,7 @@ console.log('\nInfyrno: the button belongs to the round in the air');
   const after = bullets();
   ok('the second press does not fire another',
      after.every(b=>!b.sec) );
-  ok('it bursts into shrapnel instead', after.length===run("secDef('infyrno').shards"));
+  ok('it bursts into shrapnel instead', Math.abs(after.length-run("secDef('infyrno').shards"))<=1 && after.every(b=>b.shard));
   ok('and costs no second round', get('player').secAmmo===5);
   ok('with one gone, the button fires again', run('liveBurstRound()')===null);
 }
@@ -378,14 +391,13 @@ console.log('\nCapital flak: a wall, not a shot');
   run("flakBurst(400, 250, true, 'vasudan')");
   const p = get('pBullets');
   ok('an allied gun throws its shrapnel at the enemies',
-     p.length===run('FLAK_SHARDS') && p.every(b=>b.ally===true) && get('eBullets').length===0);
-  const sx = p.reduce((a,b)=>a+b.vx,0), sy = p.reduce((a,b)=>a+b.vy,0);
-  ok('star shaped, not thrown one way', Math.abs(sx)<0.001 && Math.abs(sy)<0.001);
+     Math.abs(p.length-run('FLAK_SHARDS'))<=1 && p.every(b=>b.ally===true) && get('eBullets').length===0);
+  ok('star shaped, not thrown one way', allRound(p));
   ok('and it gives out rather than flying to the edge', p.every(b=>b.pLife>0));
   run('pBullets.length=0; eBullets.length=0');
   run("flakBurst(400, 250, false, 'shivan')");
   ok('an enemy gun the other way round',
-     get('eBullets').length===run('FLAK_SHARDS') && get('pBullets').length===0);
+     Math.abs(get('eBullets').length-run('FLAK_SHARDS'))<=1 && get('pBullets').length===0);
   ok('with a life of its own too', get('eBullets').every(b=>b.eLife>0));
 }
 {
@@ -427,10 +439,14 @@ console.log('\nEvery weapon is reachable and none of them is free');
   const all = run('PRIMARIES').concat(run('SECONDARIES'));
   ok('each one has a name', all.every(w=>!!w.name));
   ok('each one has a note that says what it is for', all.every(w=>!!w.note));
+  // fromWave: handed out with a mission, not with points (the Dante, v163).
+  const byPts = all.filter(w=>!w.fromWave);
   ok('the thresholds rise rather than repeat',
-     new Set(all.map(w=>w.unlock)).size >= all.length-2);
+     new Set(byPts.map(w=>w.unlock)).size >= byPts.length-2);
   ok('the standard fit is the only free gun',
-     run('PRIMARIES').filter(w=>!w.unlock).length===1);
+     run('PRIMARIES').filter(w=>!w.unlock && !w.fromWave).length===1);
+  ok('the Dante comes with the Shivan cycle (mission 61)',
+     run('PRIMARIES').find(w=>w.key==='dante').fromWave===61);
 }
 
 console.log('\n' + (fails ? fails+' FAILED' : 'all passed'));

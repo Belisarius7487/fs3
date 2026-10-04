@@ -20,9 +20,8 @@ function draw(){
   ctx.lineWidth=1;
   ctx.setLineDash([]);
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-  drawNebula();
-  drawBodies();
-  drawStars();
+  if(GS==='playing' && subspaceOn()) drawSubspace();
+  else { drawNebula(); drawBodies(); drawStars(); }
 
   if(GS==='title'){drawTitle();return;}
   if(GS==='gameover'){drawGO();return;}
@@ -37,31 +36,23 @@ function draw(){
 
   for(const b of pBullets){
     if(!b.sec){
-      // Laser: leuchtender Bolt
-      const ang=Math.atan2(b.vy,b.vx);
-      ctx.save();
-      ctx.translate(b.x|0,b.y|0);
-      ctx.rotate(ang);
-      ctx.globalAlpha=0.85;
-      const aGlow = b.ally ? (b.fac==='vasudan'?'rgba(255,200,60,0.32)':'rgba(90,180,255,0.32)')
-                           : (b.glow||'rgba(180,255,80,0.3)');
-      const aCore = b.ally ? (b.fac==='vasudan'?'#ffd257':'#7fc4ff') : (b.col||'#ccff88');
-      ctx.fillStyle=aGlow;
-      ctx.beginPath();ctx.ellipse(0,0,b.w*.55,b.h*.9,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle=aCore;
-      ctx.beginPath();ctx.ellipse(0,0,b.w*.38,b.h*.6,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#ffffff';
-      ctx.beginPath();ctx.ellipse(0,0,b.w*.15,b.h*.25,0,0,Math.PI*2);ctx.fill();
-      ctx.globalAlpha=1;
-      ctx.restore();
+      // Laser: the weapon's own colours (v161: every side, every gun),
+      // drawn with trail, core and sparks, see drawLaser().
+      const rc = raceCol(b.fac);
+      const aCore = b.col || (b.ally ? rc.core : '#ccff88');
+      const aGlow = b.glow || (b.ally ? rc.glow : 'rgba(180,255,80,0.3)');
+      drawLaser(b, aCore, aGlow, hotOf(aCore));
     } else if(b.sec){
+      // The race's colour around the ordnance: an escort's by its side,
+      // the player's by the hull he flies (Silvio, v161).
+      const oc = raceCol(b.ally ? b.fac : shipFac(player.ship));
       if(b.type==='missile'){
         // Missile: metallic body plus engine glow
         const mx=(b.x)|0, my=(b.y)|0;
-        // Triebwerk-Glow (hinten)
-        ctx.fillStyle='rgba(255,120,0,0.5)';
-        ctx.beginPath();ctx.ellipse(mx-b.w/2,my,6,4,0,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='rgba(255,200,50,0.8)';
+        // Triebwerk-Glow (hinten), in the race's colour
+        ctx.fillStyle=oc.glow;
+        ctx.beginPath();ctx.ellipse(mx-b.w/2,my,7,5,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=oc.core;
         ctx.beginPath();ctx.ellipse(mx-b.w/2,my,3,2,0,0,Math.PI*2);ctx.fill();
         // Rumpf
         ctx.fillStyle='#aabbcc';
@@ -79,10 +70,12 @@ function draw(){
         // Bomb: dark sphere with a pulsing warning glow
         const pulse=0.5+0.5*Math.sin(fc*0.25);
         const br=b.w/2;
-        // Outer warning ring
-        ctx.strokeStyle='rgba(255,50,0,'+(0.3+pulse*0.5)+')';
+        // Outer warning ring, in the race's colour
+        ctx.globalAlpha=0.3+pulse*0.5;
+        ctx.strokeStyle=oc.core;
         ctx.lineWidth=2;
         ctx.beginPath();ctx.arc(b.x,b.y,br+4+pulse*4,0,Math.PI*2);ctx.stroke();
+        ctx.globalAlpha=1;
         // Bomb body
         const grad=ctx.createRadialGradient(b.x-br*0.3,b.y-br*0.3,0,b.x,b.y,br);
         grad.addColorStop(0,'#445566');grad.addColorStop(1,'#111122');
@@ -102,12 +95,12 @@ function draw(){
         const bx=b.x|0, by=b.y|0;
     if(b.kind){
       const ang=Math.atan2(b.vy,b.vx);
-      const shiv=b.faction==='shivan';
-      // NTF ordnance is violet, matching their drives. Without it their
-      // missiles look exactly like everyone else's Terran hardware.
-      const ntf=b.faction==='ntf';
-      const body=shiv?'#ffb0a0':(ntf?'#e0c8ff':'#c8ffe0');
-      const glow=shiv?'rgba(255,60,0,0.5)':(ntf?'rgba(160,107,255,0.5)':'rgba(60,255,140,0.5)');
+      // Missiles and bombs in the colour of the race (Silvio, v161):
+      // Shivans red, Terrans - the NTF among them - blue, Vasudans yellow.
+      const race=raceOf(b.faction);
+      const shiv=race==='shivan', vas=race==='vasudan';
+      const body=shiv?'#ffb0a0':(vas?'#ffe2a8':'#c8e4ff');
+      const glow=shiv?'rgba(255,60,0,0.5)':(vas?'rgba(255,160,40,0.5)':'rgba(70,160,255,0.5)');
 
       // Halo underneath the ordnance so it never blends into a nebula.
       // Drawn unrotated and additively, then the body goes on top.
@@ -116,8 +109,8 @@ function draw(){
       ctx.globalCompositeOperation='lighter';
       try{
         const hg=ctx.createRadialGradient(bx,by,0,bx,by,halo);
-        hg.addColorStop(0, shiv?'rgba(255,190,150,0.85)':(ntf?'rgba(220,190,255,0.85)':'rgba(190,255,220,0.85)'));
-        hg.addColorStop(0.30, shiv?'rgba(255,90,40,0.45)':(ntf?'rgba(150,80,255,0.45)':'rgba(70,255,160,0.45)'));
+        hg.addColorStop(0, shiv?'rgba(255,190,150,0.85)':(vas?'rgba(255,225,160,0.85)':'rgba(190,220,255,0.85)'));
+        hg.addColorStop(0.30, shiv?'rgba(255,90,40,0.45)':(vas?'rgba(255,150,40,0.45)':'rgba(70,150,255,0.45)'));
         hg.addColorStop(1,'rgba(0,0,0,0)');
         ctx.fillStyle=hg;
         ctx.beginPath(); ctx.arc(bx,by,halo,0,Math.PI*2); ctx.fill();
@@ -132,8 +125,8 @@ function draw(){
           life:(12+Math.random()*12)|0, ml:0,
           sz:(b.kind==='bomb'?2.2:1.5)+Math.random(),
           clr: shiv ? (Math.random()<0.5?'#ffdd99':'#ff7744')
-             : ntf  ? (Math.random()<0.5?'#ffffff':'#c8a0ff')
-                    : (Math.random()<0.5?'#ffffff':'#88ffcc')});
+             : vas  ? (Math.random()<0.5?'#ffffff':'#ffc860')
+                    : (Math.random()<0.5?'#ffffff':'#88c8ff')});
       }
 
       ctx.save();
@@ -141,7 +134,7 @@ function draw(){
       // Exhaust plume trailing behind
       ctx.globalAlpha=0.75;
       const fl=ctx.createLinearGradient(0,0,-b.w*1.6,0);
-      fl.addColorStop(0,'#ffffff'); fl.addColorStop(0.35,shiv?'#ff8844':(ntf?'#b98cff':'#ffcc66'));
+      fl.addColorStop(0,'#ffffff'); fl.addColorStop(0.35,shiv?'#ff8844':(vas?'#ffb040':'#7ab8ff'));
       fl.addColorStop(1,'rgba(0,0,0,0)');
       ctx.fillStyle=fl;
       ctx.beginPath();
@@ -181,34 +174,12 @@ function draw(){
       ctx.restore(); ctx.globalAlpha=1;
       continue;
     }
-    const bShiv=b.faction==='shivan';
-    const bC1=bShiv?'rgba(255,30,0,0.35)' :'rgba(0,200,60,0.35)';
-    const bC2=bShiv?'#ff4422'             :'#00dd44';
-    const bC3=bShiv?'#ffaa88'             :'#aaffaa';
-    const bG1=bShiv?'rgba(255,100,0,0.35)':'rgba(0,230,80,0.35)';
-    const bG2=bShiv?'#ffaa00'             :'#44ff88';
-    if(b.big){
-      ctx.globalAlpha=0.9;
-      ctx.fillStyle=bG1;
-      ctx.beginPath();ctx.ellipse(bx,by,b.w*.65,b.h*.65,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle=bG2;
-      ctx.beginPath();ctx.ellipse(bx,by,b.w*.4,b.h*.4,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#ffffff';
-      ctx.beginPath();ctx.ellipse(bx,by,b.w*.18,b.h*.18,0,0,Math.PI*2);ctx.fill();
-    }else{
-      // Bolts are no longer horizontal, so the elongated glow has to turn
-      // with the flight path or a shot upwards reads as a round blob.
-      const bAng=Math.atan2(b.vy,b.vx);
-      ctx.globalAlpha=0.3;
-      ctx.fillStyle=bC1;
-      ctx.beginPath();ctx.ellipse(bx,by,b.w*.9,b.h*.9,bAng,0,Math.PI*2);ctx.fill();
-      ctx.globalAlpha=0.9;
-      ctx.fillStyle=bC2;
-      ctx.beginPath();ctx.ellipse(bx,by,b.w*.5,b.h*.5,bAng,0,Math.PI*2);ctx.fill();
-      ctx.globalAlpha=1;
-      ctx.fillStyle=bC3;
-      ctx.beginPath();ctx.ellipse(bx,by,b.w*.2,b.h*.2,bAng,0,Math.PI*2);ctx.fill();
-    }}
+    // Bolts: the weapon's colours (v161). A round without any (freighter
+    // guns, a hull without a loadout) takes its race's colour.
+    const rc=raceCol(b.faction);
+    const eCore=b.col||rc.core, eGlow=b.glow||rc.glow;
+    drawLaser(b, eCore, eGlow, hotOf(eCore));
+  }
 
   // Warp vortex with a null check and try/catch
   // Sorted by footprint so capital ships sit behind fighters. Residual
@@ -236,7 +207,7 @@ function draw(){
             ctx.translate(fg.px|0, fg.py|0);
             if(WARP_STYLE==='oval'){ ctx.rotate(Math.atan2(fg.fy, fg.fx)); ctx.scale(WARP_OVAL*fg.wS, fg.wS); }
             else ctx.scale(fg.wS, fg.wS);
-            drawWarpFrame(warpSeed(e), WSf, false);
+            drawWarpFrame(warpSeed(e), WSf, !!e.portalWarp);   // through the Knossos: turquoise
             ctx.restore(); ctx.globalAlpha = 1;
           }catch(ef){ ctx.restore(); ctx.globalAlpha = 1; }
           continue;
@@ -342,6 +313,7 @@ function draw(){
       drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,e.warp>0?0.35:1,e.ang||0);
       drawShip(e.img,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
       drawHostileMark(e);
+      drawTagMark(e);
       drawScorch(e);
       drawShield(e);
       drawScanRing(e);
@@ -369,7 +341,11 @@ function draw(){
         }}}
     ctx.globalAlpha=1;
     if(e.bShield>0){ drawLuciShield(e); drawReactors(e); }
-    else drawSubsystems(e);
+    // In subspace the Lucifer has no shield, only her reactors (v170).
+    else if(e.reactorOnly) drawReactors(e);
+    // Our own ships carry no subsystem marks: the enemy does not aim at
+    // them, and the player has nothing to do with them (Silvio, v166).
+    else if(e.side!=='ally') drawSubsystems(e);
     drawBeams(e);
     }catch(ee){ctx.restore();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}}
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
@@ -381,10 +357,13 @@ function draw(){
       const _js=jumpScale();
       if(_js>=1){
         drawThrusters(player.ship,player.x|0,player.y|0,playerSc(),_pf,'terran',
-          (K['ArrowRight']||K['d']||K['D'])?1.35:((K['ArrowLeft']||K['a']||K['A'])?0.45:1),
+          playerThrust(),
           player.ang||0);
       }
+      // A Ptah nobody can see is drawn faint (v170).
+      if(!playerSeen()) ctx.globalAlpha = 0.45 + 0.1*Math.sin(fc*0.1);
       drawShip(player.ship,player.x|0,player.y|0,playerSc()*_js,_pf,player.ang||0);
+      ctx.globalAlpha = 1;
       if(_js>=1) drawPlayerShield();
       drawJumpVortex();
     }
@@ -419,11 +398,14 @@ function draw(){
   drawBombPortals();
   drawShocks();
   drawNebulaFog();
+  try{ drawAwacsRings(); }catch(ea){ ctx.restore(); }
   drawEmpWarn();
   drawEmpFX();
   drawItems();
   drawTicketMsgs();
   drawSubMsgs();
+  if(whiteOut>0){ ctx.fillStyle='rgba(255,250,235,'+Math.min(0.85, whiteOut/WHITEOUT_T).toFixed(3)+')';
+                  ctx.fillRect(0, HUD_H, W, H-HUD_H); }
   // The shake must not reach the instruments, so the transform is put
   // back before the strip is drawn.
   ctx.setTransform(RES_X, 0, 0, RES_Y, 0, 0);
@@ -739,7 +721,7 @@ function drawObjCard(){
   const txt = thFit(objCard.txt, maxW-40);
   const cw = Math.round(Math.max(280, Math.min(maxW, ctx.measureText(txt).width+56)));
   const ch = 54;
-  const rows = Math.min(FLEE_ROWS, fleeingEnemies().length);
+  const rows = Math.min(FLEE_ROWS, fleeingEnemies().length + (missionTimerLeft()>=0 ? 1 : 0));
   const cx = ((W-cw)/2)|0;
   const cy = (HUD_H + 12 + rows*26 - (1-a)*10)|0;
   ctx.globalAlpha = a;
@@ -764,17 +746,31 @@ const FLEE_ROWS = 3;
 function drawFleeWarning(){
   if(GS!=='playing') return;
   const list=fleeingEnemies();
-  if(!list.length) return;
+  const tmr=missionTimerLeft();
+  if(!list.length && tmr<0) return;
   ctx.save();
   ctx.font=thValue(12, true);
   ctx.textAlign='center'; ctx.textBaseline='middle';
   let row=0;
+  // The mission's own clock (v169) sits on top, in the cool colour of our
+  // side; the enemy jump-outs follow below it.
+  if(tmr>=0){
+    const sec=Math.ceil(tmr/TICK_HZ);
+    const txt=missionTimer.label+'  '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+    const tw=ctx.measureText(txt).width;
+    const bw=(tw+28)|0, bx=(W-8-bw)|0, by=HUD_H+6;
+    thPlate(bx, by, bw, 20, thRGBA('panelBack', 0.72), 5);
+    ctx.fillStyle=(sec<=10 && fc%40>=28) ? '#ffffff' : '#7fd6ff';
+    ctx.fillText(txt, bx+bw/2, by+11);
+    row++;
+  }
   for(const flr of list){
     if(row>=FLEE_ROWS) break;
     const sec=Math.ceil(flr.fleeT/TICK_HZ);
     const urgent=sec<=10;
     const by=HUD_H+6+row*23;
     row++;
+    if(row>FLEE_ROWS) break;
     if(urgent && fc%40>=28) continue;      // blink once it gets tight
     const txt=(flr.label ? flr.label.toUpperCase() : shipName(flr.img, flr.type||'capital ship'))+
               (flr.disarmed?' WITHDRAWING IN ':' JUMPING OUT IN ')+sec+'s';
@@ -789,6 +785,35 @@ function drawFleeWarning(){
 }
 
 // A gear, drawn rather than an image, so it needs no asset and scales.
+// A speaker, with waves while the sound is on and a cross when it is off.
+function drawMuteButton(x, y, w, h){
+  const hv = hovering(x, y, w, h);
+  thButton(x, y, w, h, hv ? 'on' : null);
+  const col = SND.on ? (hv ? TH('textBright') : TH('text')) : TH('textDim');
+  const cx = x + w/2 - 3, cy = y + h/2, s = Math.min(w, h)/22;
+  ctx.save();
+  ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx-6*s, cy-2.5*s); ctx.lineTo(cx-3*s, cy-2.5*s); ctx.lineTo(cx+1*s, cy-6*s);
+  ctx.lineTo(cx+1*s, cy+6*s); ctx.lineTo(cx-3*s, cy+2.5*s); ctx.lineTo(cx-6*s, cy+2.5*s);
+  ctx.closePath(); ctx.fill();
+  if(SND.on){
+    ctx.beginPath(); ctx.arc(cx+2*s, cy, 4*s, -0.8, 0.8); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx+2*s, cy, 7*s, -0.8, 0.8); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.moveTo(cx+4*s, cy-3.5*s); ctx.lineTo(cx+10*s, cy+3.5*s);
+    ctx.moveTo(cx+10*s, cy-3.5*s); ctx.lineTo(cx+4*s, cy+3.5*s); ctx.stroke();
+  }
+  ctx.restore();
+  window._muteRect = {x:x, y:y, w:w, h:h, gs:GS};
+}
+// A tap on it switches the sound and does nothing else (no shot, no start).
+function muteHit(p){
+  const r = window._muteRect;
+  if(!r || r.gs !== GS || (GS!=='title' && GS!=='playing')) return false;
+  if(GS==='playing' && (settingsOpen || callMenu || shipMenu)) return false;
+  return p.x>=r.x && p.x<=r.x+r.w && p.y>=r.y && p.y<=r.y+r.h;
+}
 function drawGear(cx, cy, r, col){
   ctx.save();
   ctx.translate(cx, cy);
@@ -893,12 +918,16 @@ function setRow(bx, by, bw, bh, label, hint, value, on, act, enabled){
 // Bildpunkten Hoehe gewesen.
 const SETTINGS_PAGES = 4;
 const SETTINGS_TITLES = ['SETTINGS', 'ECONOMY', 'APPEARANCE', 'SOUND'];
+const SETTINGS_TABS = ['GENERAL', 'ECONOMY', 'APPEARANCE', 'SOUND'];
+const SETTINGS_ROWS_MAX = 5;   // the panel keeps one height for every tab
 function settingsRows(){
   if(settingsPage===3) return [
-    {label:'SOUND', hint:'all sound effects on or off',
+    {label:'SOUND', hint:'all sound on or off - also M or the speaker',
      value:SND.on?'ON':'OFF', on:SND.on, act:'sndon', enabled:true},
-    {label:'EFFECTS VOLUME', hint:'tap to step through 100 / 75 / 50 / 25 %',
-     value:Math.round(SND.vol*100)+' %', on:SND.on, act:'sndvol', enabled:true}
+    {label:'EFFECTS VOLUME', hint:'tap to step through 100 / 75 / 60 / 50 / 25 %',
+     value:Math.round(SND.vol*100)+' %', on:SND.on, act:'sndvol', enabled:true},
+    {label:'MUSIC VOLUME', hint:'tap to step through 100 / 75 / 50 / 25 % / off',
+     value:SND.mus>0 ? Math.round(SND.mus*100)+' %' : 'OFF', on:SND.on && SND.mus>0, act:'musvol', enabled:true}
   ];
   if(settingsPage===2) return [
     {label:'COLOUR SCHEME', hint:'the two schemes of the forum theme',
@@ -946,38 +975,42 @@ function drawSettings(){
                     // the option box because it was not accounted for
   const verH=16;    // eigene Zeile fuer die Versionsnummer, aus demselben
                     // Grund getrennt gerechnet statt in den Hinweis gequetscht
-  const navH=24;    // Blaetterzeile, ebenso
-  const mw=bw+gap*2, mh=bh*rows+gap*(rows+1)+30+navH+hintH+verH;
+  const tabH=22;    // the row of tabs under the title
+  const rowsH=Math.max(rows, SETTINGS_ROWS_MAX);
+  const mw=bw+gap*2, mh=bh*rowsH+gap*(rowsH+1)+30+tabH+hintH+verH;
   const mx=(W-mw)/2, my=(H-mh)/2;
   uiDialog(mx, my, mw, mh, 'rgba(0,14,6,0.96)', '#00aa44');
   ctx.fillStyle=UI('textBright','#00ee55');
   ctx.font=uiLabel(13, 'bold 13px Courier New');
   ctx.textAlign='center'; ctx.textBaseline='top';
-  ctx.fillText(SETTINGS_TITLES[settingsPage]||'SETTINGS', mx+mw/2, my+9);
+  ctx.fillText('SETTINGS', mx+mw/2, my+9);
 
   const bx=mx+gap;
+  // Tabs: one per page, the open one lit. Each as wide as its name
+  // needs, sharing out what is left, so APPEARANCE is not cut short.
+  ctx.font = thLabel(10);
+  const tws=SETTINGS_TABS.map(n => ctx.measureText(n).width + 8);
+  const tsum=tws.reduce((a,b)=>a+b, 0), tfree=bw-(SETTINGS_TABS.length-1)*4;
+  let tx=bx;
+  for(let t=0;t<SETTINGS_TABS.length;t++){
+    const tw=tws[t]*tfree/tsum, ty=my+28;
+    const on=(t===settingsPage), hv=hovering(tx, ty, tw, tabH);
+    uiCell(tx, ty, tw, tabH, {state:on?'on':(hv?'ready':null)});
+    ctx.fillStyle = on ? TH('accentWarm') : (hv ? TH('textBright') : TH('text'));
+    ctx.font = thLabel(10); ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(thFit(SETTINGS_TABS[t], tw-6), tx+tw/2, ty+tabH/2+1);
+    window._setRects.push({x:tx, y:ty, w:tw, h:tabH, act:'tab'+t});
+    tx+=tw+4;
+  }
+  ctx.textAlign='center'; ctx.textBaseline='top';
   const list=settingsRows();
   for(let i=0;i<list.length;i++){
     const r=list[i];
-    setRow(bx, my+30+gap+i*(bh+gap), bw, bh,
+    setRow(bx, my+30+tabH+gap+i*(bh+gap), bw, bh,
            r.label, r.hint, r.value, r.on, r.act, r.enabled);
   }
 
-  // Blaetterzeile. Zwei Pfeilfelder und die Seitenzahl dazwischen.
-  const ny = my+30+gap+rows*(bh+gap);
   ctx.textAlign='center'; ctx.textBaseline='top';
-  uiCell(bx, ny, 40, 18, {state:'ready', fill:'#00160c', stroke:'#4499ff'});
-  uiCell(bx+bw-40, ny, 40, 18, {state:'ready', fill:'#00160c', stroke:'#4499ff'});
-  ctx.fillStyle=UI('accent','#7fc4ff');
-  ctx.font=uiValue(13, true, 'bold 12px Courier New');
-  ctx.fillText('<', bx+20, ny+3);
-  ctx.fillText('>', bx+bw-20, ny+3);
-  ctx.fillStyle=UI('textDim','#007733'); ctx.font=uiValue(10, false, '9px Courier New');
-  ctx.fillText('PAGE '+(settingsPage+1)+'/'+SETTINGS_PAGES, mx+mw/2, ny+5);
-  // Separate actions: with three pages one toggle cannot reach them all.
-  window._setRects.push({x:bx, y:ny, w:40, h:18, act:'pageprev'});
-  window._setRects.push({x:bx+bw-40, y:ny, w:40, h:18, act:'pagenext'});
-
   ctx.fillStyle=UI('edgeLight','#005522'); ctx.font=uiValue(10, false, '9px Courier New');
   ctx.fillText('FS3  '+GAME_VERSION, mx+mw/2, my+mh-hintH-verH+4);
   ctx.fillStyle=UI('textDim','#007733'); ctx.font=uiValue(10, false, '9px Courier New');
@@ -1005,11 +1038,10 @@ function settingsClick(mx,my){
         ecoSetRes(ECO_RES_STEPS[(_i+1)%ECO_RES_STEPS.length]);
       }
       else if(r.act==='blur'){ ECO.blur=!ECO.blur; ecoSave(); }
-      else if(r.act==='sndon'){ SND.on=!SND.on; sndApplyVolume(); sndSave(); }
-      else if(r.act==='sndvol'){
-        const _v=SND_VOL_STEPS.indexOf(SND.vol);
-        SND.vol=SND_VOL_STEPS[(_v+1)%SND_VOL_STEPS.length]; sndApplyVolume(); sndSave();
-      }
+      else if(r.act==='sndon'){ sndToggleMute(); }
+      else if(r.act==='sndvol'){ SND.vol=sndStep(SND_VOL_STEPS, SND.vol); sndApplyVolume(); sndSave(); }
+      else if(r.act==='musvol'){ SND.mus=sndStep(MUS_VOL_STEPS, SND.mus); sndApplyVolume(); sndSave(); }
+      else if(r.act.indexOf('tab')===0){ settingsPage=+r.act.slice(3); }
       else if(r.act==='rim'){ ECO.rim=!ECO.rim; ecoSave(); }
       else if(r.act==='glint'){ ECO.glint=!ECO.glint; ecoSave(); }
       return true;
@@ -1233,15 +1265,20 @@ function drawHUDHLP(){
       var col=(tPl>0.3)?TH('accentWarm'):(lit?TH('accent'):TH('textDim'));
       var tico=ICONS[TICKET_ICON[tk]];
       var tcx=tkX+(ti%2)*tkW, tcy=tkY+((ti/2)|0)*tkH;
-      if(tPl>0) thGlowPath(tcx-4, tcy+2, tkW-6, tkH-2, 3, tPl);
+      // The icon is fitted into its cell (a long destroyer would run out of
+      // it), and the glow is laid round what is actually drawn - it used
+      // to have a fixed width and ran under the destroyer icon (Silvio).
+      var icoX=tcx+21, tih=11, tiw=0;
+      if(tico){ tiw=Math.max(1, Math.round(tico.width*(tih/tico.height)));
+                var tiMax=tkW-icoX+tcx-6; if(tiw>tiMax){ tih=Math.max(6, tih*tiMax/tiw); tiw=tiMax; } }
+      else { ctx.font=thLabel(10); tiw=ctx.measureText(TICKET_ABBR[tk]).width; }
+      if(tPl>0) thGlowPath(tcx-4, tcy+2, (icoX-tcx)+tiw+8, tkH-2, 3, tPl);
       ctx.textAlign='left'; ctx.textBaseline='top';
       ctx.fillStyle=col; ctx.font=thValue(13, true);
       ctx.fillText(tn+'x', tcx, tcy+5);
-      var icoX=tcx+21;
       if(tico){
         ctx.globalAlpha=lit?1:0.28;
-        var tih=11, tiw=Math.max(1, Math.round(tico.width*(tih/tico.height)));
-        ctx.drawImage(tico, icoX, tcy+5, tiw, tih);
+        ctx.drawImage(tico, icoX, tcy+5+(11-tih)/2, tiw, tih);
         ctx.globalAlpha=1;
       } else {
         ctx.fillStyle=col; ctx.font=thLabel(10);
@@ -1254,34 +1291,51 @@ function drawHUDHLP(){
   // SHIP SWITCH and REARM, as a pair. Two buttons that both open a panel
   // over the field belong together, so they are centred as one group in
   // the gap between the tickets and the gear.
+  // A button that opens a window shows the key that opens it too (Silvio,
+  // v162): the icon moves up, the letter sits at the foot of the button,
+  // inside it and clear of the icon.
+  function keyHint(x, y, w, h, key, col){
+    ctx.save();
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.font=thLabel(8); ctx.fillStyle=col;
+    ctx.fillText(key, x+w/2, y+h-4);
+    ctx.restore();
+  }
+  // Where the icon of such a button sits: centred in what the letter leaves.
+  function iconY(y, h){ return y + (h-11)/2; }
+
   if(!FS1_MODE){
     var swW=22, swH=H2-8, swY=4, swGap=4;
-    var grpX=Math.round((665+W-52)/2-(swW*2+swGap)/2);
+    var grpX=Math.round((665+W-78)/2-(swW*2+swGap)/2);
     var swX=grpX, rmX=grpX+swW+swGap;
     var swOn=shipSwapReady()||shipMenu;
     var swHv=hovering(swX, swY, swW, swH);
     thButton(swX, swY, swW, swH, (shipMenu||swHv)?'on':(swOn?'ready':null));
     var swPl=barPulseLevel('swap');
     if(swPl>0) thGlowPath(swX-3, swY-2, swW+6, swH+4, 5, swPl);
-    drawSwapIcon(swX+swW/2, swY+swH/2,
-                 swOn?TH('accentWarm'):(swHv?TH('text'):TH('textDim')));
+    var swCol=swOn?TH('accentWarm'):(swHv?TH('text'):TH('textDim'));
+    drawSwapIcon(swX+swW/2, iconY(swY, swH), swCol);
+    keyHint(swX, swY, swW, swH, 'V', swCol);
     window._shipBtnRect={x:swX, y:swY, w:swW, h:swH};
     var rmOn=rearmReady()||rearmMenu;
     var rmHv=hovering(rmX, swY, swW, swH);
     thButton(rmX, swY, swW, swH, (rearmMenu||rmHv)?'on':(rmOn?'ready':null));
     var rmPl=barPulseLevel('rearm');
     if(rmPl>0) thGlowPath(rmX-3, swY-2, swW+6, swH+4, 5, rmPl);
-    drawRearmIcon(rmX+swW/2, swY+swH/2,
-                  rmOn?TH('accentWarm'):(rmHv?TH('text'):TH('textDim')));
+    var rmCol=rmOn?TH('accentWarm'):(rmHv?TH('text'):TH('textDim'));
+    drawRearmIcon(rmX+swW/2, iconY(swY, swH), rmCol);
+    keyHint(rmX, swY, swW, swH, 'R', rmCol);
     window._rearmBtnRect={x:rmX, y:swY, w:swW, h:swH};
   } else { window._shipBtnRect=null; window._rearmBtnRect=null; }
 
-  // SETTINGS and PAUSE
+  // SETTINGS and PAUSE (and the speaker left of them)
+  drawMuteButton(W-78, 4, 22, H2-8);
   var stbX=W-52, stbY=4, stbW=22, stbH=H2-8;
   var stbHv=hovering(stbX, stbY, stbW, stbH);
   thButton(stbX, stbY, stbW, stbH, (settingsOpen||stbHv)?'on':null);
-  drawGear(stbX+stbW/2, stbY+stbH/2, 7,
-           (settingsOpen||stbHv)?TH('textBright'):TH('text'));
+  var stbCol=(settingsOpen||stbHv)?TH('textBright'):TH('text');
+  drawGear(stbX+stbW/2, iconY(stbY, stbH), 7, stbCol);
+  keyHint(stbX, stbY, stbW, stbH, 'S', stbCol);
   window._settingsBtnRect={x:stbX, y:stbY, w:stbW, h:stbH};
 
   var pbX=W-26, pbY=4, pbW=22, pbH=H2-8;
@@ -1369,7 +1423,10 @@ function shipOffered(key){
 // Hulls a mission can put the player into that no roster offers.
 const EXTRA_SHIPS = {
   fipegasus: {key:'fipegasus', name:'GTF Pegasus', fac:'terran', spd:3.6, turn:0.17,
-              hp:80, sh:80, sec:20}
+              hp:80, sh:80, sec:20},
+  // Vasudan stealth fighter, lent for the reactor scan (M71, v170).
+  fiptah:    {key:'fiptah', name:'GVF Ptah', fac:'vasudan', spd:3.5, turn:0.17,
+              hp:85, sh:80, sec:20}
 };
 // The player's own hull while a mission lends another, or ''.
 let forcedPrev = '';
@@ -1404,6 +1461,7 @@ function applyShip(key, keep){
   const s = shipStats(key);
   player.ship   = key;
   player.spd    = s.spd;
+  player.mvx = 0; player.mvy = 0;     // a new hull starts at rest
   player.turn   = s.turn;
   player.baseHp = s.hp;
   player.maxHp  = Math.round(s.hp*(player.hullMult||1));
@@ -1426,6 +1484,20 @@ function applyShip(key, keep){
 function tickShipUnlocks(){
   if(GS!=='playing' || FS1_MODE) return;
   // Counted from the start of the cycle: every cycle opens its own roster.
+  if(cycleTabs()){
+    // Two fleets, each opening down its own list.
+    for(const f of FLEET_TABS){
+      const list = facShips(f);
+      while((shipUnlockedFac[f]||0) < list.length &&
+            score-cycleBase >= PLAYER_SHIPS[list[shipUnlockedFac[f]]].unlock){
+        const s = PLAYER_SHIPS[list[shipUnlockedFac[f]]];
+        shipUnlockedFac[f] = (shipUnlockedFac[f]||0) + 1;
+        notice(s.name.toUpperCase()+' AVAILABLE', 'unlock');
+      }
+    }
+    shipUnlocked = (shipUnlockedFac.terran||0) + (shipUnlockedFac.vasudan||0);
+    return;
+  }
   while(shipUnlocked < PLAYER_SHIPS.length && score-cycleBase >= PLAYER_SHIPS[shipUnlocked].unlock){
     const s = PLAYER_SHIPS[shipUnlocked++];
     notice(s.name.toUpperCase()+' AVAILABLE', 'unlock');
@@ -1442,7 +1514,8 @@ function shipSwapReady(){
   if(shipSwapWave===wave && !colossusOnField()) return false;
   // Something other than the active hull has to be unlocked AND on offer
   // from a hangar that is actually on the field.
-  for(let i=0;i<shipUnlocked && i<PLAYER_SHIPS.length;i++){
+  for(let i=0;i<PLAYER_SHIPS.length;i++){
+    if(!shipIsOpen(i)) continue;
     const s=PLAYER_SHIPS[i];
     if(s.key!==player.ship && shipOffered(s.key)) return true;
   }
@@ -1462,12 +1535,15 @@ function toggleShipMenu(){
   if(shipMenu){ setShipMenu(false); return; }
   if(!shipSwapReady()) return;
   if(callMenu) setCallMenu(false);
+  // The tab of the hull being flown, if its hangar is here; otherwise
+  // the first fleet that has one.
+  if(cycleTabs()) hangarTab = pickTab(hangarTabOpen, shipFac(player.ship));
   setShipMenu(true);
 }
 function swapShip(key){
   if(!shipMenu || key===player.ship) return;
   const i = PLAYER_SHIPS.findIndex(function(s){return s.key===key;});
-  if(i<0 || i>=shipUnlocked) return;
+  if(i<0 || !shipIsOpen(i)) return;
   if(!shipOffered(key)) return;
   // The first switch of a wave arrives fresh. A further one is only reachable
   // at the Colossus and carries the current state over in proportion, so the
@@ -1480,6 +1556,51 @@ function swapShip(key){
   applyShip(key, keep);
   shipSwapWave = wave;
   notice(PLAYER_SHIPS[i].name.toUpperCase()+(again?' - NO REFIT':''), 'good');
+}
+// ── FLEET TABS (v163) ───────────────────────────────────────
+// From the Shivan cycle on both fleets serve, each on its own tab, in the
+// hangar and in the support menu (Silvio). Hangar: a tab is open while an
+// allied destroyer of that fleet is on the field; the Colossus serves both,
+// and with no hangar there is no switch at all. Support: the same rule, but
+// with no allied destroyer on the field both tabs are open.
+const FLEET_TABS = ['terran','vasudan'];
+const FLEET_TAB_LABEL = {terran:'TERRAN', vasudan:'VASUDAN'};
+const FLEET_TAB_H = 22;
+let hangarTab = 'terran', callTab = 'terran';
+function hangarTabOpen(fac){
+  const hf = hangarFacs();
+  return hf.indexOf(fac) >= 0 || hf.indexOf('gtva') >= 0;
+}
+function callTabOpen(fac){
+  if(!allyFacOn(fac)) return false;
+  if(!cycleTabs()) return true;
+  return !hangarFacs().length || hangarTabOpen(fac);
+}
+// The preferred tab if it is open, else the first open one.
+function pickTab(openFn, prefer){
+  if(prefer && openFn(prefer)) return prefer;
+  for(const f of FLEET_TABS) if(openFn(f)) return f;
+  return prefer || FLEET_TABS[0];
+}
+// The other tab, if it is open. Tab and the arrow keys come through here.
+function nextTab(cur, openFn){
+  for(const f of FLEET_TABS) if(f!==cur && openFn(f)) return f;
+  return cur;
+}
+// Two tabs across the panel. A shut one is drawn dark and takes no tap.
+function drawFleetTabs(x, y, w, cur, openFn, rects){
+  const gap = 4, tw = (w - gap)/2;
+  for(let i=0;i<FLEET_TABS.length;i++){
+    const f = FLEET_TABS[i], tx = x + i*(tw+gap);
+    const open = openFn(f), on = open && f===cur;
+    const hv = open && !on && hovering(tx, y, tw, FLEET_TAB_H);
+    uiCell(tx, y, tw, FLEET_TAB_H, {state: on ? 'on' : (!open ? 'off' : (hv ? 'ready' : null))});
+    ctx.fillStyle = on ? TH('accentWarm') : (open ? (hv ? TH('textBright') : TH('text')) : TH('textDim'));
+    ctx.font = thLabel(11); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(FLEET_TAB_LABEL[f], tx+tw/2, y+FLEET_TAB_H/2+1);
+    if(open) rects.push({x:tx, y:y, w:tw, h:FLEET_TAB_H, tab:f});
+  }
+  ctx.textAlign = 'left';
 }
 // Two arrows passing each other.
 function drawSwapIcon(cx, cy, col){
@@ -1577,7 +1698,7 @@ const PRIMARIES = [
   // what makes it more than a round with a bonus: held on the trigger it
   // lays shrapnel across a fixed range and an attack run has to come
   // through it.
-  {key:'dante', name:'Dante', unlock:32000,
+  {key:'dante', name:'Dante', unlock:0, fromWave:61,
    dmg:1.10, rate:1.40, spd:7.5, range:420, fuse:300,
    shards:9, shardDmg:0.38, shardSpd:3.4, shardRange:70,
    col:'#ffb066', glow:'rgba(255,140,50,0.34)',
@@ -1609,6 +1730,13 @@ const SECONDARIES = [
    note:'four seekers in a fan - each goes for a different target'},
   // subs: the warhead goes into the innards rather than the hull. A
   // corvette without engines does not leave.
+  // TAG (v169): marks what it hits. A marked ship can be held by our beams
+  // even in a nebula, and a marked gas miner or freighter becomes a target
+  // for the heavy beams. Barely any damage of its own. Handed out with the
+  // Shivan cycle's mission 67 rather than with points.
+  {key:'tag', name:'TAG-C', cls:'missile', unlock:0, fromWave:67, snd:'mx64',
+   ammoMul:0.6, dmg:6, cd:40, spd:4.6, life:200, homing:true, tag:true,
+   note:'marks the target - our beams find it, even in the nebula'},
   {key:'stiletto', name:'Stiletto', cls:'bomb', unlock:26000,
    ammoMul:1.0, dmg:70, cd:95, spd:2.8, life:300, homing:true, subs:true,
    note:'into the subsystems, not the hull - stops a ship working'}
@@ -1617,17 +1745,38 @@ const SECONDARIES = [
 // impact, the Dante on its fuse, and the Infyrno when it is burst - so it
 // is written once and they all call it. The shards are ordinary bolts and
 // travel the ordinary way, which is what keeps them cheap.
-function shardBurst(x, y, n, dmg, spd, range, col, glow){
-  const off = Math.random()*Math.PI*2;
-  const life = Math.max(1, Math.round(range/spd));
-  for(let i=0;i<n;i++){
-    const a = off + (i/n)*Math.PI*2;
-    pBullets.push({x:x, y:y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd,
-                   w:8, h:3, dmg:dmg, col:col, glow:glow, pLife:life,
-                   shard:true});
+// ally: shrapnel of an escort's round (no score for the player).
+// How the pieces of one burst fly. A perfect star read as drawn with a
+// ruler (Silvio, v159), so every burst is a little different: one piece
+// more or less now and then, each off its slot in the circle, each with
+// its own speed, reach and size. mul keeps the burst's total damage where
+// it was whatever the count comes out as.
+function shardSpread(n, spd, range){
+  const r = Math.random();
+  const m = Math.max(3, n + (r < 0.25 ? -1 : (r > 0.75 ? 1 : 0)));
+  const off = Math.random()*Math.PI*2, gap = Math.PI*2/m;
+  const out = [];
+  for(let i=0;i<m;i++){
+    const a  = off + i*gap + (Math.random()-0.5)*gap*0.9;
+    const s  = spd * (0.72 + Math.random()*0.56);
+    const rg = range * (0.65 + Math.random()*0.7);
+    const big = Math.random();
+    out.push({a:a, spd:s, life:Math.max(1, Math.round(rg/s)),
+              w:(5 + big*6)|0, h:big > 0.6 ? 4 : (big > 0.25 ? 3 : 2),
+              mul:n/m});
   }
-  spawnFireball(x, y, 22, 18);
-  spawnDebris(x, y, 10, 255,190,90, 255,110,0, true);
+  return out;
+}
+function shardBurst(x, y, n, dmg, spd, range, col, glow, ally){
+  for(const q of shardSpread(n, spd, range)){
+    pBullets.push({x:x, y:y, vx:Math.cos(q.a)*q.spd, vy:Math.sin(q.a)*q.spd,
+                   w:q.w, h:q.h, dmg:dmg*q.mul, col:col, glow:glow, pLife:q.life,
+                   shard:true, ally:!!ally});
+  }
+  // The fireball sits a touch off the point of burst and varies in size.
+  spawnFireball(x + (Math.random()-0.5)*8, y + (Math.random()-0.5)*8,
+                18 + Math.random()*10, 14 + Math.random()*8);
+  spawnDebris(x, y, 8 + (Math.random()*5|0), 255,190,90, 255,110,0, true);
 }
 // A warhead that goes for the innards. subHit only touches whatever
 // happens to lie under the impact; this looks for the nearest living
@@ -1656,6 +1805,8 @@ function subStrikeRaw(e, dmg, hx, hy){
 }
 function priDef(key){
   for(const w of PRIMARIES) if(w.key===key) return w;
+  // Guns only the AI flies (the Shivan lasers, 55_arms.js).
+  if(typeof AI_PRIMARIES!=='undefined' && AI_PRIMARIES[key]) return AI_PRIMARIES[key];
   return PRIMARIES[0];
 }
 function secDef(key){
@@ -1671,7 +1822,15 @@ function weaponName(w){
   return w.name;
 }
 // Unlocks follow the score within a run, the same way the hulls do.
-function weaponOpen(w){ return FS1_MODE || UI_WEAPONS || score >= (w.unlock||0); }
+function weaponOpen(w){
+  if(FS1_MODE || UI_WEAPONS) return true;
+  // fromWave: a weapon handed out with a mission rather than earned with
+  // points - the Dante opens with the Shivan cycle (Silvio), and not before
+  // it, whatever the score.
+  if(w.fromWave) return waveReached(w);
+  return score >= (w.unlock||0);
+}
+function waveReached(w){ return !w.fromWave || wave >= w.fromWave; }
 function secondariesFor(shipKey){
   const c = hullSecCls(shipKey), out = [];
   for(const w of SECONDARIES) if(w.cls===c) out.push(w);
@@ -1706,7 +1865,7 @@ const WPN_SEEN = {};
 function tickWeaponUnlocks(){
   if(GS!=='playing' || FS1_MODE) return;
   for(const w of PRIMARIES.concat(SECONDARIES)){
-    if(!w.unlock || WPN_SEEN[w.key] || score < w.unlock) continue;
+    if((!w.unlock && !w.fromWave) || WPN_SEEN[w.key] || !weaponOpen(w)) continue;
     WPN_SEEN[w.key] = true;
     notice(weaponName(w).toUpperCase()+' AVAILABLE', 'unlock');
   }
@@ -1793,8 +1952,11 @@ const HG_COLS = [
 // group without a second list to keep in step.
 function hangarGroups(){
   const fi=[], bo=[];
-  for(let i=0;i<PLAYER_SHIPS.length;i++)
+  for(let i=0;i<PLAYER_SHIPS.length;i++){
+    // With tabs only the open tab's fleet is listed.
+    if(cycleTabs() && PLAYER_SHIPS[i].fac!==hangarTab) continue;
     (isBomberHull(PLAYER_SHIPS[i].key) ? bo : fi).push(i);
+  }
   return [{head:'FIGHTERS', idx:fi}, {head:'BOMBERS', idx:bo}];
 }
 // Where everything sits, worked out before anything is drawn: the panel grows
@@ -1808,10 +1970,16 @@ function hangarOrder(){
   for(const g of hangarGroups()) for(const i of g.idx) out.push(i);
   return out;
 }
-function hangarLayout(){
+function hangarLayout(tight){
+  // Nine open hulls (the Terran roster since the Perseus, v159) no longer fit
+  // the field with the full gaps; then the gaps between rows close up.
+  const gap = tight ? 2 : HG_GAP, ggap = tight ? 8 : HG_GROUPGAP;
   const groups = hangarGroups();
   const plan = [];
   let h = HG_TITLE;
+  // Room for the fleet tabs under the header.
+  const tabY = h;
+  if(cycleTabs()) h += FLEET_TAB_H + 8;
   for(const g of groups){
     if(!g.idx.length) continue;
     plan.push({head:g.head, y:h});
@@ -1819,18 +1987,19 @@ function hangarLayout(){
     for(const i of g.idx){
       const s = PLAYER_SHIPS[i];
       const cur    = s.key===player.ship;
-      const locked = i>=shipUnlocked;
+      const locked = !shipIsOpen(i);
       // Unlocked, but no hangar of its faction on the field: it keeps a full
       // row, because it is yours and its figures still have to be readable.
       const off    = !locked && !cur && !shipOffered(s.key);
       const rh     = locked ? HG_ROW_LOCK : HG_ROW;
       plan.push({i:i, y:h, h:rh, cur:cur, locked:locked, off:off});
-      h += rh + HG_GAP;
+      h += rh + gap;
     }
-    h += HG_GROUPGAP;
+    h += ggap;
   }
   h += HG_FOOT;
-  return {mx:((W-HG_W)/2)|0, my:((H-h)/2)|0, mw:HG_W, mh:h, plan:plan};
+  if(!tight && h > H-8) return hangarLayout(true);
+  return {mx:((W-HG_W)/2)|0, my:((H-h)/2)|0, mw:HG_W, mh:h, plan:plan, tabY:tabY};
 }
 // The sprite in its own cell, fitted whole and always facing right. Every hull
 // is fitted to the same cell rather than to its real length, so the column
@@ -1884,6 +2053,8 @@ function drawShipMenu(){
   const TICKS = HG_COLS.map(function(c){ return c.x; });
   const ORDER = hangarOrder();
   window._shipRects=[];
+  if(cycleTabs())
+    drawFleetTabs(mx+HG_PAD, my+L.tabY+2, L.mw-HG_PAD*2, hangarTab, hangarTabOpen, window._shipRects);
   for(const p of L.plan){
     const ry = my+p.y;
     // A group heading carries the column titles and the scale under them, so
@@ -2031,8 +2202,11 @@ function rmValue(w, k, pri){
     if(k==='range') return w.range ? String(w.range) : 'FULL';
     return '';
   }
-  if(k==='dmg')    return w.swarm ? (w.swarm+'\u00d7'+w.dmg) : String(w.dmg);
-  if(k==='ammo')   return String(Math.max(1, Math.round((shipStats(player.ship).sec||0)*w.ammoMul)));
+  // A swarm: the damage of the whole salvo, then how it is made up.
+  if(k==='dmg')    return w.swarm ? (w.swarm*w.dmg)+' ('+w.swarm+'\u00d7'+w.dmg+')' : String(w.dmg);
+  // What the flown hull carries of it; a swarm counts in salvos.
+  if(k==='ammo'){  const n = Math.max(1, Math.round((shipStats(player.ship).sec||0)*w.ammoMul));
+                   return w.swarm ? n+' salvos' : String(n); }
   if(k==='reload') return (Math.round(w.cd/6)/10).toFixed(1)+'s';
   if(k==='spd')    return String(w.spd);
   if(k==='seek')   return w.homing ? 'YES' : 'NO';
@@ -2094,7 +2268,8 @@ function drawRearmMenu(){
     if(!p.open){
       ctx.textAlign='left'; ctx.fillStyle=TH('textDim'); ctx.font=thValue(11, false);
       ctx.fillText(thFit(weaponName(w), 240), rx+RM_NAME, ry+p.h/2);
-      ctx.fillText('unlocks at '+w.unlock.toLocaleString('en-US')+' points',
+      ctx.fillText(w.fromWave ? 'unlocks in the Shivan campaign'
+                              : 'unlocks at '+w.unlock.toLocaleString('en-US')+' points',
                    rx+p.cols[0].x, ry+p.h/2);
       window._rearmRects.push({x:rx, y:ry, w:rw, h:p.h, key:null});
       continue;
@@ -2179,6 +2354,9 @@ function callMenuLayout(){
   for(const c of COLS) rows = Math.max(rows, c.length);
   const showCol = allyFacOn(ALLY_DEFS[ALLY_SPECIAL].fac);
   let y = CM_TITLE;
+  // Room for the fleet tabs under the header.
+  const tabs = cycleTabs(), tabY = y;
+  if(tabs) y += FLEET_TAB_H + 8;
   const headY = y; y += CM_HEAD;
   const rowY  = y; y += rows*(CM_ROW+CM_GAP);
   let colHeadY = 0, colRowY = 0;
@@ -2189,7 +2367,7 @@ function callMenuLayout(){
   }
   y += CM_FOOT;
   return {mx:((W-CM_W)/2)|0, my:((H-y)/2)|0, mw:CM_W, mh:y,
-          COLS:COLS, colw:colw, showCol:showCol,
+          COLS:COLS, colw:colw, showCol:showCol, tabs:tabs, tabY:tabY,
           headY:headY, rowY:rowY, colHeadY:colHeadY, colRowY:colRowY};
 }
 const CM_FAC_HEAD = {terran:'TERRAN FLEET', vasudan:'VASUDAN FLEET', gtva:'JOINT COMMAND'};
@@ -2268,6 +2446,8 @@ function drawCallMenu(){
   ctx.fillText('THREE OF A CLASS REFINE INTO ONE OF THE NEXT', mx+L.mw-CM_PAD, my+16);
 
   window._callRects=[];
+  if(L.tabs)
+    drawFleetTabs(mx+CM_PAD, my+L.tabY+2, L.mw-CM_PAD*2, callTab, callTabOpen, window._callRects);
   for(let ci=0;ci<L.COLS.length;ci++){
     const col = L.COLS[ci];
     const cx  = mx + CM_PAD + ci*(L.colw + CM_PAD);
@@ -2311,7 +2491,9 @@ function setCallMenu(open){
 function toggleCallMenu(){
   if(callMenu){ setCallMenu(false); return; }
   if(empOut>0) return;              // the storm has the radio
+  if(subspaceOn()) return;          // nothing answers in subspace (Silvio)
   if(!allyReady()) return;
+  if(cycleTabs()) callTab = pickTab(callTabOpen, callTab);
   setCallMenu(true);
 }
 
@@ -2335,7 +2517,9 @@ function pointerConsumed(p){
   }
   if(shipMenu){
     for(const r of (window._shipRects||[]))
-      if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){ if(r.key) swapShip(r.key); return true; }
+      if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){
+        if(r.tab){ hangarTab = r.tab; return true; }
+        if(r.key) swapShip(r.key); return true; }
     // Inside the panel but on no row: the header, a group heading, a gap
     // between rows or the footer. That is still the panel, so it swallows
     // the click. Only outside the outline does the panel close.
@@ -2356,6 +2540,7 @@ function pointerConsumed(p){
           // The menu stays open after refining, so several can be done in
           // a row without reopening it each time.
           if(cr.refine){ refineTicket(cr.refine); return true; }
+          if(cr.tab){ callTab = cr.tab; return true; }
           callAlly(cr.id); return true;
         }
       }
@@ -2401,6 +2586,9 @@ function titleFsRect(){
 function drawTitleFullscreen(){
   const r = titleFsRect();
   window._titleFsRect = r;
+  const ms = TFS_H;
+  const mx = r ? r.x - 8 - ms : W - TFS_PAD - ms;
+  drawMuteButton(mx, TFS_PAD, ms, ms);
   if(!r) return;
   const hv = hovering(r.x, r.y, r.w, r.h);
   thButton(r.x, r.y, r.w, r.h, hv ? 'on' : null);
@@ -2557,6 +2745,7 @@ function toGC(clientX, clientY) {
 
 // Maus
 CVS.addEventListener('mousedown',function(ev){
+  if(ev.button===0 && muteHit(toGC(ev.clientX,ev.clientY))){ sndToggleMute(); return; }
   if(ev.button===0 && titleFsHit(toGC(ev.clientX,ev.clientY))){ toggleFullscreen(); return; }
   if(ev.button===0&&GS==='playing'){
     var p=toGC(ev.clientX,ev.clientY);
@@ -2566,7 +2755,7 @@ CVS.addEventListener('mousedown',function(ev){
     if(settingsOpen){ settingsClick(p.x,p.y); return; }
     if(window._settingsBtnRect){var rs=window._settingsBtnRect;if(p.x>=rs.x&&p.x<=rs.x+rs.w&&p.y>=rs.y&&p.y<=rs.y+rs.h){setSettings(true);return;}}
     if(window._pauseBtnRect){var r=window._pauseBtnRect;if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){userPaused=!userPaused;syncPause();return;}}
-    if(window._secBtnRect){var r2=window._secBtnRect;if(p.x>=r2.x&&p.x<=r2.x+r2.w&&p.y>=r2.y&&p.y<=r2.y+r2.h){fireSecondary();return;}}
+    if(window._secBtnRect){var r2=window._secBtnRect;if(p.x>=r2.x&&p.x<=r2.x+r2.w&&p.y>=r2.y&&p.y<=r2.y+r2.h){SEC_HOLD.btn=true;fireSecondary();return;}}
     if(p.y<HUD_H) return; // HUD area, no movement input
   }
   if(ev.button!==0&&ev.button!==2) return;
@@ -2576,11 +2765,18 @@ CVS.addEventListener('mousedown',function(ev){
     isFiring=true; MOUSE.down=true;
     if(GS==='title'||GS==='gameover'){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); }
   }
-  if(ev.button===2&&GS==='playing') fireSecondary();
+  if(ev.button===2&&GS==='playing'){ SEC_HOLD.rmb=true; fireSecondary(); }
 });
 CVS.addEventListener('mouseup',function(ev){
-  if(ev.button===0){isFiring=false;MOUSE.down=false;}
+  if(ev.button===0){isFiring=false;MOUSE.down=false;SEC_HOLD.btn=false;}
+  if(ev.button===2) SEC_HOLD.rmb=false;
 });
+// A button let go outside the canvas never reports back here.
+window.addEventListener('mouseup',function(ev){
+  if(ev.button===0) SEC_HOLD.btn=false;
+  if(ev.button===2) SEC_HOLD.rmb=false;
+});
+window.addEventListener('blur',function(){ SEC_HOLD.rmb=false; SEC_HOLD.btn=false; });
 CVS.addEventListener('mousemove',function(ev){
   var p=toGC(ev.clientX,ev.clientY);
   // The bar always knows where the pointer is, even where the ship may not
@@ -2605,6 +2801,7 @@ CVS.addEventListener('touchstart',function(ev){
   if(!ev.touches.length) return;
   var t=ev.touches[0];
   var p=toGC(t.clientX,t.clientY);
+  if(muteHit(p)){ sndToggleMute(); return; }
   if(titleFsHit(p)){ toggleFullscreen(); return; }
   if(pointerConsumed(p)) return;
   // HUD area: button check only, no movement input
@@ -2614,7 +2811,7 @@ CVS.addEventListener('touchstart',function(ev){
     if(settingsOpen){ settingsClick(p.x,p.y); return; }
     if(window._settingsBtnRect){var rs=window._settingsBtnRect;if(p.x>=rs.x&&p.x<=rs.x+rs.w&&p.y>=rs.y&&p.y<=rs.y+rs.h){setSettings(true);return;}}
     if(window._pauseBtnRect){var r=window._pauseBtnRect;if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){userPaused=!userPaused;syncPause();return;}}
-    if(window._secBtnRect){var r2=window._secBtnRect;if(p.x>=r2.x&&p.x<=r2.x+r2.w&&p.y>=r2.y&&p.y<=r2.y+r2.h){fireSecondary();return;}}
+    if(window._secBtnRect){var r2=window._secBtnRect;if(p.x>=r2.x&&p.x<=r2.x+r2.w&&p.y>=r2.y&&p.y<=r2.y+r2.h){SEC_HOLD.btn=true;fireSecondary();return;}}
     return; // sonstiger HUD-Touch → ignorieren
   }
   MOUSE.x=p.x; MOUSE.y=p.y;
@@ -2627,7 +2824,7 @@ CVS.addEventListener('touchstart',function(ev){
     if(settingsOpen){ settingsClick(p.x,p.y); return; }
     if(window._settingsBtnRect){var rs=window._settingsBtnRect;if(p.x>=rs.x&&p.x<=rs.x+rs.w&&p.y>=rs.y&&p.y<=rs.y+rs.h){setSettings(true);return;}}
     if(window._pauseBtnRect){var r=window._pauseBtnRect;if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){userPaused=!userPaused;syncPause();return;}}
-    if(window._secBtnRect){var r2=window._secBtnRect;if(p.x>=r2.x&&p.x<=r2.x+r2.w&&p.y>=r2.y&&p.y<=r2.y+r2.h){fireSecondary();return;}}
+    if(window._secBtnRect){var r2=window._secBtnRect;if(p.x>=r2.x&&p.x<=r2.x+r2.w&&p.y>=r2.y&&p.y<=r2.y+r2.h){SEC_HOLD.btn=true;fireSecondary();return;}}
     // Tapping the field resumes, but only from a pause the player set;
     // a panel keeps its own hold.
     if(userPaused){ userPaused=false; syncPause(); }
@@ -2648,10 +2845,17 @@ CVS.addEventListener('touchmove',function(ev){
 CVS.addEventListener('touchend',function(ev){
   ev.preventDefault();
   isFiring=false; MOUSE.down=false;
+  // The SEC button stays held only while a finger is still on it.
+  SEC_HOLD.btn=false;
+  var r2=window._secBtnRect;
+  if(r2) for(var i=0;i<ev.touches.length;i++){
+    var q=toGC(ev.touches[i].clientX,ev.touches[i].clientY);
+    if(q.x>=r2.x&&q.x<=r2.x+r2.w&&q.y>=r2.y&&q.y<=r2.y+r2.h){ SEC_HOLD.btn=true; break; }
+  }
 },{passive:false});
 
-function secBtnDown(ev){if(ev)ev.preventDefault();if(GS==='playing')fireSecondary();}
-function secBtnUp(ev){if(ev)ev.preventDefault();}
+function secBtnDown(ev){if(ev)ev.preventDefault();if(GS==='playing'){SEC_HOLD.btn=true;fireSecondary();}}
+function secBtnUp(ev){if(ev)ev.preventDefault();SEC_HOLD.btn=false;}
 window.secBtnDown=secBtnDown; window.secBtnUp=secBtnUp;
 
 function updateSecBtn(){
@@ -2667,6 +2871,8 @@ function updateSecBtn(){
 // Keyboard
 document.addEventListener('keydown',function(ev){
   K[ev.code]=true;
+  // M: all sound off or on, anywhere.
+  if(ev.code==='KeyM'){ sndToggleMute(); ev.preventDefault(); return; }
   // S opens and closes the panel, Escape closes it before it reaches pause.
   if(ev.code==='KeyS' && !callMenu && !shipMenu && GS==='playing'){
     setSettings(!settingsOpen); ev.preventDefault(); return;
@@ -2704,6 +2910,8 @@ document.addEventListener('keydown',function(ev){
   }
   if(shipMenu){
     if(ev.code==='Escape'){ setShipMenu(false); ev.preventDefault(); return; }
+    if(cycleTabs() && (ev.code==='Tab'||ev.code==='ArrowLeft'||ev.code==='ArrowRight')){
+      hangarTab = nextTab(hangarTab, hangarTabOpen); ev.preventDefault(); return; }
     var sd = ev.code.indexOf('Digit')===0 ? ev.code.slice(5) : (ev.code.indexOf('Numpad')===0 ? ev.code.slice(6) : '');
     var si = parseInt(sd,10);
     // The same order the panel shows, so the digit beside a hull is the
@@ -2714,6 +2922,8 @@ document.addEventListener('keydown',function(ev){
   }
   if(ev.code==='KeyC'){ toggleCallMenu(); ev.preventDefault(); return; }
   if(ev.code==='Escape' && callMenu){ setCallMenu(false); ev.preventDefault(); return; }
+  if(callMenu && cycleTabs() && (ev.code==='Tab'||ev.code==='ArrowLeft'||ev.code==='ArrowRight')){
+    callTab = nextTab(callTab, callTabOpen); ev.preventDefault(); return; }
   if(callMenu){
     // Eleven entries no longer fit on the number row alone, so the second
     // column sits on the keys directly above it.
@@ -2751,6 +2961,7 @@ function stepUpdate(){
 
 (function loop(now){
   requestAnimationFrame(loop);
+  try{ musicTick(); }catch(ex){}
   if(typeof now !== 'number') now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   if(!_prev){ _prev = now; stepUpdate(); }
   else {
@@ -2893,6 +3104,11 @@ function plogDeath(){
 function plogTick(){
   if(!PL || GS!=='playing') return;
   PL.t++;
+  // What was flown, and for how long: hull, primary / secondary.
+  // curPri()/curSec(): the fitted weapon, also while none was chosen yet.
+  const fk = player.ship+' '+curPri().key+' / '+curSec().key;
+  PL.fits = PL.fits || {};
+  PL.fits[fk] = (PL.fits[fk]||0) + 1;
   // Bolts the player fired since the last step; secondaries and shards
   // are counted on their own.
   for(const b of pBullets) if(!b.ally && !b._pl){ b._pl = 1; if(!b.sec && !b.shard) PL.bolts++; }
@@ -2948,6 +3164,11 @@ function plogText(){
     L.push('WAVE '+r.wave+' - '+r.name+(r.scripted?'':' (random)')+' - '+r.fac+' - ship '+r.ship+
            (r.running ? ' - still running' : ''));
     L.push('  time '+plogTime(r.tEnd!=null ? r.tEnd : r.t)+(r.tEnd!=null && r.t>r.tEnd ? ' (+'+plogTime(r.t-r.tEnd)+' until the jump)' : ''));
+    if(r.fits){
+      const ft = Object.values(r.fits).reduce((a,b)=>a+b, 0) || 1;
+      L.push('  flown: '+Object.entries(r.fits).sort((a,b)=>b[1]-a[1])
+             .map(([k,v])=>k+' ('+Math.round(v*100/ft)+' %)').join(', '));
+    }
     L.push('  score +'+r.gain+' / -'+r.loss);
     L.push('  objectives: '+o.ok+' complete, '+o.bad+' failed'+
            (r.cards.length ? '  ['+r.cards.map(c=>c.head+': '+c.txt).join(' | ')+']' : ''));
