@@ -207,7 +207,7 @@ function draw(){
             ctx.translate(fg.px|0, fg.py|0);
             if(WARP_STYLE==='oval'){ ctx.rotate(Math.atan2(fg.fy, fg.fx)); ctx.scale(WARP_OVAL*fg.wS, fg.wS); }
             else ctx.scale(fg.wS, fg.wS);
-            drawWarpFrame(warpSeed(e), WSf, !!e.portalWarp);   // through the Knossos: turquoise
+            drawWarpFrame(warpSeed(e), WSf, warpTurquoise(e));
             ctx.restore(); ctx.globalAlpha = 1;
           }catch(ef){ ctx.restore(); ctx.globalAlpha = 1; }
           continue;
@@ -238,8 +238,7 @@ function draw(){
           if(wImg) WS=Math.max(100, wImg.height*e.sc*1.9, wImg.width*e.sc*0.62);
           var wF=Math.floor(elapsed/mW*WARP_FRAMES);
           if(wF<0) wF=0; if(wF>WARP_FRAMES-1) wF=WARP_FRAMES-1;
-          // Through the Knossos: the turquoise vortex.
-          drawWarpFrame(warpSeed(e), WS, !!e.portalWarp);
+          drawWarpFrame(warpSeed(e), WS, warpTurquoise(e));
           ctx.restore();
           ctx.globalAlpha=1;
         }catch(ew){ctx.restore();ctx.globalAlpha=1;}

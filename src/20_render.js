@@ -483,6 +483,13 @@ function warpSeed(o){
   if(o._wseed == null) o._wseed = Math.random()*WARP_FRAMES;
   return o._wseed;
 }
+// Through the Knossos: the turquoise vortex. Coming in, the arrival
+// decides; going out, only a jump at the portal itself. A ship that came in
+// through the portal and jumps out anywhere else leaves through a normal
+// blue vortex (Silvio, v173: the Rakshasa in M61).
+function warpTurquoise(e){
+  return e.warpOut>0 ? !!e.portalOut : !!e.portalWarp;
+}
 function drawWarpFrame(seed, WS, knossos){
   const wF = Math.floor(fc*WARP_FPS/TICK_HZ + (seed||0)) % WARP_FRAMES;
   const sheet = (knossos && imgReady(KNOSSOS_WARP_IMG)) ? KNOSSOS_WARP_IMG : WARP_IMG;

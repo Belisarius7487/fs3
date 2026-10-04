@@ -956,7 +956,7 @@ function tickEscapers(){
     const _atJump = portalOn ? (e.x >= PORTAL_X) : (e.x + _ew*0.5 >= W - TRANS_EDGE_PAD);
     if(e.escWarp && _atJump){
       plogEvent(plogName(e)+(portalOn ? ' reached the portal' : ' reached the edge'), 'bad');
-      if(portalOn) e.portalWarp = true;
+      if(portalOn){ e.portalWarp = true; e.portalOut = true; }
       e.escaping = 0;
       if(!e.invuln) escGone++;
       EV_LEFT[e.uid] = true;

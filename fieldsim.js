@@ -2189,6 +2189,21 @@ scenario('v173: Shivan beams are static, others keep their slash', 'm=62', `
   r.dmgUnchanged = !cain || cain.beams.map(b=>b.dmg).join(',') === raw;
   return r;`);
 
+scenario('v174: in through the Knossos, out through a blue vortex', 'm=61', `
+  const r = {};
+  let rk = null;
+  for(let i=0;i<3000 && !rk;i+=20){ FS.step(20); rk = FS.ids('R1').find(e=>!(e.warp>0)) || null; }
+  r.cameThroughPortal = !!rk && rk.portalWarp === true;
+  FS.step(300);
+  r.turquoiseIn = warpTurquoise({portalWarp:true, warp:50});
+  rk.warpMax = 160; rk.warpOut = 160; rk.warpX = rk.x; rk.warpY = rk.y;
+  r.blueOut = warpTurquoise(rk) === false;
+  // At the portal itself it stays turquoise.
+  r.portalOutTurquoise = warpTurquoise({portalWarp:true, portalOut:true, warpOut:50}) === true;
+  let ok = true; try{ for(let i=0;i<60;i++){ update(); draw(); } }catch(ex){ ok = String(ex); }
+  r.draws = ok === true;
+  return r;`);
+
 scenario('HoL start unchanged', 'm=1', `
   return {wave: wave, thoth: player.ship==='fitoth', vasudanCall: ALLY_FAC_ON.vasudan===true && ALLY_FAC_ON.terran===false};`);
 
