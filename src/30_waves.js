@@ -3091,9 +3091,12 @@ const SCRIPT_WAVES = {
        {id:'H1', c:'fi', n:2, spr:'fiherc', side:'ally', y:300, replace:1},
        {id:'E1', c:'fi', n:2}
      ], ev:[
+       {t:'sek', a:1, w:'timer', a2:'150|LUCIFER LEAVES SUBSPACE'},
        {t:'sek', a:2, w:'meldung', a2:'no shields and no support in subspace'},
        {t:'sek', a:4, w:'meldung', a2:'only her reactors can be hit - the ursas go for them'},
-
+       // Time up: she drops out, we catch her next jump (Silvio, v176).
+       {t:'zeit', a:0, w:'neuerAnlauf', a2:'150|LUCIFER LEAVES SUBSPACE', again:true},
+       {t:'vernichtet', a:'L1', w:'timerStopp', a2:''},
        {t:'vernichtet', a:'L1', w:'zielerfuellt', a2:'THE LUCIFER IS DESTROYED'},
        {t:'vernichtet', a:'L1', w:'abzug', a2:''}
      ]}
@@ -3161,6 +3164,8 @@ let evReinf = false, evReinfCd = 0;
 // The mission's clock (v169): 'timer' starts it ("seconds|LABEL"),
 // 'zeit' fires when it runs out, 'timerStopp' takes it down.
 let missionTimer = {end:0, label:''};
+const MISSED_JUMP_PENALTY = 1000;  // the Lucifer got out of one jump (M75)
+let missedJumps = 0;
 function missionTimerLeft(){
   if(!missionTimer.end || GS!=='playing') return -1;
   return Math.max(0, missionTimer.end - spawnT);
@@ -3176,7 +3181,7 @@ const EV_REINF_GAP_MIN = 240;
 function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_POS = {};
   EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {};
-  missionTimer = {end:0, label:''};
+  missionTimer = {end:0, label:''}; missedJumps = 0;
   evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP;
 }
 function byId(id){
@@ -3382,6 +3387,29 @@ function evFire(ev){
                       label: String(parts[1]||'TIME').toUpperCase()};
       break;
     }
+    case 'neuerAnlauf': {
+      // The Lucifer dropped out of subspace (M75, Silvio v176): she needs
+      // several jumps to leave the nebula, so the fleet intercepts her next
+      // one. A fresh start of the fight - her destroyed reactors stay
+      // destroyed - for points, not lives. arg: 'seconds|timer label'.
+      const parts = String(arg||'').split('|');
+      score = Math.max(0, score - MISSED_JUMP_PENALTY);
+      missedJumps++;
+      plogEvent('the lucifer dropped out of subspace (-'+MISSED_JUMP_PENALTY+')', 'bad');
+      notice('THE LUCIFER DROPPED OUT OF SUBSPACE - INTERCEPT HER NEXT JUMP', 'bad');
+      // Into the next jump: a short white flash, the field cleared.
+      whiteOut = Math.round(WHITEOUT_T*0.6);
+      for(let i=enemies.length-1;i>=0;i--){
+        const e = enemies[i];
+        if(e.type==='fighter' || e.type==='bomber') enemies.splice(i,1);
+      }
+      eBullets.length = 0; pBullets.length = 0;
+      player.hp = player.maxHp;
+      player.x = W*0.18; player.y = H*0.5; player.vx = 0; player.vy = 0;
+      missionTimer = {end: spawnT + (parseFloat(parts[0])||150)*TICK_HZ,
+                      label: String(parts[1]||missionTimer.label||'TIME').toUpperCase()};
+      break;
+    }
     case 'zerstoeren':
       // Blown up where she is (the Iceni's self-destruct, M70).
       for(const u of byId(arg)){
@@ -3522,6 +3550,8 @@ function tickEvents(){
     if(!evTrig(ev)) continue;
     ev.done = true;
     evFire(ev);
+    // again: the event can fire once more later (the Lucifer's next jump).
+    if(ev.again) ev.done = false;
   }
   // Nachschub, solange ein Ereignis ihn eingeschaltet hat. Er haengt nicht
   // an der Uhr, sondern an dem Ereignis, das ihn wieder ausschaltet -
@@ -3731,7 +3761,7 @@ function buildScripted(def){
     if(u.replace) EV_REPL[u.id] = {u:u, mul:u.replace, hp:u.hp||1};
   }
   EV = (def.ev||[]).map(function(e){
-    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, done:false}; });
+    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, done:false}; });
   return q.sort(function(a,b){ return a.time-b.time; });
 }
 

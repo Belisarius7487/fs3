@@ -2234,6 +2234,40 @@ scenario('v175: the Lucifer holds her beams three times as long', 'm=69', `
   r.othersUnchanged = mountsFor('crcain').beams[0].fireT === (function(){ const c = enemies.find(e=>e.img==='crcain'); return c ? c.beams[0].fireT : mountsFor('crcain').beams[0].fireT; })();
   return r;`);
 
+scenario('v176: M75 a missed jump costs points, not lives', 'm=75', `
+  const r = {};
+  FS.step(20); for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  FS.step(200);
+  r.timer = missionTimerLeft() > 0 && /LUCIFER/.test(missionTimer.label);
+  const l = FS.ids('L1')[0];
+  // One reactor down before time runs out.
+  const rr = l.reactors.find(x=>!x.dead); const p = reactorPos(l, rr);
+  damageEnemy(l, 99999, p.x, p.y, true, 'bolt');
+  const downBefore = l.reactors.filter(x=>x.dead).length;
+  const lives0 = lives;
+  // Let the clock run out; keep the small craft down so the allies live.
+  FS.until(()=>missionTimerLeft() < 30, 20000, true, false);
+  let sB = score;
+  for(let i=0;i<200 && !missedJumps;i++){ sB = score; FS.step(1); }
+  r.missed = missedJumps === 1;
+  r.pointsTaken = score <= sB - MISSED_JUMP_PENALTY + 50;
+  r.noLifeLost = lives >= lives0;
+  r.reactorsKept = l.reactors.filter(x=>x.dead).length >= downBefore && !l.dead;
+  r.timerAgain = missionTimerLeft() > 140*TICK_HZ;
+  r.fieldCleared = !enemies.some(e=>(e.type==='fighter'||e.type==='bomber') && !(e.warp>0));
+  r.notWaveOver = !waveOver;
+  // A second miss works as well.
+  missionTimer.end = spawnT + 5;
+  FS.until(()=>missedJumps>1, 400, false, false);
+  r.secondMiss = missedJumps === 2;
+  // Then she is finished off and the wave ends.
+  for(const x of l.reactors){ if(x.dead) continue; const q = reactorPos(l, x); damageEnemy(l, 99999, q.x, q.y, true, 'bolt'); }
+  if(!l.dead && l.hp<=0) killEnemy(l, null, true, false);
+  FS.step(50);
+  r.timerStopped = missionTimerLeft() < 0;
+  r.ends = FS.until(()=>waveOver, 8000, true, true) >= 0;
+  return r;`);
+
 scenario('HoL start unchanged', 'm=1', `
   return {wave: wave, thoth: player.ship==='fitoth', vasudanCall: ALLY_FAC_ON.vasudan===true && ALLY_FAC_ON.terran===false};`);
 
