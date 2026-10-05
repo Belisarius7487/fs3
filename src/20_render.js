@@ -449,9 +449,12 @@ function fsPortalMoving(p){
   const e = p.e;
   return ((e._fvx||0)*p.fx + (e._fvy||0)*p.fy) > 0.05;
 }
-function drawFsPortals(){
+// only: which portals to draw this call (each ship's own just before her,
+// v177); without it, all of them.
+function drawFsPortals(only){
   for(let i=FS_PORTALS.length-1; i>=0; i--){
     const p = FS_PORTALS[i], age = fc - p.t0;
+    if(only && !only(p)) continue;
     if(p.closeT < 0 && age >= p.mW*0.75 && (fsPortalCleared(p) ||
        (age > p.mW + FS_PORTAL_LINGER*TICK_HZ && !fsPortalMoving(p)) ||
        age > p.mW + FS_PORTAL_MAX*TICK_HZ)) p.closeT = fc;

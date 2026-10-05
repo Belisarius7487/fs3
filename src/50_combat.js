@@ -1026,6 +1026,8 @@ function claimTarget(e, first, list, want){
 const PTAH_HULL = 'fiptah';
 const PTAH_SEEN = 300;          // steps she stays visible after a shot
 function playerSeen(){
+  // In disguise nobody looks for her - until her cover is blown (v177).
+  if(waveDisguise && !disguiseBlown) return false;
   if(player.ship !== PTAH_HULL) return true;
   return fc - (player.lastShot||-1e9) < PTAH_SEEN;
 }

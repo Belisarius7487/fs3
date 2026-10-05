@@ -613,6 +613,14 @@ let crossDone = 0, crossTotal = 0;
 function evPending(){
   for(const e of EV){
     if(e.done) continue;
+    // A delayed event already on its way holds the wave (v177, M77).
+    if(e.at!=null) return true;
+    // So does a transport still on its way to her dock: the field may be
+    // clear, the job is not done (v177, M80).
+    if(e.t==='angedockt' && !EV_DOCK[e.a]){
+      const dk = byId(e.a)[0];
+      if(dk && dk.dockTo && byId(dk.dockTo).length>0) return true;
+    }
     // Nachschub abzuschalten haelt keine Welle offen.
     if(e.w!=='einwarpen' && e.w!=='seite') continue;
     // Ein Ausloeser, dessen Ziel nie im Feld war oder schon weg ist, kann
@@ -640,7 +648,19 @@ function evPending(){
 // sonst nichts mehr im Feld steht.
 function escPending(){
   // A ship driving across (the Lucifer in 74) holds the wave until through.
-  for(const e of enemies) if((e.escaping || e.crossLeft) && !e.dead) return true;
+  for(const e of enemies) if((e.escaping || e.crossLeft) && !e.dead && !e.noHold) return true;
+  return false;
+}
+// Is anything still queued that the wave has to wait for? Scenery that
+// passes by (noHold, the Sathanas in 78) is not (v177).
+function queueHolds(){
+  for(const q of spawnQ) if(!q.noHold) return true;
+  return false;
+}
+// Is anything still queued that the wave has to wait for? Scenery that
+// passes by (noHold, the Sathanas in 78) is not (v177).
+function queueHolds(){
+  for(const q of spawnQ) if(!q.noHold) return true;
   return false;
 }
 function crossPending(){
@@ -1162,6 +1182,11 @@ function applySpawnOpts(e, sp){
   }
   // Drives straight across to the left and out (M74).
   if(sp.crossLeft){ e.crossLeft = sp.crossLeft; e.fleeFree = true; }
+  if(sp.subDrift) e.subDrift = true;
+  // noHold: a ship driving across that does not keep the wave going (the
+  // nine Sathanas in 78). crossWarp: she jumps out near the left edge.
+  if(sp.noHold) e.noHold = true;
+  if(sp.crossWarp){ e.crossWarp = true; e.withdrawn = true; }
   if(sp.gasBeams) e.gasBeams = true;
   // Nobody carries a shield in subspace (Silvio).
   if(waveMod==='subspace' && e.maxSh){ e.maxSh = 0; e.sh = 0; }
@@ -1189,6 +1214,12 @@ function applySpawnOpts(e, sp){
   if(sp.runner) e.runner = true;
   // A ship that has lost its drive and is only there to be defended.
   if(sp.still){ e.vx = 0; e.vy = 0; e.still = true; }
+  // hull: a lighter or heavier build of the hull, bar and all (the comm
+  // nodes in 78, v177) - unlike hp below, which is damage.
+  if(sp.hullMul){
+    e.hp = Math.max(1, Math.round(e.hp*sp.hullMul));
+    e.maxHp = e.hp;
+  }
   // Damaged on arrival. maxHp is deliberately left alone so the hull bar
   // shows the ship as hurt rather than as small.
   if(sp.hpMul){
@@ -3084,21 +3115,177 @@ const SCRIPT_WAVES = {
        // Boss. In subspace no shield works - not hers, not ours - and no
        // support answers. Only her reactors can be hurt; the last one takes
        // her with it.
-       {id:'L1', c:'sd', n:1, spr:'sdlucifer', reactorOnly:true, y:250},
+       // She drives from right to left on the jump's clock (Silvio, v177):
+       // half off the right edge at the start, half off the left when time
+       // runs out and she drops out of subspace.
+       {id:'L1', c:'sd', n:1, spr:'sdlucifer', reactorOnly:true, subDrift:true, x:760, y:250},
        // Not alone (Silvio): Ursas that go for her reactors, Hercules that
        // keep her fighters off them. A flight that is lost is replaced.
        {id:'W1', c:'bo', n:2, spr:'boursa', side:'ally', y:220, replace:1},
        {id:'H1', c:'fi', n:2, spr:'fiherc', side:'ally', y:300, replace:1},
        {id:'E1', c:'fi', n:2}
      ], ev:[
-       {t:'sek', a:1, w:'timer', a2:'150|LUCIFER LEAVES SUBSPACE'},
+       {t:'sek', a:1, w:'timer', a2:'120|LUCIFER LEAVES SUBSPACE'},
        {t:'sek', a:2, w:'meldung', a2:'no shields and no support in subspace'},
        {t:'sek', a:4, w:'meldung', a2:'only her reactors can be hit - the ursas go for them'},
        // Time up: she drops out, we catch her next jump (Silvio, v176).
-       {t:'zeit', a:0, w:'neuerAnlauf', a2:'150|LUCIFER LEAVES SUBSPACE', again:true},
+       {t:'zeit', a:0, w:'neuerAnlauf', a2:'120|LUCIFER LEAVES SUBSPACE', again:true},
        {t:'vernichtet', a:'L1', w:'timerStopp', a2:''},
        {t:'vernichtet', a:'L1', w:'zielerfuellt', a2:'THE LUCIFER IS DESTROYED'},
        {t:'vernichtet', a:'L1', w:'abzug', a2:''}
+     ]},
+
+  // ── SHIVAN CYCLE, BLOCK C: THE SATHANAS (M76-M86) ────────────
+  76:{name:'Breathing Space', fac:'shivan', o:'clear', live:4, mod:'nebula',
+      ziel:'CLEAR OUT THE STRAGGLERS', u:[
+       // After the Lucifer: scattered Shivans in the gas, a damaged
+       // Cain among them. A quiet mission between two storms.
+       {id:'K1', c:'cr', n:1, spr:'crcain', x:560, y:300, still:true, hurt:0.45, noFlee:true},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:1, wait:true},
+       {id:'B1', c:'bo', n:1, wait:true}
+     ], ev:[
+       {t:'sek', a:2,  w:'meldung', a2:'only stragglers left - clear them out'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'sek', a:25, w:'einwarpen', a2:'B1'}
+     ]},
+
+  77:{name:'The Second Gate', fac:'shivan', o:'clear', live:5, mod:'nebula',
+      portal:true, hunt:'A1',
+      ziel:'CLEAR THE SECOND PORTAL', u:[
+       // A second Knossos in the nebula, guarded. With the Hatshepsut we
+       // clear it - and then a Sathanas comes through and takes her apart.
+       {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
+       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', x:130, y:260, still:true,
+        callsOk:true},
+       {id:'K1', c:'cr', n:1, spr:'crcain',     x:560, y:130, noFlee:true},
+       {id:'K2', c:'cr', n:1, spr:'crlilith',   x:590, y:410, noFlee:true},
+       {id:'V1', c:'co', n:1, spr:'comoloch',   t:20, noFlee:true, viaPortal:true},
+       {id:'K3', c:'cr', n:1, spr:'crrakshasa', wait:true, noFlee:true, viaPortal:true},
+       {id:'E1', c:'fi', n:2},
+       {id:'B1', c:'bo', n:1, wait:true},
+       // The juggernaut: untouchable, through the portal, then on into
+       // the gas. noHold: she does not keep the wave going.
+       {id:'S1', c:'sd', n:1, spr:'sdsathanas', invuln:true, viaPortal:true, crossLeft:0.3,
+        y:260, wait:true}
+     ], ev:[
+       {t:'sek', a:2,  w:'meldung', a2:'a second knossos portal - shivan ships guard it'},
+       {t:'sek', a:5,  w:'nachschub', a2:'an'},
+       {t:'sek', a:30, w:'einwarpen', a2:'B1'},
+       {t:'vernichtet', a:'K1', w:'einwarpen', a2:'K3'},
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'zielerfuellt', a2:'THE GATE IS CLEAR'},
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'nachschub', a2:'aus'},
+       // Then the Sathanas (d: seconds after the trigger).
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'einwarpen', a2:'S1', d:3},
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'meldung', a2:'something huge is coming through the portal', d:3},
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'zerstoeren', a2:'A1', d:16},
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'meldung', a2:'a sathanas - the hatshepsut is lost', d:17},
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'abzug', a2:'', d:18}
+     ]},
+
+  78:{name:'Beyond the Gate', fac:'shivan', o:'clear', live:5, scene:'beyond2',
+      ship:'fimara', disguise:true, noMara:true,
+      ziel:'DESTROY THE THREE COMM NODES', u:[
+       // Through the second portal, in a captured Mara: no nebula here.
+       // The Shivans take her for one of theirs until she fires on one of
+       // them. Nine Sathanas pass, one after another, on their way to the
+       // portal - untouchable, and they pay her no attention. They drive in
+       // from the right and jump out at the left edge.
+       {id:'N1', c:'in', n:1, spr:'incommnode', x:520, y:150, hull:0.1},
+       {id:'N2', c:'in', n:1, spr:'incommnode', x:660, y:300, hull:0.1},
+       {id:'N3', c:'in', n:1, spr:'incommnode', x:500, y:430, hull:0.1},
+       {id:'S1', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:200, t:2},
+       {id:'S2', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:360, t:14},
+       {id:'S3', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:240, t:26},
+       {id:'S4', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:380, t:38},
+       {id:'S5', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:180, t:50},
+       {id:'S6', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:330, t:62},
+       {id:'S7', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:220, t:74},
+       {id:'S8', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:370, t:86},
+       {id:'S9', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:260, t:98},
+       {id:'E1', c:'fi', n:2},
+       {id:'B1', c:'bo', n:1, wait:true}
+     ], ev:[
+       {t:'sek', a:2,  w:'meldung', a2:'they take the mara for one of their own - until you fire'},
+       {t:'sek', a:5,  w:'meldung', a2:'nine sathanas - more juggernauts than anyone feared'},
+       {t:'sek', a:5,  w:'nachschub', a2:'an'},
+       {t:'sek', a:40, w:'einwarpen', a2:'B1'},
+       {t:'vernichtet', a:'N1+N2+N3', w:'zielerfuellt', a2:'COMM NODES DESTROYED'},
+       {t:'vernichtet', a:'N1+N2+N3', w:'nachschub', a2:'aus'}
+     ]},
+
+  79:{name:'Data Uplink', fac:'shivan', o:'clear', live:5, mod:'nebula', ssBombs:true, hunt:'C1',
+      ziel:'PROTECT THE SETEKH UNTIL THE DATA IS SENT', u:[
+       // Back in the gas, the Setekh sends what was seen beyond the portal.
+       // She jams them - no reinforcements of their own - but what was
+       // already sent comes in waves, and subspace bombs come for her.
+       {id:'C1', c:'cr', n:1, spr:'casetekh', side:'ally', x:180, y:260, still:true,
+        guard:true, callsOk:true},
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:2, wait:true},
+       {id:'E3', c:'fi', n:3, wait:true},
+       {id:'B1', c:'bo', n:1, wait:true},
+       {id:'B2', c:'bo', n:2, wait:true},
+       {id:'K1', c:'cr', n:1, spr:'crrakshasa', wait:true, noFlee:true}
+     ], ev:[
+       {t:'sek', a:1,  w:'timer', a2:'90|DATA UPLINK'},
+       {t:'sek', a:2,  w:'meldung', a2:'the setekh sends the data - keep her alive'},
+       {t:'sek', a:15, w:'einwarpen', a2:'B1'},
+       {t:'sek', a:25, w:'einwarpen', a2:'E2'},
+       {t:'sek', a:40, w:'einwarpen', a2:'K1'},
+       {t:'sek', a:50, w:'einwarpen', a2:'B2'},
+       {t:'sek', a:65, w:'einwarpen', a2:'E3'},
+       {t:'zeit', a:0, w:'zielerfuellt', a2:'DATA SENT', lostMax:0},
+       {t:'zeit', a:0, w:'raus', a2:'C1', lostMax:0},
+       {t:'zeit', a:0, w:'abzug', a2:'', lostMax:0},
+       {t:'zeit', a:0, w:'timerStopp', a2:''},
+       {t:'vernichtet', a:'C1', w:'zielverfehlt', a2:'GTA SETEKH LOST'},
+       {t:'vernichtet', a:'C1', w:'timerStopp', a2:''},
+       {t:'vernichtet', a:'C1', w:'abzug', a2:''}
+     ]},
+
+  80:{name:'Emergency Repairs', fac:'shivan', o:'clear', live:5, scene:'knossos',
+      portal:true, portalIn:true, hunt:'A1',
+      ziel:'PROTECT THE HECATE UNTIL SHE IS REPAIRED', u:[
+       // At the Knossos, this side. A damaged Hecate is patched up by
+       // transports; each that docks puts a quarter of her hull back.
+       // After the third she can jump.
+       {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
+       {id:'A1', c:'de', n:1, spr:'dehecate', side:'ally', x:200, y:270, still:true,
+        hp:0.30, guard:true, callsOk:true},
+       // Each transport holds on for a while, and the next is a little
+       // behind: the repair takes a minute and a half or so.
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:380, dockTo:'A1', dockHold:12, t:8},
+       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:150, dockTo:'A1', dockHold:12, wait:true},
+       {id:'T3', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:380, dockTo:'A1', dockHold:12, wait:true},
+       {id:'K1', c:'cr', n:1, spr:'crcain', t:10, noFlee:true},
+       {id:'K2', c:'cr', n:1, spr:'crlilith', wait:true, noFlee:true},
+       {id:'E1', c:'fi', n:2},
+       {id:'B1', c:'bo', n:1, wait:true},
+       {id:'B2', c:'bo', n:2, wait:true},
+       {id:'B3', c:'bo', n:2, wait:true}
+     ], ev:[
+       {t:'sek', a:2,  w:'meldung', a2:'the hecate is badly hit - transports are on their way'},
+       {t:'sek', a:5,  w:'nachschub', a2:'an'},
+       {t:'sek', a:20, w:'einwarpen', a2:'B1'},
+       {t:'sek', a:30, w:'einwarpen', a2:'K2'},
+       {t:'sek', a:45, w:'einwarpen', a2:'B2'},
+       {t:'sek', a:60, w:'einwarpen', a2:'B3'},
+       {t:'angedockt', a:'T1', w:'heilen', a2:'A1'},
+       {t:'angedockt', a:'T1', w:'einwarpen', a2:'T2', d:10},
+       {t:'angedockt', a:'T2', w:'heilen', a2:'A1'},
+       {t:'angedockt', a:'T2', w:'einwarpen', a2:'T3', d:10},
+       {t:'angedockt', a:'T3', w:'heilen', a2:'A1'},
+       {t:'vernichtet', a:'T1', w:'einwarpen', a2:'T2'},
+       {t:'vernichtet', a:'T2', w:'einwarpen', a2:'T3'},
+       {t:'angedockt', a:'T3', w:'zielerfuellt', a2:'THE HECATE IS REPAIRED', lostMax:0},
+       {t:'angedockt', a:'T3', w:'raus', a2:'A1', lostMax:0},
+       {t:'angedockt', a:'T3', w:'nachschub', a2:'aus', lostMax:0},
+       {t:'angedockt', a:'T3', w:'abzug', a2:'', lostMax:0},
+       {t:'vernichtet', a:'T3', w:'zielverfehlt', a2:'THE LAST TRANSPORT IS LOST'},
+       {t:'vernichtet', a:'T3', w:'nachschub', a2:'aus'},
+       {t:'vernichtet', a:'A1', w:'zielverfehlt', a2:'GTD HECATE LOST'},
+       {t:'vernichtet', a:'A1', w:'abzug', a2:''}
      ]}
 };
 // Die Ereignisliste benutzt a fuer das Ziel des Ausloesers und a2 fuer das
@@ -3384,6 +3571,7 @@ function evFire(ev){
     case 'timer': {
       const parts = String(arg||'').split('|');
       missionTimer = {end: spawnT + (parseFloat(parts[0])||60)*TICK_HZ,
+                      total: (parseFloat(parts[0])||60)*TICK_HZ,
                       label: String(parts[1]||'TIME').toUpperCase()};
       break;
     }
@@ -3406,7 +3594,10 @@ function evFire(ev){
       eBullets.length = 0; pBullets.length = 0;
       player.hp = player.maxHp;
       player.x = W*0.18; player.y = H*0.5; player.vx = 0; player.vy = 0;
+      // A ship that drifts on the clock starts again from the right.
+      for(const e of enemies) if(e.subDrift){ e.subX0 = W*SUB_DRIFT_X0; e.subK0 = 0; e.subV = 0; e.subOff = 0; }
       missionTimer = {end: spawnT + (parseFloat(parts[0])||150)*TICK_HZ,
+                      total: (parseFloat(parts[0])||150)*TICK_HZ,
                       label: String(parts[1]||missionTimer.label||'TIME').toUpperCase()};
       break;
     }
@@ -3435,13 +3626,18 @@ function evFire(ev){
       evReinf = false;
       EV_HELD = {};
       EV_REPL = {};
-      // The script is over: nothing still waiting in it may hold the wave.
+      // The script is over: nothing still waiting in it may hold the wave,
+      // a mission clock included (v177).
       for(const x of EV) x.done = true;
-      for(const e of enemies){
+      missionTimer = {end:0, label:''};
+      for(let i=enemies.length-1;i>=0;i--){
+        const e = enemies[i];
         if(e.dead || e.scenery || e.invuln || e.warpOut>0 || e.type==='asteroid') continue;
+        // Still coming out of its vortex: it simply does not arrive. Turned
+        // round inside it, the hull popped up whole to jump out (v177, M80).
+        if(e.warp>0){ if(e.uid) EV_LEFT[e.uid] = true; enemies.splice(i,1); continue; }
         e.fleeFree = true; e.keepAlive = false; e.escaping = 0; e.fleeT = 0;
         e.withdrawn = true;
-        if(e.warp>0) e.warp = 0;
         e.warpOut = e.warpMax = (e.type==='fighter'||e.type==='bomber') ? 70 : 160;
         e.warpX = e.x; e.warpY = e.y;
         if(e.uid) EV_LEFT[e.uid] = true;
@@ -3547,11 +3743,15 @@ function tickEvents(){
     // lostMax: only while no more protected ships than this are lost - a
     // success card must not follow a failure (M65).
     if(ev.lostMax!=null && protLost > ev.lostMax) continue;
-    if(!evTrig(ev)) continue;
+    // d: fire this many seconds after the trigger came true (v177).
+    if(ev.at==null){
+      if(!evTrig(ev)) continue;
+      if(ev.d){ ev.at = spawnT + ev.d*TICK_HZ; continue; }
+    } else if(spawnT < ev.at) continue;
     ev.done = true;
     evFire(ev);
     // again: the event can fire once more later (the Lucifer's next jump).
-    if(ev.again) ev.done = false;
+    if(ev.again){ ev.done = false; ev.at = null; }
   }
   // Nachschub, solange ein Ereignis ihn eingeschaltet hat. Er haengt nicht
   // an der Uhr, sondern an dem Ereignis, das ihn wieder ausschaltet -
@@ -3583,6 +3783,7 @@ function scriptUnit(u, fac, q){
   const put = function(e){
     e.uid = u.id;
     if(u.hp) e.hpMul = u.hp;
+    if(u.hull) e.hullMul = u.hull;
     if(u.wait){ e.delay = e.time - t0; (EV_HELD[u.id]=EV_HELD[u.id]||[]).push(e); }
     else q.push(e);
   };
@@ -3629,7 +3830,7 @@ function scriptUnit(u, fac, q){
              x:u.x, escape:u.escape, invuln:u.invuln, edge:u.edge, capRam:u.capRam,
              escWarp:u.escWarp, capture:u.capture, flee:u.flee, scanSubs:u.scanSubs,
              fleeFree:u.fleeFree, hurt:u.hurt, armed:u.armed, noFlee:u.noFlee,
-             noKill:u.noKill, noWarp:u.noWarp,
+             noKill:u.noKill, noWarp:u.noWarp, viaPortal:u.viaPortal,
              still:u.still, noFlak:u.noFlak, fixY:(u.y!=null),
              capIndex:(n>1)? i : 0});
       }
@@ -3643,7 +3844,8 @@ function scriptUnit(u, fac, q){
     put({time:t0, type:'boss_'+FAC_TAG[fac], spr:u.spr, y:(u.y!=null)?u.y:H*0.5, x:u.x,
          invuln:u.invuln, still:u.still, fixY:(u.y!=null), noFlee:true, noFire:u.noFire,
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
-         gasBeams:u.gasBeams});
+         gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
+         noHold:u.noHold, crossWarp:u.crossWarp});
     return;
   }
   if(u.c==='ic'){
@@ -3734,6 +3936,8 @@ function buildScripted(def){
   portalOn = !!def.portal;
   portalIn = !!def.portalIn;
   waveFs1 = !!def.fs1;
+  waveNoMara = !!def.noMara;
+  waveDisguise = !!def.disguise; disguiseBlown = false;
   // In subspace no shield works (v170): the player's comes back next wave.
   if(waveMod==='subspace' && player.maxSh){
     player._maxShSave = player.maxSh; player.maxSh = 0; player.sh = 0;
@@ -3761,7 +3965,8 @@ function buildScripted(def){
     if(u.replace) EV_REPL[u.id] = {u:u, mul:u.replace, hp:u.hp||1};
   }
   EV = (def.ev||[]).map(function(e){
-    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, done:false}; });
+    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, d:e.d,
+            at:null, done:false}; });
   return q.sort(function(a,b){ return a.time-b.time; });
 }
 
@@ -3962,8 +4167,22 @@ const FS1_SHIVAN = {
 };
 const FS1_SWARM_EXTRA = 1;       // a Scorpion wing is one ship larger
 function wingExtra(hull){ return (waveFs1 && hull==='fiscorpion') ? FS1_SWARM_EXTRA : 0; }
+// ── DISGUISE (M78, v177) ─────────────────────────────────────
+// In a captured Mara the Shivans take the player for one of their own
+// until she hits one of them. noMara: and none of theirs is a Mara there.
+let waveDisguise = false, disguiseBlown = false, waveNoMara = false;
+function blowCover(){
+  if(!waveDisguise || disguiseBlown) return;
+  disguiseBlown = true;
+  notice('YOUR COVER IS BLOWN', 'bad');
+  plogEvent('cover blown', 'bad');
+}
 function poolFor(type){
   const k = ROLE_KEY[typeRole(type)];
+  if(k==='fighters' && waveNoMara && typeFac(type)==='shivan'){
+    const p = (ROLES[typeFac(type)+'_'+k] || []).filter(function(x){ return x!=='fimara'; });
+    return p.length ? p : null;
+  }
   if(k && waveFs1 && typeFac(type)==='shivan' && FS1_SHIVAN[k]) return FS1_SHIVAN[k];
   return k ? (ROLES[typeFac(type)+'_'+k] || null) : null;
 }

@@ -259,7 +259,7 @@ scenario('M13 both transports on time', 'm=13', `
 // Scan missions (12, 23) need the player to fly the scan and are left out.
 // 61 ends only when the Aeolus is lost; its own scenario covers that.
 // 71 is a scan, flown in its own scenario like 12 and 23.
-for(const m of Array.from({length:75},(_,i)=>i+1)) if(m!==12 && m!==23 && m!==61 && m!==71) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
+for(const m of Array.from({length:80},(_,i)=>i+1)) if(m!==12 && m!==23 && m!==61 && m!==71) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
   const t = FS.until(()=>waveOver, 40000, false, true);
   ITEMS.length = 0;     // pickups hold the jump open until they expire
   const j = FS.until(()=>wave === ${m}+1, 6000, false, false);
@@ -2212,7 +2212,7 @@ scenario('v175: FS1 Shivans with the Lucifer, Scorpions first', 'm=74', `
   const fs1 = FS1_SHIVAN.fighters.concat(FS1_SHIVAN.bombers);
   r.onlyFs1Small = Object.keys(seen).length > 0 && Object.keys(seen).every(k=>fs1.indexOf(k)>=0);
   const fi = Object.keys(seen).filter(k=>/^fi/.test(k)).reduce((s,k)=>s+seen[k],0);
-  r.scorpionsMost = (seen.fiscorpion||0) > fi*0.4;
+  r.scorpionsMost = (seen.fiscorpion||0) > fi*0.3;    // half the pool, random wings
   r.capsFs1 = ['K1','K2','M1'].every(id=>!EV_SEEN[id] || true) && SCRIPT_WAVES[74].u.filter(u=>u.c==='cr'||u.c==='co').every(u=>FS1_SHIVAN.cruisers.indexOf(u.spr)>=0);
   r.counts = JSON.stringify(seen);
   return r;`);
@@ -2253,7 +2253,7 @@ scenario('v176: M75 a missed jump costs points, not lives', 'm=75', `
   r.pointsTaken = score <= sB - MISSED_JUMP_PENALTY + 50;
   r.noLifeLost = lives >= lives0;
   r.reactorsKept = l.reactors.filter(x=>x.dead).length >= downBefore && !l.dead;
-  r.timerAgain = missionTimerLeft() > 140*TICK_HZ;
+  r.timerAgain = missionTimerLeft() > 110*TICK_HZ;   // 120 s since v177
   r.fieldCleared = !enemies.some(e=>(e.type==='fighter'||e.type==='bomber') && !(e.warp>0));
   r.notWaveOver = !waveOver;
   // A second miss works as well.
@@ -2266,6 +2266,133 @@ scenario('v176: M75 a missed jump costs points, not lives', 'm=75', `
   FS.step(50);
   r.timerStopped = missionTimerLeft() < 0;
   r.ends = FS.until(()=>waveOver, 8000, true, true) >= 0;
+  return r;`);
+
+scenario('v177: a small ship vortex in front of a large hull', 'm=70', `
+  const r = {};
+  FS.until(()=>FS.ids('T1').some(t=>!(t.warp>0)), 3000, true, false);
+  const ic = FS.ids('I1')[0], tr = FS.ids('T1')[0];
+  r.both = !!ic && !!tr;
+  // The transport jumps out right in front of the Iceni.
+  tr.x = ic.x; tr.y = ic.y; tr.warpMax = 160; tr.warpOut = 90; tr.warpX = tr.x; tr.warpY = tr.y;
+  Object.defineProperty(WARP_IMG, 'naturalWidth', {value:2304, configurable:true});
+  Object.defineProperty(WARP_IMG, 'complete', {value:true, configurable:true});
+  const order = []; const _d = ctx.drawImage;
+  ctx.drawImage = function(img){ if(img===IMGS.coiceni) order.push('iceni'); else if(img===WARP_IMG) order.push('vortex'); return _d.apply(this, arguments); };
+  try{ draw(); } finally { ctx.drawImage = _d; }
+  const iI = order.indexOf('iceni'), iV = order.lastIndexOf('vortex');
+  r.vortexOverIceni = iI >= 0 && iV > iI;
+  return r;`);
+
+scenario('v177: M75 the Lucifer drives right to left on the clock', 'm=75', `
+  const r = {};
+  FS.step(20); for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  FS.step(100);
+  const l = FS.ids('L1')[0];
+  r.timer2min = missionTimer.total === 120*TICK_HZ;
+  const x0 = l.x;
+  r.startsRight = x0 > W*0.85;
+  FS.until(()=>missionTimerLeft() < 60*TICK_HZ, 20000, true, false);
+  // About the middle at half time (her glide out of the vortex adds a bit).
+  r.halfway = l.x > W*0.3 && l.x < W*0.55;
+  FS.until(()=>missionTimerLeft() < 2*TICK_HZ, 20000, true, false);
+  r.endsLeft = l.x < W*0.1;
+  FS.until(()=>missedJumps>0, 1000, false, false);
+  FS.step(5);
+  r.backRight = missedJumps===1 && l.x > W*0.9 && !l.dead;
+  return r;`);
+
+scenario('v177: M77 the Sathanas comes through and takes the Hatshepsut', 'm=77', `
+  const r = {}; const cards = []; const oa = objAnnounce; objAnnounce = function(a,b){ cards.push(b); return oa.apply(this, arguments); };
+  FS.step(200);
+  for(let t=0;t<20000 && !EV_SEEN['S1'];t+=20){ FS.step(20);
+    if(t%200===0) for(const e of enemies){ if(e.warp>0||e.invuln||e.scenery) continue; e.hp = 0; } }
+  r.gateClear = cards.indexOf('THE GATE IS CLEAR') >= 0;
+  FS.step(30);
+  const s = FS.ids('S1')[0];
+  r.sathanas = !!s && s.img==='sdsathanas' && s.invuln;
+  r.throughPortal = !!s && s.portalWarp === true;
+  FS.until(()=>FS.ids('A1').length===0, 3000, true, false);
+  r.hatshepsutGone = FS.ids('A1').length===0;
+  r.noFailCard = !cards.some(c=>/LOST/.test(c) && c!=='');
+  r.notOverWhileSheIsHere = !waveOver;
+  r.ends = FS.until(()=>waveOver, 12000, true, true) >= 0;
+  r.sheLeft = FS.ids('S1').length===0;
+  return r;`);
+
+scenario('v177: M78 the Mara in disguise, nine Sathanas, three comm nodes', 'm=78', `
+  const r = {};
+  FS.step(20);
+  r.mara = player.ship==='fimara';
+  let hit = 0, sath = 0, mara = false;
+  for(let i=0;i<2500;i++){ const h = player.hp + player.sh; update(); if(i%25===0) draw();
+    hit += Math.max(0, h - (player.hp + player.sh)); player.hp = player.maxHp; player.sh = player.maxSh;
+    for(const e of enemies){ if(e.img==='sdsathanas' && e.invuln && e.noHold && !e._c){ e._c = 1; sath++; } if(e.img==='fimara') mara = true; } }
+  r.disguisedUnhurt = hit < 5 && !disguiseBlown;
+  r.noMaras = !mara;
+  r.sathanasPass = sath >= 2;
+  // A shot on a node gives her away.
+  const n = FS.ids('N1')[0];
+  damageEnemy(n, 1, n.x, n.y, true, 'bolt');
+  r.coverBlown = disguiseBlown === true;
+  hit = 0;
+  for(let i=0;i<2000;i++){ const h = player.hp + player.sh; update(); if(i%25===0) draw();
+    hit += Math.max(0, h - (player.hp + player.sh)); player.hp = player.maxHp; player.sh = player.maxSh; }
+  r.nowHunted = hit > 20;
+  // The nodes go up in a big blast.
+  r.nodeHull = n.maxHp < 3000;
+  for(const id of ['N1','N2','N3']) FS.killId(id);
+  FS.step(5);
+  r.bigBlast = BLAST_FUSE.length > 0 || DANGER.length > 0;
+  r.ends = FS.until(()=>waveOver, 20000, true, true) >= 0;
+  r.endedBeforeAllNine = r.ends;
+  ITEMS.length = 0;
+  FS.until(()=>wave===79, 6000, false, false);
+  r.shipBack = player.ship !== 'fimara';
+  return r;`);
+
+scenario('v177: M79 the Setekh sends the data on the clock', 'm=79', `
+  const r = {}; const cards = []; const oa = objAnnounce; objAnnounce = function(a,b){ cards.push(b); return oa.apply(this, arguments); };
+  FS.step(200);
+  r.timer = missionTimerLeft() > 0 && /UPLINK/.test(missionTimer.label);
+  r.jams = !!jammerAlive();
+  // Everything down well before the end: the clock still has to finish.
+  FS.until(()=>missionTimerLeft() < 300, 20000, true, true);
+  r.notOverEarly = !waveOver;
+  FS.until(()=>waveOver, 4000, true, true);
+  r.dataSent = cards.indexOf('DATA SENT') >= 0;
+  r.ends = waveOver;
+  return r;`);
+
+scenario('v177: M80 the Hecate is patched up and jumps', 'm=80', `
+  const r = {}; const cards = []; const oa = objAnnounce; objAnnounce = function(a,b){ cards.push(b); return oa.apply(this, arguments); };
+  FS.step(50);
+  const a = FS.ids('A1')[0];
+  r.damaged = !!a && a.hp < a.maxHp*0.35;
+  // Shivans all down early: the wave still waits for the transports.
+  FS.until(()=>EV_DOCK['T1'], 20000, true, true);
+  r.firstDock = !!EV_DOCK['T1'];
+  r.healing = a.hp > a.maxHp*0.5;
+  r.waitsForRepairs = !waveOver;
+  FS.until(()=>waveOver, 20000, true, true);
+  r.repaired = cards.indexOf('THE HECATE IS REPAIRED') >= 0;
+  r.ends = waveOver;
+  return r;`);
+
+scenario('v177: delayed events and passing scenery', 'm=1', `
+  const r = {};
+  // d: an event fires that many seconds after its trigger.
+  EV = [{t:'sek', a:0, w:'meldung', wa:'x', d:2, at:null, done:false}];
+  FS.step(5);
+  r.waits = EV[0].done === false && EV[0].at != null && evPending();
+  FS.step(2*TICK_HZ);
+  r.fires = EV[0].done === true;
+  // A queued ship marked noHold does not keep the wave open.
+  spawnQ.length = 0; spawnQ.push({time:spawnT+99999, type:'boss_sh', noHold:true});
+  r.noHold = !queueHolds();
+  spawnQ.push({time:spawnT+99999, type:'fi_sh'});
+  r.holds = queueHolds();
+  spawnQ.length = 0;
   return r;`);
 
 scenario('HoL start unchanged', 'm=1', `

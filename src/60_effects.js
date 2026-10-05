@@ -312,6 +312,8 @@ const BIG_BLAST = {
 };
 const BIG_BLAST_FUSE = 150;
 let BLAST_FUSE = [];
+const SUB_DRIFT_X0 = 0.95, SUB_DRIFT_X1 = 0.05;   // M75, share of the field width
+const SUB_DRIFT_EXIT_V = 1.5;   // px a step she comes out of her vortex with
 function tickBlastFuses(){
   for(let i=BLAST_FUSE.length-1;i>=0;i--){
     const f = BLAST_FUSE[i];
@@ -868,7 +870,7 @@ function update(){
         continue;
       }
       const _e=mkEnemy(_sp.type, _sp.spr, _sp.y);
-      if(_e && _sp.flee) _e.fleeT = _sp.flee*TICK_HZ;if(_e){_e.side='enemy';_e.flip=needsFlip(_e.img,true);if(_e.type==='fighter'||_e.type==='bomber'){const _p=poseFor(_e.head,_e.flip);_e.ang=_p.ang;_e.flip=_p.flip;}_e.warpMax=_e.warp||1;initWeapons(_e);initSecAmmo(_e);initLuciShield(_e);initSubsystems(_e);assignStation(_e);applySpawnOpts(_e,_sp);if(portalIn&&!_sp.noWarp)portalArrive(_e);_e.uid=_sp.uid;_e.wing=_sp.wing||0;if(_sp.uid)EV_SEEN[_sp.uid]=true;_e.hunter=(waveHunt&&Math.random()<HUNT_SHARE);_e.rammer=!!_sp.rammer;enemies.push(_e);}}
+      if(_e && _sp.flee) _e.fleeT = _sp.flee*TICK_HZ;if(_e){_e.side='enemy';_e.flip=needsFlip(_e.img,true);if(_e.type==='fighter'||_e.type==='bomber'){const _p=poseFor(_e.head,_e.flip);_e.ang=_p.ang;_e.flip=_p.flip;}_e.warpMax=_e.warp||1;initWeapons(_e);initSecAmmo(_e);initLuciShield(_e);initSubsystems(_e);assignStation(_e);applySpawnOpts(_e,_sp);if((portalIn||_sp.viaPortal)&&!_sp.noWarp)portalArrive(_e);_e.uid=_sp.uid;_e.wing=_sp.wing||0;if(_sp.uid)EV_SEEN[_sp.uid]=true;_e.hunter=(waveHunt&&Math.random()<HUNT_SHARE);_e.rammer=!!_sp.rammer;enemies.push(_e);}}
     // With a boss calling for more, the queue is never empty for long, but
     // the wave still ends the moment the boss itself dies, because its
     // calls stop with it.
@@ -881,9 +883,11 @@ function update(){
     // would hold the wave open forever.
     if(transitSecs>0 ? guardGone
        : (disableTarget ? disableDone()
-          : (!spawnQ.length && !liveThreatCount() && !crossPending() && !evPending() && !escPending()
+          : (!queueHolds() && !liveThreatCount() && !crossPending() && !evPending() && !escPending()
              // A mission clock still running holds the wave (v169, M69).
-             && !(missionTimerLeft() > 0)
+             // Until it is stopped: the 'zeit' events must get their
+             // step even when the field went clear in the last second (v177).
+             && !(missionTimerLeft() >= 0)
              // So does a scan still to be flown, even on scenery (M71).
              && !enemies.some(function(o){ return o.scanSubs && !o.scanned && !o.dead; })))){
       // She made it: that is the whole objective of the wave.
@@ -1237,10 +1241,44 @@ function update(){
         e.x-=0.3;
         continue;
       }
+      // In subspace (M75) her place is set by the jump's clock: from
+      // SUB_DRIFT_X0 to SUB_DRIFT_X1 of the field while the timer runs. A
+      // new jump starts her at the right again.
+      if(e.subDrift){
+        const _tot = missionTimer.total||0, _left = missionTimerLeft();
+        const _k = (_tot>0 && _left>=0) ? Math.min(1, 1 - _left/_tot) : 0;
+        // From where she is when the drift starts (out of her vortex), so
+        // nothing jumps; the clock decides where she is at the end.
+        if(e.subX0==null){ e.subX0 = e.x; e.subK0 = Math.min(0.99, _k);
+                           e.subV = SUB_DRIFT_EXIT_V; e.subOff = 0; }
+        const _f = Math.max(0, (_k - e.subK0)/(1 - e.subK0));
+        // The speed she comes out of her vortex with runs down gently
+        // instead of stopping dead.
+        if(e.subV > 0.01){ e.subOff += e.subV; e.subV *= 0.97; }
+        e.x = e.subX0 + (W*SUB_DRIFT_X1 - e.subX0)*_f - e.subOff;
+        capitalFire(e);
+        updateBeams(e);
+        continue;
+      }
       // Driving across and out (M74): no station, she just keeps going.
       if(e.crossLeft){
         e.x -= e.crossLeft;
         const _ci = IMGS[e.img], _hw = _ci ? _ci.width*e.sc*0.5 : 200;
+        // crossWarp: she jumps out with her bow near the left edge, slowing
+        // as she goes into the vortex (the Sathanas in 78).
+        if(e.crossWarp){
+          if(e.warpOut>0){
+            e.x += e.crossLeft*0.6;
+            if(--e.warpOut<=0){ enemies.splice(i,1); }
+            continue;
+          }
+          if(e.x - _hw < W*0.04){
+            e.warpMax = 220; e.warpOut = 220;
+            e.warpX = e.x - _hw*0.6; e.warpY = e.y;
+            if(e.uid) EV_LEFT[e.uid] = true;
+            continue;
+          }
+        }
         if(e.x < -_hw){
           if(e.uid) EV_LEFT[e.uid] = true;
           plogEvent(plogName(e)+' is through', 'bad');

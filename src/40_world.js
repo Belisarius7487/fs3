@@ -324,6 +324,8 @@ function mkEnemy(type, spr0, yWant){
 function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   if(!e || e.dead) return;
   if(fromPlayer) e.pDmg = (e.pDmg||0) + dmg;
+  // A hit on one of theirs gives the Mara away (M78, v177).
+  if(fromPlayer && !e.scenery && !e.invuln) blowCover();
   if(e.type==='fighter' || e.type==='bomber') e.jinkReq = true;   // it jinks (flySmall)
   // The Lucifer in subspace (v170): no shield, and nothing reaches her but
   // through a reactor. The hull bar reads the reactors still standing;

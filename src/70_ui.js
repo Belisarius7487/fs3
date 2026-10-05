@@ -191,60 +191,10 @@ function draw(){
       const fb=ib?ib.width*b.sc*ib.height*b.sc:0;
       return fb-fa;
     });
+  // Vortices of ships no longer on the field (a portal still closing).
   if(WARP_IMG&&WARP_IMG.complete&&WARP_IMG.naturalWidth>0){
-    for(const e of SHIPS_ON_FIELD){
-      if(e.warp>0 || e.warpOut>0){
-        // FreeSpace style: the vortex stands across the flight path.
-        const fg = fsWarp(e);
-        if(fg){
-          try{
-            let WSf = 120; const fImg = IMGS[e.img];
-            if(fImg) WSf = Math.max(100, fImg.height*e.sc*1.9, fImg.width*e.sc*0.62);
-            // Coming in: the vortex is drawn by drawFsPortals() below.
-            if(!fg.out){ fsPortalOpen(e, fg, WSf); continue; }
-            ctx.save();
-            ctx.globalAlpha = fg.wA;
-            ctx.translate(fg.px|0, fg.py|0);
-            if(WARP_STYLE==='oval'){ ctx.rotate(Math.atan2(fg.fy, fg.fx)); ctx.scale(WARP_OVAL*fg.wS, fg.wS); }
-            else ctx.scale(fg.wS, fg.wS);
-            drawWarpFrame(warpSeed(e), WSf, warpTurquoise(e));
-            ctx.restore(); ctx.globalAlpha = 1;
-          }catch(ef){ ctx.restore(); ctx.globalAlpha = 1; }
-          continue;
-        }
-        try{
-          // The same duration that drives the ship's visibility.
-          var mW=e.warpMax||100;
-          var elapsed=e.warpOut>0 ? (mW-e.warpOut) : (mW-e.warp);
-          var p1=mW*0.40,p2=mW*0.60;   // opening / open / closing
-          var wS,wA;
-          if(elapsed<p1){
-            var t1=elapsed/p1; wS=0.05+0.95*t1; wA=t1;
-          } else if(elapsed<p2){
-            wS=1.0; wA=1.0;
-          } else {
-            var t3=(elapsed-p2)/(mW-p2); wS=1.0-t3; wA=Math.max(0,1.0-t3);
-          }
-          const wx2=(e.warpX||W-20)|0,wy2=(e.warpY||e.y)|0;
-          ctx.save();
-          ctx.globalAlpha=wA;
-          ctx.translate(wx2,wy2);
-          ctx.scale(wS,wS);
-          // The vortex has to match the ship coming through it.
-          // These used to be fixed per class, matching the old,
-          // kleineren Sprites gehoerten.
-          var WS=120;
-          var wImg=IMGS[e.img];
-          if(wImg) WS=Math.max(100, wImg.height*e.sc*1.9, wImg.width*e.sc*0.62);
-          var wF=Math.floor(elapsed/mW*WARP_FRAMES);
-          if(wF<0) wF=0; if(wF>WARP_FRAMES-1) wF=WARP_FRAMES-1;
-          drawWarpFrame(warpSeed(e), WS, warpTurquoise(e));
-          ctx.restore();
-          ctx.globalAlpha=1;
-        }catch(ew){ctx.restore();ctx.globalAlpha=1;}
-      }
-    }
-    try{ drawFsPortals(); }catch(ep){ ctx.restore(); ctx.globalAlpha=1; }
+    const _onField = new Set(SHIPS_ON_FIELD);
+    try{ drawFsPortals(function(p){ return !_onField.has(p.e); }); }catch(ep){ ctx.restore(); ctx.globalAlpha=1; }
   }
 
   // Beam rays under every hull: a ship lies on top of the beam that
@@ -261,6 +211,8 @@ function draw(){
   // State-Reset vor Enemy-Render
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
   for(const e of SHIPS_ON_FIELD){
+    try{ drawVortexOf(e); }catch(ev){ ctx.restore(); ctx.globalAlpha=1; }
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
     try{
     // Ship only visible once the vortex is fully open (phase 2 and 3)
     // wAlpha carries the fade in from the vortex. It used to be
@@ -359,8 +311,9 @@ function draw(){
           playerThrust(),
           player.ang||0);
       }
-      // A Ptah nobody can see is drawn faint (v170).
-      if(!playerSeen()) ctx.globalAlpha = 0.45 + 0.1*Math.sin(fc*0.1);
+      // A Ptah nobody can see is drawn faint (v170). Not a Mara in
+      // disguise: she is in plain sight, only taken for one of theirs.
+      if(player.ship===PTAH_HULL && !playerSeen()) ctx.globalAlpha = 0.45 + 0.1*Math.sin(fc*0.1);
       drawShip(player.ship,player.x|0,player.y|0,playerSc()*_js,_pf,player.ang||0);
       ctx.globalAlpha = 1;
       if(_js>=1) drawPlayerShield();
@@ -639,7 +592,7 @@ function drawFieldBanner(){
   if(!pin){
     const bossInQ = spawnQ.some(function(s){ return s.type==='boss_ntf'||s.type==='boss_sh'; });
     if(bossInQ || bossAlive) pin = {txt:'BOSS FIGHT', col:'#ff5533'};
-    else if(!spawnQ.length && liveThreatCount()>0) pin = {txt:'CLEAR THE FIELD', col:'#ff5533'};
+    else if(!queueHolds() && liveThreatCount()>0) pin = {txt:'CLEAR THE FIELD', col:'#ff5533'};
   }
   // While the card is announcing this very objective, the line waits.
   const cardAge = objCard ? fc - objCard.t0 : 1e9;
@@ -1425,7 +1378,11 @@ const EXTRA_SHIPS = {
               hp:80, sh:80, sec:20},
   // Vasudan stealth fighter, lent for the reactor scan (M71, v170).
   fiptah:    {key:'fiptah', name:'GVF Ptah', fac:'vasudan', spd:3.5, turn:0.17,
-              hp:85, sh:80, sec:20}
+              hp:85, sh:80, sec:20},
+  // A captured Shivan fighter, for the flight beyond the second portal
+  // (M78, v177).
+  fimara:    {key:'fimara', name:'SF Mara', fac:'shivan', spd:3.5, turn:0.18,
+              hp:90, sh:90, sec:20}
 };
 // The player's own hull while a mission lends another, or ''.
 let forcedPrev = '';
@@ -3373,4 +3330,67 @@ function plogClick(mx, my){
     }
   }
   return true;          // a tap on the panel does not close the settings
+}
+
+// The vortex of one ship. Drawn just before that ship, not in a pass
+// before all of them: a small ship's vortex in front of a large one
+// was hidden behind the large hull and the small one seemed to vanish
+// into nothing (Silvio, the Elysium at the Iceni in M70).
+function drawVortexOf(e){
+  if(!(WARP_IMG&&WARP_IMG.complete&&WARP_IMG.naturalWidth>0)) return;
+  drawOwnVortex(e);
+  // Her arrival portal (FreeSpace style), still open or closing.
+  try{ drawFsPortals(function(p){ return p.e===e; }); }catch(ep){ ctx.restore(); ctx.globalAlpha=1; }
+}
+function drawOwnVortex(e){
+  if(e.warp>0 || e.warpOut>0){
+    // FreeSpace style: the vortex stands across the flight path.
+    const fg = fsWarp(e);
+    if(fg){
+      try{
+        let WSf = 120; const fImg = IMGS[e.img];
+        if(fImg) WSf = Math.max(100, fImg.height*e.sc*1.9, fImg.width*e.sc*0.62);
+        // Coming in: the vortex is drawn by drawFsPortals() after this.
+        if(!fg.out){ fsPortalOpen(e, fg, WSf); return; }
+        ctx.save();
+        ctx.globalAlpha = fg.wA;
+        ctx.translate(fg.px|0, fg.py|0);
+        if(WARP_STYLE==='oval'){ ctx.rotate(Math.atan2(fg.fy, fg.fx)); ctx.scale(WARP_OVAL*fg.wS, fg.wS); }
+        else ctx.scale(fg.wS, fg.wS);
+        drawWarpFrame(warpSeed(e), WSf, warpTurquoise(e));
+        ctx.restore(); ctx.globalAlpha = 1;
+      }catch(ef){ ctx.restore(); ctx.globalAlpha = 1; }
+      return;
+    }
+    try{
+      // The same duration that drives the ship's visibility.
+      var mW=e.warpMax||100;
+      var elapsed=e.warpOut>0 ? (mW-e.warpOut) : (mW-e.warp);
+      var p1=mW*0.40,p2=mW*0.60;   // opening / open / closing
+      var wS,wA;
+      if(elapsed<p1){
+        var t1=elapsed/p1; wS=0.05+0.95*t1; wA=t1;
+      } else if(elapsed<p2){
+        wS=1.0; wA=1.0;
+      } else {
+        var t3=(elapsed-p2)/(mW-p2); wS=1.0-t3; wA=Math.max(0,1.0-t3);
+      }
+      const wx2=(e.warpX||W-20)|0,wy2=(e.warpY||e.y)|0;
+      ctx.save();
+      ctx.globalAlpha=wA;
+      ctx.translate(wx2,wy2);
+      ctx.scale(wS,wS);
+      // The vortex has to match the ship coming through it.
+      // These used to be fixed per class, matching the old,
+      // kleineren Sprites gehoerten.
+      var WS=120;
+      var wImg=IMGS[e.img];
+      if(wImg) WS=Math.max(100, wImg.height*e.sc*1.9, wImg.width*e.sc*0.62);
+      var wF=Math.floor(elapsed/mW*WARP_FRAMES);
+      if(wF<0) wF=0; if(wF>WARP_FRAMES-1) wF=WARP_FRAMES-1;
+      drawWarpFrame(warpSeed(e), WS, warpTurquoise(e));
+      ctx.restore();
+      ctx.globalAlpha=1;
+    }catch(ew){ctx.restore();ctx.globalAlpha=1;}
+  }
 }
