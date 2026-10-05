@@ -3285,8 +3285,10 @@ const SCRIPT_WAVES = {
        // In the nebula, as in FS2 (Silvio, v178): a damaged Hecate that
        // wants out of the gas is patched up by transports; each that docks
        // puts a quarter of her hull back. After the third she can jump.
+       // Already on station when the mission opens: she cannot jump until
+       // she is repaired, so she does not jump in either (Silvio, v180).
        {id:'A1', c:'de', n:1, spr:'dehecate', side:'ally', x:200, y:270, still:true,
-        hp:0.30, guard:true, callsOk:true},
+        hp:0.30, guard:true, callsOk:true, noWarp:true},
        // Each transport holds on for a while, and the next is a little
        // behind: the repair takes a minute and a half or so.
        {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:380, dockTo:'A1', dockHold:12, t:8, dockLabel:'REPAIRING'},

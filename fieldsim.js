@@ -2560,6 +2560,41 @@ scenario('v180: lasting damage on a capital ship', 'm=62', `
   r.scorchStays = D.scorch.length >= 5;
   return r;`);
 
+scenario('v181: M80 the Hecate is there from the start, already damaged', 'm=80', `
+  const r = {};
+  const pb = PARTS.length;
+  FS.step(30);
+  const h = FS.ids('A1')[0];
+  r.there = !!h;
+  // She cannot jump before she is repaired, so she does not jump in either.
+  r.noWarpIn = !!h && !(h.warp>0);
+  draw(); FS.step(1); draw();
+  const D = h && h.dm;
+  r.breached = !!D && D.holes.length >= 1;
+  r.scorched = !!D && D.scorch.length >= 5;
+  // Old damage, not new: the breaches are open, nothing bursts.
+  r.alreadyOpen = !!D && D.holes.every(x=>fc - x.t0 >= DMG_GROW);
+  return r;`);
+scenario('v181: damage pictures at screen resolution, glow only on the hull', 'm=62', `
+  const r = {};
+  FS.step(600);
+  const k = enemies.find(e=>e.type==='cruiser' && !(e.warp>0));
+  const img = IMGS[k.img], hw = img.width*k.sc/2, hh = img.height*k.sc/2;
+  for(let i=0;i<200 && k.hp > k.maxHp*0.3;i++){
+    damageEnemy(k, k.maxHp*0.01, k.x - hw*0.9, k.y + (Math.random()-0.5)*hh, true, 'bolt');
+    FS.step(1); draw();
+  }
+  for(let i=0;i<6;i++){ FS.step(1); draw(); }
+  const D = k.dm;
+  // As many pixels as the canvas has for her, not one per game unit.
+  r.sharp = !!D && D.can && Math.abs(D.can.width - img.width*k.sc*dmgK(k)) <= 1;
+  r.kIsRes = dmgK(k) === Math.max(1, Math.min(RES_X, 1/k.sc, DMG_K_MAX));
+  // Nothing of the glow where the damaged picture is empty.
+  if(D && D.fxL){
+    const fx = D.fxL.getContext('2d').getImageData(0, 0, D.fxL.width, D.fxL.height).data;
+    r.fxDrawn = fx.some((v,i)=>i%4===3 && v>0);
+  }
+  return r;`);
 scenario('v180: M78 the devices are scanned first, the Sathanas never fire', 'm=78', `
   const r = {};
   FS.step(30);

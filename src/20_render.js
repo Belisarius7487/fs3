@@ -1311,6 +1311,7 @@ const DMG_GROW = 50;              // steps a scorch or a breach takes to open
 const DMG_LIGHTS_FROM = 0.80;     // windows start going dark below this
 const DMG_HOLE_FROM = 0.50, DMG_HOLE_TO = 0.22;
 const DMG_NEAR_ENGINE = 0.5;      // breach within this share of the half length
+const DMG_K_MAX = 3;              // finest damage picture, pixels per unit
 const DMG_INFO = {};              // per sprite: solid grid, light zones, dark copy
 function dmgEligible(e){
   if(!e || e.dead || !IMGS[e.img]) return false;
@@ -1376,7 +1377,7 @@ function dmgState(e){
   e.dm = {inf:inf, scorch:[], holes:[], craters:[], acc:0, dirty:true, dead:0, dying:[],
           maxScorch: Math.round(Math.max(8, Math.min(30, big/14))),
           nHoles: big < 160 ? 2 : (big < 260 ? 3 : (big < 450 ? 4 : 6)),
-          seed: (Math.random()*1e6)|0, can:null, frame:null};
+          seed: (Math.random()*1e6)|0, can:null, frame:null, born:fc};
   return e.dm;
 }
 // World point to sprite fractions (dx,dy as the mounts use them).
@@ -1439,7 +1440,7 @@ function dmgSubsFar(e, u, v, need){
 // clear of the subsystems and of the breaches already there.
 function dmgHoleSite(e, D){
   const img = IMGS[e.img], hw = img.width*e.sc/2, hh = img.height*e.sc/2;
-  const r = Math.max(5, Math.min(hh*0.42, hw*0.16));
+  const r = Math.max(4, Math.min(hh*0.30, hw*0.11));
   const cand = D.scorch.map(function(s){ return {u:s.u, v:s.v}; });
   for(let i=0;i<60;i++) cand.push({u:Math.random()*1.6-0.8, v:Math.random()*1.4-0.7});
   let best = null, bs = -1;
@@ -1473,11 +1474,28 @@ function dmgHoleSite(e, D){
   }
   return {u:best.u, v:best.v, r:rUse/hh, pts:pts, seg:seg, t0:fc, sd:Math.random()*99};
 }
+// The damage a ship already has when she first appears: scorch marks over
+// the hull, and (on the next tick) her lights and breaches, all at once and
+// without the bursts.
+function dmgPreset(e){
+  const D = dmgState(e); if(!D) return;
+  const lost = 1 - Math.max(0, e.hp)/e.maxHp;
+  const img = IMGS[e.img], hw = img.width*e.sc/2, hh = img.height*e.sc/2;
+  const n = Math.round(lost/DMG_SCORCH_STEP);
+  for(let i=0;i<n*3 && D.scorch.length<Math.min(n, D.maxScorch);i++){
+    const u = Math.random()*1.7-0.85, v = Math.random()*1.4-0.7;
+    if(!dmgSolid(D.inf, u, v, 0)) continue;
+    D.scorch.push({u:u, v:v, r:0.08+Math.random()*0.07, sx:1+Math.random()*0.8,
+                   rot:Math.random()*Math.PI, a:0.45+Math.random()*0.25, t0:fc-DMG_GROW, sd:Math.random()*99});
+  }
+  D.quiet = true; D.dirty = true;
+}
 // Per frame: lights and breaches follow the hull (a repair closes them).
 function dmgTick(e, D){
   const f = Math.max(0, Math.min(1, e.hp/e.maxHp));
   // lights
   const want = Math.round(D.inf.zones.length * Math.max(0, Math.min(1, (DMG_LIGHTS_FROM-f)/0.6)) * 0.85);
+  if(D.quiet && want > D.dead){ D.dead = want; D.dirty = true; }
   if(want > D.dead && !D.dying.length){ D.dying.push({i:D.dead, until:fc+45}); D.dead++; }
   if(want < D.dead){ D.dead = want; D.dirty = true; }
   for(let i=D.dying.length-1;i>=0;i--) if(fc >= D.dying[i].until){ D.dying.splice(i,1); D.dirty = true; }
@@ -1488,6 +1506,7 @@ function dmgTick(e, D){
     if(!h && f < thr && D.holes.length===k){
       const nh = dmgHoleSite(e, D);
       if(nh){ nh.thr = thr; D.holes.push(nh); D.dirty = true;
+        if(D.quiet){ nh.t0 = fc - DMG_GROW*3; continue; }   // there before we came
         const w = dmgWorld(e, nh.u, nh.v);
         spawnFireball(w.x, w.y, Math.max(14, nh.r*IMGS[e.img].height*e.sc), 24);
         spawnDebris(w.x, w.y, 9, 255,220,170, 200,120,60, false);
@@ -1501,13 +1520,18 @@ function dmgTick(e, D){
   for(const s of D.scorch) if(fc - s.t0 < DMG_GROW) D.dirty = true;
   for(const h of D.holes) if(fc - h.t0 < DMG_GROW) D.dirty = true;
   for(const c of D.craters) if(fc - c.t0 < DMG_GROW) D.dirty = true;
+  D.quiet = false;
 }
 function dmgBuild(e, D){
-  const img = IMGS[e.img], w = Math.max(1, Math.round(img.width*e.sc)), h = Math.max(1, Math.round(img.height*e.sc));
-  if(!D.can || D.can.width!==w || D.can.height!==h){
-    D.can = document.createElement('canvas'); D.can.width = w; D.can.height = h;
+  const img = IMGS[e.img], w = img.width*e.sc, h = img.height*e.sc;
+  const k = dmgK(e), pw = Math.max(1, Math.round(w*k)), ph = Math.max(1, Math.round(h*k));
+  if(!D.can || D.can.width!==pw || D.can.height!==ph){
+    D.can = document.createElement('canvas'); D.can.width = pw; D.can.height = ph;
   }
+  D.k = k;
   const g = D.can.getContext('2d');
+  // drawn in game units, stored at screen resolution
+  g.setTransform(pw/w, 0, 0, ph/h, 0, 0);
   g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
   g.clearRect(0, 0, w, h);
   g.drawImage(img, 0, 0, w, h);
@@ -1543,15 +1567,22 @@ function dmgBuild(e, D){
   // heat around breaches, then the holes themselves
   for(const hl of D.holes){
     const cx = (hl.u*0.5+0.5)*w, cy = (hl.v*0.5+0.5)*h, r = hl.r*h/2;
-    const gr = g.createRadialGradient(cx, cy, r*0.6, cx, cy, r*2.1);
-    gr.addColorStop(0, 'rgba(10,6,4,0.75)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r*2.1, 0, Math.PI*2); g.fill();
+    const gr = g.createRadialGradient(cx, cy, r*0.7, cx, cy, r*1.6);
+    gr.addColorStop(0, 'rgba(10,6,4,0.6)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r*1.6, 0, Math.PI*2); g.fill();
   }
   g.globalCompositeOperation = 'destination-out';
   g.fillStyle = '#000';            // opaque: the hole goes all the way through
   for(const hl of D.holes) dmgHolePath(g, hl, w, h, true);
   g.globalCompositeOperation = 'source-over';
   D.dirty = false; D.built = fc;
+}
+// Pixels per game unit for the damage pictures: as fine as the screen shows
+// them (the canvas runs at RES_X), never finer than the sprite itself.
+// Built at one pixel per unit they were blown up on a large screen and the
+// damaged ship went soft next to the sharp ones (Silvio, v180).
+function dmgK(e){
+  return Math.max(1, Math.min(RES_X, 1/Math.max(0.05, e.sc), DMG_K_MAX));
 }
 // The outline of a breach, opening over DMG_GROW steps.
 function dmgHolePath(g, hl, w, h, fill){
@@ -1567,13 +1598,18 @@ function dmgHolePath(g, hl, w, h, fill){
 }
 // The ship, with what she has taken. Same transform as drawShip().
 function drawShipE(e, cx, cy, scale, flipX, ang){
+  // A ship that comes on already hurt (a mission sets her hull low) brings
+  // her damage with her: marked and breached from the first frame, quietly.
+  if(!e.dm && e.maxHp && e.hp < e.maxHp*0.95 && dmgEligible(e)) dmgPreset(e);
   const D = e.dm;
   if(!D || !dmgEligible(e) || (!D.scorch.length && !D.holes.length && !D.craters.length && !D.dead && !D.dying.length)){
     if(D) dmgTick(e, D);
     drawShip(e.img, cx, cy, scale, flipX, ang); return;
   }
   dmgTick(e, D);
-  if(D.dirty && (fc - (D.built||-99) >= 3 || !D.can)) dmgBuild(e, D);
+  // the screen resolution changed (window, fullscreen): rebuild at the new one
+  if(D.can && D.k !== dmgK(e)) D.dirty = true;
+  if(D.dirty && (fc - (D.built||-99) >= 3 || !D.can || D.k !== dmgK(e))) dmgBuild(e, D);
   const img = IMGS[e.img];
   const w = img.width*scale, h = img.height*scale;
   ctx.save();
@@ -1656,7 +1692,8 @@ function dmgFx(e, D, cx, cy, w, h, flipX, ang){
   for(const hl of D.holes) take(hl.u, hl.v, hl.r*h/2*1.3);
   for(const c of D.craters) take(c.u, c.v, h*0.08);
   x0 = Math.floor(x0); y0 = Math.floor(y0);
-  const cw = Math.ceil(x1 - x0), ch = Math.ceil(y1 - y0);
+  const fw = Math.ceil(x1 - x0), fh = Math.ceil(y1 - y0);   // game units
+  const k = D.k || 1, cw = Math.ceil(fw*k), ch = Math.ceil(fh*k);
   if(!D.fxL || D.fxL.width!==cw || D.fxL.height!==ch){
     D.fxL = document.createElement('canvas'); D.fxL.width = cw; D.fxL.height = ch;
     D.fxT = -99;
@@ -1667,8 +1704,13 @@ function dmgFx(e, D, cx, cy, w, h, flipX, ang){
     gl.setTransform(1,0,0,1,0,0);
     gl.globalCompositeOperation = 'source-over'; gl.globalAlpha = 1;
     gl.clearRect(0, 0, cw, ch);
-    gl.translate(-x0, -y0);
+    gl.setTransform(cw/fw, 0, 0, ch/fh, -x0*cw/fw, -y0*ch/fh);
     dmgFxDraw(gl, e, D, w, h);
+    // Glow only where there is still hull: cut to the damaged picture, so
+    // nothing burns in empty space or inside the breach itself.
+    gl.globalCompositeOperation = 'destination-in'; gl.globalAlpha = 1;
+    gl.drawImage(D.can, 0, 0, w, h);
+    dmgFxSmoke(gl, e, D, w, h);
     D.fxT = fc;
   }
   ctx.save();
@@ -1676,26 +1718,13 @@ function dmgFx(e, D, cx, cy, w, h, flipX, ang){
   if(ang) ctx.rotate(ang);
   if(flipX) ctx.scale(-1, 1);
   // One canvas, smoke under glow: a single blit per ship and frame.
-  ctx.drawImage(D.fxL, -w/2+x0, -h/2+y0);
+  ctx.drawImage(D.fxL, -w/2+x0, -h/2+y0, fw, fh);
   ctx.restore();
 }
 function dmgFxDraw(g, e, D, w, h){
   const t = fc/TICK_HZ;
   const unit = Math.max(1, h/40);          // a pixel of detail on this hull
   const f = e.hp/e.maxHp;
-  // smoke from breaches and craters, drifting aft (the sprite's -x);
-  // laid down first, the glow goes over it
-  g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
-  const srcs = D.holes.map(function(hl){ return {x:(hl.u*0.5+0.5)*w, y:(hl.v*0.5+0.5)*h, sd:hl.sd}; })
-       .concat(D.craters.map(function(c){ return {x:(c.u*0.5+0.5)*w, y:(c.v*0.5+0.5)*h, sd:c.sd}; }));
-  for(const s of srcs){
-    for(let j=0;j<4;j++){
-      const life = 0.9 + 0.5*dmgSeed(s.sd+j), a = ((t + dmgSeed(s.sd+j*2)*life) % life)/life;
-      const sx = s.x - a*unit*16, sy = s.y - a*unit*5, sr = unit*(1.5 + a*5);
-      g.fillStyle = 'rgba(78,74,70,'+(0.45*(1-a)*Math.min(1, a*6)).toFixed(3)+')';
-      g.beginPath(); g.arc(sx, sy, sr, 0, Math.PI*2); g.fill();
-    }
-  }
   g.globalCompositeOperation = 'lighter';
   for(const hl of D.holes){
     const age = fc - hl.t0, gt = Math.min(1, age/DMG_GROW), o = 0.25 + 0.75*gt;
@@ -1704,7 +1733,7 @@ function dmgFxDraw(g, e, D, w, h){
     // the rim: a continuous dull glow, and over it each edge its own
     // width and heat, the pattern wandering round
     g.lineCap = 'round'; g.lineJoin = 'round';
-    g.strokeStyle = 'rgba(200,60,10,'+(0.55+0.4*white).toFixed(3)+')';
+    g.strokeStyle = 'rgba(150,40,8,'+(0.22+0.6*white).toFixed(3)+')';
     g.lineWidth = unit*0.9;
     dmgHolePath(g, hl, w, h, false); g.stroke();
     for(let i=0;i<hl.pts.length;i+=2){
@@ -1712,7 +1741,8 @@ function dmgFxDraw(g, e, D, w, h){
       const m = hl.pts[(i+1)%hl.pts.length];
       const an = Math.atan2(p.y, p.x);
       let b = 0.5 + 0.9*(0.5*Math.sin(an*3.1 + t*1.3 + s.ph) + 0.3*Math.sin(an*7.3 - t*2.1) + 0.4*Math.sin(an*1.7 + hl.sd));
-      b = 0.08 + 0.92*Math.max(0, Math.min(1, b));
+      // most of the edge has cooled; a few stretches still glow
+      b = Math.max(0, Math.min(1, b)); b = b*b;
       const hot = Math.pow(Math.max(0, Math.sin(an*5 + t*2.4 + hl.sd)), 8);
       const gch = Math.round(255*Math.min(1, 0.22+0.30*b+0.45*hot+white*0.7));
       const bch = Math.round(255*Math.min(1, 0.03+0.25*hot+white*0.8));
@@ -1745,6 +1775,25 @@ function dmgFxDraw(g, e, D, w, h){
     const ccx = (c.u*0.5+0.5)*w, ccy = (c.v*0.5+0.5)*h, r = h*0.07;
     dmgStamp(g, ccx, ccy, r, 0.5*(0.6 + 0.4*Math.sin(t*3 + c.sd)));
   }
+}
+// Smoke from breaches and craters, drifting aft (the sprite's -x). Smoke
+// may leave the hull; nothing else does.
+function dmgFxSmoke(g, e, D, w, h){
+  const t = fc/TICK_HZ;
+  const unit = Math.max(1, h/40);
+  // laid in behind the glow that is already there
+  g.globalCompositeOperation = 'destination-over'; g.globalAlpha = 1;
+  const srcs = D.holes.map(function(hl){ return {x:(hl.u*0.5+0.5)*w, y:(hl.v*0.5+0.5)*h, sd:hl.sd}; })
+       .concat(D.craters.map(function(c){ return {x:(c.u*0.5+0.5)*w, y:(c.v*0.5+0.5)*h, sd:c.sd}; }));
+  for(const s of srcs){
+    for(let j=0;j<4;j++){
+      const life = 0.9 + 0.5*dmgSeed(s.sd+j), a = ((t + dmgSeed(s.sd+j*2)*life) % life)/life;
+      const sx = s.x - a*unit*14, sy = s.y - a*unit*4, sr = unit*(1 + a*3.5);
+      g.fillStyle = 'rgba(70,66,62,'+(0.30*(1-a)*Math.min(1, a*6)).toFixed(3)+')';
+      g.beginPath(); g.arc(sx, sy, sr, 0, Math.PI*2); g.fill();
+    }
+  }
+  g.globalCompositeOperation = 'source-over';
 }
 // How a nozzle burns, given the damage (thruster t of ship e, index i).
 function dmgThrust(e, t, i){
