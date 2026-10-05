@@ -510,6 +510,7 @@ function spawnProtected(sp){
     // dockHold: seconds she stays docked before the dock counts, and
     // then jumps out instead of flying on.
     if(sp.dockHold) a.dockHold = Math.round(sp.dockHold*TICK_HZ);
+    if(sp.dockLabel) a.dockLabel = sp.dockLabel;    // 'REPAIRING' (v178)
     a.crossAfter = sp.cross || 0.38;
     // Die Hoehe darf nicht gepinnt sein, sonst kommt er nie zum
     // Andockpunkt hoch.
@@ -831,7 +832,7 @@ function tickDocking(){
     if(e.dockHold>0){
       if(e.holdT==null){
         e.holdT = e.dockHold;
-        SUB_MSGS.push({x:e.x, y:e.y-28, txt:'BOARDING', life:e.dockHold, ml:e.dockHold,
+        SUB_MSGS.push({x:e.x, y:e.y-28, txt:e.dockLabel||'BOARDING', life:e.dockHold, ml:e.dockHold,
                        ally:true, tone:'good'});
       }
       if(--e.holdT > 0) continue;
@@ -1187,6 +1188,13 @@ function applySpawnOpts(e, sp){
   // nine Sathanas in 78). crossWarp: she jumps out near the left edge.
   if(sp.noHold) e.noHold = true;
   if(sp.crossWarp){ e.crossWarp = true; e.withdrawn = true; }
+  // warpT: a slower arrival, in seconds - a juggernaut takes her time
+  // coming out of the portal (v178, M77).
+  if(sp.warpT){ e.warp = e.warpMax = Math.round(sp.warpT*TICK_HZ); e.warpDrift = 0.1; }
+  // beamFocus: her guns go for this ship first (the Hatshepsut, M77).
+  if(sp.beamFocus) e.beamFocus = sp.beamFocus;
+  // ghost: scenery shots pass through, no lock and no subsystems (M78).
+  if(sp.ghost){ e.ghost = true; e.noTarget = true; e.subs = null; }
   if(sp.gasBeams) e.gasBeams = true;
   // Nobody carries a shield in subspace (Silvio).
   if(waveMod==='subspace' && e.maxSh){ e.maxSh = 0; e.sh = 0; }
@@ -2076,9 +2084,9 @@ const SCRIPT_WAVES = {
        // Jeder angedockte Transporter setzt den Rumpf ein Viertel hoch.
        // Wer schlecht verteidigt, wartet laenger - das ist die Uhr.
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:0.30, still:true},
-       {id:'T1', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1'},
-       {id:'T2', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', wait:true},
-       {id:'T3', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', wait:true},
+       {id:'T1', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', dockLabel:'REPAIRING'},
+       {id:'T2', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', wait:true, dockLabel:'REPAIRING'},
+       {id:'T3', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', wait:true, dockLabel:'REPAIRING'},
        {id:'B1', c:'bo', n:2},
        {id:'B2', c:'bo', n:2, wait:true}
      ], ev:[
@@ -2429,9 +2437,9 @@ const SCRIPT_WAVES = {
        {id:'S1', c:'in', n:1, spr:'inarcadia', invuln:true, edge:0.36},
        {id:'D1', c:'co', n:1, spr:'ntfcodeimos', still:true, x:420, y:250,
         hp:1.8, hurt:0.25, noFlee:true},
-       {id:'T1', c:'tr', n:1, spr:'trargo', t:4,  x:860, y:120, dockTo:'D1', dockHold:4},
-       {id:'T2', c:'tr', n:1, spr:'trargo', t:24, x:860, y:400, dockTo:'D1', dockHold:4},
-       {id:'T3', c:'tr', n:1, spr:'trargo', t:44, x:860, y:140, dockTo:'D1', dockHold:4},
+       {id:'T1', c:'tr', n:1, spr:'trargo', t:4,  x:860, y:120, dockTo:'D1', dockHold:4, dockLabel:'REPAIRING'},
+       {id:'T2', c:'tr', n:1, spr:'trargo', t:24, x:860, y:400, dockTo:'D1', dockHold:4, dockLabel:'REPAIRING'},
+       {id:'T3', c:'tr', n:1, spr:'trargo', t:44, x:860, y:140, dockTo:'D1', dockHold:4, dockLabel:'REPAIRING'},
        {id:'E1', c:'fi', n:2},
        {id:'E2', c:'fi', n:1, wait:true}
      ], ev:[
@@ -3156,7 +3164,7 @@ const SCRIPT_WAVES = {
        // A second Knossos in the nebula, guarded. With the Hatshepsut we
        // clear it - and then a Sathanas comes through and takes her apart.
        {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', x:130, y:260, still:true,
+       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', x:150, y:420, still:true,
         callsOk:true},
        {id:'K1', c:'cr', n:1, spr:'crcain',     x:560, y:130, noFlee:true},
        {id:'K2', c:'cr', n:1, spr:'crlilith',   x:590, y:410, noFlee:true},
@@ -3166,8 +3174,10 @@ const SCRIPT_WAVES = {
        {id:'B1', c:'bo', n:1, wait:true},
        // The juggernaut: untouchable, through the portal, then on into
        // the gas. noHold: she does not keep the wave going.
-       {id:'S1', c:'sd', n:1, spr:'sdsathanas', invuln:true, viaPortal:true, crossLeft:0.3,
-        y:260, wait:true}
+       // v178 (Silvio): slow out of the portal (warpT, seconds), not pushed
+       // aside by anything, and her guns on the Hatshepsut (beamFocus).
+       {id:'S1', c:'sd', n:1, spr:'sdsathanas', invuln:true, viaPortal:true, crossLeft:0.25,
+        y:190, wait:true, warpT:9, beamFocus:'A1'}
      ], ev:[
        {t:'sek', a:2,  w:'meldung', a2:'a second knossos portal - shivan ships guard it'},
        {t:'sek', a:5,  w:'nachschub', a2:'an'},
@@ -3178,31 +3188,34 @@ const SCRIPT_WAVES = {
        // Then the Sathanas (d: seconds after the trigger).
        {t:'vernichtet', a:'K1+K2+K3+V1', w:'einwarpen', a2:'S1', d:3},
        {t:'vernichtet', a:'K1+K2+K3+V1', w:'meldung', a2:'something huge is coming through the portal', d:3},
-       {t:'vernichtet', a:'K1+K2+K3+V1', w:'zerstoeren', a2:'A1', d:16},
-       {t:'vernichtet', a:'K1+K2+K3+V1', w:'meldung', a2:'a sathanas - the hatshepsut is lost', d:17},
-       {t:'vernichtet', a:'K1+K2+K3+V1', w:'abzug', a2:'', d:18}
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'zerstoeren', a2:'A1', d:20},
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'meldung', a2:'a sathanas - the hatshepsut is lost', d:21},
+       {t:'vernichtet', a:'K1+K2+K3+V1', w:'abzug', a2:'', d:22}
      ]},
 
   78:{name:'Beyond the Gate', fac:'shivan', o:'clear', live:5, scene:'beyond2',
-      ship:'fimara', disguise:true, noMara:true,
-      ziel:'DESTROY THE THREE COMM NODES', u:[
+      ship:'fimara', sec:'mx64', disguise:true, noMara:true, noSupport:true,
+      ziel:'DESTROY THE THREE UNKNOWN DEVICES', u:[
        // Through the second portal, in a captured Mara: no nebula here.
        // The Shivans take her for one of theirs until she fires on one of
        // them. Nine Sathanas pass, one after another, on their way to the
        // portal - untouchable, and they pay her no attention. They drive in
-       // from the right and jump out at the left edge.
+       // from the right and jump out at the left edge. ghost: shots pass
+       // through them, and no subsystems are shown (Silvio, v178).
+       // Two wingmen in Maras as in FS2, in disguise as well.
        {id:'N1', c:'in', n:1, spr:'incommnode', x:520, y:150, hull:0.1},
        {id:'N2', c:'in', n:1, spr:'incommnode', x:660, y:300, hull:0.1},
        {id:'N3', c:'in', n:1, spr:'incommnode', x:500, y:430, hull:0.1},
-       {id:'S1', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:200, t:2},
-       {id:'S2', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:360, t:14},
-       {id:'S3', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:240, t:26},
-       {id:'S4', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:380, t:38},
-       {id:'S5', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:180, t:50},
-       {id:'S6', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:330, t:62},
-       {id:'S7', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:220, t:74},
-       {id:'S8', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:370, t:86},
-       {id:'S9', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, crossLeft:0.7, crossWarp:true, x:1000, y:260, t:98},
+       {id:'S1', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:200, t:2},
+       {id:'S2', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:360, t:14},
+       {id:'S3', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:240, t:26},
+       {id:'S4', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:380, t:38},
+       {id:'S5', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:180, t:50},
+       {id:'S6', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:330, t:62},
+       {id:'S7', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:220, t:74},
+       {id:'S8', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:370, t:86},
+       {id:'S9', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:260, t:98},
+       {id:'W1', c:'fi', n:1, spr:'fimara', side:'ally', size:2, disguised:true, y:300},
        {id:'E1', c:'fi', n:2},
        {id:'B1', c:'bo', n:1, wait:true}
      ], ev:[
@@ -3210,8 +3223,11 @@ const SCRIPT_WAVES = {
        {t:'sek', a:5,  w:'meldung', a2:'nine sathanas - more juggernauts than anyone feared'},
        {t:'sek', a:5,  w:'nachschub', a2:'an'},
        {t:'sek', a:40, w:'einwarpen', a2:'B1'},
-       {t:'vernichtet', a:'N1+N2+N3', w:'zielerfuellt', a2:'COMM NODES DESTROYED'},
-       {t:'vernichtet', a:'N1+N2+N3', w:'nachschub', a2:'aus'}
+       // Done when the devices are: whatever is still out there leaves
+       // (Silvio, v178).
+       {t:'vernichtet', a:'N1+N2+N3', w:'zielerfuellt', a2:'UNKNOWN DEVICES DESTROYED'},
+       {t:'vernichtet', a:'N1+N2+N3', w:'nachschub', a2:'aus'},
+       {t:'vernichtet', a:'N1+N2+N3', w:'abzug', a2:''}
      ]},
 
   79:{name:'Data Uplink', fac:'shivan', o:'clear', live:5, mod:'nebula', ssBombs:true, hunt:'C1',
@@ -3244,20 +3260,18 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'C1', w:'abzug', a2:''}
      ]},
 
-  80:{name:'Emergency Repairs', fac:'shivan', o:'clear', live:5, scene:'knossos',
-      portal:true, portalIn:true, hunt:'A1',
+  80:{name:'Emergency Repairs', fac:'shivan', o:'clear', live:5, mod:'nebula', hunt:'A1',
       ziel:'PROTECT THE HECATE UNTIL SHE IS REPAIRED', u:[
-       // At the Knossos, this side. A damaged Hecate is patched up by
-       // transports; each that docks puts a quarter of her hull back.
-       // After the third she can jump.
-       {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
+       // In the nebula, as in FS2 (Silvio, v178): a damaged Hecate that
+       // wants out of the gas is patched up by transports; each that docks
+       // puts a quarter of her hull back. After the third she can jump.
        {id:'A1', c:'de', n:1, spr:'dehecate', side:'ally', x:200, y:270, still:true,
         hp:0.30, guard:true, callsOk:true},
        // Each transport holds on for a while, and the next is a little
        // behind: the repair takes a minute and a half or so.
-       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:380, dockTo:'A1', dockHold:12, t:8},
-       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:150, dockTo:'A1', dockHold:12, wait:true},
-       {id:'T3', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:380, dockTo:'A1', dockHold:12, wait:true},
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:380, dockTo:'A1', dockHold:12, t:8, dockLabel:'REPAIRING'},
+       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:150, dockTo:'A1', dockHold:12, wait:true, dockLabel:'REPAIRING'},
+       {id:'T3', c:'tr', n:1, spr:'trelysium', side:'ally', x:-40, y:380, dockTo:'A1', dockHold:12, wait:true, dockLabel:'REPAIRING'},
        {id:'K1', c:'cr', n:1, spr:'crcain', t:10, noFlee:true},
        {id:'K2', c:'cr', n:1, spr:'crlilith', wait:true, noFlee:true},
        {id:'E1', c:'fi', n:2},
@@ -3807,12 +3821,14 @@ function scriptUnit(u, fac, q){
           : poolFor(ty);
         const hull = u.spr || (pool ? rnd(pool) : '');
         if(!ally) sz += wingExtra(hull);
+        if(u.size) sz = u.size;          // an exact wing (the two Maras, M78)
         // Staffelabstand: 2,6 s waren im Spiel eine Pause, in der nichts
         // passiert. 1,1 s reichen, um sie als getrennte Staffeln zu lesen.
         for(let k=0;k<sz;k++)
           put({time:t0 + w*110 + k*WING_STAGGER,
                type: ally ? (u.c==='bo' ? 'allybo' : 'allyfi') : ty, spr:hull, wing:ally?0:wid,
-               y: yy + (k-(sz-1)/2)*WING_SPACING*0.5, x:u.x, rammer:u.ram});
+               y: yy + (k-(sz-1)/2)*WING_SPACING*0.5, x:u.x, rammer:u.ram,
+               disguised:u.disguised});
       }
     } else {
       // Mehrere Grosskampfschiffe derselben Kennung stehen sonst
@@ -3845,7 +3861,8 @@ function scriptUnit(u, fac, q){
          invuln:u.invuln, still:u.still, fixY:(u.y!=null), noFlee:true, noFire:u.noFire,
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
          gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
-         noHold:u.noHold, crossWarp:u.crossWarp});
+         noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus,
+         ghost:u.ghost});
     return;
   }
   if(u.c==='ic'){
@@ -3879,12 +3896,13 @@ function scriptUnit(u, fac, q){
       put({time:t0+i*70, type:'protect', spr:u.spr,
            fac:(fac==='hol') ? 'vasudan' : 'terran', noWarp:1,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
+           dockLabel:u.dockLabel,
            pickup:u.pickup?1:0});
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:fac, noWarp:(fix!=='ast')?1:0,
            x:xx, y:yy, scan:u.scan?1:0, escape:u.escape, scanFirst:u.scanFirst,
            still:u.still, escWarp:u.escWarp, fleeFree:u.fleeFree, escDelay:u.escDelay,
-           invuln:u.invuln, dockTo:u.dockTo, dockHold:u.dockHold,
+           invuln:u.invuln, dockTo:u.dockTo, dockHold:u.dockHold, dockLabel:u.dockLabel,
            scenery:(fix==='ast')?1:0, pickup:u.pickup?1:0});
   }
 }
@@ -3938,6 +3956,7 @@ function buildScripted(def){
   waveFs1 = !!def.fs1;
   waveNoMara = !!def.noMara;
   waveDisguise = !!def.disguise; disguiseBlown = false;
+  waveNoSupport = !!def.noSupport;
   // In subspace no shield works (v170): the player's comes back next wave.
   if(waveMod==='subspace' && player.maxSh){
     player._maxShSave = player.maxSh; player.maxSh = 0; player.sh = 0;
@@ -4171,6 +4190,9 @@ function wingExtra(hull){ return (waveFs1 && hull==='fiscorpion') ? FS1_SWARM_EX
 // In a captured Mara the Shivans take the player for one of their own
 // until she hits one of them. noMara: and none of theirs is a Mara there.
 let waveDisguise = false, disguiseBlown = false, waveNoMara = false;
+let waveNoSupport = false;       // no support answers (M78, v178)
+// Still in disguise, ours included: nobody fires, nobody is shot at.
+function coverHolds(){ return waveDisguise && !disguiseBlown; }
 function blowCover(){
   if(!waveDisguise || disguiseBlown) return;
   disguiseBlown = true;

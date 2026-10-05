@@ -2448,6 +2448,7 @@ function toggleCallMenu(){
   if(callMenu){ setCallMenu(false); return; }
   if(empOut>0) return;              // the storm has the radio
   if(subspaceOn()) return;          // nothing answers in subspace (Silvio)
+  if(waveNoSupport) return;         // nor beyond the second portal (v178)
   if(!allyReady()) return;
   if(cycleTabs()) callTab = pickTab(callTabOpen, callTab);
   setCallMenu(true);

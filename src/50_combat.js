@@ -966,8 +966,11 @@ function nearestFoe(e){
 
 function nearestOf(list, e, want){
   let best=null, bd=Infinity;
+  // In disguise (M78) our wingmen hold fire, and nobody looks for them.
+  if(coverHolds() && list===enemies && e.side==='ally') return null;
   for(const o of list){
     if(o.dead || o.warp>0 || o.warpOut>0 || o.type==='asteroid') continue;
+    if(o.disguised && coverHolds()) continue;
     if(want==='large' && !isLargeShip(o)) continue;
     if(want==='small' && !isSmallShip(o)) continue;
     if(want==='bomber' && o.type!=='bomber') continue;
@@ -1299,19 +1302,49 @@ function flySmall(e){
   return t;
 }
 
+// Does the nose of a fighter or bomber point anywhere at a large hull? The
+// hull is taken as an ellipse over the sprite, turned with the ship. Until
+// v178 they only fired when the nose pointed at the centre, so bombers
+// circled a destroyer and held fire most of the time (Silvio).
+// Returns true when the line ahead meets the hull within range.
+function noseOnHull(e, t, range){
+  if(!t || t===player || isSmallShip(t) || t.type==='asteroid') return false;
+  const img = IMGS[t.img]; if(!img) return false;
+  const a = Math.max(8, img.width*t.sc*HULL_AIM_LEN), b = Math.max(8, img.height*t.sc*HULL_AIM_WID);
+  const ta = t.ang || 0, ca = Math.cos(-ta), sa = Math.sin(-ta);
+  const rx = e.x - t.x, ry = e.y - t.y;
+  const px = rx*ca - ry*sa, py = rx*sa + ry*ca;
+  const hx = Math.cos(e.head), hy = Math.sin(e.head);
+  const dx = hx*ca - hy*sa, dy = hx*sa + hy*ca;
+  // (px + dx s)^2/a^2 + (py + dy s)^2/b^2 = 1
+  const A = dx*dx/(a*a) + dy*dy/(b*b);
+  const B = 2*(px*dx/(a*a) + py*dy/(b*b));
+  const C = px*px/(a*a) + py*py/(b*b) - 1;
+  if(C <= 0) return true;                       // already over the hull
+  const disc = B*B - 4*A*C;
+  if(disc < 0) return false;
+  const s = (-B - Math.sqrt(disc)) / (2*A);
+  return s > 0 && s <= range;
+}
+const HULL_AIM_LEN = 0.45, HULL_AIM_WID = 0.38;   // share of the sprite's width / height
+
 // Guns only bear within a cone ahead, and the further out the target sits
-// the wider the shot scatters.
+// the wider the shot scatters. Against a large hull it is enough that the
+// nose points at any part of it; then the guns fire straight ahead.
 function smallFire(e, t){
   // No target: smallTarget() then hands back the ship itself, and a
   // lead angle onto its own position reads as dead ahead.
   if(!t || t===e || t.pseudo){ e.fT=12; return; }
   const d=Math.hypot(t.x-e.x, t.y-e.y);
   if(d>fireRange()){ e.fT=12; return; }
-  const aim=leadAngle(e.x, e.y, t, EBULLET_SPD);
-  let off=aim-e.head;
-  while(off> Math.PI) off-=Math.PI*2;
-  while(off<-Math.PI) off+=Math.PI*2;
-  if(Math.abs(off)>EFIRE_CONE){ e.fT=12; return; }   // no bearing, check again soon
+  const onHull = noseOnHull(e, t, fireRange());
+  const aim = onHull ? e.head : leadAngle(e.x, e.y, t, EBULLET_SPD);
+  if(!onHull){
+    let off=aim-e.head;
+    while(off> Math.PI) off-=Math.PI*2;
+    while(off<-Math.PI) off+=Math.PI*2;
+    if(Math.abs(off)>EFIRE_CONE){ e.fT=12; return; }   // no bearing, check again soon
+  }
   const spread=ESPREAD_NEAR+(ESPREAD_FAR-ESPREAD_NEAR)*Math.min(1,d/fireRange());
   // Escort bolts go into the player's list so they hit enemies, enemy
   // bolts into theirs. Otherwise the geometry is identical.
@@ -1332,7 +1365,7 @@ function smallFire(e, t){
   const pts=entMounts(e,'primary');
   // Hulls with a loadout fire its guns, each mount on its own beat.
   const lo=aiLoadout(e);
-  if(lo && pts && pts.length){ e.fT=aiGunVolley(e, t, lo, pts, spread); return; }
+  if(lo && pts && pts.length){ e.fT=aiGunVolley(e, t, lo, pts, spread, onHull ? e.head : null); return; }
   if(pts&&pts.length){
     const dpb=eVolleyDmg(pts.length);
     for(const p of pts) shot(p.x,p.y, aim+(Math.random()*2-1)*spread, dpb);
@@ -1487,6 +1520,11 @@ function beamTargets(e, wantLarge){
 function pickBeamTarget(e, b){
   const list = beamTargets(e, !!b.large);
   if(!list.length) return null;
+  // beamFocus: the ship her guns are here for, while it is there (M77).
+  if(e.beamFocus){
+    const f = byId(e.beamFocus)[0];
+    if(f && list.indexOf(f) >= 0) return f;
+  }
   const mp = mountPos(e, b);
   let best=null, bd=Infinity;
   for(const o of list){

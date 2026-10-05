@@ -596,6 +596,7 @@ function probeAxis(b){
 }
 
 function bulletOnHull(e, b){
+  if(e && e.ghost) return false;    // shots pass through (M78, v178)
   if(e.type === 'asteroid') return true;
   const ea = e.ang || 0;
   const pr = probeAxis(b);

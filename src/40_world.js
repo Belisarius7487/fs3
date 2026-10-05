@@ -45,7 +45,9 @@ const SIZE_REF_L = 20, SIZE_REF_W = 60;
 // Deckel auf 1670 steht.
 // Die Manticore fuellt bei gleicher Breite mehr Flaeche als die uebrigen
 // Jaeger und wirkt dadurch massiger. Zehn Prozent schmaler.
-const SIZE_FIXED = {sdcolossus: 556, fimanticore: 50};
+// The Sathanas is as long as the Colossus and drawn as large (v178, Silvio:
+// she was capped at the Lucifer's 400).
+const SIZE_FIXED = {sdcolossus: 556, sdsathanas: 540, fimanticore: 50};
 // Drawn smaller than its length gives (Silvio, v166: the buoys by a third).
 const SIZE_KEY_MUL = {inpharos: 0.67};
 const SIZE_CLASS_FIXED = {fi: 60, bo: 65, ep: 60};
@@ -1096,6 +1098,22 @@ function separateCapitals(){
       const a=list[i], b=list[j];
       if(a.warp>0 || b.warp>0 || a.warpOut>0 || b.warpOut>0) continue;
       if(a.colossus || b.colossus) continue;   // she does not give way
+      // Nor does a juggernaut: the other one moves, all of it (v178, the
+      // Sathanas in M77 was shoved off her line).
+      if(a.type==='boss' || b.type==='boss'){
+        if(a.type==='boss' && b.type==='boss') continue;
+        const big = a.type==='boss' ? a : b, sm = (big===a) ? b : a;
+        const nX = halfW(a)+halfW(b);
+        if(Math.abs(a.x-b.x) > nX) continue;
+        const nY = (halfH(a)+halfH(b))*CAPITAL_GAP;
+        let d = sm.y - big.y;
+        if(Math.abs(d) >= nY) continue;
+        if(d === 0) d = 0.1;
+        sm.y += (d>0 ? 1 : -1)*(nY-Math.abs(d))*SEPARATE_FORCE;
+        if(sm.minY!=null) sm.y = Math.max(sm.minY, Math.min(sm.maxY, sm.y));
+        capSteer(sm, d>0 ? 1 : -1);
+        continue;
+      }
       // Ein Rammkurs weicht nicht aus, und sein Ziel darf nicht
       // weggedrueckt werden - der Aufprall ist der Sinn der Sache.
       if(a.capRam || b.capRam) continue;
@@ -1628,8 +1646,10 @@ let callMenu = false;      // is the call menu open?
 // bomber wings launched by a destroyer are not a called escort.
 function allyReady(){
   if(GS!=='playing' || allyCd>0) return false;
-  // No support can be called into subspace (Silvio, v170).
+  // No support can be called into subspace (Silvio, v170), nor behind
+  // the second portal (M78, v178).
   if(typeof subspaceOn==='function' && subspaceOn()) return false;
+  if(waveNoSupport) return false;
   // The guarded cruiser is not a called escort. Blocking the call would
   // stop the player defending the very ship the wave is about.
   // callsOk: a mission ship that does not stand in for a called escort.
@@ -2024,6 +2044,8 @@ function updateAllies(){
     if(a.small){
       // Same flight model as the enemy small craft.
       const tg = flySmall(a);
+      // In disguise our wingmen fly along and keep their guns quiet (M78).
+      if(a.disguised && coverHolds()) continue;
       if(--a.fT<=0) smallFire(a, tg);
       turretTick(a, false);
       fireSecondaries(a, WPN[a.type]);

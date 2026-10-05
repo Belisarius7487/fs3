@@ -2345,7 +2345,6 @@ scenario('v177: M78 the Mara in disguise, nine Sathanas, three comm nodes', 'm=7
   FS.step(5);
   r.bigBlast = BLAST_FUSE.length > 0 || DANGER.length > 0;
   r.ends = FS.until(()=>waveOver, 20000, true, true) >= 0;
-  r.endedBeforeAllNine = r.ends;
   ITEMS.length = 0;
   FS.until(()=>wave===79, 6000, false, false);
   r.shipBack = player.ship !== 'fimara';
@@ -2393,6 +2392,79 @@ scenario('v177: delayed events and passing scenery', 'm=1', `
   spawnQ.push({time:spawnT+99999, type:'fi_sh'});
   r.holds = queueHolds();
   spawnQ.length = 0;
+  return r;`);
+
+scenario('v178: small craft fire at any part of a large hull', 'm=44', `
+  const r = {};
+  FS.step(50);
+  // A stand-in cruiser, wide and flat like the real ones.
+  const k = {type:'cruiser', img:'crcain', x:500, y:250, sc:1, ang:0};
+  IMGS.crcain = IMGS.crcain || document.createElement('canvas');
+  const w = IMGS.crcain.width, h = IMGS.crcain.height;
+  // Nose at the stern end, not at the centre: on the hull.
+  const f = {x:200, y:250 + h*0.25, head:0};
+  r.offCentreHits = noseOnHull(f, k, 2000);
+  // Off the centre by more than the old cone, still on the hull.
+  const g = {x:500 - w*0.45 - 40, y:250 - h*0.3, head:0.0};
+  const off = Math.abs(Math.atan2(250-g.y, 500-g.x));
+  r.outsideOldCone = off > 0.0 && noseOnHull(g, k, 2000);
+  // Pointing past it: no.
+  r.missIsMiss = !noseOnHull({x:200, y:250 + h*2, head:0}, k, 2000);
+  r.awayIsMiss = !noseOnHull({x:200, y:250, head:Math.PI}, k, 2000);
+  r.outOfRange = !noseOnHull({x:200, y:250, head:0}, k, 50);
+  r.notForFighters = !noseOnHull(f, {type:'fighter', img:'fiherc', x:500, y:250, sc:1}, 2000);
+  return r;`);
+
+scenario('v178: M77 a slow, large Sathanas with her guns on the Hatshepsut', 'm=77', `
+  const r = {};
+  FS.step(100);
+  for(let t=0;t<20000 && !EV_SEEN['S1'];t+=20){ FS.step(20);
+    if(t%200===0) for(const e of enemies){ if(e.warp>0||e.invuln||e.scenery) continue; e.hp = 0; } }
+  FS.step(5);
+  const s = FS.ids('S1')[0], a = FS.ids('A1')[0];
+  r.large = Math.round(IMGS[s.img].width*s.sc) >= 520;
+  r.slowArrival = s.warpMax >= 8*TICK_HZ;
+  // A cruiser of ours alongside: she still goes for the Hatshepsut.
+  FS.until(()=>!(s.warp>0), 2000, false, false);
+  const k = {}; let onH = 0, onOther = 0;
+  for(let i=0;i<600;i++){ FS.step(1); for(const b of s.beams) if(b.large && b.state==='firing'){ if(b.tgt===a) onH++; else onOther++; } }
+  r.focus = onH > 0 && onOther === 0;
+  // Nothing shoves her off her line.
+  const y0 = s.y; FS.step(300); r.steady = Math.abs(s.y - y0) < 2;
+  return r;`);
+
+scenario('v178: M78 ghosts, wingmen, no support, no TAG, ends with the devices', 'm=78', `
+  const r = {};
+  FS.step(30);
+  r.noTag = SCRIPT_WAVES[78].sec === 'mx64' && player.sec === 'mx64';
+  r.noSupport = !allyReady();
+  const w = allies.filter(a=>a.img==='fimara');
+  FS.step(400);
+  const w2 = allies.filter(a=>a.img==='fimara');
+  r.twoWingmen = w2.length === 2 && w2.every(a=>a.disguised);
+  // Wingmen hold fire and nobody shoots at them while the cover holds.
+  let shots = 0; const pb = pBullets.push;
+  pBullets.push = function(b){ if(b && b.ally && w2.some(a=>Math.hypot(a.x-b.x,a.y-b.y)<40)) shots++; return pb.apply(this, arguments); };
+  const h0 = w2.map(a=>a.hp);
+  FS.step(1500);
+  pBullets.push = pb;
+  r.wingmenQuiet = shots === 0;
+  r.wingmenUnhurt = w2.every((a,i)=>a.hp >= h0[i]);
+  // The Sathanas: shots pass, no subsystems.
+  let s = null; for(let i=0;i<3000 && !s;i+=20){ FS.step(20); s = enemies.find(e=>e.img==='sdsathanas' && !(e.warp>0) && e.x < W) || null; }
+  r.ghost = !!s && s.ghost && !s.subs && !bulletOnHull(s, {x:s.x, y:s.y, w:4, h:4});
+  // The devices go: the mission ends, waves or not.
+  for(const id of ['N1','N2','N3']) FS.killId(id);
+  r.ends = FS.until(()=>waveOver, 3000, false, false) >= 0;
+  return r;`);
+
+scenario('v178: M80 in the nebula, transports repairing', 'm=80', `
+  const r = {};
+  FS.step(30);
+  r.nebula = waveMod==='nebula' && !portalOn;
+  FS.until(()=>FS.ids('T1').some(t=>t.holdT!=null), 20000, true, false);
+  r.repairing = SUB_MSGS.some(m=>m.txt==='REPAIRING');
+  r.noBoarding = !SUB_MSGS.some(m=>m.txt==='BOARDING');
   return r;`);
 
 scenario('HoL start unchanged', 'm=1', `

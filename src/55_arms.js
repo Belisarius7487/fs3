@@ -66,7 +66,9 @@ function aiBoltSpd(w){ return EBULLET_SPD * (w.spd || 9) / 9; }
 
 // One volley of the primaries. Each mount keeps its own clock, so mixed
 // guns fire at their own beat. Returns the steps until the next one is due.
-function aiGunVolley(e, t, lo, pts, spread){
+// ahead: fire straight ahead instead of leading the target (the nose is on
+// a large hull, v178).
+function aiGunVolley(e, t, lo, pts, spread, ahead){
   const n = pts.length, dpb = eVolleyDmg(n);
   if(!e.mT) e.mT = [];
   let next = Infinity, heard = {};
@@ -76,7 +78,7 @@ function aiGunVolley(e, t, lo, pts, spread){
     if(e.mT[i] && e.mT[i] > fc){ next = Math.min(next, e.mT[i] - fc); continue; }
     e.mT[i] = fc + beat; next = Math.min(next, beat);
     const spd = aiBoltSpd(w);
-    const aim = leadAngle(pts[i].x, pts[i].y, t, spd);
+    const aim = (ahead!=null) ? ahead : leadAngle(pts[i].x, pts[i].y, t, spd);
     const life = w.range ? Math.max(1, Math.round(w.range/spd)) : 0;
     const k = w.pellets || 1, d = dpb * (w.dmg || 1);
     for(let j=0;j<k;j++){

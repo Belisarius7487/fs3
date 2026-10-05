@@ -68,6 +68,7 @@ const world = `
   let player={ship:'fitoth', x:400, y:250};
   function inJump(){ return false; }
   function subspaceOn(){ return false; }
+  var waveNoSupport = false;
   // One fleet per cycle here; the Shivan cycle's tabs are fieldsim's.
   function cycleTabs(){ return false; } function shipIsOpen(i){ return i < shipUnlocked; }
   function allyReady(){ return true; }

@@ -862,6 +862,7 @@ function update(){
                                _sp.spr || rnd(_bo ? ROLES.ally_ter_bombers : ROLES.ally_vas_fighters), _sp.y);
         // Nobody carries a shield in subspace, ours neither (v171).
         if(_a && waveMod==='subspace'){ _a.maxSh = 0; _a.sh = 0; }
+        if(_a && _sp.disguised) _a.disguised = true;
         if(_a){ _a.uid=_sp.uid; if(_sp.uid) EV_SEEN[_sp.uid]=true;
                 // Wer eine Korvette durchbringt, bekommt kein Kreuzerticket.
                 guardReward = (_a.type==='destroyer') ? 'destroyer'
@@ -1146,9 +1147,12 @@ function update(){
       if(e.shDelay>0) e.shDelay--;
       else if(e.maxSh && e.sh<e.maxSh) e.sh=Math.min(e.maxSh,e.sh+e.shRe);
       const tgt=flySmall(e);
-      if(--e.fT<=0) smallFire(e,tgt);
-      turretTick(e, false);
-      fireSecondaries(e, WPN[e.type]);
+      // While the cover holds nobody out here is a target for them (M78).
+      if(!coverHolds()){
+        if(--e.fT<=0) smallFire(e,tgt);
+        turretTick(e, false);
+        fireSecondaries(e, WPN[e.type]);
+      }
       // No exit to the left any more. They stay until they are destroyed.
     }
     else if(e.type==='freighter'){
@@ -1238,7 +1242,7 @@ function update(){
     else if(e.type==='boss'){
       if(e.warp>0){
         e.warp--;
-        e.x-=0.3;
+        e.x -= (e.warpDrift!=null) ? e.warpDrift : 0.3;
         continue;
       }
       // In subspace (M75) her place is set by the jump's clock: from
