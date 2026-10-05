@@ -109,6 +109,9 @@ function subAt(e, hx, hy){
   return (bd<=1) ? best : null;
 }
 const SUB_HULL_BLEED = 0.25;
+// Lasting damage marks are drawing only.
+function dmgCrater(){}
+function dmgHit(){}
 ${consts.join('\n')}
 ${names.map(fn).join('\n')}
 ${fn('subHit')}

@@ -229,8 +229,8 @@ function draw(){
       ctx.save();
       fsWarpClip(fgs);
       ctx.translate(fgs.dx, fgs.dy);
-      drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,fgs.out?1:0.6,e.ang||0);
-      drawShip(e.img,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
+      drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,fgs.out?1:0.6,e.ang||0,e);
+      drawShipE(e,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
       ctx.restore();
       continue;
     }
@@ -261,8 +261,8 @@ function draw(){
         drawRockLight(e, r);
       }
     }else{
-      drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,e.warp>0?0.35:1,e.ang||0);
-      drawShip(e.img,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
+      drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,e.warp>0?0.35:1,e.ang||0,e);
+      drawShipE(e,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
       drawHostileMark(e);
       drawTagMark(e);
       drawScorch(e);

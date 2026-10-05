@@ -2344,7 +2344,8 @@ scenario('v177: M78 the Mara in disguise, nine Sathanas, three comm nodes', 'm=7
   r.nowHunted = hit > 20;
   // The nodes go up in a big blast.
   r.nodeHull = n.maxHp < 3000;
-  for(const id of ['N1','N2','N3']) FS.killId(id);
+  for(const n of FS.ids('N1')) n.scanned = true;   // scanned first since v180
+  FS.killId('N1');
   FS.step(5);
   r.bigBlast = BLAST_FUSE.length > 0 || DANGER.length > 0;
   r.ends = FS.until(()=>waveOver, 20000, true, true) >= 0;
@@ -2459,7 +2460,8 @@ scenario('v178: M78 ghosts, wingmen, no support, no TAG, ends with the devices',
   let s = null; for(let i=0;i<3000 && !s;i+=20){ FS.step(20); s = enemies.find(e=>e.img==='sdsathanas' && !(e.warp>0) && e.x < W) || null; }
   r.ghost = !!s && s.ghost && !s.subs && !bulletOnHull(s, {x:s.x, y:s.y, w:4, h:4});
   // The devices go: the mission ends, waves or not.
-  for(const id of ['N1','N2','N3']) FS.killId(id);
+  for(const n of FS.ids('N1')) n.scanned = true;   // scanned first since v180
+  FS.killId('N1');
   r.ends = FS.until(()=>waveOver, 3000, false, false) >= 0;
   return r;`);
 
@@ -2524,6 +2526,59 @@ scenario('v179: strafing runs on a large hull, guns in a stream', 'm=73', `
   const f = ws[0]; f.x = 300; f.y = 250; f.head = 0; f.fT = 0;
   smallFire(f, k);
   r.streamBeat = f.fT <= Math.round(f.fR*HULL_BURST) + 1;
+  return r;`);
+
+scenario('v180: lasting damage on a capital ship', 'm=62', `
+  const r = {};
+  FS.step(600);
+  const k = enemies.find(e=>e.type==='cruiser' && !(e.warp>0));
+  r.haveCruiser = !!k;
+  const img = IMGS[k.img], hw = img.width*k.sc/2, hh = img.height*k.sc/2;
+  // Hits on the left edge only.
+  let ok = true;
+  for(let i=0;i<200 && k.hp > k.maxHp*0.45;i++){
+    damageEnemy(k, k.maxHp*0.01, k.x - hw*0.98, k.y + (Math.random()-0.5)*hh, true, 'bolt');
+    try{ FS.step(1); draw(); }catch(ex){ ok = String(ex); }
+  }
+  r.draws = ok === true;
+  const D = k.dm;
+  r.scorch = !!D && D.scorch.length >= 5;
+  // Moved in from the edge they struck.
+  r.inward = !!D && D.scorch.every(s=>s.u > -0.95);
+  r.onHull = !!D && D.scorch.every(s=>dmgSolid(D.inf, s.u, s.v, 0));
+  for(let i=0;i<5;i++){ FS.step(1); draw(); }
+  r.breach = !!D && D.holes.length === 1;
+  r.breachClearOfSystems = !!D && D.holes.every(h=>dmgSubsFar(k, h.u, h.v, 4));
+  // A destroyed engines subsystem puts the flames out.
+  const en = (k.subs||[]).find(s=>s.id==='engines');
+  if(en){ en.hp = 0; en.dead = true; dmgCrater(k, en); }
+  r.flamesOut = !en || dmgThrust(k, {dx:-0.9, dy:0}, 0) <= 0.45;
+  r.crater = !en || D.craters.length === 1;
+  // Patched up, the breach closes again.
+  k.hp = k.maxHp*0.9; draw();
+  r.repairCloses = D.holes.length === 0;
+  r.scorchStays = D.scorch.length >= 5;
+  return r;`);
+
+scenario('v180: M78 the devices are scanned first, the Sathanas never fire', 'm=78', `
+  const r = {};
+  FS.step(30);
+  r.scanObjective = missionObj === 'SCAN THE UNKNOWN DEVICES';
+  const ns = FS.ids('N1');
+  r.threeToScan = ns.length === 3 && ns.every(n=>n.scan && n.scanLock);
+  // Shot before the scan: it does not go.
+  const n = ns[0]; damageEnemy(n, n.maxHp*3, n.x, n.y, true, 'bolt'); FS.step(5);
+  r.notBeforeScan = !n.dead && enemies.includes(n);
+  // Cover blown, the Sathanas still never fire a beam.
+  let beams = 0;
+  for(let i=0;i<4000;i+=10){ FS.step(10);
+    for(const e of enemies) if(e.img==='sdsathanas' && e.beams && e.beams.some(b=>b.state!=='idle')) beams++; }
+  r.sathanasSilent = beams === 0;
+  for(const x of FS.ids('N1')) x.scanned = true;
+  FS.step(30);
+  r.destroyObjective = missionObj === 'DESTROY THE UNKNOWN DEVICES';
+  FS.killId('N1');
+  r.ends = FS.until(()=>waveOver, 3000, false, false) >= 0;
   return r;`);
 
 scenario('HoL start unchanged', 'm=1', `

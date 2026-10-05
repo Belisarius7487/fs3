@@ -1862,6 +1862,7 @@ function subHit(e, dmg, hx, hy){
   s.hp -= dmg;
   if(s.hp <= 0){
     s.dead = true;
+    dmgCrater(e, s);               // a lasting crater (v180)
     sndPlay('sub_destroyed', e.x, 1, e.y);
     if(e.side!=='ally') STATS.subsKilled++;
     const p = subPos(e, s);
@@ -2752,7 +2753,8 @@ function thrusterCol(faction){
   return '#4aa8ff';
 }
 
-function drawThrusters(key, cx, cy, sc, flip, faction, intensity, ang){
+// e: the ship, when its damage should show in the flames (v180).
+function drawThrusters(key, cx, cy, sc, flip, faction, intensity, ang, e){
   const m = mountsFor(key), img = IMGS[key];
   if(!m || !img || !m.thrusters || !m.thrusters.length) return;
   const hw = img.width*sc/2, hh = img.height*sc/2, s = flip ? -1 : 1;
@@ -2766,10 +2768,11 @@ function drawThrusters(key, cx, cy, sc, flip, faction, intensity, ang){
   // points below are local to the ship centre.
   ctx.translate(cx, cy);
   if(ang) ctx.rotate(ang);
-  for(const t of m.thrusters){
+  for(let ti=0; ti<m.thrusters.length; ti++){
+    const t = m.thrusters[ti];
     const px = hw*t.dx*s, py = hh*t.dy;
     const dir = (t.dir || -1) * s;
-    const len = Math.abs(t.len) * hw * amp;
+    const len = Math.abs(t.len) * hw * amp * (e ? dmgThrust(e, t, ti) : 1);
     const th  = Math.abs(t.w) * hh;
     if(len < 0.6 || th < 0.6) continue;
     const tip = px + dir*len;
@@ -2878,6 +2881,9 @@ function warpFiring(e){
 }
 function updateBeams(e) {
   if(!e.beams || (e.warp>0 && !warpFiring(e))) return;
+  // Told not to fire: no beams either (v180, the Sathanas passing in 78
+  // still lit their anti-fighter beams once the cover was blown).
+  if(e.noFire) return;
   if(!subOK(e,'weapons')){
     // Returning here left a beam that happened to be firing stuck in that
     // state forever, harmless but drawn across the screen until the ship

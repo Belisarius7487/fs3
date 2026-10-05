@@ -400,7 +400,9 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   if(e.invuln) return;      // Station, die nicht fallen soll
   if(e.rollT!=null) return; // bricht schon auseinander
   // The plating: see hullMul() in 55_arms.js.
-  e.hp -= dmg * hullMul(e, src || (kind==='beam' ? 'beam' : ''));
+  const _hd = dmg * hullMul(e, src || (kind==='beam' ? 'beam' : ''));
+  e.hp -= _hd;
+  dmgHit(e, hx, hy, _hd);          // what it leaves on the hull (v180)
   // A ship that is to be taken does not start to break up: the lock
   // below holds her hull instead.
   if(e.hp <= 0 && !e.dead && !e.captureLock && !e.keepAlive &&

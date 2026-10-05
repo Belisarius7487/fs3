@@ -3212,7 +3212,7 @@ const SCRIPT_WAVES = {
 
   78:{name:'Beyond the Gate', fac:'shivan', o:'clear', live:5, scene:'beyond2',
       ship:'fimara', sec:'mx64', disguise:true, noMara:true, noSupport:true,
-      ziel:'DESTROY THE THREE UNKNOWN DEVICES', u:[
+      ziel:'SCAN THE UNKNOWN DEVICES', u:[
        // Through the second portal, in a captured Mara: no nebula here.
        // The Shivans take her for one of theirs until she fires on one of
        // them. Nine Sathanas pass, one after another, on their way to the
@@ -3220,9 +3220,11 @@ const SCRIPT_WAVES = {
        // from the right and jump out at the left edge. ghost: shots pass
        // through them, and no subsystems are shown (Silvio, v178).
        // Two wingmen in Maras as in FS2, in disguise as well.
-       {id:'N1', c:'in', n:1, spr:'incommnode', x:520, y:150, hull:0.1},
-       {id:'N2', c:'in', n:1, spr:'incommnode', x:660, y:300, hull:0.1},
-       {id:'N3', c:'in', n:1, spr:'incommnode', x:500, y:430, hull:0.1},
+       // Scanned first, then destroyed (Silvio, v180): until scanned they
+       // cannot be destroyed. One id for all three, so one scan trigger.
+       {id:'N1', c:'in', n:1, spr:'incommnode', x:520, y:150, hull:0.1, scan:true, scanFirst:true},
+       {id:'N1', c:'in', n:1, spr:'incommnode', x:660, y:300, hull:0.1, scan:true, scanFirst:true},
+       {id:'N1', c:'in', n:1, spr:'incommnode', x:500, y:430, hull:0.1, scan:true, scanFirst:true},
        {id:'S1', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:200, t:2},
        {id:'S2', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:360, t:14},
        {id:'S3', c:'sd', n:1, spr:'sdsathanas', invuln:true, noFire:true, noHold:true, ghost:true, crossLeft:0.7, crossWarp:true, x:1000, y:240, t:26},
@@ -3242,9 +3244,10 @@ const SCRIPT_WAVES = {
        {t:'sek', a:40, w:'einwarpen', a2:'B1'},
        // Done when the devices are: whatever is still out there leaves
        // (Silvio, v178).
-       {t:'vernichtet', a:'N1+N2+N3', w:'zielerfuellt', a2:'UNKNOWN DEVICES DESTROYED'},
-       {t:'vernichtet', a:'N1+N2+N3', w:'nachschub', a2:'aus'},
-       {t:'vernichtet', a:'N1+N2+N3', w:'abzug', a2:''}
+       {t:'gescannt', a:'N1', w:'ziel', a2:'DESTROY THE UNKNOWN DEVICES'},
+       {t:'vernichtet', a:'N1', w:'zielerfuellt', a2:'UNKNOWN DEVICES DESTROYED'},
+       {t:'vernichtet', a:'N1', w:'nachschub', a2:'aus'},
+       {t:'vernichtet', a:'N1', w:'abzug', a2:''}
      ]},
 
   79:{name:'Data Uplink', fac:'shivan', o:'clear', live:5, mod:'nebula', ssBombs:true, hunt:'C1',
@@ -3864,6 +3867,7 @@ function scriptUnit(u, fac, q){
              escWarp:u.escWarp, capture:u.capture, flee:u.flee, scanSubs:u.scanSubs,
              fleeFree:u.fleeFree, hurt:u.hurt, armed:u.armed, noFlee:u.noFlee,
              noKill:u.noKill, noWarp:u.noWarp, viaPortal:u.viaPortal,
+             scan:u.scan?1:0, scanFirst:u.scanFirst,
              still:u.still, noFlak:u.noFlak, fixY:(u.y!=null),
              capIndex:(n>1)? i : 0});
       }

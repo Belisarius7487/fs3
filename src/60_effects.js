@@ -1029,7 +1029,9 @@ function update(){
         if(b.subs && a.subs) adm=subStrike(a, adm, b.x, b.y);   // a Stiletto goes for the innards
         else if(a.subs) adm=subHit(a, adm, b.x, b.y);   // escorts have them too
         if(b.sh) eShards(b.x, b.y, b.sh, b.faction);
-        a.hp-=adm*hullMul(a, eSrc(b));    // our capital ships are plated too
+        const _ad = adm*hullMul(a, eSrc(b));
+        a.hp-=_ad;    // our capital ships are plated too
+        if(!a.small) dmgHit(a, b.x, b.y, _ad);   // and they keep the marks (v180)
         if(a.small) a.jinkReq=true;
         hullHit(b.x,b.y);
         if(!b.kind) laserSpark(b.x, b.y, b.col || raceCol(b.faction).core);
