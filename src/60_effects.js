@@ -570,7 +570,7 @@ function nextWave(){
   waveTitle=''; titleT=0;
   objWasSet=false; objDoneT=0; objFailed=false; objSeenOnce=false;
   missionObj=''; missionObjUsed=false; objCard=null; objPinned='';
-  scanUnderFire=false; portalOn=false; portalIn=false;
+  scanUnderFire=false; portalOn=false; portalIn=false; waveFs1=false;
   practiceTickets();
   protSaved=0; protLost=0;
   crossDone=0; crossTotal=0; commsCut=false; commsSeen=false;

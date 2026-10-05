@@ -2924,7 +2924,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'C1', w:'meldung', a2:'jamming is down - shivan reinforcements inbound'}
      ]},
 
-  69:{name:'The Shadow', fac:'shivan', o:'clear', live:5, mod:'nebula', hunt:'A1',
+  69:{name:'The Shadow', fac:'shivan', o:'clear', live:5, mod:'nebula', hunt:'A1', fs1:true,
       ziel:'COVER THE HECATE UNTIL SHE JUMPS', u:[
        // The Lucifer comes out of the gas. Her shield makes her untouchable;
        // the Hecate charges her jump drive while the Lucifer's fighters and
@@ -2997,7 +2997,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'T2', w:'nachschub', a2:'aus'}
      ]},
 
-  71:{name:'The Reactor Scan', fac:'shivan', o:'clear', live:5, mod:'nebula', ship:'fiptah',
+  71:{name:'The Reactor Scan', fac:'shivan', o:'clear', live:5, mod:'nebula', ship:'fiptah', fs1:true,
       ziel:'SCAN THE LUCIFER REACTORS - STAY UNSEEN', u:[
        // In a Ptah: nothing sees her unless she fires, and then for a few
        // seconds. Fly in close to each of the Lucifer's reactors and hold.
@@ -3012,17 +3012,18 @@ const SCRIPT_WAVES = {
        {t:'gescannt', a:'L1', w:'abzug', a2:''}
      ]},
 
-  72:{name:'The Escort', fac:'shivan', o:'clear', live:5, mod:'nebula', giveSec:'tag', hunt:'A1',
+  72:{name:'The Escort', fac:'shivan', o:'clear', live:5, mod:'nebula', giveSec:'tag', hunt:'A1', fs1:true,
       ziel:'DESTROY THE ESCORT OF THE LUCIFER', u:[
        // Her escort cruisers, TAG them for the Hatshepsut's beams. From here
        // on the Shivan beams find their targets in the gas as well.
        {id:'L1', c:'sd', n:1, spr:'sdlucifer', invuln:true, noFire:true, y:250},
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', x:130, y:260, still:true,
         guard:true, callsOk:true},
-       {id:'K1', c:'cr', n:1, spr:'crrakshasa', x:480, y:120, still:true, noFlee:true},
+       // FS1 cruisers only with the Lucifer (Silvio, v175).
+       {id:'K1', c:'cr', n:1, spr:'crcain',     x:480, y:120, still:true, noFlee:true},
        {id:'K2', c:'cr', n:1, spr:'crlilith',   x:520, y:400, still:true, noFlee:true},
        {id:'K3', c:'cr', n:1, spr:'crcain',     x:420, y:260, still:true, noFlee:true, wait:true},
-       {id:'K4', c:'cr', n:1, spr:'crrakshasa', x:560, y:300, still:true, noFlee:true, wait:true},
+       {id:'K4', c:'cr', n:1, spr:'crlilith',   x:560, y:300, still:true, noFlee:true, wait:true},
        {id:'E1', c:'fi', n:2},
        {id:'B1', c:'bo', n:1, wait:true}
      ], ev:[
@@ -3055,7 +3056,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'K1+K2', w:'abzug', a2:''}
      ]},
 
-  74:{name:'The Breakthrough', fac:'shivan', o:'clear', live:6, mod:'nebula',
+  74:{name:'The Breakthrough', fac:'shivan', o:'clear', live:6, mod:'nebula', fs1:true,
       ziel:'DESTROY HER ESCORT BEFORE SHE IS THROUGH', u:[
        // In the nebula (Silvio). The Lucifer crosses from right to left,
        // slowly, and nothing stops her. What counts is how much of her
@@ -3063,9 +3064,10 @@ const SCRIPT_WAVES = {
        // Escort cut to two cruisers and a corvette, and she drives a little
        // slower: with the Demon as well it could not be done (Silvio, v171).
        {id:'L1', c:'sd', n:1, spr:'sdlucifer', invuln:true, crossLeft:0.10, y:250},
-       {id:'K1', c:'cr', n:1, spr:'crrakshasa', x:520, y:110, noFlee:true},
+       // FS1 cruisers only (Silvio, v175): the Moloch is a third cruiser.
+       {id:'K1', c:'cr', n:1, spr:'crcain',     x:520, y:110, noFlee:true},
        {id:'K2', c:'cr', n:1, spr:'crlilith',   x:560, y:420, noFlee:true},
-       {id:'M1', c:'co', n:1, spr:'comoloch',   t:10, noFlee:true},
+       {id:'M1', c:'cr', n:1, spr:'crcain',     t:10, noFlee:true},
        {id:'E1', c:'fi', n:2}
      ], ev:[
        {t:'sek', a:2,  w:'meldung', a2:'the lucifer cannot be stopped - hit her escort'},
@@ -3077,7 +3079,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'L1', w:'abzug', a2:''}
      ]},
 
-  75:{name:'Subspace', fac:'shivan', o:'clear', live:5, mod:'subspace',
+  75:{name:'Subspace', fac:'shivan', o:'clear', live:5, mod:'subspace', fs1:true,
       ziel:'DESTROY THE LUCIFER REACTORS', u:[
        // Boss. In subspace no shield works - not hers, not ours - and no
        // support answers. Only her reactors can be hurt; the last one takes
@@ -3529,10 +3531,10 @@ function tickEvents(){
     if(evReinfCd>0){ evReinfCd--; }
     else if(liveSmallCount() < smallCap()){
       evReinfCd = evReinfGap;
-      const wid = ++wingSeq, sz = WING_MIN + ((Math.random()*(WING_MAX-WING_MIN+1))|0);
       const ty = 'fi_' + FAC_TAG[currentFaction];
       const rp = poolFor(ty);
       const rh = rp ? rnd(rp) : '';     // eine Staffel, ein Rumpf
+      const wid = ++wingSeq, sz = WING_MIN + ((Math.random()*(WING_MAX-WING_MIN+1))|0) + wingExtra(rh);
       const ry = H*(0.22+Math.random()*0.56);
       // Ein Drittel der Staffeln springt mitten ins Feld statt am Rand.
       const rx = (Math.random()<0.34) ? (W*0.45+Math.random()*W*0.4) : null;
@@ -3564,7 +3566,7 @@ function scriptUnit(u, fac, q){
       // n zaehlt Staffeln, nicht Schiffe.
       for(let w=0; w<n; w++){
         const wid = ++wingSeq;
-        const sz  = WING_MIN + ((Math.random()*(WING_MAX-WING_MIN+1))|0);
+        let sz  = WING_MIN + ((Math.random()*(WING_MAX-WING_MIN+1))|0);
         const yy  = (u.y!=null) ? u.y : H*(0.22+0.5*((w+0.5)/n));
         // Eine Staffel fliegt einen Rumpf. Der Wurf gehoert hierher und
         // nicht in mkEnemy, sonst bekommt jedes Schiff einen eigenen.
@@ -3573,6 +3575,7 @@ function scriptUnit(u, fac, q){
                         : (fac==='hol' ? ROLES.ally_vas_fighters : ROLES.ally_ter_fighters))
           : poolFor(ty);
         const hull = u.spr || (pool ? rnd(pool) : '');
+        if(!ally) sz += wingExtra(hull);
         // Staffelabstand: 2,6 s waren im Spiel eine Pause, in der nichts
         // passiert. 1,1 s reichen, um sie als getrennte Staffeln zu lesen.
         for(let k=0;k<sz;k++)
@@ -3700,6 +3703,7 @@ function buildScripted(def){
   scanUnderFire = !!def.scanUnderFire;
   portalOn = !!def.portal;
   portalIn = !!def.portalIn;
+  waveFs1 = !!def.fs1;
   // In subspace no shield works (v170): the player's comes back next wave.
   if(waveMod==='subspace' && player.maxSh){
     player._maxShSave = player.maxSh; player.maxSh = 0; player.sh = 0;
@@ -3915,8 +3919,22 @@ const ROLE_KEY = {fi:'fighters', bo:'bombers', cr:'cruisers',
                   co:'corvette', de:'destroyers', boss:'super'};
 function typeRole(t){ const i=t.indexOf('_'); return i<0 ? t : t.slice(0,i); }
 function typeFac(t){ const i=t.indexOf('_'); return i<0 ? 'ntf' : (FAC_SFX[t.slice(i+1)]||'ntf'); }
+// ── FS1 SHIVANS WITH THE LUCIFER (v175) ──────────────────────
+// The Lucifer is an FS1 ship, so what flies with her is FS1 too (Silvio):
+// the Scorpion first, in swarms, the other FS1 types less often. A mission
+// asks for it with fs1:true. Roles FS1 had no Shivan hull for (corvettes)
+// keep the normal pool.
+let waveFs1 = false;
+const FS1_SHIVAN = {
+  fighters: ['fiscorpion','fiscorpion','fiscorpion','fibasilisk','fidragon','fimanticore'],
+  bombers:  ['boshaitan','bonephilim'],
+  cruisers: ['crcain','crlilith']
+};
+const FS1_SWARM_EXTRA = 1;       // a Scorpion wing is one ship larger
+function wingExtra(hull){ return (waveFs1 && hull==='fiscorpion') ? FS1_SWARM_EXTRA : 0; }
 function poolFor(type){
   const k = ROLE_KEY[typeRole(type)];
+  if(k && waveFs1 && typeFac(type)==='shivan' && FS1_SHIVAN[k]) return FS1_SHIVAN[k];
   return k ? (ROLES[typeFac(type)+'_'+k] || null) : null;
 }
 

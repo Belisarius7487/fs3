@@ -2171,7 +2171,7 @@ scenario('v172: M70 Lilith on station, Azrael untouchable', 'm=70', `
   r.noEscapeCount = escGone === 0;
   return r;`);
 
-scenario('v172: M74 two cruisers and a corvette', 'm=74', `
+scenario('v172: M74 a smaller escort (three cruisers since v175)', 'm=74', `
   FS.step(4500);
   const ids = enemies.filter(e=>!e.invuln && (e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer')).map(e=>e.uid);
   return {escort: JSON.stringify(ids), noDestroyer: FS.ids('D1').length===0 && !enemies.some(e=>e.type==='destroyer')};`);
@@ -2202,6 +2202,36 @@ scenario('v174: in through the Knossos, out through a blue vortex', 'm=61', `
   r.portalOutTurquoise = warpTurquoise({portalWarp:true, portalOut:true, warpOut:50}) === true;
   let ok = true; try{ for(let i=0;i<60;i++){ update(); draw(); } }catch(ex){ ok = String(ex); }
   r.draws = ok === true;
+  return r;`);
+
+scenario('v175: FS1 Shivans with the Lucifer, Scorpions first', 'm=74', `
+  const r = {}; const seen = {};
+  for(let i=0;i<6000;i+=20){ FS.step(20);
+    for(const e of enemies) if((e.type==='fighter'||e.type==='bomber') && !e._c){ e._c=1; seen[e.img]=(seen[e.img]||0)+1; }
+    if(i%300===0) FS.killSmall(); }
+  const fs1 = FS1_SHIVAN.fighters.concat(FS1_SHIVAN.bombers);
+  r.onlyFs1Small = Object.keys(seen).length > 0 && Object.keys(seen).every(k=>fs1.indexOf(k)>=0);
+  const fi = Object.keys(seen).filter(k=>/^fi/.test(k)).reduce((s,k)=>s+seen[k],0);
+  r.scorpionsMost = (seen.fiscorpion||0) > fi*0.4;
+  r.capsFs1 = ['K1','K2','M1'].every(id=>!EV_SEEN[id] || true) && SCRIPT_WAVES[74].u.filter(u=>u.c==='cr'||u.c==='co').every(u=>FS1_SHIVAN.cruisers.indexOf(u.spr)>=0);
+  r.counts = JSON.stringify(seen);
+  return r;`);
+
+scenario('v175: no FS1 rule without the Lucifer', 'm=73', `
+  FS.step(20);
+  return {off: waveFs1===false && poolFor('fi_sh')!==FS1_SHIVAN.fighters};`);
+
+scenario('v175: the Lucifer holds her beams three times as long', 'm=69', `
+  FS.step(200);
+  const l = FS.ids('L1')[0];
+  const raw = mountsFor('sdlucifer').beams.map(b=>b.fireT||120);
+  const r = {longer: !!l && l.beams.every((b,i)=>b.fireT === Math.round(raw[i]*LUCI_FIRE_MUL)),
+             static: !!l && l.beams.every(b=>b.type==='static')};
+  const h0 = FS.ids('A1')[0].hp;
+  FS.step(3000);
+  r.hecateHurt = FS.ids('A1')[0].hp < h0;
+  // Other ships keep theirs.
+  r.othersUnchanged = mountsFor('crcain').beams[0].fireT === (function(){ const c = enemies.find(e=>e.img==='crcain'); return c ? c.beams[0].fireT : mountsFor('crcain').beams[0].fireT; })();
   return r;`);
 
 scenario('HoL start unchanged', 'm=1', `

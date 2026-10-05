@@ -1795,6 +1795,7 @@ const LUCI_SHIELD = 6000;
 // She carries only two beams, so once the shield is gone the second half
 // of the fight was weaker than the first. Now the reverse.
 const LUCI_BEAM_UNSHIELDED = 2.6;
+const LUCI_FIRE_MUL = 3;          // her beams fire 3x as long (v175)
 // The Sathanas' arm beams are her main armament and were rated no higher
 // than an ordinary heavy turret.
 const SATH_ARM_MULT = 2.0;
@@ -2744,6 +2745,9 @@ function initBeams(e){
       // Shivans have no slash beams (Silvio, v173): every Shivan beam,
       // anti-fighter ones included, fires static. Damage values unchanged.
       type: (e.faction==='shivan') ? 'static' : d.type,
+      // The Lucifer holds her beams on far longer (Silvio, v175): at 1.2 s
+      // a burst every capital ship outlasted her.
+      fireT: (e.img===LUCI_HULL) ? Math.round((d.fireT||120)*LUCI_FIRE_MUL) : d.fireT,
       chargeT: Math.round((d.chargeT||400) * (af?AF_CHARGE_MUL:1)),
       coolT:   Math.round((d.coolT||400)   * (af?AF_COOL_MUL:1)),
       state:'idle',
