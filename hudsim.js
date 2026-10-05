@@ -59,7 +59,7 @@ const names = [
   'thFit',
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','drawHUD', 'drawHUDHLP', 'TH', 'thLabel', 'thValue',
-               'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton'];
+               'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton','btnState','btnText'];
 
 const CALLS = [];
 const ctxStub = new Proxy({}, {

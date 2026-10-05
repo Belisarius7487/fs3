@@ -740,8 +740,10 @@ function drawFleeWarning(){
 // A speaker, with waves while the sound is on and a cross when it is off.
 function drawMuteButton(x, y, w, h){
   const hv = hovering(x, y, w, h);
-  thButton(x, y, w, h, hv ? 'on' : null);
-  const col = SND.on ? (hv ? TH('textBright') : TH('text')) : TH('textDim');
+  const st = btnState(true, false, hv);
+  thButton(x, y, w, h, st);
+  // Muted is a setting, not a locked button: the icon says it (crossed out).
+  const col = btnText(st);
   const cx = x + w/2 - 3, cy = y + h/2, s = Math.min(w, h)/22;
   ctx.save();
   ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
@@ -1176,7 +1178,7 @@ function drawHUDHLP(){
   var isMissile=player.secType==='missile';
   var secRdy=player.secTimer===0 && player.secAmmo>0;
   var secClr=isMissile?'#ff8800':'#cc2200';
-  thButton(secX, secBY, secBW, secBH, secRdy?'ready':null);
+  thButton(secX, secBY, secBW, secBH, btnState(secRdy, false, hovering(secX, secBY, secBW, secBH)));
   if(isMissile) drawMissileIcon(secX+secBW/2, secBY+13, secRdy?secClr:TH('textDim'));
   else          drawBombIcon(secX+secBW/2, secBY+13, secRdy?secClr:TH('textDim'));
   ctx.fillStyle=secRdy?TH('textBright'):TH('textDim'); ctx.font=thValue(13, true);
@@ -1196,7 +1198,7 @@ function drawHUDHLP(){
   // SUPPORT
   var alX=455, alBW=76, alBH=H2-10, alBY=5;
   var alRdy=allyReady(), alCan=alRdy && anyTicket();
-  thButton(alX, alBY, alBW, alBH, alCan?'ready':null);
+  thButton(alX, alBY, alBW, alBH, btnState(alCan, callMenu, hovering(alX, alBY, alBW, alBH)));
   ctx.textAlign='left';
   ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8);
   ctx.fillText('SUPPORT', alX+5, alBY+9);
@@ -1262,19 +1264,21 @@ function drawHUDHLP(){
     var swX=grpX, rmX=grpX+swW+swGap;
     var swOn=shipSwapReady()||shipMenu;
     var swHv=hovering(swX, swY, swW, swH);
-    thButton(swX, swY, swW, swH, (shipMenu||swHv)?'on':(swOn?'ready':null));
+    var swSt=btnState(swOn, shipMenu, swHv);
+    thButton(swX, swY, swW, swH, swSt);
     var swPl=barPulseLevel('swap');
     if(swPl>0) thGlowPath(swX-3, swY-2, swW+6, swH+4, 5, swPl);
-    var swCol=swOn?TH('accentWarm'):(swHv?TH('text'):TH('textDim'));
+    var swCol=btnText(swSt);
     drawSwapIcon(swX+swW/2, iconY(swY, swH), swCol);
     keyHint(swX, swY, swW, swH, 'V', swCol);
     window._shipBtnRect={x:swX, y:swY, w:swW, h:swH};
     var rmOn=rearmReady()||rearmMenu;
     var rmHv=hovering(rmX, swY, swW, swH);
-    thButton(rmX, swY, swW, swH, (rearmMenu||rmHv)?'on':(rmOn?'ready':null));
+    var rmSt=btnState(rmOn, rearmMenu, rmHv);
+    thButton(rmX, swY, swW, swH, rmSt);
     var rmPl=barPulseLevel('rearm');
     if(rmPl>0) thGlowPath(rmX-3, swY-2, swW+6, swH+4, 5, rmPl);
-    var rmCol=rmOn?TH('accentWarm'):(rmHv?TH('text'):TH('textDim'));
+    var rmCol=btnText(rmSt);
     drawRearmIcon(rmX+swW/2, iconY(swY, swH), rmCol);
     keyHint(rmX, swY, swW, swH, 'R', rmCol);
     window._rearmBtnRect={x:rmX, y:swY, w:swW, h:swH};
@@ -1284,17 +1288,18 @@ function drawHUDHLP(){
   drawMuteButton(W-78, 4, 22, H2-8);
   var stbX=W-52, stbY=4, stbW=22, stbH=H2-8;
   var stbHv=hovering(stbX, stbY, stbW, stbH);
-  thButton(stbX, stbY, stbW, stbH, (settingsOpen||stbHv)?'on':null);
-  var stbCol=(settingsOpen||stbHv)?TH('textBright'):TH('text');
+  var stbSt=btnState(true, settingsOpen, stbHv);
+  thButton(stbX, stbY, stbW, stbH, stbSt);
+  var stbCol=btnText(stbSt);
   drawGear(stbX+stbW/2, iconY(stbY, stbH), 7, stbCol);
   keyHint(stbX, stbY, stbW, stbH, 'S', stbCol);
   window._settingsBtnRect={x:stbX, y:stbY, w:stbW, h:stbH};
 
   var pbX=W-26, pbY=4, pbW=22, pbH=H2-8;
   var pbHv=hovering(pbX, pbY, pbW, pbH);
-  thButton(pbX, pbY, pbW, pbH, (paused||pbHv)?'on':null);
-  drawPauseIcon(pbX+pbW/2, pbY+pbH/2,
-                (paused||pbHv)?TH('textBright'):TH('text'), !paused);
+  var pbSt=btnState(true, paused, pbHv);
+  thButton(pbX, pbY, pbW, pbH, pbSt);
+  drawPauseIcon(pbX+pbW/2, pbY+pbH/2, btnText(pbSt), !paused);
   window._pauseBtnRect={x:pbX, y:pbY, w:pbW, h:pbH};
 
   ctx.textAlign='left'; ctx.textBaseline='top';
@@ -2029,7 +2034,9 @@ function drawShipMenu(){
     const open = !p.locked && !p.off;
 
     if(p.locked){
-      // A thin line with no plate under it: the name, and what it costs.
+      // Locked: the dark plate every unavailable control carries (v179),
+      // the name, and what it costs.
+      thPlate(rx, ry, rw, p.h, TH('back'));
       ctx.textAlign='left'; ctx.textBaseline='middle';
       ctx.fillStyle=TH('textDim'); ctx.font=thValue(11, false);
       ctx.fillText(s.name, rx+HG_NAME, ry+p.h/2);
@@ -2041,6 +2048,8 @@ function drawShipMenu(){
 
     thPlate(rx, ry, rw, p.h,
             p.cur ? TH('raised') : (open ? TH('panelFront') : TH('back')));
+    // The pointer on a row that can be taken: half the ring, as on a tab.
+    if(open && !p.cur && hovering(rx, ry, rw, p.h)) thGlowPath(rx, ry, rw, p.h, 6, 0.5);
     if(p.cur){
       // Three marks for the one row that is active, and they are the kit's,
       // not this panel's: the ring, the two angles, the bar on the edge.
@@ -2222,6 +2231,7 @@ function drawRearmMenu(){
     }
     const w = p.w;
     if(!p.open){
+      thPlate(rx, ry, rw, p.h, TH('back'));    // locked: the dark plate (v179)
       ctx.textAlign='left'; ctx.fillStyle=TH('textDim'); ctx.font=thValue(11, false);
       ctx.fillText(thFit(weaponName(w), 240), rx+RM_NAME, ry+p.h/2);
       ctx.fillText(w.fromWave ? 'unlocks in the Shivan campaign'
@@ -2232,6 +2242,7 @@ function drawRearmMenu(){
     }
 
     thPlate(rx, ry, rw, p.h, p.cur ? TH('raised') : TH('panelFront'));
+    if(!p.cur && hovering(rx, ry, rw, p.h)) thGlowPath(rx, ry, rw, p.h, 6, 0.5);
     if(p.cur){
       thGlowPath(rx, ry, rw, p.h, 6, 1);
       thBrackets(rx, ry, rw, p.h, TH('accentWarm'));
@@ -2341,7 +2352,7 @@ function drawAllyRow(x, y, w, id, d, keyLabel, hot){
   if(hot && ok){
     thGlowPath(x, y, w, CM_ROW, 6, 1);
     thBrackets(x, y, w, CM_ROW, TH('accentWarm'));
-  }
+  } else if(ok && hovering(x, y, w, CM_ROW)) thGlowPath(x, y, w, CM_ROW, 6, 0.5);
   drawKeyChip(keyLabel, x+CM_NUM, y+(CM_ROW-16)/2, CM_NUM_W, 16, ok);
   drawHullCell(d.spr, x+CM_PIC, y+3, CM_PIC_W, CM_ROW-6, ok);
 
@@ -2548,9 +2559,10 @@ function drawTitleFullscreen(){
   drawMuteButton(mx, TFS_PAD, ms, ms);
   if(!r) return;
   const hv = hovering(r.x, r.y, r.w, r.h);
-  thButton(r.x, r.y, r.w, r.h, hv ? 'on' : null);
+  const st = btnState(true, false, hv);
+  thButton(r.x, r.y, r.w, r.h, st);
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle = hv ? TH('textBright') : TH('text');
+  ctx.fillStyle = btnText(st);
   ctx.font = thLabel(11);
   ctx.fillText(thFit(isFullscreen() ? 'EXIT FULLSCREEN' : 'FULLSCREEN', r.w-16),
                r.x+r.w/2, r.y+r.h/2+1);
@@ -3249,13 +3261,17 @@ function drawPlog(){
   }
   // Scrolling, when there are more waves than rows.
   if(rows.length > PLOG_ROWS){
-    const ax = px+pw-40;
-    thButton(ax, ty+14, 26, 18, null); thButton(ax, ty+14+PLOG_ROWS*17-18, 26, 18, null);
-    ctx.fillStyle = TH('textBright'); ctx.textAlign = 'center';
-    ctx.fillText('^', ax+13, ty+17); ctx.fillText('v', ax+13, ty+14+PLOG_ROWS*17-15);
+    const ax = px+pw-40, ayU = ty+14, ayD = ty+14+PLOG_ROWS*17-18;
+    const canUp = plogTop > 0, canDn = plogTop < rows.length-PLOG_ROWS;
+    const stU = btnState(canUp, false, hovering(ax, ayU, 26, 18));
+    const stD = btnState(canDn, false, hovering(ax, ayD, 26, 18));
+    thButton(ax, ayU, 26, 18, stU); thButton(ax, ayD, 26, 18, stD);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = btnText(stU); ctx.fillText('^', ax+13, ty+17);
+    ctx.fillStyle = btnText(stD); ctx.fillText('v', ax+13, ty+14+PLOG_ROWS*17-15);
     ctx.textAlign = 'left';
-    window._plogRects.push({x:ax, y:ty+14, w:26, h:18, act:'up'});
-    window._plogRects.push({x:ax, y:ty+14+PLOG_ROWS*17-18, w:26, h:18, act:'down'});
+    if(canUp) window._plogRects.push({x:ax, y:ayU, w:26, h:18, act:'up'});
+    if(canDn) window._plogRects.push({x:ax, y:ayD, w:26, h:18, act:'down'});
   }
   // The selected wave in detail: numbers on the left, timeline on the right.
   const dy = ty + 22 + PLOG_ROWS*17;
@@ -3299,8 +3315,9 @@ function drawPlog(){
   const btns = [['COPY AS TEXT','copy'],['SAVE FILE','save'],['CLOSE','close']];
   for(let i=0;i<btns.length;i++){
     const bx = px+14+i*(bw+10);
-    thButton(bx, by, bw, 24, 'ready');
-    ctx.fillStyle = TH('textBright'); ctx.font = thLabel(11); ctx.textAlign = 'center';
+    const st = btnState(true, false, hovering(bx, by, bw, 24));
+    thButton(bx, by, bw, 24, st);
+    ctx.fillStyle = btnText(st); ctx.font = thLabel(11); ctx.textAlign = 'center';
     ctx.fillText(btns[i][0], bx+bw/2, by+6);
     ctx.textAlign = 'left';
     window._plogRects.push({x:bx, y:by, w:bw, h:24, act:btns[i][1]});

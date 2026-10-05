@@ -68,13 +68,15 @@ function aiBoltSpd(w){ return EBULLET_SPD * (w.spd || 9) / 9; }
 // guns fire at their own beat. Returns the steps until the next one is due.
 // ahead: fire straight ahead instead of leading the target (the nose is on
 // a large hull, v178).
-function aiGunVolley(e, t, lo, pts, spread, ahead){
-  const n = pts.length, dpb = eVolleyDmg(n);
+// rk: beat and damage per shot scaled together (a stream on a hull, v179).
+function aiGunVolley(e, t, lo, pts, spread, ahead, rk){
+  rk = rk || 1;
+  const n = pts.length, dpb = eVolleyDmg(n) * rk;
   if(!e.mT) e.mT = [];
   let next = Infinity, heard = {};
   for(let i=0;i<n;i++){
     const w = priDef(Array.isArray(lo.p) ? lo.p[i % lo.p.length] : lo.p);
-    const beat = Math.max(8, Math.round((e.fR || 120) * (w.rate || 1)));
+    const beat = Math.max(6, Math.round((e.fR || 120) * (w.rate || 1) * rk));
     if(e.mT[i] && e.mT[i] > fc){ next = Math.min(next, e.mT[i] - fc); continue; }
     e.mT[i] = fc + beat; next = Math.min(next, beat);
     const spd = aiBoltSpd(w);

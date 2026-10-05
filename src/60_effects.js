@@ -852,6 +852,8 @@ function update(){
                 if(_sp.defectRun) _a.defectRun = _sp.defectRun;
                 if(_sp.noWings) _a.noWings = true;
                 if(_sp.hpMul) { _a.hp=Math.round(_a.hp*_sp.hpMul); _a.maxHp=Math.max(_a.maxHp,_a.hp); }
+                // hull: a lighter build, bar and all (v179, the Hatshepsut in 77).
+                if(_sp.hullMul) { _a.hp=Math.max(1,Math.round(_a.hp*_sp.hullMul)); _a.maxHp=_a.hp; }
                 allies.push(_a); }
         continue;
       }
@@ -1243,6 +1245,7 @@ function update(){
       if(e.warp>0){
         e.warp--;
         e.x -= (e.warpDrift!=null) ? e.warpDrift : 0.3;
+        if(warpFiring(e)) updateBeams(e);
         continue;
       }
       // In subspace (M75) her place is set by the jump's clock: from
@@ -1265,6 +1268,13 @@ function update(){
         continue;
       }
       // Driving across and out (M74): no station, she just keeps going.
+      // crossAfter: she holds where she is while that ship lives (the
+      // Sathanas over the Hatshepsut, M77 v179), then drives on.
+      if(e.crossLeft && e.crossAfter && byId(e.crossAfter).length){
+        if(e.x < W+40) capitalFire(e);
+        updateBeams(e);
+        continue;
+      }
       if(e.crossLeft){
         e.x -= e.crossLeft;
         const _ci = IMGS[e.img], _hw = _ci ? _ci.width*e.sc*0.5 : 200;

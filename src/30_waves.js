@@ -942,6 +942,14 @@ function portalPoint(){
   const a = Math.PI*(0.62 + Math.random()*0.76);       // the left half only
   return {x: Math.min(W-14, p.x + Math.cos(a)*rx*r), y: p.y + Math.sin(a)*ry*r};
 }
+// The middle of the ring, for a ship too large to come out anywhere else
+// (the Sathanas, M77 v179).
+function portalMiddle(){
+  const p = enemies.find(function(o){ return o.img==='inknossos45deg' && !o.dead; });
+  const img = p && IMGS[p.img];
+  if(!img) return {x: PORTAL_X, y: PORTAL_Y};
+  return {x: Math.min(W-14, p.x - img.width*p.sc*0.08), y: p.y};
+}
 function portalArrive(e){
   if(!e || e.type==='asteroid' || e.type==='station' || !(e.warp>0)) return;
   const img = IMGS[e.img];
@@ -950,7 +958,7 @@ function portalArrive(e){
   // (fsWarp). It opens INSIDE the half ring of the portal (Silvio, v168:
   // not on its rim), at a point picked in the visible half of the ring's
   // ellipse, and the ship comes out to the left of it.
-  const v = portalPoint();
+  const v = e.portalMid ? portalMiddle() : portalPoint();
   e.x = v.x - L*0.6;
   e.y = Math.max(HUD_H+30, Math.min(H-30, v.y));
   e.warpX = e.x; e.warpY = e.y;
@@ -1190,7 +1198,11 @@ function applySpawnOpts(e, sp){
   if(sp.crossWarp){ e.crossWarp = true; e.withdrawn = true; }
   // warpT: a slower arrival, in seconds - a juggernaut takes her time
   // coming out of the portal (v178, M77).
-  if(sp.warpT){ e.warp = e.warpMax = Math.round(sp.warpT*TICK_HZ); e.warpDrift = 0.1; }
+  if(sp.warpT){ e.warp = e.warpMax = Math.round(sp.warpT*TICK_HZ); e.warpDrift = 0.05; e.fireInWarp = true;
+    // Her main guns start charging as she comes through, not at random.
+    for(const b of (e.beams||[])) if(b.large && b.state==='idle') b.timer = 1; }
+  if(sp.crossAfter) e.crossAfter = sp.crossAfter;
+  if(sp.portalMid) e.portalMid = true;
   // beamFocus: her guns go for this ship first (the Hatshepsut, M77).
   if(sp.beamFocus) e.beamFocus = sp.beamFocus;
   // ghost: scenery shots pass through, no lock and no subsystems (M78).
@@ -3164,8 +3176,10 @@ const SCRIPT_WAVES = {
        // A second Knossos in the nebula, guarded. With the Hatshepsut we
        // clear it - and then a Sathanas comes through and takes her apart.
        {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
+       // A lighter Hatshepsut than in a stand-up fight: once the Sathanas
+       // is on her, it is over in half a minute.
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', x:150, y:420, still:true,
-        callsOk:true},
+        callsOk:true, hull:0.55},
        {id:'K1', c:'cr', n:1, spr:'crcain',     x:560, y:130, noFlee:true},
        {id:'K2', c:'cr', n:1, spr:'crlilith',   x:590, y:410, noFlee:true},
        {id:'V1', c:'co', n:1, spr:'comoloch',   t:20, noFlee:true, viaPortal:true},
@@ -3176,8 +3190,11 @@ const SCRIPT_WAVES = {
        // the gas. noHold: she does not keep the wave going.
        // v178 (Silvio): slow out of the portal (warpT, seconds), not pushed
        // aside by anything, and her guns on the Hatshepsut (beamFocus).
+       // v179: out of the middle of the portal, firing once a third of her
+       // is through; her main beams hold on three times as long, and she
+       // stays put over the Hatshepsut until she is gone - no script.
        {id:'S1', c:'sd', n:1, spr:'sdsathanas', invuln:true, viaPortal:true, crossLeft:0.25,
-        y:190, wait:true, warpT:9, beamFocus:'A1'}
+        wait:true, warpT:9, beamFocus:'A1', crossAfter:'A1', portalMid:true}
      ], ev:[
        {t:'sek', a:2,  w:'meldung', a2:'a second knossos portal - shivan ships guard it'},
        {t:'sek', a:5,  w:'nachschub', a2:'an'},
@@ -3188,9 +3205,9 @@ const SCRIPT_WAVES = {
        // Then the Sathanas (d: seconds after the trigger).
        {t:'vernichtet', a:'K1+K2+K3+V1', w:'einwarpen', a2:'S1', d:3},
        {t:'vernichtet', a:'K1+K2+K3+V1', w:'meldung', a2:'something huge is coming through the portal', d:3},
-       {t:'vernichtet', a:'K1+K2+K3+V1', w:'zerstoeren', a2:'A1', d:20},
-       {t:'vernichtet', a:'K1+K2+K3+V1', w:'meldung', a2:'a sathanas - the hatshepsut is lost', d:21},
-       {t:'vernichtet', a:'K1+K2+K3+V1', w:'abzug', a2:'', d:22}
+       {t:'vernichtet', a:'A1', w:'meldung', a2:'a sathanas - the hatshepsut is lost'},
+       {t:'vernichtet', a:'A1', w:'nachschub', a2:'aus'},
+       {t:'vernichtet', a:'A1', w:'abzug', a2:''}
      ]},
 
   78:{name:'Beyond the Gate', fac:'shivan', o:'clear', live:5, scene:'beyond2',
@@ -3862,7 +3879,7 @@ function scriptUnit(u, fac, q){
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
          gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
          noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus,
-         ghost:u.ghost});
+         ghost:u.ghost, crossAfter:u.crossAfter, portalMid:u.portalMid});
     return;
   }
   if(u.c==='ic'){

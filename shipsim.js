@@ -64,7 +64,7 @@ const names = [
   'hangarOrder','insidePanel','cycleAt','enterCycle','cycleTabs','facShips','shipIsOpen',
   'hangarTabOpen','callTabOpen','pickTab','nextTab','drawFleetTabs','allyFacOn','titleFsHit','forceShip','releaseShip',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint',
-  'TH','thLabel','thValue','thBevel','thGlow','thPanel','thButton','thDivider','drawSwapIcon','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
+  'TH','thLabel','thValue','thBevel','thGlow','thPanel','thButton','btnState','btnText','thDivider','drawSwapIcon','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
 const mouseHandler = src.slice(src.indexOf('function', downStart), blockEnd(src, src.indexOf('function', downStart)));

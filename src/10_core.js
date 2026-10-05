@@ -191,8 +191,27 @@ function uiCell(x, y, w, h, o){
 function uiDialog(x, y, w, h){
   thFrame(x, y, w, h, 0);
 }
+// ── ONE RULE FOR EVERY CONTROL (v179, Silvio) ──────────────
+// Every button, tab and row says the same four things the same way:
+//   'off'   cannot be used now: the dark plate, dim text, no hover
+//   null    can be used: the normal plate and text
+//   'ready' the pointer is on it: half the ring
+//   'on'    it is the active one (open panel, chosen tab): the full ring
+// btnState() turns availability, activity and hover into that state, and
+// btnText() gives the text or icon colour that goes with it.
+function btnState(avail, active, hover){
+  if(!avail) return 'off';
+  if(active) return 'on';
+  return hover ? 'ready' : null;
+}
+function btnText(state){
+  if(state==='off')   return TH('textDim');
+  if(state==='on')    return TH('accentWarm');
+  if(state==='ready') return TH('textBright');
+  return TH('text');
+}
 function thButton(x, y, w, h, state){
-  thPlate(x, y, w, h, TH('raised'), 4);
+  thPlate(x, y, w, h, state==='off' ? TH('back') : TH('raised'), 4);
   if(state==='on')           thGlowPath(x, y, w, h, 4, 1);
   else if(state==='ready')   thGlowPath(x, y, w, h, 4, 0.5);
 }

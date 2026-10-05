@@ -2239,6 +2239,9 @@ scenario('v176: M75 a missed jump costs points, not lives', 'm=75', `
   FS.step(20); for(let i=0;i<3000 && inJump();i++) FS.step(1);
   FS.step(200);
   r.timer = missionTimerLeft() > 0 && /LUCIFER/.test(missionTimer.label);
+  // Only the clock is tested here: the allied flights are taken out of it,
+  // or they may finish her before time runs out.
+  allies.length = 0; EV_REPL = {};
   const l = FS.ids('L1')[0];
   // One reactor down before time runs out.
   const rr = l.reactors.find(x=>!x.dead); const p = reactorPos(l, rr);
@@ -2312,7 +2315,7 @@ scenario('v177: M77 the Sathanas comes through and takes the Hatshepsut', 'm=77'
   const s = FS.ids('S1')[0];
   r.sathanas = !!s && s.img==='sdsathanas' && s.invuln;
   r.throughPortal = !!s && s.portalWarp === true;
-  FS.until(()=>FS.ids('A1').length===0, 3000, true, false);
+  FS.until(()=>FS.ids('A1').length===0, 8000, true, false);   // her beams do it since v179
   r.hatshepsutGone = FS.ids('A1').length===0;
   r.noFailCard = !cards.some(c=>/LOST/.test(c) && c!=='');
   r.notOverWhileSheIsHere = !waveOver;
@@ -2427,7 +2430,9 @@ scenario('v178: M77 a slow, large Sathanas with her guns on the Hatshepsut', 'm=
   // A cruiser of ours alongside: she still goes for the Hatshepsut.
   FS.until(()=>!(s.warp>0), 2000, false, false);
   const k = {}; let onH = 0, onOther = 0;
-  for(let i=0;i<600;i++){ FS.step(1); for(const b of s.beams) if(b.large && b.state==='firing'){ if(b.tgt===a) onH++; else onOther++; } }
+  // Long enough for a full cycle: since v179 the first shot comes during the
+  // jump, then the beams cool down.
+  for(let i=0;i<2500 && !a.dead;i++){ FS.step(1); for(const b of s.beams) if(b.large && b.state==='firing' && !(b.tgt && b.tgt.dead)){ if(b.tgt===a) onH++; else onOther++; } }
   r.focus = onH > 0 && onOther === 0;
   // Nothing shoves her off her line.
   const y0 = s.y; FS.step(300); r.steady = Math.abs(s.y - y0) < 2;
@@ -2465,6 +2470,60 @@ scenario('v178: M80 in the nebula, transports repairing', 'm=80', `
   FS.until(()=>FS.ids('T1').some(t=>t.holdT!=null), 20000, true, false);
   r.repairing = SUB_MSGS.some(m=>m.txt==='REPAIRING');
   r.noBoarding = !SUB_MSGS.some(m=>m.txt==='BOARDING');
+  return r;`);
+
+scenario('v179: M77 the Sathanas out of the middle, firing on her way out, no script', 'm=77', `
+  const r = {};
+  FS.step(100);
+  for(let t=0;t<20000 && !EV_SEEN['S1'];t+=20){ FS.step(20);
+    if(t%200===0) for(const e of enemies){ if(e.warp>0||e.invuln||e.scenery) continue; e.hp = 0; } }
+  FS.step(2);
+  const s = FS.ids('S1')[0], a = FS.ids('A1')[0], p = FS.ids('P1')[0];
+  r.middle = !!s && !!p && Math.abs(s.warpY - p.y) < 3;
+  r.noScript = !SCRIPT_WAVES[77].ev.some(e=>e.w==='zerstoeren');
+  r.longBeams = s.beams.filter(b=>b.large).every(b=>b.fireT >= 300);
+  let firedInWarp = false;
+  for(let i=0;i<1000 && s.warp>0;i++){ FS.step(1); if(s.beams.some(b=>b.large && b.state==='firing')) firedInWarp = true; }
+  r.firesBeforeOut = firedInWarp;
+  // She stays over the Hatshepsut until she is gone.
+  const x0 = s.x; let held = true;
+  for(let i=0;i<6000 && FS.ids('A1').length;i+=20){ FS.step(20); if(FS.ids('A1').length && Math.abs(s.x - x0) > 3) held = false;
+    if(i%300===0) for(const e of enemies) if((e.type==='fighter'||e.type==='bomber') && !(e.warp>0)) e.hp = 0; }
+  r.heldOver = held;
+  r.beamsKilledHer = FS.ids('A1').length===0;
+  FS.step(200);
+  r.thenDrivesOn = s.x < x0 - 10;
+  r.ends = FS.until(()=>waveOver, 12000, true, true) >= 0;
+  return r;`);
+
+scenario('v179: one rule for every control', '', `
+  const r = {};
+  r.off = btnState(false, true, true) === 'off';
+  r.active = btnState(true, true, false) === 'on';
+  r.hover = btnState(true, false, true) === 'ready';
+  r.idle = btnState(true, false, false) === null;
+  r.dimWhenOff = btnText('off') === TH('textDim');
+  // The off plate is the same dark plate a locked tab gets.
+  const calls = []; const _p = thPlate;
+  thPlate = function(x,y,w,h,fill){ calls.push(fill); return _p.apply(this, arguments); };
+  thButton(0,0,10,10,'off'); uiCell(0,0,10,10,{state:'off'});
+  thPlate = _p;
+  r.sameDarkPlate = calls.length===2 && calls[0]===calls[1];
+  return r;`, true);
+
+scenario('v179: strafing runs on a large hull, guns in a stream', 'm=73', `
+  const r = {};
+  FS.step(300);
+  const ws = allies.filter(a=>a.small);
+  r.haveCraft = ws.length > 0;
+  let attack = 0, n = 0;
+  for(let i=0;i<600;i++){ FS.step(1); for(const a of ws){ const t = smallTarget(a); if(bigTarget(t)){ n++; if(a.role==='attack') attack++; } } }
+  r.alwaysRuns = n > 0 && attack === n;
+  // Nose on the hull: it fires again well within its old beat.
+  const k = {type:'cruiser', img:'crcain', x:500, y:250, sc:1, ang:0, side:'enemy'};
+  const f = ws[0]; f.x = 300; f.y = 250; f.head = 0; f.fT = 0;
+  smallFire(f, k);
+  r.streamBeat = f.fT <= Math.round(f.fR*HULL_BURST) + 1;
   return r;`);
 
 scenario('HoL start unchanged', 'm=1', `

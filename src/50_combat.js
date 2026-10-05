@@ -1153,12 +1153,37 @@ function wingSlot(e){
   }
   return k;
 }
+// ── STRAFING RUNS ON LARGE SHIPS (v179, Silvio) ──────────────
+// Against a large hull a fighter or bomber no longer holds station and
+// circles it, firing a single shot each time its nose swings past. It
+// flies runs: in at a point on the hull picked for the run, guns going the
+// whole way in, then on over and past it, a turn well clear, and the next
+// run at another point. The guns fire in a stream (bigTarget in smallFire).
+const BIG_RUN_U = 0.36;          // the run aims along the hull, +- this share of its length
+const BIG_BREAK = 30;            // this close to the aim point the run is delivered
+const BIG_PASS_FI = 55, BIG_PASS_BO = 80;   // steps straight on after a run
+const BIG_TURN_WIDE = 0.55;      // share of its turn rate used coming round
+// Clear of a hull: half its length and a margin, from its centre.
+function bigClear(t){ const img = IMGS[t.img]; return (img ? img.width*t.sc*0.5 : 60) + 90; }
+function bigTarget(t){
+  return !!t && t!==player && !t.pseudo && !isSmallShip(t) && t.type!=='asteroid' && !!IMGS[t.img];
+}
+function runPoint(e, t){
+  const img = IMGS[t.img], L = img.width*t.sc, a = t.ang || 0;
+  const u = e.runU * L;
+  return {x: t.x + Math.cos(a)*u, y: t.y + Math.sin(a)*u};
+}
 function flySmall(e){
   const t=smallTarget(e);
-  const dx=t.x-e.x, dy=t.y-e.y;
+  const big = bigTarget(t) && !ramsOnContact(e);
+  if(big && e.role!=='attack'){ e.role='attack'; e.passT=0; e.runU=null; }
+  if(big && e.runU==null) e.runU = (Math.random()*2-1)*BIG_RUN_U;
+  const rp = big ? runPoint(e, t) : t;
+  const dx=rp.x-e.x, dy=rp.y-e.y;
   const d=Math.sqrt(dx*dx+dy*dy)||0.001;
   let wx, wy;                       // where it wants to go, unnormalised
   let want = FLY_CRUISE;            // speed it wants, against its full speed
+  let turnMul = 1;                  // below 1: a wider turn than it could fly
   // Evasion: hit, it throws itself sideways for a moment.
   if(e.jinkReq){
     e.jinkReq=false;
@@ -1190,10 +1215,30 @@ function flySmall(e){
     if(e.passT>0){
       // Flying through after a run. Braking on top of the target is what
       // made everything cluster, so it keeps going and comes back around.
-      e.passT--;
+      // Past a large hull it keeps going until it is well clear of it, so
+      // the turn back happens out in the open, not over the ship.
+      if(!(big && e.passT===1 && Math.hypot(t.x-e.x, t.y-e.y) < bigClear(t))) e.passT--;
       wx=Math.cos(e.head); wy=Math.sin(e.head);
       want=FLY_PASS;
-      if(e.passT===0){ e.role='stand'; e.runOff=0; }
+      if(e.passT===0){ e.role = big ? 'attack' : 'stand'; e.runOff=0; e.runU=null; e.comeRound = big; }
+    } else if(big){
+      // A run at a large hull: straight at the point, through, and on.
+      // Coming round for it, the turn is a wide one.
+      if(e.comeRound){
+        let ang = Math.atan2(dy, dx) - e.head;
+        while(ang> Math.PI) ang-=Math.PI*2;
+        while(ang<-Math.PI) ang+=Math.PI*2;
+        if(Math.abs(ang) < 0.35) e.comeRound = false;
+        else turnMul = BIG_TURN_WIDE;
+      }
+      if(d < BIG_BREAK){
+        e.passT = (e.type==='fighter') ? BIG_PASS_FI : BIG_PASS_BO;
+        wx=Math.cos(e.head); wy=Math.sin(e.head);
+        want=FLY_PASS;
+      } else {
+        wx=dx/d; wy=dy/d;
+        want=1;
+      }
     } else if(d<ATTACK_BREAK && !ramsOnContact(e)){
       // Ein Rammkurs bricht nicht ab. Der Durchflug ist richtig fuer einen
       // Bomber, der seine Last los ist, und falsch fuer einen, dessen
@@ -1269,7 +1314,8 @@ function flySmall(e){
     while(df> Math.PI) df-=Math.PI*2;
     while(df<-Math.PI) df+=Math.PI*2;
   }
-  const tw=Math.max(-e.turn,Math.min(e.turn,df));
+  const tr=e.turn*turnMul;
+  const tw=Math.max(-tr,Math.min(tr,df));
   e.tv=(e.tv||0);
   e.tv+=Math.max(-e.turn*FLY_TURN_ACC,Math.min(e.turn*FLY_TURN_ACC,tw-e.tv));
   e.head+=e.tv;
@@ -1327,6 +1373,7 @@ function noseOnHull(e, t, range){
   return s > 0 && s <= range;
 }
 const HULL_AIM_LEN = 0.45, HULL_AIM_WID = 0.38;   // share of the sprite's width / height
+const HULL_BURST = 1/3;          // gun beat and damage per shot on a hull (v179)
 
 // Guns only bear within a cone ahead, and the further out the target sits
 // the wider the shot scatters. Against a large hull it is enough that the
@@ -1338,6 +1385,9 @@ function smallFire(e, t){
   const d=Math.hypot(t.x-e.x, t.y-e.y);
   if(d>fireRange()){ e.fT=12; return; }
   const onHull = noseOnHull(e, t, fireRange());
+  // On a large hull the guns fire a stream: three times as often, a third
+  // of the damage each, the same weight of fire as before (v179).
+  const rk = onHull ? HULL_BURST : 1;
   const aim = onHull ? e.head : leadAngle(e.x, e.y, t, EBULLET_SPD);
   if(!onHull){
     let off=aim-e.head;
@@ -1365,17 +1415,17 @@ function smallFire(e, t){
   const pts=entMounts(e,'primary');
   // Hulls with a loadout fire its guns, each mount on its own beat.
   const lo=aiLoadout(e);
-  if(lo && pts && pts.length){ e.fT=aiGunVolley(e, t, lo, pts, spread, onHull ? e.head : null); return; }
+  if(lo && pts && pts.length){ e.fT=aiGunVolley(e, t, lo, pts, spread, onHull ? e.head : null, rk); return; }
   if(pts&&pts.length){
-    const dpb=eVolleyDmg(pts.length);
+    const dpb=eVolleyDmg(pts.length)*rk;
     for(const p of pts) shot(p.x,p.y, aim+(Math.random()*2-1)*spread, dpb);
   } else {
-    const dpb=eVolleyDmg(e.type==='bomber'?2:1);
+    const dpb=eVolleyDmg(e.type==='bomber'?2:1)*rk;
     shot(e.x,e.y, aim+(Math.random()*2-1)*spread, dpb);
     if(e.type==='bomber') shot(e.x,e.y, aim+(Math.random()*2-1)*spread, dpb);
   }
   sndAiShot(e.x, e.y);
-  e.fT=e.fR;
+  e.fT=Math.max(6, Math.round(e.fR*rk));
 }
 
 // ── TARGETING ────────────────────────────────────────────────
@@ -1836,6 +1886,7 @@ const LUCI_SHIELD = 6000;
 // of the fight was weaker than the first. Now the reverse.
 const LUCI_BEAM_UNSHIELDED = 2.6;
 const LUCI_FIRE_MUL = 3;          // her beams fire 3x as long (v175)
+const SATH_HULL = 'sdsathanas';
 // The Sathanas' arm beams are her main armament and were rated no higher
 // than an ordinary heavy turret.
 const SATH_ARM_MULT = 2.0;
@@ -2787,7 +2838,9 @@ function initBeams(e){
       type: (e.faction==='shivan') ? 'static' : d.type,
       // The Lucifer holds her beams on far longer (Silvio, v175): at 1.2 s
       // a burst every capital ship outlasted her.
-      fireT: (e.img===LUCI_HULL) ? Math.round((d.fireT||120)*LUCI_FIRE_MUL) : d.fireT,
+      // The Sathanas' main beams the same (Silvio, v179).
+      fireT: (e.img===LUCI_HULL || (e.img===SATH_HULL && d.large))
+             ? Math.round((d.fireT||120)*LUCI_FIRE_MUL) : d.fireT,
       chargeT: Math.round((d.chargeT||400) * (af?AF_CHARGE_MUL:1)),
       coolT:   Math.round((d.coolT||400)   * (af?AF_COOL_MUL:1)),
       state:'idle',
@@ -2806,16 +2859,25 @@ function mountPos(e, beam) {
   const s = e.flip ? -1 : 1;   // drawn mirrored, so flip dx
   const px = (pw/2)*beam.dx*s, py = (ph/2)*beam.dy;
   const a = e.ang || 0;
-  if(!a) return {x: e.x + px, y: e.y + py};
+  // Still coming out of her vortex: the guns are where the picture is
+  // (a ship firing on her way out of the portal, M77 v179).
+  let ox = 0, oy = 0;
+  if(e.warp>0 && typeof fsWarp==='function'){ const g = fsWarp(e); if(g){ ox = g.dx||0; oy = g.dy||0; } }
+  if(!a) return {x: e.x + ox + px, y: e.y + oy + py};
   const ca = Math.cos(a), sa = Math.sin(a);
   return {
-    x: e.x + px*ca - py*sa,
-    y: e.y + px*sa + py*ca
+    x: e.x + ox + px*ca - py*sa,
+    y: e.y + oy + px*sa + py*ca
   };
 }
 
+// fireInWarp: once a third of her is out of the vortex she opens fire
+// (the Sathanas in 77, v179) instead of first driving well into the field.
+function warpFiring(e){
+  return e.fireInWarp && e.warp>0 && (e.warpMax - e.warp) > e.warpMax*0.2;
+}
 function updateBeams(e) {
-  if(!e.beams||e.warp>0) return;
+  if(!e.beams || (e.warp>0 && !warpFiring(e))) return;
   if(!subOK(e,'weapons')){
     // Returning here left a beam that happened to be firing stuck in that
     // state forever, harmless but drawn across the screen until the ship
