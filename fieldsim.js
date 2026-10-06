@@ -169,8 +169,9 @@ scenario('M33 Die Relaisstation', 'm=33', `
   r.reinforced = enemies.some(e=>e.type==='fighter' && !e.uid) || spawnQ.some(q=>!q.uid && /^fi_/.test(q.type));
   const before = SHOCKS.length;
   // Since v170 the big wave follows a short fuse.
-  FS.killId('S1'); FS.step(3 + BIG_BLAST_FUSE);
-  r.bigBlast = SHOCKS.some(k=>k.rMax===300);
+  // Since v183 she dies the long way first.
+  FS.killId('S1');
+  r.bigBlast = FS.until(()=>SHOCKS.some(k=>k.rMax===300), 1500, false) >= 0;
   FS.killSmall(); FS.step(1200); FS.killSmall(); FS.step(600);
   r.reinfOff = evReinf===false;
   return r;`);
@@ -370,7 +371,7 @@ scenario('M38 Elysium lost: she can die', 'm=38', `
   FS.step(30);
   const freed = d.captureLock===false;
   const failCard = !!objCard && objCard.tone==='fail' && objCard.txt==='ELYSIUM LOST';
-  d.hp = 0; FS.step(300);
+  d.hp = 0; FS.step(300 + deathRollLen(d));     // v183: the long way
   return {freed: freed, failCard: failCard, thenDestroyable: !enemies.includes(d) && !EV_LEFT['D1']};`);
 
 scenario('M38 left alone she jumps at the edge', 'm=38', `
@@ -463,8 +464,10 @@ scenario('M42 she withdraws: failed', 'm=42', `
 scenario('M33 says what to do', 'm=33', `
   FS.step(300);
   const ok1 = missionObj==='DESTROY THE FAUSTUS RELAY';
-  const s1 = enemies.find(e=>e.uid==='S1'); s1.hp = 0; FS.step(5);
-  return {saysWhatToDo: ok1, completeCard: !!objCard && objCard.head==='OBJECTIVE COMPLETE' && objCard.txt==='RELAY DESTROYED'};`);
+  const s1 = enemies.find(e=>e.uid==='S1'); s1.hp = 0;
+  // v183: the card comes when she has broken up
+  const t = FS.until(()=>!!objCard && objCard.head==='OBJECTIVE COMPLETE' && objCard.txt==='RELAY DESTROYED', 1000, false);
+  return {saysWhatToDo: ok1, completeCard: t >= 0};`);
 
 scenario('Automatic objectives: card, then the line', 'm=35', `
   // M35 states no objective of its own; PROTECT THE ... comes from the field.
@@ -765,7 +768,7 @@ scenario('M53 Der Gegenangriff', 'm=53', `
   FS.step(400);
   r.notDoneWithOne = !(objCard && objCard.txt==='COUNTERATTACK BROKEN');
   // One of ours lost: now the call is free.
-  a2.hp = 0; FS.step(300);
+  a2.hp = 0; FS.step(300 + deathRollLen(a2));   // v183: the long way
   r.callFreeAfterALoss = allyReady();
   const v2 = enemies.find(e=>e.uid==='V2'); if(v2) v2.hp = 0;
   r.completeCard = FS.until(()=>!!objCard && objCard.txt==='COUNTERATTACK BROKEN', 3000, false) >= 0;
@@ -1725,7 +1728,7 @@ scenario('v163: M61 The Reconnaissance', 'm=61', `
   // The end: the Aeolus goes down, the Shivans jump out, the wave ends.
   const s0 = score;
   const aa = FS.ids('A1')[0]; if(aa) aa.hp = 0;
-  FS.step(40);
+  FS.step(40 + (aa ? deathRollLen(aa) : 0));      // v183: the long way
   r.penalty = score <= s0 - 900 + 400;     // 900 off, give or take a kill
   r.withdraw = enemies.filter(e => !e.scenery && !e.invuln).every(e => e.warpOut > 0 || e.dead);
   const t = FS.until(()=>waveOver, 2000, false, false);
@@ -2266,7 +2269,7 @@ scenario('v176: M75 a missed jump costs points, not lives', 'm=75', `
   // Then she is finished off and the wave ends.
   for(const x of l.reactors){ if(x.dead) continue; const q = reactorPos(l, x); damageEnemy(l, 99999, q.x, q.y, true, 'bolt'); }
   if(!l.dead && l.hp<=0) killEnemy(l, null, true, false);
-  FS.step(50);
+  FS.step(50 + deathRollLen(l));                  // v183: the long way
   r.timerStopped = missionTimerLeft() < 0;
   r.ends = FS.until(()=>waveOver, 8000, true, true) >= 0;
   return r;`);
@@ -2629,6 +2632,60 @@ scenario('v182: tears, not holes; what comes out flies free in space', 'm=62', `
   let got = null;
   for(let i=0;i<400 && !got;i++){ k.dm.lx = k.x - 1.5; k.dm.ly = k.y; dmgEmit(k); got = PARTS.find(p=>p.free); }
   r.inherits = !!got && got.vx > 0.5;
+  return r;`);
+scenario('v183: a capital ship dies the long way and breaks up', 'm=62', `
+  const r = {};
+  FS.step(600);
+  const k = enemies.find(e=>e.type==='cruiser' && !(e.warp>0));
+  k.noFlee = true;
+  const img = IMGS[k.img], hw = img.width*k.sc/2;
+  damageEnemy(k, k.maxHp*2, k.x - hw*0.5, k.y, true, 'bolt');
+  r.rolling = k.rollT != null && enemies.indexOf(k) >= 0 && !k.dead;
+  r.silent = !!k.noFire && !!k.noTarget;
+  r.stillCounts = liveThreatCount() >= 1;
+  const len = k.rollLen;
+  r.lengthBySize = len === deathRollLen(k) && len >= 200;
+  FS.step(len - 20);
+  r.notYet = enemies.indexOf(k) >= 0;
+  HULKS.length = 0;
+  FS.step(40);
+  r.gone = enemies.indexOf(k) < 0 && k.dead;
+  r.sections = HULKS.length >= 2;
+  // the sections keep her velocity and the push, nothing slows them
+  const h0 = HULKS[0], vx0 = h0 && h0.vx;
+  tickHulks();
+  r.freeFlight = !h0 || HULKS.indexOf(h0) < 0 || h0.vx === vx0;
+  return r;`);
+scenario('v183: islands come apart; wreckage keeps breaking up', 'm=62', `
+  const r = {};
+  // two blocks of metal with empty space between them, cut as one piece
+  const c = document.createElement('canvas'); c.width = 100; c.height = 40;
+  const g = c.getContext('2d'); g.fillStyle = '#888'; g.fillRect(0, 0, 40, 40); g.fillRect(60, 0, 40, 40);
+  const P = hulkPieces(c, 100, 40, 1, [{x:-2,y:-2},{x:102,y:-2},{x:102,y:42},{x:-2,y:42}], []);
+  r.twoIslands = P.length === 2;
+  // wreckage with its fuse burnt down comes apart or goes in its blast
+  debris.length = 0;
+  const pc = hulkPieces(c, 100, 40, 1, [{x:-2,y:-2},{x:42,y:-2},{x:42,y:42},{x:-2,y:42}], [])[0];
+  wreckFrom(pc, 300, 250, 0, false, 0.1, 0, 0, 1);
+  r.wreck = debris.length === 1 && !!debris[0].fuse && !!debris[0].inert;
+  debris[0].fuse = fc;
+  const pb = PARTS.length;
+  updateDebris();
+  r.split = debris.length === 2 && debris.every(d=>d.fuse > fc);
+  // and it ends: every piece in a last blast, nothing just fades
+  for(let i=0;i<4000 && debris.length;i++){ fc++; updateDebris(); }
+  r.endsInBlasts = debris.length === 0;
+  return r;`);
+scenario('v183: our capital ships die the same way', 'm=80', `
+  const r = {};
+  FS.step(30);
+  const a = FS.ids('A1')[0];
+  a.keepAlive = false; a.hp = 0;
+  FS.step(2);
+  r.rolling = a.rollT != null && allies.indexOf(a) >= 0;
+  FS.step(deathRollLen(a) + 10);
+  r.gone = allies.indexOf(a) < 0;
+  r.sections = HULKS.length >= 2;
   return r;`);
 scenario('v180: M78 the devices are scanned first, the Sathanas never fire', 'm=78', `
   const r = {};

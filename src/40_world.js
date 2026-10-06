@@ -405,10 +405,8 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   dmgHit(e, hx, hy, _hd);          // what it leaves on the hull (v180)
   // A ship that is to be taken does not start to break up: the lock
   // below holds her hull instead.
-  if(e.hp <= 0 && !e.dead && !e.captureLock && !e.keepAlive &&
-     (e.type==='destroyer'||e.type==='boss'||e.type==='station')){
-    // Sie stirbt nicht sofort: erst die Sekundaerexplosionen.
-    e.hp = 1; e.rollT = DEATH_ROLL; e.noFire = true;
+  if(e.hp <= 0 && !e.dead && !e.captureLock && !e.keepAlive && startDeathRoll(e)){
+    // Sie stirbt nicht sofort: erst der Todeskampf (v183, alle grossen Schiffe).
     return;
   }
   // Der Riegel. Greift nur, solange der Auftrag noch offen ist - sobald
@@ -2006,6 +2004,9 @@ function updateAllies(){
     }
     // Held above a sliver while the mission needs her (noKill, v169).
     if(a.keepAlive && a.hp < a.maxHp*0.05) a.hp = a.maxHp*0.05;
+    // In her death roll: adrift, nothing else (v183).
+    if(a.rollT!=null){ a.hp = 1; continue; }
+    if(a.hp<=0 && !a.dead && startDeathRoll(a)) continue;
     if(a.hp<=0 && !a.dead){
       a.dead = true;
       triggerExpl(a.x, a.y, a.type, a.faction==='vasudan' ? 'vasudan' : 'terran', a);
@@ -2182,6 +2183,8 @@ function fleeingEnemy(){
 function reapEnemies(){
   for(let i=enemies.length-1;i>=0;i--){
     const e = enemies[i];
+    if(e.rollT!=null) continue;
+    if(e.hp<=0 && !e.dead && !e.rolled && startDeathRoll(e)) continue;
     if(e.hp<=0 && !e.dead){
       e.dead = true; score += e.pts; statKill(e.type); plogKill(e);
       maybeDropTicket(e);
@@ -2308,7 +2311,7 @@ function nebulaOn(){ return waveMod==='nebula' || waveMod==='emp'; }
 function fireRange(){ return nebulaOn() ? 240 : EFIRE_RANGE; }
 
 let debris = [];
-const DEBRIS_MAX = 44;
+const DEBRIS_MAX = 90;           // broken capital ships leave a lot (v183)
 const DEBRIS_HP  = 70;                      // metal, not stone
 const DEB_PCT_MIN = 0.025, DEB_PCT_MAX = 0.08;
 const DEB_SMALL_PX = 30;                    // below this a piece stops splitting

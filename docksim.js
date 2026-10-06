@@ -51,6 +51,8 @@ function statKill(){} function maybeDropTicket(){}
 // The practice log is not what is tested here.
 function plogKill(){} function plogRearm(){} function plogSec(){} function plogHit(){} function plogPick(){} function plogSrc(){} function plogLoss(){} function plogEvent(){} function plogName(){ return ''; } function plogAllyLost(){} function plogDeath(){} function plogSync(){}
 function triggerExpl(){ expl++; }
+// The long death of a capital ship (v183) is not what is tested here: they go at once.
+function startDeathRoll(){ return false; }
 ${NAMES.map(fn).join('\n')}
 ${constObj('SCRIPT_WAVES')}
 `;

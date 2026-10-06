@@ -1534,7 +1534,10 @@ function dmgGashSite(e, D){
 function dmgTick(e, D){
   const f = Math.max(0, Math.min(1, e.hp/e.maxHp));
   // lights
-  const want = Math.round(D.inf.zones.length * Math.max(0, Math.min(1, (DMG_LIGHTS_FROM-f)/0.6)) * 0.85);
+  // dying, every light goes at once
+  const want = e.rollT != null ? D.inf.zones.length
+             : Math.round(D.inf.zones.length * Math.max(0, Math.min(1, (DMG_LIGHTS_FROM-f)/0.6)) * 0.85);
+  if(e.rollT != null && D.dead < want){ D.dead = want; D.dying.length = 0; D.dirty = true; }
   if(D.quiet && want > D.dead){ D.dead = want; D.dirty = true; }
   if(want > D.dead && !D.dying.length){ D.dying.push({i:D.dead, until:fc+45}); D.dead++; }
   if(want < D.dead){ D.dead = want; D.dirty = true; }
@@ -1885,6 +1888,7 @@ function dmgEmit(e){
   let svx = (D.lx==null) ? 0 : e.x - D.lx, svy = (D.ly==null) ? 0 : e.y - D.ly;
   D.lx = e.x; D.ly = e.y;
   if(Math.abs(svx) > 30 || Math.abs(svy) > 30){ svx = 0; svy = 0; }   // a jump, not flight
+  D.svx = svx; D.svy = svy;        // what a death roll starts from (v183)
   if(e.dead || e.warp > 0 || e.warpOut > 0 || !IMGS[e.img]) return;
   if(!D.gashes.length && !D.craters.length) return;
   const f = Math.max(0, e.hp/e.maxHp), t = fc/TICK_HZ;
@@ -1969,9 +1973,366 @@ function dmgDrawPart(p, a){
   }
   ctx.globalAlpha = 1;
 }
+// ── DEATH OF A CAPITAL SHIP (v183, Silvio) ─────────────────────
+// A capital ship no longer vanishes from one frame to the next:
+//   death roll  her lights all go, her engines die, a chain of explosions
+//               runs over her hull, faster and heavier, new tears open and
+//               vent. She is out of control: she keeps the velocity she
+//               had and turns ever so slightly. Two to six seconds by size.
+//   breakup     the main blast breaks her along jagged fracture lines
+//               into large sections of her own picture. Each keeps her
+//               velocity, takes the push of the blast and her spin, and
+//               drifts off turning; the broken edges glow and cool.
+//   afterwards  the sections break up further in later explosions, down
+//               to small wreckage. Nothing fades: a piece is gone when it
+//               has flown off the field or blown apart.
+// Only then does she count as destroyed: points, mission events, the end
+// of the wave all wait for the breakup (Silvio).
+// The sections are scenery: they do not ram and do not stop shots. The
+// small wreckage they end in is the usual debris and does both.
+const HULK_SPLIT_MIN = 46;        // a section smaller than this ends in a blast
+let HULKS = [];
+function deathRollLen(e){
+  if(e.type==='cruiser') return 240;
+  if(e.type==='corvette') return 330;
+  if(e.type==='boss') return 600;
+  if(e.type==='station') return 300;
+  return 460;                      // destroyers, and allies of their size
+}
+// Can this ship die the long way?
+function deathRollable(e){
+  // Caught in a jump (in or out) she goes at once, as before: the vortex
+  // has her, not the drift.
+  return !!e && !e.small && !e.rolled && dmgEligible(e) && !!IMGS[e.img] &&
+         !e.captureLock && !e.keepAlive && e.type!=='freighter' && e.type!=='transport' &&
+         !(e.warp > 0) && !(e.warpOut > 0);
+}
+function startDeathRoll(e){
+  if(e.rollT != null) return true;
+  if(!deathRollable(e)) return false;
+  const D = dmgState(e);
+  const len = deathRollLen(e);
+  e.rollT = len; e.rollLen = len;
+  e.hp = 1; e.noFire = true; e.noTarget = true;
+  // what she was doing when she died is what she keeps doing
+  e.rvx = D ? (D.svx||0) : 0; e.rvy = D ? (D.svy||0) : 0;
+  // only a slight turn: she is out of control, not tumbling (Silvio)
+  e.rspin = 0; e.rspinTo = (e.type==='station' ? 0 : (0.0002 + Math.random()*0.0003)) * (Math.random()<0.5 ? -1 : 1);
+  e.rNext = 0;
+  const img = IMGS[e.img];
+  addDanger(e.x, e.y, img.width*e.sc*0.6, len + 60);
+  return true;
+}
+// One tick of the roll, for enemies and allies alike. True when she is
+// done and has to go now.
+function deathRollTick(e){
+  if(e.rollT == null) return false;
+  const D = dmgState(e);
+  const img = IMGS[e.img], w = img.width*e.sc, h = img.height*e.sc;
+  const k = 1 - e.rollT/e.rollLen;           // 0 at the start, 1 at the breakup
+  // adrift: the last velocity, a turn building up
+  e.rspin += (e.rspinTo - e.rspin)*0.01;
+  e.x += e.rvx; e.y += e.rvy; e.ang = (e.ang||0) + e.rspin;
+  e.hp = 1; e.noFire = true;
+  // the chain of explosions: further apart at first, then one on another
+  if(fc >= e.rNext){
+    let u = 0, v = 0;
+    for(let t=0;t<8;t++){ u = Math.random()*1.7-0.85; v = Math.random()*1.3-0.65; if(!D || dmgSolid(D.inf, u, v, 0)) break; }
+    const p = dmgWorld(e, u, v);
+    const r = h*(0.10 + 0.18*k + 0.12*Math.random());
+    spawnFireball(p.x, p.y, r, 16 + (k*14|0));
+    spawnDebris(p.x, p.y, 4 + (k*6|0), 255,225,170, 220,120,50, false);
+    sndPlay('expl_secondary', p.x, 0.3 + 0.4*k, p.y);
+    if(k > 0.5) addShake(1 + 3*k, 6);
+    e.rNext = fc + Math.max(6, Math.round(TICK_HZ*(0.45 - 0.36*k)*(0.6 + 0.8*Math.random())));
+  }
+  // new tears, venting
+  if(D && fc % Math.round(TICK_HZ*0.55) === 0 && D.gashes.length < D.nGash + 4){
+    const g = dmgGashSite(e, D);
+    if(g){ g.thr = -1; g.vent = true; g.jetP = 2 + 2*Math.random(); D.gashes.push(g); D.dirty = true;
+      const p = dmgWorld(e, g.u, g.v); spawnFireball(p.x, p.y, Math.max(8, g.L*h*0.8), 16); }
+  }
+  if(--e.rollT > 0) return false;
+  e.rollT = null; e.rolled = true;
+  return true;
+}
+// A world point from a point in the ship's picture (game units from the
+// picture's centre).
+function hulkWorld(x0, y0, ang, flip, lx, ly){
+  const c = Math.cos(ang||0), s = Math.sin(ang||0), fx = flip ? -lx : lx;
+  return {x: x0 + fx*c - ly*s, y: y0 + fx*s + ly*c};
+}
+// A jagged line from one side of a box to the other, used as a fracture.
+function hulkCut(ax, ay, bx, by, jag, n){
+  const pts = [], dx = bx-ax, dy = by-ay, L = Math.hypot(dx, dy) || 1, nx = -dy/L, ny = dx/L;
+  let off = 0;
+  for(let i=0;i<=n;i++){
+    const t = i/n;
+    if(i>0 && i<n) off = off*0.5 + (Math.random()-0.5)*jag;
+    else off = 0;
+    pts.push({x: ax + dx*t + nx*off, y: ay + dy*t + ny*off});
+  }
+  return pts;
+}
+// Sections from a source picture: the part inside poly (in the source's own
+// game units, origin at its top left), with its broken edges glowing. What
+// is not joined by metal comes apart: every island of the cut-out is a
+// section of its own (Silvio, v183) - two parts with empty space between
+// them do not fly on as one.
+function hulkPieces(src, sw, sh, k, poly, cuts){
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for(const p of poly){ x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
+  x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0));
+  x1 = Math.min(sw, Math.ceil(x1)); y1 = Math.min(sh, Math.ceil(y1));
+  const bw = x1-x0, bh = y1-y0;
+  if(bw < 2 || bh < 2) return [];
+  const cw = Math.max(1, Math.round(bw*k)), ch = Math.max(1, Math.round(bh*k));
+  const can = document.createElement('canvas'); can.width = cw; can.height = ch;
+  const g = can.getContext('2d', {willReadFrequently:true});
+  g.setTransform(k, 0, 0, k, -x0*k, -y0*k);
+  g.save();
+  g.beginPath(); poly.forEach(function(p, i){ if(i) g.lineTo(p.x, p.y); else g.moveTo(p.x, p.y); }); g.closePath();
+  g.clip();
+  g.drawImage(src, 0, 0, src.width, src.height, 0, 0, sw, sh);
+  g.restore();
+  // the torn metal along the fracture: charred, and the glow on top of it
+  const unit = Math.max(0.35, 1/k);
+  g.globalCompositeOperation = 'source-atop';
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  for(const c of cuts){
+    g.strokeStyle = 'rgba(12,8,6,0.8)'; g.lineWidth = unit*4;
+    g.beginPath(); c.forEach(function(p, i){ if(i) g.lineTo(p.x, p.y); else g.moveTo(p.x, p.y); }); g.stroke();
+  }
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over';
+  const glow = document.createElement('canvas'); glow.width = cw; glow.height = ch;
+  const gg = glow.getContext('2d', {willReadFrequently:true});
+  gg.setTransform(k, 0, 0, k, -x0*k, -y0*k);
+  gg.lineCap = 'round'; gg.lineJoin = 'round';
+  // each stretch of the break its own heat: torn metal does not glow evenly
+  for(const c of cuts){
+    for(let i=1;i<c.length;i++){
+      const hot = 0.25 + 0.75*Math.pow(Math.random(), 1.5);
+      gg.beginPath(); gg.moveTo(c[i-1].x, c[i-1].y); gg.lineTo(c[i].x, c[i].y);
+      gg.strokeStyle = 'rgba(255,80,15,'+(0.45*hot).toFixed(3)+')'; gg.lineWidth = unit*(2.5 + 2.5*hot); gg.stroke();
+      gg.strokeStyle = 'rgba(255,190,110,'+(0.9*hot).toFixed(3)+')'; gg.lineWidth = unit*(0.8 + 0.8*hot); gg.stroke();
+    }
+  }
+  gg.setTransform(1, 0, 0, 1, 0, 0);
+  gg.globalCompositeOperation = 'destination-in';
+  gg.drawImage(can, 0, 0);
+  gg.globalCompositeOperation = 'source-over';
+  // the islands: joined pixels (diagonals count) of solid metal
+  const img = g.getImageData(0, 0, cw, ch), a = img.data;
+  const lab = new Int32Array(cw*ch), comps = [];
+  const stack = [];
+  for(let i=0;i<cw*ch;i++){
+    if(lab[i] || a[i*4+3] < 60) continue;
+    const id = comps.length + 1;
+    let n = 0, mx0 = 1e9, my0 = 1e9, mx1 = -1, my1 = -1;
+    stack.length = 0; stack.push(i); lab[i] = id;
+    while(stack.length){
+      const j = stack.pop(), x = j % cw, y = (j / cw)|0;
+      n++; if(x<mx0) mx0=x; if(x>mx1) mx1=x; if(y<my0) my0=y; if(y>my1) my1=y;
+      for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+        const xx = x+dx, yy = y+dy;
+        if(xx<0||yy<0||xx>=cw||yy>=ch) continue;
+        const q = yy*cw+xx;
+        if(!lab[q] && a[q*4+3] >= 60){ lab[q] = id; stack.push(q); }
+      }
+    }
+    comps.push({id:id, n:n, x0:mx0, y0:my0, x1:mx1, y1:my1});
+  }
+  const total = comps.reduce(function(s, c){ return s + c.n; }, 0);
+  // specks too small to see are not worth a section
+  const keep = comps.filter(function(c){ return c.n >= Math.max(10*k*k, total*0.003); });
+  const gd = gg.getImageData(0, 0, cw, ch).data;
+  const out = [];
+  for(const c of keep){
+    const pw = c.x1 - c.x0 + 1, ph = c.y1 - c.y0 + 1;
+    const pc = document.createElement('canvas'); pc.width = pw; pc.height = ph;
+    const pl = document.createElement('canvas'); pl.width = pw; pl.height = ph;
+    const id1 = pc.getContext('2d').createImageData(pw, ph), id2 = pl.getContext('2d').createImageData(pw, ph);
+    for(let y=0;y<ph;y++) for(let x=0;x<pw;x++){
+      const s = ((y+c.y0)*cw + (x+c.x0)), d = (y*pw + x)*4;
+      // a pixel of the edge next to the island goes with it, so its rim stays whole
+      if(lab[s] !== c.id && a[s*4+3] >= 60) continue;
+      for(let q=0;q<4;q++){ id1.data[d+q] = a[s*4+q]; id2.data[d+q] = gd[s*4+q]; }
+    }
+    pc.getContext('2d').putImageData(id1, 0, 0); pl.getContext('2d').putImageData(id2, 0, 0);
+    // in the source's game units
+    const gx0 = x0 + c.x0/k, gy0 = y0 + c.y0/k, gw = pw/k, gh = ph/k;
+    const cx = gx0 + gw/2, cy = gy0 + gh/2, edge = [];
+    for(const cu of cuts) for(const p of cu)
+      if(p.x>=gx0-1 && p.x<=gx0+gw+1 && p.y>=gy0-1 && p.y<=gy0+gh+1) edge.push({x: p.x-cx, y: p.y-cy});
+    out.push({can:pc, glow:pl, w:gw, h:gh, k:k, cx:cx, cy:cy, edge:edge});
+  }
+  return out;
+}
+// She breaks. Called from triggerExpl() for a ship that has rolled.
+function dmgBreakup(e){
+  const img = IMGS[e.img]; if(!img) return false;
+  const D = dmgState(e);
+  if(D){ D.dead = D.inf.zones.length; D.dying.length = 0; dmgBuild(e, D); }
+  const src = (D && D.can) ? D.can : img;
+  const w = img.width*e.sc, h = img.height*e.sc, k = D ? (D.k||dmgK(e)) : dmgK(e);
+  const n = e.type==='cruiser' ? 2 + (Math.random()<0.5 ? 1 : 0)
+          : e.type==='corvette' || e.type==='station' ? 3 + (Math.random()<0.5 ? 1 : 0)
+          : 4 + (Math.random()<0.6 ? 1 : 0);
+  // fractures across her length, preferring where she is torn already
+  const xs = [];
+  for(let i=1;i<n;i++){
+    let x = w*(i/n) + (Math.random()-0.5)*w*0.10;
+    if(D) for(const g of D.gashes){ const gx = (g.u*0.5+0.5)*w; if(Math.abs(gx - x) < w*0.08){ x = x*0.4 + gx*0.6; break; } }
+    xs.push(x);
+  }
+  xs.sort(function(a, b){ return a-b; });
+  const cuts = xs.map(function(x){
+    const slant = (Math.random()-0.5)*h*0.6;
+    return hulkCut(x - slant/2, -2, x + slant/2, h+2, h*0.16, 8);
+  });
+  const left = [{x:-2, y:-2}, {x:-2, y:h+2}], right = [{x:w+2, y:-2}, {x:w+2, y:h+2}];
+  const svx = e.rvx||0, svy = e.rvy||0, spin = e.rspin||0;
+  let made = 0;
+  for(let i=0;i<n;i++){
+    const L = i===0 ? left : cuts[i-1], R = i===n-1 ? right : cuts[i];
+    const poly = L.concat(R.slice().reverse());
+    const own = [];
+    if(i>0) own.push(cuts[i-1]); if(i<n-1) own.push(cuts[i]);
+    for(const pc of hulkPieces(src, w, h, k, poly, own)){
+      const at = hulkWorld(e.x, e.y, e.ang, e.flip, pc.cx - w/2, pc.cy - h/2);
+      // the blast pushes it away from her middle; heavier sections less
+      const dx = at.x - e.x, dy = at.y - e.y, dl = Math.hypot(dx, dy) || 1;
+      const mass = Math.min(1, Math.max(pc.w, pc.h)/300);
+      const push = (0.10 + 0.22*Math.random())*(1 - 0.5*mass);
+      pushHulk(pc, at.x, at.y, (e.ang||0), !!e.flip,
+               svx + dx/dl*push - dy*spin, svy + dy/dl*push + dx*spin + (Math.random()-0.5)*0.06,
+               spin + (Math.random()-0.5)*0.004*(1 - 0.6*mass), e.faction, 0);
+      made++;
+    }
+  }
+  return made > 0;
+}
+function pushHulk(pc, x, y, ang, flip, vx, vy, spin, fac, gen){
+  HULKS.push({can:pc.can, glow:pc.glow, w:pc.w, h:pc.h, k:pc.k, edge:pc.edge,
+              x:x, y:y, ang:ang, flip:flip, vx:vx, vy:vy, spin:spin, fac:fac, gen:gen,
+              heat:1, born:fc, next: fc + Math.round(TICK_HZ*(1.8 + Math.random()*3.5 + gen*0.8))});
+}
+// Break a piece (a section or a bit of wreckage) in two along a jagged line
+// across its longer side. Returns the new pieces with their world places and
+// the point where it went.
+function splitPiece(P){
+  const alongX = P.w >= P.h;
+  const t = 0.35 + Math.random()*0.3, jag = Math.min(P.h, P.w)*0.18;
+  const cut = alongX
+    ? hulkCut(P.w*t + (Math.random()-0.5)*P.h*0.4, -2, P.w*t + (Math.random()-0.5)*P.h*0.4, P.h+2, jag, 6)
+    : hulkCut(-2, P.h*t + (Math.random()-0.5)*P.w*0.4, P.w+2, P.h*t + (Math.random()-0.5)*P.w*0.4, jag, 6);
+  const A = alongX ? [{x:-2, y:-2}, {x:-2, y:P.h+2}] : [{x:-2, y:-2}, {x:P.w+2, y:-2}];
+  const B = alongX ? [{x:P.w+2, y:-2}, {x:P.w+2, y:P.h+2}] : [{x:-2, y:P.h+2}, {x:P.w+2, y:P.h+2}];
+  // what glows still glows on the halves: it is baked into them
+  const src = document.createElement('canvas'); src.width = P.can.width; src.height = P.can.height;
+  const sg = src.getContext('2d');
+  sg.drawImage(P.can, 0, 0);
+  if(P.glow && P.heat > 0){ sg.globalAlpha = P.heat; sg.globalCompositeOperation = 'lighter'; sg.drawImage(P.glow, 0, 0); }
+  const mid = cut[(cut.length/2)|0];
+  const blast = hulkWorld(P.x, P.y, P.ang, P.flip, mid.x - P.w/2, mid.y - P.h/2);
+  const parts = [];
+  for(const poly of [A.concat(cut.slice().reverse()), cut.concat(B.slice().reverse())])
+    for(const pc of hulkPieces(src, P.w, P.h, P.k, poly, [cut])){
+      pc.at = hulkWorld(P.x, P.y, P.ang, P.flip, pc.cx - P.w/2, pc.cy - P.h/2);
+      parts.push(pc);
+    }
+  return {parts:parts, blast:blast};
+}
+// A section breaks in two at a later explosion; a small one ends in wreckage.
+function hulkSplit(i){
+  const Hk = HULKS[i], big = Math.max(Hk.w, Hk.h);
+  const S = splitPiece(Hk);
+  spawnFireball(S.blast.x, S.blast.y, big*0.35 + 6, 20);
+  spawnDebris(S.blast.x, S.blast.y, 8, 255,220,170, 200,110,50, false);
+  sndPlay('expl_secondary', S.blast.x, 0.4, S.blast.y);
+  HULKS.splice(i, 1);
+  for(const pc of S.parts){
+    const dx = pc.at.x - S.blast.x, dy = pc.at.y - S.blast.y, dl = Math.hypot(dx, dy) || 1;
+    const push = 0.08 + 0.14*Math.random();
+    const vx = Hk.vx + dx/dl*push - (pc.at.y - Hk.y)*Hk.spin, vy = Hk.vy + dy/dl*push + (pc.at.x - Hk.x)*Hk.spin;
+    const spin = Hk.spin + (Math.random()-0.5)*0.006;
+    // small enough: it becomes wreckage that can be hit and that rams
+    if(Math.max(pc.w, pc.h) < HULK_SPLIT_MIN) wreckFrom(pc, pc.at.x, pc.at.y, Hk.ang, Hk.flip, vx, vy, spin*3, Hk.heat);
+    else pushHulk(pc, pc.at.x, pc.at.y, Hk.ang, Hk.flip, vx, vy, spin, Hk.fac, Hk.gen + 1);
+  }
+}
+// Wreckage from a broken ship: the usual debris, but cut from her own
+// picture, flying free, and with a fuse - it goes on breaking up in small
+// explosions until nothing is left (Silvio, v183).
+function wreckFrom(pc, x, y, ang, flip, vx, vy, spin, heat){
+  const c = pc.can;
+  pushDebris({key:null, can:c, glow:pc.glow, sc:1/pc.k, gen:1, sw:c.width, sh:c.height, sx:0, sy:0,
+    hp:DEBRIS_HP, maxHp:DEBRIS_HP, ang:ang, flip:flip, rotS:spin,
+    x:x, y:y, vx:vx, vy:vy, out:null, heat:Math.max(0.3, heat||0), ember:0, inert:true,
+    w:pc.w, h:pc.h, k:pc.k, fuse: fc + Math.round(TICK_HZ*(1.5 + Math.random()*4))});
+}
+const WRECK_MIN = 12;             // wreckage smaller than this goes in its last blast
+// One of those pieces of wreckage comes apart (from updateDebris()).
+function wreckSplit(i){
+  const d = debris[i];
+  if(Math.max(d.w, d.h) < WRECK_MIN){ breakDebris(i); return; }
+  const P = {can:d.can, glow:d.glow, w:d.w, h:d.h, k:d.k, x:d.x, y:d.y, ang:d.ang, flip:d.flip, heat:d.heat};
+  const S = splitPiece(P);
+  spawnFireball(S.blast.x, S.blast.y, Math.max(d.w, d.h)*0.45 + 5, 18);
+  spawnDebris(S.blast.x, S.blast.y, 6, 255,220,170, 200,110,50, false);
+  sndPlay('expl_secondary', S.blast.x, 0.25, S.blast.y);
+  debris.splice(i, 1);
+  for(const pc of S.parts){
+    const dx = pc.at.x - S.blast.x, dy = pc.at.y - S.blast.y, dl = Math.hypot(dx, dy) || 1;
+    const push = 0.15 + 0.25*Math.random();
+    wreckFrom(pc, pc.at.x, pc.at.y, P.ang, P.flip, d.vx + dx/dl*push, d.vy + dy/dl*push,
+              d.rotS + (Math.random()-0.5)*0.03, d.heat);
+  }
+}
+function tickHulks(){
+  for(let i=HULKS.length-1;i>=0;i--){
+    const H = HULKS[i];
+    H.x += H.vx; H.y += H.vy; H.ang += H.spin;          // nothing slows it
+    if(H.heat > 0) H.heat = Math.max(0, H.heat - 1/(TICK_HZ*9));
+    // gone only when it has flown off the field
+    const span = Math.max(H.w, H.h);
+    if(H.x < -span-60 || H.x > W+span+60 || H.y < -span-60 || H.y > H_FIELD()+span+60){ HULKS.splice(i, 1); continue; }
+    // what still burns in it comes out at the broken edges
+    if(H.edge.length && H.heat > 0.15 && fc % 5 === i % 5){
+      const p = H.edge[(Math.random()*H.edge.length)|0];
+      const at = hulkWorld(H.x, H.y, H.ang, H.flip, p.x, p.y);
+      const a = Math.random()*Math.PI*2, sp = 0.08 + Math.random()*0.2;
+      const hot = Math.random() < H.heat*0.6;
+      PARTS.push({type: hot ? 'dfl' : 'dsmk', free:true, x:at.x, y:at.y,
+                  vx: H.vx + Math.cos(a)*sp, vy: H.vy + Math.sin(a)*sp,
+                  life: hot ? 20 : 110, ml: hot ? 20 : 110,
+                  r0: hot ? 2 : 2.5, r1: hot ? 7 : 9, al: 0.22});
+    }
+    if(fc >= H.next) hulkSplit(i);
+  }
+}
+function H_FIELD(){ return H; }
+function drawHulks(){
+  for(const Hk of HULKS){
+    ctx.save();
+    ctx.translate(Hk.x, Hk.y);
+    ctx.rotate(Hk.ang);
+    if(Hk.flip) ctx.scale(-1, 1);
+    ctx.drawImage(Hk.can, -Hk.w/2, -Hk.h/2, Hk.w, Hk.h);
+    if(Hk.heat > 0.02){
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = Math.min(1, Hk.heat*1.1);
+      ctx.drawImage(Hk.glow, -Hk.w/2, -Hk.h/2, Hk.w, Hk.h);
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    }
+    ctx.restore();
+  }
+}
 // How a nozzle burns, given the damage (thruster t of ship e, index i).
 function dmgThrust(e, t, i){
   if(!e) return 1;
+  // dying: the engines are dead, a last cough now and then
+  if(e.rollT != null) return dmgSeed(((fc/6)|0) + i*7) > 0.95 ? 0.25 : 0;
   let k = 1;
   const en = e.subs ? e.subs.find(function(s){ return s.id==='engines'; }) : null;
   if(en){

@@ -302,6 +302,10 @@ function buildFS1Wave(n){
 //   drop   pickups fall. Only from a kill the player earned.
 function killEnemy(e, idx, award, drop){
   if(!e || e.dead) return;
+  // A capital ship dies the long way first and comes back here when she
+  // breaks up (v183).
+  if(!e.rolled && e.rollT == null && startDeathRoll(e)){ e.rollAward = award; e.rollDrop = drop; return; }
+  if(e.rollT != null) return;
   e.dead = true;
   if(e.pickup) cargoLost(e);
   if(award) score += e.pts;
@@ -327,7 +331,9 @@ const GATE_RETRY = 30;     // steps before asking again, a third of a second
 // empty enemies[] and rocks that do not drift never leave it.
 function liveThreatCount(){
   let n=0;
-  for(const e of enemies) if(!e.scenery && !e.dead && e.rollT==null) n++;
+  // A ship in her death roll still counts: she is destroyed when she
+  // breaks up (Silvio, v183).
+  for(const e of enemies) if(!e.scenery && !e.dead) n++;
   return n;
 }
 
@@ -900,25 +906,15 @@ function tickDeathRoll(){
   for(let i=enemies.length-1;i>=0;i--){
     const e = enemies[i];
     if(e.rollT==null) continue;
-    e.rollT--;
-    if(e.rollT % DEATH_ROLL_GAP === 0){
-      const img = IMGS[e.img];
-      const hw = img ? img.width*e.sc*0.42 : 40;
-      const hh = img ? img.height*e.sc*0.34 : 16;
-      const px = e.x + (Math.random()*2-1)*hw;
-      const py = e.y + (Math.random()*2-1)*hh;
-      triggerExpl(px, py, 'cruiser', e.faction, null);
-      addShake(2, 8);
-    }
-    if(e.rollT <= 0){
-      e.rollT = null;
+    if(deathRollTick(e)){
       e.hp = 0;
-      spawnShock(e.x, e.y, 150, 2.6, 0.020);
       // Ueber killEnemy, nicht daneben: dort haengen Punkte, Statistik,
       // Ticketwurf und die Bossmarkierung.
-      killEnemy(e, i, true, true);
+      killEnemy(e, i, e.rollAward!==undefined ? e.rollAward : true, e.rollDrop!==undefined ? e.rollDrop : true);
     }
   }
+  // Ours die the same way; updateAllies() takes them off once they break.
+  for(const a of allies) if(a.rollT!=null && deathRollTick(a)) a.hp = 0;
 }
 // Set by a mission with the Knossos in it (portal). Where the runners
 // jump: a little inside the right edge, at the ring.

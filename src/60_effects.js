@@ -338,7 +338,9 @@ function triggerExpl(x, y, shipType, faction, src) {
   else if(shipType==='container') shipType='fighter';
   // Wreckage is spawned here rather than at each of the five death sites,
   // so nothing is forgotten when a sixth one is added.
-  if(src) spawnWreck(src, shipType, x, y);
+  // A capital ship that has rolled breaks into sections of her own picture
+  // instead of shedding random plates (v183).
+  if(src && !(src.rolled && dmgBreakup(src))) spawnWreck(src, shipType, x, y);
   // Hulls the mount data calls out for a big blast radius. The class
   // profile below still runs; this is the extra wave on top of it.
   if(src && BIG_BLAST[src.img]){
@@ -576,7 +578,7 @@ function nextWave(){
   practiceTickets();
   protSaved=0; protLost=0;
   crossDone=0; crossTotal=0; commsCut=false; commsSeen=false;
-  enemies=[];eBullets=[];allies=[];debris=[];empOut=0;allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;spawnQ=getWaveDef(wave);spawnT=0;
+  enemies=[];eBullets=[];allies=[];debris=[];HULKS=[];empOut=0;allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;spawnQ=getWaveDef(wave);spawnT=0;
   plogStart();
   for(let i=0;i<allyWingWanted;i++){
     const a = mkAllySmall('fighter','terran',
@@ -617,7 +619,7 @@ function update(){
   if(GS==='title'){ fc++; tickStars(); tickNebula(); return; }
   sndTick();                          // freezes the sound while paused
   if(paused) return;                  // covers the settings panel too
-  fc++;tickStars();dmgEmitAll();tickParts();tickNebula();tickFinale();tickDanger();tickBlastFuses();
+  fc++;tickStars();dmgEmitAll();tickParts();tickHulks();tickNebula();tickFinale();tickDanger();tickBlastFuses();
   plogTick();
   // Der Abbau stand unter "if(GS!=='playing')return;". Nach einem Game
   // Over lief update() also nie mehr bis dorthin, waehrend draw() den
@@ -644,6 +646,7 @@ function update(){
   if(waveOver && waveCd>TRANS_OUT){
     for(const e of enemies) if(e.type==='asteroid'){ e.vx-=0.055; e.vy*=0.99; }
     for(const d of debris){ d.vx-=0.055; d.vy*=0.99; }
+    for(const h of HULKS){ h.vx-=0.055; h.vy*=0.99; }
   }
   // Der Dunst fiel mit 0.018 je Schritt durch den Raeumtakt und war damit
   // rund 1.6 s vor der Blende weg: der Nebel loeste sich bei vollem Licht
@@ -1135,6 +1138,7 @@ function update(){
   assignAttackRoles(allies);
   for(let i=enemies.length-1;i>=0;i--){
     const e=enemies[i];
+    if(e.rollT!=null) continue;        // dying: adrift, see deathRollTick()
     if(e.type==='fighter'||e.type==='bomber'){
       // Withdrawing ('abzug'): through its vortex and gone.
       if(e.warpOut>0){ e.warpOut--; if(e.warpOut<=0) enemies.splice(i,1); continue; }

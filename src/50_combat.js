@@ -307,9 +307,13 @@ function updateDebris(){
     // The blast component bleeds off toward the ambient drift, the spin
     // settles with it. Without this a piece keeps its ejection speed for
     // ever and leaves the field before it can matter.
-    d.vx = (d.vx-DEB_AMB_VX)*DEB_DRAG + DEB_AMB_VX;
-    d.vy *= DEB_DRAG;
-    d.rotS *= 0.995;
+    // Wreckage of a broken capital ship flies free: what it got from her
+    // and the blast it keeps (v183).
+    if(!d.inert){
+      d.vx = (d.vx-DEB_AMB_VX)*DEB_DRAG + DEB_AMB_VX;
+      d.vy *= DEB_DRAG;
+      d.rotS *= 0.995;
+    }
     d.x += d.vx; d.y += d.vy; d.ang += d.rotS;
     if(d.heat>0){
       d.heat -= 0.0022;                      // glowing to cold over ~7 s
@@ -327,6 +331,8 @@ function updateDebris(){
         life:(14+Math.random()*22)|0, ml:0, sz:0.8+Math.random()*1.4,
         clr: hot>0.6 ? '#ffd27f' : (hot>0.3 ? '#ff9a3c' : '#c4521e')});
     }
+    // wreckage of a broken ship goes on breaking up (v183)
+    if(d.fuse != null && fc >= d.fuse){ wreckSplit(i); continue; }
     const s = debSpan(d);
     if(d.x<-80-s || d.x>W+260+s || d.y<-80-s || d.y>H+80+s){ debris.splice(i,1); continue; }
     if(d.hp<=0){ breakDebris(i); continue; }
@@ -841,13 +847,23 @@ function drawEmpFX(){
 }
 
 function drawDebris(){
+  drawHulks();                     // the large sections of broken ships (v183)
   for(const d of debris){
-    const img = IMGS[d.key]; if(!img) continue;
+    const img = d.can || IMGS[d.key]; if(!img) continue;
     const w = d.sw*d.sc, h = d.sh*d.sc;
     ctx.save();
     ctx.translate(d.x|0, d.y|0);
     ctx.rotate(d.ang);
-    if(d.out){
+    if(d.flip) ctx.scale(-1, 1);
+    if(d.can){
+      // cut from a broken ship (v183): already torn, its broken edge cooling
+      ctx.drawImage(d.can, -w/2, -h/2, w, h);
+      if(d.glow && d.heat > 0.02){
+        ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(1, d.heat);
+        ctx.drawImage(d.glow, -w/2, -h/2, w, h);
+        ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+      }
+    } else if(d.out){
       ctx.save();
       outlinePath(d, w, h);
       ctx.clip();
@@ -1620,8 +1636,9 @@ const SUB_HP_FRAC = {cruiser:0.22, corvette:0.16, destroyer:0.10, boss:0.20,
 // laeuft. 15 % ist derselbe Wert wie HULL_CRIT: der Balken steht genau
 // dort, wo er ohnehin schon pulsiert.
 const DISABLE_HULL_FLOOR = 0.15;
-// Grosse Schiffe brechen nicht in einem Bild. DEATH_ROLL ist die Dauer
-// der Sekundaerexplosionen, danach kommt die eigentliche.
+// Grosse Schiffe brechen nicht in einem Bild. DEATH_ROLL war bis v182 die
+// Dauer der Sekundaerexplosionen; seit v183 gilt deathRollLen() in
+// 20_render.js, die beiden Werte hier sind nicht mehr in Gebrauch.
 // Andocken. Der Frachter faehrt den Andockpunkt seines Ziels an; ist er
 // nah genug, gilt es als angedockt. Danach haengt die Fracht an ihm:
 // sie wird mitgezeichnet, mitgetroffen und stirbt mit ihm.
