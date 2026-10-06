@@ -1423,24 +1423,60 @@ function buildTestWave(n){
 }
 
 let bossAlive=false,bossSlain=false;
+// ── SMALL CRAFT VALUES (v185) ────────────────────────────────
+// Hull and shield of every fighter and bomber, from the FreeSpace tables
+// (FS2 ships.tbl; FSPort for the FS1 hulls; FS2 wins where a hull is in
+// both). Scaled so the Myrmidon is 100/100: hull x100/290, shield x100/390.
+// The player and the AI read the same row (Silvio: "ehrlich"). The hull
+// grows with the cycle (cycleMult) for both; shields do not.
+const SMALL_TBL = {
+  // Terran fighters and bombers (FS2)
+  fiulysses:[62,97],   fiherc:[86,154],    fihercmk2:[95,156],  fiares:[147,167],
+  fierinyes:[112,128], filoki:[86,103],    fipegasus:[76,85],   fiperseus:[91,90],
+  fimyrmidon:[100,100],
+  boartemis:[95,179],  boartemisdh:[95,179], bomedusa:[121,179], boursa:[190,218],
+  bozeus:[69,115],     boboanerges:[112,218],
+  // Vasudan (FS2)
+  fiseth:[97,149],     fihorus:[59,59],    fitoth:[69,51],      fiserapis:[76,51],
+  fitauret:[103,136],  fiptah:[76,85],
+  bosekhmet:[172,218], boosiris:[207,154], bobakha:[152,159],
+  // Shivan (FS2). The Mara here is the AI's; the player's is SF Mara
+  // (terrans), see EXTRA_SHIPS.
+  fidragon:[34,179],   fibasilisk:[34,244], fimanticore:[34,128], fiaeshma:[43,218],
+  fimara:[69,159],     fiastaroth:[34,115],
+  bonephilim:[172,410], botaurvi:[207,256], bonahema:[103,231], boseraphim:[172,410],
+  // FS1 hulls (FSPort)
+  fiapollo:[83,90],    fivalyrie:[69,51],  boathena:[86,128],   fianubis:[55,51],
+  boamun:[216,205],    fiscorpion:[62,154], boshaitan:[138,256]
+};
+// NPC shields come back like the player's: the same rate, the same quiet
+// time after a hit (player.shRecharge, player.shDelay).
+const SMALL_SH_RE = 0.22, SMALL_SH_DELAY = 90;
+// One small craft's starting values. kind is 'fighter' or 'bomber'; a hull
+// missing from the table keeps the old class values.
+function smallStats(spr, kind){
+  const v = SMALL_TBL[spr];
+  if(!v) return {hp:capHull(HULL[kind]), sh:SHIELD[kind].max, re:SHIELD[kind].re};
+  return {hp:capHull(v[0]), sh:v[1], re:SMALL_SH_RE};
+}
 // ── PLAYER SHIPS ─────────────────────────────────────────────
 // Unlock order for the Hammer of Light cycle; the first entry is the
 // starting ship. unlock is the score at which a hull becomes selectable
 // during a run. Values come from the notes in the mount file:
 // spd  top speed in px per logic step (fighter default 3.2)
 // turn max heading change per logic step (default 0.14)
-// hp   hull before cycle scaling, sh shield maximum, sec secondary rounds
+// hp   hull before cycle scaling, sh shield maximum (both = SMALL_TBL), sec secondary rounds
 // fac decides which hangar hands the hull out. Only Vasudan hulls exist so
 // far; a Terran list is added when a cycle needs one.
 const PLAYER_SHIPS = [
-  {key:'fitoth',    name:'GVF Thoth',   fac:'vasudan', unlock:0,     spd:3.5, turn:0.17, hp:100, sh:100, sec:20},
-  {key:'fihorus',   name:'GVF Horus',   fac:'vasudan', unlock:4000,  spd:3.2, turn:0.17, hp:80,  sh:100, sec:20},
-  {key:'boosiris',  name:'GVB Osiris',  fac:'vasudan', unlock:9000,  spd:2.5, turn:0.10, hp:140, sh:100, sec:10},
-  {key:'fiserapis', name:'GVF Serapis', fac:'vasudan', unlock:15000, spd:3.5, turn:0.17, hp:80,  sh:70,  sec:20},
-  {key:'fiseth',    name:'GVF Seth',    fac:'vasudan', unlock:22000, spd:2.5, turn:0.10, hp:125, sh:130, sec:20},
-  {key:'bobakha',   name:'GVB Bakha',   fac:'vasudan', unlock:31000, spd:2.5, turn:0.12, hp:100, sh:100, sec:8},
-  {key:'fitauret',  name:'GVF Tauret',  fac:'vasudan', unlock:43000, spd:2.9, turn:0.10, hp:100, sh:130, sec:20},
-  {key:'bosekhmet', name:'GVB Sekhmet', fac:'vasudan', unlock:58000, spd:2.5, turn:0.12, hp:140, sh:130, sec:12}
+  {key:'fitoth',    name:'GVF Thoth',   fac:'vasudan', unlock:0,     spd:3.5, turn:0.17, hp:69, sh:51, sec:20},
+  {key:'fihorus',   name:'GVF Horus',   fac:'vasudan', unlock:4000,  spd:3.2, turn:0.17, hp:59, sh:59, sec:20},
+  {key:'boosiris',  name:'GVB Osiris',  fac:'vasudan', unlock:9000,  spd:2.5, turn:0.10, hp:207, sh:154, sec:10},
+  {key:'fiserapis', name:'GVF Serapis', fac:'vasudan', unlock:15000, spd:3.5, turn:0.17, hp:76, sh:51,  sec:20},
+  {key:'fiseth',    name:'GVF Seth',    fac:'vasudan', unlock:22000, spd:2.5, turn:0.10, hp:97, sh:149, sec:20},
+  {key:'bobakha',   name:'GVB Bakha',   fac:'vasudan', unlock:31000, spd:2.5, turn:0.12, hp:152, sh:159, sec:8},
+  {key:'fitauret',  name:'GVF Tauret',  fac:'vasudan', unlock:43000, spd:2.9, turn:0.10, hp:103, sh:136, sec:20},
+  {key:'bosekhmet', name:'GVB Sekhmet', fac:'vasudan', unlock:58000, spd:2.5, turn:0.12, hp:172, sh:218, sec:12}
 ];
 
 // ── CYCLES ───────────────────────────────────────────────────
@@ -1457,16 +1493,16 @@ const ROSTER_HOL = PLAYER_SHIPS.slice();
 const ROSTER_NTF = [
   {key:'fimyrmidon', name:'GTF Myrmidon',      fac:'terran', unlock:0,     spd:3.4, turn:0.16, hp:100, sh:100, sec:20},
   // Interceptor: fast and nimble, thin hull (v159, agreed with Silvio).
-  {key:'fiperseus',  name:'GTF Perseus',       fac:'terran', unlock:2000,  spd:3.6, turn:0.18, hp:80,  sh:90,  sec:20},
-  {key:'fiherc',     name:'GTF Hercules',      fac:'terran', unlock:4000,  spd:3.0, turn:0.14, hp:120, sh:110, sec:20},
-  {key:'boartemis',  name:'GTB Artemis',       fac:'terran', unlock:9000,  spd:2.6, turn:0.11, hp:130, sh:100, sec:10},
+  {key:'fiperseus',  name:'GTF Perseus',       fac:'terran', unlock:2000,  spd:3.6, turn:0.18, hp:91, sh:90,  sec:20},
+  {key:'fiherc',     name:'GTF Hercules',      fac:'terran', unlock:4000,  spd:3.0, turn:0.14, hp:86, sh:154, sec:20},
+  {key:'boartemis',  name:'GTB Artemis',       fac:'terran', unlock:9000,  spd:2.6, turn:0.11, hp:95, sh:179, sec:10},
   // sec follows the FreeSpace banks, Hercules 120 = 20: Mk II 180 -> 30,
   // Ares 190 -> 32. Myrmidon and Erinyes keep 20 (testers, v159).
-  {key:'fihercmk2',  name:'GTF Hercules Mk II',fac:'terran', unlock:15000, spd:3.2, turn:0.16, hp:110, sh:120, sec:30},
-  {key:'bomedusa',   name:'GTB Medusa',        fac:'terran', unlock:22000, spd:2.4, turn:0.10, hp:150, sh:110, sec:12},
-  {key:'fierinyes',  name:'GTF Erinyes',       fac:'terran', unlock:31000, spd:2.8, turn:0.12, hp:130, sh:140, sec:20},
-  {key:'boursa',     name:'GTB Ursa',          fac:'terran', unlock:43000, spd:2.3, turn:0.10, hp:170, sh:130, sec:14},
-  {key:'fiares',     name:'GTF Ares',          fac:'terran', unlock:58000, spd:3.3, turn:0.15, hp:120, sh:140, sec:32}
+  {key:'fihercmk2',  name:'GTF Hercules Mk II',fac:'terran', unlock:15000, spd:3.2, turn:0.16, hp:95, sh:156, sec:30},
+  {key:'bomedusa',   name:'GTB Medusa',        fac:'terran', unlock:22000, spd:2.4, turn:0.10, hp:121, sh:179, sec:12},
+  {key:'fierinyes',  name:'GTF Erinyes',       fac:'terran', unlock:31000, spd:2.8, turn:0.12, hp:112, sh:128, sec:20},
+  {key:'boursa',     name:'GTB Ursa',          fac:'terran', unlock:43000, spd:2.3, turn:0.10, hp:190, sh:218, sec:14},
+  {key:'fiares',     name:'GTF Ares',          fac:'terran', unlock:58000, spd:3.3, turn:0.15, hp:147, sh:167, sec:32}
 ];
 // first: the first wave of the cycle. call: which support columns answer.
 // tabs: both fleets at once, each on its own tab in the hangar and in the
@@ -2065,7 +2101,9 @@ const SCRIPT_WAVES = {
        {t:'zerstoert', a:'V3', w:'nachschub', a2:'aus'}
      ]},
 
-  9: {name:'The Convoy', fac:'hol', o:'protect', live:6, hunt:'F1', u:[
+  // live 6 -> 4 (v185): with the FreeSpace values the Vasudan fighters
+  // last half again as long, and six at once took the Aten in the measurement.
+  9: {name:'The Convoy', fac:'hol', o:'protect', live:4, hunt:'F1', u:[
        // Aten und zwei Frachter queren gemeinsam. Die Container haengen
        // an den Frachtern, sobald sie angedockt haben.
        {id:'A1', c:'cr', n:1, spr:'craten', side:'ally', crossSecs:75},
@@ -2078,7 +2116,8 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'A1', w:'nachschub', a2:'aus'}
      ]},
 
-  23:{name:'The Pickup', fac:'hol', o:'scan', live:6, hunt:'C1', u:[
+  // live 6 -> 4 (v185), same reason as The Convoy.
+  23:{name:'The Pickup', fac:'hol', o:'scan', live:4, hunt:'C1', u:[
        {id:'C1', c:'fc', n:3, spr:'fcvc3', scan:true, x:200},
        {id:'E1', c:'fi', n:2},
        {id:'F1', c:'fr', n:2, spr:'frbast', side:'ally', cross:0.34, x:-40,
@@ -2091,15 +2130,18 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'F1', w:'nachschub', a2:'aus'}
      ]},
 
-  27:{name:'The Repair', fac:'hol', o:'guard', live:6, u:[
+  // v185: the Vasudan bombers are now two to three times as tough (Osiris
+  // 207/154). Two wings of two took all three Isis; one bomber per wing and
+  // a cap of 4 leaves the repair a fight again.
+  27:{name:'The Repair', fac:'hol', o:'guard', live:4, u:[
        // Jeder angedockte Transporter setzt den Rumpf ein Viertel hoch.
        // Wer schlecht verteidigt, wartet laenger - das ist die Uhr.
        {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:0.30, still:true},
        {id:'T1', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', dockLabel:'REPAIRING'},
        {id:'T2', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', wait:true, dockLabel:'REPAIRING'},
        {id:'T3', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', wait:true, dockLabel:'REPAIRING'},
-       {id:'B1', c:'bo', n:2},
-       {id:'B2', c:'bo', n:2, wait:true}
+       {id:'B1', c:'bo', n:1},
+       {id:'B2', c:'bo', n:1, wait:true}
      ], ev:[
        {t:'angedockt', a:'T1', w:'heilen', a2:'A1'},
        {t:'angedockt', a:'T1', w:'einwarpen', a2:'T2'},
@@ -2961,8 +3003,10 @@ const SCRIPT_WAVES = {
        {id:'K1', c:'cr', n:1, spr:'crcain',   x:690, y:150, still:true, noFlee:true},
        {id:'K2', c:'cr', n:1, spr:'crlilith', x:700, y:390, still:true, noFlee:true},
        {id:'M1', c:'co', n:1, spr:'comoloch', x:730, y:270, still:true, noFlee:true},
-       {id:'E1', c:'fi', n:4},
-       {id:'B1', c:'bo', n:2}
+       // v185: 4+2 -> 3+1. Shivan bombers now carry 410 shield; while the
+       // patrol stands, the subspace bombs keep falling on the Setekh.
+       {id:'E1', c:'fi', n:3},
+       {id:'B1', c:'bo', n:1}
      ], ev:[
        {t:'sek', a:3, w:'meldung', a2:'the setekh is jamming them - no reinforcements'},
        // Only bites if she is lost: then the Shivans call for help again.

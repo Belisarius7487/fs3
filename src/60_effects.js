@@ -651,13 +651,10 @@ function update(){
   tickWeaponUnlocks();
   tickBarAttention();
   if(arriveT>0) arriveT--;
-  // Clearing beat: everything loose is pushed off the field under its own
-  // power. Der Dunst wird hier NICHT mehr angefasst.
-  if(waveOver && waveCd>TRANS_OUT){
-    for(const e of enemies) if(e.type==='asteroid'){ e.vx-=0.055; e.vy*=0.99; }
-    for(const d of debris){ d.vx-=0.055; d.vy*=0.99; }
-    for(const h of HULKS){ h.vx-=0.055; h.vy*=0.99; }
-  }
+  // Clearing beat: nothing is pushed any more (v185). Rocks, wreckage and
+  // hull sections used to be shoved off to the left here, which looked
+  // like a wind in space (Silvio). They now drift on as they were and are
+  // cleared by nextWave(), in the dark of the jump.
   // Der Dunst fiel mit 0.018 je Schritt durch den Raeumtakt und war damit
   // rund 1.6 s vor der Blende weg: der Nebel loeste sich bei vollem Licht
   // auf. Jetzt haengt er an der Blende - soviel Dunst wie Licht. Es ist

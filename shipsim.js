@@ -160,7 +160,7 @@ const destroyer = (o)=>Object.assign({img:'dehatshepsut', small:false, dead:fals
 console.log('Start ship');
 reset();
 ok('starts in the Thoth', P().ship==='fitoth');
-ok('Thoth stats 3.5 / 0.17 / 100 / 100 / 20 missiles', P().spd===3.5 && P().turn===0.17 && P().maxHp===100 && P().maxSh===100 && P().secMax===20 && P().secType==='missile');
+ok('Thoth stats 3.5 / 0.17 / 69 / 51 / 20 missiles', P().spd===3.5 && P().turn===0.17 && P().maxHp===69 && P().maxSh===51 && P().secMax===20 && P().secType==='missile');
 
 console.log('Unlocks');
 reset();
@@ -200,17 +200,17 @@ ok('Osiris taken and the menu closed', P().ship==='boosiris' && W.get('shipMenu'
 ok('but the game is still held', W.get('paused')===true && W.get('resumeHold')===true);
 W.run('pointerConsumed({x:400,y:300})');
 ok('and one tap puts you back in it', W.get('paused')===false && W.get('resumeHold')===false);
-ok('Osiris stats 2.5 / 0.10 / 140 / 100 / 10 bombs', P().spd===2.5 && P().turn===0.10 && P().maxHp===140 && P().maxSh===100 && P().secMax===10 && P().secType==='bomb');
-ok('refilled: hull 140, shields 100, 10 bombs', P().hp===140 && P().sh===100 && P().secAmmo===10);
+ok('Osiris stats 2.5 / 0.10 / 207 / 154 / 10 bombs', P().spd===2.5 && P().turn===0.10 && P().maxHp===207 && P().maxSh===154 && P().secMax===10 && P().secType==='bomb');
+ok('refilled: hull 207, shields 154, 10 bombs', P().hp===207 && P().sh===154 && P().secAmmo===10);
 ok('switch spent for this wave', W.run('shipSwapReady()')===false);
 W.run('toggleShipMenu()'); ok('menu does not open again this wave', W.get('shipMenu')===false);
 W.run('wave=2'); ok('next wave: available again', W.run('shipSwapReady()')===true);
 
 console.log('Cycle scaling and shields');
 reset(); W.run("player.hullMult=1.5; shipUnlocked=8"); W.set('allies',[destroyer()]);
-W.run("toggleShipMenu(); swapShip('bosekhmet')"); ok('Sekhmet at cycle x1.5: hull 210', P().maxHp===210 && P().hp===210);
+W.run("toggleShipMenu(); swapShip('bosekhmet')"); ok('Sekhmet at cycle x1.5: hull 258', P().maxHp===258 && P().hp===258);
 reset(); W.run("eraOff=true; shipUnlocked=2"); W.set('allies',[destroyer()]);
-W.run("toggleShipMenu(); swapShip('fihorus')"); ok('era without shields: shields stay 0', P().sh===0 && P().maxSh===100);
+W.run("toggleShipMenu(); swapShip('fihorus')"); ok('era without shields: shields stay 0', P().sh===0 && P().maxSh===59);
 W.run('eraOff=false');
 
 console.log('Call menu and switch menu exclude each other');
@@ -327,24 +327,24 @@ ok('no cell is tappable in that state', W.run('window._shipRects').every(r=>!r.k
 console.log('Colossus lifts the once per wave limit');
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]);
 W.run("toggleShipMenu(); swapShip('fihorus')");
-ok('first switch of the wave refits', P().ship==='fihorus' && P().hp===80 && P().sh===100 && P().secAmmo===20);
+ok('first switch of the wave refits', P().ship==='fihorus' && P().hp===59 && P().sh===59 && P().secAmmo===20);
 ok('no Colossus: spent for this wave', W.run('shipSwapReady()')===false);
 W.set('allies',[destroyer(), colossus()]);
 ok('Colossus arrives: available again in the same wave', W.run('shipSwapReady()')===true);
 W.run("player.hp=40; player.sh=50; player.secAmmo=10");
 W.run("toggleShipMenu(); swapShip('boosiris')");
 ok('second switch happens', P().ship==='boosiris');
-ok('hull carries over as a fraction, 40/80 of 140 = 70', P().hp===70);
-ok('shields carry over, 50/100 of 100 = 50', P().sh===50);
+ok('hull carries over as a fraction, 40/59 of 207 = 140', P().hp===140);
+ok('shields carry over, 50/59 of 154 = 131', P().sh===131);
 ok('ammo carries over, 10/20 of 10 bombs = 5', P().secAmmo===5);
 ok('no refit: not full', P().hp<P().maxHp && P().secAmmo<P().secMax);
 
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer(), colossus()]);
 W.run("toggleShipMenu(); swapShip('fihorus')");
-ok('with the Colossus there the first switch still refits', P().hp===80 && P().secAmmo===20);
+ok('with the Colossus there the first switch still refits', P().hp===59 && P().secAmmo===20);
 W.run("player.hp=1");
 W.run("toggleShipMenu(); swapShip('boosiris')");
-ok('a nearly dead hull stays alive after carrying over', P().hp>=1 && P().hp<=3);
+ok('a nearly dead hull stays alive after carrying over', P().hp>=1 && P().hp<=4);
 
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer(), colossus({dead:true})]);
 W.run("toggleShipMenu(); swapShip('fihorus')");
@@ -356,10 +356,10 @@ ok('Colossus warping out grants nothing', W.run('shipSwapReady()')===false);
 reset(); W.run("shipUnlocked=3"); W.set('allies',[colossus()]);
 W.run("toggleShipMenu(); swapShip('fihorus')"); W.run("player.hp=20");
 W.run("toggleShipMenu(); swapShip('fitoth')");
-ok('back onto the start hull at the Colossus, 20/80 of 100 = 25', P().ship==='fitoth' && P().hp===25);
+ok('back onto the start hull at the Colossus, 20/59 of 69 = 23', P().ship==='fitoth' && P().hp===23);
 W.run('wave=2');
 ok('new wave with the Colossus still there: refits again', W.run('shipSwapReady()')===true);
-W.run("toggleShipMenu(); swapShip('fihorus')"); ok('and it is a full hull', P().hp===80);
+W.run("toggleShipMenu(); swapShip('fihorus')"); ok('and it is a full hull', P().hp===59);
 
 console.log('Cycles: each brings its own fleet');
 {
@@ -452,7 +452,7 @@ console.log('A mission can lend a hull');
   W.run("forceShip('fipegasus')");
   ok('the player flies the lent hull', P().ship==='fipegasus');
   ok('with its own figures, not the fighter defaults',
-     P().maxSh===80 && P().spd===3.6 && W.run("shipStats('fipegasus').name")==='GTF Pegasus');
+     P().maxSh===85 && P().spd===3.6 && W.run("shipStats('fipegasus').name")==='GTF Pegasus');
   ok('and the hangar is closed for this mission', W.run('shipSwapReady()')===false);
   ok('it is announced in the column', W.get('NOTICE_LOG').some(n=>/PEGASUS ASSIGNED/.test(n.txt)));
   W.run("player.hp=10; releaseShip()");
@@ -543,9 +543,9 @@ ok('one barrel is the fallback of the formula, not a crash', W.run('volleyTotal(
 {
   // The point of the columns: hull sits under hull on every row.
   const hulls = inCol('hull').map(t=>t.s).join();
-  ok('the hull column reads down the list in order', hulls==='100,80,80,125,100,140,100,140');
+  ok('the hull column reads down the list in order', hulls==='69,59,76,97,103,207,152,172');
   const shields = inCol('shield').map(t=>t.s).join();
-  ok('the shield column too', shields==='100,100,70,130,130,100,100,130');
+  ok('the shield column too', shields==='51,59,51,149,136,154,159,218');
   ok('every value in a column shares one x',
      new Set(inCol('hull').map(t=>t.x)).size===1);
 }

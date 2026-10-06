@@ -1328,7 +1328,7 @@ scenario('Sound build 2: mute, tabs, scan, music', 'm=43', `
   // Settings: tabs instead of pages.
   setSettings(true); draw();
   const tabs = (window._setRects||[]).filter(q => /^tab/.test(q.act));
-  r.fourTabs = tabs.length === 4;
+  r.fiveTabs = tabs.length === 5;   // CONTROLS since v185
   const t3 = tabs[3];
   settingsClick(t3.x+4, t3.y+4);
   r.tabOpensSound = settingsPage === 3;
@@ -2723,6 +2723,40 @@ scenario('v180: M78 the devices are scanned first, the Sathanas never fire', 'm=
   r.destroyObjective = missionObj === 'DESTROY THE UNKNOWN DEVICES';
   FS.killId('N1');
   r.ends = FS.until(()=>waveOver, 3000, false, false) >= 0;
+  return r;`);
+
+scenario('v185: small craft carry their table values, player and AI alike', 'm=61', `
+  const r = {};
+  const f = mkEnemy('fi_shivan', 'fiscorpion', 250);
+  r.scorpionHull = f.maxHp === Math.round(62*cycleMult()) && f.maxSh === 154;
+  r.shieldLikePlayer = f.shRe === player.shRecharge;
+  const b = mkEnemy('bo_shivan', 'boseraphim', 250);
+  r.seraphim = b.maxHp === Math.round(172*cycleMult()) && b.maxSh === 410;
+  const a = mkAllySmall('fighter', 'terran', 'fimyrmidon', 250);
+  applyShip('fimyrmidon');
+  r.allyMyrmidonAsPlayer = a.maxHp === player.maxHp && a.maxSh === player.maxSh;
+  r.thoth = shipStats('fitoth').hp === 69 && shipStats('fitoth').sh === 51;
+  r.playerMara = shipStats('fimara').hp === 164 && shipStats('fimara').sh === 179;
+  return r;`);
+scenario('v185: wreckage is not pushed at the end, scenery catches no shots, middle button', 'm=55', `
+  const r = {};
+  FS.step(30);
+  debris.length = 0;
+  // inert: free wreckage keeps its speed, so any change is the push
+  debris.push({x:400, y:250, vx:0, vy:0, r:6, life:1e9, ml:1e9, ang:0, va:0, rotS:0, inert:true});
+  waveOver = true; waveCd = TRANS_CLEAR + TRANS_OUT;
+  FS.step(40);
+  r.notPushed = debris.length === 0 || Math.abs(debris[0].vx) < 0.01;
+  const p = enemies.find(e => e.img === 'inknossos45deg');
+  r.portalPassesShots = !!p && !bulletOnHull(p, {x:p.x, y:p.y, vx:3, vy:0, w:8});
+  r.marksOffAtStart = subMarksOn === false;
+  CVS.dispatchEvent(new MouseEvent('mousedown', {button:1, clientX:10, clientY:200, cancelable:true}));
+  r.middleTurnsOn = subMarksOn === true;
+  CVS.dispatchEvent(new MouseEvent('mousedown', {button:1, clientX:10, clientY:200, cancelable:true}));
+  r.andOffAgain = subMarksOn === false;
+  setSettings(true); settingsPage = SETTINGS_CONTROLS; draw();
+  r.controlsTabDrawn = settingsRows().length === 0 && CONTROLS.length >= 13;
+  setSettings(false);
   return r;`);
 
 scenario('HoL start unchanged', 'm=1', `

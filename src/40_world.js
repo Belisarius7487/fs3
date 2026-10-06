@@ -120,8 +120,9 @@ function mkEnemy(type, spr0, yWant){
     // One roll only: the vortex and the ship that comes out of it have to
     // agree on where the hole is.
     const ax=ambushX();
+    const st=smallStats(spr,'fighter');
     return {type:'fighter',img:spr,faction:typeFac(type),
-      pts:100,x:ax,y,warpX:ax,warpY:y,hp:HULL.fighter,maxHp:HULL.fighter,sh:SHIELD.fighter.max,maxSh:SHIELD.fighter.max,shRe:SHIELD.fighter.re,shDelay:0,shHit:0,minY:HUD_H+22,maxY:H-22,
+      pts:100,x:ax,y,warpX:ax,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:HUD_H+22,maxY:H-22,
       vx:-(0.9+Math.random()*0.9),vy:0,ang:0,
       head:Math.PI, spd:EFIGHTER_SPD, turn:EFIGHTER_TURN,
       role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
@@ -135,8 +136,9 @@ function mkEnemy(type, spr0, yWant){
     const _bw=smallWidth(spr,'bo');
     const sc=img?Math.min(0.55,_bw/img.width):0.5;
     const axb=ambushX();
+    const st=smallStats(spr,'bomber');
     return {type:'bomber',img:spr,faction:typeFac(type),
-      pts:150,x:axb,y,warpX:axb,warpY:y,hp:HULL.bomber,maxHp:HULL.bomber,sh:SHIELD.bomber.max,maxSh:SHIELD.bomber.max,shRe:SHIELD.bomber.re,shDelay:0,shHit:0,minY:HUD_H+22,maxY:H-22,
+      pts:150,x:axb,y,warpX:axb,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:HUD_H+22,maxY:H-22,
       vx:-(0.5+Math.random()*0.6),vy:0,ang:0,
       head:Math.PI, spd:EBOMBER_SPD, turn:EBOMBER_TURN,
       role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
@@ -386,13 +388,13 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
       // strong hit would still spill onto the hull and the rule would only
       // slow the fleet down instead of stopping it.
       e.sh = Math.max(0, e.sh - dmg*pen);
-      e.shDelay = (e.type==='bomber' ? SHIELD.bomber.delay : SHIELD.fighter.delay);
+      e.shDelay = SMALL_SH_DELAY;
       e.shHit = SH_FLASH;
       return;
     }
     const absorbed = Math.min(e.sh, dmg);
     e.sh -= absorbed;
-    e.shDelay = (e.type==='bomber' ? SHIELD.bomber.delay : SHIELD.fighter.delay);
+    e.shDelay = SMALL_SH_DELAY;
     e.shHit = SH_FLASH;
     dmg -= absorbed;
     if(dmg <= 0) return;
@@ -789,6 +791,7 @@ function drawHullBlocks(e, bx, by, bw, ratio, showShield){
   }
 }
 
+const SUB_CORNERS = [[-1,-1],[1,-1],[1,1],[-1,1]];
 function drawSubGlyph(id, r){
   ctx.beginPath();
   if(id==='weapons'){ ctx.arc(0,0,r*0.42,0,Math.PI*2); ctx.fill(); return; }
@@ -814,11 +817,15 @@ function drawSubGlyph(id, r){
   }
 }
 
-// The name is spelled out only for the one the player is lining up on.
-// Anything more would paper the field over with labels.
+// The hull stays clear (Silvio, v185): the marks are off until the player
+// asks for them with the middle mouse button, and off again with the next
+// press. Then every live subsystem gets four corner brackets in its
+// condition colour (variant H), and the one the player is lining up on
+// is named.
+let subMarksOn = false;
+function toggleSubMarks(){ subMarksOn = !subMarksOn; }
 function drawSubsystems(e){
-  if(!e.subs) return;
-  const pulse=0.5+0.5*Math.sin(fc*0.14);
+  if(!e.subs || !subMarksOn) return;
   let near=null, nearD=SUB_NAME_R*SUB_NAME_R, nearP=null;
   const pa=player.head||0, cs=Math.cos(pa), sn=Math.sin(pa);
   for(const s of e.subs){
@@ -827,14 +834,15 @@ function drawSubsystems(e){
     const hr=Math.max(0,s.hp/s.maxHp);
     ctx.save();
     ctx.translate(p.x|0,p.y|0);
-    ctx.globalCompositeOperation='lighter';
-    ctx.globalAlpha=0.5+0.4*pulse;
-    ctx.strokeStyle=hullCol(hr); ctx.fillStyle=hullCol(hr); ctx.lineWidth=1.5;
-    // Die Marke folgt der tatsaechlichen Trefferflaeche, sonst zeigt sie
-    // bei einem von Hand vergroesserten Subsystem etwas Falsches an.
+    ctx.globalAlpha=0.85;
+    ctx.strokeStyle=hullCol(hr); ctx.lineWidth=1.3;
+    // The marks follow the real hit area, or a subsystem enlarged by hand
+    // would be shown wrong.
     const rr=Math.max(7, Math.min(20, subRadius(e, s)*0.55));
-    ctx.beginPath(); ctx.arc(0,0,rr,0,Math.PI*2); ctx.stroke();
-    drawSubGlyph(s.id, rr);
+    const a=rr*0.8, b=rr*0.35;
+    for(const c of SUB_CORNERS){
+      ctx.beginPath(); ctx.moveTo(c[0]*a, c[1]*(a-b)); ctx.lineTo(c[0]*a, c[1]*a); ctx.lineTo(c[0]*(a-b), c[1]*a); ctx.stroke();
+    }
     ctx.restore();
     ctx.globalAlpha=1;
     if(GS==='playing'){
@@ -1183,7 +1191,7 @@ let transitSecs = 0, guardGone = false, astStreamCd = 0;
 // deleted on the frame the next wave began. Three beats replace that:
 // the field empties itself, the player jumps out, the player arrives.
 // The vortex is the same 75 frame sheet every other ship warps through.
-const TRANS_CLEAR = 80;    // rocks and wreckage clear the field
+const TRANS_CLEAR = 80;    // a beat before the jump (nothing is pushed since v185)
 const TRANS_OUT   = 140;   // vortex opens, the ship goes into it
 const TRANS_IN    = 130;   // vortex opens again, the ship comes out
 let arriveT = 0;           // counts down through the arrival beat
@@ -1748,11 +1756,12 @@ function mkAllySmall(kind, fac, spr, y){
   const img = IMGS[spr];
   const sc = img ? Math.min(0.55, (kind==='bomber'?65:60)/img.width) : 0.5;
   const bomber = kind==='bomber';
+  const st = smallStats(spr, kind);
   const a = {
     type:kind, side:'ally', small:true, img:spr, faction:fac,
     x:-10, y:y, warpX:-10, warpY:y,
-    hp:HULL[kind], maxHp:HULL[kind],
-    sh:SHIELD[kind].max, maxSh:SHIELD[kind].max, shRe:SHIELD[kind].re,
+    hp:st.hp, maxHp:st.hp,
+    sh:st.sh, maxSh:st.sh, shRe:st.re,
     shDelay:0, shHit:0, minY:HUD_H+22, maxY:H-22,
     vx:0, vy:0, ang:0, head:0,
     spd: bomber?EBOMBER_SPD:EFIGHTER_SPD,

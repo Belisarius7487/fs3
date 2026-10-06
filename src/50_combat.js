@@ -2170,8 +2170,7 @@ const CYCLE_HULL_GROWTH = 0.25;   // je vollendetem Zyklus, Laenge siehe WAVE_CY
 function cycleMult(){
   return 1 + Math.floor((wave-1)/WAVE_CYCLE)*CYCLE_HULL_GROWTH;
 }
-// Small craft are deliberately left out: they die to one burst either way
-// and scaling them would only lengthen every wave.
+// Small craft grow too since v185 (smallStats), as the player always did.
 function capHull(v){ return Math.round(v*cycleMult()); }
 
 const HULL = {
@@ -2196,6 +2195,9 @@ const HULL = {
 
 // Shields for fighters and bombers only. Capital ships have none.
 // re = recharge per step, delay = quiet time after a hit.
+// Since v185 fighters and bombers take their values from SMALL_TBL
+// (30_waves.js); these class values are only the fallback for a hull
+// that is missing there.
 const SHIELD = {
   fighter: {max:30, re:0.10, delay:120},
   bomber:  {max:55, re:0.08, delay:150}

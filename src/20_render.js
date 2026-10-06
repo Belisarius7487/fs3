@@ -598,6 +598,10 @@ function probeAxis(b){
 function bulletOnHull(e, b){
   if(e && e.ghost) return false;    // shots pass through (M78, v178)
   if(e.type === 'asteroid') return true;
+  // Pure scenery - an installation that cannot be hurt, such as the
+  // Arcadia or the Knossos portal in the background - catches no shots
+  // (v185, Silvio). An installation that is a target is not invuln.
+  if(e.invuln && e.scenery) return false;
   const ea = e.ang || 0;
   const pr = probeAxis(b);
   return onHull(e.img, e.x, e.y, e.sc, e.flip, b.x+pr[0], b.y+pr[1], ea)

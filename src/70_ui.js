@@ -876,11 +876,44 @@ function setRow(bx, by, bw, bh, label, hint, value, on, act, enabled){
 
 // Zwei Seiten zu vier Zeilen. Acht Zeilen am Stueck waeren 460 von 500
 // Bildpunkten Hoehe gewesen.
-const SETTINGS_PAGES = 4;
-const SETTINGS_TITLES = ['SETTINGS', 'ECONOMY', 'APPEARANCE', 'SOUND'];
-const SETTINGS_TABS = ['GENERAL', 'ECONOMY', 'APPEARANCE', 'SOUND'];
+const SETTINGS_PAGES = 5;
+const SETTINGS_TITLES = ['SETTINGS', 'ECONOMY', 'APPEARANCE', 'SOUND', 'CONTROLS'];
+const SETTINGS_TABS = ['GENERAL', 'ECONOMY', 'APPEARANCE', 'SOUND', 'CONTROLS'];
+const SETTINGS_CONTROLS = 4;   // the page that shows CONTROLS instead of rows
+
+// ── CONTROLS ─────────────────────────────────────────────────
+// Every input the game reads, in one list (v185). The title screen and the
+// CONTROLS tab of the settings both draw from it, so a new key is added
+// here once and shows up in both places.
+const CONTROLS = [
+  ['MOUSE',              'fly and aim'],
+  ['LEFT BUTTON, SPACE', 'fire primary'],
+  ['RIGHT BUTTON',       'fire secondary'],
+  ['MIDDLE BUTTON',      'subsystems on / off'],
+  ['V',                  'change ship'],
+  ['R',                  'rearm'],
+  ['C',                  'call support'],
+  ['1 - 9',              'choose in a menu'],
+  ['TAB, ARROWS',        'fleet tab in a menu'],
+  ['S',                  'settings'],
+  ['P, ESC',             'pause'],
+  ['M',                  'sound on / off'],
+  ['F',                  'full screen']
+];
+// The list as rows: key on the left in the accent, what it does beside it.
+function drawControlsList(x, y, w, rowH, keyW){
+  for(let i=0;i<CONTROLS.length;i++){
+    const ry = y + i*rowH;
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillStyle = TH('accentWarm'); ctx.font = thLabel(10);
+    ctx.fillText(thFit(CONTROLS[i][0], keyW-6), x, ry+rowH/2);
+    ctx.fillStyle = TH('text'); ctx.font = thValue(11, false);
+    ctx.fillText(thFit(CONTROLS[i][1], w-keyW), x+keyW, ry+rowH/2);
+  }
+}
 const SETTINGS_ROWS_MAX = 5;   // the panel keeps one height for every tab
 function settingsRows(){
+  if(settingsPage===SETTINGS_CONTROLS) return [];
   if(settingsPage===3) return [
     {label:'SOUND', hint:'all sound on or off - also M or the speaker',
      value:SND.on?'ON':'OFF', on:SND.on, act:'sndon', enabled:true},
@@ -928,7 +961,8 @@ function drawSettings(){
   if(!settingsOpen) return;
   if(plogOpen){ drawPlog(); return; }
   window._setRects=[];
-  const bw=300, bh=40, gap=8;
+  // 380 wide since v185: five tabs (CONTROLS added) need the room.
+  const bw=380, bh=40, gap=8;
   // The height follows the page, so a shorter page leaves no hole.
   const rows=Math.max(1, settingsRows().length);
   const hintH=22;   // room for the closing hint, which used to land inside
@@ -963,6 +997,11 @@ function drawSettings(){
     tx+=tw+4;
   }
   ctx.textAlign='center'; ctx.textBaseline='top';
+  if(settingsPage===SETTINGS_CONTROLS){
+    // The list in the room the rows would take.
+    const top=my+30+tabH+gap, room=bh*rowsH+gap*(rowsH-1);
+    drawControlsList(bx+10, top, bw-20, Math.min(19, room/CONTROLS.length), 132);
+  }
   const list=settingsRows();
   for(let i=0;i<list.length;i++){
     const r=list[i];
@@ -1386,14 +1425,15 @@ function shipOffered(key){
 // Hulls a mission can put the player into that no roster offers.
 const EXTRA_SHIPS = {
   fipegasus: {key:'fipegasus', name:'GTF Pegasus', fac:'terran', spd:3.6, turn:0.17,
-              hp:80, sh:80, sec:20},
+              hp:76, sh:85, sec:20},
   // Vasudan stealth fighter, lent for the reactor scan (M71, v170).
   fiptah:    {key:'fiptah', name:'GVF Ptah', fac:'vasudan', spd:3.5, turn:0.17,
-              hp:85, sh:80, sec:20},
+              hp:76, sh:85, sec:20},
   // A captured Shivan fighter, for the flight beyond the second portal
-  // (M78, v177).
+  // (M78, v177). Flown by a Terran pilot it is FreeSpace's "SF Mara
+  // (terrans)": 475/700 in the table, far tougher than the AI's (v185).
   fimara:    {key:'fimara', name:'SF Mara', fac:'shivan', spd:3.5, turn:0.18,
-              hp:90, sh:90, sec:20}
+              hp:164, sh:179, sec:20}
 };
 // The player's own hull while a mission lends another, or ''.
 let forcedPrev = '';
@@ -1417,8 +1457,9 @@ function shipStats(key){
   for(const s of PLAYER_SHIPS) if(s.key===key) return s;
   if(EXTRA_SHIPS[key]) return EXTRA_SHIPS[key];
   const b = isBomberHull(key);
+  const v = SMALL_TBL[key] || [100,100];
   return {key:key, name:key, spd:b?PLAYER_SPD_BOMBER:PLAYER_SPD_FIGHTER, turn:PLAYER_TURN,
-          hp:100, sh:100, sec:b?10:20};
+          hp:v[0], sh:v[1], sec:b?10:20};
 }
 // Puts the player into a hull. Without keep everything is refilled. With
 // keep - fractions of the old hull, shields and ammo - the state carries
@@ -2640,21 +2681,35 @@ function drawTitle(){
   ctx.fillText('A Hard Light Productions Mini-Game', W/2, ty+30);
 
   // The controls, as a block of its own on a plate, so they read as reference
-  // rather than as more title.
-  const bw = 420, bh = 72, bx = (W-bw)/2, by = H-152;
+  // rather than as more title. The whole list, in two columns, and where to
+  // find it again during a run (v185, Silvio).
+  const half = Math.ceil(CONTROLS.length/2), rowH = 15;
+  const bw = 600, bh = half*rowH + 46, bx = (W-bw)/2, by = H-70-bh;
   thPlate(bx, by, bw, bh, thRGBA('panelBack', 0.72));
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle = TH('text'); ctx.font = thValue(12, false);
-  ctx.fillText('Move the mouse to steer   -   hold to fire', W/2, by+24);
-  ctx.fillStyle = TH('textDim'); ctx.font = thValue(11, false);
-  ctx.fillText('Right click for the secondary   -   on touch, the SEC button', W/2, by+46);
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillStyle = TH('textDim'); ctx.font = thLabel(9);
+  ctx.fillText('CONTROLS', bx+16, by+12);
+  const all = CONTROLS;
+  for(let c=0;c<2;c++){
+    const part = all.slice(c*half, (c+1)*half);
+    for(let i=0;i<part.length;i++){
+      const ry = by+24+i*rowH, cx0 = bx+16+c*(bw/2);
+      ctx.fillStyle = TH('accentWarm'); ctx.font = thLabel(10);
+      ctx.fillText(thFit(part[i][0], 128), cx0, ry+rowH/2);
+      ctx.fillStyle = TH('text'); ctx.font = thValue(11, false);
+      ctx.fillText(thFit(part[i][1], bw/2-150), cx0+134, ry+rowH/2);
+    }
+  }
+  ctx.textAlign='center';
+  ctx.fillStyle = TH('textDim'); ctx.font = thValue(10, false);
+  ctx.fillText('also in the game: S - SETTINGS - CONTROLS', W/2, by+bh-9);
 
   // The one thing to do. It pulses rather than blinks: a blink says hurry.
   const k = 0.55 + 0.45*Math.sin(fc*0.05);
   ctx.save();
   ctx.globalAlpha = k;
   ctx.fillStyle = TH('textBright'); ctx.font = thLabel(13);
-  ctx.fillText('PRESS SPACE OR ENTER', W/2, H-52);
+  ctx.fillText('PRESS SPACE OR ENTER', W/2, H-44);
   ctx.restore();
 
   drawTitleFullscreen();
@@ -2720,6 +2775,9 @@ function toGC(clientX, clientY) {
 
 // Maus
 CVS.addEventListener('mousedown',function(ev){
+  // Middle button: subsystem marks on / off. preventDefault keeps the
+  // browser from starting its scroll mode on the same press.
+  if(ev.button===1){ ev.preventDefault(); toggleSubMarks(); return; }
   if(ev.button===0 && muteHit(toGC(ev.clientX,ev.clientY))){ sndToggleMute(); return; }
   if(ev.button===0 && titleFsHit(toGC(ev.clientX,ev.clientY))){ toggleFullscreen(); return; }
   if(ev.button===0&&GS==='playing'){
@@ -2742,6 +2800,8 @@ CVS.addEventListener('mousedown',function(ev){
   }
   if(ev.button===2&&GS==='playing'){ SEC_HOLD.rmb=true; fireSecondary(); }
 });
+// Linux pastes on a middle click; nothing to paste into here.
+CVS.addEventListener('auxclick',function(ev){ if(ev.button===1) ev.preventDefault(); });
 CVS.addEventListener('mouseup',function(ev){
   if(ev.button===0){isFiring=false;MOUSE.down=false;SEC_HOLD.btn=false;}
   if(ev.button===2) SEC_HOLD.rmb=false;
