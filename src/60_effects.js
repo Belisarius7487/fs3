@@ -617,7 +617,7 @@ function update(){
   if(GS==='title'){ fc++; tickStars(); tickNebula(); return; }
   sndTick();                          // freezes the sound while paused
   if(paused) return;                  // covers the settings panel too
-  fc++;tickStars();tickParts();tickNebula();tickFinale();tickDanger();tickBlastFuses();
+  fc++;tickStars();dmgEmitAll();tickParts();tickNebula();tickFinale();tickDanger();tickBlastFuses();
   plogTick();
   // Der Abbau stand unter "if(GS!=='playing')return;". Nach einem Game
   // Over lief update() also nie mehr bis dorthin, waehrend draw() den

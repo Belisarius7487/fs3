@@ -1055,7 +1055,7 @@ function boom(x,y,n,big){
   }
 }
 function tickParts(){
-  if(PARTS.length>600)PARTS.splice(0,PARTS.length-600);
+  if(PARTS.length>900)PARTS.splice(0,PARTS.length-900);
   for(var i=PARTS.length-1;i>=0;i--){
     var p=PARTS[i];
     if(p.ml===0) p.ml=p.life;
@@ -1063,6 +1063,9 @@ function tickParts(){
       p.x+=(p.tx-p.x)*0.28; p.y+=(p.ty-p.y)*0.28;
     } else if(p.type==='fb'||p.type==='ring'){
       // static
+    } else if(p.free){
+      // In space: nothing slows it, nothing pulls it, nothing lifts it.
+      p.x+=p.vx; p.y+=p.vy;
     } else {
       p.x+=p.vx||0; p.y+=p.vy||0;
       if(p.vx)p.vx*=0.96; if(p.vy)p.vy*=0.96;
@@ -1129,6 +1132,9 @@ function drawParts(){
       ctx.globalAlpha=a;
       ctx.fillStyle=dclr;
       ctx.beginPath();ctx.arc(p.x,p.y,sz*0.7,0,Math.PI*2);ctx.fill();
+
+    } else if(p.free){
+      dmgDrawPart(p, a);
 
     } else if(p.type==='smoke'){
       var tp2=1-(p.life/p.ml);
@@ -1287,31 +1293,47 @@ function buildWave(spec){
   return q.sort(function(a,b){ return a.time-b.time; });
 }
 
-// ── PERMANENT DAMAGE ON CAPITAL SHIPS (v180, Silvio) ──────────
-// What a capital ship has taken stays on her:
-//   scorch      where hits land, moved inward from the edge they struck,
-//               darkening in over half a second and building up;
+// ── PERMANENT DAMAGE ON CAPITAL SHIPS (v180, reworked v182) ────
+// What a capital ship has taken stays on her, in layers, none of them a
+// hole to the stars (Silvio, v181: "huge shapeless holes, slapped on"):
+//   scoring     small streaks of carbon where hits land, a little in from
+//               the edge they struck, building up;
 //   lights      window zones flicker and go dark as the hull goes down;
-//   breaches    at 50 % and below (one or two on a cruiser, more on bigger
-//               hulls): a burst, debris, the hole tearing open, the rim
-//               white hot and cooling to an uneven glow, fire and smoke;
-//   sparks      now and then at a breach below 25 %;
-//   craters     where a subsystem was destroyed: dark, glowing, smoking;
-//   engines     a breach near a nozzle makes it sputter, a damaged engines
+//   gashes      from 70 % down, several narrow tears along the plating,
+//               each small: dark inside, frames showing across it, cracks
+//               running off its ends, the lit edge catching the light. A
+//               fresh one glows white-orange and cools to a few embers;
+//   fire        glows inside the tears, more of it the lower the hull;
+//   venting     now and then a tear spits a jet of burning gas; some bleed
+//               air as white vapour; smoke and sparks come out of them.
+//               All of it flies free in space: it leaves with the ship's
+//               own velocity plus the push of the gas and then goes
+//               straight on - no drag, no gravity, nothing rising. A ship
+//               that turns or changes speed leaves it behind (Silvio, v182);
+//   blasts      below 50 % small secondary explosions go off on the hull,
+//               more often as she weakens;
+//   arcs        below 30 % blue-white discharges jump across the tears;
+//   craters     where a subsystem was destroyed: a charred pit, burning;
+//   engines     a tear near a nozzle makes it sputter, a damaged engines
 //               subsystem makes every flame unsteady, a destroyed one puts
 //               them out to a faint afterglow.
 // All of it is looks only. Hits are still tested against the undamaged
-// shape, so a system next to a breach stays as hittable as before, and
-// breaches keep their distance from subsystems anyway.
-// The lasting part (scorch, dark lights, holes) is drawn once into a
-// canvas per ship and redrawn only when it changes; fire, smoke, rims and
-// sparks are drawn every frame on top.
-const DMG_SCORCH_STEP = 0.035;    // share of the hull per new scorch mark
-const DMG_GROW = 50;              // steps a scorch or a breach takes to open
+// shape, and tears keep their distance from subsystems.
+// The lasting part is drawn once into a canvas per ship, at the screen's
+// resolution, and redrawn only when it changes. The glow on the hull (hot
+// edges, embers, fire in the tears, arcs) goes into a second, small canvas,
+// refreshed every third frame and cut to the hull. Flame jets, vapour,
+// smoke and sparks are free particles in space (dmgEmit).
+const DMG_SCORCH_STEP = 0.03;     // share of the hull per new scoring mark
+const DMG_GROW = 30;              // steps a mark or a tear takes to open
 const DMG_LIGHTS_FROM = 0.80;     // windows start going dark below this
-const DMG_HOLE_FROM = 0.50, DMG_HOLE_TO = 0.22;
-const DMG_NEAR_ENGINE = 0.5;      // breach within this share of the half length
-const DMG_K_MAX = 3;              // finest damage picture, pixels per unit
+const DMG_GASH_FROM = 0.72, DMG_GASH_TO = 0.15;
+const DMG_BLAST_BELOW = 0.50;     // secondary explosions below this
+const DMG_ARCS_BELOW = 0.30;
+const DMG_NEAR_ENGINE = 0.5;      // tear within this share of the half length
+const DMG_K_MAX = 3;
+const DMG_MARK_MAX = 6;           // largest scoring mark, game units
+const DMG_GASH_MAX = 34;          // longest tear, game units: big hulls get more, not bigger              // finest damage picture, pixels per unit
 const DMG_INFO = {};              // per sprite: solid grid, light zones, dark copy
 function dmgEligible(e){
   if(!e || e.dead || !IMGS[e.img]) return false;
@@ -1360,7 +1382,6 @@ function dmgInfo(key){
   return DMG_INFO[key];
 }
 // Solid at a point given in fractions of the half extents (-1..1)?
-// grow: how much solid ground there has to be around it (in cells).
 function dmgSolid(inf, u, v, grow){
   const gx = Math.round((u*0.5+0.5)*inf.GX - 0.5), gy = Math.round((v*0.5+0.5)*inf.GY - 0.5);
   for(let j=-grow;j<=grow;j++) for(let i=-grow;i<=grow;i++){
@@ -1374,10 +1395,10 @@ function dmgState(e){
   if(e.dm) return e.dm;
   const inf = dmgInfo(e.img); if(!inf) return null;
   const img = IMGS[e.img], big = img.width*e.sc;
-  e.dm = {inf:inf, scorch:[], holes:[], craters:[], acc:0, dirty:true, dead:0, dying:[],
-          maxScorch: Math.round(Math.max(8, Math.min(30, big/14))),
-          nHoles: big < 160 ? 2 : (big < 260 ? 3 : (big < 450 ? 4 : 6)),
-          seed: (Math.random()*1e6)|0, can:null, frame:null, born:fc};
+  e.dm = {inf:inf, scorch:[], gashes:[], craters:[], acc:0, dirty:true, dead:0, dying:[],
+          maxScorch: Math.round(Math.max(10, Math.min(60, big/7))),
+          nGash: big < 160 ? 3 : (big < 260 ? 4 : (big < 360 ? 5 : (big < 600 ? 7 : 9))),
+          seed: (Math.random()*1e6)|0, can:null, frame:null, born:fc, nextBlast:0};
   return e.dm;
 }
 // World point to sprite fractions (dx,dy as the mounts use them).
@@ -1394,7 +1415,7 @@ function dmgWorld(e, u, v){
   if(a){ const c=Math.cos(a), s=Math.sin(a); const qx=px*c-py*s; py=px*s+py*c; px=qx; }
   return {x: e.x+px, y: e.y+py};
 }
-// A hit on the hull: now and then it leaves a mark.
+// A hit on the hull: now and then it leaves a streak of scoring.
 function dmgHit(e, hx, hy, amount){
   if(!dmgEligible(e) || !e.maxHp || hx==null) return;
   const D = dmgState(e); if(!D) return;
@@ -1402,32 +1423,33 @@ function dmgHit(e, hx, hy, amount){
   if(D.acc < DMG_SCORCH_STEP) return;
   D.acc -= DMG_SCORCH_STEP;
   const L = dmgLocal(e, hx, hy);
-  // In from the edge it struck, towards the middle, by a fifth to two
-  // fifths of the hull's height, and a little to the side.
+  // In from the edge it struck, by a sixth to a third of the hull's height.
   let px = L.u*L.hw, py = L.v*L.hh;
   const len = Math.hypot(px, py) || 1;
-  const depth = (0.15 + Math.random()*0.25) * L.hh*2;
+  const dir = Math.atan2(py, px);                 // the way the shot came in
+  const depth = (0.15 + Math.random()*0.2) * L.hh*2;
   const k = Math.max(0, 1 - depth/len);
   px *= k; py *= k;
-  px += (Math.random()-0.5)*L.hh*0.4; py += (Math.random()-0.5)*L.hh*0.25;
+  px += (Math.random()-0.5)*L.hh*0.5; py += (Math.random()-0.5)*L.hh*0.3;
   let u = px/L.hw, v = py/L.hh;
-  // Not on the hull there (a gap, a fork): further in until it is.
   for(let i=0;i<8 && !dmgSolid(D.inf, u, v, 0);i++){ u *= 0.8; v *= 0.8; }
   if(!dmgSolid(D.inf, u, v, 0)) return;
-  // Close to an old one: that one gets deeper instead of a new mark.
+  // Close to an old one: that one gets darker instead.
   for(const s of D.scorch){
-    if(Math.hypot((s.u-u)*L.hw, (s.v-v)*L.hh) < s.r*L.hh*0.8){ s.a = Math.min(1, s.a+0.25); D.dirty = true; return; }
+    if(Math.hypot((s.u-u)*L.hw, (s.v-v)*L.hh) < Math.min(s.r*L.hh*2, DMG_MARK_MAX)*0.6){ s.a = Math.min(0.9, s.a+0.15); D.dirty = true; return; }
   }
   if(D.scorch.length >= D.maxScorch) return;
-  D.scorch.push({u:u, v:v, r:0.08+Math.random()*0.07, sx:1+Math.random()*0.8,
-                 rot:Math.random()*Math.PI, a:0.45+Math.random()*0.25, t0:fc, sd:Math.random()*99});
+  D.scorch.push({u:u, v:v, r:0.07+Math.random()*0.05, len:1.8+Math.random()*1.6,
+                 rot:dir + (Math.random()-0.5)*0.6, a:0.5+Math.random()*0.25, t0:fc, sd:Math.random()*99});
   D.dirty = true;
 }
 // A subsystem has gone: its crater.
 function dmgCrater(e, s){
   if(!dmgEligible(e)) return;
   const D = dmgState(e); if(!D) return;
-  D.craters.push({u:s.dx, v:s.dy, t0:fc, sd:Math.random()*99, id:s.id});
+  const pts = [];
+  for(let i=0;i<9;i++){ const a = i/9*Math.PI*2, r = 0.7 + 0.5*Math.random(); pts.push({x:Math.cos(a)*r, y:Math.sin(a)*r*0.75}); }
+  D.craters.push({u:s.dx, v:s.dy, t0:fc, sd:Math.random()*99, id:s.id, pts:pts});
   D.dirty = true;
 }
 function dmgSubsFar(e, u, v, need){
@@ -1436,61 +1458,79 @@ function dmgSubsFar(e, u, v, need){
   for(const s of e.subs) if(Math.hypot((s.dx-u)*hw, (s.dy-v)*hh) < need) return false;
   return true;
 }
-// Where the next breach goes: the most battered stretch of solid hull,
-// clear of the subsystems and of the breaches already there.
-function dmgHoleSite(e, D){
-  const img = IMGS[e.img], hw = img.width*e.sc/2, hh = img.height*e.sc/2;
-  const r = Math.max(4, Math.min(hh*0.30, hw*0.11));
-  const cand = D.scorch.map(function(s){ return {u:s.u, v:s.v}; });
-  for(let i=0;i<60;i++) cand.push({u:Math.random()*1.6-0.8, v:Math.random()*1.4-0.7});
-  let best = null, bs = -1;
-  // As much solid hull round it as the hull offers: slim ships get less.
-  const cell = hw*2/D.inf.GX;
-  let rUse = r;
-  for(let grow = Math.max(1, Math.round(0.7*r/cell)); grow>=0 && !best; grow--){
-  // A hole no wider than the solid ground found round it: on a slim hull
-  // it comes out smaller instead of reaching past the edge.
-  rUse = Math.min(r, (grow+0.8)*cell/0.7);
-  for(const c of cand){
-    if(!dmgSolid(D.inf, c.u, c.v, grow)) continue;
-    if(!dmgSubsFar(e, c.u, c.v, r+8)) continue;
-    if(D.holes.some(function(h){ return Math.hypot((h.u-c.u)*hw, (h.v-c.v)*hh) < r*3; })) continue;
-    let sc = 0; for(const s of D.scorch) if(Math.hypot((s.u-c.u)*hw, (s.v-c.v)*hh) < r*2.5) sc += s.a;
-    sc += Math.random()*0.3;
-    if(sc > bs){ bs = sc; best = c; }
-  }
-  }
-  if(!best) return null;
-  // A ragged outline, and per edge how wide and how hot its rim is.
-  const n = 28, pts = [], seg = [];
-  const st = 1 + Math.random()*0.5, rot = Math.random()*Math.PI;
+// The shape of a tear: a narrow jagged slit along the plating, with the
+// frames behind it showing across and cracks running off. Offsets are in
+// hull heights, about the tear's centre.
+function dmgGashShape(L, Wd, rot, sd){
+  const n = 9, top = [], bot = [], mid = [];
+  const c = Math.cos(rot), s = Math.sin(rot);
+  const R = function(x, y){ return {x: x*c - y*s, y: x*s + y*c}; };
   for(let i=0;i<n;i++){
-    // two scales of raggedness: a lumpy outline with small notches in it
-    const a = i/n*Math.PI*2;
-    const rr = 0.78 + 0.22*Math.sin(a*2 + dmgSeed(D.seed+D.holes.length)*6) + 0.22*dmgSeed(D.seed+i*7+D.holes.length*31);
-    const x = Math.cos(a)*rr*st, y = Math.sin(a)*rr;
-    pts.push({x: x*Math.cos(rot)-y*Math.sin(rot), y: x*Math.sin(rot)+y*Math.cos(rot)});
-    seg.push({w: 0.3+0.7*dmgSeed(D.seed+i*13+5), ph: dmgSeed(D.seed+i*17+3)*6.28});
+    const t = i/(n-1)*2 - 1;
+    const x = t*L/2;
+    const cy = Wd*0.35*Math.sin(t*2.3 + sd) * (1 - t*t);
+    const half = Wd/2 * Math.pow(Math.max(0, 1 - t*t), 0.55);
+    const ja = (0.55 + 0.9*dmgSeed(sd + i*3.1)), jb = (0.55 + 0.9*dmgSeed(sd + i*5.7));
+    top.push(R(x, cy - half*ja)); bot.push(R(x, cy + half*jb)); mid.push(R(x, cy));
   }
-  return {u:best.u, v:best.v, r:rUse/hh, pts:pts, seg:seg, t0:fc, sd:Math.random()*99};
-}
-// The damage a ship already has when she first appears: scorch marks over
-// the hull, and (on the next tick) her lights and breaches, all at once and
-// without the bursts.
-function dmgPreset(e){
-  const D = dmgState(e); if(!D) return;
-  const lost = 1 - Math.max(0, e.hp)/e.maxHp;
-  const img = IMGS[e.img], hw = img.width*e.sc/2, hh = img.height*e.sc/2;
-  const n = Math.round(lost/DMG_SCORCH_STEP);
-  for(let i=0;i<n*3 && D.scorch.length<Math.min(n, D.maxScorch);i++){
-    const u = Math.random()*1.7-0.85, v = Math.random()*1.4-0.7;
-    if(!dmgSolid(D.inf, u, v, 0)) continue;
-    D.scorch.push({u:u, v:v, r:0.08+Math.random()*0.07, sx:1+Math.random()*0.8,
-                   rot:Math.random()*Math.PI, a:0.45+Math.random()*0.25, t0:fc-DMG_GROW, sd:Math.random()*99});
+  // the frames: across the slit where it is wide enough
+  const ribs = [];
+  for(let i=2;i<n-2;i+=2) ribs.push({a: top[i], b: bot[i]});
+  // cracks off the two ends and one off a side
+  const cracks = [];
+  for(const end of [0, n-1]){
+    const p = mid[end], d = end ? 1 : -1;
+    const a1 = rot + (d>0 ? 0 : Math.PI) + (dmgSeed(sd+end+11)-0.5)*1.2;
+    const l1 = L*(0.15 + 0.2*dmgSeed(sd+end+13));
+    const k = {x: p.x + Math.cos(a1)*l1*0.5 + (dmgSeed(sd+end+17)-0.5)*Wd*0.6, y: p.y + Math.sin(a1)*l1*0.5};
+    cracks.push([p, k, {x: p.x + Math.cos(a1)*l1, y: p.y + Math.sin(a1)*l1}]);
   }
-  D.quiet = true; D.dirty = true;
+  const si = 3 + Math.floor(dmgSeed(sd+23)*3), sp = (dmgSeed(sd+29) < 0.5) ? top[si] : bot[si];
+  const sa = rot + Math.PI/2 * (sp === top[si] ? -1 : 1) + (dmgSeed(sd+31)-0.5)*0.8;
+  cracks.push([sp, {x: sp.x + Math.cos(sa)*Wd*1.4, y: sp.y + Math.sin(sa)*Wd*1.4}]);
+  return {top: top, bot: bot, mid: mid, ribs: ribs, cracks: cracks};
 }
-// Per frame: lights and breaches follow the hull (a repair closes them).
+// Where the next tear goes: a battered stretch of solid hull, clear of the
+// subsystems and of the tears already there.
+function dmgGashSite(e, D){
+  const img = IMGS[e.img], w = img.width*e.sc, h = img.height*e.sc, hw = w/2, hh = h/2;
+  const cand = D.scorch.map(function(s){ return {u:s.u, v:s.v}; });
+  for(let i=0;i<60;i++) cand.push({u:Math.random()*1.7-0.85, v:Math.random()*1.3-0.65});
+  for(let tries=0; tries<3; tries++){
+    // a tear is narrow: a fifth to two fifths of the hull's height long,
+    // never more than a tenth of her length
+    const shrink = Math.pow(0.7, tries);
+    const L = Math.min(h*(0.28 + 0.2*Math.random()), w*0.12, DMG_GASH_MAX*(0.75 + 0.25*Math.random())) * shrink;
+    const Wd = L*(0.17 + 0.09*Math.random());
+    const rot = (Math.random()-0.5)*0.9;        // mostly along the plating
+    let best = null, bs = -1;
+    for(const c of cand){
+      // solid all along the slit, with a little to spare
+      let ok = true;
+      for(let j=-2;j<=2 && ok;j++){
+        const x = (c.u*hw + Math.cos(rot)*L*0.55*j/2)/hw, y = (c.v*hh + Math.sin(rot)*L*0.55*j/2)/hh;
+        if(!dmgSolid(D.inf, x, y, 0)) ok = false;
+      }
+      if(!ok) continue;
+      if(!dmgSubsFar(e, c.u, c.v, L*0.5 + 4)) continue;
+      if(D.gashes.some(function(g){ return Math.hypot((g.u-c.u)*hw, (g.v-c.v)*hh) < (g.L*h + L)*0.75; })) continue;
+      let sc = 0; for(const s of D.scorch) if(Math.hypot((s.u-c.u)*hw, (s.v-c.v)*hh) < L*1.5) sc += s.a;
+      sc += Math.random()*0.4;
+      if(sc > bs){ bs = sc; best = c; }
+    }
+    if(best){
+      const sd = Math.random()*99;
+      const sh = dmgGashShape(L/h, Wd/h, rot, sd);
+      // which way is out: away from the hull's long axis
+      const nrm = {x: -Math.sin(rot), y: Math.cos(rot)};
+      if(nrm.y*best.v < 0 || (Math.abs(best.v) < 0.05 && dmgSeed(sd) < 0.5)){ nrm.x = -nrm.x; nrm.y = -nrm.y; }
+      return {u:best.u, v:best.v, L:L/h, Wd:Wd/h, rot:rot, sh:sh, n:nrm, t0:fc, sd:sd,
+              vent: dmgSeed(sd+41) < 0.45, jetP: 3 + 4*dmgSeed(sd+43), jetPh: dmgSeed(sd+47)*9};
+    }
+  }
+  return null;
+}
+// Per frame: lights, tears and the blasts follow the hull.
 function dmgTick(e, D){
   const f = Math.max(0, Math.min(1, e.hp/e.maxHp));
   // lights
@@ -1499,29 +1539,73 @@ function dmgTick(e, D){
   if(want > D.dead && !D.dying.length){ D.dying.push({i:D.dead, until:fc+45}); D.dead++; }
   if(want < D.dead){ D.dead = want; D.dirty = true; }
   for(let i=D.dying.length-1;i>=0;i--) if(fc >= D.dying[i].until){ D.dying.splice(i,1); D.dirty = true; }
-  // breaches
-  for(let k=0;k<D.nHoles;k++){
-    const thr = DMG_HOLE_FROM - (DMG_HOLE_FROM-DMG_HOLE_TO)*(D.nHoles>1 ? k/(D.nHoles-1) : 0);
-    const h = D.holes[k];
-    if(!h && f < thr && D.holes.length===k){
-      const nh = dmgHoleSite(e, D);
-      if(nh){ nh.thr = thr; D.holes.push(nh); D.dirty = true;
-        if(D.quiet){ nh.t0 = fc - DMG_GROW*3; continue; }   // there before we came
-        const w = dmgWorld(e, nh.u, nh.v);
-        spawnFireball(w.x, w.y, Math.max(14, nh.r*IMGS[e.img].height*e.sc), 24);
-        spawnDebris(w.x, w.y, 9, 255,220,170, 200,120,60, false);
-        sndPlay('expl_secondary', w.x, 0.6, w.y);
-      } else { D.nHoles = k; }
+  // tears
+  const img = IMGS[e.img], h = img.height*e.sc;
+  for(let k=0;k<D.nGash;k++){
+    const thr = DMG_GASH_FROM - (DMG_GASH_FROM-DMG_GASH_TO)*(D.nGash>1 ? k/(D.nGash-1) : 0);
+    const g = D.gashes[k];
+    if(!g && f < thr && D.gashes.length===k){
+      const ng = dmgGashSite(e, D);
+      if(ng){ ng.thr = thr; D.gashes.push(ng); D.dirty = true;
+        if(D.quiet){ ng.t0 = fc - TICK_HZ*20; continue; }   // there before we came
+        const w = dmgWorld(e, ng.u, ng.v);
+        spawnFireball(w.x, w.y, Math.max(8, ng.L*h*0.7), 18);
+        spawnDebris(w.x, w.y, 6, 255,220,170, 200,120,60, false);
+        sndPlay('expl_secondary', w.x, 0.45, w.y);
+      } else { D.nGash = k; }
       break;
     }
-    if(h && f > h.thr + 0.08){ D.holes.splice(k); D.dirty = true; break; }   // patched up
+    if(g && f > g.thr + 0.08){ D.gashes.splice(k); D.dirty = true; break; }   // patched up
+  }
+  // secondary explosions: small, somewhere on her, more often as she weakens
+  if(f < DMG_BLAST_BELOW && !D.quiet && !(e.warp > 0) && !(e.warpOut > 0)){
+    if(!D.nextBlast) D.nextBlast = fc + TICK_HZ*(1 + Math.random()*3);
+    if(fc >= D.nextBlast){
+      let u, v;
+      if(D.gashes.length && Math.random() < 0.6){ const g = D.gashes[(Math.random()*D.gashes.length)|0]; u = g.u; v = g.v; }
+      else { u = Math.random()*1.6-0.8; v = Math.random()*1.2-0.6; }
+      if(dmgSolid(D.inf, u, v, 0)){
+        const w = dmgWorld(e, u, v);
+        spawnFireball(w.x, w.y, h*(0.12 + 0.12*Math.random()), 16);
+        spawnDebris(w.x, w.y, 4, 255,230,180, 220,130,60, false);
+        sndPlay('expl_secondary', w.x, 0.25, w.y);
+      }
+      D.nextBlast = fc + TICK_HZ*(1.2 + 6*f + Math.random()*2.5);
+    }
   }
   // still opening or still darkening: keep the picture current
   for(const s of D.scorch) if(fc - s.t0 < DMG_GROW) D.dirty = true;
-  for(const h of D.holes) if(fc - h.t0 < DMG_GROW) D.dirty = true;
+  for(const g of D.gashes) if(fc - g.t0 < DMG_GROW) D.dirty = true;
   for(const c of D.craters) if(fc - c.t0 < DMG_GROW) D.dirty = true;
   D.quiet = false;
 }
+// The damage a ship already has when she first appears: scoring over the
+// hull, and (on the next tick) her lights and tears, all at once and without
+// the bursts.
+function dmgPreset(e){
+  const D = dmgState(e); if(!D) return;
+  const lost = 1 - Math.max(0, e.hp)/e.maxHp;
+  const n = Math.round(lost/DMG_SCORCH_STEP);
+  for(let i=0;i<n*3 && D.scorch.length<Math.min(n, D.maxScorch);i++){
+    const u = Math.random()*1.7-0.85, v = Math.random()*1.4-0.7;
+    if(!dmgSolid(D.inf, u, v, 0)) continue;
+    D.scorch.push({u:u, v:v, r:0.05+Math.random()*0.05, len:1.8+Math.random()*1.6,
+                   rot:Math.random()*Math.PI*2, a:0.35+Math.random()*0.25, t0:fc-DMG_GROW, sd:Math.random()*99});
+  }
+  D.quiet = true; D.dirty = true;
+}
+// A tear's outline as a path, its width opening over DMG_GROW steps.
+function dmgGashPath(g, gs, w, h){
+  const o = 0.25 + 0.75*Math.min(1, (fc - gs.t0)/DMG_GROW);
+  const cx = (gs.u*0.5+0.5)*w, cy = (gs.v*0.5+0.5)*h, sh = gs.sh;
+  const P = function(p, mp){ return {x: cx + (mp.x + (p.x-mp.x)*o)*h, y: cy + (mp.y + (p.y-mp.y)*o)*h}; };
+  g.beginPath();
+  for(let i=0;i<sh.top.length;i++){ const q = P(sh.top[i], sh.mid[i]); if(i===0) g.moveTo(q.x, q.y); else g.lineTo(q.x, q.y); }
+  for(let i=sh.bot.length-1;i>=0;i--){ const q = P(sh.bot[i], sh.mid[i]); g.lineTo(q.x, q.y); }
+  g.closePath();
+  return P;
+}
+// The lasting picture: sprite, dark windows, scoring, tears, craters.
 function dmgBuild(e, D){
   const img = IMGS[e.img], w = img.width*e.sc, h = img.height*e.sc;
   const k = dmgK(e), pw = Math.max(1, Math.round(w*k)), ph = Math.max(1, Math.round(h*k));
@@ -1530,8 +1614,7 @@ function dmgBuild(e, D){
   }
   D.k = k;
   const g = D.can.getContext('2d');
-  // drawn in game units, stored at screen resolution
-  g.setTransform(pw/w, 0, 0, ph/h, 0, 0);
+  g.setTransform(pw/w, 0, 0, ph/h, 0, 0);       // drawn in game units
   g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
   g.clearRect(0, 0, w, h);
   g.drawImage(img, 0, 0, w, h);
@@ -1542,67 +1625,90 @@ function dmgBuild(e, D){
     const z = inf.zones[i];
     g.drawImage(inf.dark, z.sx, z.sy, z.sw, z.sh, z.sx*kx, z.sy*ky, z.sw*kx, z.sh*ky);
   }
-  // scorch and craters, only on the hull
+  // everything below only where there is hull
   g.globalCompositeOperation = 'source-atop';
-  const blob = function(cx, cy, r, sx, rot, a, sd){
-    for(let j=0;j<3;j++){
-      const ox = (dmgSeed(sd+j)-0.5)*r*0.8, oy = (dmgSeed(sd+j+9)-0.5)*r*0.5;
-      g.save(); g.translate(cx+ox, cy+oy); g.rotate(rot); g.scale(sx, 1);
-      const gr = g.createRadialGradient(0, 0, 0, 0, 0, r*(0.7+0.3*dmgSeed(sd+j+4)));
-      gr.addColorStop(0, 'rgba(8,6,5,'+(0.75*a).toFixed(3)+')');
-      gr.addColorStop(0.6, 'rgba(20,14,10,'+(0.40*a).toFixed(3)+')');
-      gr.addColorStop(1, 'rgba(0,0,0,0)');
-      g.fillStyle = gr; g.beginPath(); g.arc(0, 0, r, 0, Math.PI*2); g.fill();
-      g.restore();
-    }
-  };
+  // scoring: a streak of small splashes along the line the shot came in
   for(const s of D.scorch){
-    const gt = Math.min(1, (fc - s.t0)/DMG_GROW);
-    blob((s.u*0.5+0.5)*w, (s.v*0.5+0.5)*h, s.r*h*(0.5+0.5*gt), s.sx, s.rot, s.a*gt, s.sd);
+    // a hit marks a few metres of plating, whatever the ship's size
+    const gt = Math.min(1, (fc - s.t0)/DMG_GROW), r = Math.min(s.r*h, DMG_MARK_MAX);
+    const cx = (s.u*0.5+0.5)*w, cy = (s.v*0.5+0.5)*h;
+    g.save(); g.translate(cx, cy); g.rotate(s.rot);
+    for(let j=0;j<4;j++){
+      const t = j/3, rr = r*(1 - 0.55*t)*(0.8 + 0.4*dmgSeed(s.sd+j));
+      g.fillStyle = 'rgba(14,10,8,'+(s.a*gt*(1 - 0.5*t)).toFixed(3)+')';
+      g.beginPath();
+      g.ellipse(-t*r*s.len, (dmgSeed(s.sd+j+5)-0.5)*r*0.6, rr*1.4, rr*0.6, (dmgSeed(s.sd+j+9)-0.5)*0.5, 0, Math.PI*2);
+      g.fill();
+    }
+    // the pit where it struck
+    g.fillStyle = 'rgba(4,3,2,'+(0.8*gt).toFixed(3)+')';
+    g.beginPath(); g.arc(0, 0, Math.max(0.35, r*0.22), 0, Math.PI*2); g.fill();
+    g.restore();
   }
+  const unit = Math.max(0.35, 1/k);              // about one screen pixel
+  // tears
+  for(const gs of D.gashes){
+    const cx = (gs.u*0.5+0.5)*w, cy = (gs.v*0.5+0.5)*h, L = gs.L*h, Wd = gs.Wd*h;
+    // soot round it, stretched along it
+    g.save(); g.translate(cx, cy); g.rotate(gs.rot); g.scale(1, (Wd*2.6)/(L*0.8));
+    const gr = g.createRadialGradient(0, 0, L*0.15, 0, 0, L*0.8);
+    gr.addColorStop(0, 'rgba(10,7,5,0.6)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(0, 0, L*0.8, 0, Math.PI*2); g.fill();
+    g.restore();
+    // cracks running off it
+    g.strokeStyle = 'rgba(12,9,7,0.9)'; g.lineWidth = unit; g.lineCap = 'round'; g.lineJoin = 'round';
+    for(const cr of gs.sh.cracks){
+      g.beginPath(); g.moveTo(cx+cr[0].x*h, cy+cr[0].y*h);
+      for(let i=1;i<cr.length;i++) g.lineTo(cx+cr[i].x*h, cy+cr[i].y*h);
+      g.stroke();
+    }
+    // the dark inside
+    const P = dmgGashPath(g, gs, w, h);
+    g.fillStyle = '#0b0908'; g.fill();
+    // frames behind it, faintly lit
+    g.strokeStyle = 'rgba(70,62,54,0.9)'; g.lineWidth = Math.max(unit, Wd*0.12);
+    for(const rb of gs.sh.ribs){
+      const mi = gs.sh.mid[gs.sh.ribs.indexOf(rb)*2+2];
+      const a = P(rb.a, mi), b = P(rb.b, mi);
+      g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke();
+    }
+    // the torn lip: the upper edge catches the light, the lower is in shadow
+    g.lineWidth = unit;
+    g.strokeStyle = 'rgba(205,198,186,0.55)';
+    g.beginPath();
+    gs.sh.top.forEach(function(p, i){ const q = P(p, gs.sh.mid[i]); if(i) g.lineTo(q.x, q.y-unit*0.6); else g.moveTo(q.x, q.y-unit*0.6); });
+    g.stroke();
+    g.strokeStyle = 'rgba(0,0,0,0.7)';
+    g.beginPath();
+    gs.sh.bot.forEach(function(p, i){ const q = P(p, gs.sh.mid[i]); if(i) g.lineTo(q.x, q.y+unit*0.6); else g.moveTo(q.x, q.y+unit*0.6); });
+    g.stroke();
+  }
+  // craters: a charred pit
   for(const c of D.craters){
     const gt = Math.min(1, (fc - c.t0)/DMG_GROW);
-    blob((c.u*0.5+0.5)*w, (c.v*0.5+0.5)*h, h*0.13, 1.2, 0, gt, c.sd);
+    const cx = (c.u*0.5+0.5)*w, cy = (c.v*0.5+0.5)*h, r = h*0.07*(0.4+0.6*gt);
+    const gr = g.createRadialGradient(cx, cy, r*0.5, cx, cy, r*2.2);
+    gr.addColorStop(0, 'rgba(10,7,5,0.7)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r*2.2, 0, Math.PI*2); g.fill();
+    g.fillStyle = '#0b0908'; g.beginPath();
+    c.pts.forEach(function(p, i){ if(i) g.lineTo(cx+p.x*r, cy+p.y*r); else g.moveTo(cx+p.x*r, cy+p.y*r); });
+    g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(205,198,186,0.45)'; g.lineWidth = unit; g.stroke();
   }
-  // heat around breaches, then the holes themselves
-  for(const hl of D.holes){
-    const cx = (hl.u*0.5+0.5)*w, cy = (hl.v*0.5+0.5)*h, r = hl.r*h/2;
-    const gr = g.createRadialGradient(cx, cy, r*0.7, cx, cy, r*1.6);
-    gr.addColorStop(0, 'rgba(10,6,4,0.6)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r*1.6, 0, Math.PI*2); g.fill();
-  }
-  g.globalCompositeOperation = 'destination-out';
-  g.fillStyle = '#000';            // opaque: the hole goes all the way through
-  for(const hl of D.holes) dmgHolePath(g, hl, w, h, true);
+  g.setTransform(1, 0, 0, 1, 0, 0);
   g.globalCompositeOperation = 'source-over';
   D.dirty = false; D.built = fc;
 }
-// Pixels per game unit for the damage pictures: as fine as the screen shows
-// them (the canvas runs at RES_X), never finer than the sprite itself.
-// Built at one pixel per unit they were blown up on a large screen and the
-// damaged ship went soft next to the sharp ones (Silvio, v180).
 function dmgK(e){
   return Math.max(1, Math.min(RES_X, 1/Math.max(0.05, e.sc), DMG_K_MAX));
-}
-// The outline of a breach, opening over DMG_GROW steps.
-function dmgHolePath(g, hl, w, h, fill){
-  const gt = Math.min(1, (fc - hl.t0)/DMG_GROW), o = 0.25 + 0.75*gt;
-  const cx = (hl.u*0.5+0.5)*w, cy = (hl.v*0.5+0.5)*h, r = hl.r*h/2*o;
-  g.beginPath();
-  for(let i=0;i<hl.pts.length;i++){
-    const p = hl.pts[i];
-    if(i===0) g.moveTo(cx+p.x*r, cy+p.y*r); else g.lineTo(cx+p.x*r, cy+p.y*r);
-  }
-  g.closePath();
-  if(fill) g.fill();
 }
 // The ship, with what she has taken. Same transform as drawShip().
 function drawShipE(e, cx, cy, scale, flipX, ang){
   // A ship that comes on already hurt (a mission sets her hull low) brings
-  // her damage with her: marked and breached from the first frame, quietly.
+  // her damage with her: marked and torn from the first frame, quietly.
   if(!e.dm && e.maxHp && e.hp < e.maxHp*0.95 && dmgEligible(e)) dmgPreset(e);
   const D = e.dm;
-  if(!D || !dmgEligible(e) || (!D.scorch.length && !D.holes.length && !D.craters.length && !D.dead && !D.dying.length)){
+  if(!D || !dmgEligible(e) || (!D.scorch.length && !D.gashes.length && !D.craters.length && !D.dead && !D.dying.length)){
     if(D) dmgTick(e, D);
     drawShip(e.img, cx, cy, scale, flipX, ang); return;
   }
@@ -1616,8 +1722,8 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
   ctx.translate(cx|0, cy|0);
   if(ang) ctx.rotate(ang);
   if(flipX) ctx.scale(-1, 1);
-  // The gloss as on any hull, laid on the damaged picture and cut by the
-  // breaches again, in a frame canvas of her own.
+  // The gloss as on any hull, laid on the damaged picture, in a frame
+  // canvas of her own.
   const gl = ECO.glint ? null : ((GLINT[e.img]!==undefined) ? GLINT[e.img] : buildGlint(e.img));
   if(gl){
     const cw = D.can.width, ch = D.can.height;
@@ -1627,8 +1733,7 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
     // Recomposed only when the picture or the light on it has changed.
     const rel = (ang||0) - lightAngleAt(cx, cy);
     const gi = Math.round((GLINT_BASE + GLINT_SWING*(0.5-0.5*Math.cos(rel*2)))*50)/50;
-    const opening = D.holes.some(function(hl){ return fc - hl.t0 < DMG_GROW; });
-    if(D.fBuilt !== D.built || D.fGi !== gi || opening){
+    if(D.fBuilt !== D.built || D.fGi !== gi){
       const g = D.frame.getContext('2d');
       g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
       g.clearRect(0, 0, cw, ch);
@@ -1637,11 +1742,6 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
       g.globalAlpha = gi;
       g.drawImage(gl, 0, 0, cw, ch);
       g.globalAlpha = 1;
-      if(D.holes.length){
-        g.globalCompositeOperation = 'destination-out';
-        g.fillStyle = '#000';
-        for(const hl of D.holes) dmgHolePath(g, hl, cw, ch, true);
-      }
       g.globalCompositeOperation = 'source-over';
       D.fBuilt = D.built; D.fGi = gi;
     }
@@ -1674,23 +1774,19 @@ function dmgStamp(g, x, y, r, a){
   g.globalAlpha = Math.min(1, a);
   g.drawImage(dmgGlow(), x-r, y-r, r*2, r*2);
 }
-// Rims, fire, smoke, embers and sparks: every frame, on top.
-// Fire, rims, embers and sparks into one canvas, smoke into another,
-// refreshed every third frame (or while a breach is opening) and stamped
-// onto the ship every frame: the strokes cost too much to redo each time.
+// The glow on the hull: one small canvas over the damaged stretch,
+// refreshed every third frame and stamped every frame.
 function dmgFx(e, D, cx, cy, w, h, flipX, ang){
-  if(!D.holes.length && !D.craters.length) return;
-  // Only the stretch of hull that has something on it, with room for the
-  // smoke to drift aft and up: one small canvas, not a hull-sized one.
+  if(!D.gashes.length && !D.craters.length) return;
   const unit = Math.max(1, h/40);
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
   const take = function(u, v, r){
     const x = (u*0.5+0.5)*w, y = (v*0.5+0.5)*h;
-    x0 = Math.min(x0, x - r - unit*26); x1 = Math.max(x1, x + r + unit*8);
-    y0 = Math.min(y0, y - r - unit*14); y1 = Math.max(y1, y + r + unit*8);
+    x0 = Math.min(x0, x - r - unit*14); x1 = Math.max(x1, x + r + unit*4);
+    y0 = Math.min(y0, y - r - unit*6); y1 = Math.max(y1, y + r + unit*4);
   };
-  for(const hl of D.holes) take(hl.u, hl.v, hl.r*h/2*1.3);
-  for(const c of D.craters) take(c.u, c.v, h*0.08);
+  for(const gs of D.gashes) take(gs.u, gs.v, gs.L*h*0.7);
+  for(const c of D.craters) take(c.u, c.v, h*0.12);
   x0 = Math.floor(x0); y0 = Math.floor(y0);
   const fw = Math.ceil(x1 - x0), fh = Math.ceil(y1 - y0);   // game units
   const k = D.k || 1, cw = Math.ceil(fw*k), ch = Math.ceil(fh*k);
@@ -1698,7 +1794,7 @@ function dmgFx(e, D, cx, cy, w, h, flipX, ang){
     D.fxL = document.createElement('canvas'); D.fxL.width = cw; D.fxL.height = ch;
     D.fxT = -99;
   }
-  const opening = D.holes.some(function(hl){ return fc - hl.t0 < DMG_GROW*3; });
+  const opening = D.gashes.some(function(gs){ return fc - gs.t0 < DMG_GROW; });
   if(fc - D.fxT >= 3 || opening){
     const gl = D.fxL.getContext('2d');
     gl.setTransform(1,0,0,1,0,0);
@@ -1706,94 +1802,172 @@ function dmgFx(e, D, cx, cy, w, h, flipX, ang){
     gl.clearRect(0, 0, cw, ch);
     gl.setTransform(cw/fw, 0, 0, ch/fh, -x0*cw/fw, -y0*ch/fh);
     dmgFxDraw(gl, e, D, w, h);
-    // Glow only where there is still hull: cut to the damaged picture, so
-    // nothing burns in empty space or inside the breach itself.
+    // Glow only where there is hull: cut to the damaged picture.
     gl.globalCompositeOperation = 'destination-in'; gl.globalAlpha = 1;
     gl.drawImage(D.can, 0, 0, w, h);
-    dmgFxSmoke(gl, e, D, w, h);
+    gl.globalCompositeOperation = 'source-over'; gl.globalAlpha = 1;
     D.fxT = fc;
   }
   ctx.save();
   ctx.translate(cx|0, cy|0);
   if(ang) ctx.rotate(ang);
   if(flipX) ctx.scale(-1, 1);
-  // One canvas, smoke under glow: a single blit per ship and frame.
   ctx.drawImage(D.fxL, -w/2+x0, -h/2+y0, fw, fh);
   ctx.restore();
 }
+// On the hull: hot edges cooling to embers, fire inside the tears, arcs.
 function dmgFxDraw(g, e, D, w, h){
-  const t = fc/TICK_HZ;
-  const unit = Math.max(1, h/40);          // a pixel of detail on this hull
-  const f = e.hp/e.maxHp;
+  const t = fc/TICK_HZ, f = e.hp/e.maxHp;
+  const px = Math.max(0.35, 1/(D.k||1));
   g.globalCompositeOperation = 'lighter';
-  for(const hl of D.holes){
-    const age = fc - hl.t0, gt = Math.min(1, age/DMG_GROW), o = 0.25 + 0.75*gt;
-    const hcx = (hl.u*0.5+0.5)*w, hcy = (hl.v*0.5+0.5)*h, r = hl.r*h/2*o;
-    const white = Math.max(0, 1 - age/(DMG_GROW*3));        // white hot, cooling
-    // the rim: a continuous dull glow, and over it each edge its own
-    // width and heat, the pattern wandering round
-    g.lineCap = 'round'; g.lineJoin = 'round';
-    g.strokeStyle = 'rgba(150,40,8,'+(0.22+0.6*white).toFixed(3)+')';
-    g.lineWidth = unit*0.9;
-    dmgHolePath(g, hl, w, h, false); g.stroke();
-    for(let i=0;i<hl.pts.length;i+=2){
-      const p = hl.pts[i], q = hl.pts[(i+2)%hl.pts.length], s = hl.seg[i];
-      const m = hl.pts[(i+1)%hl.pts.length];
-      const an = Math.atan2(p.y, p.x);
-      let b = 0.5 + 0.9*(0.5*Math.sin(an*3.1 + t*1.3 + s.ph) + 0.3*Math.sin(an*7.3 - t*2.1) + 0.4*Math.sin(an*1.7 + hl.sd));
-      // most of the edge has cooled; a few stretches still glow
-      b = Math.max(0, Math.min(1, b)); b = b*b;
-      const hot = Math.pow(Math.max(0, Math.sin(an*5 + t*2.4 + hl.sd)), 8);
-      const gch = Math.round(255*Math.min(1, 0.22+0.30*b+0.45*hot+white*0.7));
-      const bch = Math.round(255*Math.min(1, 0.03+0.25*hot+white*0.8));
-      g.strokeStyle = 'rgba(255,'+gch+','+bch+','+Math.min(1, b+white).toFixed(3)+')';
-      g.lineWidth = unit*(0.4 + 1.1*s.w);
-      g.beginPath(); g.moveTo(hcx+p.x*r, hcy+p.y*r); g.lineTo(hcx+m.x*r, hcy+m.y*r); g.lineTo(hcx+q.x*r, hcy+q.y*r); g.stroke();
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  for(const gs of D.gashes){
+    const age = (fc - gs.t0)/TICK_HZ, heat = Math.exp(-age/2.5);
+    const cx = (gs.u*0.5+0.5)*w, cy = (gs.v*0.5+0.5)*h, Wd = gs.Wd*h, L = gs.L*h;
+    const P = dmgGashPath(g, gs, w, h);
+    // fresh: the whole edge white-orange, cooling over a few seconds
+    if(heat > 0.03){
+      g.strokeStyle = 'rgba(255,'+(150+100*heat|0)+','+(60+170*heat|0)+','+(0.95*heat).toFixed(3)+')';
+      g.lineWidth = px*2; g.stroke();
     }
-    // fire along the torn edge (the middle is open space)
-    for(let j=0;j<3;j++){
-      const life = 0.35+0.2*dmgSeed(hl.sd+j), a = ((t + dmgSeed(hl.sd+j*3)) % life)/life;
-      const ep = hl.pts[Math.floor(dmgSeed(hl.sd+j*5)*hl.pts.length)];
-      const fx = hcx + ep.x*r*0.92, fy = hcy + ep.y*r*0.92 - a*unit*2;
-      dmgStamp(g, fx, fy, unit*(1.4*(1-a)+0.7)*1.6, 0.75*(1-a));
+    // later: a few stretches of the edge still glowing, wandering slowly
+    const edge = gs.sh.top.concat(gs.sh.bot);
+    for(let i=0;i<edge.length-1;i++){
+      if(i === gs.sh.top.length-1) continue;
+      const b = Math.pow(Math.max(0, Math.sin(i*1.9 + gs.sd + t*0.6)), 6) * 0.75;
+      if(b < 0.05) continue;
+      const mi = gs.sh.mid[i < gs.sh.top.length ? i : i - gs.sh.top.length];
+      const mj = gs.sh.mid[(i+1) < gs.sh.top.length ? i+1 : i+1 - gs.sh.top.length];
+      const a = P(edge[i], mi), c = P(edge[i+1], mj);
+      g.strokeStyle = 'rgba(255,110,30,'+b.toFixed(3)+')'; g.lineWidth = px*1.5;
+      g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(c.x, c.y); g.stroke();
     }
-    // embers off the rim, drifting aft
-    for(let j=0;j<4;j++){
-      const a = ((t*0.9 + dmgSeed(hl.sd+j*11)) % 1);
-      const p = hl.pts[(j*5 + (hl.sd|0)) % hl.pts.length];
-      const ex = hcx + p.x*r - a*unit*10, ey = hcy + p.y*r - a*unit*3;
-      g.fillStyle = 'rgba(255,'+(140+(100*(1-a))|0)+',40,'+(1-a).toFixed(3)+')';
-      g.fillRect(ex, ey, unit*0.8, unit*0.8);
+    // fire inside: small tongues flickering along it, more as she weakens
+    const nf = f < 0.3 ? 3 : (f < 0.55 ? 2 : 1);
+    for(let j=0;j<nf;j++){
+      const q = gs.sh.mid[2 + ((j*3 + (gs.sd|0)) % (gs.sh.mid.length-4))];
+      const fl = 0.5 + 0.5*Math.sin(t*(9 + j*3) + gs.sd*3 + j) * dmgSeed(((fc/2)|0) + j + gs.sd);
+      dmgStamp(g, cx + q.x*h, cy + q.y*h, Wd*(0.55 + 0.45*fl), 0.25 + 0.4*fl);
     }
-    // below a quarter: a spark now and then
-    if(f < 0.25){
-      const a = ((t*0.8 + hl.sd) % 1.4)/0.14;
-      if(a < 1) dmgStamp(g, hcx, hcy, unit*(3+a*8), 0.9*(1-a));
+    // below 30 %: discharges across the tear
+    if(f < DMG_ARCS_BELOW && dmgSeed(((fc/3)|0) + gs.sd*7) > 0.72){
+      const a = gs.sh.top[2 + ((fc/3|0) % 4)], b = gs.sh.bot[2 + ((fc/5|0) % 4)];
+      g.strokeStyle = 'rgba(175,205,255,0.95)'; g.lineWidth = px*1.2;
+      g.beginPath(); g.moveTo(cx + a.x*h, cy + a.y*h - Wd*0.6);
+      for(let s=1;s<5;s++){
+        const tt = s/5;
+        g.lineTo(cx + (a.x + (b.x-a.x)*tt)*h + (dmgSeed(fc+s)-0.5)*Wd*1.4,
+                 cy + (a.y + (b.y-a.y)*tt)*h + (dmgSeed(fc+s+7)-0.5)*Wd*1.4);
+      }
+      g.lineTo(cx + b.x*h, cy + b.y*h + Wd*0.6); g.stroke();
     }
   }
   for(const c of D.craters){
-    const ccx = (c.u*0.5+0.5)*w, ccy = (c.v*0.5+0.5)*h, r = h*0.07;
-    dmgStamp(g, ccx, ccy, r, 0.5*(0.6 + 0.4*Math.sin(t*3 + c.sd)));
+    const ccx = (c.u*0.5+0.5)*w, ccy = (c.v*0.5+0.5)*h, r = h*0.05;
+    const fl = 0.5 + 0.5*Math.sin(t*7 + c.sd) * dmgSeed(((fc/2)|0) + c.sd);
+    dmgStamp(g, ccx, ccy, r*(1 + 0.5*fl), 0.4 + 0.4*fl);
   }
+  g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
 }
-// Smoke from breaches and craters, drifting aft (the sprite's -x). Smoke
-// may leave the hull; nothing else does.
-function dmgFxSmoke(g, e, D, w, h){
-  const t = fc/TICK_HZ;
-  const unit = Math.max(1, h/40);
-  // laid in behind the glow that is already there
-  g.globalCompositeOperation = 'destination-over'; g.globalAlpha = 1;
-  const srcs = D.holes.map(function(hl){ return {x:(hl.u*0.5+0.5)*w, y:(hl.v*0.5+0.5)*h, sd:hl.sd}; })
-       .concat(D.craters.map(function(c){ return {x:(c.u*0.5+0.5)*w, y:(c.v*0.5+0.5)*h, sd:c.sd}; }));
-  for(const s of srcs){
-    for(let j=0;j<4;j++){
-      const life = 0.9 + 0.5*dmgSeed(s.sd+j), a = ((t + dmgSeed(s.sd+j*2)*life) % life)/life;
-      const sx = s.x - a*unit*14, sy = s.y - a*unit*4, sr = unit*(1 + a*3.5);
-      g.fillStyle = 'rgba(70,66,62,'+(0.30*(1-a)*Math.min(1, a*6)).toFixed(3)+')';
-      g.beginPath(); g.arc(sx, sy, sr, 0, Math.PI*2); g.fill();
+// What leaves a tear: flame, vapour, smoke and sparks, as free particles in
+// space (Silvio, v182). Each starts with the ship's own velocity at that
+// moment plus the push of the gas, then flies straight on - no drag, no
+// gravity, nothing rising. Flying steadily, a plume stays with the ship;
+// turning, speeding up or braking, she leaves it behind and it bends.
+// Called once per tick for every ship that carries damage.
+function dmgEmitAll(){
+  for(let i=0;i<enemies.length;i++) if(enemies[i].dm) dmgEmit(enemies[i]);
+  for(let i=0;i<allies.length;i++) if(allies[i].dm) dmgEmit(allies[i]);
+}
+function dmgEmit(e){
+  const D = e.dm;
+  // the ship's velocity over the last tick
+  let svx = (D.lx==null) ? 0 : e.x - D.lx, svy = (D.ly==null) ? 0 : e.y - D.ly;
+  D.lx = e.x; D.ly = e.y;
+  if(Math.abs(svx) > 30 || Math.abs(svy) > 30){ svx = 0; svy = 0; }   // a jump, not flight
+  if(e.dead || e.warp > 0 || e.warpOut > 0 || !IMGS[e.img]) return;
+  if(!D.gashes.length && !D.craters.length) return;
+  const f = Math.max(0, e.hp/e.maxHp), t = fc/TICK_HZ;
+  const h = IMGS[e.img].height*e.sc;
+  const fl = e.flip ? -1 : 1, ca = Math.cos(e.ang||0), sa = Math.sin(e.ang||0);
+  const dirW = function(x, y){ x *= fl; return {x: x*ca - y*sa, y: x*sa + y*ca}; };
+  const push = function(o){ o.free = true; o.ml = o.life; PARTS.push(o); };
+  for(const gs of D.gashes){
+    if(fc - gs.t0 < DMG_GROW) continue;
+    const at = dmgWorld(e, gs.u, gs.v), n = dirW(gs.n.x, gs.n.y), q = {x: -n.y, y: n.x};
+    const L = gs.L*h, Wd = gs.Wd*h, age = (fc - gs.t0)/TICK_HZ;
+    const out = function(speed, spread){
+      const k = (Math.random()-0.5)*spread;
+      return {vx: svx + (n.x + q.x*k)*speed, vy: svy + (n.y + q.y*k)*speed};
+    };
+    // a jet of flame now and then, oftener as she weakens: burning gas
+    // driven out, opening into a cone and gone in a moment
+    const per = gs.jetP*(0.5 + f), ph = (t + gs.jetPh) % per;
+    if(ph < 0.6 && (fc & 1) === 0){
+      const env = Math.sin(ph/0.6*Math.PI);
+      const v = out(L*0.07*(0.7 + 0.5*Math.random())*(0.5 + 0.5*env), 0.5);
+      push({type:'dfl', x: at.x, y: at.y, vx: v.vx, vy: v.vy, life: 18 + (Math.random()*12|0),
+            r0: Math.min(Wd*0.7, 5)*env + 0.6, r1: Math.min(Wd*(1.6 + 1.0*env), 12)});
+    }
+    // air bleeding out: strong at first, later in breaths
+    if(gs.vent){
+      const str = age < 12 ? 1 - age/14 : 0.3*Math.max(0, Math.sin(t*0.8 + gs.sd));
+      if(str > 0.05 && fc % 3 === 0 && Math.random() < str + 0.2){
+        const v = out(L*0.016*(0.7 + 0.6*Math.random()), 0.7);
+        push({type:'dvap', x: at.x, y: at.y, vx: v.vx, vy: v.vy, life: 45 + (Math.random()*35|0),
+              r0: Math.min(Wd*0.4, 2.5), r1: Math.min(Wd*(1.3 + 0.6*Math.random()), 9), al: 0.38*Math.min(1, str + 0.2)});
+      }
+    }
+    // smoke from what burns inside, pushed out slowly
+    if(fc % 12 === (gs.sd|0) % 12){
+      const v = out(L*0.006*(0.6 + 0.8*Math.random()), 1.2);
+      push({type:'dsmk', x: at.x, y: at.y, vx: v.vx, vy: v.vy, life: 90 + (Math.random()*50|0),
+            r0: Math.min(Wd*0.5, 3), r1: Math.min(Wd*(1.4 + 0.8*Math.random()), 10), al: 0.24});
+    }
+    // sparks: a few bright flecks thrown out, now and then
+    if(f < 0.6 && Math.random() < 0.025){
+      for(let j=0;j<2+(Math.random()*3|0);j++){
+        const v = out(L*(0.09 + 0.08*Math.random()), 1.6);
+        push({type:'dspk', x: at.x, y: at.y, vx: v.vx, vy: v.vy, svx: svx, svy: svy,
+              life: 25 + (Math.random()*25|0), w: Math.max(0.5, Wd*0.12)});
+      }
     }
   }
-  g.globalCompositeOperation = 'source-over';
+  for(const c of D.craters){
+    if(fc % 12 !== (c.sd|0) % 12) continue;
+    const at = dmgWorld(e, c.u, c.v), a = Math.random()*Math.PI*2, sp = Math.min(h*0.002, 0.25)*(0.5 + Math.random());
+    push({type:'dsmk', x: at.x, y: at.y, vx: svx + Math.cos(a)*sp, vy: svy + Math.sin(a)*sp,
+          life: 90 + (Math.random()*50|0), r0: Math.min(h*0.02, 3), r1: Math.min(h*0.06, 10), al: 0.24});
+  }
+}
+function dmgDrawPart(p, a){
+  const k = 1 - a;                               // 0 new .. 1 gone
+  const r = p.r0 + (p.r1 - p.r0)*Math.sqrt(k);
+  if(p.type==='dfl'){
+    // white-yellow at the start, orange, then a dull red as it thins
+    ctx.globalCompositeOperation = 'lighter';
+    dmgStamp(ctx, p.x, p.y, r, a*a*0.95);
+    if(k < 0.35) dmgStamp(ctx, p.x, p.y, r*0.45, (0.35 - k)*2.4);
+    ctx.globalCompositeOperation = 'source-over';
+  } else if(p.type==='dvap'){
+    ctx.globalAlpha = p.al*a;
+    ctx.fillStyle = '#d8dee6';
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2); ctx.fill();
+  } else if(p.type==='dsmk'){
+    ctx.globalAlpha = p.al*a*Math.min(1, k*8);
+    ctx.fillStyle = '#3c3936';
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2); ctx.fill();
+  } else if(p.type==='dspk'){
+    // a short streak along its path relative to the ship it left
+    const rx = p.vx - p.svx, ry = p.vy - p.svy;
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = 'rgb(255,'+(140 + 100*a|0)+',90)';
+    ctx.lineWidth = p.w;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - rx*1.5, p.y - ry*1.5); ctx.stroke();
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  ctx.globalAlpha = 1;
 }
 // How a nozzle burns, given the damage (thruster t of ship e, index i).
 function dmgThrust(e, t, i){
@@ -1810,11 +1984,11 @@ function dmgThrust(e, t, i){
     if(lost > 0.05) k *= 1 - lost*0.65*dmgSeed(((fc/3)|0) + i*11);
   }
   const D = e.dm;
-  if(D && D.holes.length){
-    for(const hl of D.holes){
-      if(Math.hypot(hl.u - t.dx, hl.v - t.dy) < DMG_NEAR_ENGINE*2){
+  if(D && D.gashes.length){
+    for(const gs of D.gashes){
+      if(Math.hypot(gs.u - t.dx, gs.v - t.dy) < DMG_NEAR_ENGINE*2){
         // sputtering: now low, now gone for a moment
-        const r = dmgSeed(((fc/4)|0) + i*13 + hl.sd);
+        const r = dmgSeed(((fc/4)|0) + i*13 + gs.sd);
         k *= r < 0.22 ? 0.08 : (0.55 + 0.45*r);
         break;
       }

@@ -2547,8 +2547,9 @@ scenario('v180: lasting damage on a capital ship', 'm=62', `
   r.inward = !!D && D.scorch.every(s=>s.u > -0.95);
   r.onHull = !!D && D.scorch.every(s=>dmgSolid(D.inf, s.u, s.v, 0));
   for(let i=0;i<5;i++){ FS.step(1); draw(); }
-  r.breach = !!D && D.holes.length === 1;
-  r.breachClearOfSystems = !!D && D.holes.every(h=>dmgSubsFar(k, h.u, h.v, 4));
+  // tears since v182: at 45 % the first two (72 % and the next step)
+  r.breach = !!D && D.gashes.length >= 1;
+  r.breachClearOfSystems = !!D && D.gashes.every(h=>dmgSubsFar(k, h.u, h.v, 4));
   // A destroyed engines subsystem puts the flames out.
   const en = (k.subs||[]).find(s=>s.id==='engines');
   if(en){ en.hp = 0; en.dead = true; dmgCrater(k, en); }
@@ -2556,7 +2557,7 @@ scenario('v180: lasting damage on a capital ship', 'm=62', `
   r.crater = !en || D.craters.length === 1;
   // Patched up, the breach closes again.
   k.hp = k.maxHp*0.9; draw();
-  r.repairCloses = D.holes.length === 0;
+  r.repairCloses = D.gashes.length === 0;
   r.scorchStays = D.scorch.length >= 5;
   return r;`);
 
@@ -2570,10 +2571,10 @@ scenario('v181: M80 the Hecate is there from the start, already damaged', 'm=80'
   r.noWarpIn = !!h && !(h.warp>0);
   draw(); FS.step(1); draw();
   const D = h && h.dm;
-  r.breached = !!D && D.holes.length >= 1;
+  r.breached = !!D && D.gashes.length >= 1;
   r.scorched = !!D && D.scorch.length >= 5;
   // Old damage, not new: the breaches are open, nothing bursts.
-  r.alreadyOpen = !!D && D.holes.every(x=>fc - x.t0 >= DMG_GROW);
+  r.alreadyOpen = !!D && D.gashes.every(x=>fc - x.t0 >= DMG_GROW);
   return r;`);
 scenario('v181: damage pictures at screen resolution, glow only on the hull', 'm=62', `
   const r = {};
@@ -2594,6 +2595,40 @@ scenario('v181: damage pictures at screen resolution, glow only on the hull', 'm
     const fx = D.fxL.getContext('2d').getImageData(0, 0, D.fxL.width, D.fxL.height).data;
     r.fxDrawn = fx.some((v,i)=>i%4===3 && v>0);
   }
+  return r;`);
+scenario('v182: tears, not holes; what comes out flies free in space', 'm=62', `
+  const r = {};
+  FS.step(600);
+  const k = enemies.find(e=>e.type==='cruiser' && !(e.warp>0));
+  k.noFlee = true; k.escape = false;             // she stays to be looked at
+  const img = IMGS[k.img], hw = img.width*k.sc/2, hh = img.height*k.sc/2;
+  for(let i=0;i<300 && k.hp > k.maxHp*0.3;i++){
+    damageEnemy(k, k.maxHp*0.01, k.x - hw*0.9, k.y + (Math.random()-0.5)*hh, true, 'bolt');
+    FS.step(1); draw();
+  }
+  for(let i=0;i<60;i++){ FS.step(1); draw(); }
+  const D = k.dm;
+  r.tears = !!D && D.gashes.length >= 2;
+  // Small: never more than a tenth of her length, and capped.
+  r.small = !!D && D.gashes.every(g=>g.L*hh*2 <= Math.min(hw*2*0.12, DMG_GASH_MAX) + 0.01);
+  // Nothing to see through: the picture is solid where a tear is.
+  r.noHoles = !!D && D.can && D.gashes.every(g=>{
+    const x = Math.round((g.u*0.5+0.5)*D.can.width), y = Math.round((g.v*0.5+0.5)*D.can.height);
+    return D.can.getContext('2d').getImageData(x, y, 1, 1).data[3] === 255; });
+  // What leaves a tear keeps its speed: no drag, no gravity, nothing rising.
+  const hp0 = k.hp; k.invuln = true;
+  for(let i=0;i<600;i++){ FS.step(1); k.warpOut = 0; k.hp = hp0; }
+  r.alive = enemies.indexOf(k) >= 0;
+  const fr = PARTS.filter(p=>p.free);
+  r.emitted = fr.length > 0;
+  const p0 = fr.map(p=>({p, vx:p.vx, vy:p.vy}));
+  tickParts();
+  r.straight = p0.filter(q=>PARTS.indexOf(q.p)>=0).every(q=>q.p.vx===q.vx && q.p.vy===q.vy);
+  // A moving ship hands her velocity on to what she sheds.
+  PARTS.length = 0; k.dm.lx = k.x - 1.5; k.dm.ly = k.y;
+  let got = null;
+  for(let i=0;i<400 && !got;i++){ k.dm.lx = k.x - 1.5; k.dm.ly = k.y; dmgEmit(k); got = PARTS.find(p=>p.free); }
+  r.inherits = !!got && got.vx > 0.5;
   return r;`);
 scenario('v180: M78 the devices are scanned first, the Sathanas never fire', 'm=78', `
   const r = {};
