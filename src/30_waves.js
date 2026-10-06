@@ -968,6 +968,9 @@ function tickEscapers(){
   for(let i=enemies.length-1;i>=0;i--){
     const e = enemies[i];
     if(!e.escaping || e.dead || e.warp>0) continue;
+    // Dying, she is adrift: no more running, and she cannot get away
+    // (Silvio, v183: one counted as escaped though she broke up first).
+    if(e.rollT!=null) continue;
     if(e.escHold>0){ e.escHold--; continue; }
     // Kein Antrieb, keine Fahrt. Das war der Sinn des Subsystems.
     if(hasSubsystems(e) && !subOK(e,'engines')) continue;

@@ -263,17 +263,22 @@ function draw(){
     }else{
       drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,e.warp>0?0.35:1,e.ang||0,e);
       drawShipE(e,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
+      // Dying (v183): no bar, no name, no marks - she is done with, and the
+      // player can see at once that it is time for the next target (Silvio).
+      const _dying = e.rollT!=null;
+      if(!_dying){
       drawHostileMark(e);
       drawTagMark(e);
       drawScorch(e);
       drawShield(e);
       drawScanRing(e);
+      }
 
       // Freighters count too: transports, miners and hospital ships are
       // often what a mission is about, and how much hull they have left is
       // what decides how hard to fight for them.
-      if(e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer'||
-         e.type==='boss'||e.type==='station'||e.type==='freighter'){
+      if(!_dying && (e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer'||
+         e.type==='boss'||e.type==='station'||e.type==='freighter')){
         const hbImg=IMGS[e.img];if(hbImg){
           var bwMult=(e.type==='boss'?0.75:(e.type==='destroyer'?0.55:
                      (e.type==='freighter'?0.80:0.70)));
@@ -291,7 +296,8 @@ function draw(){
           drawHullBlocks(e, bx, by, bw, hpRatio, showShield);
         }}}
     ctx.globalAlpha=1;
-    if(e.bShield>0){ drawLuciShield(e); drawReactors(e); }
+    if(e.rollT!=null){ /* dying: nothing on her any more */ }
+    else if(e.bShield>0){ drawLuciShield(e); drawReactors(e); }
     // In subspace the Lucifer has no shield, only her reactors (v170).
     else if(e.reactorOnly) drawReactors(e);
     // Our own ships carry no subsystem marks: the enemy does not aim at

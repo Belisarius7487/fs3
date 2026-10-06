@@ -1879,8 +1879,16 @@ function dmgFxDraw(g, e, D, w, h){
 // turning, speeding up or braking, she leaves it behind and it bends.
 // Called once per tick for every ship that carries damage.
 function dmgEmitAll(){
-  for(let i=0;i<enemies.length;i++) if(enemies[i].dm) dmgEmit(enemies[i]);
-  for(let i=0;i<allies.length;i++) if(allies[i].dm) dmgEmit(allies[i]);
+  for(let i=0;i<enemies.length;i++){ dmgTrack(enemies[i]); if(enemies[i].dm) dmgEmit(enemies[i]); }
+  for(let i=0;i<allies.length;i++){ dmgTrack(allies[i]); if(allies[i].dm) dmgEmit(allies[i]); }
+}
+// Every big ship's velocity over the last tick, whether she is damaged or
+// not: what a death roll starts from (v183).
+function dmgTrack(e){
+  if(e.small || e.type==='fighter' || e.type==='bomber' || e.type==='asteroid') return;
+  let vx = (e._lx==null) ? 0 : e.x - e._lx, vy = (e._ly==null) ? 0 : e.y - e._ly;
+  if(Math.abs(vx) > 30 || Math.abs(vy) > 30){ vx = 0; vy = 0; }
+  e._vx = vx; e._vy = vy; e._lx = e.x; e._ly = e.y;
 }
 function dmgEmit(e){
   const D = e.dm;
@@ -2015,7 +2023,7 @@ function startDeathRoll(e){
   e.rollT = len; e.rollLen = len;
   e.hp = 1; e.noFire = true; e.noTarget = true;
   // what she was doing when she died is what she keeps doing
-  e.rvx = D ? (D.svx||0) : 0; e.rvy = D ? (D.svy||0) : 0;
+  e.rvx = e._vx || 0; e.rvy = e._vy || 0;
   // only a slight turn: she is out of control, not tumbling (Silvio)
   e.rspin = 0; e.rspinTo = (e.type==='station' ? 0 : (0.0002 + Math.random()*0.0003)) * (Math.random()<0.5 ? -1 : 1);
   e.rNext = 0;
@@ -2042,7 +2050,7 @@ function deathRollTick(e){
     const r = h*(0.10 + 0.18*k + 0.12*Math.random());
     spawnFireball(p.x, p.y, r, 16 + (k*14|0));
     spawnDebris(p.x, p.y, 4 + (k*6|0), 255,225,170, 220,120,50, false);
-    sndPlay('expl_secondary', p.x, 0.3 + 0.4*k, p.y);
+    sndDeath(p.x, 0.5 + 0.5*k, p.y);
     if(k > 0.5) addShake(1 + 3*k, 6);
     e.rNext = fc + Math.max(6, Math.round(TICK_HZ*(0.45 - 0.36*k)*(0.6 + 0.8*Math.random())));
   }
@@ -2249,7 +2257,7 @@ function hulkSplit(i){
   const S = splitPiece(Hk);
   spawnFireball(S.blast.x, S.blast.y, big*0.35 + 6, 20);
   spawnDebris(S.blast.x, S.blast.y, 8, 255,220,170, 200,110,50, false);
-  sndPlay('expl_secondary', S.blast.x, 0.4, S.blast.y);
+  sndDeath(S.blast.x, 0.4, S.blast.y);
   HULKS.splice(i, 1);
   for(const pc of S.parts){
     const dx = pc.at.x - S.blast.x, dy = pc.at.y - S.blast.y, dl = Math.hypot(dx, dy) || 1;
@@ -2280,7 +2288,7 @@ function wreckSplit(i){
   const S = splitPiece(P);
   spawnFireball(S.blast.x, S.blast.y, Math.max(d.w, d.h)*0.45 + 5, 18);
   spawnDebris(S.blast.x, S.blast.y, 6, 255,220,170, 200,110,50, false);
-  sndPlay('expl_secondary', S.blast.x, 0.25, S.blast.y);
+  sndDeath(S.blast.x, 0.25, S.blast.y);
   debris.splice(i, 1);
   for(const pc of S.parts){
     const dx = pc.at.x - S.blast.x, dy = pc.at.y - S.blast.y, dl = Math.hypot(dx, dy) || 1;

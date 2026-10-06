@@ -2687,6 +2687,23 @@ scenario('v183: our capital ships die the same way', 'm=80', `
   r.gone = allies.indexOf(a) < 0;
   r.sections = HULKS.length >= 2;
   return r;`);
+scenario('v183: M55 a cruiser dying on her way to the portal drifts, does not escape', 'm=55', `
+  const r = {};
+  FS.until(()=>{ const k = FS.ids('K1')[0]; return !!k && k.escaping && !(k.warp>0) && k.x > 120; }, 4000, true);
+  const k = FS.ids('K1')[0];
+  const x0 = k.x; FS.step(20); const v0 = (k.x - x0)/20;
+  const esc0 = escGone;
+  damageEnemy(k, k.maxHp*3, k.x, k.y, true, 'bolt');
+  r.rolling = k.rollT != null;
+  // she keeps the speed she had, she does not speed up
+  FS.step(5); const x1 = k.x; FS.step(50); const v1 = (k.x - x1)/50;
+  r.sameSpeed = v0 > 0.05 && Math.abs(v1 - v0) < v0*0.15;
+  // put her right at the portal: dying, she still does not get through
+  k.x = PORTAL_X + 5; FS.step(k.rollT + 10);
+  r.notEscaped = escGone === esc0 && !EV_LEFT['K1'] && k.dead;
+  // the breakup is her big blast now: nothing of her left in the queue
+  r.noLateBlasts = !EXPL_Q.some(q => q.t > fc && Math.hypot(q.x - k.x, q.y - k.y) < 150);
+  return r;`);
 scenario('v180: M78 the devices are scanned first, the Sathanas never fire', 'm=78', `
   const r = {};
   FS.step(30);

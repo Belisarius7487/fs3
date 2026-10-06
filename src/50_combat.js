@@ -2900,7 +2900,15 @@ function updateBeams(e) {
   if(!e.beams || (e.warp>0 && !warpFiring(e))) return;
   // Told not to fire: no beams either (v180, the Sathanas passing in 78
   // still lit their anti-fighter beams once the cover was blown).
-  if(e.noFire) return;
+  // A beam that was firing is put down, not left hanging (v183: a ship in
+  // her death roll is told not to fire mid-shot).
+  if(e.noFire){
+    for(const b of e.beams){
+      if(b.state==='charging') sndBeam(e, b, 'abort');
+      if(b.state!=='idle'){ b.state='idle'; b.timer=1e9; b.target=null; }
+    }
+    return;
+  }
   if(!subOK(e,'weapons')){
     // Returning here left a beam that happened to be firing stuck in that
     // state forever, harmless but drawn across the screen until the ship

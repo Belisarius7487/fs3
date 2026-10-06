@@ -297,7 +297,12 @@ function spawnSmoke(x, y, n) {
 }
 
 // snd: the sound of a final blast (expl_medium or expl_big).
+// While a ship that has rolled breaks up (v183) her class profile runs
+// as usual, but its chain of secondaries already happened in the roll: only
+// the final blast is kept, and it comes now, with the breakup.
+let EXPL_NOW = false;
 function scheduleExpl(delay, x, y, r, type, snd) {
+  if(EXPL_NOW){ if(type!=='final') return; delay = 0; snd = null; }
   EXPL_Q.push({t:fc+delay, x:x, y:y, r:r, type:type, snd:snd});
 }
 
@@ -327,6 +332,10 @@ function tickBlastFuses(){
 }
 function triggerExpl(x, y, shipType, faction, src) {
   sndExpl(x, shipType, src, y);
+  EXPL_NOW = !!(src && src.rolled);
+  try{ triggerExplBody(x, y, shipType, faction, src); } finally { EXPL_NOW = false; }
+}
+function triggerExplBody(x, y, shipType, faction, src) {
   // The branch chain below has no else. Any type that is not in it dies
   // silently, with no fireball, no ring and no debris - which is what the
   // non-combatants did when they were first added. They borrow the
@@ -449,7 +458,8 @@ function tickExplQueue() {
     if(fc>=EXPL_Q[i].t) {
       var e=EXPL_Q[i];
       if(e.type!=='final') sndPlay('expl_secondary', e.x, 0.8, e.y);
-      else sndPlay(e.snd || 'expl_medium', e.x, 1, e.y);
+      // the final of a rolled ship is silent: her big sound came with the breakup
+      else if(e.snd !== null) sndPlay(e.snd || 'expl_medium', e.x, 1, e.y);
       if(e.type==='mini') {
         spawnFireball(e.x,e.y,e.r,22);
         spawnDebris(e.x,e.y,8,255,180,50,200,60,0,true);

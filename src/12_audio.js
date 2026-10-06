@@ -104,13 +104,17 @@ const SND_MIX = {
   scan_start:0.80, scan_done:0.90, scan_loop:0.70,
   warp_open:0.18, warp_in_big:0.36, warp_out_big:0.36,
   beam_charge:0.30, beam_loop:0.24, beam_down:0.26,
-  ai_fire:0.05, ai_sec:0.14
+  ai_fire:0.05, ai_sec:0.14,
+  // a dying capital ship and her wreckage (v183): their own voices, so
+  // every blast that is seen is heard, at the moment it is seen
+  death_roll:0.24
 };
 const SND_VOICES = {
   wpn_prometheus:3, wpn_sidhe:2, wpn_dante:2, wpn_subach:3,
   expl_secondary:2, expl_small:3, expl_medium:2, expl_big:2, missile_explosion:2,
   hit_shield:1, hit_player:1, warp_open:2, warp_in_big:2, warp_out_big:2,
-  beam_charge:3, beam_down:2, ai_fire:2, ai_sec:1, sub_destroyed:2
+  beam_charge:3, beam_down:2, ai_fire:2, ai_sec:1, sub_destroyed:2,
+  death_roll:5
 };
 // Least time between two starts of one sound, in seconds.
 const SND_GAP = {hit_player:0.15, hit_shield:0.15, sec_empty:0.35,
@@ -279,6 +283,8 @@ function sndStart(name, x, vol, loop, mix, y){
 }
 // A sound at a place on the field. vol scales its level (1 = its mix).
 function sndPlay(name, x, vol, y){ sndStart(name, x, vol, false, null, y); }
+// The blasts of a dying ship and of her wreckage (v183).
+function sndDeath(x, vol, y){ sndStart('expl_secondary', x, vol, false, 'death_roll', y); }
 function sndStop(src){
   if(!src) return;
   try{
@@ -298,6 +304,9 @@ function sndAiSec(x, bomb, y){ sndStart(bomb ? 'sec_cyclops' : 'sec_mx64', x, 1,
 // detonation (see scheduleExpl).
 function sndExpl(x, type, src, y){
   if(src && src.player){ sndPlay('expl_player', x, 1, y); return; }
+  // A ship that has rolled: the breakup is the big one, heard with it
+  // (v183). Her secondaries were heard during the roll.
+  if(src && src.rolled){ sndPlay((type==='cruiser' || type==='freighter') ? 'expl_medium' : 'expl_big', x, 1, y); return; }
   if(type==='asteroid') sndPlay('expl_asteroid', x, 1, y);
   else if(type==='fighter' || type==='bomber' || type==='sentry' || type==='container') sndPlay('expl_small', x, 1, y);
   else if(type==='station') sndPlay('expl_big', x, 1, y);

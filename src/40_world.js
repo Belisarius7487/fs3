@@ -1097,6 +1097,7 @@ function separateCapitals(){
     for(let j=i+1;j<list.length;j++){
       const a=list[i], b=list[j];
       if(a.warp>0 || b.warp>0 || a.warpOut>0 || b.warpOut>0) continue;
+      if(a.rollT!=null || b.rollT!=null) continue;   // a dying ship just drifts (v183)
       if(a.colossus || b.colossus) continue;   // she does not give way
       // Nor does a juggernaut: the other one moves, all of it (v178, the
       // Sathanas in M77 was shoved off her line).
