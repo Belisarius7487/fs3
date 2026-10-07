@@ -1895,7 +1895,7 @@ let rearmMenu = false;
 function setRearmMenu(open){
   if(!open && rearmMenu) holdResume();
   rearmMenu = open;
-  if(open){ shipMenu = false; callMenu = false; }
+  if(open){ shipMenu = false; callMenu = false; rmBank = 'p0'; rmShow = null; }
   syncPause();
   if(!open && GS==='playing'){ MOUSE.x = player.x; MOUSE.y = player.y; }
   syncCursor();
@@ -1905,23 +1905,32 @@ function toggleRearmMenu(){
   if(!rearmReady()) return;
   setRearmMenu(true);
 }
-// The interim rearm list (v186, until the loadout screen): one row per
-// bank, a tap switches that bank to the next weapon the hull may carry and
-// fills every rack. slot: 'p0', 'p1', 's0'..'s2'.
-function fitWeapon(slot){
+// The rearm window (v190): pick a bank, then the weapon for it. slot:
+// 'p0', 'p1', 's0'..'s2'. key: the weapon to fit; without one the bank
+// steps to the next weapon open to it (the old interim list, v186). The
+// weapon already in the bank fills it again - a corvette is where you
+// reload (Silvio). Every pick fills every rack.
+function fitWeapon(slot, key){
   if(!rearmMenu || !slot) return;
   const pri = slot[0]==='p', i = +slot.slice(1);
   const fit = {p:(player.pb||[]).map(function(b){ return b.key; }),
                s:(player.sb||[]).map(function(b){ return b.key; })};
   const list = pri ? fit.p : fit.s;
   if(i >= list.length) return;
-  const nk = nextChoice(player.ship, pri, list[i]);
-  if(nk === list[i]) return;
+  let nk = key;
+  if(nk === undefined) nk = nextChoice(player.ship, pri, list[i]);
+  else {
+    const w = bankChoices(player.ship, pri).find(function(q){ return q.key===nk; });
+    if(!w || !weaponOpenFor(w, player.ship)) return;
+  }
+  const same = (nk === list[i]);
+  if(same && key === undefined) return;
   list[i] = nk;
   FITS[player.ship] = fit;
   rearmFull();
   plogRearm();
-  notice(weaponName(pri ? priDefP(nk) : secDefP(nk)).toUpperCase()+' FITTED', 'good');
+  notice(same ? 'REARMED'
+              : weaponName(pri ? priDefP(nk) : secDefP(nk)).toUpperCase()+' FITTED', 'good');
 }
 
 // ── HANGAR LAYOUT ────────────────────────────────────────────
@@ -2178,151 +2187,262 @@ function drawResumeHint(){
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
-// ── REARM PANEL ──────────────────────────────────────────────
-// Same shape as the hangar, because it is the same kind of decision: a list
-// of things you may take, with the figures that let you choose between them.
-// Built entirely from the surface kit; nothing here invents a shape.
-const RM_W        = 660;
-const RM_PAD      = 12;
-const RM_ROW      = 38;
-const RM_ROW_LOCK = 20;
-const RM_GAP      = 4;
-const RM_HEAD     = 24;
+// ── REARM PANEL (v190) ───────────────────────────────────────
+// Three columns: the ship and its banks, the weapons the chosen bank may
+// carry, and a fixed info panel for the weapon under the pointer (Silvio:
+// no tooltips, facts not verdicts, values for your own ship, compared with
+// what the bank holds now). Everything is read from the tables the game
+// fights with - ARSENAL_P/S, SHIP_BANKS, the energy store - never by hand.
+const RM_W        = 700;
 const RM_TITLE    = 34;
-const RM_FOOT     = 18;
-const RM_GROUPGAP = 14;
-const RM_NUM      = 8;
-const RM_NUM_W    = 16;
-const RM_NAME     = 30;
-// Two kinds of weapon, two sets of columns. Both are measured from the row's
-// left edge, and the row is RM_W - 2*RM_PAD wide.
-const RM_COLS_PRI = [
-  {k:'dmg',   x:300, label:'VOLLEY'},
-  {k:'rate',  x:366, label:'ROF'},
-  {k:'spd',   x:432, label:'SPEED'},
-  {k:'range', x:504, label:'ENERGY'}
+const RM_H        = 420;
+const RM_PAD      = 16;
+const RM_C1_W     = 200;    // ship and banks
+const RM_C2_W     = 180;    // weapons of the chosen bank
+const RM_GAP_COL  = 14;
+const RM_PIC_H    = 92;
+const RM_BANK_H   = 34;
+const RM_ROW_H    = 26;
+const RM_ROW_GAP  = 2;
+const RM_GOOD     = '#7fe08a';
+const RM_BAD      = '#ff7a66';
+// The bank picked and the weapon the info panel is about.
+let rmBank = 'p0', rmShow = null;
+// The bars of the info panel, the armour factor each one reads.
+const RM_BARS = [
+  ['HULL', 'a'], ['SHIELDS', 's'], ['SUBSYSTEMS', 'u']
 ];
-const RM_COLS_SEC = [
-  {k:'dmg',    x:290, label:'DAMAGE'},
-  {k:'ammo',   x:352, label:'RACK'},
-  {k:'reload', x:410, label:'RELOAD'},
-  {k:'spd',    x:474, label:'SPEED'},
-  {k:'seek',   x:530, label:'SEEKING'}   // room for STRAIGHT (v187)
-];
-// What each column actually says for a weapon. Kept beside the columns so a
-// new figure is added in one place rather than two.
-function rmValue(w, k, pri, slot){
-  if(pri){
-    if(k==='dmg')   return String(Math.round(volleyTotal(primaryCount(player.ship))*w.dmg));
-    if(k==='rate')  return (Math.round(600/Math.max(4, w.wait||28))/10).toFixed(1)+'/s';
-    if(k==='spd')   return String(Math.round(w.spd*10)/10);
-    if(k==='range') return (Math.round((w.en||0)*10)/10).toFixed(1);
-    return '';
-  }
-  // A swarm: the damage of the whole salvo, then how it is made up.
-  const d = Math.round(w.dmg*10)/10;
-  if(k==='dmg')    return w.swarm ? w.swarm+'\u00d7'+d : String(Math.round(w.dmg));
-  if(k==='ammo')   return String(bankAmmoMax(player.ship, +slot.slice(1), w.key));
-  if(k==='reload') return (Math.round(w.cd/6)/10).toFixed(1)+'s';
-  if(k==='spd')    return String(Math.round(w.spd*10)/10);
-  // What the seeker does, in the player's words (Silvio, v187): LOCK keeps
-  // the target in front of the nose at launch, NEAREST turns to whatever
-  // is closest, STRAIGHT flies where it was fired.
-  if(k==='seek')   return w.homing==='heat' ? 'NEAREST' : (w.homing==='aspect' ? 'LOCK' : 'STRAIGHT');
-  return '';
+
+function rmPri(slot){ return slot[0]==='p'; }
+function rmDef(key, pri){ return pri ? priDefP(key) : secDefP(key); }
+function rmBankKey(slot){
+  const i = +slot.slice(1), b = rmPri(slot) ? player.pb : player.sb;
+  return (b && b[i]) ? b[i].key : null;
 }
-// One row per bank. A tap on a row switches that bank to the next weapon.
-function rearmGroups(){
-  const P = (player.pb||[]).map(function(b, i){ return {slot:'p'+i, w:priDefP(b.key), label:'BANK '+(i+1)}; });
-  const S = (player.sb||[]).map(function(b, i){ return {slot:'s'+i, w:secDefP(b.key), label:'BANK '+(i+1)}; });
-  return [{head:'PRIMARY BANKS', pri:true,  cols:RM_COLS_PRI, list:P},
-          {head:'SECONDARY BANKS', pri:false, cols:RM_COLS_SEC, list:S}];
+// Damage per second of a gun, or of a whole bank of rounds, against one
+// kind of target. A bank compares fairly where a round would not: five
+// Trebuchets against 160 Tempests (v189 draft).
+function rmDps(w, k){
+  const f = w.f || {a:1, s:1, u:1};
+  return w.dmg*(w.pellets||1)*60/Math.max(1, w.wait||28)*f[k];
+}
+function rmBankDmg(w, k, slot){
+  const f = w.f || {a:1, s:1, u:1};
+  const round = w.children ? w.children*(w.childDmg||w.dmg) : w.dmg*(w.swarm||1);
+  return round*f[k]*bankAmmoMax(player.ship, +slot.slice(1), w.key);
+}
+function rmValueOf(w, k, slot){ return rmPri(slot) ? rmDps(w, k) : rmBankDmg(w, k, slot); }
+// How far a round gets, in screen widths: the game has no metres on show
+// (Silvio, v189 draft).
+function rmReach(w, pri){
+  const px = (pri && w.range > 0) ? w.range : (w.spd||0)*(w.life||0);
+  const s = px / W;
+  if(s >= 3) return 'REACH '+Math.round(s)+' SCREENS';
+  const r = Math.round(s*10)/10;
+  return 'REACH '+r+(r > 1 ? ' SCREENS' : ' SCREEN');
+}
+// Facts, never verdicts.
+function rmFacts(w, pri){
+  const f = [], ff = w.f || {a:1, s:1, u:1};
+  if(pri){
+    f.push((Math.round(600/Math.max(4, w.wait||28))/10)+' SHOTS/S');
+    f.push('ENERGY '+(Math.round((w.en||0)*10)/10)+' A SHOT');
+    f.push(rmReach(w, true));
+    if(w.pellets) f.push(w.pellets+' PELLETS A SHOT');
+    if(w.shards) f.push('BURSTS INTO '+w.shards+' SHARDS');
+    if(ff.a === 0) f.push('NO HULL DAMAGE');
+    else if(ff.s < 0.5) f.push('WEAK ON SHIELDS');
+  } else {
+    f.push(w.homing==='heat' ? 'SEEKS NEAREST' : (w.homing==='aspect' ? 'LOCKS AT LAUNCH' : 'FLIES STRAIGHT'));
+    f.push(rmReach(w, false));
+    if((w.fs && w.fs.turn || 1) >= 2) f.push('TURNS SLOWLY');
+    if(w.bigFirst) f.push('PREFERS CAPITAL SHIPS');
+    if(w.swarm) f.push(w.swarm+' MISSILES A SHOT');
+    if(w.children) f.push('PRESS AGAIN: '+w.children+' SEEKERS');
+    if(w.subs) f.push('SUBSYSTEMS ONLY');
+    if(w.emp) f.push('FIGHTERS NEAR IT STOP FIRING '+Math.round(EMP_T/60)+' S');
+    if(w.tag) f.push('MARKS FOR OUR BEAMS');
+    if(w.blast) f.push('ITS BLAST HITS YOU TOO');
+  }
+  return f;
+}
+// Bars against the strongest weapon this bank may carry; the mark and the
+// per cent are the weapon in the bank now.
+function rmBars(w, slot){
+  const pri = rmPri(slot), cur = rmDef(rmBankKey(slot), pri);
+  const all = bankChoices(player.ship, pri);
+  return RM_BARS.map(function(r){
+    const k = r[1];
+    let top = 0;
+    for(const q of all) top = Math.max(top, rmValueOf(q, k, slot));
+    const a = rmValueOf(w, k, slot), b = rmValueOf(cur, k, slot);
+    top = top || 1;
+    return {l:r[0], v:Math.min(1, a/top), cur:Math.min(1, b/top),
+            d:(b > 0 && w.key !== cur.key) ? Math.round((a/b-1)*100) : null};
+  });
+}
+// What it means on the hull you fly.
+function rmShipLines(w, slot){
+  if(rmPri(slot)){
+    const regen = (player.enRe||0)*60, drain = (w.en||0)*60/Math.max(1, w.wait||28);
+    const last = function(d){ return d <= regen ? 'never runs dry' : 'store lasts '+Math.round((player.enMax||0)/(d-regen))+' s'; };
+    const out = ['Alone: '+last(drain)];
+    const i = +slot.slice(1), o = (player.pb||[])[1-i];
+    if(o){ const ow = priDefP(o.key); out.push('Linked with '+weaponName(ow)+': '+last(drain + (ow.en||0)*60/Math.max(1, ow.wait||28))); }
+    return out;
+  }
+  const n = bankAmmoMax(player.ship, +slot.slice(1), w.key);
+  const round = w.children ? w.children*(w.childDmg||w.dmg) : w.dmg*(w.swarm||1);
+  return [n+(n === 1 ? ' round fits' : ' rounds fit')+' in this bank',
+          Math.round(round*(w.f ? w.f.a : 1))+' hull damage a round',
+          'Reload '+(Math.round(w.cd/6)/10)+' s between rounds'];
+}
+function rmSelectBank(slot){
+  if(!rmBankKey(slot)) return;
+  rmBank = slot; rmShow = null;
+}
+// Up / down through the weapons of the bank, the way the pointer would.
+function rmStep(d){
+  const list = bankChoices(player.ship, rmPri(rmBank));
+  if(!list.length) return;
+  let i = list.findIndex(function(w){ return w.key === (rmShow || rmBankKey(rmBank)); });
+  i = (i + d + list.length) % list.length;
+  rmShow = list[i].key;
 }
 function rearmLayout(){
-  const plan = [];
-  let h = RM_TITLE, n = 0;
-  for(const g of rearmGroups()){
-    if(!g.list.length) continue;
-    plan.push({head:g.head, y:h, cols:g.cols});
-    h += RM_HEAD;
-    for(const it of g.list){
-      plan.push({w:it.w, slot:it.slot, label:it.label, y:h, h:RM_ROW, cur:false, open:true,
-                 pri:g.pri, cols:g.cols, num:++n});
-      h += RM_ROW + RM_GAP;
-    }
-    h += RM_GROUPGAP;
+  const mx = ((W-RM_W)/2)|0, my = (HUD_H + (H-HUD_H-RM_H)/2)|0;
+  const c1 = mx+RM_PAD, c2 = c1+RM_C1_W+RM_GAP_COL, c3 = c2+RM_C2_W+RM_GAP_COL;
+  const banks = [];
+  let y = my+180, n = 0;
+  (player.pb||[]).forEach(function(b, i){ banks.push({slot:'p'+i, label:'PRIMARY '+(i+1), key:b.key, x:c1, y:y, w:RM_C1_W, h:RM_BANK_H, num:++n}); y += RM_BANK_H+4; });
+  (player.sb||[]).forEach(function(b, i){ banks.push({slot:'s'+i, label:'SECONDARY '+(i+1), key:b.key, ammo:b.max, x:c1, y:y, w:RM_C1_W, h:RM_BANK_H, num:++n}); y += RM_BANK_H+4; });
+  if(!rmBankKey(rmBank)) rmBank = banks.length ? banks[0].slot : 'p0';
+  const pri = rmPri(rmBank), cur = rmBankKey(rmBank);
+  const list = [];
+  y = my+60;
+  for(const w of bankChoices(player.ship, pri)){
+    list.push({key:w.key, w:w, open:weaponOpenFor(w, player.ship), cur:w.key===cur,
+               x:c2, y:y, wd:RM_C2_W, h:RM_ROW_H});
+    y += RM_ROW_H+RM_ROW_GAP;
   }
-  h += RM_FOOT;
-  return {mx:((W-RM_W)/2)|0, my:((H-h)/2)|0, mw:RM_W, mh:h, plan:plan};
+  return {mx:mx, my:my, mw:RM_W, mh:RM_H, c1:c1, c2:c2, c3:c3, c3w:mx+RM_W-RM_PAD-c3,
+          banks:banks, list:list, pri:pri};
+}
+function drawRearmShip(x, y, w, h){
+  const key = player.ship, img = IMGS[key];
+  ctx.fillStyle = TH('back'); ctx.fillRect(x, y, w, h);
+  if(!img || !img.width || !img.height) return;
+  const sc = Math.min((w-20)/img.width, (h-12)/img.height);
+  if(!(sc > 0)) return;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.translate(x+w/2, y+h/2);
+  if(spriteFacing(key)==='left') ctx.scale(-1, 1);
+  ctx.drawImage(img, -img.width*sc/2, -img.height*sc/2, img.width*sc, img.height*sc);
+  ctx.restore();
 }
 function drawRearmMenu(){
   if(!rearmMenu) return;
-  const L = rearmLayout(), mx = L.mx, my = L.my, rw = L.mw - RM_PAD*2;
+  const L = rearmLayout(), mx = L.mx, my = L.my;
   ctx.save();
   thFrame(mx, my, L.mw, L.mh, RM_TITLE);
   window._rearmPanelRect = {x:mx, y:my, w:L.mw, h:L.mh};
-
+  window._rearmRects = [];
   ctx.textBaseline='middle'; ctx.textAlign='left';
   ctx.fillStyle=TH('textBright'); ctx.font=thLabel(14);
   ctx.fillText('REARM', mx+RM_PAD, my+16);
-  ctx.textAlign='right';
-  ctx.fillStyle=TH('accentWarm'); ctx.font=thValue(10, false);
-  ctx.fillText('TAP A BANK FOR THE NEXT WEAPON  -  A REFIT FILLS EVERY RACK',
-               mx+L.mw-RM_PAD, my+16);
+  ctx.textAlign='right'; ctx.fillStyle=TH('accentWarm'); ctx.font=thValue(10, false);
+  ctx.fillText('PICK A BANK, THEN A WEAPON  -  A REFIT FILLS EVERY RACK', mx+L.mw-RM_PAD, my+16);
+  ctx.textAlign='left';
+  const lab = function(t, x, y){ ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8); ctx.fillText(t, x, y); };
 
-  window._rearmRects=[];
-  for(const p of L.plan){
-    const ry = my+p.y, rx = mx+RM_PAD;
-    if(p.head !== undefined){
-      ctx.textAlign='left';
-      ctx.fillStyle=TH('text'); ctx.font=thLabel(11);
-      ctx.fillText(p.head, rx, ry+8);
-      ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8);
-      for(const c of p.cols) ctx.fillText(c.label, rx+c.x, ry+9);
-      thScale(rx, ry+15, rw, p.cols.map(function(c){ return c.x; }), TH('edgeLight'));
-      continue;
-    }
-    const w = p.w;
-    if(!p.open){
-      thPlate(rx, ry, rw, p.h, TH('back'));    // locked: the dark plate (v179)
-      ctx.textAlign='left'; ctx.fillStyle=TH('textDim'); ctx.font=thValue(11, false);
-      ctx.fillText(thFit(weaponName(w), 240), rx+RM_NAME, ry+p.h/2);
-      ctx.fillText(w.fromWave ? 'unlocks in the Shivan campaign'
-                              : 'unlocks at '+w.unlock.toLocaleString('en-US')+' points',
-                   rx+p.cols[0].x, ry+p.h/2);
-      window._rearmRects.push({x:rx, y:ry, w:rw, h:p.h, key:null});
-      continue;
-    }
-
-    thPlate(rx, ry, rw, p.h, p.cur ? TH('raised') : TH('panelFront'));
-    if(!p.cur && hovering(rx, ry, rw, p.h)) thGlowPath(rx, ry, rw, p.h, 6, 0.5);
-    if(p.cur){
-      thGlowPath(rx, ry, rw, p.h, 6, 1);
-      thBrackets(rx, ry, rw, p.h, TH('accentWarm'));
-      ctx.fillStyle=TH('accentWarm');
-      ctx.fillRect(rx, ry+6, 3, p.h-12);
-    }
-    drawKeyChip(p.num, rx+RM_NUM, ry+(p.h-16)/2, RM_NUM_W, 16, true);
-
-    // Name on top, what it is for underneath. The note is the part that
-    // explains a choice the figures alone would not.
-    const textW = p.cols[0].x - RM_NAME - 10;
-    ctx.textAlign='left';
-    ctx.fillStyle = p.cur ? TH('accentWarm') : TH('textBright');
-    ctx.font=thValue(14, true);
-    ctx.fillText(thFit(p.label+'  '+weaponName(w), textW), rx+RM_NAME, ry+13);
-    ctx.fillStyle=TH('textDim'); ctx.font=thValue(9, false);
-    ctx.fillText(thFit(w.note||'', textW), rx+RM_NAME, ry+27);
-
-    ctx.fillStyle=TH('textBright'); ctx.font=thValue(15, false);
-    for(const c of p.cols) ctx.fillText(rmValue(w, c.k, p.pri, p.slot), rx+c.x, ry+p.h/2);
-
-    window._rearmRects.push({x:rx, y:ry, w:rw, h:p.h, key:p.slot});
+  // ── the ship and its banks ──
+  lab('YOUR SHIP', L.c1, my+50);
+  drawRearmShip(L.c1, my+58, RM_C1_W, RM_PIC_H);
+  ctx.fillStyle=TH('textBright'); ctx.font=thValue(12, true);
+  ctx.fillText(thFit(shipStats(player.ship).name || player.ship, RM_C1_W), L.c1, my+164);
+  for(const b of L.banks){
+    const sel = b.slot===rmBank, w = rmDef(b.key, b.slot[0]==='p');
+    thButton(b.x, b.y, b.w, b.h, sel ? 'on' : null);
+    if(sel){ ctx.fillStyle='rgba('+TH('glow')+',0.30)'; ctx.fillRect(b.x+2, b.y+2, b.w-4, b.h-4); }
+    else if(hovering(b.x, b.y, b.w, b.h)) thGlowPath(b.x, b.y, b.w, b.h, 4, 0.45);
+    ctx.fillStyle = sel ? TH('accentWarm') : TH('textDim'); ctx.font=thLabel(7);
+    ctx.fillText(b.num+'  '+b.label, b.x+8, b.y+10);
+    ctx.fillStyle = sel ? TH('textBright') : TH('text'); ctx.font=thValue(11, true);
+    ctx.fillText(thFit(weaponName(w), b.w-50), b.x+8, b.y+23);
+    if(b.ammo != null){ ctx.textAlign='right'; ctx.fillStyle=TH('text'); ctx.font=thValue(10, true);
+      ctx.fillText(String(b.ammo), b.x+b.w-8, b.y+23); ctx.textAlign='left'; }
+    window._rearmRects.push({x:b.x, y:b.y, w:b.w, h:b.h, bank:b.slot});
   }
 
-  ctx.textAlign='center'; ctx.fillStyle=TH('textDim');
-  ctx.font=thValue(10, false);
-  ctx.fillText('ESC or tap outside to cancel', mx+L.mw/2, my+L.mh-11);
+  // ── what this bank may carry ──
+  lab((L.pri ? 'PRIMARY ' : 'SECONDARY ')+(+rmBank.slice(1)+1)+'  -  '+L.list.length+' WEAPONS FIT', L.c2, my+50);
+  for(const r of L.list) if(hovering(r.x, r.y, r.wd, r.h)) rmShow = r.key;
+  if(!rmShow || !L.list.some(function(r){ return r.key===rmShow; })) rmShow = rmBankKey(rmBank);
+  for(const r of L.list){
+    const show = r.key===rmShow, iy = r.y+r.h/2;
+    if(show){ ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fillRect(r.x, r.y, r.wd, r.h); thGlowPath(r.x, r.y, r.wd, r.h, 3, 0.45); }
+    if(r.cur){ ctx.fillStyle='rgba('+TH('glow')+',0.30)'; ctx.fillRect(r.x, r.y, r.wd, r.h); }
+    ctx.fillStyle = r.open ? ((r.cur || show) ? TH('textBright') : TH('text')) : TH('textDim');
+    ctx.font = thValue(11, r.cur);
+    ctx.fillText(thFit(weaponName(r.w), r.wd-90), r.x+8, iy);
+    // the info mark: what the panel on the right is about
+    ctx.strokeStyle = show ? TH('accentWarm') : TH('textDim'); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(r.x+r.wd-12, iy, 6, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = show ? TH('accentWarm') : TH('textDim'); ctx.font='bold 9px Georgia, serif';
+    ctx.textAlign='center'; ctx.fillText('i', r.x+r.wd-12, iy+0.5);
+    ctx.textAlign='right'; ctx.font=thLabel(7);
+    if(!r.open){ ctx.fillStyle=TH('textDim');
+      ctx.fillText(r.w.fromWave ? 'LATER' : (r.w.unlock||0).toLocaleString('en-US')+' PTS', r.x+r.wd-24, iy); }
+    else if(r.cur){ ctx.fillStyle=TH('accentWarm'); ctx.fillText('IN BANK', r.x+r.wd-24, iy); }
+    ctx.textAlign='left';
+    window._rearmRects.push({x:r.x, y:r.y, w:r.wd, h:r.h, key:r.key, open:r.open});
+  }
+
+  // ── the info panel ──
+  const w = rmDef(rmShow, L.pri), C3 = L.c3, C3W = L.c3w, top = my+44, ph = RM_H-60;
+  thPlate(C3, top, C3W, ph, TH('panelFront'));
+  let iy = top+16;
+  ctx.fillStyle=TH('textBright'); ctx.font=thValue(15, true); ctx.fillText(thFit(weaponName(w), C3W-20), C3+10, iy); iy += 18;
+  ctx.fillStyle=TH('text'); ctx.font=thValue(10, false); ctx.fillText(thFit(w.note||'', C3W-20), C3+10, iy); iy += 20;
+  let fx = C3+10;
+  ctx.font=thLabel(7);
+  for(const t of rmFacts(w, L.pri)){
+    const tw = ctx.measureText(t).width+12;
+    if(fx+tw > C3+C3W-8){ fx = C3+10; iy += 18; }
+    ctx.strokeStyle=TH('edgeLight'); ctx.lineWidth=1; ctx.strokeRect(fx+0.5, iy-7.5, tw, 15);
+    ctx.fillStyle=TH('textBright'); ctx.fillText(t, fx+6, iy); fx += tw+5;
+  }
+  iy += 22;
+  lab(L.pri ? 'DAMAGE PER SECOND AGAINST' : 'DAMAGE OF A FULL BANK AGAINST', C3+10, iy); iy += 14;
+  const bx = C3+92, bw = C3W-150;
+  for(const r of rmBars(w, rmBank)){
+    ctx.fillStyle=TH('text'); ctx.font=thLabel(8); ctx.fillText(r.l, C3+10, iy);
+    ctx.fillStyle=TH('edgeDark'); ctx.fillRect(bx, iy-4, bw, 8);
+    // the skin's warm accent, so the white mark of the bank stands out
+    // on Fire and on Void alike (Silvio, v189 draft)
+    ctx.fillStyle=TH('accentWarm'); ctx.fillRect(bx, iy-4, Math.max(1, bw*r.v), 8);
+    ctx.fillStyle=TH('textBright'); ctx.fillRect(bx+bw*r.cur-1, iy-6, 2, 12);
+    if(r.d != null){
+      ctx.textAlign='right'; ctx.fillStyle = r.d > 0 ? RM_GOOD : (r.d < 0 ? RM_BAD : TH('textDim')); ctx.font=thValue(9, true);
+      ctx.fillText((r.d > 0 ? '+' : '')+r.d+'%', C3+C3W-10, iy); ctx.textAlign='left';
+    }
+    iy += 16;
+  }
+  ctx.fillStyle=TH('textDim'); ctx.font=thValue(8, false);
+  ctx.fillText(thFit('white mark and % = against '+weaponName(rmDef(rmBankKey(rmBank), L.pri))+' in this bank', C3W-20), C3+10, iy); iy += 20;
+  lab(thFit('ON YOUR '+(shipStats(player.ship).name || '').toUpperCase(), C3W-20), C3+10, iy); iy += 15;
+  ctx.fillStyle=TH('textBright'); ctx.font=thValue(10, false);
+  for(const t of rmShipLines(w, rmBank)){ ctx.fillText(thFit(t, C3W-20), C3+10, iy); iy += 15; }
+  // the keys that matter in the fight
+  const cy = top+ph-16;
+  ctx.fillStyle=TH('back'); ctx.fillRect(C3+6, cy-10, C3W-12, 22);
+  ctx.fillStyle=TH('accent'); ctx.font=thLabel(8);
+  ctx.fillText(L.pri ? ((player.pb||[]).length > 1 ? 'WHEEL UP / Q  -  bank 1, bank 2, linked' : 'ONE PRIMARY BANK')
+                     : 'WHEEL DOWN / E  -  next missile bank', C3+12, cy);
+
+  ctx.textAlign='center'; ctx.fillStyle=TH('textDim'); ctx.font=thValue(9, false);
+  ctx.fillText('1-'+L.banks.length+' bank  -  UP / DOWN and ENTER weapon  -  ESC or tap outside to cancel', mx+L.mw/2, my+L.mh-10);
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
@@ -2533,7 +2653,10 @@ function pointerConsumed(p){
   if(GS!=='playing') return false;
   if(rearmMenu){
     for(const r of (window._rearmRects||[]))
-      if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){ if(r.key) fitWeapon(r.key); return true; }
+      if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){
+        if(r.bank) rmSelectBank(r.bank);
+        else if(r.key){ rmShow = r.key; if(r.open) fitWeapon(rmBank, r.key); }
+        return true; }
     if(insidePanel(window._rearmPanelRect, p)) return true;
     setRearmMenu(false); return true;
   }
@@ -2967,13 +3090,15 @@ document.addEventListener('keydown',function(ev){
     var rd = ev.code.indexOf('Digit')===0 ? ev.code.slice(5)
            : (ev.code.indexOf('Numpad')===0 ? ev.code.slice(6) : '');
     var ri = parseInt(rd,10);
-    // The panel numbers its rows straight down, so the digit beside a
-    // weapon is the digit that fits it.
+    // The digit beside a bank picks it; up and down walk its weapons and
+    // Enter fits the one shown (v190).
     if(ri>=1){
-      for(const q of rearmLayout().plan)
-        if(q.num===ri && q.open){ fitWeapon(q.slot); break; }
+      for(const q of rearmLayout().banks)
+        if(q.num===ri){ rmSelectBank(q.slot); break; }
       ev.preventDefault();
     }
+    if(ev.code==='ArrowUp'||ev.code==='ArrowDown'){ rmStep(ev.code==='ArrowUp' ? -1 : 1); ev.preventDefault(); }
+    if(ev.code==='Enter'||ev.code==='NumpadEnter'){ fitWeapon(rmBank, rmShow || rmBankKey(rmBank)); ev.preventDefault(); }
     return;
   }
   if(shipMenu){

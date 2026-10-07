@@ -20,6 +20,9 @@
 // AI_SECONDARIES in 55_arms.js).
 
 const MPS_TO_PX   = 0.02;    // m/s -> points per step
+// Blast radii (FS2 metres) on the field: the capital-ship scale, where a
+// cruiser of ~250 m is ~100 px long (v190).
+const BLAST_PX_PER_M = 0.4;
 const BOLT_SPD_MAX = 16;     // faster rounds would step over a fighter
 const EN_STORE_K  = 1/15;    // Max Weapon Eng -> game store (Myrmidon 150 -> 10)
 const EN_REGEN_K  = 0.5556;  // Power Output -> regen per second (Myrmidon 2.4 -> 1.33)
@@ -99,7 +102,8 @@ const ARSENAL_S = [
    fs:{d:10, v:205, w:8.0, l:13.0, a:0.1, s:0.1, u:0.1, cargo:4, turn:1.75},
    note:'marks the target - our beams find it, even in the nebula'},
   {key:'cyclops', name:'Cyclops', cls:'bomb', unlock:0, snd:'m_tsunami', homing:'aspect', bigFirst:true,
-   fs:{d:2000, v:95, w:20.0, l:25.0, a:1.0, s:0.02, u:0.5, cargo:15, turn:1.0},
+   fs:{d:2000, v:95, w:20.0, l:25.0, a:1.0, s:0.02, u:0.5, cargo:15, turn:1.0,
+       blast:{i:100, o:200}},             // FS2 inner / outer radius (v190)
    note:'slow and heavy, for hulls that cannot dodge'}
 ];
 
@@ -169,6 +173,7 @@ function shipBanks(key){ return SHIP_BANKS[key] || BANKS_FALLBACK; }
     w.turn = (w.cls==='bomb') ? 0.06 / (f.turn||1)
                               : w.spd * Math.PI / (60 * (f.turn||1));
     w.cargo = f.cargo;
+    if(f.blast) w.blast = {i:f.blast.i*BLAST_PX_PER_M, o:f.blast.o*BLAST_PX_PER_M};
     if(f.child){            // spawned warheads, same anchor as the round
       w.childDmg  = f.child.d * anc.game / anc.d;
       w.childSpd  = f.child.v * MPS_TO_PX;
@@ -339,11 +344,50 @@ function nextChoice(shipKey, pri, cur){
 
 // ── EMP ──────────────────────────────────────────────────────
 // Fighters and bombers near the blast lose their fire control for a while.
-const EMP_R = 150, EMP_T = 300;
+// v190 (Silvio): half the FS2 outer radius of 300 m is enough.
+const EMP_R = Math.round(150*BLAST_PX_PER_M), EMP_T = 300;
 function empBurst(x, y){
   for(const e of enemies){
     if(!(e.type==='fighter' || e.type==='bomber') || e.dead) continue;
     if(Math.hypot(e.x-x, e.y-y) < EMP_R) e.empT = EMP_T;
   }
   spawnRing(x, y, EMP_R, 30, 2, 140, 200, 255);
+}
+
+// ── BLAST (v190) ─────────────────────────────────────────────
+// A bomb goes off over an area, as in FS2: full damage out to the inner
+// radius, falling off to nothing at the outer one. Besides the ship it
+// struck it hits every enemy in reach - and the player who flew in too
+// close (Silvio: that is what keeps a bomber off its target). Missiles
+// only ever hit what they hit.
+function boxDist(x, y, r){
+  const dx = Math.max(r[0]-x, 0, x-(r[0]+r[2])), dy = Math.max(r[1]-y, 0, y-(r[1]+r[3]));
+  return Math.hypot(dx, dy);
+}
+function blastFall(d, bl){ return d <= bl.i ? 1 : (d >= bl.o ? 0 : 1-(d-bl.i)/(bl.o-bl.i)); }
+function warheadBlast(b, bl, struck){
+  for(let j=enemies.length-1;j>=0;j--){
+    const e = enemies[j];
+    if(e===struck || e.dead || e.warp>0) continue;
+    if(b.ally && playerOnly(e)) continue;
+    const k = blastFall(boxDist(b.x, b.y, eBox(e)), bl);
+    if(k <= 0) continue;
+    DMG_F = b.f || null;
+    damageEnemy(e, b.dmg*k, b.x, b.y, !b.ally, 'sec', 'bomb');
+    DMG_F = null;
+    if(e.hp<=0 && !e.dead) killEnemy(e, j, true, false);
+  }
+  // An allied bomber's blast spares us; our own does not.
+  if(b.ally || GS!=='playing' || !(player.hp>0) || inJump()) return;
+  const k = blastFall(boxDist(b.x, b.y, pBox()), bl);
+  if(k <= 0) return;
+  const dmg = b.dmg*k;
+  plogSrc('own blast');
+  if(player.sh>0){
+    const abs = Math.min(player.sh, dmg);
+    player.sh -= abs; player.shDelay = 90; player.shHit = SH_FLASH;
+    shieldHit(player.x, player.y);
+    if(dmg>abs){ player.hp -= dmg-abs; hullHit(player.x, player.y); }
+  } else { player.hp -= dmg; hullHit(player.x, player.y); }
+  if(player.hp<=0) playerDie();
 }

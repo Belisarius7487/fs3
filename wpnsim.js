@@ -39,7 +39,7 @@ const names = ['priDef','secDef','curPri','curSec','hullSecCls','weaponName','we
                'shardBurst','subStrike','subStrikeRaw','pShoot','fireSecondary',
                'liveBurstRound','burstRound','volleyDmg','volleyTotal','primaryCount',
                'flakHas','flakBurst','flakReach','flakFire',
-               'swarmTargets','swarmRetarget','swarmHolds','updateSecBullets','rmValue',
+               'swarmTargets','swarmRetarget','swarmHolds','updateSecBullets',
                'secHoldTick','shardSpread'];
 const consts = [
   decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/),

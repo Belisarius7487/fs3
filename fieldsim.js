@@ -2826,6 +2826,40 @@ scenario('v188: capital hulls in FS2 ratio, subsystems from the models', 'm=31',
   r.atenWeaponsForward = (MOUNTS.craten.subs.find(s=>s.id==='weapons').dx > 0.5);
   return r;`);
 
+scenario('v190: a bomb goes off over an area, a missile does not', 'm=31', `
+  const r = {};
+  FS.until(()=>!inJump(), 2000, true);           // not while jumping in
+  const cyc = secDefP('cyclops'), bl = cyc.blast;
+  r.fs2Radii = bl && bl.i === 40 && bl.o === 80;                 // 100 / 200 m
+  r.onlyBombs = ARSENAL_S.filter(w=>w.blast).map(w=>w.key).join() === 'cyclops';
+  r.empHalved = EMP_R === 60;                                    // 150 m (Silvio)
+  const cr = mkEnemy('cr_ntf', 'ntfcrfenris', 250); cr.x = 500; cr.y = 250; cr.warp = 0;
+  const mkF = (dx)=>{ const f = mkEnemy('fi_ntf', null, 250); f.x = 500+dx; f.y = 250; f.warp = 0; f.dead = false;
+                      f.hp = f.maxHp = 1000; f.sh = f.maxSh = 0; return f; };
+  const near = mkF(-20), mid = mkF(-60), far = mkF(-200);
+  for(const e of [cr, near, mid, far]) if(enemies.indexOf(e) < 0) enemies.push(e);
+  const crHp = cr.hp;
+  const b = {x:500, y:250, dmg:cyc.dmg, f:cyc.f};
+  player.x = 100; player.y = 250; const p0 = player.hp + player.sh;
+  warheadBlast(b, bl, cr);
+  r.struckNotTwice = cr.hp === crHp;
+  r.nearFull = near.maxHp - near.hp >= cyc.dmg*0.99;
+  r.midLess = mid.hp > near.hp && mid.hp < mid.maxHp;
+  r.farUntouched = far.hp === far.maxHp;
+  r.playerFarSafe = player.hp + player.sh === p0;
+  // flown in too close: our own blast hurts us
+  player.x = 500 - 20; player.y = 250; player.sh = player.maxSh; player.hp = player.maxHp;
+  const q0 = player.hp + player.sh;
+  warheadBlast(b, bl, cr);
+  r.ownBlastHurts = player.hp + player.sh < q0;
+  // an allied bomber's blast spares us
+  player.sh = player.maxSh; player.hp = player.maxHp;
+  warheadBlast(Object.assign({ally:true}, b), bl, cr);
+  r.allyBlastSpares = player.hp === player.maxHp && player.sh === player.maxSh;
+  r.wiredIn = String(updateSecBullets).indexOf('warheadBlast(b, sw.blast, e)') >= 0;
+  for(const e of [cr, near, mid, far]){ const i = enemies.indexOf(e); if(i >= 0) enemies.splice(i, 1); }
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

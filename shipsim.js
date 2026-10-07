@@ -48,7 +48,7 @@ const wpnDecl2 = (function(){
   const aip = src.match(/const AI_PRIMARIES = \{[\s\S]*?\n\};/)[0];
   return src.slice(a, b) + '\n' + ai + '\n' + aip + '\nconst SECONDARIES = ARSENAL_S;\n';
 })();
-const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/)[0];
+const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_BARS = \[[\s\S]*?\n\];/)[0];
 // pointerConsumed reaches for the title on a finished run. Starting a run
 // is not what these files test, so it is a stub.
 const wpnState = 'let rearmMenu = false; let resumeHold = false;'
@@ -62,7 +62,7 @@ const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
-  'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
+  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell','hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
@@ -746,13 +746,37 @@ console.log('The rearm panel');
   CLR(); W.run('drawRearmMenu()');
   const rs = W.run('window._rearmRects');
   const pr = W.run('window._rearmPanelRect');
-  ok('one row per bank', rs.length===5 && rs.map(r=>r.key).join()==='p0,p1,s0,s1,s2');
+  const bk = rs.filter(r=>r.bank), wr = rs.filter(r=>r.key);
+  ok('one button per bank', bk.length===5 && bk.map(r=>r.bank).join()==='p0,p1,s0,s1,s2');
+  ok('and one row per weapon the first bank may carry (v190)',
+     wr.map(r=>r.key).join()===W.run("bankChoices('fimyrmidon', true).map(w=>w.key).join()"));
+  ok('a weapon above the score is shown but not open', wr.some(r=>!r.open));
   ok('every row is inside the panel',
      rs.every(r=>r.x>=pr.x && r.x+r.w<=pr.x+pr.w && r.y>=pr.y && r.y+r.h<=pr.y+pr.h));
   ok('the panel fits on the field', pr.y>=0 && pr.y+pr.h<=500 && pr.x>=0 && pr.x+pr.w<=800);
   ok('no Courier anywhere',
      CALLS.filter(c=>c.fn==='set font').every(c=>String(c.args[0]).indexOf('Courier')<0));
   ok('nothing leaks out of a save/restore', balanced());
+  // v190: a bank button picks the bank, a weapon row fits that weapon.
+  const s1 = bk.find(r=>r.bank==='s1');
+  W.run(`pointerConsumed({x:${s1.x+5},y:${s1.y+5}})`);
+  ok('a click on a bank picks it', W.get('rmBank')==='s1' && W.get('rearmMenu')===true);
+  CLR(); W.run('drawRearmMenu()');
+  const tr = W.run('window._rearmRects').find(r=>r.key==='tempest');
+  W.run(`pointerConsumed({x:${tr.x+5},y:${tr.y+5}})`);
+  ok('a click on a weapon fits it to that bank', P().sb[1].key==='tempest' && P().sb[1].ammo===P().sb[1].max);
+  W.run('score=0'); CLR(); W.run('drawRearmMenu()');
+  const lk = W.run('window._rearmRects').find(r=>r.key && !r.open);
+  W.run(`pointerConsumed({x:${lk.x+5},y:${lk.y+5}})`);
+  ok('a locked one is only shown, not fitted', P().sb[1].key==='tempest' && W.get('rmShow')===lk.key);
+  W.run('score=9000; player.sb[1].ammo=1'); W.run("fitWeapon('s1','tempest')");
+  ok('the weapon already in the bank fills it again', P().sb[1].ammo===P().sb[1].max);
+  W.run("rmSelectBank('p0')");
+  ok('the info panel says reach in screens, never metres',
+     ['proms','promr'].every(k=>W.run(`rmFacts(priDefP('${k}'), true).join()`).indexOf(' M')<0) &&
+     W.run("rmFacts(secDefP('trebuchet'), false).join()").indexOf('SCREENS')>=0);
+  ok('bars compare a whole bank for missiles: 5 Trebuchets lose to 40 Tempests',
+     W.run("rmBars(secDefP('trebuchet'), 's1')[0].d") < 0);
   W.run(`pointerConsumed({x:${pr.x+40},y:${pr.y+6}})`);
   ok('a click on the header keeps it open', W.get('rearmMenu')===true);
   W.run(`pointerConsumed({x:${pr.x-12},y:${pr.y+pr.h/2}})`);

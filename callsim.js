@@ -45,7 +45,7 @@ const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
-  'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
+  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell',
   
   'insidePanel',
@@ -69,7 +69,7 @@ const wpnDecl2 = (function(){
   const aip = src.match(/const AI_PRIMARIES = \{[\s\S]*?\n\};/)[0];
   return src.slice(a, b) + '\n' + ai + '\n' + aip + '\nconst SECONDARIES = ARSENAL_S;\n';
 })();
-const rmDecl   = decl(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/);
+const rmDecl   = decl(/const RM_W[\s\S]*?const RM_BARS = \[[\s\S]*?\n\];/);
 // pointerConsumed reaches for the title on a finished run. Starting a run
 // is not what these files test, so it is a stub.
 const wpnState = 'let rearmMenu = false; let resumeHold = false;'

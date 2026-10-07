@@ -41,7 +41,7 @@ const wpnDecl2 = (function(){
   const aip = src.match(/const AI_PRIMARIES = \{[\s\S]*?\n\};/)[0];
   return src.slice(a, b) + '\n' + ai + '\n' + aip + '\nconst SECONDARIES = ARSENAL_S;\n';
 })();
-const rmDecl   = decl(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/);
+const rmDecl   = decl(/const RM_W[\s\S]*?const RM_BARS = \[[\s\S]*?\n\];/);
 // The bar asks rearmReady(), which asks inJump(), which reads the jump
 // clock. None of that is what this file tests, so it gets a resting value.
 // pointerConsumed reaches for the title on a finished run. Starting a run
@@ -62,7 +62,7 @@ const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'inJump','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
-  'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
+  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','tickWeaponUnlocks',
   'thFit',
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','drawHUD', 'drawHUDHLP', 'TH', 'thLabel', 'thValue',

@@ -299,7 +299,7 @@ function updateSecBullets(){
         if(b.type==='bomb'){
           sndPlay('sec_cyclops_hit', b.x);
           spawnFireball(b.x,b.y,45,40);
-          spawnRing(b.x,b.y,70,30,4,255,120,0);
+          spawnRing(b.x,b.y,(sw && sw.blast) ? sw.blast.o : 70,30,4,255,120,0);
           spawnDebris(b.x,b.y,25,255,180,50,200,60,0,true);
           spawnSmoke(b.x,b.y,8);
         } else {
@@ -309,6 +309,7 @@ function updateSecBullets(){
         }
         pBullets.splice(i,1);hit=true;
         if(e.hp<=0&&!e.dead){ killEnemy(e, j, true, false); }
+        if(sw && sw.blast) warheadBlast(b, sw.blast, e);   // v190
         break;
       }
     }
