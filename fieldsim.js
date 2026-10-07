@@ -566,9 +566,9 @@ scenario('Pickups light up the bar, not the field', 'm=31', `
   const rings = []; const og = thGlowPath;
   thGlowPath = function(x,y,w,h){ rings.push({x,y,w,h}); return og.apply(this, arguments); };
   barPulse('hull'); barPulse('ticket:cruiser'); FS.step(40); draw(); thGlowPath = og;
-  r.ringAroundHull = rings.some(g=>g.x===109 && g.w===84);   // the v186 bar
+  r.ringAroundHull = rings.some(g=>g.x===109 && g.w===80);   // the v187 bar (lives icon back)
   // The ring follows what is drawn in the cell (v162), within the cell.
-  r.ringAroundTicket = rings.some(g=>g.x===575 && g.w>=20 && g.w<=44);
+  r.ringAroundTicket = rings.some(g=>g.x===584 && g.w>=20 && g.w<=44);
   // Its time is up: the pulse is over and gone. (Stepping the game to get
   // there would let loot from the fight light it up again.)
   barPulse('hull'); BAR_PULSE.hull.t0 = fc - BAR_PULSE_T;
@@ -1515,7 +1515,7 @@ scenario('v159: fire delay, held secondary, turrets, bursts, Perseus', 'm=31', `
   r.heldLeavesInfyrno = pBullets.indexOf(fake) >= 0 && bk.ammo === 5;
   pBullets.splice(pBullets.indexOf(fake), 1);
   // Capacity after the FreeSpace banks: 90 / 2.5 Harpoons, 100 / 1 Hornets.
-  r.aresRacks = bankAmmoMax('fiares', 0, 'harpoon') === 36 && bankAmmoMax('fiares', 1, 'hornet') === 100;
+  r.aresRacks = bankAmmoMax('fiares', 0, 'harpoon') === 36 && bankAmmoMax('fiares', 1, 'tornado') === 80;
   r.hercMk2Racks = bankAmmoMax('fihercmk2', 0, 'harpoon') === 32;
   r.hercRacks = bankAmmoMax('fiherc', 0, 'harpoon') === 24;
   // The Perseus: player hull in the NTF cycle, escort and NTF enemy.

@@ -210,7 +210,7 @@ ok('Osiris taken and the menu closed', P().ship==='boosiris' && W.get('shipMenu'
 ok('but the game is still held', W.get('paused')===true && W.get('resumeHold')===true);
 W.run('pointerConsumed({x:400,y:300})');
 ok('and one tap puts you back in it', W.get('paused')===false && W.get('resumeHold')===false);
-ok('Osiris stats 2.5 / 0.10 / 207 / 154 / 3 Piranhas in bank 1', P().spd===2.5 && P().turn===0.10 && P().maxHp===207 && P().maxSh===154 && P().secMax===3 && P().sec==='piranha');
+ok('Osiris stats 2.5 / 0.10 / 207 / 154 / 4 Infyrnos in bank 1', P().spd===2.5 && P().turn===0.10 && P().maxHp===207 && P().maxSh===154 && P().secMax===4 && P().sec==='infyrno');
 ok('refilled: hull 207, shields 154, every rack full', P().hp===207 && P().sh===154 && P().sb.every(b=>b.ammo===b.max));
 ok('switch spent for this wave', W.run('shipSwapReady()')===false);
 W.run('toggleShipMenu()'); ok('menu does not open again this wave', W.get('shipMenu')===false);

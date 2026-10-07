@@ -51,14 +51,16 @@ function liveBurstRound(){
 }
 function burstRound(b){
   const wp=b.wd || secDef(b.wpn);
-  sndPlay('burst_infyrno', b.x);
+  sndPlay(wp.children ? 'clusterboom' : 'burst_infyrno', b.x);
   if(wp.children){
-    // Piranha (v186): a dozen small heat seekers out of the one round.
+    // Infyrno (v187, weapons.tbl): the round spawns its "Cluster Bomb
+    // Baby" warheads - short-lived heat seekers fanned out over the half
+    // ahead, each with the table's damage, speed and lifetime.
     for(let k=0;k<wp.children;k++){
-      const a=Math.atan2(b.vy, b.vx) + (k/(wp.children-1)-0.5)*Math.PI*1.4;
-      pBullets.push({x:b.x, y:b.y, vx:Math.cos(a)*3, vy:Math.sin(a)*3, w:9, h:3,
-        sec:true, type:'missile', homing:true, life:150, maxSpd:4.2, turn:0.22,
-        dmg:wp.childDmg, f:wp.f, wd:PIRANHA_CHILD, wpn:'piranha_child', burst:false, ally:b.ally});
+      const a=Math.atan2(b.vy, b.vx) + (k/(wp.children-1)-0.5)*Math.PI;
+      pBullets.push({x:b.x, y:b.y, vx:Math.cos(a)*wp.childSpd, vy:Math.sin(a)*wp.childSpd, w:8, h:3,
+        sec:true, type:'missile', homing:true, life:wp.childLife, maxSpd:wp.childSpd, turn:0.5,
+        dmg:wp.childDmg, f:wp.f, wd:CLUSTER_CHILD, wpn:'cluster_child', burst:false, ally:b.ally});
     }
     spawnFireball(b.x, b.y, 22, 18);
   } else
@@ -104,8 +106,8 @@ function swarmHolds(t){
   return !!t && !t.dead && enemies.indexOf(t)>=0 && canLockOn(t);
 }
 let swarmSalvo = 0;
-// What a Piranha releases: no warhead tricks of its own.
-const PIRANHA_CHILD = {key:'piranha_child', name:'Piranha', cls:'missile'};
+// What an Infyrno releases: no warhead tricks of its own.
+const CLUSTER_CHILD = {key:'cluster_child', name:'Infyrno', cls:'missile'};
 // An aspect seeker locks on at launch: the nearest lockable target ahead,
 // failing that the nearest at all. It keeps that target (v186).
 function aspectTarget(x, y, head){
@@ -139,7 +141,7 @@ function fireSecondary(){
   const sp=secMount(), sa=player.head||0;
   player.secTimer=wp.cd; player.secCdMax=wp.cd;
   syncLegacyWeapons();
-  sndPlay('sec_'+(wp.snd||wp.key), player.x);
+  sndPlay(wp.snd || ('sec_'+wp.key), player.x);
   if(wp.swarm){
     const tg=swarmTargets(sp.x, sp.y, wp.swarm), id=++swarmSalvo;
     for(let k=0;k<wp.swarm;k++){
@@ -181,6 +183,9 @@ function updateSecBullets(){
     if(!b.sec) continue;
     b.life--;
     if(b.auto && b.burst && (b.life<=0 || aiBurstCheck(b, b.x, b.y, secDef(b.wpn).shardRange))){ burstRound(b); continue; }
+    // The player's Infyrno also goes off at the end of its flight, as in
+    // FS2, rather than vanishing unspent (v187).
+    if(b.burst && b.life<=0 && b.wd && b.wd.children){ burstRound(b); continue; }
     if(b.life<=0){pBullets.splice(i,1);continue;}
     // Missile: mild homing onto the nearest enemy
     if(b.homing){
@@ -219,8 +224,10 @@ function updateSecBullets(){
     b.x+=b.vx; b.y+=b.vy;
     // Trail-Partikel
     if(b.type==='missile' && fc%2===0){
-      PARTS.push({x:b.x-b.vx*2,y:b.y+(Math.random()-0.5)*3,
-        vx:-0.5-Math.random()*1.5,vy:(Math.random()-0.5)*0.8,
+      // Behind the missile, whichever way it flies (v187).
+      var tv=Math.hypot(b.vx,b.vy)||1, tk=0.5+Math.random()*1.5;
+      PARTS.push({x:b.x-b.vx*2,y:b.y-b.vy*2+(Math.random()-0.5)*3,
+        vx:-b.vx/tv*tk,vy:-b.vy/tv*tk+(Math.random()-0.5)*0.8,
         life:30,ml:30,sz:Math.random()<0.4?5:3,
         clr:Math.random()<0.5?'#ff6600':'#ffaa33'});
     }
@@ -280,7 +287,7 @@ function updateSecBullets(){
           spawnDebris(b.x,b.y,25,255,180,50,200,60,0,true);
           spawnSmoke(b.x,b.y,8);
         } else {
-          sndPlay('missile_explosion', b.x);
+          sndPlay(b.f ? 'fs_boom' : 'missile_explosion', b.x);   // FS2 round: boom_2 (v187)
           spawnFireball(b.x,b.y,20,22);
           spawnDebris(b.x,b.y,10,255,220,100,255,100,0,true);
         }
@@ -1169,6 +1176,7 @@ function update(){
       if(overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ex,ey,ew,eh)){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
+        if(b.f && !b.ally) sndPlay('fs_hit', b.x, 1, b.y);   // FS2 impact, hit_1 (v187)
         laserHit(b.x,b.y,b.col);STATS.hits++;plogHit(b);e.shotAt=true;DMG_F=b.f||null;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt',(b.cap||b.flak)?'capgun':(b.shard?'shard':'gun'));DMG_F=null;
         if(b.flak){
           flakBurst(b.x, b.y, true, b.fac);

@@ -80,7 +80,29 @@ const SND_FILES = {
   // The lasers of Shivan fighters and bombers.
   wpn_shivan_light: "@@FS3_SOUND:sounds/wpn_shivan_light.mp3@@",
   wpn_shivan_heavy: "@@FS3_SOUND:sounds/wpn_shivan_heavy.mp3@@",
-  wpn_shivan_mega: "@@FS3_SOUND:sounds/wpn_shivan_mega.mp3@@"
+  wpn_shivan_mega: "@@FS3_SOUND:sounds/wpn_shivan_mega.mp3@@",
+  // The player's FS2 arsenal (v187), files under their FS2 names (Silvio).
+  // Keys must not end in a digit: that would make them variants of one.
+  L_Prom_R: "@@FS3_SOUND:sounds/L_Prom_R.mp3@@",
+  L_Prom_S: "@@FS3_SOUND:sounds/L_Prom_S.mp3@@",
+  L_Sidearm: "@@FS3_SOUND:sounds/L_Sidearm.mp3@@",
+  L_Scalpel: "@@FS3_SOUND:sounds/L_Scalpel.mp3@@",
+  L_Flail: "@@FS3_SOUND:sounds/L_Flail2.mp3@@",
+  L_Kayser: "@@FS3_SOUND:sounds/L_Kayser.mp3@@",
+  L_Circle: "@@FS3_SOUND:sounds/L_Circle.mp3@@",
+  L_Newton: "@@FS3_SOUND:sounds/L_Newton.mp3@@",
+  m_shrike: "@@FS3_SOUND:sounds/m_shrike.mp3@@",
+  m_wasp: "@@FS3_SOUND:sounds/m_wasp.mp3@@",
+  m_fury: "@@FS3_SOUND:sounds/m_fury.mp3@@",
+  m_swarm: "@@FS3_SOUND:sounds/m_swarm.mp3@@",
+  m_angel: "@@FS3_SOUND:sounds/m_angel.mp3@@",
+  m_cluster: "@@FS3_SOUND:sounds/m_cluster.mp3@@",
+  m_stiletto: "@@FS3_SOUND:sounds/m_stiletto.mp3@@",
+  m_emp: "@@FS3_SOUND:sounds/m_emp.mp3@@",
+  m_tsunami: "@@FS3_SOUND:sounds/m_tsunami.mp3@@",
+  fs_hit: "@@FS3_SOUND:sounds/hit_1.mp3@@",        // impact of every primary
+  fs_boom: "@@FS3_SOUND:sounds/boom_2.mp3@@",      // impact of a missile
+  clusterboom: "@@FS3_SOUND:sounds/clusterboom.mp3@@"  // Infyrno going off
 };
 
 // ── The mix ──
@@ -105,6 +127,12 @@ const SND_MIX = {
   warp_open:0.18, warp_in_big:0.36, warp_out_big:0.36,
   beam_charge:0.30, beam_loop:0.24, beam_down:0.26,
   ai_fire:0.05, ai_sec:0.14,
+  // v187: the FS2 sounds at the level of the ones they replace
+  L_Prom_R:0.20, L_Prom_S:0.20, L_Sidearm:0.20, L_Scalpel:0.20, L_Flail:0.20,
+  L_Kayser:0.20, L_Circle:0.20, L_Newton:0.20,
+  m_shrike:0.30, m_wasp:0.30, m_fury:0.28, m_swarm:0.34, m_angel:0.30, m_cluster:0.34,
+  m_stiletto:0.50, m_emp:0.32, m_tsunami:0.36,
+  fs_hit:0.16, fs_boom:0.32, clusterboom:0.42,
   // a dying capital ship and her wreckage (v183): their own voices, so
   // every blast that is seen is heard, at the moment it is seen
   death_roll:0.24
@@ -113,16 +141,19 @@ const SND_VOICES = {
   wpn_prometheus:3, wpn_sidhe:2, wpn_dante:2, wpn_subach:3,
   expl_secondary:2, expl_small:3, expl_medium:2, expl_big:2, missile_explosion:2,
   hit_shield:1, hit_player:1, warp_open:2, warp_in_big:2, warp_out_big:2,
+  L_Prom_R:3, L_Prom_S:3, L_Sidearm:3, L_Scalpel:3, L_Flail:3, L_Kayser:3, L_Circle:3, L_Newton:3,
+  fs_hit:2, fs_boom:2,
   beam_charge:3, beam_down:2, ai_fire:2, ai_sec:1, sub_destroyed:2,
   death_roll:5
 };
 // Least time between two starts of one sound, in seconds.
 const SND_GAP = {hit_player:0.15, hit_shield:0.15, sec_empty:0.35,
                  expl_secondary:0.15, expl_small:0.06, missile_explosion:0.08,
+                 fs_hit:0.07, fs_boom:0.08,
                  ai_fire:0.09, ai_sec:0.25, warp_open:0.25, beam_charge:0.10};
 // Sounds that give way when the mix is busy.
 const SND_MINOR = {ai_fire:1, ai_sec:1, expl_secondary:1, warp_open:1, beam_down:1,
-                   hit_shield:1, missile_explosion:1};
+                   hit_shield:1, missile_explosion:1, fs_hit:1, fs_boom:1};
 const SND_BUSY = 10;
 // The player's primaries and their sounds.
 const PRI_SND = {prometheus:'wpn_prometheus', hl7:'wpn_subach', scatter:'wpn_sidhe', dante:'wpn_dante',
@@ -130,7 +161,9 @@ const PRI_SND = {prometheus:'wpn_prometheus', hl7:'wpn_subach', scatter:'wpn_sid
 // The player's own guns: every shot is heard. When all voices of one
 // are busy the oldest is cut short instead of the new shot left out -
 // a Dante sound is longer than the time between two Dante shots.
-const SND_STEAL = {wpn_prometheus:1, wpn_subach:1, wpn_sidhe:1, wpn_dante:1};
+const SND_STEAL = {wpn_prometheus:1, wpn_subach:1, wpn_sidhe:1, wpn_dante:1,
+                   L_Prom_R:1, L_Prom_S:1, L_Sidearm:1, L_Scalpel:1, L_Flail:1,
+                   L_Kayser:1, L_Circle:1, L_Newton:1};
 const SND_LOOP_MAX = 3;   // beam loops heard at once; more fire silently
 // Distance from the player: full level up to SND_NEAR points, then it
 // falls off, down to SND_ATT_MIN at the far side of the field.

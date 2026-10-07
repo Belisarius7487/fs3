@@ -29,38 +29,36 @@ const BOMB_ANCHOR = {d:2000, a:1.0, s:0.02, u:0.5, game:80}; // Cyclops
 // The old player beat (PLAYER_FR_BASE, 70_ui.js, loads later): 28 steps.
 const FR_BASE_STEPS = 28;
 
+// snd: the FS2 launch sound (weapons.tbl $LaunchSnd, sounds.tbl), v187.
 // fs: damage, velocity (m/s), fire wait (s), lifetime (s), energy per
 // shot, armour / shield / subsystem factor - straight from weapons.tbl.
 // unlock: points needed, unless it is part of the hull's default fit.
 const ARSENAL_P = [
-  {key:'promr', name:'Prometheus R', unlock:0, snd:'wpn_prometheus',
+  {key:'promr', name:'Prometheus R', unlock:0, snd:'L_Prom_R',
    fs:{d:18, v:450, w:0.45, l:2.0, e:0.60, a:1.1, s:0.8, u:0.35},
    col:'#ccff88', glow:'rgba(180,255,80,0.30)', note:'the standard gun, cheap on energy'},
-  {key:'subach', name:'Subach HL-7', unlock:0, snd:'wpn_subach',
+  {key:'subach', name:'Subach HL-7', unlock:0, snd:'L_Sidearm',
    fs:{d:15, v:450, w:0.20, l:2.0, e:0.20, a:0.9, s:0.7, u:0.3},
    col:'#bfe9ff', glow:'rgba(120,200,255,0.30)', note:'quick, light, almost no energy'},
-  {key:'mekhu', name:'Mekhu HL-7', unlock:0, snd:'wpn_subach',
+  {key:'mekhu', name:'Mekhu HL-7', unlock:0, snd:'L_Sidearm',
    fs:{d:12, v:485, w:0.15, l:2.0, e:0.20, a:0.9, s:0.8, u:0.3},
    col:'#a8f0ff', glow:'rgba(110,220,255,0.30)', note:'the Vasudan HL-7, quicker still'},
-  {key:'akheton', name:'Akheton SDG', unlock:4000, snd:'wpn_prometheus',
+  {key:'akheton', name:'Akheton SDG', unlock:4000, snd:'L_Scalpel',
    fs:{d:30, v:500, w:0.35, l:1.5, e:1.6, a:0.0, s:0.5, u:1.0},
    col:'#ff9ad5', glow:'rgba(255,120,200,0.32)', note:'shields and subsystems only - no hull damage'},
-  {key:'morningstar', name:'Morning Star', unlock:8000, snd:'wpn_subach',
+  {key:'morningstar', name:'Morning Star', unlock:8000, snd:'L_Flail',
    fs:{d:7, v:1000, w:0.15, l:2.0, e:0.8, a:0.5, s:1.3, u:0.2},
    col:'#fff2a8', glow:'rgba(255,240,150,0.30)', note:'fast and far, tears shields, hungry'},
-  {key:'proms', name:'Prometheus S', unlock:12000, snd:'wpn_prometheus',
+  {key:'proms', name:'Prometheus S', unlock:12000, snd:'L_Prom_S',
    fs:{d:30, v:750, w:0.35, l:2.0, e:1.0, a:0.9, s:1.0, u:0.35},
    col:'#e8ff6a', glow:'rgba(220,255,90,0.32)', note:'heavier and faster than the R'},
-  {key:'kayser', name:'UD-8 Kayser', unlock:18000, snd:'wpn_prometheus',
+  {key:'kayser', name:'UD-8 Kayser', unlock:18000, snd:'L_Kayser',
    fs:{d:28, v:650, w:0.25, l:1.5, e:1.2, a:1.0, s:0.9, u:0.35},
    col:'#b48cff', glow:'rgba(170,130,255,0.34)', note:'hard hitting all round, empties the store'},
-  {key:'lamprey', name:'Lamprey', unlock:22000, snd:'wpn_subach',
-   fs:{d:14, v:450, w:0.30, l:2.0, e:1.2, a:0.1, s:1.0, u:0.0},
-   col:'#ff5ab4', glow:'rgba(255,80,170,0.32)', note:'a shield gun, barely scratches hulls'},
-  {key:'circe', name:'Circe', unlock:26000, snd:'wpn_prometheus',
+  {key:'circe', name:'Circe', unlock:26000, snd:'L_Circle',
    fs:{d:45, v:450, w:0.40, l:3.0, e:1.0, a:0.0, s:1.0, u:0.0},
    col:'#7affd8', glow:'rgba(100,255,210,0.32)', note:'shields only - nothing gets through to the hull'},
-  {key:'maxim', name:'Maxim', unlock:32000, snd:'wpn_prometheus',
+  {key:'maxim', name:'Maxim', unlock:32000, snd:'L_Newton',
    fs:{d:20, v:1800, w:0.15, l:2.0, e:1.0, a:1.3, s:0.2, u:1.0},
    col:'#ff6a3a', glow:'rgba(255,100,50,0.34)', note:'hull and subsystems, useless against shields'}
 ];
@@ -68,82 +66,74 @@ const ARSENAL_P = [
 // rounds). turn: FS2 turn time in seconds. homing: 'heat' goes for the
 // nearest, 'aspect' keeps the target it was fired at.
 const ARSENAL_S = [
-  {key:'harpoon', name:'Harpoon', cls:'missile', unlock:0, snd:'mx64', homing:'aspect',
+  {key:'harpoon', name:'Harpoon', cls:'missile', unlock:0, snd:'m_shrike', homing:'aspect',
    fs:{d:100, v:250, w:2.0, l:5.0, a:1.0, s:0.8, u:0.5, cargo:2.5, turn:1.0},
    note:'the all-round aspect seeker'},
-  {key:'rockeye', name:'Rockeye', cls:'missile', unlock:0, snd:'mx64', homing:'heat',
+  {key:'rockeye', name:'Rockeye', cls:'missile', unlock:0, snd:'m_wasp', homing:'heat',
    fs:{d:45, v:190, w:0.5, l:10.0, a:1.0, s:0.8, u:0.8, cargo:4, turn:0.85},
    note:'heat seeker, quick off the rail'},
-  {key:'tempest', name:'Tempest', cls:'missile', unlock:3000, snd:'mx64', homing:null,
+  {key:'tempest', name:'Tempest', cls:'missile', unlock:3000, snd:'m_fury', homing:null,
    fs:{d:45, v:360, w:0.3, l:1.8, a:0.9, s:0.5, u:0.6, cargo:0.25, turn:1},
    note:'dumbfire, a deep rack, short reach'},
-  {key:'hornet', name:'Hornet', cls:'missile', unlock:6000, snd:'tornado', homing:'aspect',
-   swarm:4, fan:0.9,
-   fs:{d:25, v:190, w:2.0, l:7.0, a:2.0, s:1.0, u:0.3, cargo:1, turn:1.15},
-   note:'four seekers in a fan'},
-  {key:'tornado', name:'Tornado', cls:'missile', unlock:10000, snd:'tornado', homing:'aspect',
+  {key:'tornado', name:'Tornado', cls:'missile', unlock:10000, snd:'m_swarm', homing:'aspect',
    swarm:4, fan:0.6,
    fs:{d:25, v:230, w:2.5, l:7.0, a:2.0, s:1.0, u:0.3, cargo:1.25, turn:1.25},
    note:'four faster seekers, each its own target'},
-  {key:'emp', name:'EMP Adv.', cls:'missile', unlock:14000, snd:'mx64', homing:'aspect', emp:true,
+  {key:'emp', name:'EMP Adv.', cls:'missile', unlock:14000, snd:'m_emp', homing:'aspect', emp:true,
    fs:{d:45, v:275, w:2.0, l:5.0, a:1.0, s:0.8, u:0.5, cargo:4, turn:1.0},
    note:'fighters near the blast stop firing for a while'},
-  {key:'infyrno', name:'Infyrno', cls:'missile', unlock:18000, snd:'infyrno', homing:null,
-   burst:true, shards:12, shardDmg:30, shardSpd:3.0, shardRange:90,
-   fs:{d:150, v:120, w:5.0, l:7.0, a:1.0, s:0.75, u:1.0, cargo:10, turn:1},
-   note:'fired straight - press again to burst it into shrapnel'},
-  {key:'trebuchet', name:'Trebuchet', cls:'missile', unlock:18000, snd:'mx64', homing:'aspect',
+  {key:'infyrno', name:'Infyrno', cls:'missile', unlock:18000, snd:'m_cluster', homing:null,
+   burst:true, children:14, shardRange:90,
+   fs:{d:150, v:120, w:5.0, l:7.0, a:1.0, s:0.75, u:1.0, cargo:10, turn:1,
+       child:{d:100, v:250, l:0.3}},      // 14 x "Cluster Bomb Baby"
+   note:'fired straight - press again to burst it into 14 small seekers'},
+  {key:'trebuchet', name:'Trebuchet', cls:'missile', unlock:18000, snd:'m_angel', homing:'aspect',
    fs:{d:350, v:280, w:6.0, l:18.0, a:0.9, s:0.5, u:2.4, cargo:8, turn:3.0},
    note:'long range, heavy, for subsystems'},
-  {key:'piranha', name:'Piranha', cls:'missile', unlock:22000, snd:'infyrno', homing:null,
-   burst:true, children:12, childDmg:8,
-   fs:{d:100, v:90, w:5.0, l:4.0, a:1.0, s:0.75, u:1.0, cargo:12, turn:1},
-   note:'press again to release a dozen small seekers'},
-  {key:'stiletto2', name:'Stiletto II', cls:'missile', unlock:26000, snd:'stiletto', homing:'heat', subs:true,
+  {key:'stiletto2', name:'Stiletto II', cls:'missile', unlock:26000, snd:'m_stiletto', homing:'heat', subs:true,
    fs:{d:775, v:220, w:2.0, l:25.0, a:0.01, s:0.0, u:1.0, cargo:8, turn:1.0},
    note:'into the subsystems, not the hull'},
-  {key:'tagc', name:'TAG-C', cls:'missile', unlock:0, fromWave:67, snd:'mx64', homing:'aspect', tag:true,
+  {key:'tagc', name:'TAG-C', cls:'missile', unlock:0, fromWave:67, snd:'m_angel', homing:'aspect', tag:true,
    fs:{d:10, v:205, w:8.0, l:13.0, a:0.1, s:0.1, u:0.1, cargo:4, turn:1.75},
    note:'marks the target - our beams find it, even in the nebula'},
-  {key:'cyclops', name:'Cyclops', cls:'bomb', unlock:0, snd:'cyclops', homing:'aspect',
+  {key:'cyclops', name:'Cyclops', cls:'bomb', unlock:0, snd:'m_tsunami', homing:'aspect',
    fs:{d:2000, v:95, w:20.0, l:25.0, a:1.0, s:0.02, u:0.5, cargo:15, turn:1.0},
-   note:'slow and heavy, for hulls that cannot dodge'},
-  {key:'helios', name:'Helios', cls:'bomb', unlock:30000, snd:'cyclops', homing:'aspect',
-   fs:{d:6800, v:65, w:30.0, l:30.0, a:1.0, s:0.02, u:0.85, cargo:25, turn:1.5},
-   note:'the heaviest bomb there is'}
+   note:'slow and heavy, for hulls that cannot dodge'}
 ];
 
 // Banks of every hull the player can fly, from ships.tbl (genbanks.py).
+// v187 (Silvio): Lamprey, Hornet, Piranha and Helios are out of the game;
+// default Hornets became Tornados, default Piranhas Infyrnos.
 // p/s: default fit, pa/sa: what the hull may carry, cap: secondary bank
 // capacity, eng: Max Weapon Eng, pow: Power Output. At most 2 + 3 banks.
 // The FS1 hulls (Apollo, Valkyrie, Athena) come from the FSPort table,
 // their FS1 weapons mapped onto the nearest FS2 ones.
 const SHIP_BANKS = {
-  fitoth:{p:['promr'], pa:['mekhu','akheton','morningstar','proms','promr','circe','lamprey'], s:['harpoon'], sa:['rockeye','tempest','harpoon','hornet','tornado','emp'], cap:[80], eng:150, pow:2.5},
-  fihorus:{p:['mekhu','morningstar'], pa:['mekhu','morningstar','proms','promr','kayser','circe','lamprey'], s:['rockeye','trebuchet'], sa:['rockeye','tempest','harpoon','trebuchet','hornet','tornado','emp'], cap:[40,40], eng:100, pow:2.2},
-  boosiris:{p:['mekhu'], pa:['mekhu','akheton','morningstar','proms','promr','kayser','circe','lamprey'], s:['piranha','stiletto2','trebuchet'], sa:['rockeye','tempest','harpoon','trebuchet','stiletto2','cyclops','emp','infyrno'], cap:[40,40,20], eng:100, pow:3.0},
-  fiserapis:{p:['promr','akheton'], pa:['mekhu','akheton','morningstar','proms','promr','circe','lamprey','maxim'], s:['harpoon','harpoon'], sa:['rockeye','tempest','harpoon','hornet','tornado','emp'], cap:[60,30], eng:150, pow:3.4},
-  fiseth:{p:['mekhu','mekhu'], pa:['mekhu','akheton','morningstar','proms','promr','kayser','circe','lamprey'], s:['rockeye','stiletto2'], sa:['rockeye','tempest','harpoon','trebuchet','hornet','tornado','stiletto2','emp','infyrno'], cap:[40,80], eng:100, pow:3.0},
-  bobakha:{p:['mekhu','mekhu'], pa:['mekhu','akheton','promr','proms','circe','lamprey'], s:['piranha','stiletto2'], sa:['rockeye','harpoon','stiletto2','cyclops','emp','infyrno','trebuchet'], cap:[80,100], eng:100, pow:4.3},
-  fitauret:{p:['mekhu','mekhu'], pa:['mekhu','akheton','morningstar','proms','promr','kayser','circe','lamprey'], s:['rockeye','rockeye'], sa:['rockeye','tempest','harpoon','trebuchet','hornet','tornado','stiletto2','emp','infyrno'], cap:[100,100], eng:100, pow:3.0},
-  bosekhmet:{p:['promr'], pa:['mekhu','akheton','morningstar','proms','promr','lamprey','circe','maxim'], s:['hornet','piranha','cyclops'], sa:['rockeye','tempest','harpoon','hornet','tornado','trebuchet','piranha','stiletto2','cyclops','helios','emp','infyrno'], cap:[80,80,80], eng:100, pow:3.0},
-  fimyrmidon:{p:['promr','subach'], pa:['subach','akheton','morningstar','proms','promr','kayser'], s:['rockeye','tornado','tempest'], sa:['rockeye','hornet','tornado','tempest','trebuchet','stiletto2','emp','infyrno','helios'], cap:[20,20,40], eng:150, pow:2.4},
-  fiperseus:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser'], s:['harpoon','hornet'], sa:['rockeye','tempest','harpoon','trebuchet','stiletto2','hornet','tornado','emp'], cap:[40,40], eng:150, pow:2.0},
-  fiherc:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser','lamprey','circe','maxim'], s:['harpoon','hornet'], sa:['rockeye','tempest','harpoon','trebuchet','hornet','tornado','emp','infyrno'], cap:[60,60], eng:150, pow:3.0},
-  boartemis:{p:['subach'], pa:['subach','proms','promr','lamprey','circe','maxim'], s:['hornet','cyclops','cyclops'], sa:['rockeye','hornet','tornado','trebuchet','stiletto2','piranha','cyclops','emp','infyrno'], cap:[40,60,60], eng:100, pow:4.0},
-  fihercmk2:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser','lamprey','circe','maxim'], s:['harpoon','hornet'], sa:['rockeye','tempest','harpoon','trebuchet','infyrno','hornet','tornado','emp'], cap:[80,100], eng:150, pow:3.0},
-  bomedusa:{p:['promr'], pa:['subach','proms','promr','lamprey','circe','maxim'], s:['hornet','cyclops','cyclops'], sa:['rockeye','hornet','tornado','trebuchet','stiletto2','piranha','cyclops','emp','infyrno'], cap:[40,80,80], eng:100, pow:4.0},
-  fierinyes:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser','lamprey','circe','maxim'], s:['harpoon','hornet'], sa:['rockeye','tempest','harpoon','trebuchet','infyrno','hornet','tornado','emp'], cap:[40,50], eng:150, pow:3.3},
-  boursa:{p:['promr','promr'], pa:['subach','akheton','morningstar','proms','promr','lamprey','circe','maxim'], s:['hornet','piranha','cyclops'], sa:['rockeye','tempest','harpoon','hornet','tornado','trebuchet','piranha','stiletto2','cyclops','helios','emp','infyrno'], cap:[80,80,80], eng:150, pow:4.5},
-  fiares:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser','lamprey','circe','maxim'], s:['harpoon','hornet'], sa:['rockeye','tempest','harpoon','trebuchet','hornet','tornado','emp','infyrno'], cap:[90,100], eng:180, pow:5.0},
-  fipegasus:{p:['subach'], pa:['subach','akheton','morningstar','promr','proms'], s:['harpoon','hornet'], sa:['rockeye','tempest','harpoon','trebuchet','hornet','tornado','emp'], cap:[20,10], eng:150, pow:3.0},
-  fiptah:{p:['mekhu'], pa:['mekhu','akheton','morningstar','promr','proms'], s:['harpoon','hornet'], sa:['rockeye','tempest','harpoon','trebuchet','hornet','tornado','emp'], cap:[20,10], eng:150, pow:3.0},
+  fitoth:{p:['promr'], pa:['mekhu','akheton','morningstar','proms','promr','circe'], s:['harpoon'], sa:['rockeye','tempest','harpoon','tornado','emp'], cap:[80], eng:150, pow:2.5},
+  fihorus:{p:['mekhu','morningstar'], pa:['mekhu','morningstar','proms','promr','kayser','circe'], s:['rockeye','trebuchet'], sa:['rockeye','tempest','harpoon','trebuchet','tornado','emp'], cap:[40,40], eng:100, pow:2.2},
+  boosiris:{p:['mekhu'], pa:['mekhu','akheton','morningstar','proms','promr','kayser','circe'], s:['infyrno','stiletto2','trebuchet'], sa:['rockeye','tempest','harpoon','trebuchet','stiletto2','cyclops','emp','infyrno'], cap:[40,40,20], eng:100, pow:3.0},
+  fiserapis:{p:['promr','akheton'], pa:['mekhu','akheton','morningstar','proms','promr','circe','maxim'], s:['harpoon','harpoon'], sa:['rockeye','tempest','harpoon','tornado','emp'], cap:[60,30], eng:150, pow:3.4},
+  fiseth:{p:['mekhu','mekhu'], pa:['mekhu','akheton','morningstar','proms','promr','kayser','circe'], s:['rockeye','stiletto2'], sa:['rockeye','tempest','harpoon','trebuchet','tornado','stiletto2','emp','infyrno'], cap:[40,80], eng:100, pow:3.0},
+  bobakha:{p:['mekhu','mekhu'], pa:['mekhu','akheton','promr','proms','circe'], s:['infyrno','stiletto2'], sa:['rockeye','harpoon','stiletto2','cyclops','emp','infyrno','trebuchet'], cap:[80,100], eng:100, pow:4.3},
+  fitauret:{p:['mekhu','mekhu'], pa:['mekhu','akheton','morningstar','proms','promr','kayser','circe'], s:['rockeye','rockeye'], sa:['rockeye','tempest','harpoon','trebuchet','tornado','stiletto2','emp','infyrno'], cap:[100,100], eng:100, pow:3.0},
+  bosekhmet:{p:['promr'], pa:['mekhu','akheton','morningstar','proms','promr','circe','maxim'], s:['tornado','infyrno','cyclops'], sa:['rockeye','tempest','harpoon','tornado','trebuchet','stiletto2','cyclops','emp','infyrno'], cap:[80,80,80], eng:100, pow:3.0},
+  fimyrmidon:{p:['promr','subach'], pa:['subach','akheton','morningstar','proms','promr','kayser'], s:['rockeye','tornado','tempest'], sa:['rockeye','tornado','tempest','trebuchet','stiletto2','emp','infyrno'], cap:[20,20,40], eng:150, pow:2.4},
+  fiperseus:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser'], s:['harpoon','tornado'], sa:['rockeye','tempest','harpoon','trebuchet','stiletto2','tornado','emp'], cap:[40,40], eng:150, pow:2.0},
+  fiherc:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser','circe','maxim'], s:['harpoon','tornado'], sa:['rockeye','tempest','harpoon','trebuchet','tornado','emp','infyrno'], cap:[60,60], eng:150, pow:3.0},
+  boartemis:{p:['subach'], pa:['subach','proms','promr','circe','maxim'], s:['tornado','cyclops','cyclops'], sa:['rockeye','tornado','trebuchet','stiletto2','cyclops','emp','infyrno'], cap:[40,60,60], eng:100, pow:4.0},
+  fihercmk2:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser','circe','maxim'], s:['harpoon','tornado'], sa:['rockeye','tempest','harpoon','trebuchet','infyrno','tornado','emp'], cap:[80,100], eng:150, pow:3.0},
+  bomedusa:{p:['promr'], pa:['subach','proms','promr','circe','maxim'], s:['tornado','cyclops','cyclops'], sa:['rockeye','tornado','trebuchet','stiletto2','cyclops','emp','infyrno'], cap:[40,80,80], eng:100, pow:4.0},
+  fierinyes:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser','circe','maxim'], s:['harpoon','tornado'], sa:['rockeye','tempest','harpoon','trebuchet','infyrno','tornado','emp'], cap:[40,50], eng:150, pow:3.3},
+  boursa:{p:['promr','promr'], pa:['subach','akheton','morningstar','proms','promr','circe','maxim'], s:['tornado','infyrno','cyclops'], sa:['rockeye','tempest','harpoon','tornado','trebuchet','stiletto2','cyclops','emp','infyrno'], cap:[80,80,80], eng:150, pow:4.5},
+  fiares:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','kayser','circe','maxim'], s:['harpoon','tornado'], sa:['rockeye','tempest','harpoon','trebuchet','tornado','emp','infyrno'], cap:[90,100], eng:180, pow:5.0},
+  fipegasus:{p:['subach'], pa:['subach','akheton','morningstar','promr','proms'], s:['harpoon','tornado'], sa:['rockeye','tempest','harpoon','trebuchet','tornado','emp'], cap:[20,10], eng:150, pow:3.0},
+  fiptah:{p:['mekhu'], pa:['mekhu','akheton','morningstar','promr','proms'], s:['harpoon','tornado'], sa:['rockeye','tempest','harpoon','trebuchet','tornado','emp'], cap:[20,10], eng:150, pow:3.0},
   // SF Mara (terrans), the captured fighter of M78.
-  fimara:{p:['subach','kayser'], pa:['subach','kayser'], s:['trebuchet','hornet'], sa:['trebuchet','rockeye','tempest','hornet','tornado','harpoon','emp'], cap:[105,105], eng:195, pow:4.5},
-  fiulysses:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','lamprey','circe','maxim'], s:['harpoon'], sa:['rockeye','tempest','hornet','tornado','harpoon','emp'], cap:[40], eng:80, pow:2.0},
-  fiapollo:{p:['promr','subach'], pa:['subach','lamprey','promr','morningstar','proms'], s:['harpoon','harpoon'], sa:['harpoon','rockeye','hornet'], cap:[40,40], eng:100, pow:2.0},
-  fivalyrie:{p:['subach','proms'], pa:['subach','lamprey','promr','proms','kayser'], s:['harpoon'], sa:['harpoon','rockeye','hornet','trebuchet'], cap:[60], eng:100, pow:2.0},
-  boathena:{p:['promr','morningstar'], pa:['subach','lamprey','promr','morningstar'], s:['trebuchet','stiletto2'], sa:['rockeye','harpoon','hornet','trebuchet','piranha','stiletto2'], cap:[80,80], eng:100, pow:3.0}
+  fimara:{p:['subach','kayser'], pa:['subach','kayser'], s:['trebuchet','tornado'], sa:['trebuchet','rockeye','tempest','tornado','harpoon','emp'], cap:[105,105], eng:195, pow:4.5},
+  fiulysses:{p:['subach','promr'], pa:['subach','akheton','morningstar','proms','promr','circe','maxim'], s:['harpoon'], sa:['rockeye','tempest','tornado','harpoon','emp'], cap:[40], eng:80, pow:2.0},
+  fiapollo:{p:['promr','subach'], pa:['subach','promr','morningstar','proms'], s:['harpoon','harpoon'], sa:['harpoon','rockeye'], cap:[40,40], eng:100, pow:2.0},
+  fivalyrie:{p:['subach','proms'], pa:['subach','promr','proms','kayser'], s:['harpoon'], sa:['harpoon','rockeye','trebuchet'], cap:[60], eng:100, pow:2.0},
+  boathena:{p:['promr','morningstar'], pa:['subach','promr','morningstar'], s:['trebuchet','stiletto2'], sa:['rockeye','harpoon','trebuchet','stiletto2'], cap:[80,80], eng:100, pow:3.0}
 };
 // A hull without an entry (should not happen) flies this.
 const BANKS_FALLBACK = {p:['promr'], pa:['promr'], s:['harpoon'], sa:['harpoon'], cap:[40], eng:150, pow:2.4};
@@ -171,6 +161,11 @@ function shipBanks(key){ return SHIP_BANKS[key] || BANKS_FALLBACK; }
     w.life = Math.round(f.l*60);
     w.turn = ((w.cls==='bomb') ? 0.06 : 0.18) / (f.turn||1);
     w.cargo = f.cargo;
+    if(f.child){            // spawned warheads, same anchor as the round
+      w.childDmg  = f.child.d * anc.game / anc.d;
+      w.childSpd  = f.child.v * MPS_TO_PX;
+      w.childLife = Math.max(1, Math.round(f.child.l*60));
+    }
   }
 })();
 

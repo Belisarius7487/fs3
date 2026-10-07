@@ -49,7 +49,7 @@ const consts = [
     const b = src.indexOf('\nfunction empBurst(');
     return src.slice(a, blockEnd(src, b+1)) + '\n' + decl(/const AI_SECONDARIES = \[[\s\S]*?\n\];/)
          + '\n' + decl(/const AI_PRIMARIES = \{[\s\S]*?\n\};/) + '\nconst SECONDARIES = ARSENAL_S;\n'
-         + decl(/const PIRANHA_CHILD = \{[^}]*\};/);
+         + decl(/const CLUSTER_CHILD = \{[^}]*\};/);
   })(),
   decl(/const SUB_WARHEAD_MUL = [^;]*;/),
   decl(/const VOLLEY_BASE\s*=\s*[\d.]+;/),
@@ -198,14 +198,14 @@ fitShip('fitoth', ['scatter'], ['harpoon']); shoot();
 console.log('\nSwarms: one press, four seekers, four targets');
 {
   const mk = (x,y)=>({x:x, y:y, hp:100, dead:false});
-  fitShip('fiherc', ['subach','promr'], ['harpoon','hornet']);
+  fitShip('fiherc', ['subach','promr'], ['harpoon','tornado']);
   run("player.sSel=1; syncLegacyWeapons(); player.secTimer=0");
   set('enemies', [mk(300,200), mk(300,300), mk(400,250), mk(500,250)]);
   ctxObj.enemies = run('enemies'); clear();
   const before = get('player').sb[1].ammo;
   run('fireSecondary()');
   const b = bullets().filter(x=>x.sec);
-  ok('four Hornets leave', b.length===4);
+  ok('four Tornados leave', b.length===4);
   ok('and they cost one round, not four', get('player').sb[1].ammo===before-1);
   ok('each has a different target', new Set(b.map(x=>x.target)).size===4);
   ok('each carries its FS2 factors (hull 2.0 of a Harpoon)', b.every(x=>x.f && x.f.a===2));
@@ -236,19 +236,34 @@ fitShip('fitoth', ['dante'], ['harpoon']); shoot();
   ok('the round knows which weapon made it, so the burst can be looked up', b[0].wpn==='dante');
 }
 
-console.log('\nInfyrno and Piranha: the button belongs to the round in the air');
+console.log('\nInfyrno: the button belongs to the round in the air (v187: 14 seekers)');
 {
   fitShip('fiherc', ['subach'], ['infyrno']); run('player.secTimer=0');
   const n0 = get('player').sb[0].ammo;
   run('fireSecondary()');
   ok('one round leaves', bullets().length===1 && bullets()[0].burst===true && bullets()[0].homing===false);
   run('player.secTimer=0; fireSecondary()');
-  const after = bullets();
-  ok('the second press bursts it into shrapnel', after.length>=11 && after.every(b=>b.shard));
+  const kids = bullets(), w = run("secDefP('infyrno')");
+  ok('the second press lets go 14 small heat seekers', kids.length===14 && kids.every(k=>k.sec && k.homing && !k.aspect));
   ok('and costs no second round', get('player').sb[0].ammo===n0-1);
-  fitShip('bosekhmet', ['promr'], ['piranha']); run('player.secTimer=0; fireSecondary(); player.secTimer=0; fireSecondary()');
-  const kids = bullets();
-  ok('a Piranha lets go a dozen small seekers', kids.length===12 && kids.every(k=>k.sec && k.homing));
+  ok('each with the table damage: 100 of a Harpoon\'s 100 = 35', Math.abs(kids[0].dmg-35)<1e-9 && w.childDmg===kids[0].dmg);
+  ok('table speed 250 m/s = 5 per step, life 0.3 s = 18 steps', kids[0].maxSpd===5 && kids[0].life===18);
+  run('enemies.length=0'); clear();
+  run('player.secTimer=0; fireSecondary()');
+  const r = bullets()[0]; r.life = 1;
+  run('updateSecBullets()');
+  ok('left alone it goes off at the end of its flight', bullets().length===14);
+  clear();
+}
+
+console.log('\nv187: Lamprey, Hornet, Piranha, Helios are out');
+{
+  const gone = ['lamprey','hornet','piranha','helios'];
+  ok('not in the arsenal', run("ARSENAL_P.concat(ARSENAL_S).map(w=>w.key)").every(k=>gone.indexOf(k)<0));
+  const SB = run('SHIP_BANKS');
+  ok('no hull carries or may carry one', Object.keys(SB).every(h=>['p','pa','s','sa'].every(f=>SB[h][f].every(k=>gone.indexOf(k)<0))));
+  ok('a default fit only holds what the hull may carry', Object.keys(SB).every(h=>SB[h].s.every(k=>SB[h].sa.indexOf(k)>=0 || h==='boosiris')));
+  ok('the Ursa: Tornado, Infyrno, Cyclops', SB.boursa.s.join()==='tornado,infyrno,cyclops');
 }
 
 console.log('\nStiletto II: the warhead goes inside');
@@ -256,13 +271,13 @@ console.log('\nStiletto II: the warhead goes inside');
   const w = run("secDefP('stiletto2')");
   ok('it hits only subsystems: no shield, hardly any hull', w.f.s===0 && w.f.a<0.02 && w.f.u===2);
   ok('it seeks by heat', w.homing==='heat');
-  ok('a fit puts it into the bank that carries it', (fitShip('boosiris', ['mekhu'], ['piranha','stiletto2','trebuchet']), get('player').sb[1].key==='stiletto2'));
+  ok('a fit puts it into the bank that carries it', (fitShip('boosiris', ['mekhu'], ['infyrno','stiletto2','trebuchet']), get('player').sb[1].key==='stiletto2'));
   ok('the rack follows capacity and cargo: 40 / 8 = 5', get('player').sb[1].max===5);
 }
 
 console.log('\nA mission fits what it needs');
 {
-  fitShip('boursa', ['promr','promr'], ['hornet','piranha','cyclops']);
+  fitShip('boursa', ['promr','promr'], ['tornado','infyrno','cyclops']);
   run("missionSec(arsenalKey('stiletto'), false)");
   ok('M57: the Stiletto II goes into bank 1, full', get('player').sb[0].key==='stiletto2' && get('player').sb[0].ammo===10);
   run("missionSec(arsenalKey('tag'), true)");

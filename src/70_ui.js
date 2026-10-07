@@ -47,25 +47,30 @@ function draw(){
       // the player's by the hull he flies (Silvio, v161).
       const oc = raceCol(b.ally ? b.fac : shipFac(player.ship));
       if(b.type==='missile'){
-        // Missile: metallic body plus engine glow
-        const mx=(b.x)|0, my=(b.y)|0;
-        // Triebwerk-Glow (hinten), in the race's colour
+        // Missile: metallic body plus engine glow, drawn along its flight
+        // direction (Silvio, v187: it always pointed to the right).
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.rotate(Math.atan2(b.vy, b.vx));
+        const hw=b.w/2;
+        // Engine glow at the tail, in the race's colour
         ctx.fillStyle=oc.glow;
-        ctx.beginPath();ctx.ellipse(mx-b.w/2,my,7,5,0,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.ellipse(-hw,0,7,5,0,0,Math.PI*2);ctx.fill();
         ctx.fillStyle=oc.core;
-        ctx.beginPath();ctx.ellipse(mx-b.w/2,my,3,2,0,0,Math.PI*2);ctx.fill();
-        // Rumpf
+        ctx.beginPath();ctx.ellipse(-hw,0,3,2,0,0,Math.PI*2);ctx.fill();
+        // Body
         ctx.fillStyle='#aabbcc';
-        ctx.fillRect(mx-b.w/2+4,my-2,b.w-6,4);
-        // Nase (spitz, vorne)
+        ctx.fillRect(-hw+4,-2,b.w-6,4);
+        // Nose
         ctx.fillStyle='#dd4422';
-        ctx.beginPath();ctx.moveTo(mx+b.w/2,my);
-        ctx.lineTo(mx+b.w/2-6,my-2);ctx.lineTo(mx+b.w/2-6,my+2);
+        ctx.beginPath();ctx.moveTo(hw,0);
+        ctx.lineTo(hw-6,-2);ctx.lineTo(hw-6,2);
         ctx.closePath();ctx.fill();
-        // Finnen
+        // Fins
         ctx.fillStyle='#8899aa';
-        ctx.fillRect(mx-b.w/2+4,my-4,5,2);
-        ctx.fillRect(mx-b.w/2+4,my+2,5,2);
+        ctx.fillRect(-hw+4,-4,5,2);
+        ctx.fillRect(-hw+4,2,5,2);
+        ctx.restore();
       } else {
         // Bomb: dark sphere with a pulsing warning glow
         const pulse=0.5+0.5*Math.sin(fc*0.25);
@@ -1169,7 +1174,7 @@ function drawHUDHLP(){
   var x=72; thDivider(x, 4, H2-4); x+=6;
 
   // 2  HULL, SHIELD, ENERGY - three bars, the share at the end
-  var bw=78, bh=Math.max(5, (H2-16)/3-6), gap=(H2-8)/3, bx=x+34;
+  var bw=74, bh=Math.max(5, (H2-16)/3-6), gap=(H2-8)/3, bx=x+34;
   var hR=Math.max(0, player.hp/player.maxHp);
   var sR=player.maxSh ? Math.max(0, player.sh/player.maxSh) : 0;
   var eR=player.enMax ? Math.max(0, player.en/player.enMax) : 0;
@@ -1195,18 +1200,28 @@ function drawHUDHLP(){
       ctx.fillStyle='rgba(0,100,200,0.2)'; ctx.fillRect(bx, y, bw, bh);
     }
     ctx.fillStyle=TH('text'); ctx.font=thValue(8, false); ctx.textAlign='right';
-    ctx.fillText(Math.round(rows[i][1]*100)+'%', bx+bw+20, y+bh/2+0.5); ctx.textAlign='left';
+    ctx.fillText(Math.round(rows[i][1]*100)+'%', bx+bw+23, y+bh/2+0.5); ctx.textAlign='left';
   }
   if(player.enEmptyT>0) player.enEmptyT--;
-  x=bx+bw+24; thDivider(x, 4, H2-4); x+=6;
+  x=bx+bw+27; thDivider(x, 4, H2-4); x+=6;
 
-  // 3  LIVES
+  // 3  LIVES - the hull icon back in front of the count (Silvio, v187)
   lab('LIVES', x, 9);
+  var lIco=ICONS[isBomberHull(player.ship)?'bomberlives':'fighterlives'], lW=13;
+  if(lIco){
+    var lh=12; lW=Math.max(1, Math.round(lIco.width*(lh/lIco.height)));
+    if(lW>18){ lh=lh*18/lW; lW=18; }
+    ctx.drawImage(lIco, x|0, (mid+6-lh/2)|0, lW, lh);
+  } else {
+    ctx.fillStyle=TH('text'); var ly=mid+3;
+    ctx.fillRect(x, ly+2, 11, 3); ctx.fillRect(x+2, ly, 7, 2);
+    ctx.fillRect(x+2, ly+5, 7, 2); ctx.fillRect(x+9, ly+2, 4, 3);
+  }
   ctx.fillStyle=TH('textBright'); ctx.font=thValue(14, true);
-  ctx.fillText(String(lives), x+4, mid+6);
+  ctx.fillText(String(lives), x+lW+4, mid+6);
   var lPl=barPulseLevel('lives');
-  if(lPl>0) thGlowPath(x-4, 5, 30, H2-10, 4, lPl);
-  x+=30; thDivider(x, 4, H2-4); x+=6;
+  if(lPl>0) thGlowPath(x-4, 5, 44, H2-10, 4, lPl);
+  x+=40; thDivider(x, 4, H2-4); x+=6;
 
   // 4  PRIMARY: one row per bank, the firing ones lit, linked ones joined
   // by a bracket. A tap on the panel steps the mode, like the wheel.
@@ -1245,7 +1260,8 @@ function drawHUDHLP(){
     var sy=14+si*srow+srow/2, son=(si===player.sSel), sw=secDefP(sb[si].key);
     var rr={x:x-2, y:sy-srow/2+1, w:118, h:srow-2, i:si};
     if(son){
-      ctx.fillStyle='rgba(255,140,0,0.16)'; ctx.fillRect(rr.x, rr.y, rr.w, rr.h);
+      // The theme's own glow, not a fixed orange (it read red on Void).
+      ctx.fillStyle='rgba('+TH('glow')+',0.30)'; ctx.fillRect(rr.x, rr.y, rr.w, rr.h);
       if(player.secTimer>0 && player.secCdMax){
         ctx.fillStyle=TH('accent');
         ctx.fillRect(rr.x, rr.y+rr.h-2, (rr.w*(1-player.secTimer/player.secCdMax))|0, 2);
@@ -2187,11 +2203,11 @@ const RM_COLS_PRI = [
   {k:'range', x:504, label:'ENERGY'}
 ];
 const RM_COLS_SEC = [
-  {k:'dmg',    x:300, label:'DAMAGE'},
-  {k:'ammo',   x:366, label:'RACK'},
-  {k:'reload', x:432, label:'RELOAD'},
-  {k:'spd',    x:504, label:'SPEED'},
-  {k:'seek',   x:566, label:'SEEKING'}
+  {k:'dmg',    x:290, label:'DAMAGE'},
+  {k:'ammo',   x:352, label:'RACK'},
+  {k:'reload', x:410, label:'RELOAD'},
+  {k:'spd',    x:474, label:'SPEED'},
+  {k:'seek',   x:530, label:'SEEKING'}   // room for STRAIGHT (v187)
 ];
 // What each column actually says for a weapon. Kept beside the columns so a
 // new figure is added in one place rather than two.
@@ -2209,7 +2225,10 @@ function rmValue(w, k, pri, slot){
   if(k==='ammo')   return String(bankAmmoMax(player.ship, +slot.slice(1), w.key));
   if(k==='reload') return (Math.round(w.cd/6)/10).toFixed(1)+'s';
   if(k==='spd')    return String(Math.round(w.spd*10)/10);
-  if(k==='seek')   return w.homing==='heat' ? 'HEAT' : (w.homing==='aspect' ? 'ASPECT' : 'NO');
+  // What the seeker does, in the player's words (Silvio, v187): LOCK keeps
+  // the target in front of the nose at launch, NEAREST turns to whatever
+  // is closest, STRAIGHT flies where it was fired.
+  if(k==='seek')   return w.homing==='heat' ? 'NEAREST' : (w.homing==='aspect' ? 'LOCK' : 'STRAIGHT');
   return '';
 }
 // One row per bank. A tap on a row switches that bank to the next weapon.
