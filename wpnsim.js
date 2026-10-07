@@ -256,6 +256,26 @@ console.log('\nInfyrno: the button belongs to the round in the air (v187: 14 see
   clear();
 }
 
+console.log('\nv187b: a seeker comes round in its FS2 turn time, whatever its speed');
+{
+  const h = run("secDefP('harpoon')"), r = run("secDefP('rockeye')");
+  const halfCircle = w => Math.PI / (w.turn / w.spd) / 60;   // seconds for 180 degrees
+  ok('Harpoon: 1.0 s', Math.abs(halfCircle(h)-1.0) < 1e-9);
+  ok('Rockeye: 0.85 s', Math.abs(halfCircle(r)-0.85) < 1e-9);
+  // Fired straight down at a fighter well off to the side (65 degrees off
+  // the nose, 300 points away): it comes round and gets there. Closer in
+  // than its turning circle it would orbit, as in FS2.
+  const e = {x:600, y:390, hp:1e6, maxHp:1e6, dead:false, type:'fighter', img:'fidragon', w:30, h:12};
+  run('enemies.length=0'); run('enemies').push(e);
+  fitShip('fitoth', ['promr'], ['harpoon']);
+  run('player.x=300; player.y=250; player.head=Math.PI/2; player.secTimer=0; fireSecondary()');
+  const m = bullets().find(x=>x.sec);
+  let best = 1e9;
+  for(let i=0;i<150 && bullets().indexOf(m)>=0;i++){ run('updateSecBullets()'); best = Math.min(best, Math.hypot(m.x-e.x, m.y-e.y)); }
+  ok('a Harpoon launched sideways still reaches its target (closest '+Math.round(best)+')', best < 12 || bullets().indexOf(m)<0);
+  run('enemies.length=0'); clear();
+}
+
 console.log('\nv187: Lamprey, Hornet, Piranha, Helios are out');
 {
   const gone = ['lamprey','hornet','piranha','helios'];

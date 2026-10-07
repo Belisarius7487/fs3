@@ -13628,7 +13628,13 @@ function shipBanks(key){ return SHIP_BANKS[key] || BANKS_FALLBACK; }
     w.cd   = Math.max(6, Math.round(f.w*60));
     w.spd  = f.v*MPS_TO_PX;
     w.life = Math.round(f.l*60);
-    w.turn = ((w.cls==='bomb') ? 0.06 : 0.18) / (f.turn||1);
+    // Turn: FS2's $Turn Time is the time for a half circle, whatever the
+    // speed. A missile steers by adding turn to its velocity each step, so
+    // a faster one needs more of it to come round as quickly (v187b: the
+    // Harpoon is faster than the old MX-64 and sailed past what it chased).
+    // Bombs keep their slow fixed rate.
+    w.turn = (w.cls==='bomb') ? 0.06 / (f.turn||1)
+                              : w.spd * Math.PI / (60 * (f.turn||1));
     w.cargo = f.cargo;
     if(f.child){            // spawned warheads, same anchor as the round
       w.childDmg  = f.child.d * anc.game / anc.d;
