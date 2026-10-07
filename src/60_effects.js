@@ -666,9 +666,10 @@ function nextWave(){
   }
   // Tickets carry over, the pickups on the field do not.
   ITEMS=[];
-  // Ordnance was only ever set at launch, so after the first boss there
-  // was nothing left for the rest of the run. Hull is deliberately not
-  // restored here: that is what the repair pickups are for.
+  // Every mission starts with the ship as it left the hangar (v191,
+  // Silvio): full hull, every rack full, the weapon store charged. Since
+  // v186 the racks live in the banks; secAmmo alone filled nothing.
+  // The repair pickups are for the fight itself.
   // In the campaign the roster grows as the briefings hand it over; the
   // newest unlocked hull is assigned and the switch button stays hidden.
   if(FS1_MODE){
@@ -676,6 +677,11 @@ function nextWave(){
     if(un.length && player.ship!==un[un.length-1]) applyShip(un[un.length-1]);
   }
   player.secAmmo=player.secMax;
+  // Refill what is fitted - a mission may have handed out its own rack
+  // (M57 Stiletto, M67 TAG-C), so the fit itself is left alone.
+  for(const sb of (player.sb||[])) sb.ammo=sb.max;
+  if(player.enMax>0) player.en=player.enMax;
+  player.secTimer=0;
   // Before the prototypes come through, nobody in the fleet has a shield.
   // maxSh is left standing so the HUD bar keeps its geometry and simply
   // reads empty, which is the correct picture rather than a missing one.
@@ -688,6 +694,7 @@ function nextWave(){
     player.hp=Math.round(player.maxHp*frac);
     player.hullMult=pm;
   }
+  player.hp=player.maxHp;
   capBomberLeft=CAP_BOMBER_WAVES;capBomberCd=0;}
 
 // ── UPDATE ───────────────────────────────────────────────────

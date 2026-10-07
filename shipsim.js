@@ -781,6 +781,12 @@ console.log('The rearm panel');
   ok('a click on the header keeps it open', W.get('rearmMenu')===true);
   W.run(`pointerConsumed({x:${pr.x-12},y:${pr.y+pr.h/2}})`);
   ok('a click beside it closes it', W.get('rearmMenu')===false);
+  W.run('clearResumeHold(); toggleRearmMenu()');
+  CLR(); W.run('drawRearmMenu()');
+  const dn = W.run('window._rearmRects').find(r=>r.close);
+  ok('a DONE button inside the panel (v191)', !!dn && dn.x>=pr.x && dn.y+dn.h<=pr.y+pr.h);
+  W.run(`pointerConsumed({x:${dn.x+5},y:${dn.y+5}})`);
+  ok('DONE closes it and the fit stays', W.get('rearmMenu')===false && P().sb[1].key==='tempest');
 }
 
 console.log('The title screen');

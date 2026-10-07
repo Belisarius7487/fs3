@@ -2860,6 +2860,22 @@ scenario('v190: a bomb goes off over an area, a missile does not', 'm=31', `
   for(const e of [cr, near, mid, far]){ const i = enemies.indexOf(e); if(i >= 0) enemies.splice(i, 1); }
   return r;`);
 
+scenario('v191: a new mission starts repaired and armed, a rearm is no recharge', 'm=33', `
+  const r = {};
+  FS.until(()=>!inJump(), 2000, true);
+  // a rearm fills the racks and leaves the weapon store as it was
+  player.en = 5; for(const b of player.sb) b.ammo = 0;
+  rearmFull();
+  r.rearmKeepsEnergy = Math.abs(player.en - 5) < 1e-9;
+  r.rearmFillsRacks = player.sb.every(b=>b.ammo === b.max);
+  // the next mission: hull, every rack and the store are full again
+  player.hp = 3; player.en = 1; for(const b of player.sb) b.ammo = 0;
+  nextWave();
+  r.fullHull = player.hp === player.maxHp;
+  r.fullRacks = player.sb.length > 0 && player.sb.every(b=>b.ammo === b.max);
+  r.fullStore = Math.abs(player.en - player.enMax) < 1e-9;
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

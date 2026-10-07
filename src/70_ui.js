@@ -1854,11 +1854,11 @@ function waveReached(w){ return !w.fromWave || wave >= w.fromWave; }
 function applyLoadout(keepSec){
   setBanks(player.ship, fitFor(player.ship), keepSec);
 }
-// A refit fills every rack and the weapon store. This is what makes the
-// panel a rearm rather than a swap, and it is the whole reason a corvette on
-// the field is worth keeping.
+// A refit fills every rack. This is what makes the panel a rearm rather
+// than a swap, and it is the whole reason a corvette on the field is worth
+// keeping. The weapon store keeps its charge (v191, Silvio): a refit in the
+// middle of a fight was a free recharge.
 function rearmFull(){
-  player.en = null;
   applyLoadout();
   player.secTimer = 0;
 }
@@ -2318,12 +2318,15 @@ function rearmLayout(){
   (player.sb||[]).forEach(function(b, i){ banks.push({slot:'s'+i, label:'SECONDARY '+(i+1), key:b.key, ammo:b.max, x:c1, y:y, w:RM_C1_W, h:RM_BANK_H, num:++n}); y += RM_BANK_H+4; });
   if(!rmBankKey(rmBank)) rmBank = banks.length ? banks[0].slot : 'p0';
   const pri = rmPri(rmBank), cur = rmBankKey(rmBank);
-  const list = [];
+  const list = [], choices = bankChoices(player.ship, pri);
+  // A longer list closes up its rows rather than running into the DONE
+  // button (v191, Silvio): today's longest is 10 and still fits as it is.
+  const step = Math.min(RM_ROW_H+RM_ROW_GAP, Math.floor((RM_H-58-8-60)/Math.max(1, choices.length)));
   y = my+60;
-  for(const w of bankChoices(player.ship, pri)){
+  for(const w of choices){
     list.push({key:w.key, w:w, open:weaponOpenFor(w, player.ship), cur:w.key===cur,
-               x:c2, y:y, wd:RM_C2_W, h:RM_ROW_H});
-    y += RM_ROW_H+RM_ROW_GAP;
+               x:c2, y:y, wd:RM_C2_W, h:step-RM_ROW_GAP});
+    y += step;
   }
   return {mx:mx, my:my, mw:RM_W, mh:RM_H, c1:c1, c2:c2, c3:c3, c3w:mx+RM_W-RM_PAD-c3,
           banks:banks, list:list, pri:pri};
@@ -2331,6 +2334,18 @@ function rearmLayout(){
 function drawRearmShip(x, y, w, h){
   const key = player.ship, img = IMGS[key];
   ctx.fillStyle = TH('back'); ctx.fillRect(x, y, w, h);
+  window._rearmShipRect = {x:x, y:y, w:w, h:h};
+  // The real model when it is there (v191): it turns while the pointer is
+  // on it, the wheel zooms in and brings the finer model. The sprite
+  // stands in while it loads and wherever WebGL is missing.
+  const hot = hovering(x, y, w, h);
+  if(typeof m3dDraw === 'function' && m3dDraw(key, x, y, w, h, m3dView(key, hot))){
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillStyle = hot ? TH('accent') : TH('textDim'); ctx.font = thLabel(7);
+    ctx.fillText(hot ? 'WHEEL: ZOOM' : 'POINT TO TURN', x+w-6, y+8);
+    ctx.textAlign='left';
+    return;
+  }
   if(!img || !img.width || !img.height) return;
   const sc = Math.min((w-20)/img.width, (h-12)/img.height);
   if(!(sc > 0)) return;
@@ -2441,8 +2456,18 @@ function drawRearmMenu(){
   ctx.fillText(L.pri ? ((player.pb||[]).length > 1 ? 'WHEEL UP / Q  -  bank 1, bank 2, linked' : 'ONE PRIMARY BANK')
                      : 'WHEEL DOWN / E  -  next missile bank', C3+12, cy);
 
+  // Close (v191, Silvio): every pick is fitted the moment it is made, so
+  // the button says that closing keeps it.
+  const dx = L.c2, dy = my+RM_H-58, dw = RM_C2_W, dh = 30, dh2 = hovering(dx, dy, dw, dh);
+  thButton(dx, dy, dw, dh, 'on');
+  if(dh2) thGlowPath(dx, dy, dw, dh, 4, 0.9);
+  ctx.textAlign='center'; ctx.fillStyle=TH('textBright'); ctx.font=thValue(12, true);
+  ctx.fillText('DONE', dx+dw/2, dy+11);
+  ctx.fillStyle=TH('accentWarm'); ctx.font=thLabel(7);
+  ctx.fillText('YOUR FIT IS KEPT', dx+dw/2, dy+23);
+  window._rearmRects.push({x:dx, y:dy, w:dw, h:dh, close:true});
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim'); ctx.font=thValue(9, false);
-  ctx.fillText('1-'+L.banks.length+' bank  -  UP / DOWN and ENTER weapon  -  ESC or tap outside to cancel', mx+L.mw/2, my+L.mh-10);
+  ctx.fillText('1-'+L.banks.length+' bank  -  UP / DOWN and ENTER weapon  -  every pick is fitted at once  -  ESC closes', mx+L.mw/2, my+L.mh-10);
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
@@ -2654,6 +2679,7 @@ function pointerConsumed(p){
   if(rearmMenu){
     for(const r of (window._rearmRects||[]))
       if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){
+        if(r.close){ setRearmMenu(false); return true; }
         if(r.bank) rmSelectBank(r.bank);
         else if(r.key){ rmShow = r.key; if(r.open) fitWeapon(rmBank, r.key); }
         return true; }
@@ -2944,6 +2970,13 @@ CVS.addEventListener('mousedown',function(ev){
 // one change per 160 ms.
 let wheelT = 0;
 CVS.addEventListener('wheel',function(ev){
+  // Over the ship in the rearm window the wheel zooms the model (v191).
+  if(GS==='playing' && rearmMenu){
+    ev.preventDefault();
+    const r = window._rearmShipRect, p = toGC(ev.clientX, ev.clientY);
+    if(r && ev.deltaY && p.x>=r.x && p.x<=r.x+r.w && p.y>=r.y && p.y<=r.y+r.h && typeof m3dWheel === 'function') m3dWheel(ev.deltaY);
+    return;
+  }
   if(GS!=='playing' || callMenu || shipMenu || rearmMenu || settingsOpen) return;
   ev.preventDefault();
   const now = performance.now();

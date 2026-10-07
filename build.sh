@@ -12,3 +12,8 @@ if [ -d music ]; then
   mkdir -p /var/www/html/fs3/music && cp -u music/*.mp3 /var/www/html/fs3/music/ 2>/dev/null
   echo "Musik kopiert: $(ls -1 music/*.mp3 2>/dev/null | wc -l) Stuecke"
 fi
+# 3D models (v191): the game fetches a hull's model the first time it shows it.
+if [ -d models ]; then
+  mkdir -p /var/www/html/fs3/models && cp -ru models/. /var/www/html/fs3/models/
+  echo "Modelle kopiert: $(ls -1d models/*/ 2>/dev/null | wc -l) Schiffe"
+fi

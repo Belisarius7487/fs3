@@ -15,3 +15,5 @@ backup/
 *.vor-*
 *.split-candidate
 v82.js
+models/
+models_v*.zip
