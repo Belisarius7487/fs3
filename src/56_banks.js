@@ -62,7 +62,9 @@ const ARSENAL_P = [
    fs:{d:20, v:1800, w:0.15, l:2.0, e:1.0, a:1.3, s:0.2, u:1.0},
    col:'#ff6a3a', glow:'rgba(255,100,50,0.34)', note:'hull and subsystems, useless against shields'}
 ];
-// Secondaries. cargo: rack space per round (SBank Capacity / cargo =
+// Secondaries. bigFirst (v189, Silvio): slow to turn, so the seeker goes
+// for a capital ship when there is one and only takes a fighter otherwise.
+// cargo: rack space per round (SBank Capacity / cargo =
 // rounds). turn: FS2 turn time in seconds. homing: 'heat' goes for the
 // nearest, 'aspect' keeps the target it was fired at.
 const ARSENAL_S = [
@@ -87,16 +89,16 @@ const ARSENAL_S = [
    fs:{d:150, v:120, w:5.0, l:7.0, a:1.0, s:0.75, u:1.0, cargo:10, turn:1,
        child:{d:100, v:250, l:0.3}},      // 14 x "Cluster Bomb Baby"
    note:'fired straight - press again to burst it into 14 small seekers'},
-  {key:'trebuchet', name:'Trebuchet', cls:'missile', unlock:18000, snd:'m_angel', homing:'aspect',
+  {key:'trebuchet', name:'Trebuchet', cls:'missile', unlock:18000, snd:'m_angel', homing:'aspect', bigFirst:true,
    fs:{d:350, v:280, w:6.0, l:18.0, a:0.9, s:0.5, u:2.4, cargo:8, turn:3.0},
    note:'long range, heavy, for subsystems'},
-  {key:'stiletto2', name:'Stiletto II', cls:'missile', unlock:26000, snd:'m_stiletto', homing:'heat', subs:true,
+  {key:'stiletto2', name:'Stiletto II', cls:'missile', unlock:26000, snd:'m_stiletto', homing:'heat', subs:true, bigFirst:true,
    fs:{d:775, v:220, w:2.0, l:25.0, a:0.01, s:0.0, u:1.0, cargo:8, turn:1.0},
    note:'into the subsystems, not the hull'},
   {key:'tagc', name:'TAG-C', cls:'missile', unlock:0, fromWave:67, snd:'m_angel', homing:'aspect', tag:true,
    fs:{d:10, v:205, w:8.0, l:13.0, a:0.1, s:0.1, u:0.1, cargo:4, turn:1.75},
    note:'marks the target - our beams find it, even in the nebula'},
-  {key:'cyclops', name:'Cyclops', cls:'bomb', unlock:0, snd:'m_tsunami', homing:'aspect',
+  {key:'cyclops', name:'Cyclops', cls:'bomb', unlock:0, snd:'m_tsunami', homing:'aspect', bigFirst:true,
    fs:{d:2000, v:95, w:20.0, l:25.0, a:1.0, s:0.02, u:0.5, cargo:15, turn:1.0},
    note:'slow and heavy, for hulls that cannot dodge'}
 ];

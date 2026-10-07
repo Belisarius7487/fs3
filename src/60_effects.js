@@ -110,10 +110,18 @@ let swarmSalvo = 0;
 const CLUSTER_CHILD = {key:'cluster_child', name:'Infyrno', cls:'missile'};
 // An aspect seeker locks on at launch: the nearest lockable target ahead,
 // failing that the nearest at all. It keeps that target (v186).
-function aspectTarget(x, y, head){
+// bigFirst: Trebuchet, Cyclops, Stiletto II look among the capital ships
+// first and take a fighter only when there is none (v189).
+function aspectTarget(x, y, head, bigFirst){
+  if(bigFirst){
+    const big = aspectTarget(x, y, head, false, true);
+    if(big) return big;
+  }
+  const onlyBig = arguments[4] === true;
   let best=null, bd=Infinity, any=null, ad=Infinity;
   for(const e of enemies){
     if(e.dead || !canLockOn(e)) continue;
+    if(onlyBig && !isLargeShip(e)) continue;
     const d=Math.hypot(e.x-x, e.y-y);
     if(d<ad){ ad=d; any=e; }
     let off=Math.atan2(e.y-y, e.x-x)-head;
@@ -160,7 +168,7 @@ function fireSecondary(){
     w:bomb?16:18, h:bomb?16:6, sec:true,
     type:bomb?'bomb':'missile', homing:!!wp.homing, aspect:aspect, life:wp.life,
     maxSpd:wp.spd, turn:wp.turn, f:wp.f, wd:wp,
-    target:aspect ? aspectTarget(sp.x, sp.y, sa) : null, dmg:wp.dmg, wpn:wp.key, burst:!!wp.burst});
+    target:aspect ? aspectTarget(sp.x, sp.y, sa, !!wp.bigFirst) : null, dmg:wp.dmg, wpn:wp.key, burst:!!wp.burst});
 }
 
 // Held secondary button: the next round leaves as soon as the launcher is
@@ -198,12 +206,20 @@ function updateSecBullets(){
         if(b.target && !b.target.dead && enemies.indexOf(b.target)>=0 && canLockOn(b.target)) nearest=b.target;
       } else if(b.ally && b.target && !b.target.dead && enemies.indexOf(b.target)>=0){
         nearest=b.target;               // an escort's bomb stays on its capital ship
-      } else
-      for(var j=0;j<enemies.length;j++){
-        if(!canLockOn(enemies[j])) continue;   // stealth hulls cannot be held
-        if(b.ally && playerOnly(enemies[j])) continue;
-        var d=Math.hypot(enemies[j].x-b.x,enemies[j].y-b.y);
-        if(d<minD){minD=d;nearest=enemies[j];}
+      } else {
+      // A heat seeker that is slow to turn (Stiletto II) takes the nearest
+      // capital ship when there is one (v189).
+      var bigOnly = !!(b.wd && b.wd.bigFirst && !b.ally);
+      for(var pass=0; pass<2 && !nearest; pass++){
+        for(var j=0;j<enemies.length;j++){
+          if(!canLockOn(enemies[j])) continue;   // stealth hulls cannot be held
+          if(b.ally && playerOnly(enemies[j])) continue;
+          if(pass===0 && bigOnly && !isLargeShip(enemies[j])) continue;
+          var d=Math.hypot(enemies[j].x-b.x,enemies[j].y-b.y);
+          if(d<minD){minD=d;nearest=enemies[j];}
+        }
+        if(!bigOnly) break;
+      }
       }
       if(nearest){
         // On the Lucifer in subspace only a reactor counts: aim at one (v171).

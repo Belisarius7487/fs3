@@ -98,6 +98,7 @@ function rndR(r){ return (r[0]+r[1])/2; }
 // written down per ship so the test can ask who was struck.
 var LOCK_OK = true, HITS = [];
 function canLockOn(o){ return LOCK_OK && !!o; }
+function isLargeShip(o){ return o.type==='cruiser' || o.type==='corvette' || o.type==='destroyer'; }
 function eBox(e){ return [e.x-15, e.y-15, 30, 30]; }
 function overlap(ax,ay,aw,ah,bx,by,bw,bh){ return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by; }
 function bulletOnHull(){ return true; }
@@ -273,6 +274,24 @@ console.log('\nv187b: a seeker comes round in its FS2 turn time, whatever its sp
   let best = 1e9;
   for(let i=0;i<150 && bullets().indexOf(m)>=0;i++){ run('updateSecBullets()'); best = Math.min(best, Math.hypot(m.x-e.x, m.y-e.y)); }
   ok('a Harpoon launched sideways still reaches its target (closest '+Math.round(best)+')', best < 12 || bullets().indexOf(m)<0);
+  run('enemies.length=0'); clear();
+}
+
+console.log('\nv189: slow seekers go for a capital ship first');
+{
+  const fi = {x:220, y:250, hp:1e6, dead:false, type:'fighter'}, cr = {x:600, y:250, hp:1e6, dead:false, type:'cruiser'};
+  run('enemies.length=0'); run('enemies').push(fi, cr);
+  fitShip('fitoth', ['promr'], ['trebuchet']); run('player.x=100; player.y=250; player.head=0; player.secTimer=0; fireSecondary()');
+  ok('a Trebuchet locks the cruiser, not the nearer fighter', bullets().find(x=>x.sec).target === cr);
+  clear(); fitShip('fitoth', ['promr'], ['harpoon']); run('player.secTimer=0; fireSecondary()');
+  ok('a Harpoon still takes the nearer fighter', bullets().find(x=>x.sec).target === fi);
+  clear(); fitShip('boosiris', ['mekhu'], ['stiletto2']); run('player.secTimer=0; fireSecondary()');
+  const st = bullets().find(x=>x.sec), vy0 = st.vy;
+  cr.y = 150; run('updateSecBullets()');
+  ok('a Stiletto II steers for the cruiser (up), not the fighter ahead', st.vy < vy0);
+  run('enemies.length=0'); run('enemies').push(fi);
+  clear(); fitShip('fitoth', ['promr'], ['trebuchet']); run('player.secTimer=0; fireSecondary()');
+  ok('with no capital ship about, the Trebuchet takes the fighter', bullets().find(x=>x.sec).target === fi);
   run('enemies.length=0'); clear();
 }
 

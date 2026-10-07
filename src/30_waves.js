@@ -1910,12 +1910,14 @@ const SCRIPT_WAVES = {
      ]},
 
   16:{name:'The Mutiny', fac:'hol', o:'guard', live:5, u:[
-       // v188: the Aten has her FS2 hull now, half a cruiser's. She is the
-       // ship to guard here, so this one keeps the hull she had (x2).
-       {id:'A1', c:'cr', n:1, spr:'craten', side:'ally', hp:2},
+       // v188: the Aten has her FS2 hull now. She is the ship to guard
+       // here, so this one keeps the hull she had (v189: 0.75 x 1.33).
+       {id:'A1', c:'cr', n:1, spr:'craten', side:'ally', hp:1.33},
        {id:'A2', c:'fi', n:2, side:'ally'},
-       {id:'E1', c:'fi', n:3},
-       {id:'E2', c:'fi', n:3, wait:true}
+       // v189: 3+3 -> 2+2. Since v185 the Thoth has her FS2 values and
+       // six deaths in fifty seconds was the result (Silvio).
+       {id:'E1', c:'fi', n:2},
+       {id:'E2', c:'fi', n:2, wait:true}
      ], ev:[
        {t:'alleZerstoert', a:'E1', w:'meldung', a2:'escort turning hostile'},
        {t:'alleZerstoert', a:'E1', w:'seite', a2:'A2'},

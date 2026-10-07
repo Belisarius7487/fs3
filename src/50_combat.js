@@ -2204,11 +2204,15 @@ const CAP_HULL_F = (function(){
 })();
 // The factor for a sprite key: 'ntfcrfenris' and 'crfenris' are one hull,
 // 'deorionleft' and 'deorionright' are the Orion.
+// v189 (Silvio): never under three quarters of the class - at 0.27 a
+// Fenris went down in nine seconds.
+const CAP_HULL_MIN = 0.75;
 function capHullF(img){
   if(!img) return 1;
   let k = img.indexOf('ntf') === 0 ? img.slice(3) : img;
   k = k.replace(/(left|right)$/, '');
-  return CAP_HULL_F[k] || 1;
+  const f = CAP_HULL_F[k];
+  return f ? Math.max(CAP_HULL_MIN, f) : 1;
 }
 
 const HULL = {

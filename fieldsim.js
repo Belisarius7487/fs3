@@ -2801,12 +2801,14 @@ scenario('v188: capital hulls in FS2 ratio, subsystems from the models', 'm=31',
   const r = {};
   const mk = (t, spr) => { const e = mkEnemy(t, spr, 250); return e; };
   const fen = mk('cr_ntf', 'ntfcrfenris'), lil = mk('cr_sh', 'crlilith'), aeo = mk('cr_ntf', 'ntfcraeolus');
-  // ships.tbl: Lilith 75000, Fenris 10000 - the same ratio here
-  r.fenrisQuarterOfLilith = Math.abs(fen.maxHp/lil.maxHp - 10000/75000) < 0.01;
-  // the class keeps its average: the eight cruisers average the old value
-  const names = ['craeolus','craten','crcain','crfenris','crleviathan','crlilith','crmentu','crrakshasa'];
-  const avg = names.reduce((s,n)=>s+capHullF(n),0)/names.length;
-  r.classAverageKept = Math.abs(avg-1) < 1e-9;
+  // ships.tbl ratio, but never under three quarters of the class (v189)
+  r.fenrisFloor = Math.abs(fen.maxHp/lil.maxHp - 0.75/(75000/37000)) < 0.01 && capHullF('crfenris') === 0.75;
+  r.lilithFull = Math.abs(capHullF('crlilith') - 75000/37000) < 1e-9;
+  // an invulnerable boss is scenery: no boss music for her (v189)
+  const fakeBoss = {type:'boss', invuln:true, dead:false, faction:'shivan'};
+  enemies.push(fakeBoss); r.sceneryBossNoMusic = musicWant() === 'fight';
+  fakeBoss.invuln = false; r.realBossMusic = musicWant() === 'boss';
+  enemies.splice(enemies.indexOf(fakeBoss), 1);
   r.ntfSameAsTerran = capHullF('ntfcrfenris') === capHullF('crfenris') && capHullF('deorionleft') === capHullF('deorionright');
   r.othersUntouched = capHullF('casetekh')===1 && capHullF('coiceni')===1 && capHullF('sdcolossus')===1 && capHullF('sgmjolnir')===1;
   // the escort has the hull the support menu shows

@@ -525,8 +525,10 @@ function musicStart(kind){
 function musicWant(){
   if(GS === 'title') return 'title';
   if(GS === 'gameover') return 'game_over';
+  // An invulnerable boss is scenery (the Lucifer in M69, M71, M72, M74):
+  // no boss music for her, the fight piece plays on (v189, Silvio).
   for(const e of enemies){
-    if(e.type === 'boss' && !e.dead && !(e.warp > 0))
+    if(e.type === 'boss' && !e.dead && !(e.warp > 0) && !e.invuln)
       return (e.faction === 'vasudan' || e.faction === 'hol') ? 'boss_vasudan' : 'boss';
   }
   return 'fight';
