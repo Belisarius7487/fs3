@@ -325,6 +325,10 @@ function mkEnemy(type, spr0, yWant){
 // destroyer rarely dies to the player's last bolt and a last hit rule
 // would make calling an escort actively harmful.
 // kind is 'bolt', 'sec' or 'beam' and only matters to the Lucifer's shield.
+// DMG_F: the FS2 factors of the round that is landing ({a, s, u}: hull,
+// shield, subsystem), set by the player's hit code around the call
+// (v186). Without it a hit counts the same everywhere, as before.
+let DMG_F = null;
 function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   if(!e || e.dead) return;
   if(fromPlayer) e.pDmg = (e.pDmg||0) + dmg;
@@ -379,6 +383,26 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   // Under the shield, or with no shield at all: a hit on a subsystem takes
   // it apart at full rate and still bleeds half into the hull, so working
   // on one is a trade rather than time thrown away.
+  const F = DMG_F;
+  if(F){
+    // A FS2 round: what lands on a subsystem counts with its subsystem
+    // factor, the bleed into the hull is carried back to the plain figure.
+    if(e.subs && F.u > 0 && subAt(e, hx, hy)) dmg = subHit(e, dmg*F.u, hx, hy) / F.u;
+    if(e.sh > 0){
+      const pen = shieldPen(e, kind);
+      const shd = dmg*F.s*pen;
+      e.shDelay = SMALL_SH_DELAY;
+      e.shHit = SH_FLASH;
+      // A shield the round cannot touch stops it whole (Stiletto, FS2).
+      if(shd <= 0 || pen < 1){ e.sh = Math.max(0, e.sh - shd); return; }
+      const absorbed = Math.min(e.sh, shd);
+      e.sh -= absorbed;
+      dmg *= (shd - absorbed)/shd;    // what is left of the round
+      if(dmg <= 0) return;
+    }
+    dmg *= F.a;
+    if(dmg <= 0) return;              // Circe, Akheton: nothing on the hull
+  } else {
   if(e.subs) dmg = subHit(e, dmg, hx, hy);
   if(e.sh > 0){
     const pen = shieldPen(e, kind);
@@ -398,6 +422,7 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
     e.shHit = SH_FLASH;
     dmg -= absorbed;
     if(dmg <= 0) return;
+  }
   }
   if(e.invuln) return;      // Station, die nicht fallen soll
   if(e.rollT!=null) return; // bricht schon auseinander

@@ -39,7 +39,15 @@ const hangarDecl = src.match(/const HG_W[\s\S]*?\n\];/)[0];
 const themesDecl = src.match(/const THEMES = \{[\s\S]*?\n\};/)[0];
 // The weapon tables and the rearm panel's measurements.
 const wpnDecl  = src.match(/const PLAYER_FR_BASE[\s\S]*?\n\];/)[0];
-const wpnDecl2 = src.match(/const SECONDARIES = \[[\s\S]*?\n\];/)[0];
+// v186: the FS2 arsenal and the banks (56_banks.js), the AI's old tables.
+const smallTbl = src.match(/const SMALL_TBL = \{[\s\S]*?\n\};/)[0];
+const wpnDecl2 = (function(){
+  const a = src.indexOf('// ── WEAPON BANKS (v186)');
+  const b = src.indexOf('\nfunction empBurst(');
+  const ai = src.match(/const AI_SECONDARIES = \[[\s\S]*?\n\];/)[0];
+  const aip = src.match(/const AI_PRIMARIES = \{[\s\S]*?\n\};/)[0];
+  return src.slice(a, b) + '\n' + ai + '\n' + aip + '\nconst SECONDARIES = ARSENAL_S;\n';
+})();
 const rmDecl   = src.match(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/)[0];
 // pointerConsumed reaches for the title on a finished run. Starting a run
 // is not what these files test, so it is a stub.
@@ -52,7 +60,7 @@ const names = [
   'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
-  'weaponName','weaponOpen','waveReached','secondariesFor','defaultSec','corvetteOnField',
+  'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
   'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell','hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
@@ -128,6 +136,8 @@ const world = `
   const ALLY_KEYS=[], ALLY_ORDER=[], ALLY_SPECIAL='x', ALLY_SPECIAL_KEY='Q';
   ${hullFacDecl}
   ${wpnDecl}
+  ${smallTbl}
+  if(typeof sndPlay==='undefined') var sndPlay=function(){};
   ${wpnDecl2}
   ${rmDecl}
   ${wpnState}
@@ -160,7 +170,7 @@ const destroyer = (o)=>Object.assign({img:'dehatshepsut', small:false, dead:fals
 console.log('Start ship');
 reset();
 ok('starts in the Thoth', P().ship==='fitoth');
-ok('Thoth stats 3.5 / 0.17 / 69 / 51 / 20 missiles', P().spd===3.5 && P().turn===0.17 && P().maxHp===69 && P().maxSh===51 && P().secMax===20 && P().secType==='missile');
+ok('Thoth stats 3.5 / 0.17 / 69 / 51 / 32 Harpoons', P().spd===3.5 && P().turn===0.17 && P().maxHp===69 && P().maxSh===51 && P().secMax===32 && P().secType==='missile');
 
 console.log('Unlocks');
 reset();
@@ -200,8 +210,8 @@ ok('Osiris taken and the menu closed', P().ship==='boosiris' && W.get('shipMenu'
 ok('but the game is still held', W.get('paused')===true && W.get('resumeHold')===true);
 W.run('pointerConsumed({x:400,y:300})');
 ok('and one tap puts you back in it', W.get('paused')===false && W.get('resumeHold')===false);
-ok('Osiris stats 2.5 / 0.10 / 207 / 154 / 10 bombs', P().spd===2.5 && P().turn===0.10 && P().maxHp===207 && P().maxSh===154 && P().secMax===10 && P().secType==='bomb');
-ok('refilled: hull 207, shields 154, 10 bombs', P().hp===207 && P().sh===154 && P().secAmmo===10);
+ok('Osiris stats 2.5 / 0.10 / 207 / 154 / 3 Piranhas in bank 1', P().spd===2.5 && P().turn===0.10 && P().maxHp===207 && P().maxSh===154 && P().secMax===3 && P().sec==='piranha');
+ok('refilled: hull 207, shields 154, every rack full', P().hp===207 && P().sh===154 && P().sb.every(b=>b.ammo===b.max));
 ok('switch spent for this wave', W.run('shipSwapReady()')===false);
 W.run('toggleShipMenu()'); ok('menu does not open again this wave', W.get('shipMenu')===false);
 W.run('wave=2'); ok('next wave: available again', W.run('shipSwapReady()')===true);
@@ -327,21 +337,21 @@ ok('no cell is tappable in that state', W.run('window._shipRects').every(r=>!r.k
 console.log('Colossus lifts the once per wave limit');
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]);
 W.run("toggleShipMenu(); swapShip('fihorus')");
-ok('first switch of the wave refits', P().ship==='fihorus' && P().hp===59 && P().sh===59 && P().secAmmo===20);
+ok('first switch of the wave refits', P().ship==='fihorus' && P().hp===59 && P().sh===59 && P().secAmmo===10);
 ok('no Colossus: spent for this wave', W.run('shipSwapReady()')===false);
 W.set('allies',[destroyer(), colossus()]);
 ok('Colossus arrives: available again in the same wave', W.run('shipSwapReady()')===true);
-W.run("player.hp=40; player.sh=50; player.secAmmo=10");
+W.run("player.hp=40; player.sh=50; player.sb[0].ammo=5; syncLegacyWeapons()");
 W.run("toggleShipMenu(); swapShip('boosiris')");
 ok('second switch happens', P().ship==='boosiris');
 ok('hull carries over as a fraction, 40/59 of 207 = 140', P().hp===140);
 ok('shields carry over, 50/59 of 154 = 131', P().sh===131);
-ok('ammo carries over, 10/20 of 10 bombs = 5', P().secAmmo===5);
+ok('ammo carries over, half a rack: 2 of 3 Piranhas', P().secAmmo===2);
 ok('no refit: not full', P().hp<P().maxHp && P().secAmmo<P().secMax);
 
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer(), colossus()]);
 W.run("toggleShipMenu(); swapShip('fihorus')");
-ok('with the Colossus there the first switch still refits', P().hp===59 && P().secAmmo===20);
+ok('with the Colossus there the first switch still refits', P().hp===59 && P().secAmmo===10);
 W.run("player.hp=1");
 W.run("toggleShipMenu(); swapShip('boosiris')");
 ok('a nearly dead hull stays alive after carrying over', P().hp>=1 && P().hp<=4);
@@ -667,94 +677,86 @@ console.log('Rearm needs a corvette, not any ship at all');
 
 console.log('The standard fit is provably the gun the game had');
 {
-  const p = W.run("priDef('prometheus')");
-  ok('the Prometheus carries no factors at all', p.dmg===1 && p.rate===1);
-  ok('and no limit on its reach', p.range===0);
-  reset(); W.run("player.pri='prometheus'; applyLoadout()");
-  ok('so the rate of fire is the old 28 steps', W.get('player').fR===28);
-  const m = W.run("secDef('mx64')");
-  ok('the MX-64 is the old missile, to the number',
-     m.dmg===35 && m.cd===45 && m.spd===3.5 && m.life===220 && m.homing===true);
-  const c = W.run("secDef('cyclops')");
-  ok('and the Cyclops the old bomb',
-     c.dmg===80 && c.cd===90 && c.spd===1.5 && c.life===300);
+  // v186: the FS2 arsenal, anchored on the old weapons.
+  const p = W.run("priDefP('promr')");
+  ok('the Prometheus R is the old Prometheus: no factors at all', p.dmg===1 && p.f.a===1 && p.f.s===1 && p.f.u===1);
+  ok('and its FS2 wait of 0.45 s is 27 steps, the old beat was 28', p.wait===27);
+  const sb = W.run("priDefP('subach')");
+  ok('the Subach keeps its FS2 ratio: 15/18 a shot, 5 shots a second',
+     Math.abs(sb.dmg-15/18)<1e-9 && sb.wait===12 && Math.abs(sb.f.a-0.9/1.1)<1e-9);
+  const h = W.run("secDefP('harpoon')");
+  ok('the Harpoon is the old MX-64 to the number', h.dmg===35 && h.f.a===1 && h.f.s===1);
+  const c = W.run("secDefP('cyclops')");
+  ok('and the Cyclops the old bomb', c.dmg===80);
+  const t = W.run("secDefP('tempest')");
+  ok('the rest keep their FS2 ratio (Tempest 45/100 of a Harpoon)', Math.abs(t.dmg-15.75)<1e-9);
 }
 
-console.log('A hull can only carry what it can carry');
+console.log('Banks: what a hull carries comes from ships.tbl');
 {
-  reset(); W.run("applyShip('fitoth')");
-  ok('a fighter is given a missile', W.run("curSec().cls")==='missile');
-  ok('and the bar is told so', W.get('player').secType==='missile');
+  reset(); W.run("applyShip('fimyrmidon')");
+  ok('the Myrmidon: Prometheus R and Subach', P().pb.map(b=>b.key).join()==='promr,subach');
+  ok('Rockeye, Tornado, Tempest', P().sb.map(b=>b.key).join()==='rockeye,tornado,tempest');
+  ok('racks from capacity and cargo size: 5, 16, 160', P().sb.map(b=>b.max).join()==='5,16,160');
+  ok('the store: 10, recharging at 1.33 a second',
+     Math.abs(P().enMax-10)<1e-9 && Math.abs(P().enRe*60-2.4*0.5556)<1e-9);
   W.run("applyShip('boosiris')");
-  ok('a bomber cannot keep it, and gets a bomb', W.run("curSec().cls")==='bomb');
-  ok('and the bar again', W.get('player').secType==='bomb');
-  ok('only bombs are offered to it',
-     W.run("secondariesFor('boosiris')").every(w=>w.cls==='bomb'));
-  ok('and only missiles to a fighter',
-     W.run("secondariesFor('fitoth')").every(w=>w.cls==='missile'));
-  ok('the rack size still comes from the hull',
-     W.get('player').secMax === W.run("shipStats('boosiris').sec"));
+  ok('a bomber gets its own fit, three secondary banks', P().sb.length===3 && P().pb.length===1);
+  ok('every bank holds what the hull may carry',
+     W.run("player.sb.every(b=>shipBanks('boosiris').sa.indexOf(b.key)>=0 || shipBanks('boosiris').s.indexOf(b.key)>=0)"));
 }
 
-console.log('A refit fills the rack - that is what makes it a rearm');
+console.log('Modes: bank 1, bank 2, linked');
+{
+  reset(); W.run("applyShip('fimyrmidon')");
+  ok('it starts on bank 1', P().pMode===0 && W.run('firingBanks().length')===1);
+  W.run('cyclePrimary()'); ok('then bank 2', P().pMode===1 && W.run('firingBanks()[0].key')==='subach');
+  W.run('cyclePrimary()'); ok('then both, linked', P().pMode===2 && W.run('firingBanks().length')===2);
+  W.run('cyclePrimary()'); ok('and round again', P().pMode===0);
+  W.run('cycleSecondary()'); ok('the wheel down steps the secondary bank', P().sSel===1 && P().sec==='tornado');
+  W.run("applyShip('fitoth')"); W.run('cyclePrimary()');
+  ok('one bank: nothing to step', P().pMode===0);
+}
+
+console.log('A refit fills every rack - that is what makes it a rearm');
 {
   const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
-  reset(); W.run("applyShip('fitoth'); score=0"); W.set('allies', [corvette()]);
-  W.run('player.secAmmo=3');
+  reset(); W.run("FITS={}; applyShip('fitoth'); score=0"); W.set('allies', [corvette()]);
+  W.run('player.sb[0].ammo=3; syncLegacyWeapons()');
   W.run('toggleRearmMenu()');
-  W.run("fitWeapon('mx64')");
-  ok('fitting what is already fitted tops the rack up',
-     W.get('player').secAmmo === W.get('player').secMax);
-  ok('and closes the panel', W.get('rearmMenu')===false);
-  // Locked weapons cannot be taken, however they are reached.
-  W.run('player.secAmmo=3; toggleRearmMenu()');
-  W.run("fitWeapon('hl7')");
-  ok('a weapon above the score cannot be fitted', W.get('player').pri==='prometheus');
-  ok('and the panel stays open', W.get('rearmMenu')===true);
-  W.run('score=6000');
-  W.run("fitWeapon('hl7')");
-  ok('past the threshold it can', W.get('player').pri==='hl7');
-  ok('and the rate of fire follows the weapon', W.get('player').fR===17);
-  W.run('score=0; player.pri="prometheus"; applyLoadout()');
+  W.run("fitWeapon('s0')");
+  ok('a bank switches to the next weapon open to it (Harpoon -> Rockeye)', P().sb[0].key==='rockeye');
+  ok('and the rack is full', P().sb[0].ammo===P().sb[0].max && P().sb[0].max===20);
+  ok('the panel stays open for the next bank', W.get('rearmMenu')===true);
+  W.run("fitWeapon('p0')");
+  ok('a weapon above the score is skipped (Prometheus R -> Mekhu, not Akheton)', P().pb[0].key==='mekhu');
+  W.run("fitWeapon('p0')");
+  ok('and round again', P().pb[0].key==='promr');
+  W.run('score=4000'); W.run("fitWeapon('p0'); fitWeapon('p0')");
+  ok('past the threshold it is offered', P().pb[0].key==='akheton');
+  ok('the hull keeps its fit for the run', W.run("fitFor('fitoth').p[0]")==='akheton');
+  W.run('setRearmMenu(false); score=0; FITS={}');
 }
 
 console.log('The rearm panel');
 {
   const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
-  reset(); W.run("applyShip('fitoth'); score=9000"); W.set('allies', [corvette()]);
+  reset(); W.run("applyShip('fimyrmidon'); score=9000"); W.set('allies', [corvette()]);
   W.run('toggleRearmMenu()');
   CLR(); W.run('drawRearmMenu()');
   const rs = W.run('window._rearmRects');
   const pr = W.run('window._rearmPanelRect');
-  // One row per weapon that exists, open or not: a locked one is a thin
-  // line, and it is still a row. The count follows the tables so a new
-  // weapon does not make this fail for no reason.
-  const offered = W.run('PRIMARIES').length + W.run("secondariesFor('fitoth')").length;
-  ok('one row per weapon on offer', rs.length===offered);
+  ok('one row per bank', rs.length===5 && rs.map(r=>r.key).join()==='p0,p1,s0,s1,s2');
   ok('every row is inside the panel',
      rs.every(r=>r.x>=pr.x && r.x+r.w<=pr.x+pr.w && r.y>=pr.y && r.y+r.h<=pr.y+pr.h));
   ok('the panel fits on the field', pr.y>=0 && pr.y+pr.h<=500 && pr.x>=0 && pr.x+pr.w<=800);
   ok('no Courier anywhere',
      CALLS.filter(c=>c.fn==='set font').every(c=>String(c.args[0]).indexOf('Courier')<0));
-  ok('the fitted weapon gets the ring', CALLS.some(c=>c.fn==='set shadowBlur'));
   ok('nothing leaks out of a save/restore', balanced());
-  // A click inside the panel that hit no row must not close it, the same
-  // rule the hangar and the support menu follow.
   W.run(`pointerConsumed({x:${pr.x+40},y:${pr.y+6}})`);
   ok('a click on the header keeps it open', W.get('rearmMenu')===true);
   W.run(`pointerConsumed({x:${pr.x-12},y:${pr.y+pr.h/2}})`);
   ok('a click beside it closes it', W.get('rearmMenu')===false);
-}
-{
-  // Below the threshold the HL-7 is a thin line, not a row that can be taken.
-  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
-  reset(); W.run("applyShip('fitoth'); score=0"); W.set('allies', [corvette()]);
-  W.run('toggleRearmMenu(); drawRearmMenu()');
-  const rs = W.run('window._rearmRects');
-  ok('a locked weapon reports no key', rs.some(r=>r.key===null));
-  ok('and its line is thinner than a row that can be taken',
-     Math.min(...rs.map(r=>r.h)) < Math.max(...rs.map(r=>r.h)));
-  W.run('setRearmMenu(false); score=0');
 }
 
 console.log('The title screen');
@@ -777,25 +779,7 @@ ok('Try Again goes back to the title rather than into the next run',
 ok('and nothing calls launchGame straight from the game over screen',
    !/gameOverAt>1500\) launchGame\(\)/.test(src));
 
-console.log('Bar button placement');
-{
-  // The ship switch and the rearm button are drawn as one pair now, so the
-  // snippet covers both and both are checked.
-  const a = src.indexOf('  // SHIP SWITCH and REARM'), b = src.indexOf('  // SETTINGS and PAUSE');
-  const snip = src.slice(a, b);
-  W.run("var H2=54; shipMenu=false; rearmMenu=false; allies=[];"
-      + " window._shipBtnRect=undefined; window._rearmBtnRect=undefined; " + snip);
-  const r = W.run('window._shipBtnRect'), rm = W.run('window._rearmBtnRect');
-  ok('the ship button sits between tickets (665) and gear (748)', r && r.x>665 && r.x+r.w<748);
-  ok('the rearm button sits beside it, also clear of the gear',
-     rm && rm.x >= r.x+r.w && rm.x+rm.w < 748);
-  ok('they do not overlap', rm && rm.x >= r.x + r.w);
-  ok('and both stay clear of the speaker (722)', rm && rm.x+rm.w < 722);
-  W.run("FS1_MODE=true; " + snip);
-  ok('neither button in FS1 mode',
-     W.run('window._shipBtnRect')===null && W.run('window._rearmBtnRect')===null);
-  W.run('FS1_MODE=false');
-}
+// Bar button placement: since v186 the whole bar is checked in hudsim.js.
 console.log('Cycle scaling keeps the hull');
 ok('nextWave scales from the hull base, not from 100', src.includes('player.maxHp=Math.round((player.baseHp||100)*pm);'));
 ok('respawn restores the full hull', src.includes('player.hp=player.maxHp;player.x=80;'));

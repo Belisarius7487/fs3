@@ -744,13 +744,19 @@ function drawFleeWarning(){
 
 // A gear, drawn rather than an image, so it needs no asset and scales.
 // A speaker, with waves while the sound is on and a cross when it is off.
-function drawMuteButton(x, y, w, h){
+function drawMuteButton(x, y, w, h, key){
   const hv = hovering(x, y, w, h);
   const st = btnState(true, false, hv);
   thButton(x, y, w, h, st);
   // Muted is a setting, not a locked button: the icon says it (crossed out).
   const col = btnText(st);
-  const cx = x + w/2 - 3, cy = y + h/2, s = Math.min(w, h)/22;
+  // With its key (the bar, v186) the icon moves up and the letter sits at
+  // the foot, like on every other button there.
+  const cx = x + w/2 - 3, cy = key ? y + (h-11)/2 + 5.5 : y + h/2, s = Math.min(w, key ? 22 : h)/22;
+  if(key){
+    ctx.save(); ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.font=thLabel(8); ctx.fillStyle=col; ctx.fillText(key, x+w/2, y+h-4); ctx.restore();
+  }
   ctx.save();
   ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
   ctx.beginPath();
@@ -889,6 +895,8 @@ const CONTROLS = [
   ['MOUSE',              'fly and aim'],
   ['LEFT BUTTON, SPACE', 'fire primary'],
   ['RIGHT BUTTON',       'fire secondary'],
+  ['WHEEL UP, Q',        'primary: bank 1, 2, linked'],
+  ['WHEEL DOWN, E',      'next secondary bank'],
   ['MIDDLE BUTTON',      'subsystems on / off'],
   ['V',                  'change ship'],
   ['R',                  'rearm'],
@@ -1136,127 +1144,137 @@ function drawHUD(){
 // for meaning - green and amber for the hull, blue for the shield, the
 // accent for anything that can be pressed.
 function drawHUDHLP(){
+  // The bar since v186 (variant A, Silvio): 54 high as before, everything
+  // the player needs in one line - score, the three stores, lives, the
+  // banks, support, tickets and the five buttons. Nothing on the field.
   var H2=HUD_H, mid=(H2/2)|0;
 
   thPanel(0, 0, W, H2, TH('barTop'), TH('panelBack'));
   ctx.fillStyle=TH('panelBack'); ctx.fillRect(0, H-8, W, 8);
   ctx.strokeStyle=TH('edgeLight'); ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(0, H2-0.5); ctx.lineTo(W, H2-0.5); ctx.stroke();
-
   ctx.textBaseline='middle'; ctx.textAlign='left';
+  function lab(t, x, y){ ctx.fillStyle=TH('textDim'); ctx.font=thLabel(7); ctx.fillText(t, x, y); }
 
-  // SCORE, WAVE, TIME
-  ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8);
-  ctx.fillText('SCORE', 8, mid-9);
-  ctx.fillStyle=TH('textBright'); ctx.font=thValue(16, true);
-  ctx.fillText(String(score).padStart(7,'0'), 8, mid+5);
-  ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8);
-  ctx.fillText('TIME', 8, mid+19);
-  ctx.fillStyle=callMenu?TH('textDim'):TH('text'); ctx.font=thValue(11, false);
-  ctx.fillText(fmtTime(runTime), 34, mid+19);
+  // 1  SCORE, WAVE, TIME - one narrow column
+  lab('SCORE', 6, 9);
+  ctx.fillStyle=TH('textBright'); ctx.font=thValue(13, true);
+  ctx.fillText(String(score).padStart(7,'0'), 6, 21);
+  lab('WAVE', 6, H2-20);
+  ctx.fillStyle=TH('textBright'); ctx.font=thValue(11, true);
+  ctx.fillText(String(wave).padStart(3,'0'), 34, H2-20);
+  lab('TIME', 6, H2-8);
+  ctx.fillStyle=callMenu?TH('textDim'):TH('text'); ctx.font=thValue(10, false);
+  ctx.fillText(fmtTime(runTime), 34, H2-8);
+  var x=72; thDivider(x, 4, H2-4); x+=6;
 
-  ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8);
-  ctx.fillText('WAVE', 98, mid-9);
-  ctx.fillStyle=TH('textBright'); ctx.font=thValue(16, true);
-  ctx.fillText(String(wave).padStart(3,'0'), 98, mid+5);
-
-  thDivider(178, 4, H2-4);
-
-  // HULL and SHIELD. The bars keep their own colours: those carry state.
-  var hx=184, hw=110, hy=7, hh=9;
-  var hR=player.hp/player.maxHp;
-  ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8);
-  ctx.fillText('HULL', hx, hy+4);
-  ctx.fillStyle=TH('edgeDark'); ctx.fillRect(hx, hy+11, hw, hh);
-  ctx.globalAlpha=(hR<=HULL_CRIT)?(0.55+0.45*Math.sin(fc*0.22)):1;
-  ctx.fillStyle=hullCol(hR);
-  ctx.fillRect(hx, hy+11, (hw*hR)|0, hh);
-  ctx.globalAlpha=1;
-  thBevel(hx, hy+11, hw, hh);
-  var hPl=barPulseLevel('hull');
-  if(hPl>0){
-    ctx.fillStyle='rgba(77,255,136,'+(0.35*hPl).toFixed(3)+')';
-    ctx.fillRect(hx, hy+11, hw, hh);
-    thGlowPath(hx-3, hy+8, hw+6, hh+6, 3, hPl);
+  // 2  HULL, SHIELD, ENERGY - three bars, the share at the end
+  var bw=78, bh=Math.max(5, (H2-16)/3-6), gap=(H2-8)/3, bx=x+34;
+  var hR=Math.max(0, player.hp/player.maxHp);
+  var sR=player.maxSh ? Math.max(0, player.sh/player.maxSh) : 0;
+  var eR=player.enMax ? Math.max(0, player.en/player.enMax) : 0;
+  var rows=[['HULL', hR], ['SHIELD', sR], ['ENERGY', eR]];
+  for(var i=0;i<3;i++){
+    var y=5+i*gap;
+    lab(rows[i][0], x, y+3);
+    ctx.fillStyle=TH('edgeDark'); ctx.fillRect(bx, y, bw, bh);
+    if(i===0){
+      ctx.globalAlpha=(hR<=HULL_CRIT)?(0.55+0.45*Math.sin(fc*0.22)):1;
+      ctx.fillStyle=hullCol(hR);
+    } else if(i===1) ctx.fillStyle=sR>.5?'#0099ff':'#0055cc';
+    else ctx.fillStyle=(player.enEmptyT>0 && fc%8<4) ? '#ff5a44' : '#ffc23a';
+    ctx.fillRect(bx, y, (bw*rows[i][1])|0, bh);
+    ctx.globalAlpha=1;
+    thBevel(bx, y, bw, bh);
+    if(i===0){
+      var hPl=barPulseLevel('hull');
+      if(hPl>0){ ctx.fillStyle='rgba(77,255,136,'+(0.35*hPl).toFixed(3)+')'; ctx.fillRect(bx, y, bw, bh);
+                 thGlowPath(bx-3, y-3, bw+6, bh+6, 3, hPl); }
+    }
+    if(i===1 && player.shDelay===0 && player.sh<player.maxSh && fc%30<15){
+      ctx.fillStyle='rgba(0,100,200,0.2)'; ctx.fillRect(bx, y, bw, bh);
+    }
+    ctx.fillStyle=TH('text'); ctx.font=thValue(8, false); ctx.textAlign='right';
+    ctx.fillText(Math.round(rows[i][1]*100)+'%', bx+bw+20, y+bh/2+0.5); ctx.textAlign='left';
   }
+  if(player.enEmptyT>0) player.enEmptyT--;
+  x=bx+bw+24; thDivider(x, 4, H2-4); x+=6;
 
-  var sy=hy+24;
-  var sR=player.sh/player.maxSh;
-  ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8);
-  ctx.fillText('SHIELD', hx, sy+4);
-  ctx.fillStyle=TH('edgeDark'); ctx.fillRect(hx, sy+11, hw, hh);
-  ctx.fillStyle=sR>.5?'#0099ff':'#0055cc';
-  ctx.fillRect(hx, sy+11, (hw*sR)|0, hh);
-  thBevel(hx, sy+11, hw, hh);
-  if(player.shDelay===0 && player.sh<player.maxSh && fc%30<15){
-    ctx.fillStyle='rgba(0,100,200,0.2)'; ctx.fillRect(hx, sy+11, hw, hh);
-  }
-
-  thDivider(306, 4, H2-4);
-
-  // LIVES
-  var lx=312;
-  ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8);
-  ctx.fillText('LIVES', lx, mid-9);
-  var lIsB=isBomberHull(player.ship);
-  var lIco=ICONS[lIsB?'bomberlives':'fighterlives'];
-  var lsy=(mid+2)|0, usedW;
-  if(lIco){
-    var lh=15, lw=Math.max(1, Math.round(lIco.width*(lh/lIco.height)));
-    ctx.drawImage(lIco, lx|0, (lsy-5)|0, lw, lh);
-    usedW=lw;
-  } else {
-    ctx.fillStyle=TH('text');
-    ctx.fillRect(lx, lsy+2, 11, 3); ctx.fillRect(lx+2, lsy, 7, 2);
-    ctx.fillRect(lx+2, lsy+5, 7, 2); ctx.fillRect(lx+9, lsy+2, 4, 3);
-    usedW=13;
-  }
-  ctx.fillStyle=TH('textBright'); ctx.font=thValue(15, true);
-  ctx.fillText(String(lives), lx+usedW+7, lsy+2);
+  // 3  LIVES
+  lab('LIVES', x, 9);
+  ctx.fillStyle=TH('textBright'); ctx.font=thValue(14, true);
+  ctx.fillText(String(lives), x+4, mid+6);
   var lPl=barPulseLevel('lives');
-  if(lPl>0) thGlowPath(lx-5, 5, 88, H2-10, 4, lPl);
+  if(lPl>0) thGlowPath(x-4, 5, 30, H2-10, 4, lPl);
+  x+=30; thDivider(x, 4, H2-4); x+=6;
 
-  thDivider(406, 4, H2-4);
-
-  // SECONDARY WEAPON
-  var secX=412, secBW=34, secBH=H2-10, secBY=5;
-  var isMissile=player.secType==='missile';
-  var secRdy=player.secTimer===0 && player.secAmmo>0;
-  var secClr=isMissile?'#ff8800':'#cc2200';
-  thButton(secX, secBY, secBW, secBH, btnState(secRdy, false, hovering(secX, secBY, secBW, secBH)));
-  if(isMissile) drawMissileIcon(secX+secBW/2, secBY+13, secRdy?secClr:TH('textDim'));
-  else          drawBombIcon(secX+secBW/2, secBY+13, secRdy?secClr:TH('textDim'));
-  ctx.fillStyle=secRdy?TH('textBright'):TH('textDim'); ctx.font=thValue(13, true);
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(String(player.secAmmo).padStart(2,'0'), secX+secBW/2, secBY+31);
-  if(player.secTimer>0){
-    var cdMax=isMissile?45:90, cdW=secBW-8;
-    ctx.fillStyle=TH('edgeDark'); ctx.fillRect(secX+4, secBY+secBH-6, cdW, 3);
-    ctx.fillStyle=secClr;
-    ctx.fillRect(secX+4, secBY+secBH-6, (cdW*(1-player.secTimer/cdMax))|0, 3);
+  // 4  PRIMARY: one row per bank, the firing ones lit, linked ones joined
+  // by a bracket. A tap on the panel steps the mode, like the wheel.
+  var pb=player.pb||[], fire=firingBanks(), prow=(H2-14)/Math.max(2, pb.length);
+  var px0=x;
+  lab('PRIMARY', x, 7);
+  var nM=primaryCount(player.ship);
+  for(var pi=0;pi<pb.length;pi++){
+    var py=14+pi*prow+prow/2, on=fire.indexOf(pb[pi])>=0;
+    var pw=priDefP(pb[pi].key), poor=player.en<pw.en;
+    ctx.fillStyle=on?TH('accent'):TH('textDim'); ctx.font=thLabel(7);
+    ctx.fillText(String(pi+1), x, py);
+    ctx.fillStyle=on?(poor?'#ff5a44':TH('textBright')):TH('textDim'); ctx.font=thValue(9, on);
+    ctx.fillText(thFit(weaponName(pw).toUpperCase(), 90), x+9, py);
+    var g=(pb.length>=2 && nM>=2) ? Math.ceil((nM-pi)/2) : Math.max(1, nM);
+    ctx.fillStyle=TH('textDim'); ctx.font=thValue(8, false); ctx.textAlign='right';
+    ctx.fillText(g+'×', x+112, py); ctx.textAlign='left';
   }
-  ctx.textAlign='left'; ctx.textBaseline='middle';
-  window._secBtnRect={x:secX, y:secBY, w:secBW, h:secBH};
+  if(fire.length>1){
+    ctx.strokeStyle=TH('accent'); ctx.lineWidth=1.2;
+    var y0=14+prow*0.5-4, y1=14+prow*(pb.length-0.5)+4;
+    ctx.beginPath(); ctx.moveTo(x+117,y0); ctx.lineTo(x+120,y0); ctx.lineTo(x+120,y1); ctx.lineTo(x+117,y1); ctx.stroke();
+    ctx.fillStyle=TH('accent'); ctx.font=thLabel(6);
+    ctx.save(); ctx.translate(x+126,(y0+y1)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('LINK',0,0); ctx.restore();
+  }
+  window._priRect=(pb.length>=2)?{x:px0-3, y:3, w:132, h:H2-6}:null;
+  if(window._priRect && hovering(px0-3, 3, 132, H2-6)) thGlowPath(px0-3, 3, 130, H2-6, 4, 0.35);
+  x+=132; thDivider(x, 4, H2-4); x+=6;
 
-  thDivider(449, 4, H2-4);
+  // 5  SECONDARY: one row per bank with its own rack, the chosen one lit.
+  // A tap on another row chooses it, on the chosen one it fires (touch).
+  var sb=player.sb||[], srow=(H2-14)/Math.max(3, sb.length);
+  lab('SECONDARY', x, 7);
+  window._secRows=[]; window._secBtnRect=null;
+  for(var si=0;si<sb.length;si++){
+    var sy=14+si*srow+srow/2, son=(si===player.sSel), sw=secDefP(sb[si].key);
+    var rr={x:x-2, y:sy-srow/2+1, w:118, h:srow-2, i:si};
+    if(son){
+      ctx.fillStyle='rgba(255,140,0,0.16)'; ctx.fillRect(rr.x, rr.y, rr.w, rr.h);
+      if(player.secTimer>0 && player.secCdMax){
+        ctx.fillStyle=TH('accent');
+        ctx.fillRect(rr.x, rr.y+rr.h-2, (rr.w*(1-player.secTimer/player.secCdMax))|0, 2);
+      }
+      window._secBtnRect=rr;
+    } else if(hovering(rr.x, rr.y, rr.w, rr.h)){ ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.fillRect(rr.x, rr.y, rr.w, rr.h); }
+    ctx.fillStyle=son?TH('accent'):TH('textDim'); ctx.font=thLabel(7); ctx.fillText(String(si+1), x, sy);
+    ctx.fillStyle=son?TH('textBright'):(sb[si].ammo?TH('text'):TH('textDim')); ctx.font=thValue(9, son);
+    ctx.fillText(thFit(weaponName(sw).toUpperCase(), 78), x+9, sy);
+    ctx.fillStyle=sb[si].ammo?(son?TH('textBright'):TH('text')):'#ff5a44'; ctx.font=thValue(9, true); ctx.textAlign='right';
+    ctx.fillText(String(sb[si].ammo).padStart(2,'0'), x+112, sy); ctx.textAlign='left';
+    window._secRows.push(rr);
+  }
+  x+=120; thDivider(x, 4, H2-4); x+=5;
 
-  // SUPPORT
-  var alX=455, alBW=76, alBH=H2-10, alBY=5;
+  // 6  SUPPORT - a narrow button
+  var alX=x, alBW=54, alBH=H2-10, alBY=5;
   var alRdy=allyReady(), alCan=alRdy && anyTicket();
   thButton(alX, alBY, alBW, alBH, btnState(alCan, callMenu, hovering(alX, alBY, alBW, alBH)));
-  ctx.textAlign='left';
-  ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8);
-  ctx.fillText('SUPPORT', alX+5, alBY+9);
-  ctx.fillStyle=alCan?TH('accent'):TH('textDim'); ctx.font=thValue(11, true);
-  ctx.fillText(alRdy?(anyTicket()?'READY':'NO TICKET'):(allies.length?'DEPLOYED':'STANDBY'),
-               alX+5, alBY+26);
-  ctx.fillStyle=TH('textDim'); ctx.font=thValue(8, false);
-  ctx.fillText('TAP / [C]', alX+5, alBY+alBH-7);
+  lab('SUPPORT', alX+4, alBY+7);
+  ctx.fillStyle=alCan?TH('accent'):TH('textDim'); ctx.font=thValue(9, true);
+  ctx.fillText(thFit(alRdy?(anyTicket()?'READY':'NO TICKET'):(allies.length?'DEPLOYED':'STANDBY'), alBW-8), alX+4, mid+1);
+  lab('[C]', alX+4, alBY+alBH-7);
   window._allyBtnRect={x:alX, y:alBY, w:alBW, h:alBH};
+  x+=alBW+5;
 
-  // TICKETS
+  // 7  TICKETS, 2 x 2
   {
-    var tkX=537, tkY=3, tkW=64, tkH=24;
+    var tkX=x, tkY=3, tkW=41, tkH=24;
     for(var ti=0; ti<TICKET_ORDER.length; ti++){
       var tk=TICKET_ORDER[ti], tn=tickets[tk]||0;
       var lit=tn>0;
@@ -1264,90 +1282,103 @@ function drawHUDHLP(){
       var col=(tPl>0.3)?TH('accentWarm'):(lit?TH('accent'):TH('textDim'));
       var tico=ICONS[TICKET_ICON[tk]];
       var tcx=tkX+(ti%2)*tkW, tcy=tkY+((ti/2)|0)*tkH;
-      // The icon is fitted into its cell (a long destroyer would run out of
-      // it), and the glow is laid round what is actually drawn - it used
-      // to have a fixed width and ran under the destroyer icon (Silvio).
-      var icoX=tcx+21, tih=11, tiw=0;
-      if(tico){ tiw=Math.max(1, Math.round(tico.width*(tih/tico.height)));
-                var tiMax=tkW-icoX+tcx-6; if(tiw>tiMax){ tih=Math.max(6, tih*tiMax/tiw); tiw=tiMax; } }
-      else { ctx.font=thLabel(10); tiw=ctx.measureText(TICKET_ABBR[tk]).width; }
-      if(tPl>0) thGlowPath(tcx-4, tcy+2, (icoX-tcx)+tiw+8, tkH-2, 3, tPl);
       ctx.textAlign='left'; ctx.textBaseline='top';
-      ctx.fillStyle=col; ctx.font=thValue(13, true);
-      ctx.fillText(tn+'x', tcx, tcy+5);
+      ctx.fillStyle=col; ctx.font=thValue(11, true);
+      var nt=tn+'x', ntw=ctx.measureText(nt).width;
+      ctx.fillText(nt, tcx, tcy+6);
+      var icoX=tcx+ntw+2, tih=10, tiw=0, tiMax=tkW-(icoX-tcx)-3;
+      if(tico){ tiw=Math.max(1, Math.round(tico.width*(tih/tico.height)));
+                if(tiw>tiMax){ tih=Math.max(5, tih*tiMax/tiw); tiw=tiMax; } }
+      else { ctx.font=thLabel(8); tiw=ctx.measureText(TICKET_ABBR[tk]).width; }
+      if(tPl>0) thGlowPath(tcx-3, tcy+2, (icoX-tcx)+tiw+6, tkH-2, 3, tPl);
       if(tico){
         ctx.globalAlpha=lit?1:0.28;
-        ctx.drawImage(tico, icoX, tcy+5+(11-tih)/2, tiw, tih);
+        ctx.drawImage(tico, icoX, tcy+6+(11-tih)/2, tiw, tih);
         ctx.globalAlpha=1;
       } else {
-        ctx.fillStyle=col; ctx.font=thLabel(10);
-        ctx.fillText(TICKET_ABBR[tk], icoX, tcy+6);
+        ctx.fillStyle=col; ctx.font=thLabel(8);
+        ctx.fillText(TICKET_ABBR[tk], icoX, tcy+7);
       }
     }
   }
   ctx.textBaseline='middle';
 
-  // SHIP SWITCH and REARM, as a pair. Two buttons that both open a panel
-  // over the field belong together, so they are centred as one group in
-  // the gap between the tickets and the gear.
-  // A button that opens a window shows the key that opens it too (Silvio,
-  // v162): the icon moves up, the letter sits at the foot of the button,
-  // inside it and clear of the icon.
-  function keyHint(x, y, w, h, key, col){
-    ctx.save();
-    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
-    ctx.font=thLabel(8); ctx.fillStyle=col;
-    ctx.fillText(key, x+w/2, y+h-4);
-    ctx.restore();
+  // 8  V R M S P - five buttons of one kind, each with its key at the foot
+  // (Silvio, v186: the ones without a letter stood lower than the others).
+  var bW=22, bG=3, bY=4, bH=H2-8, bX0=W-5*bW-4*bG-4;
+  function keyHint(bx, key, c){
+    ctx.save(); ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.font=thLabel(8); ctx.fillStyle=c; ctx.fillText(key, bx+bW/2, bY+bH-4); ctx.restore();
   }
-  // Where the icon of such a button sits: centred in what the letter leaves.
-  function iconY(y, h){ return y + (h-11)/2; }
-
-  if(!FS1_MODE){
-    var swW=22, swH=H2-8, swY=4, swGap=4;
-    var grpX=Math.round((665+W-78)/2-(swW*2+swGap)/2);
-    var swX=grpX, rmX=grpX+swW+swGap;
-    var swOn=shipSwapReady()||shipMenu;
-    var swHv=hovering(swX, swY, swW, swH);
-    var swSt=btnState(swOn, shipMenu, swHv);
-    thButton(swX, swY, swW, swH, swSt);
-    var swPl=barPulseLevel('swap');
-    if(swPl>0) thGlowPath(swX-3, swY-2, swW+6, swH+4, 5, swPl);
-    var swCol=btnText(swSt);
-    drawSwapIcon(swX+swW/2, iconY(swY, swH), swCol);
-    keyHint(swX, swY, swW, swH, 'V', swCol);
-    window._shipBtnRect={x:swX, y:swY, w:swW, h:swH};
-    var rmOn=rearmReady()||rearmMenu;
-    var rmHv=hovering(rmX, swY, swW, swH);
-    var rmSt=btnState(rmOn, rearmMenu, rmHv);
-    thButton(rmX, swY, swW, swH, rmSt);
-    var rmPl=barPulseLevel('rearm');
-    if(rmPl>0) thGlowPath(rmX-3, swY-2, swW+6, swH+4, 5, rmPl);
-    var rmCol=btnText(rmSt);
-    drawRearmIcon(rmX+swW/2, iconY(swY, swH), rmCol);
-    keyHint(rmX, swY, swW, swH, 'R', rmCol);
-    window._rearmBtnRect={x:rmX, y:swY, w:swW, h:swH};
-  } else { window._shipBtnRect=null; window._rearmBtnRect=null; }
-
-  // SETTINGS and PAUSE (and the speaker left of them)
-  drawMuteButton(W-78, 4, 22, H2-8);
-  var stbX=W-52, stbY=4, stbW=22, stbH=H2-8;
-  var stbHv=hovering(stbX, stbY, stbW, stbH);
-  var stbSt=btnState(true, settingsOpen, stbHv);
-  thButton(stbX, stbY, stbW, stbH, stbSt);
-  var stbCol=btnText(stbSt);
-  drawGear(stbX+stbW/2, iconY(stbY, stbH), 7, stbCol);
-  keyHint(stbX, stbY, stbW, stbH, 'S', stbCol);
-  window._settingsBtnRect={x:stbX, y:stbY, w:stbW, h:stbH};
-
-  var pbX=W-26, pbY=4, pbW=22, pbH=H2-8;
-  var pbHv=hovering(pbX, pbY, pbW, pbH);
-  var pbSt=btnState(true, paused, pbHv);
-  thButton(pbX, pbY, pbW, pbH, pbSt);
-  drawPauseIcon(pbX+pbW/2, pbY+pbH/2, btnText(pbSt), !paused);
-  window._pauseBtnRect={x:pbX, y:pbY, w:pbW, h:pbH};
+  var icy=bY+(bH-11)/2+5.5;    // the middle of what the letter leaves
+  var hideSwap=FS1_MODE;
+  // V
+  var swX=bX0;
+  if(!hideSwap){
+    var swSt=btnState(shipSwapReady()||shipMenu, shipMenu, hovering(swX, bY, bW, bH));
+    thButton(swX, bY, bW, bH, swSt);
+    var swPl=barPulseLevel('swap'); if(swPl>0) thGlowPath(swX-3, bY-2, bW+6, bH+4, 5, swPl);
+    var swC=btnText(swSt); drawShipsIcon(swX+bW/2, icy, swC); keyHint(swX, 'V', swC);
+    window._shipBtnRect={x:swX, y:bY, w:bW, h:bH};
+  } else window._shipBtnRect=null;
+  // R
+  var rmX=bX0+bW+bG;
+  if(!hideSwap){
+    var rmSt=btnState(rearmReady()||rearmMenu, rearmMenu, hovering(rmX, bY, bW, bH));
+    thButton(rmX, bY, bW, bH, rmSt);
+    var rmPl=barPulseLevel('rearm'); if(rmPl>0) thGlowPath(rmX-3, bY-2, bW+6, bH+4, 5, rmPl);
+    var rmC=btnText(rmSt); drawMissilesIcon(rmX+bW/2, icy, rmC); keyHint(rmX, 'R', rmC);
+    window._rearmBtnRect={x:rmX, y:bY, w:bW, h:bH};
+  } else window._rearmBtnRect=null;
+  // M
+  drawMuteButton(bX0+2*(bW+bG), bY, bW, bH, 'M');
+  // S
+  var stbX=bX0+3*(bW+bG);
+  var stbSt=btnState(true, settingsOpen, hovering(stbX, bY, bW, bH));
+  thButton(stbX, bY, bW, bH, stbSt);
+  var stbC=btnText(stbSt); drawGearSolid(stbX+bW/2, icy, 5.6, stbC); keyHint(stbX, 'S', stbC);
+  window._settingsBtnRect={x:stbX, y:bY, w:bW, h:bH};
+  // P
+  var pbX=bX0+4*(bW+bG);
+  var pbSt=btnState(true, paused, hovering(pbX, bY, bW, bH));
+  thButton(pbX, bY, bW, bH, pbSt);
+  var pbC=btnText(pbSt); drawPauseIcon(pbX+bW/2, icy, pbC, !paused); keyHint(pbX, 'P', pbC);
+  window._pauseBtnRect={x:pbX, y:bY, w:bW, h:bH};
 
   ctx.textAlign='left'; ctx.textBaseline='top';
+}
+// The icons of the bar (v186, Silvio: variant 3 and gear B).
+// Two fighters seen from above, the upper one filled, the lower in outline.
+const ICO_SHIP = [[7,0],[2,-1.4],[-1,-5],[-3.5,-5],[-2.5,-1.6],[-6,-1.6],[-7,-3],[-8,-3],[-7.2,0],[-8,3],[-7,3],[-6,1.6],[-2.5,1.6],[-3.5,5],[-1,5],[2,1.4]];
+const ICO_MISSILE = [[7.5,0],[4.5,-1.6],[-4.5,-1.6],[-7,-4],[-7.5,-4],[-6.5,-1.6],[-6.5,1.6],[-7.5,4],[-7,4],[-4.5,1.6],[4.5,1.6]];
+function icoShape(P, cx, cy, s, col, fill){
+  ctx.beginPath();
+  for(let i=0;i<P.length;i++){ const x=cx+P[i][0]*s, y=cy+P[i][1]*s; if(i) ctx.lineTo(x,y); else ctx.moveTo(x,y); }
+  ctx.closePath();
+  if(fill){ ctx.fillStyle=col; ctx.fill(); } else { ctx.strokeStyle=col; ctx.lineWidth=1.1; ctx.stroke(); }
+}
+function drawShipsIcon(cx, cy, col){
+  icoShape(ICO_SHIP, cx, cy-3.5, 0.55, col, true);
+  icoShape(ICO_SHIP, cx, cy+3.5, 0.55, col, false);
+}
+// Two missiles in the same way.
+function drawMissilesIcon(cx, cy, col){
+  icoShape(ICO_MISSILE, cx, cy-3.5, 0.7, col, true);
+  icoShape(ICO_MISSILE, cx, cy+3.5, 0.7, col, false);
+}
+// A solid gear with eight teeth and a hole: the thin one read as a sun.
+function drawGearSolid(cx, cy, r, col){
+  const n=8, ro=r*1.2, ri=r*0.86, hole=r*0.38, tw=Math.PI/n*0.55;
+  ctx.beginPath();
+  for(let i=0;i<n;i++){
+    const a=i*2*Math.PI/n;
+    const pts=[[a-tw*1.25,ri],[a-tw*0.8,ro],[a+tw*0.8,ro],[a+tw*1.25,ri]];
+    for(let j=0;j<4;j++){ const x=cx+Math.cos(pts[j][0])*pts[j][1], y=cy+Math.sin(pts[j][0])*pts[j][1]; if(i||j) ctx.lineTo(x,y); else ctx.moveTo(x,y); }
+    ctx.arc(cx, cy, ri, a+tw*1.25, (i+1)*2*Math.PI/n-tw*1.25);
+  }
+  ctx.closePath();
+  ctx.moveTo(cx+hole, cy); ctx.arc(cx, cy, hole, 0, Math.PI*2, true);
+  ctx.fillStyle=col; ctx.fill('evenodd');
 }
 
 
@@ -1439,17 +1470,18 @@ const EXTRA_SHIPS = {
 let forcedPrev = '';
 // sec: the secondary that goes with the hull for this mission.
 let forcedSecPrev = '';
+// sec: a weapon the mission needs, into the first secondary bank (v186).
 function forceShip(key, sec){
-  if(!forcedPrev){ forcedPrev = player.ship; forcedSecPrev = player.sec; }
-  if(sec) player.sec = sec;
+  if(!forcedPrev){ forcedPrev = player.ship; }
   applyShip(key);
+  if(sec) missionSec(arsenalKey(sec), false);
   notice(shipStats(key).name.toUpperCase()+' ASSIGNED', 'info');
 }
-// The next wave hands the player's own hull back, refitted.
+// The next wave hands the player's own hull back, refitted with its own
+// banks.
 function releaseShip(){
   if(!forcedPrev) return;
   const k = forcedPrev; forcedPrev = '';
-  if(forcedSecPrev) player.sec = forcedSecPrev;
   forcedSecPrev = '';
   applyShip(k);
 }
@@ -1476,15 +1508,14 @@ function applyShip(key, keep){
   player.hp     = player.maxHp;
   player.maxSh  = s.sh;
   resetPlayerShield();
-  // The hull still sets the size of the rack; the weapon scales it. A
-  // bomber carrying ten and a fighter twenty is part of what tells them
-  // apart, so that stays a property of the hull.
-  applyLoadout();
-  player.secAmmo= player.secMax;
+  // The banks of the hull (v186): its own store, its own racks.
+  const enF = (keep && player.enMax) ? player.en/player.enMax : 1;
+  player.en = null;
+  applyLoadout(keep ? keep.sec : null);
   if(keep){
     player.hp      = Math.max(1, Math.round(player.maxHp*keep.hp));
     player.sh      = Math.min(player.maxSh, Math.round(player.maxSh*keep.sh));
-    player.secAmmo = Math.min(player.secMax, Math.round(player.secMax*keep.sec));
+    player.en      = player.enMax*enF;
   }
 }
 // Unlocks follow the score within a run. Several thresholds can fall in
@@ -1682,24 +1713,17 @@ function volleyTotal(n){ if(!n || n < 1) n = 1; return volleyDmg(n)*n; }
 // range is how far a bolt travels before it gives out, in points. 0 means it
 // runs to the edge of the field, the way every bolt used to.
 const PLAYER_FR_BASE = 28;   // steps between shots at rate 1.0
+// Since v186 the player flies the FS2 arsenal (ARSENAL_P / ARSENAL_S in
+// 56_banks.js). What stays here are the game's own guns, which the AI flies
+// too: the Sidhe and the Dante. wait: steps between volleys, en: energy per
+// volley (Silvio: on the scale of the Prometheus S and the Kayser).
 const PRIMARIES = [
-  {key:'prometheus', name:'Prometheus', unlock:0,
-   dmg:1.00, rate:1.00, spd:9, range:0,
-   col:'#ccff88', glow:'rgba(180,255,80,0.30)',
-   note:'standard fit, and the longest reach of any gun'},
-  // The same gun under two names: the Vasudan fleet calls it Mekhu, the
-  // Terran one Subach. The game already renames hulls by era, so a weapon
-  // with two names costs nothing but the second string.
-  {key:'hl7', name:'Mekhu HL-7', nameTer:'Subach HL-7', unlock:6000,
-   dmg:0.62, rate:0.60, spd:10.5, range:330,
-   col:'#bfe9ff', glow:'rgba(120,200,255,0.30)',
-   note:'quicker and lighter, and it runs out of reach early'},
   // pellets and spread turn one trigger pull into a cone. dmg is the
   // damage of the WHOLE volley, shared out, so a single pellet is slight
   // and a face full of them is not.
   // Named after the primary of Blue Planet: War in Heaven.
   {key:'scatter', name:'Sidhe', unlock:14000,
-   dmg:2.60, rate:1.85, spd:8, range:300, pellets:7, spread:0.30,
+   dmg:2.60, rate:1.85, spd:8, range:300, pellets:7, spread:0.30, wait:52, en:1.0,
    col:'#ffd08a', glow:'rgba(255,170,70,0.30)',
    note:'a cone of pellets - murder in a crowd, nothing at range'},
   // fuse is the distance at which it bursts of its own accord. That is
@@ -1707,48 +1731,13 @@ const PRIMARIES = [
   // lays shrapnel across a fixed range and an attack run has to come
   // through it.
   {key:'dante', name:'Dante', unlock:0, fromWave:61,
-   dmg:1.10, rate:1.40, spd:7.5, range:420, fuse:300,
+   dmg:1.10, rate:1.40, spd:7.5, range:420, fuse:300, wait:39, en:1.2,
    shards:9, shardDmg:0.38, shardSpd:3.4, shardRange:70,
    col:'#ffb066', glow:'rgba(255,140,50,0.34)',
    note:'bursts on impact and by itself at range - shrapnel, star shaped'}
 ];
-// cls decides which hull may carry it: a fighter takes missiles, a bomber
-// takes bombs, and neither takes the other's.
-const SECONDARIES = [
-  {key:'mx64', name:'MX-64', cls:'missile', unlock:0,
-   ammoMul:1.0, dmg:35, cd:45, spd:3.5, life:220, homing:true,
-   note:'light homing, quick off the rail'},
-  {key:'cyclops', name:'Cyclops', cls:'bomb', unlock:0,
-   ammoMul:1.0, dmg:80, cd:90, spd:1.5, life:300, homing:true,
-   note:'slow and heavy, for hulls that cannot dodge'},
-  // burst: the secondary button detonates it in flight instead of firing
-  // another, and only one may be in the air. Straight, no seeking - what
-  // it asks for is timing, not aim.
-  {key:'infyrno', name:'Infyrno', cls:'missile', unlock:18000,
-   ammoMul:0.7, dmg:40, cd:55, spd:4.2, life:200, homing:false,
-   burst:true, shards:12, shardDmg:30, shardSpd:3.0, shardRange:90,
-   note:'fired straight - press again to burst it into shrapnel'},
-  // swarm: one press lets go this many small seekers in a fan of the
-  // given width (radians). dmg is per missile. Each one is handed a
-  // different target at launch, see swarmTargets(). One salvo is one
-  // round off the rack.
-  {key:'tornado', name:'Tornado', cls:'missile', unlock:22000,
-   ammoMul:0.5, dmg:14, cd:60, spd:3.2, life:210, homing:true,
-   swarm:4, fan:0.9,
-   note:'four seekers in a fan - each goes for a different target'},
-  // subs: the warhead goes into the innards rather than the hull. A
-  // corvette without engines does not leave.
-  // TAG (v169): marks what it hits. A marked ship can be held by our beams
-  // even in a nebula, and a marked gas miner or freighter becomes a target
-  // for the heavy beams. Barely any damage of its own. Handed out with the
-  // Shivan cycle's mission 67 rather than with points.
-  {key:'tag', name:'TAG-C', cls:'missile', unlock:0, fromWave:67, snd:'mx64',
-   ammoMul:0.6, dmg:6, cd:40, spd:4.6, life:200, homing:true, tag:true,
-   note:'marks the target - our beams find it, even in the nebula'},
-  {key:'stiletto', name:'Stiletto', cls:'bomb', unlock:26000,
-   ammoMul:1.0, dmg:70, cd:95, spd:2.8, life:300, homing:true, subs:true,
-   note:'into the subsystems, not the hull - stops a ship working'}
-];
+// The player's secondaries are the FS2 ones; the AI keeps AI_SECONDARIES.
+const SECONDARIES = ARSENAL_S;
 // Shrapnel, star shaped from a point. Three weapons make it - the Dante on
 // impact, the Dante on its fuse, and the Infyrno when it is burst - so it
 // is written once and they all call it. The shards are ordinary bolts and
@@ -1812,17 +1801,22 @@ function subStrikeRaw(e, dmg, hx, hy){
   return subHit(e, dmg, p.x, p.y);
 }
 function priDef(key){
+  for(const w of ARSENAL_P) if(w.key===key) return w;
   for(const w of PRIMARIES) if(w.key===key) return w;
-  // Guns only the AI flies (the Shivan lasers, 55_arms.js).
+  // Guns only the AI flies (the Shivan lasers, the old player guns).
   if(typeof AI_PRIMARIES!=='undefined' && AI_PRIMARIES[key]) return AI_PRIMARIES[key];
-  return PRIMARIES[0];
+  return ARSENAL_P[0];
 }
+// The AI's secondaries first: its rounds carry the old keys, and three of
+// them share a name with a FS2 weapon. The player's rounds carry their
+// definition along (b.wd) and do not come through here.
 function secDef(key){
-  for(const w of SECONDARIES) if(w.key===key) return w;
-  return SECONDARIES[0];
+  for(const w of AI_SECONDARIES) if(w.key===key) return w;
+  for(const w of ARSENAL_S) if(w.key===key) return w;
+  return AI_SECONDARIES[0];
 }
 function curPri(){ return priDef(player.pri); }
-function curSec(){ return secDef(player.sec); }
+function curSec(){ return secDefP(player.sec); }
 function hullSecCls(key){ return isBomberHull(key) ? 'bomb' : 'missile'; }
 // A weapon's name can depend on who is flying it.
 function weaponName(w){
@@ -1839,40 +1833,32 @@ function weaponOpen(w){
   return score >= (w.unlock||0);
 }
 function waveReached(w){ return !w.fromWave || wave >= w.fromWave; }
-function secondariesFor(shipKey){
-  const c = hullSecCls(shipKey), out = [];
-  for(const w of SECONDARIES) if(w.cls===c) out.push(w);
-  return out;
+// The one place that puts a fit onto the ship (v186): the banks of the
+// hull, as the player set them up this run or as the table has them.
+function applyLoadout(keepSec){
+  setBanks(player.ship, fitFor(player.ship), keepSec);
 }
-// The default rack for a hull, used when a switch of hull makes the fitted
-// secondary impossible - a bomber cannot carry what a fighter carried.
-function defaultSec(shipKey){
-  const list = secondariesFor(shipKey);
-  return list.length ? list[0].key : SECONDARIES[0].key;
-}
-// The one place that puts a choice onto the ship. The firing routines read
-// the weapon, never the other way round.
-function applyLoadout(){
-  if(!priDef(player.pri) || curPri().key!==player.pri) player.pri = PRIMARIES[0].key;
-  if(curSec().cls !== hullSecCls(player.ship)) player.sec = defaultSec(player.ship);
-  player.fR = Math.max(5, Math.round(PLAYER_FR_BASE*curPri().rate));
-  const s = shipStats(player.ship);
-  player.secType = curSec().cls==='bomb' ? 'bomb' : 'missile';
-  player.secMax  = Math.max(1, Math.round((s.sec||0)*curSec().ammoMul));
-}
-// A refit fills the rack. This is what makes the panel a rearm rather than a
-// swap, and it is the whole reason a corvette on the field is worth keeping.
+// A refit fills every rack and the weapon store. This is what makes the
+// panel a rearm rather than a swap, and it is the whole reason a corvette on
+// the field is worth keeping.
 function rearmFull(){
+  player.en = null;
   applyLoadout();
-  player.secAmmo = player.secMax;
   player.secTimer = 0;
+}
+// Rounds of every rack of a hull's default fit, for the hangar.
+function secRounds(key){
+  const b = shipBanks(key);
+  let n = 0;
+  for(let i=0;i<Math.min(3, b.s.length);i++) n += bankAmmoMax(key, i, b.s[i]);
+  return n;
 }
 // Newly reached weapons are announced like newly reached hulls, so a
 // threshold is something you notice rather than something you find.
 const WPN_SEEN = {};
 function tickWeaponUnlocks(){
   if(GS!=='playing' || FS1_MODE) return;
-  for(const w of PRIMARIES.concat(SECONDARIES)){
+  for(const w of ARSENAL_P.concat(PRIMARIES, ARSENAL_S)){
     if((!w.unlock && !w.fromWave) || WPN_SEEN[w.key] || !weaponOpen(w)) continue;
     WPN_SEEN[w.key] = true;
     notice(weaponName(w).toUpperCase()+' AVAILABLE', 'unlock');
@@ -1903,20 +1889,23 @@ function toggleRearmMenu(){
   if(!rearmReady()) return;
   setRearmMenu(true);
 }
-// Fitting a weapon. Both kinds go through here so the refill rule lives in
-// one place, including the case of choosing what is already fitted.
-function fitWeapon(key){
-  if(!rearmMenu) return;
-  let w = null, kind = '';
-  for(const p of PRIMARIES)   if(p.key===key){ w = p; kind = 'pri'; }
-  for(const s of SECONDARIES) if(s.key===key){ w = s; kind = 'sec'; }
-  if(!w || !weaponOpen(w)) return;
-  if(kind==='sec' && w.cls!==hullSecCls(player.ship)) return;
-  if(kind==='pri') player.pri = w.key; else player.sec = w.key;
-  setRearmMenu(false);
+// The interim rearm list (v186, until the loadout screen): one row per
+// bank, a tap switches that bank to the next weapon the hull may carry and
+// fills every rack. slot: 'p0', 'p1', 's0'..'s2'.
+function fitWeapon(slot){
+  if(!rearmMenu || !slot) return;
+  const pri = slot[0]==='p', i = +slot.slice(1);
+  const fit = {p:(player.pb||[]).map(function(b){ return b.key; }),
+               s:(player.sb||[]).map(function(b){ return b.key; })};
+  const list = pri ? fit.p : fit.s;
+  if(i >= list.length) return;
+  const nk = nextChoice(player.ship, pri, list[i]);
+  if(nk === list[i]) return;
+  list[i] = nk;
+  FITS[player.ship] = fit;
   rearmFull();
   plogRearm();
-  notice(weaponName(w).toUpperCase()+' REARMED', 'good');
+  notice(weaponName(pri ? priDefP(nk) : secDefP(nk)).toUpperCase()+' FITTED', 'good');
 }
 
 // ── HANGAR LAYOUT ────────────────────────────────────────────
@@ -2144,7 +2133,7 @@ function drawShipMenu(){
     if(isBomberHull(s.key)) drawBombIcon(secX+10, cy, pCol);
     else                    drawMissileIcon(secX+10, cy, pCol);
     ctx.fillStyle=vCol; ctx.font=thValue(15, false);
-    ctx.fillText(String(s.sec), secX+24, cy);
+    ctx.fillText(String(secRounds(s.key)), secX+24, cy);
 
     // Every row swallows its own tap, so a row that cannot be taken cannot
     // close the panel by accident either.
@@ -2195,7 +2184,7 @@ const RM_COLS_PRI = [
   {k:'dmg',   x:300, label:'VOLLEY'},
   {k:'rate',  x:366, label:'ROF'},
   {k:'spd',   x:432, label:'SPEED'},
-  {k:'range', x:504, label:'REACH'}
+  {k:'range', x:504, label:'ENERGY'}
 ];
 const RM_COLS_SEC = [
   {k:'dmg',    x:300, label:'DAMAGE'},
@@ -2206,28 +2195,29 @@ const RM_COLS_SEC = [
 ];
 // What each column actually says for a weapon. Kept beside the columns so a
 // new figure is added in one place rather than two.
-function rmValue(w, k, pri){
+function rmValue(w, k, pri, slot){
   if(pri){
-    if(k==='dmg')   return String(Math.round(VOLLEY_BASE*w.dmg));
-    if(k==='rate')  return (Math.round(600/Math.max(5, Math.round(PLAYER_FR_BASE*w.rate)))/10).toFixed(1)+'/s';
-    if(k==='spd')   return String(w.spd);
-    if(k==='range') return w.range ? String(w.range) : 'FULL';
+    if(k==='dmg')   return String(Math.round(volleyTotal(primaryCount(player.ship))*w.dmg));
+    if(k==='rate')  return (Math.round(600/Math.max(4, w.wait||28))/10).toFixed(1)+'/s';
+    if(k==='spd')   return String(Math.round(w.spd*10)/10);
+    if(k==='range') return (Math.round((w.en||0)*10)/10).toFixed(1);
     return '';
   }
   // A swarm: the damage of the whole salvo, then how it is made up.
-  if(k==='dmg')    return w.swarm ? (w.swarm*w.dmg)+' ('+w.swarm+'\u00d7'+w.dmg+')' : String(w.dmg);
-  // What the flown hull carries of it; a swarm counts in salvos.
-  if(k==='ammo'){  const n = Math.max(1, Math.round((shipStats(player.ship).sec||0)*w.ammoMul));
-                   return w.swarm ? n+' salvos' : String(n); }
+  const d = Math.round(w.dmg*10)/10;
+  if(k==='dmg')    return w.swarm ? w.swarm+'\u00d7'+d : String(Math.round(w.dmg));
+  if(k==='ammo')   return String(bankAmmoMax(player.ship, +slot.slice(1), w.key));
   if(k==='reload') return (Math.round(w.cd/6)/10).toFixed(1)+'s';
-  if(k==='spd')    return String(w.spd);
-  if(k==='seek')   return w.homing ? 'YES' : 'NO';
+  if(k==='spd')    return String(Math.round(w.spd*10)/10);
+  if(k==='seek')   return w.homing==='heat' ? 'HEAT' : (w.homing==='aspect' ? 'ASPECT' : 'NO');
   return '';
 }
+// One row per bank. A tap on a row switches that bank to the next weapon.
 function rearmGroups(){
-  return [{head:'PRIMARY', pri:true,  cols:RM_COLS_PRI, list:PRIMARIES},
-          {head:(hullSecCls(player.ship)==='bomb') ? 'BOMBS' : 'MISSILES',
-           pri:false, cols:RM_COLS_SEC, list:secondariesFor(player.ship)}];
+  const P = (player.pb||[]).map(function(b, i){ return {slot:'p'+i, w:priDefP(b.key), label:'BANK '+(i+1)}; });
+  const S = (player.sb||[]).map(function(b, i){ return {slot:'s'+i, w:secDefP(b.key), label:'BANK '+(i+1)}; });
+  return [{head:'PRIMARY BANKS', pri:true,  cols:RM_COLS_PRI, list:P},
+          {head:'SECONDARY BANKS', pri:false, cols:RM_COLS_SEC, list:S}];
 }
 function rearmLayout(){
   const plan = [];
@@ -2236,13 +2226,10 @@ function rearmLayout(){
     if(!g.list.length) continue;
     plan.push({head:g.head, y:h, cols:g.cols});
     h += RM_HEAD;
-    for(const w of g.list){
-      const open = weaponOpen(w);
-      const cur  = g.pri ? (w.key===player.pri) : (w.key===player.sec);
-      const rh   = open ? RM_ROW : RM_ROW_LOCK;
-      plan.push({w:w, y:h, h:rh, cur:cur, open:open, pri:g.pri, cols:g.cols,
-                 num:++n});
-      h += rh + RM_GAP;
+    for(const it of g.list){
+      plan.push({w:it.w, slot:it.slot, label:it.label, y:h, h:RM_ROW, cur:false, open:true,
+                 pri:g.pri, cols:g.cols, num:++n});
+      h += RM_ROW + RM_GAP;
     }
     h += RM_GROUPGAP;
   }
@@ -2261,7 +2248,7 @@ function drawRearmMenu(){
   ctx.fillText('REARM', mx+RM_PAD, my+16);
   ctx.textAlign='right';
   ctx.fillStyle=TH('accentWarm'); ctx.font=thValue(10, false);
-  ctx.fillText('CORVETTE ON STATION  -  A REFIT FILLS THE RACK',
+  ctx.fillText('TAP A BANK FOR THE NEXT WEAPON  -  A REFIT FILLS EVERY RACK',
                mx+L.mw-RM_PAD, my+16);
 
   window._rearmRects=[];
@@ -2304,14 +2291,14 @@ function drawRearmMenu(){
     ctx.textAlign='left';
     ctx.fillStyle = p.cur ? TH('accentWarm') : TH('textBright');
     ctx.font=thValue(14, true);
-    ctx.fillText(thFit(weaponName(w), textW), rx+RM_NAME, ry+13);
+    ctx.fillText(thFit(p.label+'  '+weaponName(w), textW), rx+RM_NAME, ry+13);
     ctx.fillStyle=TH('textDim'); ctx.font=thValue(9, false);
-    ctx.fillText(thFit(w.note, textW), rx+RM_NAME, ry+27);
+    ctx.fillText(thFit(w.note||'', textW), rx+RM_NAME, ry+27);
 
     ctx.fillStyle=TH('textBright'); ctx.font=thValue(15, false);
-    for(const c of p.cols) ctx.fillText(rmValue(w, c.k, p.pri), rx+c.x, ry+p.h/2);
+    for(const c of p.cols) ctx.fillText(rmValue(w, c.k, p.pri, p.slot), rx+c.x, ry+p.h/2);
 
-    window._rearmRects.push({x:rx, y:ry, w:rw, h:p.h, key:w.key});
+    window._rearmRects.push({x:rx, y:ry, w:rw, h:p.h, key:p.slot});
   }
 
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim');
@@ -2565,6 +2552,15 @@ function pointerConsumed(p){
   }
   var ra=window._allyBtnRect;
   if(ra&&p.x>=ra.x&&p.x<=ra.x+ra.w&&p.y>=ra.y&&p.y<=ra.y+ra.h){ toggleCallMenu(); return true; }
+  // The banks in the bar (v186): the primary panel steps the mode, a
+  // secondary row that is not chosen gets chosen. The chosen row fires
+  // (the old SEC button, _secBtnRect).
+  var rp=window._priRect;
+  if(rp&&p.x>=rp.x&&p.x<=rp.x+rp.w&&p.y>=rp.y&&p.y<=rp.y+rp.h){ cyclePrimary(); return true; }
+  for(const sr of (window._secRows||[])){
+    if(sr.i!==player.sSel && p.x>=sr.x&&p.x<=sr.x+sr.w&&p.y>=sr.y&&p.y<=sr.y+sr.h){
+      player.sSel=sr.i; syncLegacyWeapons(); return true; }
+  }
   return false;
 }
 
@@ -2800,6 +2796,18 @@ CVS.addEventListener('mousedown',function(ev){
   }
   if(ev.button===2&&GS==='playing'){ SEC_HOLD.rmb=true; fireSecondary(); }
 });
+// The wheel (v186, Silvio): up steps the primary banks (1, 2, linked),
+// down the secondary bank. A trackpad sends a stream of small steps, so
+// one change per 160 ms.
+let wheelT = 0;
+CVS.addEventListener('wheel',function(ev){
+  if(GS!=='playing' || callMenu || shipMenu || rearmMenu || settingsOpen) return;
+  ev.preventDefault();
+  const now = performance.now();
+  if(now - wheelT < 160 || !ev.deltaY) return;
+  wheelT = now;
+  if(ev.deltaY < 0) cyclePrimary(); else cycleSecondary();
+},{passive:false});
 // Linux pastes on a middle click; nothing to paste into here.
 CVS.addEventListener('auxclick',function(ev){ if(ev.button===1) ev.preventDefault(); });
 CVS.addEventListener('mouseup',function(ev){
@@ -2929,6 +2937,11 @@ document.addEventListener('keydown',function(ev){
   if(resumeHold){ clearResumeHold(); ev.preventDefault(); return; }
   if(ev.code==='KeyV'){ toggleShipMenu(); ev.preventDefault(); return; }
   if(ev.code==='KeyR'){ toggleRearmMenu(); ev.preventDefault(); return; }
+  // Q / E: the same as the wheel (v186).
+  if(!callMenu && !shipMenu && !rearmMenu){
+    if(ev.code==='KeyQ'){ cyclePrimary(); ev.preventDefault(); return; }
+    if(ev.code==='KeyE'){ cycleSecondary(); ev.preventDefault(); return; }
+  }
   if(rearmMenu){
     if(ev.code==='Escape'){ setRearmMenu(false); ev.preventDefault(); return; }
     var rd = ev.code.indexOf('Digit')===0 ? ev.code.slice(5)
@@ -2938,7 +2951,7 @@ document.addEventListener('keydown',function(ev){
     // weapon is the digit that fits it.
     if(ri>=1){
       for(const q of rearmLayout().plan)
-        if(q.num===ri && q.open){ fitWeapon(q.w.key); break; }
+        if(q.num===ri && q.open){ fitWeapon(q.slot); break; }
       ev.preventDefault();
     }
     return;

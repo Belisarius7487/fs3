@@ -566,9 +566,9 @@ scenario('Pickups light up the bar, not the field', 'm=31', `
   const rings = []; const og = thGlowPath;
   thGlowPath = function(x,y,w,h){ rings.push({x,y,w,h}); return og.apply(this, arguments); };
   barPulse('hull'); barPulse('ticket:cruiser'); FS.step(40); draw(); thGlowPath = og;
-  r.ringAroundHull = rings.some(g=>g.x===181 && g.w===116);
+  r.ringAroundHull = rings.some(g=>g.x===109 && g.w===84);   // the v186 bar
   // The ring follows what is drawn in the cell (v162), within the cell.
-  r.ringAroundTicket = rings.some(g=>g.x===533 && g.w>=30 && g.w<=64);
+  r.ringAroundTicket = rings.some(g=>g.x===575 && g.w>=20 && g.w<=44);
   // Its time is up: the pulse is over and gone. (Stepping the game to get
   // there would let loot from the fight light it up again.)
   barPulse('hull'); BAR_PULSE.hull.t0 = fc - BAR_PULSE_T;
@@ -908,22 +908,24 @@ scenario('M57 Die Nachhut', 'm=57', `
   const r = {};
   const prevSec = player.sec;
   FS.step(300);
-  r.ursaWithStiletto = player.ship==='boursa' && player.sec==='stiletto';
+  r.ursaWithStiletto = player.ship==='boursa' && player.sb[0].key==='stiletto2' && player.sSel===0;
   const us = ['K1','K2','D1'].map(id=>enemies.find(e=>e.uid===id));
   r.threeHoldTheRear = us.every(Boolean);
   damageEnemy(us[0], us[0].maxHp*5, us[0].x, us[0].y, true, 'bolt'); FS.step(2);
   r.cannotBeDestroyedYet = enemies.includes(us[0]);
-  // A Stiletto takes a cruiser's system with one bomb, a corvette's with two.
+  // A Stiletto II (v186) takes a cruiser's system with one round, a
+  // corvette's with at most two.
+  const sw = secDefP('stiletto2');
   const bombs = u=>{ const s = u.subs.find(x=>x.id==='engines'); let n = 0;
-    while(!s.dead && n<10){ const p = subPos(u, s); subStrike(u, secDef('stiletto').dmg, p.x, p.y); n++; } return n; };
+    while(!s.dead && n<10){ const p = subPos(u, s); subStrikeRaw(u, sw.dmg*sw.f.u, p.x, p.y); n++; } return n; };
   r.oneBombPerCruiserSystem = bombs(us[0])===1;
-  r.twoBombsPerCorvetteSystem = bombs(us[2])===2;
+  r.twoBombsPerCorvetteSystem = bombs(us[2])<=2;
   for(const u of us) for(const s of u.subs) if(s.id==='engines'||s.id==='weapons'){ s.dead = true; s.hp = 0; }
   const c = FS.until(()=>!!objCard && objCard.txt==='REARGUARD DISABLED', 1500, false);
   r.completeCard = c>=0;
   r.leftAsWrecks = us.every(u=>enemies.includes(u) && u.scenery);
   const w = FS.until(()=>wave===58, 9000, true, true);
-  r.nextWaveOwnShipBack = w>=0 && player.ship!=='boursa' && player.sec!=='stiletto';
+  r.nextWaveOwnShipBack = w>=0 && player.ship!=='boursa' && !player.sb.some(b=>b.key==='stiletto2' && !shipBanks(player.ship).s.includes('stiletto2'));
   return r;`);
 
 scenario('M58 Das Tor', 'm=58', `
@@ -1009,7 +1011,7 @@ scenario('Practice log', 'm=42&practice=1', `
   plogSrc('bolt'); player.hp -= 10; update();
   r.damageBySource = (PL.dmgBy.bolt||0) >= 10;
   // The player's own bolts are counted, the escorts' are not.
-  const b0 = PL.bolts; player.fT = 0; pShoot(); FS.step(1);
+  const b0 = PL.bolts; for(const b of player.pb) b.t = 0; player.en = player.enMax; pShoot(); FS.step(1);
   r.boltsCounted = PL.bolts > b0;
   // Clear the wave: it is closed and the next one opens.
   FS.until(()=>waveOver, 40000, false, true); ITEMS.length = 0;
@@ -1490,31 +1492,32 @@ scenario('v159: fire delay, held secondary, turrets, bursts, Perseus', 'm=31', `
   // Out of the jump first: in it the old code cooled down as well.
   for(let i=0;i<3000 && inJump();i++) FS.step(1);
   r.outOfJump = !inJump();
-  // The primary cools down while the trigger is released (broken v157-v158).
+  // The bank clocks run down while the trigger is released (v186; the old
+  // single clock was broken in v157-v158).
   isFiring = false; MOUSE.down = false; K['Space'] = false; K['KeyZ'] = false;
-  player.fT = player.fR;
-  FS.step(player.fR + 1);
-  r.cooldownOnRelease = player.fT === 0;
+  player.pb[0].t = 27;
+  FS.step(28);
+  r.cooldownOnRelease = player.pb[0].t === 0;
   // A held secondary keeps firing as the launcher comes ready.
-  player.secAmmo = 6; player.secTimer = 0;
-  const a0 = player.secAmmo;
+  const bk = selSecBank(); bk.ammo = Math.min(bk.max, 6); player.secTimer = 0;
+  const a0 = bk.ammo;
   SEC_HOLD.rmb = true;
   FS.step(curSec().cd * 3 + 5);
-  r.heldSecondaryRefires = a0 - player.secAmmo >= 3;
+  r.heldSecondaryRefires = a0 - bk.ammo >= 3;
   SEC_HOLD.rmb = false;
-  const a1 = player.secAmmo; player.secTimer = 0;
+  const a1 = bk.ammo; player.secTimer = 0;
   FS.step(curSec().cd * 2);
-  r.releasedStops = player.secAmmo === a1;
+  r.releasedStops = bk.ammo === a1;
   // ...but a live Infyrno is not set off by a held button.
   const fake = {x:400, y:250, vx:0, vy:0, sec:true, burst:true, wpn:'infyrno', life:999, w:4, h:4};
-  pBullets.push(fake); player.secTimer = 0; player.secAmmo = 5;
+  pBullets.push(fake); player.secTimer = 0; bk.ammo = 5;
   SEC_HOLD.btn = true; secHoldTick(); SEC_HOLD.btn = false;
-  r.heldLeavesInfyrno = pBullets.indexOf(fake) >= 0 && player.secAmmo === 5;
+  r.heldLeavesInfyrno = pBullets.indexOf(fake) >= 0 && bk.ammo === 5;
   pBullets.splice(pBullets.indexOf(fake), 1);
-  // Capacity after the FreeSpace banks.
-  r.aresSec32 = shipStats('fiares').sec === 32;
-  r.hercMk2Sec30 = shipStats('fihercmk2').sec === 30;
-  r.hercSec20 = shipStats('fiherc').sec === 20;
+  // Capacity after the FreeSpace banks: 90 / 2.5 Harpoons, 100 / 1 Hornets.
+  r.aresRacks = bankAmmoMax('fiares', 0, 'harpoon') === 36 && bankAmmoMax('fiares', 1, 'hornet') === 100;
+  r.hercMk2Racks = bankAmmoMax('fihercmk2', 0, 'harpoon') === 32;
+  r.hercRacks = bankAmmoMax('fiherc', 0, 'harpoon') === 24;
   // The Perseus: player hull in the NTF cycle, escort and NTF enemy.
   const ps = ROSTER_NTF.find(s => s.key === 'fiperseus');
   r.perseusRoster = !!ps && ps.unlock === 2000 && ROSTER_NTF.indexOf(ps) === 1;
@@ -1871,8 +1874,8 @@ scenario('v168: M66 notices count what got through', 'm=66', `
 
 scenario('v169: M67 TAG', 'm=67', `
   const r = {};
-  r.tagOpen = weaponOpen(secDef('tag'));
-  r.fitted = player.sec==='tag' || isBomberHull(player.ship);
+  r.tagOpen = weaponOpen(secDefP('tagc'));
+  r.fitted = player.sb[player.sb.length-1].key==='tagc' && player.sec==='tagc';
   FS.step(400);
   const g = FS.ids('G1')[0], o = FS.ids('A1')[0];
   r.notWithout = beamTargets(o, true).indexOf(g) < 0;
@@ -1885,7 +1888,7 @@ scenario('v169: M67 TAG', 'm=67', `
   return r;`);
 
 scenario('v169: Dante and TAG not before their missions', 'm=66', `
-  score = 99999; return {tagLocked: !weaponOpen(secDef('tag'))};`);
+  score = 99999; return {tagLocked: !weaponOpen(secDefP('tagc'))};`);
 
 scenario('v169: M68 the Setekh jams, the bombs come from afar', 'm=68', `
   const r = {};
@@ -2445,7 +2448,7 @@ scenario('v178: M77 a slow, large Sathanas with her guns on the Hatshepsut', 'm=
 scenario('v178: M78 ghosts, wingmen, no support, no TAG, ends with the devices', 'm=78', `
   const r = {};
   FS.step(30);
-  r.noTag = SCRIPT_WAVES[78].sec === 'mx64' && player.sec === 'mx64';
+  r.noTag = !player.sb.some(b=>b.key==='tagc') && player.ship==='fimara';
   r.noSupport = !allyReady();
   const w = allies.filter(a=>a.img==='fimara');
   FS.step(400);
@@ -2757,6 +2760,38 @@ scenario('v185: wreckage is not pushed at the end, scenery catches no shots, mid
   setSettings(true); settingsPage = SETTINGS_CONTROLS; draw();
   r.controlsTabDrawn = settingsRows().length === 0 && CONTROLS.length >= 13;
   setSettings(false);
+  return r;`);
+
+scenario('v186: FS2 factors land where they belong', 'm=33', `
+  const r = {};
+  FS.step(30);
+  const tgt = enemies.find(e=>e.type==='cruiser' && !(e.warp>0)) || null;
+  const mkF = (k)=>{ const w = priDefP(k); return {w:w, b:{x:0,y:0,vx:1,vy:0,w:14,h:3,dmg:volleyTotal(2)*w.dmg,f:w.f,wpn:k}}; };
+  // A fighter with its shield up, held still.
+  const f = mkEnemy('fi_ntf', 'fimyrmidon', 250); f.warp=0; f.noFire=true; enemies.push(f);
+  const sh0 = f.sh, hp0 = f.hp;
+  DMG_F = {a:0, s:1.25, u:0}; damageEnemy(f, 20, f.x, f.y, true, 'bolt'); DMG_F = null;
+  r.circeTakesShield = f.sh < sh0 && f.hp === hp0;
+  f.sh = 0; DMG_F = {a:0, s:1.25, u:0}; damageEnemy(f, 20, f.x, f.y, true, 'bolt'); DMG_F = null;
+  r.circeNothingOnHull = f.hp === hp0;
+  DMG_F = {a:1, s:1, u:1}; damageEnemy(f, 20, f.x, f.y, true, 'bolt'); DMG_F = null;
+  r.promRasBefore = Math.abs(f.hp - (hp0-20)) < 1e-9;
+  f.sh = 30; const h1 = f.hp;
+  DMG_F = {a:1, s:0, u:2}; damageEnemy(f, 50, f.x, f.y, true, 'sec'); DMG_F = null;
+  r.stilettoStoppedByShield = f.hp === h1 && f.sh === 30;
+  // Energy: the store is drawn and comes back. Out of the jump first.
+  for(let i=0;i<3000 && inJump();i++) FS.step(1);
+  player.en = player.enMax; player.pMode = 2; for(const b of player.pb) b.t = 0;
+  isFiring = true; FS.step(60); isFiring = false;
+  r.linkedDrains = player.en < player.enMax - 0.5;
+  const e0 = player.en; FS.step(120);
+  r.recharges = player.en > e0;
+  // Wheel and Q / E.
+  player.pMode = 0;
+  CVS.dispatchEvent(new WheelEvent('wheel', {deltaY:-100, cancelable:true}));
+  r.wheelUpSteps = player.pMode === 1;
+  document.dispatchEvent(new KeyboardEvent('keydown', {code:'KeyE'}));
+  r.keyEStepsSec = player.sSel === 1;
   return r;`);
 
 scenario('HoL start unchanged', 'm=1', `

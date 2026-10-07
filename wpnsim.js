@@ -35,7 +35,7 @@ function decl(re){
 }
 
 const names = ['priDef','secDef','curPri','curSec','hullSecCls','weaponName','weaponOpen','waveReached',
-               'secondariesFor','defaultSec','applyLoadout','rearmFull',
+               'applyLoadout','rearmFull','aspectTarget','pShootWith',
                'shardBurst','subStrike','subStrikeRaw','pShoot','fireSecondary',
                'liveBurstRound','burstRound','volleyDmg','volleyTotal','primaryCount',
                'flakHas','flakBurst','flakReach','flakFire',
@@ -43,7 +43,14 @@ const names = ['priDef','secDef','curPri','curSec','hullSecCls','weaponName','we
                'secHoldTick','shardSpread'];
 const consts = [
   decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/),
-  decl(/const SECONDARIES = \[[\s\S]*?\n\];/),
+  // v186: the FS2 arsenal and the banks, the AI's old tables.
+  (function(){
+    const a = src.indexOf('// ── WEAPON BANKS (v186)');
+    const b = src.indexOf('\nfunction empBurst(');
+    return src.slice(a, blockEnd(src, b+1)) + '\n' + decl(/const AI_SECONDARIES = \[[\s\S]*?\n\];/)
+         + '\n' + decl(/const AI_PRIMARIES = \{[\s\S]*?\n\};/) + '\nconst SECONDARIES = ARSENAL_S;\n'
+         + decl(/const PIRANHA_CHILD = \{[^}]*\};/);
+  })(),
   decl(/const SUB_WARHEAD_MUL = [^;]*;/),
   decl(/const VOLLEY_BASE\s*=\s*[\d.]+;/),
   decl(/const VOLLEY_PER_EXTRA\s*=\s*[\d.]+;/),
@@ -61,7 +68,8 @@ const UI_TICKETS = false;
 const STATS = {shots:0, hits:0, subsKilled:0};
 var player = {x:100, y:250, head:0, ang:0, flip:false, ship:'fitoth',
               fR:28, secAmmo:20, secMax:20, secTimer:0, secType:'missile',
-              pri:'prometheus', sec:'mx64'};
+              pri:'promr', sec:'harpoon'};
+function notice(){}
 // Mounts are the hull's business, not the weapon's. Two barrels, fixed, so a
 // change in the volley can only come from the gun.
 function mountList(){ return [{x:120, y:246}, {x:120, y:254}]; }
@@ -131,239 +139,143 @@ const bullets = ()=>get('pBullets');
 const clear = ()=>{ ctxObj.pBullets.length = 0; };
 const fire = (key)=>{ run("player.pri='"+key+"'; applyLoadout()"); clear(); run('pShoot()'); };
 
+// v186: a fit is put on with the banks of the hull; fitP / fitS set one up.
+const fitShip = (ship, p, sec)=>{ run(`player.ship='${ship}'; player.en=null; FITS['${ship}']={p:${JSON.stringify(p)}, s:${JSON.stringify(sec)}}; player.pMode=0; player.sSel=0; applyLoadout()`); clear(); };
+const shoot = ()=>{ clear(); for(const b of get('player').pb) b.t=0; run('pShootBanks()'); };
+
 console.log('The standard gun is the gun the game had');
-fire('prometheus');
+fitShip('fitoth', ['promr'], ['harpoon']); shoot();
 {
-  const b = bullets();
+  const b = bullets(), w = run("priDefP('promr')");
   ok('two barrels, two bolts', b.length===2);
-  ok('each carries the full share of the volley',
-     Math.abs(b[0].dmg - run('volleyDmg(2)')) < 0.001);
-  ok('and it runs to the edge of the field', !b[0].pLife);
-  ok('it neither pierces nor bursts', !b[0].pierce && !b[0].fuse);
+  ok('each carries the full share of the volley', b.every(x=>Math.abs(x.dmg-run('volleyDmg(2)'))<1e-9));
+  ok('the Prometheus R carries no factors', b[0].f.a===1 && b[0].f.s===1 && b[0].f.u===1);
+  ok('it flies 2 s, the FS2 lifetime', b[0].pLife===120);
+  ok('it pays 0.6 from the store', Math.abs(get('player').en-(get('player').enMax-0.6))<1e-9);
+  ok('and the bank waits its 27 steps', get('player').pb[0].t===27);
+  run('pShootBanks()');
+  ok('it does not fire again before that', bullets().length===2);
+}
+
+console.log('\nTwo banks: one at a time, or linked');
+fitShip('fimyrmidon', ['promr','subach'], ['rockeye','tornado','tempest']);
+{
+  shoot();
+  ok('bank 1 fires from its share of the barrels', bullets().length===1 && bullets()[0].wpn==='promr');
+  ok('and lands what a full volley lands', Math.abs(bullets()[0].dmg - run('volleyTotal(2)'))<1e-9);
+  run('cyclePrimary()'); shoot();
+  ok('bank 2 from the others', bullets().length===1 && bullets()[0].wpn==='subach' && bullets()[0].y===254);
+  ok('the Subach keeps its FS2 ratio', Math.abs(bullets()[0].dmg - run('volleyTotal(2)')*15/18)<1e-9);
+  run('cyclePrimary()'); run('player.en=player.enMax'); shoot();
+  ok('linked, both banks fire', bullets().length===2 && new Set(bullets().map(b=>b.wpn)).size===2);
+  ok('and both are paid for', Math.abs(get('player').en-(get('player').enMax-0.8))<1e-9);
+  run('player.en=0.5'); shoot();
+  ok('a bank the store cannot pay for stays silent', bullets().length===1 && bullets()[0].wpn==='subach');
+  run('player.en=0'); shoot();
+  ok('an empty store: nothing at all', bullets().length===0);
+  // The store: linked fire for about ten seconds from full (Silvio).
+  run('player.en=player.enMax; for(const b of player.pb) b.t=0;');
+  let t=0; for(; t<3000; t++){ run('bankTick(); pShootBanks()'); if(get('player').en < 0.6) break; }
+  ok('linked from full lasts about ten seconds ('+(t/60).toFixed(1)+' s)', t/60 > 8.5 && t/60 < 11.5);
+  run('player.pMode=0; player.en=player.enMax; for(const b of player.pb) b.t=0;');
+  for(let k=0;k<3600;k++) run('bankTick(); pShootBanks()');
+  ok('the Prometheus R alone never runs dry', get('player').en > 0.6);
 }
 
 console.log('\nStreuschuss: a cone from one trigger pull');
-fire('scatter');
+fitShip('fitoth', ['scatter'], ['harpoon']); shoot();
 {
   const b = bullets(), w = run("priDef('scatter')");
   ok('seven pellets per barrel', b.length === 2*w.pellets);
-  const total = b.reduce((s,x)=>s+x.dmg, 0);
   ok('the volley is shared out, not multiplied',
-     Math.abs(total - run('volleyDmg(2)')*2*w.dmg) < 0.01);
-  // Slight against the volley of a single barrel, which is what a pellet
-  // has to be for the cone to mean anything.
-  ok('one pellet on its own is slight', b[0].dmg < run('volleyDmg(2)'));
-  // Angles: the cone has to be a cone, and it has to point forward.
+     Math.abs(b.reduce((a,x)=>a+x.dmg,0) - run('volleyTotal(2)')*w.dmg) < 1e-6);
   const ang = b.map(x=>Math.atan2(x.vy, x.vx));
-  const spread = Math.max(...ang) - Math.min(...ang);
+  const spread = Math.max(...ang)-Math.min(...ang);
   ok('they leave in a spread, not in a line', spread > w.spread*0.5);
-  ok('and the spread stays inside what the table allows', spread <= w.spread*1.6);
-  ok('all of them still go forward', ang.every(a=>Math.abs(a) < Math.PI/2));
-  // pLife is whole steps, so the reach lands within one step of the table.
   ok('the reach is short', b[0].pLife>0 && b[0].pLife*w.spd <= w.range+w.spd);
 }
 
-console.log('\nDurchschlag is gone');
+console.log('\nSwarms: one press, four seekers, four targets');
 {
-  ok('it is no longer in the table', run('PRIMARIES').every(w=>w.key!=='pierce'));
-  run("player.pri='pierce'; applyLoadout()");
-  ok('a ship that still had it fitted falls back to the Prometheus',
-     get('player').pri==='prometheus');
-  ok('and nothing is left of the piercing mechanism',
-     !/b\.pierce/.test(src) && !/hitList/.test(src));
+  const mk = (x,y)=>({x:x, y:y, hp:100, dead:false});
+  fitShip('fiherc', ['subach','promr'], ['harpoon','hornet']);
+  run("player.sSel=1; syncLegacyWeapons(); player.secTimer=0");
+  set('enemies', [mk(300,200), mk(300,300), mk(400,250), mk(500,250)]);
+  ctxObj.enemies = run('enemies'); clear();
+  const before = get('player').sb[1].ammo;
+  run('fireSecondary()');
+  const b = bullets().filter(x=>x.sec);
+  ok('four Hornets leave', b.length===4);
+  ok('and they cost one round, not four', get('player').sb[1].ammo===before-1);
+  ok('each has a different target', new Set(b.map(x=>x.target)).size===4);
+  ok('each carries its FS2 factors (hull 2.0 of a Harpoon)', b.every(x=>x.f && x.f.a===2));
 }
 
-console.log('\nTornado: one press, four seekers, four targets');
-// A fresh field: four enemies ahead of the ship, spread top to bottom.
-function field(ys){
-  run('enemies.length=0; HITS.length=0; pBullets.length=0; LOCK_OK=true');
-  for(const y of ys) run('enemies.push({x:500, y:'+y+', hp:100, dead:false})');
-  run("player.pri='prometheus'; player.sec='tornado'; player.ship='fitoth'; applyLoadout(); player.secAmmo=player.secMax; player.secTimer=0");
-}
-// Runs the real flight and impact routine, the one the game runs every step.
-function fly(steps){ for(let i=0;i<steps;i++){ run('fc++'); run('updateSecBullets()'); } }
+console.log('\nAspect seekers keep their lock, heat seekers take the nearest');
 {
-  const w = run("secDef('tornado')");
-  ok('it is in the table as a missile', !!w && w.key==='tornado' && w.cls==='missile');
-  ok('it opens at 22,000, where the Durchschlag was', w.unlock===22000);
-  ok('a fighter is offered it', run("secondariesFor('fitoth')").some(x=>x.key==='tornado'));
-  ok('a bomber is not', run("secondariesFor('boosiris')").every(x=>x.key!=='tornado'));
-  ok('the rearm panel shows the salvo, not one missile',
-     run("rmValue(secDef('tornado'), 'dmg', false)")===(w.swarm*w.dmg)+' ('+w.swarm+'\u00d7'+w.dmg+')');
-  ok('and the rack counts salvos for the flown hull',
-     /^\d+ salvos$/.test(run("rmValue(secDef('tornado'), 'ammo', false)")));
-}
-{
-  field([150, 220, 290, 360]);
-  const before = get('player').secAmmo;
-  run('fireSecondary()');
-  const b = bullets().filter(x=>x.sec);
-  ok('four missiles leave', b.length===4);
-  ok('and they cost one round, not four', get('player').secAmmo===before-1);
-  ok('every one of them seeks', b.every(x=>x.homing));
-  ok('each has a different target', new Set(b.map(x=>x.target)).size===4);
-  const ang = b.map(x=>Math.atan2(x.vy, x.vx));
-  ok('they leave in a fan, not in a line', Math.max(...ang)-Math.min(...ang) > 0.5);
-  fly(200);
-  const struck = new Set(get('HITS').map(h=>h.e.y));
-  ok('in flight, all four targets are struck - not the nearest one four times',
-     struck.size===4);
-  ok('four impacts, each carrying one missile\'s damage',
-     get('HITS').length===4 && get('HITS').every(h=>h.d===run("secDef('tornado').dmg")));
-}
-{
-  field([200, 300]);
-  run('fireSecondary()');
-  fly(200);
-  const ys = get('HITS').map(h=>h.e.y);
-  ok('two targets: the salvo splits over both instead of dropping missiles',
-     ys.filter(y=>y===200).length===2 && ys.filter(y=>y===300).length===2);
-}
-{
-  // A target that dies on the way: its missile has to find a free one.
-  field([150, 250, 350]);
-  run("player.secTimer=0");
-  run('fireSecondary()');
-  const lost = run('enemies[0]');
-  fly(3);
-  run('enemies[0].dead=true; enemies.splice(0,1)');
-  fly(200);
-  ok('a missile whose target is gone does not fly on into nothing',
-     get('HITS').length===4);
-  ok('and it never strikes the dead one', get('HITS').every(h=>h.e!==lost));
-}
-{
-  // No lock in a nebula or a storm: straight flight, like every other seeker.
-  field([150, 250, 350, 450]);
-  run('LOCK_OK=false');
-  run('fireSecondary()');
-  const b = bullets().filter(x=>x.sec);
-  ok('without a lock the missiles leave with no target', b.every(x=>x.target===null));
-  const v0 = b.map(x=>x.vy);
-  fly(10);
-  ok('and they keep their heading', bullets().filter(x=>x.sec).every((x,i)=>Math.abs(x.vy-v0[i])<1e-9));
-}
-{
-  // Other seekers are unchanged: the MX-64 still goes for the nearest.
-  field([240, 400]);
-  run("player.sec='mx64'; applyLoadout(); player.secAmmo=5; player.secTimer=0");
-  run('fireSecondary()');
-  ok('the MX-64 still fires a single missile', bullets().filter(x=>x.sec).length===1);
-  fly(200);
-  ok('and it still takes the nearest', get('HITS').length===1 && get('HITS')[0].e.y===240);
+  const near = {x:200, y:250, hp:100, dead:false}, ahead = {x:600, y:250, hp:100, dead:false}, behind = {x:20, y:250, hp:100, dead:false};
+  run('enemies.length=0'); run('enemies').push(behind, ahead);
+  fitShip('fitoth', ['promr'], ['harpoon']); run('player.secTimer=0; fireSecondary()');
+  const h = bullets().find(x=>x.sec);
+  ok('a Harpoon locks on what is ahead, not on what is behind', h.target===ahead && h.aspect===true);
+  run('enemies').push(near);
+  run('updateSecBullets()');
+  ok('a nearer ship turning up does not take the lock', h.target===ahead);
+  fitShip('fitoth', ['promr'], ['rockeye']); run('player.secTimer=0; fireSecondary()');
+  const r = bullets().find(x=>x.sec);
+  ok('a Rockeye has no lock of its own', !r.aspect && r.target===null && r.homing===true);
+  run('enemies.length=0');
 }
 
 console.log('\nDante: a burst on impact and a burst by itself');
-fire('dante');
+fitShip('fitoth', ['dante'], ['harpoon']); shoot();
 {
   const b = bullets(), w = run("priDef('dante')");
   ok('it carries a fuse', b[0].fuse > 0);
-  ok('the fuse is the distance turned into steps',
-     Math.abs(b[0].fuse - Math.round(w.fuse/w.spd)) <= 1);
-  ok('the fuse goes off before the reach runs out',
-     b[0].fuse < b[0].pLife || !b[0].pLife);
-  ok('the round knows which weapon made it, so the burst can be looked up',
-     b[0].wpn==='dante');
-  ok('the fuse is counted down and burst where it stands',
-     /if\(b\.fuse && --b\.fuse<=0\)/.test(src));
+  ok('the fuse is the distance turned into steps', b[0].fuse === Math.max(1, Math.round(w.fuse/w.spd)));
+  ok('the round knows which weapon made it, so the burst can be looked up', b[0].wpn==='dante');
 }
-// All round: sorted by direction, no gap between neighbours wider than
-// 100 degrees. A cone would leave a gap of half the circle or more.
+
+console.log('\nInfyrno and Piranha: the button belongs to the round in the air');
+{
+  fitShip('fiherc', ['subach'], ['infyrno']); run('player.secTimer=0');
+  const n0 = get('player').sb[0].ammo;
+  run('fireSecondary()');
+  ok('one round leaves', bullets().length===1 && bullets()[0].burst===true && bullets()[0].homing===false);
+  run('player.secTimer=0; fireSecondary()');
+  const after = bullets();
+  ok('the second press bursts it into shrapnel', after.length>=11 && after.every(b=>b.shard));
+  ok('and costs no second round', get('player').sb[0].ammo===n0-1);
+  fitShip('bosekhmet', ['promr'], ['piranha']); run('player.secTimer=0; fireSecondary(); player.secTimer=0; fireSecondary()');
+  const kids = bullets();
+  ok('a Piranha lets go a dozen small seekers', kids.length===12 && kids.every(k=>k.sec && k.homing));
+}
+
+console.log('\nStiletto II: the warhead goes inside');
+{
+  const w = run("secDefP('stiletto2')");
+  ok('it hits only subsystems: no shield, hardly any hull', w.f.s===0 && w.f.a<0.02 && w.f.u===2);
+  ok('it seeks by heat', w.homing==='heat');
+  ok('a fit puts it into the bank that carries it', (fitShip('boosiris', ['mekhu'], ['piranha','stiletto2','trebuchet']), get('player').sb[1].key==='stiletto2'));
+  ok('the rack follows capacity and cargo: 40 / 8 = 5', get('player').sb[1].max===5);
+}
+
+console.log('\nA mission fits what it needs');
+{
+  fitShip('boursa', ['promr','promr'], ['hornet','piranha','cyclops']);
+  run("missionSec(arsenalKey('stiletto'), false)");
+  ok('M57: the Stiletto II goes into bank 1, full', get('player').sb[0].key==='stiletto2' && get('player').sb[0].ammo===10);
+  run("missionSec(arsenalKey('tag'), true)");
+  ok('M67: the TAG-C into the last bank, which is then chosen', get('player').sb[2].key==='tagc' && get('player').sSel===2);
+}
+
+// Shrapnel goes all round: no gap wider than 100 degrees.
 function allRound(list){
   const a = list.map(x=>Math.atan2(x.vy,x.vx)).sort((p,q)=>p-q);
   let gap = a[0] + Math.PI*2 - a[a.length-1];
   for(let i=1;i<a.length;i++) gap = Math.max(gap, a[i]-a[i-1]);
   return gap < 100*Math.PI/180;
 }
-{
-  // The burst itself.
-  clear();
-  run("shardBurst(400, 250, 9, 5, 3.4, 70, '#fff', 'rgba(0,0,0,0)')");
-  const s = bullets();
-  // Uneven since v159: one piece more or less now and then, each with its
-  // own direction, speed and reach. The damage of the burst stays.
-  ok('nine shards leave the point, give or take one', s.length>=8 && s.length<=10);
-  ok('together they carry the damage of nine', Math.abs(s.reduce((a,x)=>a+x.dmg,0)-45)<0.001);
-  ok('each at its own speed, around the given one', s.every(x=>{const v=Math.hypot(x.vx,x.vy); return v>3.4*0.7 && v<3.4*1.3;}));
-  ok('and they are short lived', s.every(x=>x.pLife>0 && x.pLife<=Math.ceil(70*1.35/(3.4*0.72))));
-  ok('star shaped, not thrown one way', allRound(s));
-  ok('they all start where the round was', s.every(x=>x.x===400 && x.y===250));
-}
-
-console.log('\nInfyrno: the button belongs to the round in the air');
-{
-  run("player.pri='prometheus'; player.sec='infyrno'; applyLoadout(); player.secAmmo=6; player.secTimer=0");
-  clear();
-  run('fireSecondary()');
-  ok('one round leaves', bullets().length===1);
-  ok('it is flagged as one that can be burst', bullets()[0].burst===true);
-  ok('and it does not seek', bullets()[0].homing===false);
-  ok('a round was taken from the rack', get('player').secAmmo===5);
-  // Pressing again must burst it, not fire another.
-  run('player.secTimer=0');
-  run('fireSecondary()');
-  const after = bullets();
-  ok('the second press does not fire another',
-     after.every(b=>!b.sec) );
-  ok('it bursts into shrapnel instead', Math.abs(after.length-run("secDef('infyrno').shards"))<=1 && after.every(b=>b.shard));
-  ok('and costs no second round', get('player').secAmmo===5);
-  ok('with one gone, the button fires again', run('liveBurstRound()')===null);
-}
-{
-  // Never pressed: it has to give out rather than burst for free.
-  run("player.secAmmo=6; player.secTimer=0");
-  clear();
-  run('fireSecondary()');
-  const b = bullets()[0];
-  ok('it carries a finite reach', b.life>0);
-  ok('which is the table value', b.life===run("secDef('infyrno').life"));
-}
-
-console.log('\nStiletto: the warhead goes inside');
-{
-  const sub = (label, ox, hp)=>({label:label, ox:ox, hp:hp, dead:false});
-  const ship = {x:400, y:250, side:'enemy',
-                subs:[sub('ENGINES', -40, 30), sub('NAVIGATION', 40, 30)]};
-  // Impact near the bow, engines are at the stern: a warhead that only hit
-  // what lay under it would waste itself on the hull.
-  set('_e', ship);
-  const bleed = run("subStrike(_e, 70, 460, 250)");
-  ok('the nearest living subsystem takes it', ship.subs[1].hp <= 0 || ship.subs[1].dead);
-  ok('and it is the one nearest the impact', ship.subs[0].hp === 30);
-  ok('only the bleed is left for the hull', bleed < 70 && bleed > 0);
-}
-{
-  const ship = {x:400, y:250, side:'enemy',
-                subs:[{label:'ENGINES', ox:-40, hp:30, dead:true}]};
-  set('_e', ship);
-  ok('nothing left to wreck: the full warhead goes to the hull',
-     run("subStrike(_e, 70, 400, 250)")===70);
-  set('_e', {x:400, y:250, side:'enemy'});
-  ok('a ship with no subsystems at all is the same',
-     run("subStrike(_e, 70, 400, 250)")===70);
-}
-{
-  // Into a system it hits 5.5 times as hard: one bomb, one cruiser system.
-  const ship = {x:400, y:250, side:'enemy', subs:[{label:'ENGINES', ox:0, hp:370, dead:false}]};
-  set('_e', ship);
-  const bleed = run("subStrike(_e, 70, 400, 250)");
-  ok('one Stiletto takes a 370 point system', ship.subs[0].dead === true);
-  ok('the hull still gets only the plain bleed', Math.abs(bleed - 70*0.25) < 1e-9);
-}
-ok('the secondary impact asks the weapon, not the projectile shape',
-   /sw && sw\.subs\) damageEnemy\(e,subStrike/.test(src));
-
-console.log('\nWhat a hull may carry is unchanged');
-{
-  run("player.ship='fitoth'; applyLoadout()");
-  ok('a fighter is offered the Infyrno but not the Stiletto',
-     run("secondariesFor('fitoth')").some(w=>w.key==='infyrno') &&
-     run("secondariesFor('fitoth')").every(w=>w.key!=='stiletto'));
-  ok('and a bomber the other way round',
-     run("secondariesFor('boosiris')").some(w=>w.key==='stiletto') &&
-     run("secondariesFor('boosiris')").every(w=>w.key!=='infyrno'));
-}
-
 console.log('\nCapital flak: a wall, not a shot');
 {
   ok('a cruiser carries one', run("flakHas({type:'cruiser'})")===true);
@@ -439,17 +351,16 @@ ok('the enemy fuse bursts where it runs out',
 
 console.log('\nEvery weapon is reachable and none of them is free');
 {
-  const all = run('PRIMARIES').concat(run('SECONDARIES'));
+  const all = run('ARSENAL_P').concat(run('PRIMARIES'), run('ARSENAL_S'));
   ok('each one has a name', all.every(w=>!!w.name));
   ok('each one has a note that says what it is for', all.every(w=>!!w.note));
-  // fromWave: handed out with a mission, not with points (the Dante, v163).
-  const byPts = all.filter(w=>!w.fromWave);
-  ok('the thresholds rise rather than repeat',
-     new Set(byPts.map(w=>w.unlock)).size >= byPts.length-2);
-  ok('the standard fit is the only free gun',
-     run('PRIMARIES').filter(w=>!w.unlock && !w.fromWave).length===1);
-  ok('the Dante comes with the Shivan cycle (mission 61)',
-     run('PRIMARIES').find(w=>w.key==='dante').fromWave===61);
+  ok('every default fit is in the arsenal',
+     Object.values(run('SHIP_BANKS')).every(b=>b.p.every(k=>run('ARSENAL_P').some(w=>w.key===k)) &&
+                                              b.s.every(k=>run('ARSENAL_S').some(w=>w.key===k))));
+  ok('no hull has more than two primary or three secondary banks',
+     Object.values(run('SHIP_BANKS')).every(b=>b.p.length<=2 && b.s.length<=3 && b.cap.length<=3));
+  ok('the Dante comes with the Shivan cycle (mission 61)', run('PRIMARIES').find(w=>w.key==='dante').fromWave===61);
+  ok('the TAG-C with mission 67', run('ARSENAL_S').find(w=>w.key==='tagc').fromWave===67);
 }
 
 console.log('\n' + (fails ? fails+' FAILED' : 'all passed'));

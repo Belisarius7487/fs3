@@ -43,7 +43,7 @@ const names = [
   'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
-  'weaponName','weaponOpen','waveReached','secondariesFor','defaultSec','corvetteOnField',
+  'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
   'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell',
@@ -61,7 +61,14 @@ const hangarDecl = decl(/const HG_W[\s\S]*?\n\];/);
 const themesDecl = decl(/const THEMES = \{[\s\S]*?\n\};/);
 // The weapon tables and the rearm panel's measurements.
 const wpnDecl  = decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/);
-const wpnDecl2 = decl(/const SECONDARIES = \[[\s\S]*?\n\];/);
+// v186: the FS2 arsenal and the banks (56_banks.js), the AI's old tables.
+const wpnDecl2 = (function(){
+  const a = src.indexOf('// ── WEAPON BANKS (v186)');
+  const b = src.indexOf('\nfunction empBurst(');
+  const ai = src.match(/const AI_SECONDARIES = \[[\s\S]*?\n\];/)[0];
+  const aip = src.match(/const AI_PRIMARIES = \{[\s\S]*?\n\};/)[0];
+  return src.slice(a, b) + '\n' + ai + '\n' + aip + '\nconst SECONDARIES = ARSENAL_S;\n';
+})();
 const rmDecl   = decl(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/);
 // pointerConsumed reaches for the title on a finished run. Starting a run
 // is not what these files test, so it is a stub.

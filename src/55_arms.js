@@ -47,6 +47,11 @@ const LOADOUT = {
 // punch at two thirds of the beat, over a short reach. All red, as in
 // FreeSpace. Only the AI flies them; priDef() finds them here.
 const AI_PRIMARIES = {
+  // The old player guns, flown by the AI until its own step (v186).
+  prometheus:{key:'prometheus', name:'Prometheus', dmg:1.00, rate:1.00, spd:9, range:0,
+       col:'#ccff88', glow:'rgba(180,255,80,0.30)'},
+  hl7:{key:'hl7', name:'Mekhu HL-7', nameTer:'Subach HL-7', dmg:0.62, rate:0.60, spd:10.5, range:330,
+       col:'#bfe9ff', glow:'rgba(120,200,255,0.30)'},
   shl:{key:'shl', name:'Shivan Light Laser', dmg:0.53, rate:0.6, spd:8.5, range:0,
        col:'#ff7a5a', glow:'rgba(255,70,40,0.34)'},
   shh:{key:'shh', name:'Shivan Heavy Laser', dmg:1.00, rate:1.0, spd:9,   range:0,
@@ -59,6 +64,18 @@ function aiLoadout(e){
   if(e._lo === undefined) e._lo = LOADOUT[e.img] || null;
   return e._lo;
 }
+// The old secondaries, flown by the AI until its own step (v186). The
+// player has the FS2 arsenal (56_banks.js); secDef() looks here first.
+const AI_SECONDARIES = [
+  {key:'mx64', name:'MX-64', cls:'missile', ammoMul:1.0, dmg:35, cd:45, spd:3.5, life:220, homing:true},
+  {key:'cyclops', name:'Cyclops', cls:'bomb', ammoMul:1.0, dmg:80, cd:90, spd:1.5, life:300, homing:true},
+  {key:'infyrno', name:'Infyrno', cls:'missile', ammoMul:0.7, dmg:40, cd:55, spd:4.2, life:200, homing:false,
+   burst:true, shards:12, shardDmg:30, shardSpd:3.0, shardRange:90},
+  {key:'tornado', name:'Tornado', cls:'missile', ammoMul:0.5, dmg:14, cd:60, spd:3.2, life:210, homing:true,
+   swarm:4, fan:0.9},
+  {key:'tag', name:'TAG-C', cls:'missile', snd:'mx64', ammoMul:0.6, dmg:6, cd:40, spd:4.6, life:200, homing:true, tag:true},
+  {key:'stiletto', name:'Stiletto', cls:'bomb', ammoMul:1.0, dmg:70, cd:95, spd:2.8, life:300, homing:true, subs:true}
+];
 // A secondary fires less often the more it carries in one go.
 const AI_SEC_RATE = {mx64:1, cyclops:1, stiletto:1.1, infyrno:1.3, tornado:1.6};
 // The AI's bolt speed: its own base speed, scaled like the player's gun.

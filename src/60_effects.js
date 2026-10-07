@@ -50,8 +50,18 @@ function liveBurstRound(){
   return null;
 }
 function burstRound(b){
-  const wp=secDef(b.wpn);
+  const wp=b.wd || secDef(b.wpn);
   sndPlay('burst_infyrno', b.x);
+  if(wp.children){
+    // Piranha (v186): a dozen small heat seekers out of the one round.
+    for(let k=0;k<wp.children;k++){
+      const a=Math.atan2(b.vy, b.vx) + (k/(wp.children-1)-0.5)*Math.PI*1.4;
+      pBullets.push({x:b.x, y:b.y, vx:Math.cos(a)*3, vy:Math.sin(a)*3, w:9, h:3,
+        sec:true, type:'missile', homing:true, life:150, maxSpd:4.2, turn:0.22,
+        dmg:wp.childDmg, f:wp.f, wd:PIRANHA_CHILD, wpn:'piranha_child', burst:false, ally:b.ally});
+    }
+    spawnFireball(b.x, b.y, 22, 18);
+  } else
   shardBurst(b.x, b.y, wp.shards, wp.shardDmg, wp.shardSpd, wp.shardRange,
              '#ffb066', 'rgba(255,140,50,0.34)', b.ally);
   spawnRing(b.x, b.y, 54, 24, 3, 255,140,40);
@@ -94,22 +104,41 @@ function swarmHolds(t){
   return !!t && !t.dead && enemies.indexOf(t)>=0 && canLockOn(t);
 }
 let swarmSalvo = 0;
+// What a Piranha releases: no warhead tricks of its own.
+const PIRANHA_CHILD = {key:'piranha_child', name:'Piranha', cls:'missile'};
+// An aspect seeker locks on at launch: the nearest lockable target ahead,
+// failing that the nearest at all. It keeps that target (v186).
+function aspectTarget(x, y, head){
+  let best=null, bd=Infinity, any=null, ad=Infinity;
+  for(const e of enemies){
+    if(e.dead || !canLockOn(e)) continue;
+    const d=Math.hypot(e.x-x, e.y-y);
+    if(d<ad){ ad=d; any=e; }
+    let off=Math.atan2(e.y-y, e.x-x)-head;
+    while(off>Math.PI) off-=Math.PI*2; while(off<-Math.PI) off+=Math.PI*2;
+    if(Math.abs(off)<1.2 && d<bd){ bd=d; best=e; }
+  }
+  return best || any;
+}
 function fireSecondary(){
   // While one is up, the button belongs to it. That is what makes the
   // control unambiguous without a key of its own, and it is why only one
   // may be in the air at a time.
   const up=liveBurstRound();
   if(up){ burstRound(up); return; }
+  // The selected bank (v186): each has its own rack.
+  const bank=selSecBank();
   // Empty rack: the click of a launcher with nothing in it.
-  if(player.secAmmo<=0){ if(player.secTimer<=0) sndPlay('sec_empty', player.x); return; }
+  if(!bank || bank.ammo<=0){ if(player.secTimer<=0) sndPlay('sec_empty', player.x); return; }
   if(player.secTimer>0) return;
-  player.secAmmo--;
+  bank.ammo--;
   player.lastShot = fc;            // a Ptah that fires is seen (v170)
   plogSec();
   // One rail for both kinds: what differs is in the table, not here.
-  const wp=curSec(), bomb=(wp.cls==='bomb');
+  const wp=secDefP(bank.key), bomb=(wp.cls==='bomb');
   const sp=secMount(), sa=player.head||0;
-  player.secTimer=wp.cd;
+  player.secTimer=wp.cd; player.secCdMax=wp.cd;
+  syncLegacyWeapons();
   sndPlay('sec_'+(wp.snd||wp.key), player.x);
   if(wp.swarm){
     const tg=swarmTargets(sp.x, sp.y, wp.swarm), id=++swarmSalvo;
@@ -118,15 +147,18 @@ function fireSecondary(){
       pBullets.push({x:sp.x, y:sp.y,
         vx:Math.cos(a)*wp.spd, vy:Math.sin(a)*wp.spd,
         w:12, h:4, sec:true, type:'missile', homing:true, life:wp.life,
+        maxSpd:wp.spd, turn:wp.turn, f:wp.f, wd:wp,
         target:tg[k], swarm:true, salvo:id, dmg:wp.dmg, wpn:wp.key, burst:false});
     }
     return;
   }
+  const aspect = wp.homing==='aspect';
   pBullets.push({x:sp.x, y:sp.y,
     vx:Math.cos(sa)*wp.spd, vy:Math.sin(sa)*wp.spd,
     w:bomb?16:18, h:bomb?16:6, sec:true,
-    type:bomb?'bomb':'missile', homing:!!wp.homing, life:wp.life,
-    target:null, dmg:wp.dmg, wpn:wp.key, burst:!!wp.burst});
+    type:bomb?'bomb':'missile', homing:!!wp.homing, aspect:aspect, life:wp.life,
+    maxSpd:wp.spd, turn:wp.turn, f:wp.f, wd:wp,
+    target:aspect ? aspectTarget(sp.x, sp.y, sa) : null, dmg:wp.dmg, wpn:wp.key, burst:!!wp.burst});
 }
 
 // Held secondary button: the next round leaves as soon as the launcher is
@@ -156,6 +188,9 @@ function updateSecBullets(){
       if(b.swarm){
         if(!swarmHolds(b.target)) b.target=swarmRetarget(b);
         nearest=b.target;
+      } else if(b.aspect){
+        // An aspect lock holds its one target; lost, it flies on straight.
+        if(b.target && !b.target.dead && enemies.indexOf(b.target)>=0 && canLockOn(b.target)) nearest=b.target;
       } else if(b.ally && b.target && !b.target.dead && enemies.indexOf(b.target)>=0){
         nearest=b.target;               // an escort's bomb stays on its capital ship
       } else
@@ -173,8 +208,8 @@ function updateSecBullets(){
           if(b.aimR){ var rp=reactorPos(nearest, b.aimR); aimX=rp.x; aimY=rp.y; }
         }
         var ang=Math.atan2(aimY-b.y,aimX-b.x);
-        var turnRate=b.type==='missile'?0.18:0.06; // Bombs turn far more slowly
-        var maxSpd=b.type==='missile'?5.5:3.0;
+        var turnRate=b.turn||(b.type==='missile'?0.18:0.06); // Bombs turn far more slowly
+        var maxSpd=b.maxSpd||(b.type==='missile'?5.5:3.0);
         b.vx+=(Math.cos(ang)*turnRate);
         b.vy+=(Math.sin(ang)*turnRate);
         var spd=Math.hypot(b.vx,b.vy);
@@ -214,10 +249,19 @@ function updateSecBullets(){
         // A subsystem warhead spends itself inside and leaves only the
         // bleed for the hull. On a ship with nothing to wreck it behaves
         // like any other bomb rather than being wasted.
-        const sw=b.wpn?secDef(b.wpn):null;
+        const sw=b.wd || (b.wpn?secDef(b.wpn):null);
         const ss=(b.type==='bomb')?'bomb':'missile';
-        if(sw && sw.subs) damageEnemy(e,subStrike(e,b.dmg,b.x,b.y),b.x,b.y,!b.ally,'sec',ss);
+        if(b.f){
+          // FS2 round (v186): a subsystem warhead puts its subsystem share
+          // into the nearest system, the hull only gets its armour share.
+          if(sw && sw.subs){ subStrikeRaw(e, b.dmg*b.f.u, b.x, b.y); DMG_F={a:b.f.a, s:b.f.s, u:0}; }
+          else DMG_F=b.f;
+          damageEnemy(e,b.dmg,b.x,b.y,!b.ally,'sec',ss);
+          DMG_F=null;
+        }
+        else if(sw && sw.subs) damageEnemy(e,subStrike(e,b.dmg,b.x,b.y),b.x,b.y,!b.ally,'sec',ss);
         else              damageEnemy(e,b.dmg,b.x,b.y,!b.ally,'sec',ss);
+        if(sw && sw.emp) empBurst(b.x, b.y);
         // TAG: the ship is marked for our beams (v169).
         if(sw && sw.tag && !e.dead){
           if(!(e.tagT>0)) SUB_MSGS.push({x:e.x, y:e.y-30, txt:'TAGGED', life:120, ml:120, ally:true, tone:'good'});
@@ -748,8 +792,9 @@ function update(){
   // gets drawn. Everything downstream reads ang and flip.
   const pPose=poseFor(player.head, player.flip);
   player.ang=pPose.ang; player.flip=pPose.flip;
-  if(!inJump()&&(isFiring||MOUSE.down||K['Space']||K['KeyZ'])&&--player.fT<=0){pShoot();player.fT=player.fR;player.lastShot=fc;}
-  else if(!isFiring&&!MOUSE.down&&!K['Space']&&!K['KeyZ']){if(player.fT>0)player.fT--;}
+  // Banks (v186): each runs its own clock and pays from the weapon store.
+  bankTick();
+  if(!inJump()&&(isFiring||MOUSE.down||K['Space']||K['KeyZ'])){ if(pShootBanks()) player.lastShot=fc; }
   // The dorsal gun of Ursa and Medusa. It must stay below the else-if above:
   // wedged between the two it swallowed the cooldown on release (v157-v158).
   if(!inJump()) turretTick(player, true);
@@ -1124,7 +1169,7 @@ function update(){
       if(overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ex,ey,ew,eh)){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
-        laserHit(b.x,b.y,b.col);STATS.hits++;plogHit(b);e.shotAt=true;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt',(b.cap||b.flak)?'capgun':(b.shard?'shard':'gun'));
+        laserHit(b.x,b.y,b.col);STATS.hits++;plogHit(b);e.shotAt=true;DMG_F=b.f||null;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt',(b.cap||b.flak)?'capgun':(b.shard?'shard':'gun'));DMG_F=null;
         if(b.flak){
           flakBurst(b.x, b.y, true, b.fac);
           pBullets.splice(i,1); hit=true;
@@ -1159,6 +1204,7 @@ function update(){
         continue;
       }
       if(e.shHit>0) e.shHit--;
+      if(e.empT>0) e.empT--;
       if(e.shDelay>0) e.shDelay--;
       else if(e.maxSh && e.sh<e.maxSh) e.sh=Math.min(e.maxSh,e.sh+e.shRe);
       const tgt=flySmall(e);

@@ -888,34 +888,40 @@ function drawDebris(){
 }
 
 // ── SHOOTING ─────────────────────────────────────────────────
-function pShoot(){
+function pShoot(){ return pShootBanks(); }
+// One volley of one bank (v186). wp: the bank's weapon. ms: which share of
+// the barrels this bank fires from ({bank, of}), or null for all of them.
+// The volley carries the damage a full volley of this hull always carried,
+// times the weapon's ratio to the Prometheus R; f: its FS2 factors against
+// hull, shield and subsystems, relative to the same anchor.
+function pShootWith(wp, ms){
   const flip=player.flip||false;
   const a=player.head||0;      // shots leave along the nose, not the draw angle
   const nx=Math.cos(a), ny=Math.sin(a);
-  // Speed, damage, colour and reach all come off the fitted gun now.
-  const wp=curPri();
-  sndPlay(PRI_SND[wp.key] || 'wpn_prometheus', player.x);
-  const bvx=nx*wp.spd, bvy=ny*wp.spd;
-  // range is a distance, the bullet counts steps, so one is turned into
-  // the other here rather than at every place that makes a bullet.
-  const life=wp.range ? Math.max(1, Math.round(wp.range/wp.spd)) : 0;
-  const pts=mountList(player.ship,player.x,player.y,playerSc(),flip,'primary',player.ang||0);
+  sndPlay(wp.snd || PRI_SND[wp.key] || 'wpn_prometheus', player.x);
+  // A FS2 gun counts its life in steps; the game's own guns their reach.
+  const life=wp.life || (wp.range ? Math.max(1, Math.round(wp.range/wp.spd)) : 0);
+  const all=mountList(player.ship,player.x,player.y,playerSc(),flip,'primary',player.ang||0);
+  let pts=all;
+  if(all && all.length>=2 && ms) pts=all.filter(function(p,i){ return i % ms.of === ms.bank; });
   // One bolt per barrel, unless the gun throws a cone - then the volley's
   // damage is shared out over the pellets and each barrel throws the lot.
   const n=wp.pellets||1;
+  // A fast round is drawn longer, so its hit test spans what it flies.
+  const bw=Math.max(14, Math.round(wp.spd*1.3));
   function throwFrom(px, py, d){
     for(let k=0;k<n;k++){
       const ja = (n===1) ? a : a + (k/(n-1) - 0.5)*wp.spread
                                + (Math.random()-0.5)*(wp.spread/n);
       pBullets.push({x:px, y:py, vx:Math.cos(ja)*wp.spd, vy:Math.sin(ja)*wp.spd,
-                     w:n>1?8:14, h:3, dmg:d/n,
+                     w:n>1?8:bw, h:3, dmg:d/n, f:wp.f,
                      col:wp.col, glow:wp.glow, pLife:life,
                      fuse:wp.fuse ? Math.max(1, Math.round(wp.fuse/wp.spd)) : 0,
                      wpn:wp.key});
     }
   }
   if(pts&&pts.length){
-    const d=volleyDmg(pts.length)*wp.dmg;
+    const d=volleyTotal(all.length)*wp.dmg/pts.length;
     for(const p of pts) throwFrom(p.x, p.y, d);
     STATS.shots++;
     return;
@@ -1395,6 +1401,8 @@ const HULL_BURST = 1/3;          // gun beat and damage per shot on a hull (v179
 // the wider the shot scatters. Against a large hull it is enough that the
 // nose points at any part of it; then the guns fire straight ahead.
 function smallFire(e, t){
+  // Hit by an EMP: fire control is down for a while (v186).
+  if(e.empT>0){ e.fT=12; return; }
   // No target: smallTarget() then hands back the ship itself, and a
   // lead angle onto its own position reads as dead ahead.
   if(!t || t===e || t.pseudo){ e.fT=12; return; }
@@ -2270,6 +2278,7 @@ function initSecAmmo(e){
 function fireSecondaries(e, cfg){
   if(!cfg || !cfg.sec || !e.secT) return;
   if(e.secAmmo!=null && e.secAmmo<=0) return;   // out of ordnance, guns only
+  if(e.empT>0) return;                          // EMP: launchers dark too
   const pts = entMounts(e,'secondary');
   if(!pts || !pts.length) return;
   // An escort launches only when there is something to launch at.

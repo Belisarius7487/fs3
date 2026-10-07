@@ -33,7 +33,14 @@ function decl(re){
 const themes = decl(/const THEMES = \{[\s\S]*?\n\};/);
 // The weapon tables and the rearm panel's measurements.
 const wpnDecl  = decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/);
-const wpnDecl2 = decl(/const SECONDARIES = \[[\s\S]*?\n\];/);
+// v186: the FS2 arsenal and the banks (56_banks.js), the AI's old tables.
+const wpnDecl2 = (function(){
+  const a = src.indexOf('// ── WEAPON BANKS (v186)');
+  const b = src.indexOf('\nfunction empBurst(');
+  const ai = src.match(/const AI_SECONDARIES = \[[\s\S]*?\n\];/)[0];
+  const aip = src.match(/const AI_PRIMARIES = \{[\s\S]*?\n\};/)[0];
+  return src.slice(a, b) + '\n' + ai + '\n' + aip + '\nconst SECONDARIES = ARSENAL_S;\n';
+})();
 const rmDecl   = decl(/const RM_W[\s\S]*?const RM_COLS_SEC = \[[\s\S]*?\n\];/);
 // The bar asks rearmReady(), which asks inJump(), which reads the jump
 // clock. None of that is what this file tests, so it gets a resting value.
@@ -53,12 +60,13 @@ const names = [
   'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
-  'weaponName','weaponOpen','waveReached','secondariesFor','defaultSec','corvetteOnField',
-  'inJump','rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
+  'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
+  'inJump','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
   'drawRearmMenu','drawRearmIcon','rearmGroups','rmValue','tickWeaponUnlocks',
   'thFit',
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','drawHUD', 'drawHUDHLP', 'TH', 'thLabel', 'thValue',
+               'firingBanks','priDefP','secDefP',
                'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton','btnState','btnText'];
 
 const CALLS = [];
@@ -90,7 +98,11 @@ const world = `
   let callMenu=false, shipMenu=false, settingsOpen=false, paused=false;
   let FS1_MODE=false, allies=[], ticketFlash=0, ticketFlashKind='';
   let player={hp:64, maxHp:100, sh:100, maxSh:100, shDelay:0,
-              secType:'missile', secTimer:0, secAmmo:20, ship:'fitoth'};
+              secType:'missile', secTimer:0, secAmmo:20, ship:'fimyrmidon',
+              // v186: banks and the weapon store
+              pb:[{key:'promr',t:0},{key:'subach',t:0}], pMode:2,
+              sb:[{key:'rockeye',ammo:5,max:5,t:0},{key:'tornado',ammo:0,max:16,t:0},{key:'tempest',ammo:160,max:160,t:0}],
+              sSel:0, en:6.8, enMax:10, enRe:0.02};
   let tickets={cruiser:6, corvette:2, destroyer:1, colossus:0};
   const TICKET_ORDER=['cruiser','corvette','destroyer','colossus'];
   const TICKET_ICON={cruiser:'c1', corvette:'c2', destroyer:'c3', colossus:'c4'};
@@ -106,7 +118,12 @@ const world = `
   function shipSwapReady(){ return true; }
   function drawSwapIcon(){}
   function drawGear(){}
-  function drawMuteButton(){}
+  function drawShipsIcon(){} function drawMissilesIcon(){} function drawGearSolid(){}
+  function primaryCount(){ return 3; }
+  function rearmReady(){ return true; }
+
+  // The speaker reports its rectangle like the real one does.
+  function drawMuteButton(x, y, w, h){ window._muteRect={x:x, y:y, w:w, h:h}; }
   function drawPauseIcon(){}
   function drawMissileIcon(){}
   function drawBombIcon(){}
@@ -141,6 +158,30 @@ for(const r of RECTS){
   const a = hlpRects[r];
   ok(r.replace('_','').replace('Rect','') + ' is reported',
      !!a && a.w > 0 && a.h > 0 && a.x >= 0 && a.y >= 0 && a.x + a.w <= 800);
+}
+
+console.log('\nThe bar of v186 (variant A)');
+{
+  CLR(); W.run('drawHUD()');
+  const g = (k)=>W.run('window.'+k);
+  const btn = [g('_shipBtnRect'), g('_rearmBtnRect'), g('_muteRect'), g('_settingsBtnRect'), g('_pauseBtnRect')];
+  ok('five buttons, V R M S P', btn.every(b=>!!b));
+  ok('all of one size and on one line', btn.every(b=>b.w===btn[0].w && b.h===btn[0].h && b.y===btn[0].y));
+  ok('left to right, without overlap', btn.every((b,i)=>!i || b.x >= btn[i-1].x+btn[i-1].w));
+  ok('every one carries its key letter',
+     ['V','R','S','P'].every(k=>CALLS.some(c=>c.fn==='fillText' && c.args[0]===k)));
+  ok('the last ends inside the canvas', btn[4].x+btn[4].w <= 800);
+  const al = g('_allyBtnRect');
+  ok('the tickets end before the buttons start', al.x+al.w+5+82 <= btn[0].x);
+  const rows = g('_secRows');
+  ok('one row per secondary bank', rows.length===3);
+  ok('the chosen one is the fire button', g('_secBtnRect') && g('_secBtnRect').i===0);
+  ok('the rows stop short of support', rows.every(r=>r.x+r.w < al.x));
+  ok('the primary panel is a tap target (two banks)', !!g('_priRect'));
+  ok('linked: the LINK bracket is drawn', CALLS.some(c=>c.fn==='fillText' && c.args[0]==='LINK'));
+  ok('an empty rack reads in red', CALLS.some(c=>c.fn==='set fillStyle' && c.args[0]==='#ff5a44'));
+  ok('the store is a bar of its own', CALLS.some(c=>c.fn==='fillText' && c.args[0]==='ENERGY'));
+  ok('nothing reaches below the bar', CALLS.filter(c=>c.fn==='fillRect').every(c=>c.args[1] < 54 || c.args[1] >= 492));
 }
 
 console.log('\nType comes from the theme, not from Courier');

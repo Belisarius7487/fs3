@@ -3254,7 +3254,7 @@ const SCRIPT_WAVES = {
      ]},
 
   78:{name:'Beyond the Gate', fac:'shivan', o:'clear', live:5, scene:'beyond2',
-      ship:'fimara', sec:'mx64', disguise:true, noMara:true, noSupport:true,
+      ship:'fimara', disguise:true, noMara:true, noSupport:true,
       ziel:'SCAN THE UNKNOWN DEVICES', u:[
        // Through the second portal, in a captured Mara: no nebula here.
        // The Shivans take her for one of theirs until she fires on one of
@@ -4029,14 +4029,11 @@ function buildScripted(def){
   }
   // Subspace bombs at our jammer (v169).
   ssbOn = !!def.ssBombs; ssbCd = 300;
-  // A secondary the mission hands out (the TAG in 67). Only onto a hull
-  // that can carry it; the rack is filled.
+  // A secondary the mission hands out (the TAG in 67): into the last
+  // secondary bank, as a FS2 mission would fit it, with a full rack (v186).
   if(def.giveSec){
-    const gs = secDef(def.giveSec);
-    if(gs && gs.cls === hullSecCls(player.ship)){
-      player.sec = def.giveSec; rearmFull();
-      notice(gs.name.toUpperCase()+' FITTED', 'info');
-    }
+    const gk = arsenalKey(def.giveSec);
+    if(missionSec(gk, true)) notice(secDefP(gk).name.toUpperCase()+' FITTED', 'info');
   }
   if(def.scene) useScene(def.scene);
   // Ein stehendes Feld wird gesetzt, nicht gespeist. Sonst sammeln sich
