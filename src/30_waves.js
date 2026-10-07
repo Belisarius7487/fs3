@@ -1910,7 +1910,9 @@ const SCRIPT_WAVES = {
      ]},
 
   16:{name:'The Mutiny', fac:'hol', o:'guard', live:5, u:[
-       {id:'A1', c:'cr', n:1, spr:'craten', side:'ally'},
+       // v188: the Aten has her FS2 hull now, half a cruiser's. She is the
+       // ship to guard here, so this one keeps the hull she had (x2).
+       {id:'A1', c:'cr', n:1, spr:'craten', side:'ally', hp:2},
        {id:'A2', c:'fi', n:2, side:'ally'},
        {id:'E1', c:'fi', n:3},
        {id:'E2', c:'fi', n:3, wait:true}
@@ -2825,8 +2827,10 @@ const SCRIPT_WAVES = {
        // One GTVA destroyer against Shivan cruisers coming through the
        // portal, two at a time (Silvio). Her hangar is open: the Terran tab.
        {id:'P1', c:'in', n:1, spr:'inknossos45deg', invuln:true, edge:0.5, y:275},
+       // v188: the Orion's FS2 hull is 0.84 of the class; the ship to
+       // protect keeps the hull she had (x1.2).
        {id:'A1', c:'de', n:1, spr:'deorionright', side:'ally', x:150, y:270, still:true,
-        guard:true, callsOk:true},
+        guard:true, callsOk:true, hp:1.2},
        // No extra hull of their own (Silvio, v167): the step every 20 waves
        // (x1.75 from 61) is hard enough.
        {id:'K1', c:'cr', n:1, spr:'crcain',     t:3,  noFlee:true},
@@ -2970,8 +2974,9 @@ const SCRIPT_WAVES = {
        // Rahu miners are hard to grind down with guns. TAG them and the
        // Orion's beams find them in the gas. The Deimos is there to rearm.
        // A miner goes up with a very big blast - keep clear.
+       // v188: as in M62, the Orion keeps the hull she had (x1.2).
        {id:'A1', c:'de', n:1, spr:'deorionright', side:'ally', x:130, y:250, still:true,
-        guard:true, callsOk:true},
+        guard:true, callsOk:true, hp:1.2},
        {id:'A2', c:'co', n:1, spr:'codeimos', side:'ally', x:230, y:440, still:true, callsOk:true},
        {id:'G1', c:'fr', n:1, spr:'gmrahu', x:520, y:150, still:true, hp:3},
        {id:'G2', c:'fr', n:1, spr:'gmrahu', x:650, y:260, still:true, hp:3},

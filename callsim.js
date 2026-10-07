@@ -121,6 +121,7 @@ const world = `
   // The practice log is not what is tested here.
   function plogCall(){} function plogRefine(){}
   function capHull(v){ return Math.round(v); }
+  function allyHull(d){ return capHull(HULL[d.cls]); }
   function allyReady(){ return true; }
   function allyAffordable(id){ return affordAll; }
   function mkAlly(id){ return {id:id}; }

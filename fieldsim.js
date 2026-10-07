@@ -2797,6 +2797,33 @@ scenario('v186: FS2 factors land where they belong', 'm=33', `
 scenario('HoL start unchanged', 'm=1', `
   return {wave: wave, thoth: player.ship==='fitoth', vasudanCall: ALLY_FAC_ON.vasudan===true && ALLY_FAC_ON.terran===false};`);
 
+scenario('v188: capital hulls in FS2 ratio, subsystems from the models', 'm=31', `
+  const r = {};
+  const mk = (t, spr) => { const e = mkEnemy(t, spr, 250); return e; };
+  const fen = mk('cr_ntf', 'ntfcrfenris'), lil = mk('cr_sh', 'crlilith'), aeo = mk('cr_ntf', 'ntfcraeolus');
+  // ships.tbl: Lilith 75000, Fenris 10000 - the same ratio here
+  r.fenrisQuarterOfLilith = Math.abs(fen.maxHp/lil.maxHp - 10000/75000) < 0.01;
+  // the class keeps its average: the eight cruisers average the old value
+  const names = ['craeolus','craten','crcain','crfenris','crleviathan','crlilith','crmentu','crrakshasa'];
+  const avg = names.reduce((s,n)=>s+capHullF(n),0)/names.length;
+  r.classAverageKept = Math.abs(avg-1) < 1e-9;
+  r.ntfSameAsTerran = capHullF('ntfcrfenris') === capHullF('crfenris') && capHullF('deorionleft') === capHullF('deorionright');
+  r.othersUntouched = capHullF('casetekh')===1 && capHullF('coiceni')===1 && capHullF('sdcolossus')===1 && capHullF('sgmjolnir')===1;
+  // the escort has the hull the support menu shows
+  const a = mkAlly('ter_fenris');
+  r.menuShowsRealHull = !!a && a.maxHp === allyHull(ALLY_DEFS.ter_fenris) && a.maxHp < capHull(HULL.cruiser);
+  // subsystems: where two circles overlap, the nearer centre takes the hit
+  const e = aeo; e.x = 400; e.y = 250; e.warp = 0; initSubsystems(e);
+  const s0 = e.subs[0], s1 = e.subs[1];
+  const p0 = subPos(e, s0), p1 = subPos(e, s1);
+  const mx = p0.x + (p1.x-p0.x)*0.3, my = p0.y + (p1.y-p0.y)*0.3;
+  const big = s0.r; s0.r = s1.r = 1;   // make them overlap
+  r.nearestTakesHit = subAt(e, mx, my) === s0;
+  s0.r = big; s1.r = big;
+  // the Aten's weapons sit forward, by the bow, as in the model
+  r.atenWeaponsForward = (MOUNTS.craten.subs.find(s=>s.id==='weapons').dx > 0.5);
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

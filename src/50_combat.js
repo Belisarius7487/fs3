@@ -1867,16 +1867,19 @@ function subPos(e, s){
   return {x:e.x+px*ca-py*sa, y:e.y+px*sa+py*ca};
 }
 
+// Where two circles overlap, the hit goes to the subsystem whose centre is
+// nearest, not to whichever comes first in the list (v188).
 function subAt(e, hx, hy){
   if(!e.subs || hx==null) return null;
+  let best = null, bd = Infinity;
   for(const s of e.subs){
     if(s.dead) continue;
     const p = subPos(e, s);
     const dx = hx-p.x, dy = hy-p.y;
-    const rr = subRadius(e, s);
-    if(dx*dx+dy*dy <= rr*rr) return s;
+    const rr = subRadius(e, s), d2 = dx*dx+dy*dy;
+    if(d2 <= rr*rr && d2 < bd){ bd = d2; best = s; }
   }
-  return null;
+  return best;
 }
 
 // Applies a hit that may have landed on a subsystem. Returns the damage
@@ -2180,6 +2183,33 @@ function cycleMult(){
 }
 // Small craft grow too since v185 (smallStats), as the player always did.
 function capHull(v){ return Math.round(v*cycleMult()); }
+// v188 (Silvio, way A): capital ships keep the hull ratio FreeSpace gives
+// them within their class. The class value below stays the average, so a
+// class as a whole is as tough as before; inside it a Fenris is a quarter
+// of a Lilith, as in ships.tbl. Same for both sides. Hulls not listed here
+// (the AWACS, the Iceni, platforms, the big ships) keep their own tuning.
+const FS2_CAP_HULL = {
+  cr: {aeolus:38000, aten:18000, cain:20000, fenris:10000, leviathan:35000, lilith:75000, mentu:60000, rakshasa:40000},
+  co: {deimos:80000, sobek:80000, moloch:80000},
+  de: {orion:100000, hecate:100000, ravana:100000, typhon:120000, hatshepsut:135000, demon:160000}
+};
+const CAP_HULL_F = (function(){
+  const f = {};
+  for(const c in FS2_CAP_HULL){
+    const t = FS2_CAP_HULL[c], names = Object.keys(t);
+    const mean = names.reduce(function(s, n){ return s + t[n]; }, 0) / names.length;
+    for(const n of names) f[c + n] = t[n] / mean;
+  }
+  return f;
+})();
+// The factor for a sprite key: 'ntfcrfenris' and 'crfenris' are one hull,
+// 'deorionleft' and 'deorionright' are the Orion.
+function capHullF(img){
+  if(!img) return 1;
+  let k = img.indexOf('ntf') === 0 ? img.slice(3) : img;
+  k = k.replace(/(left|right)$/, '');
+  return CAP_HULL_F[k] || 1;
+}
 
 const HULL = {
   fighter:   48,     // vorher 24

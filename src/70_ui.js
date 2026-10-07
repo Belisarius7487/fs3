@@ -2421,8 +2421,9 @@ function drawAllyRow(x, y, w, id, d, keyLabel, hot){
 
   let sub;
   if(d.colossus)                sub = COLOSSUS_TIME+' s on station, then she jumps out';
-  else if(d.cls==='destroyer')  sub = 'DESTROYER  -  HULL '+capHull(HULL[d.cls])+'  -  WINGS';
-  else                          sub = d.cls.toUpperCase()+'  -  HULL '+capHull(HULL[d.cls]);
+  // The hull the ship will really have (v188: FS2 ratio within the class).
+  else if(d.cls==='destroyer')  sub = 'DESTROYER  -  HULL '+allyHull(d)+'  -  WINGS';
+  else                          sub = d.cls.toUpperCase()+'  -  HULL '+allyHull(d);
   ctx.fillStyle = TH('textDim'); ctx.font = thValue(9, false);
   ctx.fillText(thFit(sub, textW), x+CM_NAME, y+27);
 

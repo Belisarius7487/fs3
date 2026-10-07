@@ -156,7 +156,7 @@ function mkEnemy(type, spr0, yWant){
     const cr={type:'cruiser',img:spr,faction:typeFac(type),
       // Cruisers screen the heavier ships, so they take the forward band.
       // This used to be the rearmost of the three.
-      pts:400,x:W-20,y,warpX:W-20,warpY:y,targetX:W-118-Math.random()*40,hp:capHull(HULL.cruiser),maxHp:capHull(HULL.cruiser),
+      pts:400,x:W-20,y,warpX:W-20,warpY:y,targetX:W-118-Math.random()*40,hp:capHull(HULL.cruiser*capHullF(spr)),maxHp:capHull(HULL.cruiser*capHullF(spr)),
       vy:(Math.random()<.5?1:-1)*(0.25+Math.random()*0.3),
       minY:HUD_H+60,maxY:H-60,fT:80,fR:70,pat:0,dead:false,sc,warp:190};
     initBeams(cr);return cr;}
@@ -171,7 +171,7 @@ function mkEnemy(type, spr0, yWant){
       // Haelfte eines 195 Bildpunkte breiten Rumpfs lag ausserhalb des
       // Feldes, waehrend das verbuendete Gegenstueck ganz zu sehen war.
       targetX:W-150-Math.random()*34,
-      hp:capHull(HULL.corvette),maxHp:capHull(HULL.corvette),
+      hp:capHull(HULL.corvette*capHullF(spr)),maxHp:capHull(HULL.corvette*capHullF(spr)),
       vy:(Math.random()<.5?1:-1)*(0.2+Math.random()*0.3),
       minY:HUD_H+60,maxY:H-60,fT:80,fR:70,pat:0,dead:false,sc,warp:220};
     initBeams(ent); return ent;
@@ -207,7 +207,7 @@ function mkEnemy(type, spr0, yWant){
     const ent={type:'destroyer',img:spr,faction:typeFac(type),
       pts:1200,x:W-80,y,warpX:W-80,warpY:y,
       targetX:W-230-Math.random()*34,
-      hp:capHull(HULL.destroyer),maxHp:capHull(HULL.destroyer),
+      hp:capHull(HULL.destroyer*capHullF(spr)),maxHp:capHull(HULL.destroyer*capHullF(spr)),
       vy:(Math.random()<.5?1:-1)*(0.15+Math.random()*0.2),
       minY:HUD_H+46,maxY:H-46,fT:100,fR:80,pat:0,dead:false,sc,warp:260};
     initBeams(ent); return ent;
@@ -1696,6 +1696,10 @@ function anyTicket(){
   return false;
 }
 
+// What an escort's hull is, for the ship and for the support menu alike.
+function allyHull(d){
+  return capHull(HULL[d.cls]*(d.colossus?COLOSSUS_HULL_MULT:1)*(d.hullMul||1)*capHullF(d.spr));
+}
 function mkAlly(id){
   const d = ALLY_DEFS[id]; if(!d) return null;
   const spr = d.spr; if(!spr) return null;
@@ -1726,8 +1730,9 @@ function mkAlly(id){
     img:spr, faction:d.fac,
     x:cx, y:y, warpX:cx, warpY:y, targetX:cx,
     // hullMul: a lighter hull than the class gives (the Charybdis, v166).
-    hp:capHull(HULL[d.cls]*(d.colossus?COLOSSUS_HULL_MULT:1)*(d.hullMul||1)),
-    maxHp:capHull(HULL[d.cls]*(d.colossus?COLOSSUS_HULL_MULT:1)*(d.hullMul||1)),
+    // capHullF: the FS2 ratio within the class (v188).
+    hp:allyHull(d),
+    maxHp:allyHull(d),
     vy:d.colossus?0:(Math.random()<.5?1:-1)*(0.2+Math.random()*0.25),
     minY:d.colossus?y:HUD_H+geo.mar, maxY:d.colossus?y:H-geo.mar,
     fT:60, fR:70, pat:0, dead:false, sc:colSc, ang:0,
