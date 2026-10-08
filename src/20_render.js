@@ -1637,20 +1637,24 @@ function dmgBuild(e, D){
     D.can = cacheCanvas(pw, ph);
   }
   D.k = k;
+  // v196: a ship drawn from her 3D model keeps only the marks here - no
+  // sprite under them, no dark windows (they are the sprite's) - cut to
+  // her outline at the end. The 3D hull lies under it on the field.
+  const gl3 = !!e._gl3; D.gl3 = gl3;
   const g = D.can.getContext('2d');
   g.setTransform(pw/w, 0, 0, ph/h, 0, 0);       // drawn in game units
   g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
   g.clearRect(0, 0, w, h);
-  g.drawImage(img, 0, 0, w, h);
+  if(!gl3) g.drawImage(img, 0, 0, w, h);
   // dark windows
   const inf = D.inf, kx = w/img.width, ky = h/img.height;
-  for(let i=0;i<D.dead && i<inf.zones.length;i++){
+  for(let i=0;i<D.dead && i<inf.zones.length && !gl3;i++){
     if(D.dying.some(function(d){ return d.i===i; })) continue;
     const z = inf.zones[i];
     g.drawImage(inf.dark, z.sx, z.sy, z.sw, z.sh, z.sx*kx, z.sy*ky, z.sw*kx, z.sh*ky);
   }
   // everything below only where there is hull
-  g.globalCompositeOperation = 'source-atop';
+  g.globalCompositeOperation = gl3 ? 'source-over' : 'source-atop';
   // scoring: a streak of small splashes along the line the shot came in
   for(const s of D.scorch){
     // a hit marks a few metres of plating, whatever the ship's size
@@ -1719,6 +1723,7 @@ function dmgBuild(e, D){
     g.closePath(); g.fill();
     g.strokeStyle = 'rgba(205,198,186,0.45)'; g.lineWidth = unit; g.stroke();
   }
+  if(gl3){ g.globalCompositeOperation = 'destination-in'; g.drawImage(img, 0, 0, w, h); }
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.globalCompositeOperation = 'source-over';
   D.dirty = false; D.built = fc;
@@ -1734,9 +1739,11 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
   const D = e.dm;
   if(!D || !dmgEligible(e) || (!D.scorch.length && !D.gashes.length && !D.craters.length && !D.dead && !D.dying.length)){
     if(D) dmgTick(e, D);
-    drawShip(e.img, cx, cy, scale, flipX, ang); return;
+    if(!e._gl3) drawShip(e.img, cx, cy, scale, flipX, ang);
+    return;
   }
   dmgTick(e, D);
+  if(!!D.gl3 !== !!e._gl3){ D.dirty = true; D.built = -99; }   // drawn the other way last time (v196)
   // a kept picture was wiped somewhere: build hers again, now (v194)
   if(D.can && D.can.getContext('2d').isContextLost && D.can.getContext('2d').isContextLost()) cacheLost();
   if(D.gen !== CACHE_GEN){ D.gen = CACHE_GEN; D.dirty = true; D.built = -99; D.fBuilt = -1; D.fxT = -99; }
@@ -1751,7 +1758,7 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
   if(flipX) ctx.scale(-1, 1);
   // The gloss as on any hull, laid on the damaged picture, in a frame
   // canvas of her own.
-  const gl = ECO.glint ? null : ((GLINT[e.img]!==undefined) ? GLINT[e.img] : buildGlint(e.img));
+  const gl = (ECO.glint || e._gl3) ? null : ((GLINT[e.img]!==undefined) ? GLINT[e.img] : buildGlint(e.img));
   if(gl){
     const cw = D.can.width, ch = D.can.height;
     if(!D.frame || D.frame.width!==cw || D.frame.height!==ch){
@@ -1775,14 +1782,14 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
     ctx.drawImage(D.frame, -w/2, -h/2, w, h);
   } else ctx.drawImage(D.can, -w/2, -h/2, w, h);
   // the lights on their way out: flickering
-  for(const d of D.dying){
+  for(const d of (e._gl3 ? [] : D.dying)){
     if(dmgSeed(fc*0.37 + d.i) < 0.5) continue;
     const z = D.inf.zones[d.i]; if(!z) continue;
     const kx = w/img.width, ky = h/img.height;
     ctx.drawImage(D.inf.dark, z.sx, z.sy, z.sw, z.sh, -w/2+z.sx*kx, -h/2+z.sy*ky, z.sw*kx, z.sh*ky);
   }
   ctx.restore();
-  if(!ECO.rim && w >= RIM_MIN_W) drawRimLight(e.img, cx, cy, scale, flipX, ang);
+  if(!ECO.rim && w >= RIM_MIN_W && !e._gl3) drawRimLight(e.img, cx, cy, scale, flipX, ang);
   dmgFx(e, D, cx, cy, w, h, flipX, ang);
 }
 // One soft glow, drawn once and stamped: cheaper than a gradient a frame.
@@ -1831,7 +1838,7 @@ function dmgFx(e, D, cx, cy, w, h, flipX, ang){
     dmgFxDraw(gl, e, D, w, h);
     // Glow only where there is hull: cut to the damaged picture.
     gl.globalCompositeOperation = 'destination-in'; gl.globalAlpha = 1;
-    gl.drawImage(D.can, 0, 0, w, h);
+    gl.drawImage(D.gl3 ? IMGS[e.img] : D.can, 0, 0, w, h);
     gl.globalCompositeOperation = 'source-over'; gl.globalAlpha = 1;
     D.fxT = fc;
   }

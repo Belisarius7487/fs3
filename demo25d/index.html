@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FS3 2.5D draft</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  canvas { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
+  #hud { position: fixed; left: 12px; top: 10px; color: #cfe3ff; font: 13px/1.45 'Segoe UI', Arial, sans-serif;
+         text-shadow: 0 0 4px #000; pointer-events: none; white-space: pre; }
+  #load { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+          color: #9fc3ff; font: 16px 'Segoe UI', Arial, sans-serif; background: #000; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="hud"></div>
+<div id="load">loading models ...</div>
+<script src="demo.js"></script>
+</body>
+</html>

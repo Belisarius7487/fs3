@@ -186,7 +186,11 @@ function m3dDraw(key, x, y, w, h, o){
   const m = m3dModel(key);
   m3dTrim(key);
   o = o || {};
-  if(Math.max(o.zoom||1, M3D_VIEW.zoomT||1) >= M3D_ZOOM_HI && !m.hi) m.hi = m3dLevel(key, 'hi', 1024);
+  // v196: a capital ship has a 'full' level (every part of the finest
+  // level, 59_field3d.js) and takes it right away: the coarser levels show
+  // black patches where the finest one has its detail parts (Silvio: Orion).
+  const cap = typeof F3D_KEYS !== 'undefined' && F3D_KEYS.indexOf(key) >= 0;
+  if((cap || Math.max(o.zoom||1, M3D_VIEW.zoomT||1) >= M3D_ZOOM_HI) && !m.hi) m.hi = m3dLevel(key, cap ? 'full' : 'hi', 1024);
   const L = (m.hi && m.hi.state === 'ready') ? m.hi : m.lo;
   if(L.state !== 'ready') return false;
   const gl = M3D.gl, can = M3D.can, loc = M3D.loc;

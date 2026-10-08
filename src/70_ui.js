@@ -215,7 +215,17 @@ function draw(){
 
   // State-Reset vor Enemy-Render
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+  // v196: capital ships with a 3D model are drawn first and all at once
+  // (59_field3d.js), with their vortex and thrusters under them. The loop
+  // below then only puts their damage, marks and bars on top.
+  let F3D_DONE = null;
+  try{ if(typeof f3dFieldPass === 'function') F3D_DONE = f3dFieldPass(SHIPS_ON_FIELD); }catch(e3){ F3D_DONE = null; }
   for(const e of SHIPS_ON_FIELD){
+    const _f3 = !!(F3D_DONE && F3D_DONE.has(e));
+    if(_f3){
+      try{ f3dShipTop(e); }catch(et){ ctx.restore(); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }
+      continue;
+    }
     try{ drawVortexOf(e); }catch(ev){ ctx.restore(); ctx.globalAlpha=1; }
     ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
     try{
@@ -268,47 +278,9 @@ function draw(){
     }else{
       drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,e.warp>0?0.35:1,e.ang||0,e);
       drawShipE(e,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
-      // Dying (v183): no bar, no name, no marks - she is done with, and the
-      // player can see at once that it is time for the next target (Silvio).
-      const _dying = e.rollT!=null;
-      if(!_dying){
-      drawHostileMark(e);
-      drawTagMark(e);
-      drawScorch(e);
-      drawShield(e);
-      drawScanRing(e);
-      }
-
-      // Freighters count too: transports, miners and hospital ships are
-      // often what a mission is about, and how much hull they have left is
-      // what decides how hard to fight for them.
-      if(!_dying && (e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer'||
-         e.type==='boss'||e.type==='station'||e.type==='freighter')){
-        const hbImg=IMGS[e.img];if(hbImg){
-          var bwMult=(e.type==='boss'?0.75:(e.type==='destroyer'?0.55:
-                     (e.type==='freighter'?0.80:0.70)));
-          const bw=hbImg.width*e.sc*bwMult;
-          const bx=(e.x-bw*.5)|0,by=(e.y-hbImg.height*e.sc*.5-6)|0;
-          ctx.globalAlpha=1;
-          // While the shield holds, the hull bar would sit at full and say
-          // nothing. Show the shield instead, so the bar always tracks what
-          // is actually being shot at.
-          var showShield=(e.bShield>0);
-          var hpRatio=showShield?Math.max(0,e.bShield/e.bShieldMax)
-                                :Math.max(0,e.hp/e.maxHp);
-          // Fill says condition, outline says side. One meaning per
-          // channel, so a glance at the colour is never ambiguous.
-          drawHullBlocks(e, bx, by, bw, hpRatio, showShield);
-        }}}
+      drawShipTop(e);
+    }
     ctx.globalAlpha=1;
-    if(e.rollT!=null){ /* dying: nothing on her any more */ }
-    else if(e.bShield>0){ drawLuciShield(e); drawReactors(e); }
-    // In subspace the Lucifer has no shield, only her reactors (v170).
-    else if(e.reactorOnly) drawReactors(e);
-    // Our own ships carry no subsystem marks: the enemy does not aim at
-    // them, and the player has nothing to do with them (Silvio, v166).
-    else if(e.side!=='ally') drawSubsystems(e);
-    drawBeams(e);
     }catch(ee){ctx.restore();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}}
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
 
@@ -387,6 +359,53 @@ function draw(){
   // Opening the settings pauses the game, so without this the pause
   // notice printed straight across the panel it had just opened.
   if(paused && !settingsOpen) drawPaused();
+}
+
+// Everything that goes on a ship after her hull: marks, hull bar, shields,
+// subsystems and her own beams. The sprite loop and the 3D ships (v196)
+// both use it.
+function drawShipTop(e){
+  // Dying (v183): no bar, no name, no marks - she is done with, and the
+  // player can see at once that it is time for the next target (Silvio).
+  const _dying = e.rollT!=null;
+  if(!_dying){
+  drawHostileMark(e);
+  drawTagMark(e);
+  drawScorch(e);
+  drawShield(e);
+  drawScanRing(e);
+  }
+
+  // Freighters count too: transports, miners and hospital ships are
+  // often what a mission is about, and how much hull they have left is
+  // what decides how hard to fight for them.
+  if(!_dying && (e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer'||
+     e.type==='boss'||e.type==='station'||e.type==='freighter')){
+    const hbImg=IMGS[e.img];if(hbImg){
+      var bwMult=(e.type==='boss'?0.75:(e.type==='destroyer'?0.55:
+                 (e.type==='freighter'?0.80:0.70)));
+      const bw=hbImg.width*e.sc*bwMult;
+      const bx=(e.x-bw*.5)|0,by=(e.y-hbImg.height*e.sc*.5-6)|0;
+      ctx.globalAlpha=1;
+      // While the shield holds, the hull bar would sit at full and say
+      // nothing. Show the shield instead, so the bar always tracks what
+      // is actually being shot at.
+      var showShield=(e.bShield>0);
+      var hpRatio=showShield?Math.max(0,e.bShield/e.bShieldMax)
+                            :Math.max(0,e.hp/e.maxHp);
+      // Fill says condition, outline says side. One meaning per
+      // channel, so a glance at the colour is never ambiguous.
+      drawHullBlocks(e, bx, by, bw, hpRatio, showShield);
+    }}
+  ctx.globalAlpha=1;
+  if(e.rollT!=null){ /* dying: nothing on her any more */ }
+  else if(e.bShield>0){ drawLuciShield(e); drawReactors(e); }
+  // In subspace the Lucifer has no shield, only her reactors (v170).
+  else if(e.reactorOnly) drawReactors(e);
+  // Our own ships carry no subsystem marks: the enemy does not aim at
+  // them, and the player has nothing to do with them (Silvio, v166).
+  else if(e.side!=='ally') drawSubsystems(e);
+  drawBeams(e);
 }
 
 // The pause notice: a panel from the kit over a dimmed field.

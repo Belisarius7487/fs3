@@ -2954,6 +2954,30 @@ scenario('v195: support card without the hull bar', 'm=26', `
   r.draws = true;
   return r;`);
 
+scenario('v196: 3D capitals - keys, sprite fallback, damage marks alone', 'm=62', `
+  const r = {};
+  r.keys = f3dKey({img:'deorionleft'}) === 'deorionright' && f3dKey({img:'ntfdeorion'}) === null && f3dKey({img:'crcain'}) === null;
+  // no model files here (file://): every ship stays a sprite, nothing breaks
+  const done = f3dFieldPass(enemies.concat(allies));
+  r.fallback = done.size === 0;
+  try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
+  // a damaged cruiser drawn the 3D way keeps only her marks
+  FS.step(600);
+  const k = enemies.find(e=>e.type==='cruiser' && !(e.warp>0));
+  r.haveCruiser = !!k;
+  if(!k) return r;
+  k.hp = k.maxHp*0.4; dmgPreset(k);
+  const D = dmgState(k);
+  k._gl3 = true; dmgBuild(k, D); k._gl3 = false;
+  r.marksOnly = D.gl3 === true;
+  const g = D.can.getContext('2d'), px = g.getImageData(0, 0, D.can.width, D.can.height).data;
+  let solid = 0; for(let i = 3; i < px.length; i += 4) if(px[i] > 200) solid++;
+  // the sprite would cover most of the canvas; the marks alone very little
+  r.fewPixels = solid < px.length/4*0.35 ? true : solid/(px.length/4);
+  dmgBuild(k, D);
+  r.spriteAgain = D.gl3 === false;
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();
