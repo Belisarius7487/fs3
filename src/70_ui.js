@@ -2336,14 +2336,10 @@ function allyCard(id, keyLabel){
   if(d.cls === 'corvette') lines.push('Rearms you while she is on the field (R)');
   const rk = allyTicket(id);
   lines.push('In hand: '+(tickets[rk]||0)+(canRefine(rk) ? '  -  '+REFINE_COST+' refine into one of the next class' : ''));
-  // hull against the strongest of the same fleet
-  let top = 1;
-  for(const k in ALLY_DEFS){ const q = ALLY_DEFS[k]; if(q.fac === d.fac && !q.colossus) top = Math.max(top, allyHull(q)); }
-  if(d.colossus) top = allyHull(d);
+  // v195: no hull bar. It repeated the HULL figure of the facts, and every
+  // destroyer and the Colossus filled it to the end (Silvio).
   return {model:d.spr, title:allyLabel(d), sub:(CM_FAC_HEAD[d.fac]||'').toUpperCase(), facts:facts,
-          barHead:'HULL AGAINST THE STRONGEST OF THE FLEET',
-          bars:[{l:'HULL', v:Math.min(1, allyHull(d)/top), cur:null, d:null, txt:String(allyHull(d))}],
-          lines:lines, hint:'KEY '+keyLabel+' OR CLICK TO CALL'};
+          bars:[], lines:lines, hint:'KEY '+keyLabel+' OR CLICK TO CALL'};
 }
 
 // ── REARM PANEL (v190) ───────────────────────────────────────

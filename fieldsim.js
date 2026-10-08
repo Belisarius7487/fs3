@@ -2945,6 +2945,15 @@ scenario('v194: a wiped hull picture is built again at once', 'm=62', `
   r.rebuiltAfterWipe = (D.built === fc && D.gen === CACHE_GEN) ? true : [D.built, fc, D.gen, CACHE_GEN];
   return r;`);
 
+scenario('v195: support card without the hull bar', 'm=26', `
+  const r = {};
+  const c = allyCard('colossus', 'G'), t = allyCard('vas_typhon', 'R');
+  r.noBar = c.bars.length === 0 && t.bars.length === 0;
+  r.hullStillInFacts = (c.facts.some(f=>f.indexOf('HULL ')===0) && t.facts.some(f=>f.indexOf('HULL ')===0)) ? true : c.facts.concat(t.facts);
+  setCallMenu(true); drawCallMenu(); setCallMenu(false); clearResumeHold();
+  r.draws = true;
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

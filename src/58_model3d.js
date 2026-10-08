@@ -6,6 +6,9 @@
 // hi.bin with 1024 px textures once the player zooms in. Without WebGL,
 // or while a model loads, the caller draws the sprite as before.
 const M3D_BASE    = 'models/';
+// v195: raised whenever the model files change, so neither the browser nor
+// Cloudflare hands out the old ones from its cache.
+const M3D_REV     = 195;
 const M3D_FOV     = 30 * Math.PI / 180;
 const M3D_SPIN    = 0.6;          // rad/s while the pointer is on the picture
 const M3D_YAW0    = 1.22;         // at rest: starboard side, bow to the right, a little of the bow
@@ -94,7 +97,7 @@ function m3dInit(){
 function m3dLevel(key, tag, size){
   const gl = M3D.gl;
   const L = {state:'loading', parts:[], tex:{}};
-  fetch(M3D_BASE + key + '/' + tag + '.bin').then(function(r){
+  fetch(M3D_BASE + key + '/' + tag + '.bin?r=' + M3D_REV).then(function(r){
     if(!r.ok) throw new Error('missing'); return r.arrayBuffer();
   }).then(function(buf){
     const hl = new DataView(buf).getUint32(0, true);
@@ -125,7 +128,7 @@ function m3dLevel(key, tag, size){
             L.tex[t][k] = tx; res();
           };
           im.onerror = function(){ res(); };       // no glow map is normal
-          im.src = M3D_BASE + key + '/' + t + '_' + k + size + '.webp';
+          im.src = M3D_BASE + key + '/' + t + '_' + k + size + '.webp?r=' + M3D_REV;
         }));
       }
     }
