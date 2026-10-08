@@ -8,7 +8,7 @@
 const M3D_BASE    = 'models/';
 // v195: raised whenever the model files change, so neither the browser nor
 // Cloudflare hands out the old ones from its cache.
-const M3D_REV     = 195;
+const M3D_REV     = 201;
 const M3D_FOV     = 30 * Math.PI / 180;
 const M3D_SPIN    = 0.6;          // rad/s while the pointer is on the picture
 const M3D_YAW0    = 1.22;         // at rest: starboard side, bow to the right, a little of the bow
@@ -97,9 +97,8 @@ function m3dInit(){
 function m3dLevel(key, tag, size){
   const gl = M3D.gl;
   const L = {state:'loading', parts:[], tex:{}};
-  fetch(M3D_BASE + key + '/' + tag + '.bin?r=' + M3D_REV).then(function(r){
-    if(!r.ok) throw new Error('missing'); return r.arrayBuffer();
-  }).then(function(buf){
+  // v201: the full level is packed (full.bin.gz), see f3dFetchBin
+  f3dFetchBin(M3D_BASE + key + '/' + (tag === 'full' ? 'full.bin.gz' : tag + '.bin')).then(function(buf){
     const hl = new DataView(buf).getUint32(0, true);
     const head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, hl)));
     const base = 4 + hl, data = buf.slice(base);

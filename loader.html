@@ -8,6 +8,10 @@
   FS3 loading page. It appears at once, fetches the game file (about 28 MB)
   with a progress bar and then puts the game in its place, without a
   reload, so the address (and its ?m=... options) stays as it is.
+  v201: the 3D models of the capital ships come with it, in the same bar
+  (MODELS, filled in by build_game.py). They are handed to the game as
+  they are (window.FS3_MODELS); the game puts them on the graphics card
+  under this same box, which it shows again for that (window.FS3_LOADBOX).
   build_game.py fills in the file name, its size and a stamp that makes a
   new build bypass the browser cache. The server compresses the game with
   gzip and sends no total size, which is why the size is written in here.
@@ -68,6 +72,13 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
 <script>
 (function(){
   var GAME = "@@GAME_FILE@@", BYTES = @@GAME_BYTES@@, STAMP = "@@STAMP@@";
+  // [path, bytes, stamp] per model file
+  var MODELS = @@MODELS@@, MBYTES = 0;
+  for(var mi=0; mi<MODELS.length; mi++) MBYTES += MODELS[mi][1];
+  // the last part of the bar belongs to the game (graphics card)
+  var DL_SHARE = MODELS.length ? 0.92 : 1;
+  var gotGame = 0, gotModels = 0, gameText = null, modelsLeft = MODELS.length;
+  window.FS3_MODELS = {};
   // The colour scheme the player chose in the game.
   try{ var eco = JSON.parse(localStorage.getItem('fs3_eco') || 'null');
        if(eco && eco.scheme === 'void') document.documentElement.className = 'void'; }catch(e){}
@@ -77,14 +88,15 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     var f = document.createElement('div'); f.className = 'fill'; f.style.width = '0'; s.appendChild(f);
     bar.appendChild(s); segs.push(s); }
   function mb(n){ return (n/1048576).toFixed(1); }
-  function show(got){
-    var p = BYTES > 0 ? Math.min(1, got/BYTES) : 0, full = Math.floor(p*N);
+  function show(){
+    var all = BYTES + MBYTES, got = gotGame + gotModels;
+    var p = all > 0 ? Math.min(1, got/all)*DL_SHARE : 0, full = Math.floor(p*N);
     for(var i=0;i<N;i++){
       segs[i].className = 'seg' + (i < full ? ' on' : (i === full && p < 1 ? ' now' : ''));
       segs[i].firstChild.style.width = (i === full ? Math.round((p*N - full)*100) : 0) + '%';
     }
     st.innerHTML = 'LOADING <b>' + Math.round(p*100) + ' %</b>';
-    sz.textContent = mb(got) + ' / ' + mb(BYTES) + ' MB';
+    sz.textContent = mb(got) + ' / ' + mb(all) + ' MB';
   }
   function fail(){
     st.textContent = 'The game could not be loaded.';
@@ -93,11 +105,41 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
   }
   // Puts the game in the place of this page.
   function start(text){
-    for(var i=0;i<N;i++) segs[i].className = 'seg on';
-    st.textContent = 'STARTING';
-    setTimeout(function(){ document.open(); document.write(text); document.close(); }, 30);
+    if(text != null) gameText = text;
+    if(gameText == null || modelsLeft > 0) return;     // both have to be in
+    st.innerHTML = 'PREPARING SHIPS <b>' + Math.round(DL_SHARE*100) + ' %</b>';
+    // The box goes over to the game, which shows it again while it puts
+    // the models on the graphics card - one bar from start to finish.
+    var css = document.querySelector('style');
+    window.FS3_LOADBOX = {html: document.getElementById('box').outerHTML, css: css ? css.textContent : '',
+                          cls: document.documentElement.className, p: DL_SHARE, n: N};
+    setTimeout(function(){ document.open(); document.write(gameText); document.close(); }, 30);
   }
-  show(0);
+  // The model files, a few at a time. One that cannot be fetched is left
+  // to the game (it fetches what it misses itself).
+  function nextModel(){
+    var m = MODELS.shift(); if(!m) return;
+    var seen = 0;
+    fetch(m[0] + '?b=' + m[2]).then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      if(!r.body || !r.body.getReader) return r.blob();
+      var reader = r.body.getReader(), chunks = [];
+      function pump(){
+        return reader.read().then(function(res){
+          if(res.done) return new Blob(chunks);
+          chunks.push(res.value); seen += res.value.length; gotModels += res.value.length; show();
+          return pump();
+        });
+      }
+      return pump();
+    }).then(function(blob){
+      window.FS3_MODELS[m[0]] = blob;
+      gotModels += Math.max(0, m[1] - seen); show();
+    }, function(){ gotModels += Math.max(0, m[1] - seen); show(); })
+    .then(function(){ modelsLeft--; start(null); nextModel(); });
+  }
+  for(var k=0; k<6; k++) nextModel();
+  show();
   var url = GAME + '?b=' + STAMP;
   fetch(url).then(function(r){
     if(!r.ok) throw new Error('HTTP ' + r.status);
@@ -107,9 +149,9 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     function pump(){
       return reader.read().then(function(res){
         if(res.done){ parts.push(dec.decode()); start(parts.join('')); return; }
-        got += res.value.length;
+        gotGame += res.value.length;
         parts.push(dec.decode(res.value, {stream:true}));
-        show(got);
+        show();
         return pump();
       });
     }

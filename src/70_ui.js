@@ -34,157 +34,10 @@ function draw(){
 
 
 
-  for(const b of pBullets){
-    if(!b.sec){
-      // Laser: the weapon's own colours (v161: every side, every gun),
-      // drawn with trail, core and sparks, see drawLaser().
-      const rc = raceCol(b.fac);
-      const aCore = b.col || (b.ally ? rc.core : '#ccff88');
-      const aGlow = b.glow || (b.ally ? rc.glow : 'rgba(180,255,80,0.3)');
-      drawLaser(b, aCore, aGlow, hotOf(aCore));
-    } else if(b.sec){
-      // The race's colour around the ordnance: an escort's by its side,
-      // the player's by the hull he flies (Silvio, v161).
-      const oc = raceCol(b.ally ? b.fac : shipFac(player.ship));
-      if(b.type==='missile'){
-        // Missile: metallic body plus engine glow, drawn along its flight
-        // direction (Silvio, v187: it always pointed to the right).
-        ctx.save();
-        ctx.translate(b.x, b.y);
-        ctx.rotate(Math.atan2(b.vy, b.vx));
-        const hw=b.w/2;
-        // Engine glow at the tail, in the race's colour
-        ctx.fillStyle=oc.glow;
-        ctx.beginPath();ctx.ellipse(-hw,0,7,5,0,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle=oc.core;
-        ctx.beginPath();ctx.ellipse(-hw,0,3,2,0,0,Math.PI*2);ctx.fill();
-        // Body
-        ctx.fillStyle='#aabbcc';
-        ctx.fillRect(-hw+4,-2,b.w-6,4);
-        // Nose
-        ctx.fillStyle='#dd4422';
-        ctx.beginPath();ctx.moveTo(hw,0);
-        ctx.lineTo(hw-6,-2);ctx.lineTo(hw-6,2);
-        ctx.closePath();ctx.fill();
-        // Fins
-        ctx.fillStyle='#8899aa';
-        ctx.fillRect(-hw+4,-4,5,2);
-        ctx.fillRect(-hw+4,2,5,2);
-        ctx.restore();
-      } else {
-        // Bomb: dark sphere with a pulsing warning glow
-        const pulse=0.5+0.5*Math.sin(fc*0.25);
-        const br=b.w/2;
-        // Outer warning ring, in the race's colour
-        ctx.globalAlpha=0.3+pulse*0.5;
-        ctx.strokeStyle=oc.core;
-        ctx.lineWidth=2;
-        ctx.beginPath();ctx.arc(b.x,b.y,br+4+pulse*4,0,Math.PI*2);ctx.stroke();
-        ctx.globalAlpha=1;
-        // Bomb body
-        const grad=ctx.createRadialGradient(b.x-br*0.3,b.y-br*0.3,0,b.x,b.y,br);
-        grad.addColorStop(0,'#445566');grad.addColorStop(1,'#111122');
-        ctx.fillStyle=grad;
-        ctx.beginPath();ctx.arc(b.x,b.y,br,0,Math.PI*2);ctx.fill();
-        // Warn-Indikator (blinkt)
-        ctx.fillStyle='rgba(255,'+(Math.floor(pulse*80))+',0,'+(0.6+pulse*0.4)+')';
-        ctx.beginPath();ctx.arc(b.x,b.y,br*0.35,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#ffffff';
-        ctx.beginPath();ctx.arc(b.x-br*0.25,b.y-br*0.25,br*0.1,0,Math.PI*2);ctx.fill();
-      }
-    } else {
-      }
-  }
-
-  for(const b of eBullets){
-        const bx=b.x|0, by=b.y|0;
-    if(b.kind){
-      const ang=Math.atan2(b.vy,b.vx);
-      // Missiles and bombs in the colour of the race (Silvio, v161):
-      // Shivans red, Terrans - the NTF among them - blue, Vasudans yellow.
-      const race=raceOf(b.faction);
-      const shiv=race==='shivan', vas=race==='vasudan';
-      const body=shiv?'#ffb0a0':(vas?'#ffe2a8':'#c8e4ff');
-      const glow=shiv?'rgba(255,60,0,0.5)':(vas?'rgba(255,160,40,0.5)':'rgba(70,160,255,0.5)');
-
-      // Halo underneath the ordnance so it never blends into a nebula.
-      // Drawn unrotated and additively, then the body goes on top.
-      const halo=(b.kind==='bomb'?2.6:1.9)*b.w*(0.92+0.08*Math.sin(fc*0.5));
-      ctx.save();
-      ctx.globalCompositeOperation='lighter';
-      try{
-        const hg=ctx.createRadialGradient(bx,by,0,bx,by,halo);
-        hg.addColorStop(0, shiv?'rgba(255,190,150,0.85)':(vas?'rgba(255,225,160,0.85)':'rgba(190,220,255,0.85)'));
-        hg.addColorStop(0.30, shiv?'rgba(255,90,40,0.45)':(vas?'rgba(255,150,40,0.45)':'rgba(70,150,255,0.45)'));
-        hg.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle=hg;
-        ctx.beginPath(); ctx.arc(bx,by,halo,0,Math.PI*2); ctx.fill();
-      }catch(ex){}
-      ctx.restore();
-
-      // Glowing sparks shed along the flight path
-      if(fc%2===0){
-        const sa=ang+Math.PI+(Math.random()-0.5)*0.8;
-        const sp=0.6+Math.random()*1.4;
-        PARTS.push({x:bx,y:by,vx:Math.cos(sa)*sp,vy:Math.sin(sa)*sp,
-          life:(12+Math.random()*12)|0, ml:0,
-          sz:(b.kind==='bomb'?2.2:1.5)+Math.random(),
-          clr: shiv ? (Math.random()<0.5?'#ffdd99':'#ff7744')
-             : vas  ? (Math.random()<0.5?'#ffffff':'#ffc860')
-                    : (Math.random()<0.5?'#ffffff':'#88c8ff')});
-      }
-
-      ctx.save();
-      ctx.translate(bx,by); ctx.rotate(ang);
-      // Exhaust plume trailing behind
-      ctx.globalAlpha=0.75;
-      const fl=ctx.createLinearGradient(0,0,-b.w*1.6,0);
-      fl.addColorStop(0,'#ffffff'); fl.addColorStop(0.35,shiv?'#ff8844':(vas?'#ffb040':'#7ab8ff'));
-      fl.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle=fl;
-      ctx.beginPath();
-      ctx.moveTo(-b.w*0.4,-b.h*0.30);
-      ctx.lineTo(-b.w*1.6,0);
-      ctx.lineTo(-b.w*0.4, b.h*0.30);
-      ctx.closePath(); ctx.fill();
-      // Rumpf
-      ctx.globalAlpha=0.35; ctx.fillStyle=glow;
-      ctx.beginPath(); ctx.ellipse(0,0,b.w*0.95,b.h*0.95,0,0,Math.PI*2); ctx.fill();
-      ctx.globalAlpha=1; ctx.fillStyle=body;
-      if(b.kind==='bomb'){
-        ctx.beginPath(); ctx.arc(0,0,b.w*0.42,0,Math.PI*2); ctx.fill();
-        // White hot core so the bomb reads instantly against any background
-        ctx.fillStyle='#ffffff';
-        ctx.beginPath(); ctx.arc(0,0,b.w*0.20,0,Math.PI*2); ctx.fill();
-        ctx.strokeStyle='#ffffff'; ctx.lineWidth=1.6;
-        ctx.globalAlpha=0.6+0.4*Math.sin(fc*0.35);
-        ctx.beginPath(); ctx.arc(0,0,b.w*0.62,0,Math.PI*2); ctx.stroke();
-        // Second, expanding warning ring
-        const rr=b.w*(0.62+0.5*((fc%40)/40));
-        ctx.globalAlpha=0.38*(1-((fc%40)/40));
-        ctx.beginPath(); ctx.arc(0,0,rr,0,Math.PI*2); ctx.stroke();
-      } else {
-        ctx.beginPath();
-        ctx.moveTo(b.w*0.62,0);
-        ctx.lineTo(-b.w*0.35,-b.h*0.58);
-        ctx.lineTo(-b.w*0.35, b.h*0.58);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle='#ffffff';
-        ctx.beginPath();
-        ctx.moveTo(b.w*0.34,0);
-        ctx.lineTo(-b.w*0.12,-b.h*0.26);
-        ctx.lineTo(-b.w*0.12, b.h*0.26);
-        ctx.closePath(); ctx.fill();
-      }
-      ctx.restore(); ctx.globalAlpha=1;
-      continue;
-    }
-    // Bolts: the weapon's colours (v161). A round without any (freighter
-    // guns, a hull without a loadout) takes its race's colour.
-    const rc=raceCol(b.faction);
-    const eCore=b.col||rc.core, eGlow=b.glow||rc.glow;
-    drawLaser(b, eCore, eGlow, hotOf(eCore));
-  }
+  // v201 (Silvio's layer order): the shots go over the ships now - capital
+  // ships, then small craft, then shots. What a turret on the far flank
+  // fires is drawn here, under the hulls, until it is clear of its ship.
+  drawShots(true);
 
   // Warp vortex with a null check and try/catch
   // Sorted by footprint so capital ships sit behind fighters. Residual
@@ -284,6 +137,7 @@ function draw(){
     ctx.globalAlpha=1;
     }catch(ee){ctx.restore();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}}
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
+  drawShots(false);
 
   try{
     drawHoldRing();
@@ -365,6 +219,170 @@ function draw(){
 // Everything that goes on a ship after her hull: marks, hull bar, shields,
 // subsystems and her own beams. The sprite loop and the 3D ships (v196)
 // both use it.
+// The shots of both sides (v201: out of draw()). under: only those fired
+// from a far flank that are still over the ship that fired them.
+function shotUnder(b){
+  const e = b.hidE;
+  if(!e) return false;
+  if(e.dead || (allies.indexOf(e) < 0 && enemies.indexOf(e) < 0) ||
+     !onHull(e.img, e.x, e.y, e.sc, e.flip, b.x, b.y, e.ang||0)){ b.hidE = null; return false; }
+  return true;
+}
+function drawShots(under){
+  for(const b of pBullets){
+    if(shotUnder(b) !== under) continue;
+    if(!b.sec){
+      // Laser: the weapon's own colours (v161: every side, every gun),
+      // drawn with trail, core and sparks, see drawLaser().
+      const rc = raceCol(b.fac);
+      const aCore = b.col || (b.ally ? rc.core : '#ccff88');
+      const aGlow = b.glow || (b.ally ? rc.glow : 'rgba(180,255,80,0.3)');
+      drawLaser(b, aCore, aGlow, hotOf(aCore));
+    } else if(b.sec){
+      // The race's colour around the ordnance: an escort's by its side,
+      // the player's by the hull he flies (Silvio, v161).
+      const oc = raceCol(b.ally ? b.fac : shipFac(player.ship));
+      if(b.type==='missile'){
+        // Missile: metallic body plus engine glow, drawn along its flight
+        // direction (Silvio, v187: it always pointed to the right).
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.rotate(Math.atan2(b.vy, b.vx));
+        const hw=b.w/2;
+        // Engine glow at the tail, in the race's colour
+        ctx.fillStyle=oc.glow;
+        ctx.beginPath();ctx.ellipse(-hw,0,7,5,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=oc.core;
+        ctx.beginPath();ctx.ellipse(-hw,0,3,2,0,0,Math.PI*2);ctx.fill();
+        // Body
+        ctx.fillStyle='#aabbcc';
+        ctx.fillRect(-hw+4,-2,b.w-6,4);
+        // Nose
+        ctx.fillStyle='#dd4422';
+        ctx.beginPath();ctx.moveTo(hw,0);
+        ctx.lineTo(hw-6,-2);ctx.lineTo(hw-6,2);
+        ctx.closePath();ctx.fill();
+        // Fins
+        ctx.fillStyle='#8899aa';
+        ctx.fillRect(-hw+4,-4,5,2);
+        ctx.fillRect(-hw+4,2,5,2);
+        ctx.restore();
+      } else {
+        // Bomb: dark sphere with a pulsing warning glow
+        const pulse=0.5+0.5*Math.sin(fc*0.25);
+        const br=b.w/2;
+        // Outer warning ring, in the race's colour
+        ctx.globalAlpha=0.3+pulse*0.5;
+        ctx.strokeStyle=oc.core;
+        ctx.lineWidth=2;
+        ctx.beginPath();ctx.arc(b.x,b.y,br+4+pulse*4,0,Math.PI*2);ctx.stroke();
+        ctx.globalAlpha=1;
+        // Bomb body
+        const grad=ctx.createRadialGradient(b.x-br*0.3,b.y-br*0.3,0,b.x,b.y,br);
+        grad.addColorStop(0,'#445566');grad.addColorStop(1,'#111122');
+        ctx.fillStyle=grad;
+        ctx.beginPath();ctx.arc(b.x,b.y,br,0,Math.PI*2);ctx.fill();
+        // Warn-Indikator (blinkt)
+        ctx.fillStyle='rgba(255,'+(Math.floor(pulse*80))+',0,'+(0.6+pulse*0.4)+')';
+        ctx.beginPath();ctx.arc(b.x,b.y,br*0.35,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#ffffff';
+        ctx.beginPath();ctx.arc(b.x-br*0.25,b.y-br*0.25,br*0.1,0,Math.PI*2);ctx.fill();
+      }
+    } else {
+      }
+  }
+
+  for(const b of eBullets){
+    if(shotUnder(b) !== under) continue;
+        const bx=b.x|0, by=b.y|0;
+    if(b.kind){
+      const ang=Math.atan2(b.vy,b.vx);
+      // Missiles and bombs in the colour of the race (Silvio, v161):
+      // Shivans red, Terrans - the NTF among them - blue, Vasudans yellow.
+      const race=raceOf(b.faction);
+      const shiv=race==='shivan', vas=race==='vasudan';
+      const body=shiv?'#ffb0a0':(vas?'#ffe2a8':'#c8e4ff');
+      const glow=shiv?'rgba(255,60,0,0.5)':(vas?'rgba(255,160,40,0.5)':'rgba(70,160,255,0.5)');
+
+      // Halo underneath the ordnance so it never blends into a nebula.
+      // Drawn unrotated and additively, then the body goes on top.
+      const halo=(b.kind==='bomb'?2.6:1.9)*b.w*(0.92+0.08*Math.sin(fc*0.5));
+      ctx.save();
+      ctx.globalCompositeOperation='lighter';
+      try{
+        const hg=ctx.createRadialGradient(bx,by,0,bx,by,halo);
+        hg.addColorStop(0, shiv?'rgba(255,190,150,0.85)':(vas?'rgba(255,225,160,0.85)':'rgba(190,220,255,0.85)'));
+        hg.addColorStop(0.30, shiv?'rgba(255,90,40,0.45)':(vas?'rgba(255,150,40,0.45)':'rgba(70,150,255,0.45)'));
+        hg.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=hg;
+        ctx.beginPath(); ctx.arc(bx,by,halo,0,Math.PI*2); ctx.fill();
+      }catch(ex){}
+      ctx.restore();
+
+      // Glowing sparks shed along the flight path
+      if(fc%2===0){
+        const sa=ang+Math.PI+(Math.random()-0.5)*0.8;
+        const sp=0.6+Math.random()*1.4;
+        PARTS.push({x:bx,y:by,vx:Math.cos(sa)*sp,vy:Math.sin(sa)*sp,
+          life:(12+Math.random()*12)|0, ml:0,
+          sz:(b.kind==='bomb'?2.2:1.5)+Math.random(),
+          clr: shiv ? (Math.random()<0.5?'#ffdd99':'#ff7744')
+             : vas  ? (Math.random()<0.5?'#ffffff':'#ffc860')
+                    : (Math.random()<0.5?'#ffffff':'#88c8ff')});
+      }
+
+      ctx.save();
+      ctx.translate(bx,by); ctx.rotate(ang);
+      // Exhaust plume trailing behind
+      ctx.globalAlpha=0.75;
+      const fl=ctx.createLinearGradient(0,0,-b.w*1.6,0);
+      fl.addColorStop(0,'#ffffff'); fl.addColorStop(0.35,shiv?'#ff8844':(vas?'#ffb040':'#7ab8ff'));
+      fl.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=fl;
+      ctx.beginPath();
+      ctx.moveTo(-b.w*0.4,-b.h*0.30);
+      ctx.lineTo(-b.w*1.6,0);
+      ctx.lineTo(-b.w*0.4, b.h*0.30);
+      ctx.closePath(); ctx.fill();
+      // Rumpf
+      ctx.globalAlpha=0.35; ctx.fillStyle=glow;
+      ctx.beginPath(); ctx.ellipse(0,0,b.w*0.95,b.h*0.95,0,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=1; ctx.fillStyle=body;
+      if(b.kind==='bomb'){
+        ctx.beginPath(); ctx.arc(0,0,b.w*0.42,0,Math.PI*2); ctx.fill();
+        // White hot core so the bomb reads instantly against any background
+        ctx.fillStyle='#ffffff';
+        ctx.beginPath(); ctx.arc(0,0,b.w*0.20,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='#ffffff'; ctx.lineWidth=1.6;
+        ctx.globalAlpha=0.6+0.4*Math.sin(fc*0.35);
+        ctx.beginPath(); ctx.arc(0,0,b.w*0.62,0,Math.PI*2); ctx.stroke();
+        // Second, expanding warning ring
+        const rr=b.w*(0.62+0.5*((fc%40)/40));
+        ctx.globalAlpha=0.38*(1-((fc%40)/40));
+        ctx.beginPath(); ctx.arc(0,0,rr,0,Math.PI*2); ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(b.w*0.62,0);
+        ctx.lineTo(-b.w*0.35,-b.h*0.58);
+        ctx.lineTo(-b.w*0.35, b.h*0.58);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(b.w*0.34,0);
+        ctx.lineTo(-b.w*0.12,-b.h*0.26);
+        ctx.lineTo(-b.w*0.12, b.h*0.26);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore(); ctx.globalAlpha=1;
+      continue;
+    }
+    // Bolts: the weapon's colours (v161). A round without any (freighter
+    // guns, a hull without a loadout) takes its race's colour.
+    const rc=raceCol(b.faction);
+    const eCore=b.col||rc.core, eGlow=b.glow||rc.glow;
+    drawLaser(b, eCore, eGlow, hotOf(eCore));
+  }
+}
 function drawShipTop(e){
   // Dying (v183): no bar, no name, no marks - she is done with, and the
   // player can see at once that it is time for the next target (Silvio).

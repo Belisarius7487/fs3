@@ -581,9 +581,12 @@ function getMask(key){
 function onHull(key, cx, cy, sc, flip, wx, wy, ang){
   const img = IMGS[key];
   if(!img) return true;                 // with no image, behave as before
-  const m = getMask(key);
+  // v201: a ship drawn from her model is hit where the model is, also
+  // beyond the sprite's box (MASKS3D, ky: the map's height in sprite heights)
+  const m3 = (typeof MASKS3D !== 'undefined' && !(typeof F3D !== 'undefined' && F3D.off)) ? MASKS3D[key] : null;
+  const m = m3 || getMask(key);
   if(!m) return true;                   // no map available, do not block
-  const pw = img.width*sc, ph = img.height*sc;
+  const pw = img.width*sc, ph = img.height*sc*(m.ky || 1);
   // Undo the ship rotation first, so the mask lookup happens in
   // sprite space no matter which way the hull is pointing.
   let ox = wx - cx, oy = wy - cy;

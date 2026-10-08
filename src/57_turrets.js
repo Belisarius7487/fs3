@@ -46,7 +46,9 @@ function raceCol(fac){ return RACE_COL[raceOf(fac)]; }
 
 // One shot of a capital turret. ally: an escort's gun (player's list).
 // pd: fired at a bomb.
-function capGunShot(e, x, y, ang, g, ally, pd){
+// hidE (v201): fired from the far flank of ship hidE - drawn under her
+// hull until it is clear of it (drawShots, 70_ui.js)
+function capGunShot(e, x, y, ang, g, ally, pd, hidE){
   const rc = raceCol(e.faction);
   const n = (g.big && CAP_TRIPLE.test(e.img)) ? 3 : 1;
   for(let k=0;k<n;k++){
@@ -55,11 +57,11 @@ function capGunShot(e, x, y, ang, g, ally, pd){
     if(ally){
       pBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
         w:g.big?13:11, h:g.big?13:4, dmg:g.admg, ally:true, fac:e.faction, cap:true,
-        col:rc.core, glow:rc.glow, big:!!g.big});
+        col:rc.core, glow:rc.glow, big:!!g.big, hidE:hidE||null});
     } else {
       eBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
         w:g.w, h:g.h, big:!!g.big, faction:e.faction||'ntf', dmg:g.dmg,
-        col:rc.core, glow:rc.glow, pd:!!pd});
+        col:rc.core, glow:rc.glow, pd:!!pd, hidE:hidE||null});
     }
   }
 }
@@ -114,8 +116,9 @@ function drawLaser(b, core, glow, hot){
   const ang = Math.atan2(b.vy, b.vx), bx = b.x, by = b.y;
   if(b._ls == null){
     b._ls = (Math.random()*6)|0;
-    // Muzzle flash: the first time it is seen.
-    if(PARTS.length < LASER_SPARK_CAP){
+    // Muzzle flash: the first time it is seen. Not for a round from a far
+    // flank (v201): the flash would sit on top of the hull that hides it.
+    if(PARTS.length < LASER_SPARK_CAP && !b.hidE){
       PARTS.push({x:bx, y:by, vx:0, vy:0, life:5, ml:0, sz:b.w*0.45+1.5, clr:hot});
       for(let k=0;k<1;k++){
         const a = ang + (Math.random()-0.5)*1.2, s = 0.8 + Math.random()*1.4;

@@ -466,6 +466,25 @@ def inline_sounds(html):
     return html
 
 
+def model_files(root="models"):
+    """v201: the files the field needs of every capital ship with a packed
+    full model (full.bin.gz and the 1024 px maps), for the loading page:
+    [path, bytes, stamp]. The page fetches them with the game."""
+    out = []
+    if not os.path.isdir(root):
+        return out
+    for key in sorted(os.listdir(root)):
+        d = os.path.join(root, key)
+        if not os.path.isfile(os.path.join(d, "full.bin.gz")):
+            continue
+        for fn in sorted(os.listdir(d)):
+            if fn == "full.bin.gz" or fn.endswith("1024.webp"):
+                st = os.stat(os.path.join(d, fn))
+                out.append(["models/%s/%s" % (key, fn), st.st_size, "%d-%d" % (int(st.st_mtime), st.st_size)])
+    print("Modelle fuer die Ladeseite: %d Dateien, %.1f MB" % (len(out), sum(f[1] for f in out) / 1048576.0))
+    return out
+
+
 def write_loader(path, game):
     """The loading page: shows at once and fetches the game with a progress
     bar. It needs the game's file name (beside it), its size in bytes (the
@@ -477,7 +496,8 @@ def write_loader(path, game):
     stamp = "%d-%d" % (int(st.st_mtime), st.st_size)
     page = (tpl.replace("@@GAME_FILE@@", os.path.basename(game))
                .replace("@@GAME_BYTES@@", str(st.st_size))
-               .replace("@@STAMP@@", stamp))
+               .replace("@@STAMP@@", stamp)
+               .replace("@@MODELS@@", json.dumps(model_files())))
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(page)
     print("Ladeseite: %s" % path)

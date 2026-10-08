@@ -1009,7 +1009,9 @@ function spriteBox(key){
   // Faellt die Maske aus, gilt das ganze Bild - lieber zu grosszuegig als
   // gar keine Pruefung.
   let box = {cx:0, cy:0, hw:img.width*0.5, hh:img.height*0.5};
-  const m = getMask(key);
+  const m3 = (typeof MASKS3D !== 'undefined' && !(typeof F3D !== 'undefined' && F3D.off)) ? MASKS3D[key] : null;
+  const m = m3 || getMask(key);
+  const ky = (m && m.ky) || 1;
   if(m){
     let x0=m.w, y0=m.h, x1=-1, y1=-1;
     for(let y=0;y<m.h;y++){
@@ -1023,11 +1025,11 @@ function spriteBox(key){
     }
     if(x1>=x0 && y1>=y0){
       // Die Maske ist verkleinert, also zurueck auf Bildmass rechnen.
-      const fx = img.width/m.w, fy = img.height/m.h;
+      const fx = img.width/m.w, fy = img.height*ky/m.h;
       const bx0 = x0*fx, bx1 = (x1+1)*fx;
       const by0 = y0*fy, by1 = (y1+1)*fy;
       box = {cx:(bx0+bx1)/2 - img.width/2,
-             cy:(by0+by1)/2 - img.height/2,
+             cy:(by0+by1)/2 - img.height*ky/2,
              hw:(bx1-bx0)/2, hh:(by1-by0)/2};
     }
   }
@@ -2029,12 +2031,20 @@ function allyFire(a){
       // A bomb on its way in comes first (point defence).
       const tg = pdTarget(a, pts[i], true) || nearestEnemy(pts[i].x, pts[i].y);
       if(!tg) continue;                 // kein Ziel, kein Schuss
+      // v201: the escorts' turrets too only fire into the half they face,
+      // and turn to their target
+      const _am = mountsFor(a.img), _ad = _am && _am.primary ? _am.primary[i] : null;
+      if(_ad && _ad.n3 && typeof mountCanAim === 'function' && !mountCanAim(a, _ad, pts[i].x, pts[i].y, tg.x, tg.y)){
+        a.gunT[i] = 12 + (Math.random()*18|0); continue;
+      }
+      if(_ad && typeof f3dAim === 'function') f3dAim(a, _ad.ti, tg.x, tg.y);
       // Aimed where the target will be, not where it is (M35, v159).
       // Turrets cover the full circle.
       const ang = leadAngle(pts[i].x, pts[i].y, tg, g.aspd)
                 + (Math.random()-0.5)*0.06*aScat*g.scat;
       sndAiShot(pts[i].x, pts[i].y, g.snd);
-      capGunShot(a, pts[i].x, pts[i].y, ang, g, true, false);
+      capGunShot(a, pts[i].x, pts[i].y, ang, g, true, false,
+                 (_ad && typeof mountHid === 'function' && mountHid(a, _ad)) ? a : null);
     }
   }
 }

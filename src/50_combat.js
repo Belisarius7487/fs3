@@ -2502,13 +2502,15 @@ function flakTurrets(e, ally, fl){
     const fuse = Math.max(1, Math.round(d/FLAK_SPD));
     const vx = Math.cos(ang)*FLAK_SPD, vy = Math.sin(ang)*FLAK_SPD;
     const dw = priDef('dante'), mul = fl[i].fk.dmg;
+    if(typeof f3dAim === 'function') f3dAim(e, fl[i].ti, tg.x, tg.y);
+    const hidE = (typeof mountHid === 'function' && mountHid(e, fl[i])) ? e : null;
     sndStart('wpn_dante', p.x, 1, false, 'ai_fire', p.y);
     if(ally) pBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
                             dmg:FLAK_SHARD_DMG*mul, ally:true, fac:e.faction,
-                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow});
+                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow, hidE:hidE});
     else     eBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
                             dmg:FLAK_SHARD_DMG*mul, faction:e.faction, big:false,
-                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow});
+                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow, hidE:hidE});
   }
 }
 
@@ -2540,7 +2542,9 @@ function capitalFire(e){
                          : Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x))
                  + (Math.random()-0.5)*0.10*eScat*g.scat;
         sndAiShot(pts[i].x, pts[i].y, g.snd);
-        capGunShot(e, pts[i].x, pts[i].y, ga, g, false, !!bomb);
+        if(_md && typeof f3dAim === 'function') f3dAim(e, _md.ti, gt.x, gt.y);
+        capGunShot(e, pts[i].x, pts[i].y, ga, g, false, !!bomb,
+                   (_md && typeof mountHid === 'function' && mountHid(e, _md)) ? e : null);
       }
     }
     // Bosses also throw out a spread pattern

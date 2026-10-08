@@ -1600,10 +1600,14 @@ scenario('v161: capital turrets, point defence, Shivan arms, colours, portal jum
   const mkC = (img, type, fac, side) => { const o = {type:type, img:img, sc:0.3, x:560, y:250, ang:0, head:0,
       flip:(side!=='ally'), side:side||'enemy', faction:fac, hp:5000, maxHp:5000, warp:0, pts:0}; return o; };
   // One gun per mount, for good.
-  const cr = mkC('ntfcraeolus', 'cruiser', 'ntf');
+  // v201: the NTF hulls have models and their turrets' own guns; the rule
+  // is for hulls without one
+  const cr = mkC('xxcruiser', 'cruiser', 'ntf');
   r.cruiserLightOnly = [0,1,2,3,4,5].every(i => capGun(cr, i) === CAP_GUNS.tt);
+  const de0 = mkC('xxdestroyer', 'destroyer', 'ntf');
+  r.destroyerHeavyThird = capGun(de0, 2) === CAP_GUNS.tht && capGun(de0, 0) === CAP_GUNS.tt && capGun(de0, 5) === CAP_GUNS.tht;
   const de = mkC('ntfdeorion', 'destroyer', 'ntf');
-  r.destroyerHeavyThird = capGun(de, 2) === CAP_GUNS.tht && capGun(de, 0) === CAP_GUNS.tt && capGun(de, 5) === CAP_GUNS.tht;
+  r.ntfModelGuns = capGun(de, 0) === mountsFor('ntfdeorion').primary[0].g;
   const sd = mkC('dedemon', 'destroyer', 'shivan');
   // v199: the Demon has a model - her guns are her turrets' own
   r.shivanGuns = capGun(sd, 0) === mountsFor('dedemon').primary[0].g && !!capGun(sd, 0).snd;
@@ -2957,7 +2961,7 @@ scenario('v195: support card without the hull bar', 'm=26', `
 
 scenario('v196: 3D capitals - keys, sprite fallback, damage marks alone', 'm=62', `
   const r = {};
-  r.keys = f3dKey({img:'deorionleft'}) === 'deorionright' && f3dKey({img:'ntfdeorion'}) === null && f3dKey({img:'crcain'}) === 'crcain' && f3dKey({img:'sdsathanas'}) === 'sdsathanas';
+  r.keys = f3dKey({img:'deorionleft'}) === 'deorionright' && f3dKey({img:'ntfdeorion'}) === 'ntfdeorion' && f3dKey({img:'crcain'}) === 'crcain' && f3dKey({img:'sdsathanas'}) === 'sdsathanas';
   // no model files here (file://): every ship stays a sprite, nothing breaks
   const done = f3dFieldPass(enemies.concat(allies));
   r.fallback = done.size === 0;
@@ -3040,6 +3044,33 @@ scenario('v200: models loaded up front, uploads queued between frames', 'm=77', 
   for(let i=0;i<40 && F3D_PRE.on && !F3D_PRE.done;i++) await new Promise(function(res){ setTimeout(res, 300); });
   r.preloadEnds = !F3D_PRE.on || F3D_PRE.done;
   try{ GS='title'; draw(); GS='playing'; draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
+  return r;`);
+
+scenario('v201: NTF in 3D, turrets turn, shots over the ships, hit beyond the sprite', 'm=62', `
+  const r = {};
+  r.ntfKeys = ['ntfcraeolus','ntfcodeimos','ntfcrfenris','ntfcrleviathan','ntfdeorion','ntfdehecate'].every(k => f3dKey({img:k}) === k);
+  const m = mountsFor('ntfdeorion');
+  r.ntfTurrets = !!(m && m.raw && m.beams.length === 9 && m.beams.every(b => b.ti != null));
+  // a gun's last target is kept for the turret to turn to
+  const e = {img:'deorionright'}; f3dAim(e, 3, 100, 200);
+  r.aimKept = !!(e._aimT && e._aimT[3] && e._aimT[3].x === 100);
+  const f = f3dRestFw([0, 1, 0]);
+  r.restBow = Math.abs(f[2] - 1) < 1e-6;
+  // a map taller than the sprite: a point above the sprite's box is hull
+  let k = null; for(let i=0;i<3000 && !k;i+=20){ FS.step(20); k = enemies.concat(allies).find(x => !x.small && x.type!=='asteroid' && IMGS[x.img] && !(x.warp>0)) || null; }
+  r.haveShip = !!k;
+  if(k){
+    const img = IMGS[k.img];
+    MASKS3D[k.img] = {w:4, h:8, bits:new Uint8Array(32).fill(1), ky:2};
+    const y = k.y - img.height*k.sc*0.8;          // above the sprite's box
+    r.hitAbove = onHull(k.img, k.x, k.y, k.sc, k.flip, k.x, y, 0) === true;
+    delete MASKS3D[k.img];
+    r.notWithoutMap = onHull(k.img, k.x, k.y, k.sc, k.flip, k.x, y, 0) === false;
+  }
+  // shots: drawn after the ships; one from a far flank under its ship
+  r.shots = typeof drawShots === 'function' && shotUnder({hidE:null}) === false;
+  r.noBoxWithoutLoader = (f3dLoadBoxShow(), !document.querySelector('div[style*="z-index:50"]'));
+  try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────
