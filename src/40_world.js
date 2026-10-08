@@ -2054,14 +2054,21 @@ function updateAllies(){
     if(a.keepAlive && a.hp < a.maxHp*0.05) a.hp = a.maxHp*0.05;
     // In her death roll: adrift, nothing else (v183).
     if(a.rollT!=null){ a.hp = 1; continue; }
-    if(a.hp<=0 && !a.dead && startDeathRoll(a)) continue;
+    if(a.hp<=0 && !a.dead && startDeathRoll(a)){
+      // v199 (Silvio, M69): a protected ship in her death roll is lost
+      // already. Counted now, so the mission clock running out during the
+      // roll can no longer call her 'jumped out'.
+      if(a.guard && !a.protCounted){ a.protCounted = true; protLost++; guardLost = true; }
+      continue;
+    }
     if(a.hp<=0 && !a.dead){
       a.dead = true;
       triggerExpl(a.x, a.y, a.type, a.faction==='vasudan' ? 'vasudan' : 'terran', a);
       allies.splice(i,1);
       plogAllyLost(a);
       if(a.guard){ plogLoss('protected ship lost', a);
-        protLost++; guardLost = true; guardGone = true; score = Math.max(0, score-GUARD_PENALTY);
+        if(!a.protCounted) protLost++;
+        guardLost = true; guardGone = true; score = Math.max(0, score-GUARD_PENALTY);
         // The Orff coming through decides whether the Vasudan ace shows up
         // in the wave after this one.
         if(FS1_MODE && wave===1) CAMP.orffOk = false; }

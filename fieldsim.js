@@ -1605,7 +1605,8 @@ scenario('v161: capital turrets, point defence, Shivan arms, colours, portal jum
   const de = mkC('ntfdeorion', 'destroyer', 'ntf');
   r.destroyerHeavyThird = capGun(de, 2) === CAP_GUNS.tht && capGun(de, 0) === CAP_GUNS.tt && capGun(de, 5) === CAP_GUNS.tht;
   const sd = mkC('dedemon', 'destroyer', 'shivan');
-  r.shivanGuns = capGun(sd, 0) === CAP_GUNS.stl && capGun(sd, 2) === CAP_GUNS.mf;
+  // v199: the Demon has a model - her guns are her turrets' own
+  r.shivanGuns = capGun(sd, 0) === mountsFor('dedemon').primary[0].g && !!capGun(sd, 0).snd;
   // The Orion's heavy turrets fire in threes, in her race's colour.
   eBullets.length = 0;
   capGunShot(de, 500, 250, Math.PI, CAP_GUNS.tht, false, false);
@@ -2983,7 +2984,8 @@ scenario('v198: turrets from the models, their half of space, beams in the jump'
   // the stand-in sprites are plain boxes; the lists still move
   const m = mountsFor('sdsathanas');
   r.moved = !!(m && m.beams && m.beams[0].n3 && m.primary.every(p=>p.n3));
-  r.lucReactorsStay = !mountsFor('sdlucifer').primary.some(p=>p.n3) && !!mountsFor('sdlucifer').beams[0].n3;
+  // v199: her guns are the model's, her reactors stay on the old mounts
+  r.lucReactorsStay = !!mountsFor('sdlucifer').raw && !mountsFor('sdlucifer').raw.primary.some(p=>p.n3) && !!mountsFor('sdlucifer').beams[0].n3;
   r.otherHullsAlone = !mountsFor('fimyrmidon').primary.some(p=>p.n3);
   // a turret on the back reaches up but not down through the hull
   const e = {img:'crcain', flip:false, ang:0, x:400, y:300};
@@ -2999,6 +3001,30 @@ scenario('v198: turrets from the models, their half of space, beams in the jump'
   const bb = {dx:0, dy:0.3, n3:[0, -1, 0]};
   const mp = mountPos(k, bb);
   r.bellyNoUp = beamCanAim(k, bb, mp, {x:mp.x, y:mp.y-300}) === false && beamCanAim(k, bb, mp, {x:mp.x, y:mp.y+300}) === true;
+  try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
+  return r;`);
+
+scenario('v199: every turret of the model with its FS weapon; a dying ward is lost', 'm=69', `
+  const r = {};
+  const m = mountsFor('sdsathanas');
+  r.sathAll = m.beams.length === 13 && m.primary.length === 22 && m.flak.length === 13 && m.secondary.length === 5;
+  r.gunProfile = m.primary.every(p=>p.g && p.g.dmg > 0 && p.g.rate > 0);
+  r.bfred = m.beams.filter(b=>b.wpn==='BFred').length === 4 && m.beams.some(b=>!b.large);
+  r.fenrisNoBeams = (mountsFor('crfenris').beams||[]).length === 0;
+  const e = {img:'sdsathanas', type:'boss', faction:'shivan'};
+  r.capGun = capGun(e, 0) === m.primary[0].g;
+  r.flakHas = flakHas({img:'sdsathanas', type:'boss'}) === true && flakHas({img:'deorionright', type:'destroyer'}) === false;
+  // M69: the Hecate in her death roll counts as lost at once
+  let h = null; for(let i=0;i<2000 && !h;i+=20){ FS.step(20); h = allies.find(a=>a.guard && !(a.warp>0)) || null; }
+  r.haveWard = !!h;
+  if(h){
+    const before = protLost;
+    h.hp = 0; FS.step(2);
+    r.rollStarted = h.rollT != null;
+    r.lostAtOnce = protLost === before + 1;
+    evFire({w:'raus', a:h.uid});
+    r.noJumpWhileDying = !(h.warpOut > 0);
+  }
   try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
   return r;`);
 

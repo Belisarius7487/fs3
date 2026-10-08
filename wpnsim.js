@@ -401,7 +401,7 @@ console.log('\nCapital flak: a wall, not a shot');
 }
 ok('both sides run the gun', /flakFire\(e, false\)/.test(src) && /flakFire\(a, true\)/.test(src));
 ok('the enemy fuse bursts where it runs out',
-   /if\(b\.fuse && --b\.fuse<=0\)\{\n\s*flakBurst\(b\.x, b\.y, false, b\.faction\)/.test(src));
+   /if\(b\.fuse && --b\.fuse<=0\)\{\n\s*flakBurst\(b\.x, b\.y, false, b\.faction(, b\.fmul)?\)/.test(src));
 
 console.log('\nEvery weapon is reachable and none of them is free');
 {

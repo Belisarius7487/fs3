@@ -3574,7 +3574,8 @@ function evFire(ev){
       for(const u of byId(arg)) if(u.side!=='enemy') defect(u);
       break;
     case 'raus':
-      for(const u of byId(arg)){ u.warpMax = u.warpMax > 1 ? u.warpMax : 100; u.warpOut = u.warpMax; EV_LEFT[arg] = true; }
+      // a ship in her death roll does not jump any more (v199)
+      for(const u of byId(arg)){ if(u.rollT != null) continue; u.warpMax = u.warpMax > 1 ? u.warpMax : 100; u.warpOut = u.warpMax; EV_LEFT[arg] = true; }
       break;
     case 'heilen': {
       // M027: jeder angedockte Transporter setzt den Rumpf ein Stueck

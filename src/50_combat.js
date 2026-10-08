@@ -1948,7 +1948,7 @@ function initLuciShield(e){
   e.bShield = LUCI_SHIELD;
   e.bShieldMax = LUCI_SHIELD;
   e.reactors = [];
-  const m = mountsFor(e.img);
+  const m0 = mountsFor(e.img), m = (m0 && m0.raw) || m0;     // v199: her old gun mounts
   const list = (m && m.primary) ? m.primary : [];
   for(let i=0;i<LUCI_REACTOR_MOUNTS.length;i++){
     const p = list[LUCI_REACTOR_MOUNTS[i]];
@@ -2280,9 +2280,9 @@ function initWeapons(e){
   const cfg = WPN[e.type]; if(!cfg) return;
   const m = mountsFor(e.img); if(!m) return;
   if(m.primary && m.primary.length)
-    e.gunT = m.primary.map(function(){ return rndR(cfg.rate); });
+    e.gunT = m.primary.map(function(q){ return (rndR(cfg.rate)*(q.g ? q.g.rate*Math.random() : 1))|0; });
   if(cfg.sec && m.secondary && m.secondary.length)
-    e.secT = m.secondary.map(function(){ return (rndR(cfg.sec.rate)*Math.random())|0; });
+    e.secT = m.secondary.map(function(q){ return (rndR(cfg.sec.rate)*(q.sec ? q.sec.rate : 1)*Math.random())|0; });
   e.spreadT = 200 + (Math.random()*260|0);
 }
 
@@ -2327,9 +2327,13 @@ function fireSecondaries(e, cfg){
     for(let i=0;i<e.secT.length;i++) if(e.secT[i]<30) e.secT[i]=30;
     return;
   }
+  const _sm = mountsFor(e.img), _sl = _sm && _sm.raw ? _sm.secondary : null;
   for(let i=0;i<pts.length && i<e.secT.length;i++){
     if(--e.secT[i] <= 0){
-      e.secT[i] = (rndR(cfg.sec.rate) * (e.fireBoost||1))|0;
+      // v199: a launcher of the model at its own FreeSpace rate and weight
+      const _sq = _sl && _sl[i] && _sl[i].sec;
+      e.secT[i] = (rndR(cfg.sec.rate) * (e.fireBoost||1) * (_sq ? _sq.rate : 1))|0;
+      const _cs = (_sq && _sq.dmg !== 1) ? Object.assign({}, cfg.sec, {dmg: cfg.sec.dmg*_sq.dmg}) : cfg.sec;
       if(e.secAmmo!=null){
         if(e.secAmmo<=0) return;
         e.secAmmo--;
@@ -2337,11 +2341,11 @@ function fireSecondaries(e, cfg){
       const lo = aiLoadout(e);
       if(lo && lo.s){
         // A launcher with nothing worth its load in sight waits.
-        if(!aiSecondary(e, pts[i].x, pts[i].y, lo, cfg.sec)){ e.secT[i] = 60; if(e.secAmmo!=null) e.secAmmo++; continue; }
+        if(!aiSecondary(e, pts[i].x, pts[i].y, lo, _cs)){ e.secT[i] = 60; if(e.secAmmo!=null) e.secAmmo++; continue; }
         e.secT[i] = (e.secT[i]*(AI_SEC_RATE[lo.s]||1))|0;
       }
-      else if(e.side==='ally') aSecondary(pts[i].x, pts[i].y, e.faction, cfg.sec);
-      else                eSecondary(pts[i].x, pts[i].y, e.faction, cfg.sec);
+      else if(e.side==='ally') aSecondary(pts[i].x, pts[i].y, e.faction, _cs);
+      else                eSecondary(pts[i].x, pts[i].y, e.faction, _cs);
     }
   }
 }
@@ -2404,20 +2408,27 @@ const FLAK_SHARDS      = 8;
 const FLAK_SHARD_DMG   = 3;
 const FLAK_SHARD_SPD   = 2.6;
 const FLAK_SHARD_RANGE = 62;
-function flakHas(e){ return !!FLAK_TYPES[e.type] && !e.noFlak; }
+function flakHas(e){
+  if(e.noFlak) return false;
+  // v199: a hull with a model has flak where her model has flak turrets
+  const m = (typeof mountsFor === 'function') ? mountsFor(e.img) : null;
+  if(m && m.raw) return !!(m.flak && m.flak.length);
+  return !!FLAK_TYPES[e.type];
+}
 // The shrapnel. An allied gun throws it into the player's list so it bites
 // enemies; an enemy gun into the enemy list so it bites the player and the
 // escorts. Same star shape either way.
-function flakBurst(x, y, ally, fac){
+function flakBurst(x, y, ally, fac, mul){
+  mul = mul || 1;
   const dw = priDef('dante');     // the flak is the Dante
   // Uneven like every other burst, see shardSpread().
   for(const q of shardSpread(FLAK_SHARDS, FLAK_SHARD_SPD, FLAK_SHARD_RANGE)){
     const vx = Math.cos(q.a)*q.spd, vy = Math.sin(q.a)*q.spd;
     if(ally) pBullets.push({x:x, y:y, vx:vx, vy:vy, w:q.w, h:q.h,
-                            dmg:FLAK_SHARD_DMG*q.mul, ally:true, fac:fac,
+                            dmg:FLAK_SHARD_DMG*q.mul*mul, ally:true, fac:fac,
                             pLife:q.life, shard:true, col:dw.col, glow:dw.glow});
     else     eBullets.push({x:x, y:y, vx:vx, vy:vy, w:q.w, h:q.h,
-                            dmg:FLAK_SHARD_DMG*q.mul, faction:fac, big:false,
+                            dmg:FLAK_SHARD_DMG*q.mul*mul, faction:fac, big:false,
                             eLife:q.life, shard:true, col:dw.col, glow:dw.glow});
   }
   sndStart('burst_dante', x, 1, false, 'ai_sec', y);
@@ -2440,6 +2451,8 @@ function flakReach(px, py, ang, want){
 function flakFire(e, ally){
   if(!flakHas(e) || e.dead || e.warp>0 || e.warpOut>0) return;
   if(e.noFire || !subOK(e,'weapons')) return;
+  const _fm = (typeof mountsFor === "function") ? mountsFor(e.img) : null;
+  if(_fm && _fm.raw){ flakTurrets(e, ally, _fm.flak); return; }
   if(e.flakT===undefined) e.flakT = rndR(FLAK_RATE)|0;
   if(--e.flakT > 0) return;
   // An anti fighter platform (Aten) fires its flak more often.
@@ -2465,6 +2478,38 @@ function flakFire(e, ally){
   else     eBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
                           dmg:FLAK_SHARD_DMG, faction:e.faction, big:false,
                           flak:true, fuse:fuse, col:dw.col, glow:dw.glow});
+}
+
+// v199: every flak turret of the model on its own beat, at the rate and
+// weight of its FreeSpace flak against the Standard Flak the old single
+// gun stood for.
+function flakTurrets(e, ally, fl){
+  if(!fl || !fl.length) return;
+  const _tr = HULL_TRAITS[e.img], boost = (_tr && _tr.flak) || 1;
+  if(!e.flakTs) e.flakTs = fl.map(function(q){ return (rndR(FLAK_RATE)*q.fk.rate*Math.random())|0; });
+  const pts = entMounts(e,'flak');
+  if(!pts) return;
+  for(let i=0;i<pts.length && i<e.flakTs.length;i++){
+    if(--e.flakTs[i] > 0) continue;
+    e.flakTs[i] = (rndR(FLAK_RATE)*fl[i].fk.rate/boost)|0;
+    const p = pts[i];
+    const tg = ally ? nearestEnemy(p.x, p.y) : capGunTarget(e);
+    if(!tg) continue;
+    if(typeof mountCanAim === 'function' && !mountCanAim(e, fl[i], p.x, p.y, tg.x, tg.y)){ e.flakTs[i] = 15; continue; }
+    const ang  = Math.atan2(tg.y-p.y, tg.x-p.x);
+    const want = Math.hypot(tg.x-p.x, tg.y-p.y);
+    const d    = flakReach(p.x, p.y, ang, want);
+    const fuse = Math.max(1, Math.round(d/FLAK_SPD));
+    const vx = Math.cos(ang)*FLAK_SPD, vy = Math.sin(ang)*FLAK_SPD;
+    const dw = priDef('dante'), mul = fl[i].fk.dmg;
+    sndStart('wpn_dante', p.x, 1, false, 'ai_fire', p.y);
+    if(ally) pBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
+                            dmg:FLAK_SHARD_DMG*mul, ally:true, fac:e.faction,
+                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow});
+    else     eBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
+                            dmg:FLAK_SHARD_DMG*mul, faction:e.faction, big:false,
+                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow});
+  }
 }
 
 function capitalFire(e){

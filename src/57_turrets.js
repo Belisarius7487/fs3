@@ -23,6 +23,9 @@ const CAP_HEAVY = {destroyer:1, station:1, boss:1};
 // Hulls that fire their heavy turrets in threes.
 const CAP_TRIPLE = /orion/;
 function capGun(e, i){
+  // v199: a hull with a model has the gun of each real turret
+  const _m = mountsFor(e.img), _q = _m && _m.primary && _m.primary[i];
+  if(_q && _q.g) return _q.g;
   const shiv = e.faction==='shivan';
   const heavy = CAP_HEAVY[e.type] && (i % 3 === 2);
   return CAP_GUNS[shiv ? (heavy ? 'mf' : 'stl') : (heavy ? 'tht' : 'tt')];

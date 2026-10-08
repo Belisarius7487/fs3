@@ -1061,7 +1061,7 @@ function update(){
     // A flak round bursts where its fuse runs out, and the shrapnel it
     // leaves is what the run has to cross.
     if(b.fuse && --b.fuse<=0){
-      flakBurst(b.x, b.y, false, b.faction);
+      flakBurst(b.x, b.y, false, b.faction, b.fmul);
       eBullets.splice(i,1); continue;
     }
     // Shrapnel gives out on its own rather than flying to the edge.
@@ -1156,7 +1156,7 @@ function update(){
     // The fuse comes first: a round that bursts by itself has to do it
     // before the reach runs out, or it would simply vanish instead.
     if(b.fuse && --b.fuse<=0){
-      if(b.flak) flakBurst(b.x, b.y, true, b.fac);
+      if(b.flak) flakBurst(b.x, b.y, true, b.fac, b.fmul);
       else {
         const fw=priDef(b.wpn);
         if(fw.shards) sndPlay('burst_dante', b.x);
@@ -1204,7 +1204,7 @@ function update(){
         if(b.f && !b.ally) sndPlay('fs_hit', b.x, 1, b.y);   // FS2 impact, hit_1 (v187)
         laserHit(b.x,b.y,b.col);STATS.hits++;plogHit(b);e.shotAt=true;DMG_F=b.f||null;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt',(b.cap||b.flak)?'capgun':(b.shard?'shard':'gun'));DMG_F=null;
         if(b.flak){
-          flakBurst(b.x, b.y, true, b.fac);
+          flakBurst(b.x, b.y, true, b.fac, b.fmul);
           pBullets.splice(i,1); hit=true;
         } else if(b.fuse!==undefined && b.fuse>0 && b.wpn){
           const fw=priDef(b.wpn);
