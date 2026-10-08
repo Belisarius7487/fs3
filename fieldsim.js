@@ -2287,7 +2287,9 @@ scenario('v177: a small ship vortex in front of a large hull', 'm=70', `
   Object.defineProperty(WARP_IMG, 'naturalWidth', {value:2304, configurable:true});
   Object.defineProperty(WARP_IMG, 'complete', {value:true, configurable:true});
   const order = []; const _d = ctx.drawImage;
-  ctx.drawImage = function(img){ if(img===IMGS.coiceni) order.push('iceni'); else if(img===WARP_IMG) order.push('vortex'); return _d.apply(this, arguments); };
+  // v194: a damaged Iceni is drawn from her kept picture, not the sprite
+  const isIceni = function(img){ return img===IMGS.coiceni || (ic.dm && (img===ic.dm.can || img===ic.dm.frame)); };
+  ctx.drawImage = function(img){ if(isIceni(img)) order.push('iceni'); else if(img===WARP_IMG) order.push('vortex'); return _d.apply(this, arguments); };
   try{ draw(); } finally { ctx.drawImage = _d; }
   const iI = order.indexOf('iceni'), iV = order.lastIndexOf('vortex');
   r.vortexOverIceni = iI >= 0 && iV > iI;
@@ -2887,6 +2889,60 @@ scenario('v192: test switch, GTVA labels, the cards', 'm=26&ship=bosekhmet', `
   const hc = hangarCard('bosekhmet'), ac = allyCard('vas_hatshepsut', 'T');
   r.hangarCardFacts = hc.facts.length >= 3 && hc.bars.length === 4 && hc.sub === 'YOU FLY THIS ONE';
   r.allyCardFacts = ac.facts.some(f=>/HEAVY BEAM/.test(f)) && ac.lines.some(l=>/switch ship/.test(l));
+  return r;`);
+
+scenario('v194: DONE in hangar and support, model trim', 'm=26', `
+  const r = {};
+  const hit = function(list){ const d = (list||[]).find(q=>q.close); if(!d) return false;
+    pointerConsumed({x:d.x+d.w/2, y:d.y+d.h/2}); return true; };
+  if(typeof clearResumeHold === 'function') clearResumeHold();
+  const ship0 = player.ship;
+  setShipMenu(true); drawShipMenu();
+  r.hangarDone = hit(window._shipRects) && shipMenu === false && player.ship === ship0;
+  clearResumeHold();
+  setCallMenu(true); drawCallMenu();
+  const called = STATS.escortsCalled;
+  r.supportDone = hit(window._callRects) && callMenu === false && STATS.escortsCalled === called;
+  clearResumeHold();
+  // keys in the support window (v194)
+  const key = function(code){ document.dispatchEvent(new KeyboardEvent('keydown', {code:code})); };
+  for(const q in tickets) tickets[q] = 5;
+  const reset = function(){ allies.length = 0; setCallMenu(false); setShipMenu(false); clearResumeHold(); userPaused = false; syncPause(); };
+  reset(); setCallMenu(true); let c0 = STATS.escortsCalled; key('KeyR');
+  r.rCallsNotRearm = STATS.escortsCalled === c0+1 && !rearmMenu;
+  reset(); setCallMenu(true); c0 = STATS.escortsCalled; key('KeyG');
+  r.gCallsColossus = STATS.escortsCalled === c0+1 && allies.some(a=>a.colossus);
+  reset(); setCallMenu(true); c0 = STATS.escortsCalled; key('KeyC');
+  r.cCloses = !callMenu && STATS.escortsCalled === c0;
+  reset(); setCallMenu(true); key('Escape'); clearResumeHold();
+  r.escClosesWithoutPause = !callMenu && !userPaused && !paused;
+  reset();
+  // only the last M3D_KEEP hulls stay on the graphics card
+  const keep = M3D.models; M3D.models = {};
+  for(let i=0;i<7;i++) M3D.models['h'+i] = {lo:{state:'ready', parts:[], tex:{}}, hi:null, seen:i};
+  M3D.models.h1.lo.state = 'loading';
+  m3dTrim('h0');
+  const left = Object.keys(M3D.models).sort().join();
+  r.trimmed = left === 'h0,h1,h5,h6' ? true : left;
+  M3D.models = keep;
+  return r;`);
+
+scenario('v194: a wiped hull picture is built again at once', 'm=62', `
+  const r = {};
+  FS.step(600);
+  const k = enemies.find(e=>e.type==='cruiser' && !(e.warp>0));
+  r.haveCruiser = !!k;
+  if(!k) return r;
+  for(let i=0;i<60 && k.hp > k.maxHp*0.6;i++){ damageEnemy(k, k.maxHp*0.01, k.x, k.y, true, 'bolt'); FS.step(1); draw(); }
+  for(let i=0;i<40;i++){ FS.step(1); draw(); }
+  const D = k.dm;
+  r.damaged = !!D && !!D.can;
+  if(!D) return r;
+  const b0 = D.built;
+  for(let i=0;i<5;i++){ FS.step(1); draw(); }
+  r.quietWhenNothingChanged = D.built === b0 ? true : [b0, D.built, D.dirty];
+  cacheLost(); FS.step(1); draw();
+  r.rebuiltAfterWipe = (D.built === fc && D.gen === CACHE_GEN) ? true : [D.built, fc, D.gen, CACHE_GEN];
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

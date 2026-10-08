@@ -228,8 +228,25 @@ window.addEventListener('orientationchange', function(){ setTimeout(applyResolut
 // and applyResolution puts the device pixel scale back afterwards.
 // Sprites and alpha masks are unaffected, they live outside the canvas.
 let ctxRestores = 0, ctxNoticeUntil = 0;
-CVS.addEventListener('contextlost', function(ev){ ev.preventDefault(); }, false);
+// v194: the pictures kept between frames (a damaged hull) are canvases
+// too, and the browser may wipe them blank in the same way when graphics
+// memory runs short. A wiped picture would stay blank until her next hit
+// (Silvio: the Hatshepsut's hull gone for seconds, her rim light still
+// there). Every such loss counts up CACHE_GEN, and whoever keeps a picture
+// rebuilds it when the count has moved.
+let CACHE_GEN = 0;
+function cacheLost(){ CACHE_GEN++; }
+function cacheCanvas(w, h){
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  if(c.addEventListener){
+    c.addEventListener('contextlost', function(ev){ ev.preventDefault(); cacheLost(); }, false);
+    c.addEventListener('contextrestored', cacheLost, false);
+  }
+  return c;
+}
+CVS.addEventListener('contextlost', function(ev){ ev.preventDefault(); cacheLost(); }, false);
 CVS.addEventListener('contextrestored', function(){
+  cacheLost();
   ctxRestores++;
   ctxNoticeUntil = Date.now() + 6000;
   applyResolution();
@@ -1617,7 +1634,7 @@ function dmgBuild(e, D){
   const img = IMGS[e.img], w = img.width*e.sc, h = img.height*e.sc;
   const k = dmgK(e), pw = Math.max(1, Math.round(w*k)), ph = Math.max(1, Math.round(h*k));
   if(!D.can || D.can.width!==pw || D.can.height!==ph){
-    D.can = document.createElement('canvas'); D.can.width = pw; D.can.height = ph;
+    D.can = cacheCanvas(pw, ph);
   }
   D.k = k;
   const g = D.can.getContext('2d');
@@ -1720,6 +1737,9 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
     drawShip(e.img, cx, cy, scale, flipX, ang); return;
   }
   dmgTick(e, D);
+  // a kept picture was wiped somewhere: build hers again, now (v194)
+  if(D.can && D.can.getContext('2d').isContextLost && D.can.getContext('2d').isContextLost()) cacheLost();
+  if(D.gen !== CACHE_GEN){ D.gen = CACHE_GEN; D.dirty = true; D.built = -99; D.fBuilt = -1; D.fxT = -99; }
   // the screen resolution changed (window, fullscreen): rebuild at the new one
   if(D.can && D.k !== dmgK(e)) D.dirty = true;
   if(D.dirty && (fc - (D.built||-99) >= 3 || !D.can || D.k !== dmgK(e))) dmgBuild(e, D);
@@ -1735,7 +1755,7 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
   if(gl){
     const cw = D.can.width, ch = D.can.height;
     if(!D.frame || D.frame.width!==cw || D.frame.height!==ch){
-      D.frame = document.createElement('canvas'); D.frame.width = cw; D.frame.height = ch;
+      D.frame = cacheCanvas(cw, ch);
     }
     // Recomposed only when the picture or the light on it has changed.
     const rel = (ang||0) - lightAngleAt(cx, cy);
@@ -1798,7 +1818,7 @@ function dmgFx(e, D, cx, cy, w, h, flipX, ang){
   const fw = Math.ceil(x1 - x0), fh = Math.ceil(y1 - y0);   // game units
   const k = D.k || 1, cw = Math.ceil(fw*k), ch = Math.ceil(fh*k);
   if(!D.fxL || D.fxL.width!==cw || D.fxL.height!==ch){
-    D.fxL = document.createElement('canvas'); D.fxL.width = cw; D.fxL.height = ch;
+    D.fxL = cacheCanvas(cw, ch);
     D.fxT = -99;
   }
   const opening = D.gashes.some(function(gs){ return fc - gs.t0 < DMG_GROW; });

@@ -1626,7 +1626,9 @@ const ALLY_KEYS  = ['1','2','3','4','5','6','Q','W','E','R','T'];
 const ALLY_TER_N = 6;      // how many entries fill the left column
 // The Colossus sits on her own full width row below the two columns.
 const ALLY_SPECIAL = 'colossus';
-const ALLY_SPECIAL_KEY = 'C';
+// v194: G (GTVA), not C - C opens and closes the support window, so as a
+// call key it only ever closed the window.
+const ALLY_SPECIAL_KEY = 'G';
 // Which support factions answer in the current cycle. The Hammer of Light
 // cycle is fought on the Vasudan side, so no Terran fleet is on call. A
 // later cycle switches its own factions back on by setting these.

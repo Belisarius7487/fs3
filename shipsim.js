@@ -62,7 +62,7 @@ const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
-  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','rmWrap','hgName','drawInfoCard','hangarCard','allyCard','allyLabel','tickWeaponUnlocks',
+  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','rmWrap','hgName','drawDoneButton','closeKeys','drawInfoCard','hangarCard','allyCard','allyLabel','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell','hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
@@ -229,7 +229,7 @@ W.run('toggleShipMenu()'); ok('opening the switch closes the call menu', W.get('
 
 console.log('Menu drawing and taps');
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu(); drawShipMenu()');
-const rects = W.run('window._shipRects');
+const rects = W.run('window._shipRects').filter(r=>r.ship);
 const rowOf = (key)=>W.run('window._shipRects').find(r=>r.ship===key);
 ok('eight rows drawn', rects.length===8);
 ok('menu fits on the 800x500 field', rects.every(r=>r.x>=0 && r.y>=0 && r.x+r.w<=800 && r.y+r.h<=500));
@@ -261,8 +261,8 @@ console.log('The panel swallows its own clicks');
   W.run(`pointerConsumed({x:${pr.x+40},y:${pr.y+6}})`);
   ok('a click on the header keeps the panel open', W.get('shipMenu')===true);
   // A gap between two rows.
-  const rs = W.run('window._shipRects');
-  const gapY = rs[0].y + rs[0].h + 2;
+  const rs = W.run('window._shipRects').filter(r=>r.ship);
+  const gapY = rs[0].y + rs[0].h + 1;
   W.run(`pointerConsumed({x:${rs[0].x+40},y:${gapY}})`);
   ok('a click in the gap between rows keeps it open too', W.get('shipMenu')===true);
   // The footer.
@@ -272,6 +272,29 @@ console.log('The panel swallows its own clicks');
   // Outside the outline is still outside.
   W.run(`pointerConsumed({x:${pr.x-12},y:${pr.y+pr.h/2}})`);
   ok('a click beside the panel closes it', W.get('shipMenu')===false);
+}
+
+console.log('DONE (v194)');
+{
+  reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]);
+  W.run('toggleShipMenu()'); W.run('drawShipMenu()');
+  const all = W.run('window._shipRects'), done = all.filter(r=>r.close);
+  const rows = all.filter(r=>r.ship), pr = W.run('window._shipPanelRect');
+  ok('one DONE button', done.length===1);
+  const d = done[0];
+  ok('inside the panel, below every row',
+     d.x>=pr.x && d.x+d.w<=pr.x+pr.w && d.y+d.h<=pr.y+pr.h && rows.every(r=>r.y+r.h <= d.y-4));
+  W.run(`pointerConsumed({x:${d.x+d.w/2},y:${d.y+d.h/2}})`);
+  ok('DONE closes without switching', W.get('shipMenu')===false && P().ship==='fitoth' && W.run('shipSwapReady()')===true);
+  ok('and holds the pause like ESC', W.get('resumeHold')===true);
+  W.run('clearResumeHold()');
+  // the longest list: every hull open, the tight layout
+  reset(); W.run("shipUnlocked=99"); W.set('allies',[destroyer()]);
+  W.run('toggleShipMenu()'); W.run('drawShipMenu()');
+  const a2 = W.run('window._shipRects'), d2 = a2.find(r=>r.close), p2 = W.run('window._shipPanelRect');
+  ok('with every hull open DONE still clears the rows and the panel fits',
+     !!d2 && a2.filter(r=>r.ship).every(r=>r.y+r.h <= d2.y-4) && p2.y>=0 && p2.y+p2.h<=500);
+  W.run('setShipMenu(false); clearResumeHold()');
 }
 
 console.log('Keyboard');
@@ -492,7 +515,7 @@ reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleSh
 W.set('IMGS', {});
 CLR(); W.run('drawShipMenu()');
 ok('nothing loaded yet: no picture, no crash, rows still there',
-   draws().length===0 && W.run('window._shipRects').length===8);
+   draws().length===0 && W.run('window._shipRects').filter(r=>r.ship).length===8);
 W.set('IMGS', ALL_IMGS);
 CLR(); W.run('drawShipMenu()');
 // v192: the info card adds one bigger picture of the hull it is about.
@@ -528,7 +551,7 @@ const colX = (k)=> W.run('HG_COLS').find(c=>c.k===k).x;
 // The column titles sit on the same x, so a value only counts when it also
 // sits inside a row.
 const inCol = (k)=>{
-  const x0 = colX(k), rs = W.run('window._shipRects');
+  const x0 = colX(k), rs = W.run('window._shipRects').filter(r=>r.ship);
   return texts().filter(t=> rs.some(r=> t.x === r.x + x0 && t.y >= r.y && t.y <= r.y + r.h));
 };
 // v192: guns and volley moved from the list into the info card.
@@ -562,7 +585,7 @@ console.log('One look, and it is the forum one');
 reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
 CLR(); W.run('drawShipMenu()');
 const hlpFonts = CALLS.filter(c=>c.fn==='set font').map(c=>String(c.args[0]));
-const hlpCells = W.run('window._shipRects').map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|');
+const hlpCells = W.run('window._shipRects').filter(r=>r.ship).map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|');
 ok('no Courier left in the hangar', hlpFonts.every(f=>f.indexOf('Courier')<0));
 ok('it uses the forum faces', hlpFonts.some(f=>f.indexOf('Tahoma')>=0) && hlpFonts.some(f=>f.indexOf('Segoe UI')>=0));
 ok('values are no longer set in 8 and 9 pixels',
@@ -573,7 +596,7 @@ ok('nothing chooses between two looks any more', !/ECO\\.hud/.test(src));
 W.run("ECO.scheme='void'"); CLR(); W.run('drawShipMenu()');
 ok('the hangar draws in Void too', CALLS.length>50);
 ok('and the rows did not move',
-   W.run('window._shipRects').map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|')===hlpCells);
+   W.run('window._shipRects').filter(r=>r.ship).map(r=>r.x+','+r.y+','+r.w+','+r.h).join('|')===hlpCells);
 W.run("ECO.scheme='fire'");
 
 console.log('Everything is drawn from the surface kit');
@@ -585,14 +608,15 @@ console.log('Everything is drawn from the surface kit');
   // old box gradient did.
   const grads = CALLS.filter(c=>c.fn==='createLinearGradient');
   ok('every gradient is a gloss, not a full height fill',
-     grads.length>0 && grads.every(g=>(g.args[3]-g.args[1])<=200));
+     grads.length>0 && grads.every(g=>(g.args[3]-g.args[1])<=W.run('window._shipPanelRect').h*0.45));
   // A chamfered outline is six corners. A rectangle would be four.
   const closes = CALLS.filter(c=>c.fn==='closePath').length;
   ok('the panel and every plate are chamfered, not rectangles', closes>=9);
   ok('one scale under each of the two group headings',
      CALLS.filter(c=>c.fn==='set lineWidth' && c.args[0]===1).length>0 && closes>=9);
-  ok('a ring is drawn, and only around the active row',
-     CALLS.filter(c=>c.fn==='set shadowBlur' && c.args[0]===6).length===2);
+  // v194: plus the DONE button, lit like the one in the rearm window
+  ok('a ring is drawn, and only around the active row and DONE',
+     CALLS.filter(c=>c.fn==='set shadowBlur' && c.args[0]===6).length===3);
   ok('nothing leaks out of a save/restore', balanced());
 }
 {
@@ -609,7 +633,7 @@ console.log('Everything is drawn from the surface kit');
   // the regrouping rather than count rows.
   reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
   CLR(); W.run('drawShipMenu()');
-  const rs = W.run('window._shipRects');
+  const rs = W.run('window._shipRects').filter(r=>r.ship);
   const chipX = W.run('HG_NUM') + W.run('HG_NUM_W')/2;
   const chip = (key)=>{ const r=rs.find(r=>r.ship===key);
     return texts().find(t=> t.x===r.x+chipX && t.y>=r.y && t.y<=r.y+r.h); };
@@ -622,14 +646,14 @@ console.log('Everything is drawn from the surface kit');
 
 console.log('The panel grows with what is open');
 {
-  const height = ()=>{ const r=W.run('window._shipRects'); return r[r.length-1].y+r[r.length-1].h - r[0].y; };
+  const height = ()=>{ const r=W.run('window._shipRects').filter(q=>q.ship); return r[r.length-1].y+r[r.length-1].h - r[0].y; };
   reset(); W.run("shipUnlocked=2"); W.set('allies',[destroyer()]); W.run('toggleShipMenu(); drawShipMenu()');
   const small = height();
   reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu(); drawShipMenu()');
   const big = height();
   ok('eight open hulls need more room than two', big > small);
   ok('and it still fits on the field',
-     W.run('window._shipRects').every(r=>r.y>=0 && r.y+r.h<=500));
+     W.run('window._shipRects').filter(r=>r.ship).every(r=>r.y>=0 && r.y+r.h<=500));
 }
 
 console.log('Rearm needs a corvette, not any ship at all');

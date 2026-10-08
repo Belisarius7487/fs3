@@ -903,10 +903,10 @@ const CONTROLS = [
   ['WHEEL UP, Q',        'primary: bank 1, 2, linked'],
   ['WHEEL DOWN, E',      'next secondary bank'],
   ['MIDDLE BUTTON',      'subsystems on / off'],
-  ['V',                  'change ship'],
-  ['R',                  'rearm'],
-  ['C',                  'call support'],
-  ['1 - 9',              'choose in a menu'],
+  ['V',                  'change ship (V again closes)'],
+  ['R',                  'rearm (R again closes)'],
+  ['C',                  'call support (C again closes)'],
+  ['1 - 6, Q - T, G',    'choose in a menu'],
   ['TAB, ARROWS',        'fleet tab in a menu'],
   ['S',                  'settings'],
   ['P, ESC',             'pause'],
@@ -1950,6 +1950,7 @@ let hgShow = null;          // the hull the card is about
 const HG_PAD      = 12;     // inner margin, also the left edge of every row
 const HG_ROW      = 38;     // a hull that can be taken
 const HG_ROW_LOCK = 20;     // a hull that cannot
+const HG_ROW_TIGHT = 32;    // a hull that can, when the list is at its longest (v194)
 const HG_GAP      = 4;
 const HG_HEAD     = 24;     // group heading, its scale and the column titles
 const HG_TITLE    = 34;     // header line of the panel
@@ -1997,7 +1998,11 @@ function hangarOrder(){
 function hangarLayout(tight){
   // Nine open hulls (the Terran roster since the Perseus, v159) no longer fit
   // the field with the full gaps; then the gaps between rows close up.
+  // v194: with the DONE button that is still too tall, so a second step
+  // (tight 2) also makes the open rows a little lower.
+  tight = tight|0;
   const gap = tight ? 2 : HG_GAP, ggap = tight ? 8 : HG_GROUPGAP;
+  const rowH = tight >= 2 ? HG_ROW_TIGHT : HG_ROW;
   const groups = hangarGroups();
   const plan = [];
   let h = HG_TITLE;
@@ -2015,14 +2020,14 @@ function hangarLayout(tight){
       // Unlocked, but no hangar of its faction on the field: it keeps a full
       // row, because it is yours and its figures still have to be readable.
       const off    = !locked && !cur && !shipOffered(s.key);
-      const rh     = locked ? HG_ROW_LOCK : HG_ROW;
+      const rh     = locked ? HG_ROW_LOCK : rowH;
       plan.push({i:i, y:h, h:rh, cur:cur, locked:locked, off:off});
       h += rh + gap;
     }
     h += ggap;
   }
-  h += HG_FOOT;
-  if(!tight && h > H-8) return hangarLayout(true);
+  h += DONE_ROOM + HG_FOOT;
+  if(tight < 2 && h > H-8) return hangarLayout(tight+1);
   h = Math.max(h, HG_MIN_H);
   return {mx:((W-HG_W)/2)|0, my:((H-h)/2)|0, mw:HG_W, mh:h, plan:plan, tabY:tabY};
 }
@@ -2063,6 +2068,31 @@ function hgName(t, x, y){
   ctx.font = thValue(sz, true);
   while(sz > 11 && ctx.measureText(t).width > room){ sz--; ctx.font = thValue(sz, true); }
   ctx.fillText(thFit(t, room), x, y);
+}
+// DONE (v191 in rearm, v194 in hangar and support, Silvio): the windows
+// have grown so large that little is left outside them to tap. The line
+// under it says what closing means. The tap rectangle goes into the
+// window's own list with close:true.
+// What closes a window from the keyboard (v194): its own key always; ESC
+// only outside full screen, where the browser takes ESC to leave full
+// screen and the game never sees it (Silvio).
+function closeKeys(k, small){
+  const fs = (typeof isFullscreen === 'function') && isFullscreen();
+  const t = fs ? k+' closes' : k+' or ESC closes';
+  return small ? t : t.toUpperCase();
+}
+function drawDoneButton(x, y, w, sub, rects){
+  const hot = hovering(x, y, w, DONE_H);
+  ctx.save();
+  ctx.textBaseline = 'middle';
+  thButton(x, y, w, DONE_H, 'on');
+  if(hot) thGlowPath(x, y, w, DONE_H, 4, 0.9);
+  ctx.textAlign='center'; ctx.fillStyle=TH('textBright'); ctx.font=thValue(12, true);
+  ctx.fillText('DONE', x+w/2, y+11);
+  ctx.fillStyle=TH('accentWarm'); ctx.font=thLabel(7);
+  ctx.fillText(sub, x+w/2, y+23);
+  ctx.restore();
+  if(rects) rects.push({x:x, y:y, w:w, h:DONE_H, close:true});
 }
 function drawShipMenu(){
   if(!shipMenu) return;
@@ -2141,9 +2171,10 @@ function drawShipMenu(){
     if(p.off){
       // Two lines only where there is a reason to give: the name, and why the
       // row cannot be taken right now.
-      hgName(s.name, rx+HG_NAME, ry+13);
+      hgName(s.name, rx+HG_NAME, ry+Math.round(p.h*0.34));
       ctx.fillStyle=TH('textDim'); ctx.font=thValue(9, false);
-      ctx.fillText('NO '+(s.fac||'').toUpperCase()+' HANGAR ON THE FIELD', rx+HG_NAME, ry+27);
+      // v194: short enough to end before the HULL column (v192 moved it left)
+      ctx.fillText(thFit('NO '+(s.fac||'').toUpperCase()+' HANGAR HERE', HG_COLS[0].x-HG_NAME-8), rx+HG_NAME, ry+Math.round(p.h*0.71));
     } else {
       hgName(s.name, rx+HG_NAME, ry+p.h/2);
     }
@@ -2169,10 +2200,13 @@ function drawShipMenu(){
   if(!hgShow || !PLAYER_SHIPS.some(function(q){ return q.key === hgShow; })) hgShow = player.ship;
   const cx = mx+HG_PAD+HG_LIST_W+12, cy0 = my+HG_TITLE+(cycleTabs() ? FLEET_TAB_H+8 : 0)+4;
   drawInfoCard(cx, cy0, mx+L.mw-HG_PAD-cx, my+L.mh-26-cy0, hangarCard(hgShow));
+  // DONE under the list, its foot on the card's foot (v194).
+  drawDoneButton(mx+HG_PAD+((HG_LIST_W-DONE_W)/2|0), my+L.mh-26-DONE_H, DONE_W,
+                 'YOUR SHIP IS KEPT', window._shipRects);
 
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim');
   ctx.font=thValue(10, false);
-  ctx.fillText('ESC or tap outside to cancel', mx+L.mw/2, my+L.mh-11);
+  ctx.fillText('DIGIT OR CLICK SWITCHES  -  '+closeKeys('V'), mx+L.mw/2, my+L.mh-11);
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
@@ -2331,6 +2365,9 @@ const RM_ROW_H    = 26;
 const RM_ROW_GAP  = 2;
 const RM_GOOD     = '#7fe08a';
 const RM_BAD      = '#ff7a66';
+// DONE button size, and the room a window adds below its list for it (v194).
+const DONE_W = 180, DONE_H = 30;
+const DONE_ROOM = DONE_H + 14;
 // The info card of the hangar and the support window (v192).
 const IC_PIC_H   = 112;
 const IC_FACT_ROWS = 2;
@@ -2612,16 +2649,9 @@ function drawRearmMenu(){
 
   // Close (v191, Silvio): every pick is fitted the moment it is made, so
   // the button says that closing keeps it.
-  const dx = L.c2, dy = my+RM_H-58, dw = RM_C2_W, dh = 30, dh2 = hovering(dx, dy, dw, dh);
-  thButton(dx, dy, dw, dh, 'on');
-  if(dh2) thGlowPath(dx, dy, dw, dh, 4, 0.9);
-  ctx.textAlign='center'; ctx.fillStyle=TH('textBright'); ctx.font=thValue(12, true);
-  ctx.fillText('DONE', dx+dw/2, dy+11);
-  ctx.fillStyle=TH('accentWarm'); ctx.font=thLabel(7);
-  ctx.fillText('YOUR FIT IS KEPT', dx+dw/2, dy+23);
-  window._rearmRects.push({x:dx, y:dy, w:dw, h:dh, close:true});
+  drawDoneButton(L.c2, my+RM_H-58, RM_C2_W, 'YOUR FIT IS KEPT', window._rearmRects);
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim'); ctx.font=thValue(9, false);
-  ctx.fillText('1-'+L.banks.length+' bank  -  UP / DOWN and ENTER weapon  -  every pick is fitted at once  -  ESC closes', mx+L.mw/2, my+L.mh-10);
+  ctx.fillText('1-'+L.banks.length+' bank  -  UP / DOWN and ENTER weapon  -  every pick is fitted at once  -  '+closeKeys('R', true), mx+L.mw/2, my+L.mh-10);
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
@@ -2687,7 +2717,7 @@ function callMenuLayout(){
     colHeadY = y; y += CM_HEAD;
     colRowY  = y; y += CM_ROW + CM_GAP;
   }
-  y += CM_FOOT;
+  y += DONE_ROOM + CM_FOOT;
   y = Math.max(y, CM_MIN_H);
   return {mx:((W-CM_W)/2)|0, my:((H-y)/2)|0, mw:CM_W, mh:y,
           COLS:COLS, colw:colw, showCol:showCol, tabs:tabs, tabY:tabY,
@@ -2807,10 +2837,12 @@ function drawCallMenu(){
     const cx = mx+CM_PAD+CM_LIST_W+12, cy0 = my+CM_TITLE+(L.tabs ? FLEET_TAB_H+8 : 0)+4;
     drawInfoCard(cx, cy0, mx+L.mw-CM_PAD-cx, my+L.mh-26-cy0, allyCard(cmShow, keyOf || '?'));
   }
+  drawDoneButton(mx+CM_PAD+((CM_LIST_W-DONE_W)/2|0), my+L.mh-26-DONE_H, DONE_W,
+                 'NOTHING IS CALLED', window._callRects);
 
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim');
   ctx.font=thValue(10, false);
-  ctx.fillText('ESC or tap outside to cancel', mx+L.mw/2, my+L.mh-11);
+  ctx.fillText('KEY OR CLICK CALLS  -  '+closeKeys('C'), mx+L.mw/2, my+L.mh-11);
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
@@ -2860,6 +2892,7 @@ function pointerConsumed(p){
   if(shipMenu){
     for(const r of (window._shipRects||[]))
       if(p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){
+        if(r.close){ setShipMenu(false); return true; }
         if(r.tab){ hangarTab = r.tab; return true; }
         if(r.key) swapShip(r.key); return true; }
     // Inside the panel but on no row: the header, a group heading, a gap
@@ -2881,6 +2914,7 @@ function pointerConsumed(p){
         if(p.x>=cr.x&&p.x<=cr.x+cr.w&&p.y>=cr.y&&p.y<=cr.y+cr.h){
           // The menu stays open after refining, so several can be done in
           // a row without reopening it each time.
+          if(cr.close){ setCallMenu(false); return true; }
           if(cr.refine){ refineTicket(cr.refine); return true; }
           if(cr.tab){ callTab = cr.tab; return true; }
           callAlly(cr.id); return true;
@@ -3278,7 +3312,10 @@ document.addEventListener('keydown',function(ev){
   if(ev.code==='KeyF' && (GS==='playing'||GS==='title'||GS==='gameover')){
     toggleFullscreen(); ev.preventDefault(); return;
   }
-  if((ev.code==='KeyP'||ev.code==='Escape')&&GS==='playing'){
+  // v194: ESC that closes a window only closes it. It used to switch the
+  // pause on as well, so the game stayed PAUSED after the resume tap.
+  const escMenu = ev.code==='Escape' && (callMenu || shipMenu || rearmMenu);
+  if((ev.code==='KeyP'||(ev.code==='Escape' && !escMenu))&&GS==='playing'){
     userPaused=!userPaused; syncPause(); ev.preventDefault();
   }
   if((GS==='title'||GS==='gameover')&&(ev.code==='Space'||ev.code==='Enter')){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); }
@@ -3290,7 +3327,9 @@ document.addEventListener('keydown',function(ev){
   if(GS!=='playing') return;
   if(resumeHold){ clearResumeHold(); ev.preventDefault(); return; }
   if(ev.code==='KeyV'){ toggleShipMenu(); ev.preventDefault(); return; }
-  if(ev.code==='KeyR'){ toggleRearmMenu(); ev.preventDefault(); return; }
+  // v194: in the support window R is a call key (the sixth Vasudan row),
+  // not the rearm window.
+  if(ev.code==='KeyR' && !callMenu){ toggleRearmMenu(); ev.preventDefault(); return; }
   // Q / E: the same as the wheel (v186).
   if(!callMenu && !shipMenu && !rearmMenu){
     if(ev.code==='KeyQ'){ cyclePrimary(); ev.preventDefault(); return; }

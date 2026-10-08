@@ -12,6 +12,11 @@ const M3D_YAW0    = 1.22;         // at rest: starboard side, bow to the right, 
 const M3D_PITCH0  = 0.20;         // and a little from above
 const M3D_ZOOM_HI = 1.4;          // from here the finer level is loaded
 const M3D_ZOOM_MAX = 3.0;
+// v194: only the last few hulls shown keep their buffers and textures on
+// the graphics card. Going down the hangar list used to load every hull
+// and keep it; when the card runs short the browser may wipe the game's
+// own cached pictures (Silvio: a damaged Hatshepsut lost her hull).
+const M3D_KEEP    = 4;
 const M3D = {gl:null, can:null, ok:null, prog:null, deriv:false, models:{}, white:null, black:null};
 
 function m3dInit(){
@@ -34,6 +39,13 @@ function m3dInit(){
     M3D.overlay = ov;
     const gl = can.getContext('webgl', {alpha:true, premultipliedAlpha:true, antialias:true, preserveDrawingBuffer:!ov});
     if(!gl) return false;
+    // A lost context takes every buffer and texture with it: drop it all,
+    // and the next picture starts over on a fresh canvas (v194).
+    can.addEventListener('webglcontextlost', function(ev){
+      ev.preventDefault();
+      if(can.parentNode) can.parentNode.removeChild(can);
+      M3D.models = {}; M3D.gl = null; M3D.can = null; M3D.ok = null; M3D.box = null;
+    }, false);
     M3D.deriv = !!gl.getExtension('OES_standard_derivatives');
     gl.getExtension('OES_element_index_uint');
     const vs = 'attribute vec3 aP; attribute vec3 aN; attribute vec2 aT;'
@@ -124,7 +136,32 @@ function m3dLevel(key, tag, size){
 function m3dModel(key){
   let m = M3D.models[key];
   if(!m){ m = M3D.models[key] = {lo:m3dLevel(key, 'lo', 512), hi:null}; }
+  m.seen = (typeof performance !== 'undefined') ? performance.now() : Date.now();
   return m;
+}
+// Gives a level's buffers and textures back to the graphics card.
+function m3dFree(L){
+  const gl = M3D.gl;
+  if(!L || !gl) return;
+  for(const p of L.parts){ gl.deleteBuffer(p.pos); gl.deleteBuffer(p.nrm); gl.deleteBuffer(p.uv); gl.deleteBuffer(p.idx); }
+  for(const t in L.tex) for(const k in L.tex[t]) gl.deleteTexture(L.tex[t][k]);
+  L.parts = []; L.tex = {}; L.state = 'freed';
+}
+// Keeps the M3D_KEEP hulls shown last, frees the rest. A hull still
+// loading is left alone; it is trimmed on a later frame. A freed hull
+// loads again (from the browser cache) when it is shown again.
+function m3dTrim(cur){
+  const ks = Object.keys(M3D.models);
+  if(ks.length <= M3D_KEEP) return;
+  ks.sort(function(a, b){ return (M3D.models[a].seen||0) - (M3D.models[b].seen||0); });
+  let n = ks.length;
+  for(const k of ks){
+    if(n <= M3D_KEEP) break;
+    const m = M3D.models[k];
+    if(k === cur || m.lo.state === 'loading' || (m.hi && m.hi.state === 'loading')) continue;
+    m3dFree(m.lo); m3dFree(m.hi);
+    delete M3D.models[k]; n--;
+  }
 }
 function m3dMat(yaw, pitch, dist){
   const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
@@ -144,6 +181,7 @@ function m3dPersp(aspect, near, far){
 function m3dDraw(key, x, y, w, h, o){
   if(!key || !m3dInit()) return false;
   const m = m3dModel(key);
+  m3dTrim(key);
   o = o || {};
   if(Math.max(o.zoom||1, M3D_VIEW.zoomT||1) >= M3D_ZOOM_HI && !m.hi) m.hi = m3dLevel(key, 'hi', 1024);
   const L = (m.hi && m.hi.state === 'ready') ? m.hi : m.lo;

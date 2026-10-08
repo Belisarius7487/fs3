@@ -45,11 +45,11 @@ const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
-  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','rmWrap','hgName','drawInfoCard','hangarCard','allyCard','allyLabel','tickWeaponUnlocks',
+  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','rmWrap','hgName','drawDoneButton','closeKeys','drawInfoCard','hangarCard','allyCard','allyLabel','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell',
   
   'insidePanel',
-  'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','allyFacOn', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
+  'thChamferPath','thPlate','thGlowPath','thButton','btnState','btnText','thBevel','thGlow','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','allyFacOn', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
   'mountsFor', 'spriteFacing', 'drawHullBg',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const menuBgDecl = decl(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/);
@@ -328,6 +328,22 @@ console.log('The call menu swallows its own clicks too');
      W.run(`insidePanel(window._callPanelRect,{x:${pr.x+30},y:${pr.y+pr.h-3}})`)===true);
   ok('beside the panel does not',
      W.run(`insidePanel(window._callPanelRect,{x:${pr.x-14},y:${pr.y+pr.h/2}})`)===false);
+}
+
+console.log('Keys (v194)');
+ok('the Colossus is called with G, not C (C closes the window)', W.run('ALLY_SPECIAL_KEY') === 'G');
+ok('G is no other row\'s key', W.run('ALLY_KEYS').indexOf('G') < 0);
+
+console.log('DONE (v194)');
+{
+  W.run('drawCallMenu()');
+  const all = rects(), done = all.filter(r => r.close), rows = all.filter(r => r.id);
+  const pr = W.run('window._callPanelRect');
+  ok('one DONE button', done.length === 1);
+  const d = done[0] || {};
+  ok('inside the panel and on the field',
+     d.x >= pr.x && d.x+d.w <= pr.x+pr.w && d.y+d.h <= pr.y+pr.h && pr.y >= 0 && pr.y+pr.h <= 500);
+  ok('below every entry, the Colossus row too', rows.every(r => r.y+r.h <= d.y-4));
 }
 
 console.log('\n' + (fails ? fails + ' FAILED' : 'all passed'));
