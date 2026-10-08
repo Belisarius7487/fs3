@@ -3028,6 +3028,20 @@ scenario('v199: every turret of the model with its FS weapon; a dying ward is lo
   try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
   return r;`);
 
+scenario('v200: models loaded up front, uploads queued between frames', 'm=77', `
+  const r = {};
+  r.haveQueue = typeof f3dUpload === 'function' && typeof f3dPreload === 'function' && !!F3D_PRE;
+  // the queue runs every job, a few at a time
+  let n = 0; for(let i=0;i<5;i++) f3dUpload(function(){ n++; });
+  await new Promise(function(res){ setTimeout(res, 120); });
+  r.queueRuns = n === 5 && F3D_UPQ.length === 0;
+  // no model files here: the preload ends without hanging, the game runs
+  f3dPreload();
+  for(let i=0;i<40 && F3D_PRE.on && !F3D_PRE.done;i++) await new Promise(function(res){ setTimeout(res, 300); });
+  r.preloadEnds = !F3D_PRE.on || F3D_PRE.done;
+  try{ GS='title'; draw(); GS='playing'; draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();
@@ -3042,7 +3056,7 @@ scenario('v199: every turret of the model with its FS weapon; a dying ward is lo
     await page.waitForTimeout(300);
     let res;
     try{
-      res = await page.evaluate(HELPERS + `\nFS.fakeImages();` + (sc.noLaunch ? '' : ' launchGame();') + `\n(function(){${sc.body}})()`);
+      res = await page.evaluate(HELPERS + `\nFS.fakeImages();` + (sc.noLaunch ? '' : ' launchGame();') + `\n(async function(){${sc.body}})()`);
     }catch(e){ res = null; errs.push(String(e.message||e)); }
     console.log(sc.name + '  (?' + sc.query + ')');
     if(res) for(const [k,v] of Object.entries(res)){

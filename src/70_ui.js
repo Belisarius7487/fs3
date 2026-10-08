@@ -23,7 +23,7 @@ function draw(){
   if(GS==='playing' && subspaceOn()) drawSubspace();
   else { drawNebula(); drawBodies(); drawStars(); }
 
-  if(GS==='title'){drawTitle();return;}
+  if(GS==='title'){drawTitle(); if(typeof f3dPreloadBar==='function') try{ f3dPreloadBar(); }catch(ep){} return;}
   if(GS==='gameover'){drawGO();return;}
 
   const loaded=imgsLoaded+nebsLoaded;

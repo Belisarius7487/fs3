@@ -267,7 +267,11 @@ function f3dLevel(key, tag, size){
       for(const k of (F3D_GANIM[t] ? ['c', 'n', 'g', 'ga'] : ['c', 'n', 'g'])){
         jobs.push(new Promise(function(res){
           const im = new Image();
-          im.onload = function(){
+          // v200: decoded by the browser off the game's thread, then handed
+          // to the graphics card in the upload queue - one at a time between
+          // frames instead of all in one (Silvio: hitches when a big ship
+          // warped in, the Moloch in M77).
+          const up = function(){
             if(gl !== F3D.gl) return res();
             const tx = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tx);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
@@ -284,6 +288,10 @@ function f3dLevel(key, tag, size){
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             L.tex[t][k] = tx; res();
           };
+          im.onload = function(){
+            const go = function(){ f3dUpload(up); };
+            if(im.decode) im.decode().then(go, go); else go();
+          };
           im.onerror = function(){ res(); };       // no glow map is normal
           im.src = M3D_BASE + key + '/' + t + '_' + k + size + '.webp?r=' + rev;
         }));
@@ -292,6 +300,77 @@ function f3dLevel(key, tag, size){
     return Promise.all(jobs);
   }).then(function(){ L.state = 'ready'; }, function(){ L.state = 'failed'; });
   return L;
+}
+// ── UPLOADS AND LOADING UP FRONT (v200) ──────────────────────
+// Handing a texture to the graphics card blocks the game while it runs
+// (measured in M77: the Moloch's fine level, eight uploads one after the
+// other). The queue does them between frames, a few milliseconds at a time.
+const F3D_UPQ = [];
+let F3D_PUMP = false;
+const F3D_UP_MS = 6;
+function f3dNow(){ return (typeof performance !== 'undefined') ? performance.now() : Date.now(); }
+function f3dUpload(job){
+  F3D_UPQ.push(job);
+  if(!F3D_PUMP){ F3D_PUMP = true; setTimeout(f3dPump, 0); }
+}
+function f3dPump(){
+  const t0 = f3dNow();
+  // at least one job per turn, more while there is time
+  do { const j = F3D_UPQ.shift(); try{ j(); }catch(e){ F3D.err = String(e && e.message || e); } }
+  while(F3D_UPQ.length && f3dNow() - t0 < F3D_UP_MS);
+  if(F3D_UPQ.length) setTimeout(f3dPump, 4); else F3D_PUMP = false;
+}
+// Silvio: load every 3D capital ship before the game starts, not when she
+// warps in. Starts as soon as the title shows; the title shows how far it
+// is. A ship not ready by the time she appears loads as before.
+const F3D_PRE = {on: false, done: false, n: 0, of: 0};
+function f3dPreload(){
+  if(F3D_PRE.on || F3D.off || typeof document === 'undefined' || !f3dInit()) return;
+  F3D_PRE.on = true; F3D_PRE.of = F3D_KEYS.length;
+  const tick = function(){
+    if(!F3D.gl){ F3D_PRE.done = true; return; }      // context lost: as before
+    let n = 0;
+    for(const k of F3D_KEYS){ const m = f3dModel(k); if(m.full && m.full.state !== 'loading') n++; }
+    F3D_PRE.n = n;
+    if(n < F3D_KEYS.length) setTimeout(tick, 250);
+    else { F3D_PRE.done = true; f3dWarm(); }
+  };
+  tick();
+}
+// Every loaded ship drawn once, out of sight: the graphics driver sets a
+// texture up for good only the first time it is used (in sight: what lies
+// outside the picture is never drawn), and that first time
+// cost a frame of 0.4 s at the start of a mission (measured).
+function f3dWarm(){
+  const gl = F3D.gl; if(!gl) return;
+  const ks = F3D_KEYS.slice();
+  const one = function(){
+    const k = ks.shift(); if(!k || gl !== F3D.gl) return;
+    try{
+      const L = f3dReadyLevel(k);
+      if(L && typeof IMGS !== 'undefined' && IMGS[k]){
+        const e = {img: k, sc: 64/Math.max(1, IMGS[k].width), flip: false, ang: 0};
+        f3dRender([{e: e, L: L, x: W/2, y: H/2, a: 1, clip: null}], true);
+      }
+    }catch(er){}
+    setTimeout(one, 30);
+  };
+  one();
+}
+// The bar on the title screen while the ships load.
+function f3dPreloadBar(){
+  if(!F3D_PRE.on) f3dPreload();
+  if(!F3D_PRE.on || F3D_PRE.done) return;
+  const w = 220, h = 4, x = W/2 - w/2, y = H - 34;
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = (typeof TH === 'function') ? TH('glow') : '#7cf';
+  ctx.fillRect(x, y, w*F3D_PRE.n/Math.max(1, F3D_PRE.of), h);
+  ctx.fillStyle = (typeof TH === 'function') ? TH('text') : '#ccc';
+  ctx.font = (typeof thValue === 'function') ? thValue(11, false) : '11px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText('LOADING 3D SHIPS ' + F3D_PRE.n + '/' + F3D_PRE.of, W/2, y - 4);
+  ctx.restore();
 }
 // The coarse level comes first so the ship shows soon; the full one (every
 // part of the finest level, v196) follows and takes over once it is in.
@@ -337,7 +416,7 @@ function f3dVP(){
 }
 // Draws the given ships into the field canvas and copies it into the
 // field. items: {e, L, x, y, a (alpha), clip (screen half-plane or null)}.
-function f3dRender(items){
+function f3dRender(items, warm){
   const gl = F3D.gl, can = F3D.can, loc = F3D.loc;
   const pw = (typeof CVS !== 'undefined' && CVS.width) || Math.round(W), ph = (typeof CVS !== 'undefined' && CVS.height) || Math.round(H);
   if(can.width !== pw || can.height !== ph){ can.width = pw; can.height = ph; }
@@ -385,7 +464,7 @@ function f3dRender(items){
     }
   }
   gl.disable(gl.BLEND);
-  ctx.drawImage(can, 0, 0, W, H);
+  if(!warm) ctx.drawImage(can, 0, 0, W, H);
 }
 function f3dNorm(v){ const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0]/l, v[1]/l, v[2]/l]; }
 // Whether a ship is drawn here this frame, and how: the same decisions the
