@@ -2289,7 +2289,8 @@ function allyCard(id, keyLabel){
   const d = ALLY_DEFS[id], m = (typeof mountsFor === 'function' && mountsFor(d.spr)) || {};
   const beams = m.beams || [], heavy = beams.filter(function(b){ return b.large; }).length, light = beams.length - heavy;
   const guns = (m.primary||[]).length, mis = (m.secondary||[]).length;
-  const facts = [d.cls.toUpperCase(), 'HULL '+allyHull(d)];
+  // The Colossus fights as a destroyer, but she is a juggernaut (Silvio).
+  const facts = [d.colossus ? 'JUGGERNAUT' : d.cls.toUpperCase(), 'HULL '+allyHull(d)];
   if(light) facts.push(light+' ANTI-FIGHTER '+(light === 1 ? 'BEAM' : 'BEAMS'));
   facts.push(heavy ? heavy+' HEAVY '+(heavy === 1 ? 'BEAM' : 'BEAMS') : 'NO HEAVY BEAMS');
   if(guns) facts.push(guns+(guns === 1 ? ' TURRET' : ' TURRETS'));
@@ -2725,7 +2726,7 @@ function drawAllyRow(x, y, w, id, d, keyLabel, hot){
   ctx.fillText(thFit(allyLabel(d), textW), x+nameX, y+13);
 
   let sub;
-  if(d.colossus)                sub = COLOSSUS_TIME+' s on station, then she jumps out';
+  if(d.colossus)                sub = 'JUGGERNAUT  -  '+COLOSSUS_TIME+' S ON STATION';
   // The hull the ship will really have (v188: FS2 ratio within the class).
   else if(d.cls==='destroyer')  sub = 'DESTROYER  -  HULL '+allyHull(d)+'  -  WINGS';
   else                          sub = d.cls.toUpperCase()+'  -  HULL '+allyHull(d);
@@ -3385,6 +3386,7 @@ function stepUpdate(){
   try{drawCallMenu();}catch(e){}
   try{drawShipMenu();}catch(e){}
   try{drawRearmMenu();}catch(e){}
+  try{ if(typeof m3dEndFrame === 'function') m3dEndFrame(); }catch(e){}
   try{drawResumeHint();}catch(e){}
   try{drawCtxNotice();}catch(e){}
 })();

@@ -20,7 +20,19 @@ function m3dInit(){
   try{
     if(typeof document === 'undefined' || !document.createElement) return false;
     const can = document.createElement('canvas');
-    const gl = can.getContext('webgl', {alpha:true, premultipliedAlpha:true, antialias:true, preserveDrawingBuffer:true});
+    // v193 (Silvio: turning and zoom looked jerky): the model canvas sits as
+    // its own layer over the game canvas, so the browser composites it on
+    // the GPU instead of the page copying every frame back into the 2D
+    // picture. Pointer events go through it to the game below.
+    const ov = !!(document.body && document.body.appendChild);
+    if(ov){
+      const st = can.style;
+      st.position = 'fixed'; st.pointerEvents = 'none'; st.zIndex = '5'; st.display = 'none';
+      st.left = '0px'; st.top = '0px';
+      document.body.appendChild(can);
+    }
+    M3D.overlay = ov;
+    const gl = can.getContext('webgl', {alpha:true, premultipliedAlpha:true, antialias:true, preserveDrawingBuffer:!ov});
     if(!gl) return false;
     M3D.deriv = !!gl.getExtension('OES_standard_derivatives');
     gl.getExtension('OES_element_index_uint');
@@ -133,12 +145,26 @@ function m3dDraw(key, x, y, w, h, o){
   if(!key || !m3dInit()) return false;
   const m = m3dModel(key);
   o = o || {};
-  if((o.zoom||1) >= M3D_ZOOM_HI && !m.hi) m.hi = m3dLevel(key, 'hi', 1024);
+  if(Math.max(o.zoom||1, M3D_VIEW.zoomT||1) >= M3D_ZOOM_HI && !m.hi) m.hi = m3dLevel(key, 'hi', 1024);
   const L = (m.hi && m.hi.state === 'ready') ? m.hi : m.lo;
   if(L.state !== 'ready') return false;
   const gl = M3D.gl, can = M3D.can, loc = M3D.loc;
-  const k = (typeof CVS !== 'undefined' && CVS.width) ? CVS.width / W : 1;
-  const pw = Math.max(1, Math.round(w*k)), ph = Math.max(1, Math.round(h*k));
+  let pw, ph;
+  if(M3D.overlay && typeof CVS !== 'undefined' && CVS.getBoundingClientRect){
+    // place the layer over the box, in CSS pixels, sharp on a HiDPI screen
+    const r = CVS.getBoundingClientRect(), sx = r.width / W, sy = r.height / H;
+    const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+    const cl = Math.round(r.left + x*sx), ct = Math.round(r.top + y*sy);
+    const cw = Math.max(1, Math.round(w*sx)), ch = Math.max(1, Math.round(h*sy));
+    const st = can.style, box = cl+','+ct+','+cw+','+ch;
+    if(M3D.box !== box){ M3D.box = box; st.left = cl+'px'; st.top = ct+'px'; st.width = cw+'px'; st.height = ch+'px'; }
+    pw = Math.max(1, Math.round(cw*dpr)); ph = Math.max(1, Math.round(ch*dpr));
+    if(st.display === 'none') st.display = 'block';
+    M3D.used = true;
+  } else {
+    const k = (typeof CVS !== 'undefined' && CVS.width) ? CVS.width / W : 1;
+    pw = Math.max(1, Math.round(w*k)); ph = Math.max(1, Math.round(h*k));
+  }
   if(can.width !== pw || can.height !== ph){ can.width = pw; can.height = ph; }
   gl.viewport(0, 0, pw, ph);
   gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -175,27 +201,42 @@ function m3dDraw(key, x, y, w, h, o){
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.idx);
     gl.drawElements(gl.TRIANGLES, p.n, p.big ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT, 0);
   }
-  ctx.drawImage(can, x, y, w, h);
+  if(!M3D.overlay) ctx.drawImage(can, x, y, w, h);
   return true;
+}
+// Called once per frame after everything is drawn: a model that was not
+// drawn this frame (its window closed) takes its layer away.
+function m3dEndFrame(){
+  if(!M3D.overlay || !M3D.can) return;
+  if(!M3D.used && M3D.can.style.display !== 'none') M3D.can.style.display = 'none';
+  M3D.used = false;
 }
 // The picture's own state: turning while the pointer is on it, zoom from
 // the wheel, easing back to rest when the pointer leaves.
-const M3D_VIEW = {yaw:M3D_YAW0, zoom:1, t:0, key:null};
+// v193: the turn speeds up and slows down instead of starting and
+// stopping dead, and the wheel sets a target the zoom glides to.
+const M3D_VIEW = {yaw:M3D_YAW0, zoom:1, zoomT:1, spin:0, t:0, key:null};
+const M3D_EASE_SPIN = 3.0, M3D_EASE_ZOOM = 9.0, M3D_EASE_REST = 3.0;
 function m3dView(key, hot){
   const now = (typeof performance !== 'undefined') ? performance.now() : Date.now();
-  const dt = M3D_VIEW.t ? Math.min(0.1, (now - M3D_VIEW.t)/1000) : 0;
+  const dt = M3D_VIEW.t ? Math.min(0.05, (now - M3D_VIEW.t)/1000) : 0;
   M3D_VIEW.t = now;
-  if(M3D_VIEW.key !== key){ M3D_VIEW.key = key; M3D_VIEW.yaw = M3D_YAW0; M3D_VIEW.zoom = 1; }
-  if(hot) M3D_VIEW.yaw += M3D_SPIN*dt;
-  else {
-    // back to rest the short way round
-    let d = (M3D_YAW0 - M3D_VIEW.yaw) % (Math.PI*2);
-    if(d > Math.PI) d -= Math.PI*2; if(d < -Math.PI) d += Math.PI*2;
-    M3D_VIEW.yaw += d*Math.min(1, dt*4);
-    M3D_VIEW.zoom += (1 - M3D_VIEW.zoom)*Math.min(1, dt*3);
+  if(M3D_VIEW.key !== key){ M3D_VIEW.key = key; M3D_VIEW.yaw = M3D_YAW0; M3D_VIEW.zoom = M3D_VIEW.zoomT = 1; M3D_VIEW.spin = 0; }
+  const ease = function(rate){ return 1 - Math.exp(-rate*dt); };
+  M3D_VIEW.spin += ((hot ? M3D_SPIN : 0) - M3D_VIEW.spin)*ease(M3D_EASE_SPIN);
+  M3D_VIEW.yaw += M3D_VIEW.spin*dt;
+  if(!hot){
+    M3D_VIEW.zoomT = 1;
+    // back to rest the short way round, once the turn has run out
+    if(M3D_VIEW.spin < 0.05){
+      let d = (M3D_YAW0 - M3D_VIEW.yaw) % (Math.PI*2);
+      if(d > Math.PI) d -= Math.PI*2; if(d < -Math.PI) d += Math.PI*2;
+      M3D_VIEW.yaw += d*ease(M3D_EASE_REST);
+    }
   }
+  M3D_VIEW.zoom += (M3D_VIEW.zoomT - M3D_VIEW.zoom)*ease(M3D_EASE_ZOOM);
   return {yaw:M3D_VIEW.yaw, zoom:M3D_VIEW.zoom};
 }
 function m3dWheel(dy){
-  M3D_VIEW.zoom = Math.max(1, Math.min(M3D_ZOOM_MAX, M3D_VIEW.zoom*(dy < 0 ? 1.15 : 1/1.15)));
+  M3D_VIEW.zoomT = Math.max(1, Math.min(M3D_ZOOM_MAX, M3D_VIEW.zoomT*(dy < 0 ? 1.12 : 1/1.12)));
 }
