@@ -12,7 +12,9 @@
 // share one depth buffer, so an overlap is a real overlap.
 // Without WebGL, until a model has loaded, or for a hull without a model
 // (the Shivans and the NTF reskins for now) the sprite is drawn as before.
-const F3D_KEYS = ['crfenris', 'crleviathan', 'craeolus', 'codeimos', 'deorionright', 'dehecate',
+// v197: the Shivan capital ships as well (first line)
+const F3D_KEYS = ['crcain', 'crlilith', 'crrakshasa', 'comoloch', 'dedemon', 'deravana', 'sdlucifer', 'sdsathanas',
+  'crfenris', 'crleviathan', 'craeolus', 'codeimos', 'deorionright', 'dehecate',
   'craten', 'crmentu', 'cosobek', 'detyphon', 'dehatshepsut', 'sdcolossus', 'sgmjolnir',
   'cacharybdis', 'casetekh', 'coiceni'];
 const F3D_ALIAS = {deorionleft: 'deorionright'};

@@ -2956,7 +2956,7 @@ scenario('v195: support card without the hull bar', 'm=26', `
 
 scenario('v196: 3D capitals - keys, sprite fallback, damage marks alone', 'm=62', `
   const r = {};
-  r.keys = f3dKey({img:'deorionleft'}) === 'deorionright' && f3dKey({img:'ntfdeorion'}) === null && f3dKey({img:'crcain'}) === null;
+  r.keys = f3dKey({img:'deorionleft'}) === 'deorionright' && f3dKey({img:'ntfdeorion'}) === null && f3dKey({img:'crcain'}) === 'crcain' && f3dKey({img:'sdsathanas'}) === 'sdsathanas';
   // no model files here (file://): every ship stays a sprite, nothing breaks
   const done = f3dFieldPass(enemies.concat(allies));
   r.fallback = done.size === 0;
