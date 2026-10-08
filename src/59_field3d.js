@@ -18,6 +18,10 @@ const F3D_KEYS = ['crcain', 'crlilith', 'crrakshasa', 'comoloch', 'dedemon', 'de
   'craten', 'crmentu', 'cosobek', 'detyphon', 'dehatshepsut', 'sdcolossus', 'sgmjolnir',
   'cacharybdis', 'casetekh', 'coiceni'];
 const F3D_ALIAS = {deorionleft: 'deorionright'};
+// v198: animated glow maps, as the MediaVPs have them (Silvio: the Ravana's
+// cable bundle pulses). The frames lie in one picture, cols x rows, row by
+// row: <tex>_ga512.webp / _ga1024.webp next to the other maps.
+const F3D_GANIM = {ravanapulse: {n: 30, fps: 25, cols: 8, rows: 4}};
 const F3D_FOV = 30*Math.PI/180;
 // key light from the upper left and in front, a weak fill from below
 // right - the same as the previews
@@ -26,6 +30,89 @@ const F3D = {ok: null, gl: null, can: null, prog: null, loc: null, models: {}, w
              // &f3d=0 in the address draws every ship as a sprite, to compare
              off: (typeof location !== 'undefined' && /[?&]f3d=0(&|$)/.test(location.search||''))};
 
+// ── TURRETS FROM THE MODELS (v198) ───────────────────────────
+// Silvio: on a 3D ship the guns sit where the model has its turrets. For
+// every mount of the game (beams, primary guns, launchers - their number
+// and weapons stay as they were) the nearest turret of the same kind in the
+// POF TGUN chunk was looked up offline (pof/turrets.py), classified by the
+// weapon the ship table gives it. Per mount: [z, y, x, normal x, y, z] in
+// the model's own space, halved length = 1 (z = along the hull, bow +).
+// 0 = no turret left over, the mount keeps its old place. The Lucifer's
+// primary mounts carry her reactors and are not moved.
+const F3D_TUR = {
+  crcain:{"beams":[[0.43,0.413,-0.001,0.02,-1.0,0.0],[-0.939,0.124,-0.002,0.05,-0.94,0.33]],"secondary":[[-0.122,0.089,-0.192,-0.83,0.56,0.01]],"primary":[[-0.16,-0.173,-0.002,-0.0,0.59,-0.8],[0.819,0.376,-0.357,0.02,-1.0,0.09],[0.587,0.251,0.379,0.83,0.56,-0.05]]},
+  crlilith:{"beams":[[0.43,0.416,-0.001,0.02,-1.0,0.0],[-0.939,0.121,-0.002,0.05,-0.94,0.33]],"secondary":[[-0.121,0.085,0.189,0.91,0.42,0.02]],"primary":[[0.819,0.373,-0.357,0.02,-1.0,0.09],[-0.16,-0.176,-0.002,-0.0,0.59,-0.8],[0.587,0.248,0.379,0.83,0.56,-0.05]]},
+  crrakshasa:{"beams":[[0.877,-0.223,0.047,-0.03,-0.08,1.0],[0.894,-0.013,-0.21,-0.03,-0.08,1.0],[0.877,-0.223,-0.047,-0.03,-0.08,1.0],[-0.857,-0.26,0.0,0.04,-0.73,-0.68],[-0.322,0.127,-0.0,0.01,0.07,1.0]],"primary":[[-0.695,-0.103,-0.216,-0.9,0.4,-0.19],[0.462,0.033,-0.098,-0.2,-0.98,0.04],[0.462,-0.1,-0.162,-0.81,0.58,0.01]]},
+  comoloch:{"beams":[[-0.232,0.139,0.0,-0.04,-0.95,0.31],[-0.048,-0.166,-0.0,-0.04,1.0,0.03],[0.599,0.175,0.0,-0.04,-0.72,0.69],[0.11,-0.021,-0.054,-0.63,-0.78,0.04]],"secondary":[[0.843,-0.043,-0.055,-0.04,1.0,0.03]],"primary":[[0.11,-0.021,0.054,0.57,-0.82,0.04],[-0.514,0.022,-0.059,-0.96,-0.11,-0.24],[-0.835,-0.214,-0.0,-0.04,0.59,-0.81],[0.225,-0.217,-0.0,-0.04,1.0,0.03]]},
+  dedemon:{"beams":[[0.726,0.149,-0.159,-0.82,0.56,0.1],[0.23,-0.185,0.0,0.0,1.0,0.0],[0.043,0.126,-0.421,-0.99,-0.06,0.1],[0.043,0.126,0.421,0.99,-0.06,0.1],[0.726,0.149,0.159,0.84,0.54,0.1]],"primary":[[0.96,0.146,-0.077,0.03,0.48,0.88],[0.033,0.363,0.0,0.0,-1.0,0.0],[-0.429,0.401,-0.384,-0.91,-0.4,-0.03],[-0.566,0.061,0.452,0.95,0.15,-0.27]]},
+  deravana:{"beams":[[1.001,0.109,-0.146,0.0,0.0,1.0],[1.001,0.109,0.006,-0.0,0.0,1.0],[-0.105,-0.157,0.002,0.68,0.68,0.26],[-0.428,0.269,-0.114,-0.0,0.0,1.0],[-0.387,-0.545,-0.373,0.0,0.0,1.0],[-0.356,-0.572,0.061,0.0,0.0,1.0],[-0.902,-0.386,-0.18,-0.08,0.93,-0.36]],"secondary":[[0.42,-0.206,-0.07,-0.06,0.96,-0.26]],"primary":[[-0.261,0.264,0.413,0.98,-0.14,0.13],[-0.283,-0.277,0.015,0.62,0.69,0.36],[0.034,-0.133,-0.135,-0.8,0.59,0.0],[0.456,-0.073,-0.184,-0.98,-0.02,0.21],[0.544,0.027,0.123,0.94,-0.34,0.08]]},
+  sdlucifer:{"beams":[[0.897,0.154,0.403,-0.0,0.0,1.0],[0.897,0.154,-0.403,-0.0,0.0,1.0]],"secondary":[[0.945,0.115,0.001,-0.0,0.0,1.0]]},
+  sdsathanas:{"beams":[[0.993,-0.033,0.264,-0.15,-0.1,0.98],[0.971,0.232,-0.15,-0.03,-0.1,0.99],[-0.791,-0.148,-0.373,-0.75,0.66,0.0],[0.102,-0.0,0.186,0.51,0.75,0.42],[-0.154,0.158,-0.108,0.01,-1.0,0.0]],"primary":[[0.411,0.014,0.02,0.0,1.0,0.0],[0.019,-0.075,-0.115,-1.0,-0.05,0.0],[-0.286,-0.203,-0.121,-1.0,-0.05,0.0],[-0.476,0.063,0.189,1.0,-0.03,-0.01],[-0.101,0.103,0.253,1.0,-0.03,0.02],[-0.099,0.103,-0.252,-1.0,-0.03,0.0]]},
+  crfenris:{"beams":[[0.87,-0.008,-0.0,-0.0,-0.82,0.57],[-0.914,0.049,0.185,0.66,-0.75,-0.0]],"secondary":[[-0.054,0.073,-0.0,0.0,-1.0,0.0]],"primary":[[0.286,-0.093,-0.278,-1.0,0.0,0.0],[-0.914,0.049,-0.185,-0.68,-0.74,0.0],[-0.878,-0.23,0.175,0.64,0.77,0.0]]},
+  crleviathan:{"beams":[[0.896,-0.086,0.0,-0.0,-0.82,0.57],[-0.899,-0.251,-0.206,-0.66,0.75,-0.0],[-0.899,-0.004,0.206,0.66,-0.75,-0.0]],"secondary":[[0.044,0.727,-0.0,0.0,-1.0,0.0]],"primary":[[0.309,-0.111,-0.277,-1.0,0.0,0.0],[0.309,-0.111,0.277,1.0,0.0,0.0]]},
+  craeolus:{"beams":[[0.737,0.011,0.179,0.01,-0.04,1.0],[-0.06,0.039,0.228,1.0,0.0,0.0],[0.118,0.039,-0.228,-1.0,0.0,0.0]],"primary":[[0.677,-0.27,-0.002,0.0,1.0,0.0],[0.072,-0.318,-0.002,0.0,1.0,0.0],[-0.81,-0.333,-0.002,0.0,1.0,0.0],[-0.885,0.302,-0.002,0.0,-1.0,0.0],[0.171,0.333,0.0,0.0,-1.0,0.0],[0.874,0.311,-0.002,0.0,-1.0,0.0]]},
+  codeimos:{"beams":[[-0.819,-0.153,-0.197,-0.98,0.18,-0.08],[0.969,0.015,-0.07,-0.46,-0.16,0.88],[0.746,0.032,0.15,1.0,0.0,0.0]],"secondary":[[-0.423,-0.156,-0.205,-0.98,0.14,0.12]],"primary":[[-0.576,-0.429,-0.0,0.0,1.0,0.0],[0.277,-0.359,-0.0,0.0,1.0,0.0],[0.657,-0.332,-0.0,0.0,1.0,0.0],[0.29,0.295,0.0,0.0,-1.0,0.0]]},
+  deorionright:{"beams":[[0.856,0.096,0.055,0.0,-1.0,0.0],[-0.72,0.137,-0.293,-1.0,0.0,0.0],[0.524,-0.028,-0.093,-1.0,0.0,0.0],[-0.799,0.185,0.292,1.0,0.0,0.0],[0.388,-0.163,0.05,0.0,1.0,0.0],[-0.06,0.286,0.117,0.0,-1.0,0.0]],"secondary":[[0.6,-0.205,0.114,0.0,1.0,0.0]],"primary":[[-0.182,0.356,0.02,0.0,-1.0,0.0],[0.831,-0.205,0.054,0.0,1.0,0.0],[-0.198,-0.19,0.056,0.0,1.0,0.0],[-0.759,-0.356,0.099,0.0,1.0,0.0]]},
+  dehecate:{"beams":[[0.989,-0.23,-0.0,0.04,0.02,1.0],[0.193,-0.064,0.057,0.96,-0.28,-0.07],[0.932,-0.002,-0.0,0.04,-0.32,0.95],[0.597,-0.137,-0.325,-0.97,-0.25,0.0],[0.597,-0.137,0.325,0.97,-0.25,0.0]],"secondary":[[-0.377,0.344,-0.043,-0.97,-0.25,0.0]],"primary":[[0.753,-0.422,0.0,0.01,0.99,0.12],[0.85,0.139,0.0,0.0,-1.0,0.0],[0.415,-0.438,0.0,0.01,0.99,0.12],[-0.293,-0.528,0.0,0.01,0.99,0.12],[0.228,0.097,0.0,0.0,-1.0,0.0]]},
+  craten:{"beams":[[-0.492,-0.297,-0.0,0.0,1.0,0.0],[0.595,0.048,0.317,0.0,1.0,0.0],[0.595,0.048,-0.317,0.0,1.0,0.0]],"primary":[[0.531,0.294,0.0,0.0,-1.0,0.0],0,[-0.727,0.029,-0.234,-0.87,-0.5,0.0],[-0.727,0.029,0.234,0.77,-0.64,0.0]]},
+  crmentu:{"beams":[[0.148,-0.263,-0.191,-0.28,0.96,0.0],[0.148,-0.263,0.191,0.57,0.82,-0.01],[-0.942,0.066,-0.0,0.01,0.0,-1.0]],"secondary":[[0.434,0.182,0.193,0.0,-1.0,0.0]],"primary":[[-0.256,-0.142,0.198,0.72,0.69,0.1],[-0.678,0.344,0.001,0.0,-1.0,0.0],[0.108,-0.156,-0.307,-0.77,0.63,0.1]]},
+  cosobek:{"beams":[[0.837,0.216,0.088,0.46,0.82,0.34],[-0.836,0.28,-0.347,0.43,0.32,-0.85],[0.53,0.153,0.136,0.56,0.81,0.2],[-0.837,0.28,0.348,-0.44,0.32,-0.84]],"secondary":[[0.666,0.392,-0.133,0.0,-1.0,0.0]],"primary":[[0.666,0.392,0.133,0.0,-1.0,0.0],[0.234,0.079,0.137,0.57,0.82,0.0],[-0.58,0.089,-0.116,-0.93,0.21,0.29]]},
+  detyphon:{"beams":[[0.774,-0.033,0.0,0.0,0.37,0.93],[-0.673,0.131,0.0,0.0,-0.45,-0.89],[-0.687,-0.103,0.0,0.0,0.42,-0.91],[0.766,0.033,0.0,0.0,-0.32,0.95],[-0.833,-0.008,-0.0,0.0,-0.45,-0.89]],"secondary":[[-0.026,0.137,0.0,0.0,-0.45,0.89]],"primary":[[0.729,-0.053,-0.033,0.0,1.0,0.0],[0.729,-0.053,0.033,0.0,1.0,0.0],[0.133,0.079,0.178,0.0,-1.0,0.0],[0.132,-0.151,-0.178,0.0,1.0,0.0],[0.133,0.079,-0.178,0.0,-1.0,0.0],[0.132,-0.151,0.178,0.0,1.0,0.0]]},
+  dehatshepsut:{"beams":[[0.824,0.044,-0.0,-0.0,0.85,0.52],[0.013,-0.244,-0.0,-0.0,1.0,-0.02],[-0.96,-0.123,-0.0,-0.0,0.58,-0.81],[-0.798,0.085,-0.232,-0.27,-0.91,0.32],[-0.798,0.083,0.232,0.23,-0.93,0.29],[0.846,0.138,0.161,0.0,1.0,0.0]],"secondary":[[0.771,0.276,0.209,0.0,-1.0,0.02]],"primary":[[0.054,0.058,-0.225,-0.81,-0.37,0.45],[-0.254,-0.006,0.33,0.6,0.8,0.02],[-0.943,-0.076,0.0,0.06,-0.57,-0.82],[0.505,0.194,-0.264,-0.01,1.0,-0.03],[-0.368,0.192,0.225,0.47,-0.84,-0.27]]},
+  sdcolossus:{"beams":[[-0.759,-0.088,-0.196,-1.0,-0.0,0.0],[-0.908,-0.086,0.195,1.0,-0.0,0.0],[-0.759,-0.086,0.195,1.0,-0.0,0.0],[-0.973,-0.13,0.151,0.0,1.0,0.0],[-0.136,0.001,-0.093,-0.68,-0.73,-0.0],[0.186,-0.161,-0.203,-0.96,-0.0,0.29],[0.689,-0.11,-0.076,-0.83,-0.56,0.0],[0.811,-0.224,0.0,0.0,0.9,0.45],[0.227,-0.237,0.094,0.0,0.84,0.54]],"secondary":[[-0.545,-0.158,-0.144,-1.0,0.0,0.0]],"primary":[[-0.731,-0.151,-0.144,-1.0,0.0,0.0],[-0.724,0.005,0.133,0.0,-1.0,0.0],[-0.439,-0.245,-0.1,0.0,1.0,0.0],[-0.195,0.334,-0.061,0.0,-1.0,0.0],[0.763,0.06,-0.001,0.0,-1.0,0.0],[0.721,0.063,-0.001,0.0,-1.0,0.0],[0.66,-0.268,-0.001,0.0,1.0,0.0]]},
+  sgmjolnir:{"beams":[[0.105,-1.17,0.0,0.0,1.0,0.0]]},
+  cacharybdis:{"beams":[[-0.404,-0.123,-0.105,-1.0,0.0,0.0]],"secondary":[[0.115,-0.103,-0.0,0.0,0.71,0.71]],"primary":[[-0.593,0.185,0.204,1.0,0.0,0.0]]},
+  casetekh:{"primary":[[-0.234,0.235,0.0,-0.01,-1.0,-0.09],[-0.8,-0.299,0.005,0.06,0.99,0.13]]},
+  coiceni:{"beams":[[0.797,-0.009,0.215,0.99,0.0,0.1],[0.987,0.023,0.062,0.1,0.0,0.99],[0.797,-0.009,-0.223,-0.99,0.0,0.1],[0.14,-0.169,-0.248,-0.93,0.37,0.0],[-0.26,-0.169,0.254,0.93,0.37,0.0],[-0.149,0.291,-0.226,-1.0,0.0,0.0],[-0.804,-0.032,-0.128,-0.89,0.45,0.0],[-0.837,0.194,-0.0,0.0,-0.51,-0.86],[-0.906,-0.048,-0.0,0.0,0.82,-0.57]],"secondary":[[-0.195,0.51,-0.161,0.0,-1.0,0.0]],"primary":[[0.14,-0.169,0.244,0.93,0.37,0.0],[-0.343,-0.529,-0.0,0.0,1.0,0.0],[0.301,-0.336,0.0,0.0,1.0,0.0],[-0.744,0.334,0.0,0.0,-1.0,0.0],[-0.689,-0.222,0.0,0.0,1.0,0.0]]}
+};
+const F3D_MNT = {};
+// The mount lists of a hull with its turrets moved onto the model. Needs the
+// sprite's proportions (the old lists are measured against its box); until
+// it has loaded the old lists are given.
+function f3dMounts(key, m){
+  if(!m || !key) return m;
+  const t = F3D_TUR[key]; if(!t) return m;
+  const c0 = F3D_MNT[key]; if(c0) return c0;
+  const img = (typeof IMGS !== 'undefined') ? IMGS[key] : null;
+  if(!img || !img.width || !img.height) return m;
+  const asp = img.width/img.height, sg = m.facing === 'left' ? -1 : 1;
+  const c = Object.assign({}, m);
+  for(const kind in t){
+    if(!m[kind]) continue;
+    c[kind] = m[kind].map(function(p, i){
+      const q = t[kind][i]; if(!q) return p;
+      return Object.assign({}, p, {dx: sg*q[0], dy: q[1]*asp, mx: q[2], n3: [q[3], q[4], q[5]]});
+    });
+  }
+  return (F3D_MNT[key] = c);
+}
+// Is the ship drawn from her model right now?
+function f3dOn(e){ return !!e && e._f3fc != null && typeof fc !== 'undefined' && fc - e._f3fc <= 2; }
+// Which way the bow points on the screen: +1 right, -1 left.
+function f3dBow(e){ return ((spriteFacing(e.img) === 'right') !== !!e.flip) ? 1 : -1; }
+// A turret on the flank turned away from the player (Weg 3): it fires, but
+// what it fires comes out from behind the hull.
+function mountHid(e, b){
+  if(!b || !b.n3 || !f3dOn(e)) return false;
+  const bw = f3dBow(e);
+  const toCam = -bw*b.n3[0], depth = -bw*(b.mx||0);
+  return toCam < -0.5 || (depth < -0.15 && toCam < 0.3);
+}
+// A turret only covers the half of space its face looks into (FreeSpace
+// FOV 180): one on the back cannot fire down through the hull. Turrets on
+// the flanks look out of the picture and reach everything in the plane.
+const F3D_FOV_SLACK = 0.20;
+function mountCanAim(e, b, x, y, tx, ty){
+  if(!b || !b.n3) return true;
+  const ny = b.n3[1], nz = b.n3[2], l = Math.hypot(ny, nz);
+  if(l < 0.45) return true;
+  const bw = f3dBow(e), a = e.ang || 0, ca = Math.cos(a), sa = Math.sin(a);
+  const sx = bw*nz/l, sy = -ny/l;
+  const ux = sx*ca - sy*sa, uy = sx*sa + sy*ca;
+  const dx = tx - x, dy = ty - y, d = Math.hypot(dx, dy);
+  if(d < 1) return true;
+  return (ux*dx + uy*dy)/d >= -F3D_FOV_SLACK;
+}
 function f3dKey(e){
   if(!e || !e.img || e.type === 'asteroid') return null;
   const k = F3D_ALIAS[e.img] || e.img;
@@ -49,7 +136,7 @@ function f3dInit(){
       + 'precision mediump float; varying vec3 vW; varying vec3 vN; varying vec2 vT;'
       + 'uniform sampler2D tC; uniform sampler2D tN; uniform sampler2D tG;'
       + 'uniform float uHasN; uniform float uKind; uniform vec3 uCam; uniform vec3 uL1; uniform vec3 uL2;'
-      + 'uniform vec3 uClip; uniform float uA;'
+      + 'uniform vec3 uClip; uniform float uA; uniform vec3 uGA; uniform vec3 uGF;'
       + 'void main(){'
       + ' if(dot(uClip.xy, vW.xy) + uClip.z < 0.0) discard;'
       + ' vec3 N = normalize(vN);'
@@ -65,7 +152,9 @@ function f3dInit(){
       + ' float d = max(dot(N, uL1), 0.0)*0.95 + max(dot(N, uL2), 0.0)*0.30;'
       + ' float s = pow(max(dot(N, normalize(uL1+V)), 0.0), uKind > 1.5 ? 60.0 : 24.0)*(uKind > 1.5 ? 0.9 : 0.35);'
       + ' vec3 col = base*(0.30 + d*1.15)*1.15 + vec3(s);'
-      + ' if(uKind < 0.5) col += texture2D(tG, vT).rgb;'
+      + ' if(uKind < 0.5){ vec2 gt = vT;'
+      + '  if(uGF.z > 0.5) gt = (uGF.xy + clamp(fract(vT), vec2(uGA.z), vec2(1.0-uGA.z)))/uGA.xy;'
+      + '  col += texture2D(tG, gt).rgb; }'
       + ' gl_FragColor = vec4(col*uA, uA); }';
     const sh = function(t, src){ const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s);
       if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
@@ -75,7 +164,7 @@ function f3dInit(){
     if(!gl.getProgramParameter(pr, gl.LINK_STATUS)) return false;
     const loc = {};
     for(const a of ['aP', 'aN', 'aT']) loc[a] = gl.getAttribLocation(pr, a);
-    for(const u of ['uM', 'uVP', 'tC', 'tN', 'tG', 'uHasN', 'uKind', 'uCam', 'uL1', 'uL2', 'uClip', 'uA']) loc[u] = gl.getUniformLocation(pr, u);
+    for(const u of ['uM', 'uVP', 'tC', 'tN', 'tG', 'uHasN', 'uKind', 'uCam', 'uL1', 'uL2', 'uClip', 'uA', 'uGA', 'uGF']) loc[u] = gl.getUniformLocation(pr, u);
     const px = function(r, g, b){ const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([r, g, b, 255])); return t; };
     F3D.white = px(160, 160, 160); F3D.black = px(0, 0, 0); F3D.flatN = px(128, 128, 255);
@@ -112,15 +201,23 @@ function f3dLevel(key, tag, size){
     const jobs = [];
     for(const t in want){
       L.tex[t] = {};
-      for(const k of ['c', 'n', 'g']){
+      for(const k of (F3D_GANIM[t] ? ['c', 'n', 'g', 'ga'] : ['c', 'n', 'g'])){
         jobs.push(new Promise(function(res){
           const im = new Image();
           im.onload = function(){
             if(gl !== F3D.gl) return res();
             const tx = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tx);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
-            gl.generateMipmap(gl.TEXTURE_2D);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+            if(k === 'ga'){
+              // frames side by side: no mipmaps, they would bleed into each other
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+              L.tex[t].gaw = im.width;
+            } else {
+              gl.generateMipmap(gl.TEXTURE_2D);
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+            }
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             L.tex[t][k] = tx; res();
           };
@@ -190,6 +287,7 @@ function f3dRender(items){
   gl.uniform3fv(loc.uCam, cam.eye);
   gl.uniform3fv(loc.uL1, f3dNorm(F3D_L1)); gl.uniform3fv(loc.uL2, f3dNorm(F3D_L2));
   gl.uniform1i(loc.tC, 0); gl.uniform1i(loc.tN, 1); gl.uniform1i(loc.tG, 2);
+  const now = ((typeof performance !== 'undefined') ? performance.now() : Date.now())/1000;
   for(const it of items){
     const L = it.L;
     gl.uniformMatrix4fv(loc.uM, false, f3dMat(it.e, it.x, it.y, L));
@@ -206,7 +304,13 @@ function f3dRender(items){
       gl.uniform1f(loc.uHasN, kind === 0 && tx.n ? 1 : 0);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tx.c || F3D.white);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tx.n || F3D.flatN);
-      gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, tx.g || F3D.black);
+      const ga = tx.ga && F3D_GANIM[p.tex];
+      if(ga){
+        const f = Math.floor(now*ga.fps) % ga.n, cell = (tx.gaw || 2048)/ga.cols;
+        gl.uniform3f(loc.uGA, ga.cols, ga.rows, 0.5/cell);
+        gl.uniform3f(loc.uGF, f % ga.cols, Math.floor(f/ga.cols), 1);
+      } else gl.uniform3f(loc.uGF, 0, 0, 0);
+      gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, ga ? tx.ga : (tx.g || F3D.black));
       gl.bindBuffer(gl.ARRAY_BUFFER, p.pos); gl.enableVertexAttribArray(loc.aP);
       gl.vertexAttribPointer(loc.aP, 3, gl.SHORT, true, 6, 0);
       gl.bindBuffer(gl.ARRAY_BUFFER, p.nrm); gl.enableVertexAttribArray(loc.aN);
@@ -255,6 +359,7 @@ function f3dFieldPass(list){
     const key = f3dKey(e); if(!key) continue;
     const L = f3dReadyLevel(key); if(!L) continue;
     done.add(e);
+    e._f3fc = (typeof fc !== 'undefined') ? fc : 0;
     try{ drawVortexOf(e); }catch(ev){ ctx.restore(); }
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     const v = f3dVis(e); e._f3v = v;
@@ -283,6 +388,7 @@ function f3dShipTop(e){
     ctx.save(); fsWarpClip(v.g); ctx.translate(v.g.dx, v.g.dy);
     f3dDamage(e);
     ctx.restore();
+    warpBeamOrbs(e, v.g);
     return;
   }
   ctx.globalAlpha = v.a;

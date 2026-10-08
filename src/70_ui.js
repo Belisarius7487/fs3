@@ -247,6 +247,7 @@ function draw(){
       drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,fgs.out?1:0.6,e.ang||0,e);
       drawShipE(e,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
       ctx.restore();
+      warpBeamOrbs(e, fgs);
       continue;
     }
     if(e.warp>0){

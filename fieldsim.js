@@ -2978,6 +2978,30 @@ scenario('v196: 3D capitals - keys, sprite fallback, damage marks alone', 'm=62'
   r.spriteAgain = D.gl3 === false;
   return r;`);
 
+scenario('v198: turrets from the models, their half of space, beams in the jump', 'm=62', `
+  const r = {};
+  // the stand-in sprites are plain boxes; the lists still move
+  const m = mountsFor('sdsathanas');
+  r.moved = !!(m && m.beams && m.beams[0].n3 && m.primary.every(p=>p.n3));
+  r.lucReactorsStay = !mountsFor('sdlucifer').primary.some(p=>p.n3) && !!mountsFor('sdlucifer').beams[0].n3;
+  r.otherHullsAlone = !mountsFor('fimyrmidon').primary.some(p=>p.n3);
+  // a turret on the back reaches up but not down through the hull
+  const e = {img:'crcain', flip:false, ang:0, x:400, y:300};
+  const b = {n3:[0, 1, 0]};
+  r.upOk = mountCanAim(e, b, 400, 280, 400, 100) === true;
+  r.downNo = mountCanAim(e, b, 400, 280, 400, 500) === false;
+  r.flankAll = mountCanAim(e, {n3:[1, 0.1, 0]}, 400, 300, 400, 500) === true;
+  // not drawn in 3D (no model files here): nothing hides
+  r.noHideAsSprite = mountHid({img:'crcain', flip:false}, {n3:[1, 0, 0], mx:0.3}) === false;
+  r.anim = !!F3D_GANIM.ravanapulse && typeof warpBeamOrbs === 'function';
+  // a beam turret on the belly does not take a target above the ship
+  const k = {img:'crcain', flip:false, ang:0, x:400, y:300, sc:1, side:'enemy', faction:'shivan'};
+  const bb = {dx:0, dy:0.3, n3:[0, -1, 0]};
+  const mp = mountPos(k, bb);
+  r.bellyNoUp = beamCanAim(k, bb, mp, {x:mp.x, y:mp.y-300}) === false && beamCanAim(k, bb, mp, {x:mp.x, y:mp.y+300}) === true;
+  try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

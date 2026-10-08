@@ -1595,19 +1595,24 @@ function pickBeamTarget(e, b){
   const list = beamTargets(e, !!b.large);
   if(!list.length) return null;
   // beamFocus: the ship her guns are here for, while it is there (M77).
+  const mp = mountPos(e, b);
   if(e.beamFocus){
     const f = byId(e.beamFocus)[0];
-    if(f && list.indexOf(f) >= 0) return f;
+    if(f && list.indexOf(f) >= 0 && beamCanAim(e, b, mp, f)) return f;
   }
-  const mp = mountPos(e, b);
   let best=null, bd=Infinity;
   for(const o of list){
+    // v198: only what lies in front of the turret's face
+    if(!beamCanAim(e, b, mp, o)) continue;
     const d=(o.x-mp.x)**2 + (o.y-mp.y)**2;
     if(d<bd){ bd=d; best=o; }
   }
   return best;
 }
 
+function beamCanAim(e, b, mp, o){
+  return typeof mountCanAim !== 'function' || mountCanAim(e, b, mp.x, mp.y, o.x, o.y);
+}
 function targetAlive(e, o){
   if(!o) return false;
   if(o === player) return GS==='playing' && player.hp>0;
@@ -2468,6 +2473,7 @@ function capitalFire(e){
   if(!subOK(e,'weapons')) return;          // guns are out
   const cfg = WPN[e.type] || WPN.cruiser;
   const pts = entMounts(e,'primary');
+  const _mm = mountsFor(e.img), _mp = _mm ? _mm.primary : null;
   if(pts && pts.length && e.gunT){
     for(let i=0;i<pts.length && i<e.gunT.length;i++){
       if(--e.gunT[i] <= 0){
@@ -2480,6 +2486,11 @@ function capitalFire(e){
         const bomb = pdTarget(e, pts[i], false);
         const gt = bomb || capGunTarget(e);
         if(!gt) continue;
+        // v198: a turret facing away from the target holds its fire
+        const _md = _mp && _mp[i];
+        if(_md && _md.n3 && typeof mountCanAim === 'function' && !mountCanAim(e, _md, pts[i].x, pts[i].y, gt.x, gt.y)){
+          e.gunT[i] = 12 + (Math.random()*18|0); continue;
+        }
         const ga = (bomb ? leadAngle(pts[i].x, pts[i].y, bomb, g.spd)
                          : Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x))
                  + (Math.random()-0.5)*0.10*eScat*g.scat;
@@ -2756,7 +2767,9 @@ function playerSc(key){
 }
 
 function mountsFor(key){
-  return (typeof MOUNTS !== 'undefined' && key && MOUNTS[key]) ? MOUNTS[key] : null;
+  const m = (typeof MOUNTS !== 'undefined' && key && MOUNTS[key]) ? MOUNTS[key] : null;
+  // v198: hulls with a model have their guns on its turrets (59_field3d.js)
+  return (m && typeof f3dMounts === 'function') ? f3dMounts(key, m) : m;
 }
 function spriteFacing(key){
   const m = mountsFor(key);
@@ -2975,7 +2988,7 @@ function updateBeams(e) {
         // Find a target first. With no target it will not charge, the
         // turret holds fire and retries shortly after.
         let tgt = pickBeamTarget(e,b);
-        if(!tgt && b.large && !LARGE_BEAM_HOLDS_FIRE) tgt = player;
+        if(!tgt && b.large && !LARGE_BEAM_HOLDS_FIRE && beamCanAim(e, b, mountPos(e, b), player)) tgt = player;
         if(!tgt){ b.timer = 45 + Math.random()*45; }
         else {
           b.tgt = tgt;
@@ -2988,8 +3001,9 @@ function updateBeams(e) {
         }
       }
     } else if(b.state==='charging') {
-      // If the turret loses its target while charging, it aborts.
-      if(!targetAlive(e,b.tgt)){
+      // If the turret loses its target while charging, it aborts. So it
+      // does when the target has left the half the turret faces (v198).
+      if(!targetAlive(e,b.tgt) || !beamCanAim(e, b, mountPos(e, b), b.tgt)){
         const alt = pickBeamTarget(e,b);
         if(alt) b.tgt = alt;
         else { b.state='idle'; b.timer=45+Math.random()*45; sndBeam(e, b, 'abort'); continue; }
@@ -3083,6 +3097,11 @@ function platformCharging(self){
 function drawBeamRays(e, own) {
   if(!e.beams || e.warpOut>0) return;
   for(const b of e.beams) {
+    // v198: the far flank (Weg 3) - no stretch on top of the hull; the glow
+    // goes under it with the ray and shows round its edge
+    const hid = typeof mountHid === 'function' && mountHid(e, b);
+    if(hid && own) continue;
+    if(hid && b.state==='charging'){ drawBeamOrb(e, b); continue; }
     if(b.state!=='firing') continue;
     const col=beamCol(e.faction, b.large);
     const ang = b.type==='slash' ? b.curAngle : b.angle;
@@ -3108,6 +3127,7 @@ function drawBeamRays(e, own) {
     ctx.shadowBlur=ecoBlur(6);
     ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
     ctx.restore();
+    if(hid) drawBeamOrb(e, b);
   }
 }
 
@@ -3133,6 +3153,24 @@ function drawBeams(e) {
   if(!e.beams || e.warpOut>0) return;
   drawBeamRays(e, true);
   for(const b of e.beams) {
+    // v198: a turret on the far flank glows under the hull (drawBeamRays)
+    if(typeof mountHid === 'function' && mountHid(e, b)) continue;
+    drawBeamOrb(e, b);
+  }
+}
+// v198 (Silvio: the Sathanas firing on her way through the Knossos had
+// rays but no orbs): a ship still coming out of her vortex shows her charge
+// glows and muzzle orbs too, cut at the vortex like her hull. mountPos()
+// already follows the picture through the jump.
+function warpBeamOrbs(e, g){
+  if(!e.beams || !(e.warp>0) || !g) return;
+  ctx.save();
+  try{ fsWarpClip(g); drawBeams(e); }
+  finally{ ctx.restore(); }
+}
+// The charge glow or the muzzle orb of one beam turret.
+function drawBeamOrb(e, b) {
+  {
     const mp=mountPos(e,b);
     const col=beamCol(e.faction, b.large);
     const cMax=b.chargeMax||b.chargeT;
