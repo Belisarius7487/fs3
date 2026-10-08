@@ -1579,6 +1579,7 @@ function shipSwapReady(){
 function setShipMenu(open){
   if(!open && shipMenu) holdResume();
   shipMenu = open;
+  if(open) hgShow = null;
   // Two panels at once meant closing one took the pause the other still
   // needed, so opening one closes the other.
   if(open) callMenu = false;
@@ -1942,7 +1943,10 @@ function fitWeapon(slot, key){
 //
 // Everything visible here comes out of the SURFACE KIT. No shape is invented
 // for this panel.
-const HG_W        = 660;    // panel width, of 800 logical points
+const HG_W        = 780;    // panel width, of 800 logical points (v192: list + card)
+const HG_LIST_W   = 452;    // the list on the left, the info card beside it
+const HG_MIN_H    = 420;    // the card needs the room even with two hulls open
+let hgShow = null;          // the hull the card is about
 const HG_PAD      = 12;     // inner margin, also the left edge of every row
 const HG_ROW      = 38;     // a hull that can be taken
 const HG_ROW_LOCK = 20;     // a hull that cannot
@@ -1960,14 +1964,12 @@ const HG_PIC_ALPHA     = 0.95;   // it is a portrait now, not a watermark
 const HG_PIC_ALPHA_OFF = 0.35;
 // Column starts, measured from the row's left edge. The row is
 // HG_W - 2*HG_PAD wide, so the last column has to end inside 636.
+// v192: guns, volley and racks moved into the card.
 const HG_COLS = [
   {k:'hull',   x:232, label:'HULL'},
-  {k:'shield', x:292, label:'SHIELD'},
-  {k:'spd',    x:356, label:'SPD'},
-  {k:'agi',    x:420, label:'AGI'},
-  {k:'guns',   x:484, label:'GUNS'},
-  {k:'volley', x:530, label:'VOLLEY'},
-  {k:'sec',    x:586, label:'SEC'}
+  {k:'shield', x:282, label:'SHIELD'},
+  {k:'spd',    x:336, label:'SPD'},
+  {k:'agi',    x:396, label:'AGI'}
 ];
 // Which hull belongs in which group. Read from the hull key, the same way the
 // rest of the file decides what a bomber is, so a new hull lands in the right
@@ -2021,6 +2023,7 @@ function hangarLayout(tight){
   }
   h += HG_FOOT;
   if(!tight && h > H-8) return hangarLayout(true);
+  h = Math.max(h, HG_MIN_H);
   return {mx:((W-HG_W)/2)|0, my:((H-h)/2)|0, mw:HG_W, mh:h, plan:plan, tabY:tabY};
 }
 // The sprite in its own cell, fitted whole and always facing right. Every hull
@@ -2053,10 +2056,18 @@ function drawKeyChip(d, x, y, w, h, lit){
   ctx.fillText(String(d), x+w/2, y+h/2+0.5);
   ctx.textAlign='left';
 }
+// A long name is set smaller rather than cut off (v192: Hercules Mk II).
+function hgName(t, x, y){
+  const room = HG_COLS[0].x - HG_NAME - 8;
+  let sz = 15;
+  ctx.font = thValue(sz, true);
+  while(sz > 11 && ctx.measureText(t).width > room){ sz--; ctx.font = thValue(sz, true); }
+  ctx.fillText(thFit(t, room), x, y);
+}
 function drawShipMenu(){
   if(!shipMenu) return;
   const L  = hangarLayout();
-  const mx = L.mx, my = L.my, rw = L.mw - HG_PAD*2;
+  const mx = L.mx, my = L.my, rw = HG_LIST_W;
   ctx.save();
   thFrame(mx, my, L.mw, L.mh, HG_TITLE);
   window._shipPanelRect = {x:mx, y:my, w:L.mw, h:L.mh};
@@ -2093,6 +2104,7 @@ function drawShipMenu(){
     const s    = PLAYER_SHIPS[p.i];
     const rx   = mx+HG_PAD;
     const open = !p.locked && !p.off;
+    if(hovering(rx, ry, rw, p.h)) hgShow = s.key;
 
     if(p.locked){
       // Locked: the dark plate every unavailable control carries (v179),
@@ -2129,11 +2141,11 @@ function drawShipMenu(){
     if(p.off){
       // Two lines only where there is a reason to give: the name, and why the
       // row cannot be taken right now.
-      ctx.fillText(s.name, rx+HG_NAME, ry+13);
+      hgName(s.name, rx+HG_NAME, ry+13);
       ctx.fillStyle=TH('textDim'); ctx.font=thValue(9, false);
       ctx.fillText('NO '+(s.fac||'').toUpperCase()+' HANGAR ON THE FIELD', rx+HG_NAME, ry+27);
     } else {
-      ctx.fillText(s.name, rx+HG_NAME, ry+p.h/2);
+      hgName(s.name, rx+HG_NAME, ry+p.h/2);
     }
 
     // The figures. Same column, same font, same baseline on every row.
@@ -2146,25 +2158,17 @@ function drawShipMenu(){
     ctx.fillText(String(s.sh), rx+HG_COLS[1].x, cy);
     statPips(rx+HG_COLS[2].x, cy-3, s.spd,  [2.2,2.5,2.9,3.2,3.5],      pCol);
     statPips(rx+HG_COLS[3].x, cy-3, s.turn, [0.08,0.10,0.12,0.14,0.17], pCol);
-    // Barrels and volley are read from the mount data. No mount data means no
-    // claim about either, rather than a made up one.
-    const gn = primaryCount(s.key);
-    if(gn){
-      ctx.fillStyle=vCol;
-      ctx.fillText(String(gn), rx+HG_COLS[4].x, cy);
-      ctx.fillText(String(Math.round(volleyTotal(gn))), rx+HG_COLS[5].x, cy);
-    }
-    const secX = rx+HG_COLS[6].x;
-    if(isBomberHull(s.key)) drawBombIcon(secX+10, cy, pCol);
-    else                    drawMissileIcon(secX+10, cy, pCol);
-    ctx.fillStyle=vCol; ctx.font=thValue(15, false);
-    ctx.fillText(String(secRounds(s.key)), secX+24, cy);
 
     // Every row swallows its own tap, so a row that cannot be taken cannot
     // close the panel by accident either.
     window._shipRects.push({x:rx, y:ry, w:rw, h:p.h, ship:s.key,
                             key:(open && !p.cur) ? s.key : null});
   }
+
+  // The card: the hull under the pointer, else the one you fly (v192).
+  if(!hgShow || !PLAYER_SHIPS.some(function(q){ return q.key === hgShow; })) hgShow = player.ship;
+  const cx = mx+HG_PAD+HG_LIST_W+12, cy0 = my+HG_TITLE+(cycleTabs() ? FLEET_TAB_H+8 : 0)+4;
+  drawInfoCard(cx, cy0, mx+L.mw-HG_PAD-cx, my+L.mh-26-cy0, hangarCard(hgShow));
 
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim');
   ctx.font=thValue(10, false);
@@ -2187,6 +2191,126 @@ function drawResumeHint(){
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
+// ── INFO CARD (v192) ─────────────────────────────────────────
+// The fixed panel on the right of the hangar and the support window, the
+// same build as the rearm info panel: the model (it turns while the pointer
+// is on it, the wheel zooms), the name, facts in two fixed rows, bars
+// against the best of the list with a white mark for what you have now,
+// a few lines of what it means, the keys. Every area keeps its place, so
+// nothing below jumps when you go down the list (Silvio).
+function drawInfoCard(x, y, w, h, o){
+  thPlate(x, y, w, h, TH('panelFront'));
+  const px = x+6, pw = w-12, py = y+6;
+  ctx.fillStyle = TH('back'); ctx.fillRect(px, py, pw, IC_PIC_H);
+  window._infoPicRect = {x:px, y:py, w:pw, h:IC_PIC_H};
+  const mk = M3D_ALIAS[o.model] || o.model, hot = hovering(px, py, pw, IC_PIC_H);
+  let shown = false;
+  if(typeof m3dDraw === 'function' && mk) shown = m3dDraw(mk, px, py, pw, IC_PIC_H, m3dView(mk, hot));
+  if(shown){
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillStyle = hot ? TH('accent') : TH('textDim'); ctx.font = thLabel(7);
+    ctx.fillText(hot ? 'WHEEL: ZOOM' : 'POINT TO TURN', px+pw-6, py+8);
+  } else if(o.model) drawHullCell(o.model, px+10, py+6, pw-20, IC_PIC_H-12, true);
+  let iy = py + IC_PIC_H + 16;
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillStyle = TH('textBright'); ctx.font = thValue(15, true);
+  ctx.fillText(thFit(o.title||'', w-20), x+10, iy); iy += 16;
+  ctx.fillStyle = o.subCol || TH('textDim'); ctx.font = thLabel(8);
+  ctx.fillText(thFit(o.sub||'', w-20), x+10, iy); iy += 18;
+  let fx = x+10, row = 0;
+  ctx.font = thLabel(7);
+  for(const t of (o.facts||[])){
+    const tw = ctx.measureText(t).width+12;
+    if(fx+tw > x+w-8){ fx = x+10; row++; }
+    if(row >= IC_FACT_ROWS) break;
+    ctx.strokeStyle=TH('edgeLight'); ctx.lineWidth=1; ctx.strokeRect(fx+0.5, iy+row*18-7.5, tw, 15);
+    ctx.fillStyle=TH('textBright'); ctx.fillText(t, fx+6, iy+row*18); fx += tw+5;
+  }
+  iy += (IC_FACT_ROWS-1)*18 + 20;
+  if(o.bars && o.bars.length){
+    ctx.fillStyle=TH('textDim'); ctx.font=thLabel(8); ctx.fillText(o.barHead||'', x+10, iy); iy += 14;
+    const bx = x+84, bw = w-140;
+    for(const r of o.bars){
+      ctx.fillStyle=TH('text'); ctx.font=thLabel(8); ctx.fillText(r.l, x+10, iy);
+      ctx.fillStyle=TH('edgeDark'); ctx.fillRect(bx, iy-4, bw, 8);
+      ctx.fillStyle=TH('accentWarm'); ctx.fillRect(bx, iy-4, Math.max(1, bw*r.v), 8);
+      if(r.cur != null){ ctx.fillStyle=TH('textBright'); ctx.fillRect(bx+bw*r.cur-1, iy-6, 2, 12); }
+      ctx.textAlign='right'; ctx.font=thValue(9, true);
+      if(r.d != null){ ctx.fillStyle = r.d > 0 ? RM_GOOD : (r.d < 0 ? RM_BAD : TH('textDim'));
+        ctx.fillText((r.d > 0 ? '+' : '')+r.d+'%', x+w-10, iy); }
+      else if(r.txt){ ctx.fillStyle=TH('textBright'); ctx.fillText(r.txt, x+w-10, iy); }
+      ctx.textAlign='left';
+      iy += 15;
+    }
+    if(o.barNote){ ctx.fillStyle=TH('textDim'); ctx.font=thValue(8, false); ctx.fillText(thFit(o.barNote, w-20), x+10, iy); }
+    iy += 18;
+  }
+  ctx.fillStyle=TH('textBright'); ctx.font=thValue(10, false);
+  for(const t of (o.lines||[])){ if(iy > y+h-34) break; ctx.fillText(thFit(t, w-20), x+10, iy); iy += 15; }
+  if(o.hint){
+    const cy = y+h-16;
+    ctx.fillStyle=TH('back'); ctx.fillRect(x+6, cy-10, w-12, 22);
+    ctx.fillStyle=TH('accent'); ctx.font=thLabel(8);
+    ctx.fillText(thFit(o.hint, w-24), x+12, cy);
+  }
+}
+
+// What the hangar card says about a hull. Bars against the best hull of the
+// list, the white mark is the one you fly.
+function hangarCard(key){
+  const s = shipStats(key), b = shipBanks(key), cur = shipStats(player.ship);
+  const list = PLAYER_SHIPS.filter(function(q){ return !cycleTabs() || q.fac === s.fac; });
+  const top = function(f){ let m = 0; for(const q of list) m = Math.max(m, f(q)); return m || 1; };
+  const bar = function(l, f){ const t = top(f), a = f(s), c = f(cur);
+    return {l:l, v:Math.min(1, a/t), cur:Math.min(1, c/t), d:(key !== player.ship && c > 0) ? Math.round((a/c-1)*100) : null}; };
+  const gn = primaryCount(key), fit = fitFor(key);
+  const facts = [isBomberHull(key) ? 'BOMBER' : 'FIGHTER'];
+  if(gn) facts.push(gn+(gn === 1 ? ' GUN' : ' GUNS')+'  -  VOLLEY '+Math.round(volleyTotal(gn)));
+  facts.push(b.p.length+(b.p.length === 1 ? ' GUN BANK' : ' GUN BANKS'));
+  facts.push(b.s.length+(b.s.length === 1 ? ' MISSILE BANK' : ' MISSILE BANKS'));
+  const i = PLAYER_SHIPS.findIndex(function(q){ return q.key === key; });
+  let sub = (s.fac||'').toUpperCase(), subCol = null;
+  if(key === player.ship){ sub = 'YOU FLY THIS ONE'; subCol = TH('accentWarm'); }
+  else if(i >= 0 && !shipIsOpen(i)) sub = 'UNLOCKS AT '+(cycleBase+s.unlock).toLocaleString('en-US')+' POINTS';
+  else if(!shipOffered(key)) sub = 'NO '+(s.fac||'').toUpperCase()+' HANGAR ON THE FIELD';
+  const pri = fit.p.map(function(k){ return weaponName(priDefP(k)); }).join(' + ');
+  const sec = fit.s.map(function(k, n){ return weaponName(secDefP(k))+' '+bankAmmoMax(key, n, k); }).join(', ');
+  return {model:key, title:s.name, sub:sub, subCol:subCol, facts:facts,
+          barHead:'AGAINST THE BEST HULL HERE', barNote:'white mark and % = your '+(cur.name||''),
+          bars:[bar('HULL', function(q){ return q.hp; }), bar('SHIELDS', function(q){ return q.sh; }),
+                bar('SPEED', function(q){ return q.spd; }), bar('AGILITY', function(q){ return q.turn; })],
+          lines:['Guns: '+pri, 'Racks: '+sec],
+          hint: colossusOnField() ? 'COLOSSUS HANGAR OPEN  -  NO REFIT AFTER THE FIRST SWITCH' : 'DIGIT OR CLICK TO SWITCH  -  ONE SWITCH PER WAVE'};
+}
+
+// What the support card says. Counts read from the mount data the ships
+// fight with; facts, not a role.
+function allyCard(id, keyLabel){
+  const d = ALLY_DEFS[id], m = (typeof mountsFor === 'function' && mountsFor(d.spr)) || {};
+  const beams = m.beams || [], heavy = beams.filter(function(b){ return b.large; }).length, light = beams.length - heavy;
+  const guns = (m.primary||[]).length, mis = (m.secondary||[]).length;
+  const facts = [d.cls.toUpperCase(), 'HULL '+allyHull(d)];
+  if(light) facts.push(light+' ANTI-FIGHTER '+(light === 1 ? 'BEAM' : 'BEAMS'));
+  facts.push(heavy ? heavy+' HEAVY '+(heavy === 1 ? 'BEAM' : 'BEAMS') : 'NO HEAVY BEAMS');
+  if(guns) facts.push(guns+(guns === 1 ? ' TURRET' : ' TURRETS'));
+  if(mis) facts.push(mis+' MISSILE '+(mis === 1 ? 'LAUNCHER' : 'LAUNCHERS'));
+  // what she does for you
+  const lines = [];
+  if(d.colossus) lines.push(COLOSSUS_TIME+' s on station, then she jumps out');
+  if(d.cls === 'destroyer') lines.push('Launches wings  -  her hangar lets you switch ship (V)');
+  if(d.cls === 'corvette') lines.push('Rearms you while she is on the field (R)');
+  const rk = allyTicket(id);
+  lines.push('In hand: '+(tickets[rk]||0)+(canRefine(rk) ? '  -  '+REFINE_COST+' refine into one of the next class' : ''));
+  // hull against the strongest of the same fleet
+  let top = 1;
+  for(const k in ALLY_DEFS){ const q = ALLY_DEFS[k]; if(q.fac === d.fac && !q.colossus) top = Math.max(top, allyHull(q)); }
+  if(d.colossus) top = allyHull(d);
+  return {model:d.spr, title:allyLabel(d), sub:(CM_FAC_HEAD[d.fac]||'').toUpperCase(), facts:facts,
+          barHead:'HULL AGAINST THE STRONGEST OF THE FLEET',
+          bars:[{l:'HULL', v:Math.min(1, allyHull(d)/top), cur:null, d:null, txt:String(allyHull(d))}],
+          lines:lines, hint:'KEY '+keyLabel+' OR CLICK TO CALL'};
+}
+
 // ── REARM PANEL (v190) ───────────────────────────────────────
 // Three columns: the ship and its banks, the weapons the chosen bank may
 // carry, and a fixed info panel for the weapon under the pointer (Silvio:
@@ -2206,6 +2330,28 @@ const RM_ROW_H    = 26;
 const RM_ROW_GAP  = 2;
 const RM_GOOD     = '#7fe08a';
 const RM_BAD      = '#ff7a66';
+// The info card of the hangar and the support window (v192).
+const IC_PIC_H   = 112;
+const IC_FACT_ROWS = 2;
+// Some hulls share a model with another key.
+const M3D_ALIAS = {ntfcodeimos:'codeimos', ntfcrfenris:'crfenris', ntfcrleviathan:'crleviathan',
+                   ntfcraeolus:'craeolus', deorion:'deorionright', deorionleft:'deorionright',
+                   ntfdeorion:'deorionright', ntfdehecate:'dehecate'};
+const RM_NOTE_LINES = 2, RM_NOTE_LH = 13, RM_FACT_ROWS = 2;
+// Word wrap into at most n lines; the last one is cut with an ellipsis
+// only if the text is longer than the space.
+function rmWrap(text, maxW, n){
+  const words = String(text).split(' '), out = [];
+  let line = '';
+  for(let i=0;i<words.length;i++){
+    const t = line ? line+' '+words[i] : words[i];
+    if(ctx.measureText(t).width <= maxW || !line){ line = t; continue; }
+    out.push(line); line = words[i];
+    if(out.length === n-1){ line = words.slice(i).join(' '); break; }
+  }
+  if(line) out.push(out.length === n-1 ? thFit(line, maxW) : line);
+  return out.slice(0, n);
+}
 // The bank picked and the weapon the info panel is about.
 let rmBank = 'p0', rmShow = null;
 // The bars of the info panel, the armour factor each one reads.
@@ -2417,18 +2563,25 @@ function drawRearmMenu(){
   // ── the info panel ──
   const w = rmDef(rmShow, L.pri), C3 = L.c3, C3W = L.c3w, top = my+44, ph = RM_H-60;
   thPlate(C3, top, C3W, ph, TH('panelFront'));
+  // Fixed areas (v192, Silvio): the note wraps into two lines and the
+  // facts into two rows, so nothing below moves while you go through the
+  // list.
   let iy = top+16;
   ctx.fillStyle=TH('textBright'); ctx.font=thValue(15, true); ctx.fillText(thFit(weaponName(w), C3W-20), C3+10, iy); iy += 18;
-  ctx.fillStyle=TH('text'); ctx.font=thValue(10, false); ctx.fillText(thFit(w.note||'', C3W-20), C3+10, iy); iy += 20;
-  let fx = C3+10;
+  ctx.fillStyle=TH('text'); ctx.font=thValue(10, false);
+  const nl = rmWrap(w.note||'', C3W-20, RM_NOTE_LINES);
+  for(let i=0;i<nl.length;i++) ctx.fillText(nl[i], C3+10, iy + i*RM_NOTE_LH);
+  iy += RM_NOTE_LINES*RM_NOTE_LH + 8;
+  let fx = C3+10, row = 0;
   ctx.font=thLabel(7);
   for(const t of rmFacts(w, L.pri)){
     const tw = ctx.measureText(t).width+12;
-    if(fx+tw > C3+C3W-8){ fx = C3+10; iy += 18; }
-    ctx.strokeStyle=TH('edgeLight'); ctx.lineWidth=1; ctx.strokeRect(fx+0.5, iy-7.5, tw, 15);
-    ctx.fillStyle=TH('textBright'); ctx.fillText(t, fx+6, iy); fx += tw+5;
+    if(fx+tw > C3+C3W-8){ fx = C3+10; row++; }
+    if(row >= RM_FACT_ROWS) break;
+    ctx.strokeStyle=TH('edgeLight'); ctx.lineWidth=1; ctx.strokeRect(fx+0.5, iy+row*18-7.5, tw, 15);
+    ctx.fillStyle=TH('textBright'); ctx.fillText(t, fx+6, iy+row*18); fx += tw+5;
   }
-  iy += 22;
+  iy += (RM_FACT_ROWS-1)*18 + 22;
   lab(L.pri ? 'DAMAGE PER SECOND AGAINST' : 'DAMAGE OF A FULL BANK AGAINST', C3+10, iy); iy += 14;
   const bx = C3+92, bw = C3W-150;
   for(const r of rmBars(w, rmBank)){
@@ -2494,7 +2647,10 @@ function drawRearmIcon(cx, cy, col){
 // in their places. The width is fixed on purpose. It used to follow the number
 // of faction columns, which meant that with a single faction on call the panel
 // became narrower than the Colossus line of text that had to sit inside it.
-const CM_W        = 636;
+const CM_W        = 780;    // v192: list + card
+const CM_LIST_W   = 452;
+const CM_MIN_H    = 420;
+let cmShow = null;          // the ship the card is about
 const CM_PAD      = 12;
 const CM_ROW      = 38;
 const CM_GAP      = 4;
@@ -2514,7 +2670,7 @@ const CM_TICKET_W = 34;   // and the count in hand sits beside it
 function callMenuLayout(){
   const COLS = callCols();
   const n    = Math.max(1, COLS.length);
-  const colw = ((CM_W - CM_PAD*(n+1))/n)|0;
+  const colw = ((CM_LIST_W - CM_PAD*(n-1))/n)|0;
   let rows = 1;
   for(const c of COLS) rows = Math.max(rows, c.length);
   const showCol = allyFacOn(ALLY_DEFS[ALLY_SPECIAL].fac);
@@ -2531,6 +2687,7 @@ function callMenuLayout(){
     colRowY  = y; y += CM_ROW + CM_GAP;
   }
   y += CM_FOOT;
+  y = Math.max(y, CM_MIN_H);
   return {mx:((W-CM_W)/2)|0, my:((H-y)/2)|0, mw:CM_W, mh:y,
           COLS:COLS, colw:colw, showCol:showCol, tabs:tabs, tabY:tabY,
           headY:headY, rowY:rowY, colHeadY:colHeadY, colRowY:colRowY};
@@ -2551,18 +2708,21 @@ function drawAllyRow(x, y, w, id, d, keyLabel, hot){
     thGlowPath(x, y, w, CM_ROW, 6, 1);
     thBrackets(x, y, w, CM_ROW, TH('accentWarm'));
   } else if(ok && hovering(x, y, w, CM_ROW)) thGlowPath(x, y, w, CM_ROW, 6, 0.5);
+  if(hovering(x, y, w, CM_ROW)) cmShow = id;
   drawKeyChip(keyLabel, x+CM_NUM, y+(CM_ROW-16)/2, CM_NUM_W, 16, ok);
-  drawHullCell(d.spr, x+CM_PIC, y+3, CM_PIC_W, CM_ROW-6, ok);
+  // A narrow column leaves the picture to the card (v192).
+  const pic = w >= 300, nameX = pic ? CM_NAME : CM_NUM+CM_NUM_W+8;
+  if(pic) drawHullCell(d.spr, x+CM_PIC, y+3, CM_PIC_W, CM_ROW-6, ok);
 
   // What is left for the name once the count and the refine button have had
   // their share. thFit gets told this number, so nothing can run past it.
   const rightKeep = CM_TICKET_W + (ref ? CM_REFINE_W + 4 : 0) + 8;
-  const textW = w - CM_NAME - rightKeep;
+  const textW = w - nameX - rightKeep;
 
   ctx.textAlign='left'; ctx.textBaseline='middle';
   ctx.fillStyle = ok ? TH('textBright') : TH('textDim');
   ctx.font = thValue(13, true);
-  ctx.fillText(thFit(d.label, textW), x+CM_NAME, y+13);
+  ctx.fillText(thFit(allyLabel(d), textW), x+nameX, y+13);
 
   let sub;
   if(d.colossus)                sub = COLOSSUS_TIME+' s on station, then she jumps out';
@@ -2570,7 +2730,7 @@ function drawAllyRow(x, y, w, id, d, keyLabel, hot){
   else if(d.cls==='destroyer')  sub = 'DESTROYER  -  HULL '+allyHull(d)+'  -  WINGS';
   else                          sub = d.cls.toUpperCase()+'  -  HULL '+allyHull(d);
   ctx.fillStyle = TH('textDim'); ctx.font = thValue(9, false);
-  ctx.fillText(thFit(sub, textW), x+CM_NAME, y+27);
+  ctx.fillText(thFit(sub, textW), x+nameX, y+27);
 
   // How many are in hand, not merely whether one can be afforded.
   ctx.textAlign='right';
@@ -2629,12 +2789,22 @@ function drawCallMenu(){
 
   if(L.showCol){
     const cd = ALLY_DEFS[ALLY_SPECIAL];
-    const cx = mx + CM_PAD, cw = L.mw - CM_PAD*2;
+    if(!cmShow) cmShow = ALLY_SPECIAL;
+    const cx = mx + CM_PAD, cw = CM_LIST_W;
     ctx.textAlign='left';
     ctx.fillStyle=TH('text'); ctx.font=thLabel(11);
     ctx.fillText(CM_FAC_HEAD.gtva, cx, my+L.colHeadY+7);
     thScale(cx, my+L.colHeadY+14, cw, [CM_PIC, CM_NAME], TH('edgeLight'));
     drawAllyRow(cx, my+L.colRowY, cw, ALLY_SPECIAL, cd, ALLY_SPECIAL_KEY, true);
+  }
+
+  // The card: the ship under the pointer, else the first in the list (v192).
+  let keyOf = null;
+  for(const col of L.COLS) for(const r of col){ if(!cmShow) cmShow = r.id; if(r.id === cmShow) keyOf = r.key; }
+  if(cmShow === ALLY_SPECIAL) keyOf = ALLY_SPECIAL_KEY;
+  if(cmShow && ALLY_DEFS[cmShow]){
+    const cx = mx+CM_PAD+CM_LIST_W+12, cy0 = my+CM_TITLE+(L.tabs ? FLEET_TAB_H+8 : 0)+4;
+    drawInfoCard(cx, cy0, mx+L.mw-CM_PAD-cx, my+L.mh-26-cy0, allyCard(cmShow, keyOf || '?'));
   }
 
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim');
@@ -2648,7 +2818,7 @@ function drawCallMenu(){
 function setCallMenu(open){
   if(!open && callMenu) holdResume();
   callMenu = open;
-  if(open) shipMenu = false;
+  if(open){ shipMenu = false; cmShow = null; }
   syncPause();
   if(!open && GS==='playing'){ MOUSE.x = player.x; MOUSE.y = player.y; }
   syncCursor();
@@ -2974,6 +3144,13 @@ CVS.addEventListener('wheel',function(ev){
   if(GS==='playing' && rearmMenu){
     ev.preventDefault();
     const r = window._rearmShipRect, p = toGC(ev.clientX, ev.clientY);
+    if(r && ev.deltaY && p.x>=r.x && p.x<=r.x+r.w && p.y>=r.y && p.y<=r.y+r.h && typeof m3dWheel === 'function') m3dWheel(ev.deltaY);
+    return;
+  }
+  // Over the card of the hangar or the support window it zooms too (v192).
+  if(GS==='playing' && (shipMenu || callMenu)){
+    ev.preventDefault();
+    const r = window._infoPicRect, p = toGC(ev.clientX, ev.clientY);
     if(r && ev.deltaY && p.x>=r.x && p.x<=r.x+r.w && p.y>=r.y && p.y<=r.y+r.h && typeof m3dWheel === 'function') m3dWheel(ev.deltaY);
     return;
   }

@@ -2876,6 +2876,19 @@ scenario('v191: a new mission starts repaired and armed, a rearm is no recharge'
   r.fullStore = Math.abs(player.en - player.enMax) < 1e-9;
   return r;`);
 
+scenario('v192: test switch, GTVA labels, the cards', 'm=26&ship=bosekhmet', `
+  const r = {};
+  r.startsInSekhmet = player.ship === 'bosekhmet';
+  r.gvInFs2 = allyLabel(ALLY_DEFS.vas_typhon) === 'GVD Typhon' && allyLabel(ALLY_DEFS.vas_sobek) === 'GVCv Sobek';
+  const era = currentEra; currentEra = 'fs1';
+  r.pvInFs1 = allyLabel(ALLY_DEFS.vas_typhon) === 'PVD Typhon';
+  currentEra = era;
+  r.hercShort = document.documentElement.innerHTML.indexOf("name:'GTF Herc Mk II'") >= 0 && document.documentElement.innerHTML.indexOf("name:'GTF Hercules Mk II'") < 0;
+  const hc = hangarCard('bosekhmet'), ac = allyCard('vas_hatshepsut', 'T');
+  r.hangarCardFacts = hc.facts.length >= 3 && hc.bars.length === 4 && hc.sub === 'YOU FLY THIS ONE';
+  r.allyCardFacts = ac.facts.some(f=>/HEAVY BEAM/.test(f)) && ac.lines.some(l=>/switch ship/.test(l));
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

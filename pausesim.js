@@ -53,7 +53,7 @@ const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
-  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','tickWeaponUnlocks',
+  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','rmWrap','hgName','drawInfoCard','hangarCard','allyCard','allyLabel','tickWeaponUnlocks',
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','setShipMenu', 'toggleShipMenu', 'shipSwapReady', 'setCallMenu', 'toggleCallMenu',
                'setSettings', 'pointerConsumed', 'shipOffered', 'shipFac', 'hullFac',

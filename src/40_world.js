@@ -1573,6 +1573,12 @@ function drawItems(){
 // One entry per actual ship class. Picking at random from a pool meant you
 // never knew what you were calling, and the Hecate could never turn up at
 // all because the escort pool only held the Orion.
+// The Vasudan fleet is GTVA (GV) in the FS2 era and was Parliamentary (PV)
+// before it - the same rule shipName() uses for what flies on the field
+// (v192, Silvio: why PVD?).
+function allyLabel(d){
+  return (typeof currentEra !== 'undefined' && currentEra === 'fs1') ? String(d.label).replace(/^GV/, 'PV') : d.label;
+}
 const ALLY_DEFS = {
   ter_fenris:     {cls:'cruiser',   fac:'terran',  spr:'crfenris',     label:'GTC Fenris'},
   ter_leviathan:  {cls:'cruiser',   fac:'terran',  spr:'crleviathan',  label:'GTC Leviathan'},
@@ -1580,11 +1586,11 @@ const ALLY_DEFS = {
   ter_deimos:     {cls:'corvette',  fac:'terran',  spr:'codeimos',     label:'GTCv Deimos'},
   ter_orion:      {cls:'destroyer', fac:'terran',  spr:'deorionright', label:'GTD Orion'},
   ter_hecate:     {cls:'destroyer', fac:'terran',  spr:'dehecate',     label:'GTD Hecate'},
-  vas_aten:       {cls:'cruiser',   fac:'vasudan', spr:'craten',       label:'PVC Aten'},
-  vas_mentu:      {cls:'cruiser',   fac:'vasudan', spr:'crmentu',      label:'PVC Mentu'},
-  vas_sobek:      {cls:'corvette',  fac:'vasudan', spr:'cosobek',      label:'PVCv Sobek'},
-  vas_typhon:     {cls:'destroyer', fac:'vasudan', spr:'detyphon',     label:'PVD Typhon'},
-  vas_hatshepsut: {cls:'destroyer', fac:'vasudan', spr:'dehatshepsut', label:'PVD Hatshepsut'},
+  vas_aten:       {cls:'cruiser',   fac:'vasudan', spr:'craten',       label:'GVC Aten'},
+  vas_mentu:      {cls:'cruiser',   fac:'vasudan', spr:'crmentu',      label:'GVC Mentu'},
+  vas_sobek:      {cls:'corvette',  fac:'vasudan', spr:'cosobek',      label:'GVCv Sobek'},
+  vas_typhon:     {cls:'destroyer', fac:'vasudan', spr:'detyphon',     label:'GVD Typhon'},
+  vas_hatshepsut: {cls:'destroyer', fac:'vasudan', spr:'dehatshepsut', label:'GVD Hatshepsut'},
   // Kept as class destroyer on purpose: hull, weapons, targeting and
   // explosions all key off the class, and she needs none of that changed.
   // Only her placement and her deadline are special.
@@ -1726,7 +1732,7 @@ function mkAlly(id){
     cx = W/2;
   }
   const a = {
-    type:d.cls, side:'ally', id:id, label:d.label,
+    type:d.cls, side:'ally', id:id, label:allyLabel(d),
     img:spr, faction:d.fac,
     x:cx, y:y, warpX:cx, warpY:y, targetX:cx,
     // hullMul: a lighter hull than the class gives (the Charybdis, v166).

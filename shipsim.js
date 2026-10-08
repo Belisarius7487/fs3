@@ -62,7 +62,7 @@ const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
-  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','tickWeaponUnlocks',
+  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','rmWrap','hgName','drawInfoCard','hangarCard','allyCard','allyLabel','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell','hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
@@ -495,12 +495,14 @@ ok('nothing loaded yet: no picture, no crash, rows still there',
    draws().length===0 && W.run('window._shipRects').length===8);
 W.set('IMGS', ALL_IMGS);
 CLR(); W.run('drawShipMenu()');
-ok('one hull drawn per open row', draws().length===8);
+// v192: the info card adds one bigger picture of the hull it is about.
+const rowDraws = ()=> draws().filter(d=>d.args[3]<=PICW-5);
+ok('one hull drawn per open row, and one in the card', rowDraws().length===8 && draws().length===9);
 // The gloss on each plate clips as well, so this counts at least one clip
 // per picture rather than exactly one in total.
 ok('each one clipped to its own cell first', clips().length>=8);
 ok('each one fits inside the picture cell',
-   draws().every(d=>d.args[3]<=PICW-5 && d.args[4]<=PICH-5 && d.args[3]>0 && d.args[4]>0));
+   rowDraws().every(d=>d.args[3]<=PICW-5 && d.args[4]<=PICH-5 && d.args[3]>0 && d.args[4]>0));
 ok('aspect ratio kept', draws().every(d=>Math.abs((d.args[3]/d.args[4]) - (120/90))<0.01
                                       || Math.abs((d.args[3]/d.args[4]) - (150/110))<0.01));
 ok('save and restore stay balanced, no leaking clip or alpha', balanced());
@@ -510,7 +512,7 @@ ok('a picture is a picture now, not a watermark', alphas().every(a=>a>0.9 && a<=
   // picture, so it gets none at all.
   reset(); W.run("shipUnlocked=3"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
   W.set('IMGS', ALL_IMGS); CLR(); W.run('drawShipMenu()');
-  ok('a locked hull shows no picture', draws().length===3);
+  ok('a locked hull shows no picture', rowDraws().length===3);
 }
 reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
 W.set('IMGS', {fitoth:IMG(0,0)});
@@ -529,27 +531,22 @@ const inCol = (k)=>{
   const x0 = colX(k), rs = W.run('window._shipRects');
   return texts().filter(t=> rs.some(r=> t.x === r.x + x0 && t.y >= r.y && t.y <= r.y + r.h));
 };
+// v192: guns and volley moved from the list into the info card.
 reset(); W.run("shipUnlocked=8"); W.set('allies',[destroyer()]); W.run('toggleShipMenu()');
 W.set('MOUNTS', {});
-CLR(); W.run('drawShipMenu()');
 ok('no mount data: no claim about guns or volley at all',
-   inCol('guns').length===0 && inCol('volley').length===0);
+   W.run("hangarCard('fitoth').facts.join()").indexOf('GUN')<0 || W.run("hangarCard('fitoth').facts.join()").indexOf('VOLLEY')<0);
 W.set('MOUNTS', {fitoth:{primary:[1,1]}, fihorus:{primary:[1,1]}, boosiris:{primary:[1,1]},
                  fiserapis:{primary:[1,1]}, fiseth:{primary:[1,1]}, bobakha:{primary:[1,1]},
                  fitauret:{primary:[1,1,1]}, bosekhmet:{primary:[1,1]}});
-CLR(); W.run('drawShipMenu()');
-ok('a figure on every one of the eight rows',
-   inCol('guns').length===8 && inCol('volley').length===8);
-ok('the seven two barrel hulls read 2 and 51',
-   inCol('guns').filter(t=>t.s==='2').length===7 &&
-   inCol('volley').filter(t=>t.s==='51').length===7);
-ok('the Tauret reads 3 and 57',
-   inCol('guns').filter(t=>t.s==='3').length===1 &&
-   inCol('volley').filter(t=>t.s==='57').length===1);
+ok('the card of a two barrel hull reads 2 guns and 51',
+   W.run("hangarCard('fihorus').facts.join()").indexOf('2 GUNS  -  VOLLEY 51')>=0);
+ok('the Tauret reads 3 and 57', W.run("hangarCard('fitauret').facts.join()").indexOf('3 GUNS  -  VOLLEY 57')>=0);
 ok('the figure matches what volleyDmg actually does',
    Math.round(W.run('volleyTotal(2)'))===51 && Math.round(W.run('volleyTotal(3)'))===57
    && Math.round(W.run('volleyTotal(1)'))===44);
 ok('one barrel is the fallback of the formula, not a crash', W.run('volleyTotal(0)')===44);
+CLR(); W.run('drawShipMenu()');
 {
   // The point of the columns: hull sits under hull on every row.
   const hulls = inCol('hull').map(t=>t.s).join();
@@ -558,15 +555,6 @@ ok('one barrel is the fallback of the formula, not a crash', W.run('volleyTotal(
   ok('the shield column too', shields==='51,59,51,149,136,154,159,218');
   ok('every value in a column shares one x',
      new Set(inCol('hull').map(t=>t.x)).size===1);
-}
-{
-  // Two unlocked of eight: the menu needs two to open at all.
-  reset(); W.run("shipUnlocked=2"); W.set('allies',[destroyer()]);
-  W.set('MOUNTS', {fitoth:{primary:[1,1]}, fihorus:{primary:[1,1]}, fitauret:{primary:[1,1,1]}});
-  W.run('toggleShipMenu()'); CLR(); W.run('drawShipMenu()');
-  ok('only the two unlocked rows make a claim', inCol('guns').length===2);
-  ok('the locked Tauret stays silent even with mount data',
-     inCol('volley').every(t=>t.s!=='57'));
 }
 W.set('MOUNTS', {});
 

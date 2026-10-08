@@ -618,6 +618,7 @@ function launchGame(){
   // The cycle of the first wave decides the fleet. FS1 has its own.
   if(FS1_MODE || TEST_MODE) applyShip(PLAYER_SHIPS[0].key);
   else enterCycle(cycleAt(wave+1));
+  testShip();
   // Without this the ship would set off towards wherever the launch button
   // was pressed, which since the speed cap is a visible drive across the field.
   MOUSE.x=player.x; MOUSE.y=player.y;

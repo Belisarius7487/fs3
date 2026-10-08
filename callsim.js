@@ -45,7 +45,7 @@ const names = [
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
   'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
-  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','tickWeaponUnlocks',
+  'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','rmWrap','hgName','drawInfoCard','hangarCard','allyCard','allyLabel','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell',
   
   'insidePanel',
@@ -190,10 +190,10 @@ ok('the Colossus row sits below the last entry', (() => {
 // now, and that is the thing to hold on to.
 ok('the panel keeps one width whatever is on call',
    W.run('window._callPanelRect').w === W.run('CM_W'));
-ok('the Colossus row runs the full inner width', (() => {
-  const pr = W.run('window._callPanelRect');
+// v192: the list keeps the left part, the info card the right.
+ok('the Colossus row runs the full width of the list', (() => {
   const col = boxes().find(r => r.id === 'colossus');
-  return col && Math.abs(col.w - (pr.w - 2*W.run('CM_PAD'))) <= 1;
+  return col && Math.abs(col.w - W.run('CM_LIST_W')) <= 1;
 })());
 
 console.log('No label can leave the panel');
@@ -287,17 +287,19 @@ ok('nothing loaded yet: no sprite, no crash', draws().length===0 && rects().leng
 W.set('IMGS', {craten:IMG(200,120), crmentu:IMG(200,120), cosobek:IMG(300,120),
                detyphon:IMG(420,150), dehatshepsut:IMG(420,150), sdcolossus:IMG(560,200)});
 CLR(); W.run('drawCallMenu()');
-ok('five Vasudan rows plus the Colossus row', draws().length===6);
+// v192: plus one bigger picture in the info card
+const rowDraws = ()=> draws().filter(d=>d.args[3]<=W.run('CM_PIC_W')-5);
+ok('five Vasudan rows plus the Colossus row, and the card', rowDraws().length===6 && draws().length===7);
 // Each plate's gloss clips too, so this is at least one clip per hull.
 ok('each one clipped to its row', clips().length>=6);
 // The picture has its own cell now, the same one the hangar uses.
 ok('each one fits inside its picture cell',
-   draws().every(d=>d.args[3]<=W.run('CM_PIC_W')-5 && d.args[4]<=W.run('CM_ROW')-6-5 && d.args[3]>0));
+   rowDraws().every(d=>d.args[4]<=W.run('CM_ROW')-6-5 && d.args[3]>0));
 ok('save and restore stay balanced', balanced());
 ok('a portrait now, not a watermark', alphas().every(a=>a>0.9 && a<=1));
 W.run('affordAll=false'); CLR(); W.run('drawCallMenu()');
 ok('rows that cannot be paid for are dimmer',
-   alphas().length===6 && alphas().every(a=>a===W.run('HG_PIC_ALPHA_OFF')));
+   alphas().filter(a=>a===W.run('HG_PIC_ALPHA_OFF')).length===6);
 W.run('affordAll=true');
 W.set('IMGS', {});
 

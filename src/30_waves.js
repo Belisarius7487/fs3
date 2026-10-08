@@ -1313,6 +1313,13 @@ function applySpawnOpts(e, sp){
 // at without playing up to it first. None of them touches a rule the panel
 // is being judged on.
 const UI_SHIPS_MATCH = /[?&]ships=([1-9])/.exec(location.search);
+// ?ship=<hull> starts in that hull, for testing (v192), e.g. &ship=bosekhmet.
+const TEST_SHIP_MATCH = /[?&]ship=([a-z0-9]+)/.exec(location.search);
+function testShip(){
+  if(!TEST_SHIP_MATCH) return;
+  const k = TEST_SHIP_MATCH[1];
+  if(PLAYER_SHIPS.some(function(s){ return s.key === k; })) applyShip(k);
+}
 const UI_SHIPS   = UI_SHIPS_MATCH ? parseInt(UI_SHIPS_MATCH[1],10) : 1;
 const UI_TICKETS = /[?&]ui=1/.test(location.search);
 // ?wpn=1 opens every weapon whatever the score. Separate from ?ui=1 on
@@ -1498,7 +1505,7 @@ const ROSTER_NTF = [
   {key:'boartemis',  name:'GTB Artemis',       fac:'terran', unlock:9000,  spd:2.6, turn:0.11, hp:95, sh:179, sec:10},
   // sec follows the FreeSpace banks, Hercules 120 = 20: Mk II 180 -> 30,
   // Ares 190 -> 32. Myrmidon and Erinyes keep 20 (testers, v159).
-  {key:'fihercmk2',  name:'GTF Hercules Mk II',fac:'terran', unlock:15000, spd:3.2, turn:0.16, hp:95, sh:156, sec:30},
+  {key:'fihercmk2',  name:'GTF Herc Mk II',fac:'terran', unlock:15000, spd:3.2, turn:0.16, hp:95, sh:156, sec:30},
   {key:'bomedusa',   name:'GTB Medusa',        fac:'terran', unlock:22000, spd:2.4, turn:0.10, hp:121, sh:179, sec:12},
   {key:'fierinyes',  name:'GTF Erinyes',       fac:'terran', unlock:31000, spd:2.8, turn:0.12, hp:112, sh:128, sec:20},
   {key:'boursa',     name:'GTB Ursa',          fac:'terran', unlock:43000, spd:2.3, turn:0.10, hp:190, sh:218, sec:14},
@@ -3135,7 +3142,7 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'K1+K2', w:'einwarpen', a2:'K4'},
        {t:'vernichtet', a:'K1+K2+K3+K4', w:'zielerfuellt', a2:'HER ESCORT IS DOWN', lostMax:0},
        {t:'vernichtet', a:'K1+K2+K3+K4', w:'abzug', a2:''},
-       {t:'vernichtet', a:'A1', w:'zielverfehlt', a2:'PVD HATSHEPSUT LOST'}
+       {t:'vernichtet', a:'A1', w:'zielverfehlt', a2:'GVD HATSHEPSUT LOST'}
      ]},
 
   73:{name:'The Bomber Run', fac:'shivan', o:'clear', live:5, mod:'nebula', hunt:'W1',
