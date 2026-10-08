@@ -427,11 +427,13 @@ function f3dMask(skey, mkey){
   try{
     const f = Math.min(1, MASK_MAX/Math.max(img.width, img.height));
     const mw = Math.max(1, Math.round(img.width*f)), mh = Math.max(1, Math.round(img.height*f));
-    const c = document.createElement('canvas'); c.width = mw; c.height = mh;
-    const g = c.getContext('2d', {willReadFrequently: true});
     const hd = L.head, e = hd.ext/32767, s = mw/hd.size[2];
     const sg = spriteFacing(skey) === 'left' ? -1 : 1;
-    g.fillStyle = '#fff'; g.beginPath();
+    // v199b (Silvio: a few seconds of still picture at the start): filled
+    // here pixel by pixel instead of as one canvas path - a path of 90,000
+    // triangles held the Sathanas up for seconds. Each triangle sets the
+    // map cells whose centre it covers, at most a few dozen cells apiece.
+    const bits = new Uint8Array(mw*mh);
     for(const pt of L.cpu){
       const P = pt.pos, I = pt.idx;
       for(let i = 0; i + 2 < I.length; i += 3){
@@ -439,17 +441,33 @@ function f3dMask(skey, mkey){
         const ax = mw/2 + sg*P[a+2]*e*s, ay = mh/2 - P[a+1]*e*s;
         const bx = mw/2 + sg*P[b+2]*e*s, by = mh/2 - P[b+1]*e*s;
         const cx = mw/2 + sg*P[c3+2]*e*s, cy = mh/2 - P[c3+1]*e*s;
-        // all one way round, or the front and back faces cancel out
-        g.moveTo(ax, ay);
-        if((bx-ax)*(cy-ay) - (by-ay)*(cx-ax) >= 0){ g.lineTo(bx, by); g.lineTo(cx, cy); }
-        else { g.lineTo(cx, cy); g.lineTo(bx, by); }
-        g.closePath();
+        const ar = (bx-ax)*(cy-ay) - (by-ay)*(cx-ax);
+        const x0 = Math.max(0, Math.floor(Math.min(ax, bx, cx))), x1 = Math.min(mw-1, Math.ceil(Math.max(ax, bx, cx)));
+        const y0 = Math.max(0, Math.floor(Math.min(ay, by, cy))), y1 = Math.min(mh-1, Math.ceil(Math.max(ay, by, cy)));
+        if(x1 < x0 || y1 < y0) continue;
+        if(Math.abs(ar) < 1e-6){
+          // edge-on: a sliver still counts where it lies (thin spines)
+          bits[(Math.min(mh-1, Math.max(0, Math.round(ay))))*mw + Math.min(mw-1, Math.max(0, Math.round(ax)))] = 1;
+          continue;
+        }
+        const sgn = ar > 0 ? 1 : -1;
+        for(let y = y0; y <= y1; y++){
+          const py = y + 0.5;
+          for(let x = x0; x <= x1; x++){
+            const px = x + 0.5;
+            const w0 = ((bx-ax)*(py-ay) - (by-ay)*(px-ax))*sgn;
+            const w1 = ((cx-bx)*(py-by) - (cy-by)*(px-bx))*sgn;
+            const w2 = ((ax-cx)*(py-cy) - (ay-cy)*(px-cx))*sgn;
+            if(w0 >= 0 && w1 >= 0 && w2 >= 0) bits[y*mw + x] = 1;
+          }
+        }
+        // a triangle smaller than a cell still marks the cell it sits in
+        if(x1 - x0 <= 1 && y1 - y0 <= 1){
+          const mx = Math.min(mw-1, Math.max(0, Math.floor((ax+bx+cx)/3))), my = Math.min(mh-1, Math.max(0, Math.floor((ay+by+cy)/3)));
+          bits[my*mw + mx] = 1;
+        }
       }
     }
-    g.fill();
-    const d = g.getImageData(0, 0, mw, mh).data;
-    const bits = new Uint8Array(mw*mh);
-    for(let i = 0, p = 3; i < bits.length; i++, p += 4) bits[i] = d[p] > MASK_MIN_A ? 1 : 0;
     MASKS[skey] = {w: mw, h: mh, bits: bits, model: true};
     // the hull's box is read off the map again (40_world.js)
     if(typeof SPR_BOX !== 'undefined') delete SPR_BOX[skey];
