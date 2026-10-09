@@ -111,6 +111,9 @@ function balanced(){
 }
 
 const world = `
+  function bindKey(id){ return {ship:'F2',rearm:'SHIFT+R',call:'C',settings:'F4',pause:'P',sound:'M',full:'F8'}[id]||''; }
+  function bindKeyShort(id){ return bindKey(id).replace('SHIFT+','\u21e7'); }
+
   const W=800, H=500;
   const ctx=CTX; const window={};
   let callMenu=true, allies=[], called=[], affordAll=true;

@@ -178,9 +178,9 @@ function fireSecondary(){
 // takes a fresh press.
 // Two holders: the right mouse button, and the SEC button in the bar
 // (left click or finger). Letting go of one leaves the other.
-const SEC_HOLD = {rmb:false, btn:false};
+const SEC_HOLD = {rmb:false, btn:false, key:false};   // v207: key = the secondary fire key held
 function secHoldTick(){
-  if(!(SEC_HOLD.rmb || SEC_HOLD.btn) || GS!=='playing') return;
+  if(!(SEC_HOLD.rmb || SEC_HOLD.btn || SEC_HOLD.key) || GS!=='playing') return;
   if(player.secTimer>0 || player.secAmmo<=0 || liveBurstRound()) return;
   fireSecondary();
 }
@@ -827,7 +827,7 @@ function update(){
   player.ang=pPose.ang; player.flip=pPose.flip;
   // Banks (v186): each runs its own clock and pays from the weapon store.
   bankTick();
-  if(!inJump()&&(isFiring||MOUSE.down||K['Space']||K['KeyZ'])){ if(pShootBanks()) player.lastShot=fc; }
+  if(!inJump()&&(isFiring||MOUSE.down||bindHeld('firePri'))){ if(pShootBanks()) player.lastShot=fc; }
   // The dorsal gun of Ursa and Medusa. It must stay below the else-if above:
   // wedged between the two it swallowed the cooldown on release (v157-v158).
   if(!inJump()) turretTick(player, true);

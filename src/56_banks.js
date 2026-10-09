@@ -244,10 +244,11 @@ function syncLegacyWeapons(){
   player.secType = (s && secDefP(s.key).cls==='bomb') ? 'bomb' : 'missile';
 }
 // Mouse wheel up / Q: the next primary mode (bank 1, bank 2, linked).
-function cyclePrimary(){
+// dir -1 (v207): the previous one (FS2: comma)
+function cyclePrimary(dir){
   const n = bankModes();
   if(n < 2) return;
-  player.pMode = ((player.pMode||0) + 1) % n;
+  player.pMode = ((player.pMode||0) + (dir < 0 ? n - 1 : 1)) % n;
   syncLegacyWeapons();
   const pb = player.pb;
   const txt = player.pMode===2 ? 'PRIMARIES LINKED' : weaponNameP(priDefP(pb[player.pMode].key)).toUpperCase();

@@ -458,7 +458,7 @@ function drawPaused(){
   ctx.fillText('PAUSED', W/2, py+36);
   ctx.restore();
   ctx.fillStyle=TH('textDim'); ctx.font=thValue(12, false);
-  ctx.fillText('Press P or tap to resume', W/2, py+68);
+  ctx.fillText('Press '+bindKey('pause')+' or tap to resume', W/2, py+68);
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
 
@@ -948,37 +948,261 @@ const SETTINGS_TITLES = ['SETTINGS', 'ECONOMY', 'APPEARANCE', 'SOUND', 'CONTROLS
 const SETTINGS_TABS = ['GENERAL', 'ECONOMY', 'APPEARANCE', 'SOUND', 'CONTROLS'];
 const SETTINGS_CONTROLS = 4;   // the page that shows CONTROLS instead of rows
 
-// ── CONTROLS ─────────────────────────────────────────────────
-// Every input the game reads, in one list (v185). The title screen and the
-// CONTROLS tab of the settings both draw from it, so a new key is added
-// here once and shows up in both places.
-const CONTROLS = [
-  ['MOUSE',              'fly and aim'],
-  ['LEFT BUTTON, SPACE', 'fire primary'],
-  ['RIGHT BUTTON',       'fire secondary'],
-  ['WHEEL UP, Q',        'primary: bank 1, 2, linked'],
-  ['WHEEL DOWN, E',      'next secondary bank'],
-  ['MIDDLE BUTTON',      'subsystems on / off'],
-  ['V',                  'change ship (V again closes)'],
-  ['R',                  'rearm (R again closes)'],
-  ['C',                  'call support (C again closes)'],
-  ['1 - 6, Q - T, G',    'choose in a menu'],
-  ['TAB, ARROWS',        'fleet tab in a menu'],
-  ['S',                  'settings'],
-  ['P, ESC',             'pause'],
-  ['M',                  'sound on / off'],
-  ['F',                  'full screen']
+// ── CONTROLS (v207) ──────────────────────────────────────────
+// Every input the game reads, in one table. The title screen, the CONTROLS
+// tab, the letters on the bar's buttons and the key handlers all read it,
+// so what is shown is always what works. Silvio: in flight the keys of
+// FreeSpace 2 (FSO's defaults, controlsconfigcommon.cpp), every key the
+// player's own choice, and one key never does two things in one area.
+// ctx: 'flight' (the field) or 'game' (anywhere) - the two share keys
+// with nothing; 'menu' rows are the keys inside an open window and are
+// fixed. mouse: the button that does it as well (fixed). keys: the
+// default, as KeyboardEvent.code with an optional 'Shift+'.
+const BINDS = [
+  {id:'fly',      ctx:'flight', label:'steer and aim',                 mouse:'MOUSE',    fixed:'ARROW KEYS'},
+  {id:'firePri',  ctx:'flight', label:'fire primary weapons',          mouse:'L-BUTTON', key:['ControlLeft','']},
+  {id:'fireSec',  ctx:'flight', label:'fire secondary weapon',         mouse:'R-BUTTON', key:['Space','']},
+  {id:'priNext',  ctx:'flight', label:'next primary bank',mouse:'WHEEL UP', key:['Period','']},
+  {id:'priPrev',  ctx:'flight', label:'previous primary bank',         mouse:'',         key:['Comma','']},
+  {id:'secNext',  ctx:'flight', label:'next secondary bank',           mouse:'WHEEL DN', key:['Slash','']},
+  {id:'subsys',   ctx:'flight', label:'show subsystems on / off',      mouse:'M-BUTTON', key:['','']},
+  {id:'call',     ctx:'flight', label:'call support ships',   mouse:'',         key:['KeyC','']},
+  {id:'rearm',    ctx:'flight', label:'rearm / swap weapons',   mouse:'',         key:['Shift+KeyR','']},
+  {id:'ship',     ctx:'flight', label:'change ship (hangar)',   mouse:'',         key:['F2','']},
+  {id:'settings', ctx:'game',   label:'settings window',               mouse:'',         key:['F4','']},
+  {id:'pause',    ctx:'game',   label:'pause / resume',                mouse:'',         key:['KeyP','Pause']},
+  {id:'sound',    ctx:'game',   label:'sound on / off',                mouse:'',         key:['KeyM','']},
+  {id:'full',     ctx:'game',   label:'full screen on / off',          mouse:'',         key:['F8','']},
+  {id:'mPick',    ctx:'menu',   label:'pick an entry',                 fixed:'1 - 6, Q - T, G'},
+  {id:'mTab',     ctx:'menu',   label:'switch fleet tab',              fixed:'TAB, ARROWS'},
+  {id:'mFit',     ctx:'menu',   label:'equip weapon (rearm)',fixed:'ENTER'},
+  {id:'mClose',   ctx:'menu',   label:'close the window',              fixed:'ITS KEY AGAIN, DONE'}
 ];
-// The list as rows: key on the left in the accent, what it does beside it.
-function drawControlsList(x, y, w, rowH, keyW){
-  for(let i=0;i<CONTROLS.length;i++){
+const BIND_SLOTS = 2;
+// Keys a page must leave to the browser (Silvio: ESC always leaves full
+// screen) and keys the menus use while they are open.
+const BIND_BANNED = ['Escape','F1','F3','F5','F6','F7','F10','F11','F12','Tab','MetaLeft','MetaRight',
+  'AltLeft','AltRight','ContextMenu','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+const BIND_AREA = {flight:['flight','game'], game:['flight','game']};
+// Keys the windows read while they are open (fixed): an 'anywhere' key or a
+// window's own key there would be taken by the window instead.
+const WINDOW_KEYS = {
+  call:  /^(Digit\d|Numpad\d|KeyQ|KeyW|KeyE|KeyR|KeyT|KeyG|Tab|Arrow)/,
+  rearm: /^(Digit\d|Numpad\d|Enter|NumpadEnter|Arrow)/,
+  ship:  /^(Digit\d|Numpad\d|Tab|Arrow)/};
+// w: one window, or any of them
+function menuKey(k, w){
+  const c = k.replace('Shift+', '');
+  if(w) return WINDOW_KEYS[w].test(c);
+  for(const x in WINDOW_KEYS) if(WINDOW_KEYS[x].test(c)) return true;
+  return false;
+}
+let BIND = {};                 // id -> [slot 1, slot 2]
+function bindDefaults(){
+  BIND = {};
+  for(const b of BINDS) if(b.key) BIND[b.id] = b.key.slice();
+}
+function bindLoad(){
+  bindDefaults();
+  try{
+    const o = JSON.parse(localStorage.getItem('fs3_keys') || 'null');
+    if(o && o.v === 2) for(const id in o.k)
+      if(BIND[id] && Array.isArray(o.k[id])) BIND[id] = [0, 1].map(function(i){ return typeof o.k[id][i] === 'string' ? o.k[id][i] : ''; });
+  }catch(ex){}
+}
+function bindSave(){
+  const o = {v:2, k:{}};
+  for(const b of BINDS) if(b.key && BIND[b.id].join('|') !== b.key.join('|')) o.k[b.id] = BIND[b.id];
+  try{ localStorage.setItem('fs3_keys', JSON.stringify(o)); }catch(ex){}
+}
+bindLoad();
+// The key an event stands for, as the table writes it. Extra mouse
+// buttons are 'Mouse4' and 'Mouse5'.
+function evKey(ev){
+  if(ev.type && ev.type.indexOf('mouse') === 0 || ev.type === 'pointerdown') return 'Mouse' + (ev.button + 1);
+  const c = ev.code || '';
+  if(/^(Shift|Control|Alt|Meta)/.test(c)) return c;
+  return (ev.shiftKey ? 'Shift+' : '') + c;
+}
+// Does this key press (or extra mouse button) mean that action?
+function bindIs(id, ev){
+  const ks = BIND[id];
+  if(!ks) return false;
+  if(ev.altKey || ev.metaKey) return false;
+  const k = evKey(ev);
+  if(ev.ctrlKey && k.indexOf('Control') !== 0) return false;
+  return ks.indexOf(k) >= 0 && k !== '';
+}
+// Is one of its keys held? (K[] holds codes and 'Mouse4'/'Mouse5')
+function bindHeld(id){
+  const ks = BIND[id] || [];
+  for(const k of ks) if(k && k.indexOf('Shift+') !== 0 && K[k]) return true;
+  return false;
+}
+// A key as the player reads it. The browser's own layout names where it
+// tells them (Chrome: the slash key of a German board is '-').
+let BIND_LAYOUT = null;
+try{ if(navigator.keyboard && navigator.keyboard.getLayoutMap)
+  navigator.keyboard.getLayoutMap().then(function(m){ BIND_LAYOUT = m; }, function(){}); }catch(ex){}
+const KEY_NAMES = {ControlLeft:'L-CTRL', ControlRight:'R-CTRL', ShiftLeft:'L-SHIFT', ShiftRight:'R-SHIFT',
+  Space:'SPACE', Enter:'ENTER', Backspace:'BACKSPACE', Insert:'INSERT', Delete:'DELETE', Home:'HOME', End:'END',
+  PageUp:'PAGE UP', PageDown:'PAGE DOWN', Pause:'PAUSE', Mouse4:'MOUSE 4', Mouse5:'MOUSE 5',
+  Period:'.', Comma:',', Slash:'/', Backslash:'\\', Semicolon:';', Quote:"'", BracketLeft:'[', BracketRight:']',
+  Minus:'-', Equal:'=', Backquote:'`', IntlBackslash:'<'};
+function keyName(k){
+  if(!k) return '';
+  const sh = k.indexOf('Shift+') === 0, c = sh ? k.slice(6) : k;
+  let n = KEY_NAMES[c];
+  // signs follow the player's own keyboard where the browser says so
+  if(BIND_LAYOUT && BIND_LAYOUT.get && BIND_LAYOUT.get(c) && (!n || n.length === 1)) n = String(BIND_LAYOUT.get(c)).toUpperCase();
+  if(!n){
+    if(c.indexOf('Key') === 0) n = c.slice(3);
+    else if(c.indexOf('Digit') === 0) n = c.slice(5);
+    else if(c.indexOf('Numpad') === 0) n = 'NUM ' + c.slice(6).toUpperCase();
+    else n = c.toUpperCase();
+  }
+  // a lone sign is easy to miss: it goes in brackets
+  if(n.length === 1 && !/[A-Z0-9]/.test(n)) n = '[ ' + n + ' ]';
+  return (sh ? 'SHIFT+' : '') + n;
+}
+// What a row shows: the fixed button and the keys in use.
+function bindText(b){
+  if(b.fixed) return (b.mouse ? b.mouse + ', ' : '') + b.fixed;
+  const ks = (BIND[b.id] || []).filter(function(k){ return k; }).map(keyName);
+  return [b.mouse].concat(ks).filter(function(x){ return x; }).join(', ') || '-';
+}
+// The first key of an action, for the bar's buttons and the hints.
+function bindKey(id){
+  const ks = (BIND[id] || []).filter(function(k){ return k; });
+  return ks.length ? keyName(ks[0]) : '';
+}
+// The same, short, for the small letters on the bar's buttons.
+function bindKeyShort(id){ return bindKey(id).replace('SHIFT+', '⇧').replace('[ ', '').replace(' ]', ''); }
+// Rows for the title and the CONTROLS tab: [keys, what it does, row].
+function ctlRows(ctx){
+  return BINDS.filter(function(b){ return !ctx || b.ctx === ctx; }).map(function(b){
+    return [bindText(b), b.label, b];
+  });
+}
+// Kept for older callers and tests.
+const CONTROLS = { get length(){ return BINDS.length; } };
+function controlsList(){ return ctlRows().map(function(r){ return [r[0], r[1]]; }); }
+// Changing a key (the CONTROLS tab): one slot waits for a key or an extra
+// mouse button; one that is taken in the same area is offered as a swap
+// first; BACKSPACE empties the slot.
+let ctlEdit = null, ctlMsg = '', ctlMsgT = 0, ctlSwap = null;   // ctlEdit: {id, slot}
+function bindClash(id, k){
+  const me = BINDS.find(function(b){ return b.id === id; });
+  for(const b of BINDS){
+    if(!b.key || b.id === id) continue;
+    const i = BIND[b.id].indexOf(k);
+    if(i >= 0 && BIND_AREA[me.ctx] && BIND_AREA[me.ctx].indexOf(b.ctx) >= 0) return {b:b, slot:i};
+  }
+  return null;
+}
+function ctlLabel(id){ return BINDS.find(function(b){ return b.id === id; }).label; }
+// A key press or mouse button while a slot waits. True when it was used.
+function ctlKey(ev){
+  if(!ctlEdit) return false;
+  if(ev.preventDefault) ev.preventDefault();
+  const k = evKey(ev), c = ev.code || '';
+  if(/^Mouse[123]$/.test(k)){ ctlMsg = 'the left, right and middle mouse buttons stay as they are'; ctlMsgT = 240; return true; }
+  if(/^(ShiftLeft|ShiftRight)$/.test(c)) return true;          // wait for the key with it
+  const E = ctlEdit, cur = BIND[E.id];
+  if(c === 'Backspace' && !ev.shiftKey){
+    cur[E.slot] = ''; bindSave(); ctlMsg = ctlLabel(E.id) + ': key ' + (E.slot+1) + ' emptied'; ctlMsgT = 240;
+    ctlEdit = null; ctlSwap = null; return true;
+  }
+  if(BIND_BANNED.indexOf(c) >= 0 || ev.altKey || ev.metaKey || (ev.ctrlKey && c.indexOf('Control') !== 0)){
+    ctlMsg = keyName(k) + ' belongs to the browser'; ctlMsgT = 240; return true;
+  }
+  const meB = BINDS.find(function(b){ return b.id === E.id; });
+  if((meB.ctx === 'game' && menuKey(k)) || (WINDOW_KEYS[E.id] && menuKey(k, E.id))){
+    ctlMsg = keyName(k) + ' is used inside the windows'; ctlMsgT = 240; return true;
+  }
+  if(cur.indexOf(k) >= 0 && cur.indexOf(k) !== E.slot){ ctlMsg = keyName(k) + ' is this action\'s other key already'; ctlMsgT = 240; return true; }
+  const other = bindClash(E.id, k);
+  if(other && !(ctlSwap && ctlSwap.k === k && ctlSwap.id === E.id && ctlSwap.slot === E.slot)){
+    ctlSwap = {id:E.id, slot:E.slot, k:k};
+    ctlMsg = keyName(k) + ' is "' + other.b.label + '" - press it again to swap'; ctlMsgT = 400; return true;
+  }
+  if(other) BIND[other.b.id][other.slot] = cur[E.slot];
+  cur[E.slot] = k; bindSave();
+  ctlMsg = keyName(k) + ': ' + ctlLabel(E.id); ctlMsgT = 240;
+  ctlEdit = null; ctlSwap = null;
+  return true;
+}
+function bindReset(){
+  bindDefaults(); bindSave(); ctlEdit = null; ctlSwap = null;
+  ctlMsg = 'all keys back to the FreeSpace 2 defaults'; ctlMsgT = 240;
+}
+// The rows as a list (title): keys in the accent, what it does beside.
+function drawCtlRows(rows, x, y, w, rowH, keyW){
+  for(let i=0;i<rows.length;i++){
     const ry = y + i*rowH;
     ctx.textAlign='left'; ctx.textBaseline='middle';
     ctx.fillStyle = TH('accentWarm'); ctx.font = thLabel(10);
-    ctx.fillText(thFit(CONTROLS[i][0], keyW-6), x, ry+rowH/2);
+    ctx.fillText(thFit(rows[i][0], keyW-6), x, ry+rowH/2);
     ctx.fillStyle = TH('text'); ctx.font = thValue(11, false);
-    ctx.fillText(thFit(CONTROLS[i][1], w-keyW), x+keyW, ry+rowH/2);
+    ctx.fillText(thFit(rows[i][1], w-keyW), x+keyW, ry+rowH/2);
   }
+}
+// The CONTROLS tab: what it does, the fixed mouse button, then two key
+// slots as buttons - click one, press the new key.
+function drawCtlColumn(title, rows, x, y, w, rowH){
+  const sw = 74, mw = 62, lw = w - mw - 2*sw - 8;
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillStyle = TH('textDim'); ctx.font = thLabel(9);
+  ctx.fillText(title, x, y+7);
+  if(rows.length && !rows[0][2].fixed){
+    ctx.fillText('MOUSE', x+lw+4, y+7); ctx.fillText('KEY 1', x+lw+mw+6, y+7); ctx.fillText('KEY 2', x+lw+mw+sw+8, y+7);
+  }
+  y += 16;
+  for(let i=0;i<rows.length;i++){
+    const b = rows[i][2], ry = y + i*rowH;
+    ctx.textAlign='left'; ctx.fillStyle = TH('text'); ctx.font = thValue(10, false);
+    ctx.fillText(thFit(b.label, (b.fixed && !b.key && b.ctx==='menu') ? lw+mw : lw), x, ry+rowH/2);
+    if(!b.key){
+      ctx.fillStyle = TH('textDim'); ctx.font = thLabel(9);
+      if(b.ctx === 'menu') ctx.fillText(thFit(b.fixed, 2*sw+4), x+lw+mw+6, ry+rowH/2);
+      else { ctx.fillText(thFit(b.mouse, mw-4), x+lw+4, ry+rowH/2); ctx.fillText(thFit(b.fixed, 2*sw+4), x+lw+mw+6, ry+rowH/2); }
+      continue;
+    }
+    ctx.fillStyle = TH('textDim'); ctx.font = thLabel(9);
+    ctx.fillText(thFit(b.mouse || '-', mw-4), x+lw+4, ry+rowH/2);
+    for(let sl=0; sl<BIND_SLOTS; sl++){
+      const kx = x + lw + mw + 4 + sl*(sw+2);
+      const edit = ctlEdit && ctlEdit.id === b.id && ctlEdit.slot === sl, hv = hovering(kx, ry+1, sw, rowH-2);
+      uiCell(kx, ry+1, sw, rowH-2, {state: edit ? 'on' : (hv ? 'ready' : null)});
+      const k = BIND[b.id][sl];
+      ctx.fillStyle = edit ? TH('accentWarm') : (k ? (hv ? TH('textBright') : TH('accentWarm')) : TH('textDim'));
+      ctx.font = thLabel(9); ctx.textAlign='center';
+      ctx.fillText(thFit(edit ? 'PRESS ...' : (k ? keyName(k) : '-'), sw-6), kx+sw/2, ry+rowH/2+1);
+      ctx.textAlign='left';
+      window._setRects.push({x:kx, y:ry+1, w:sw, h:rowH-2, act:'key:'+b.id+':'+sl});
+    }
+  }
+  return y + rows.length*rowH;
+}
+function drawControlsTab(mx, my, mw, top, bottom){
+  const gap = 12, cw = (mw - 3*gap)/2, rowH = 18;
+  drawCtlColumn('IN FLIGHT', ctlRows('flight'), mx+gap, top, cw, rowH);
+  const y2 = drawCtlColumn('ANYWHERE', ctlRows('game'), mx+2*gap+cw, top, cw, rowH);
+  drawCtlColumn('IN A WINDOW', ctlRows('menu'), mx+2*gap+cw, y2+8, cw, rowH);
+  // the line for messages, and the way back to the defaults
+  const by = bottom - 24, bw = 150, bx = mx + mw - gap - bw;
+  const hv = hovering(bx, by, bw, 20);
+  uiCell(bx, by, bw, 20, {state: hv ? 'ready' : null});
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle = hv ? TH('textBright') : TH('text'); ctx.font = thLabel(9);
+  ctx.fillText('FREESPACE 2 DEFAULTS', bx+bw/2, by+11);
+  window._setRects.push({x:bx, y:by, w:bw, h:20, act:'keyreset'});
+  ctx.textAlign='left';
+  ctx.fillStyle = ctlMsgT > 0 ? TH('accentWarm') : TH('textDim'); ctx.font = thValue(10, false);
+  const msg = ctlMsgT > 0 ? ctlMsg : (ctlEdit ? 'press the new key or extra mouse button - BACKSPACE empties the slot'
+                                               : 'click a key to change it - one key never does two things in one area');
+  ctx.fillText(thFit(msg, mw - bw - 3*gap), mx+gap, by+11);
+  if(ctlMsgT > 0) ctlMsgT--;
 }
 const SETTINGS_ROWS_MAX = 5;   // the panel keeps one height for every tab
 function settingsRows(){
@@ -1031,7 +1255,8 @@ function drawSettings(){
   if(plogOpen){ drawPlog(); return; }
   window._setRects=[];
   // 380 wide since v185: five tabs (CONTROLS added) need the room.
-  const bw=380, bh=40, gap=8;
+  // v207: the CONTROLS tab is wider - two columns of keys to click.
+  const bw=(settingsPage===SETTINGS_CONTROLS)?740:380, bh=40, gap=8;
   // The height follows the page, so a shorter page leaves no hole.
   const rows=Math.max(1, settingsRows().length);
   const hintH=22;   // room for the closing hint, which used to land inside
@@ -1067,9 +1292,9 @@ function drawSettings(){
   }
   ctx.textAlign='center'; ctx.textBaseline='top';
   if(settingsPage===SETTINGS_CONTROLS){
-    // The list in the room the rows would take.
+    // The keys in the room the rows would take (v207).
     const top=my+30+tabH+gap, room=bh*rowsH+gap*(rowsH-1);
-    drawControlsList(bx+10, top, bw-20, Math.min(19, room/CONTROLS.length), 132);
+    drawControlsTab(mx, my, mw, top, top+room+gap);
   }
   const list=settingsRows();
   for(let i=0;i<list.length;i++){
@@ -1082,7 +1307,7 @@ function drawSettings(){
   ctx.fillStyle=UI('edgeLight','#005522'); ctx.font=uiValue(10, false, '9px Courier New');
   ctx.fillText('FS3  '+GAME_VERSION, mx+mw/2, my+mh-hintH-verH+4);
   ctx.fillStyle=UI('textDim','#007733'); ctx.font=uiValue(10, false, '9px Courier New');
-  ctx.fillText('tap outside or press S to close', mx+mw/2, my+mh-hintH+6);
+  ctx.fillText('tap outside or press '+bindKey('settings')+' to close', mx+mw/2, my+mh-hintH+6);
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
 
@@ -1109,7 +1334,11 @@ function settingsClick(mx,my){
       else if(r.act==='sndon'){ sndToggleMute(); }
       else if(r.act==='sndvol'){ SND.vol=sndStep(SND_VOL_STEPS, SND.vol); sndApplyVolume(); sndSave(); }
       else if(r.act==='musvol'){ SND.mus=sndStep(MUS_VOL_STEPS, SND.mus); sndApplyVolume(); sndSave(); }
-      else if(r.act.indexOf('tab')===0){ settingsPage=+r.act.slice(3); }
+      else if(r.act.indexOf('tab')===0){ settingsPage=+r.act.slice(3); ctlEdit=null; ctlSwap=null; }
+      else if(r.act.indexOf('key:')===0){
+        const q = r.act.split(':'), e2 = {id:q[1], slot:+q[2]};
+        ctlEdit = (ctlEdit && ctlEdit.id===e2.id && ctlEdit.slot===e2.slot) ? null : e2; ctlSwap=null; ctlMsgT=0; }
+      else if(r.act==='keyreset'){ bindReset(); }
       else if(r.act==='rim'){ ECO.rim=!ECO.rim; ecoSave(); }
       else if(r.act==='glint'){ ECO.glint=!ECO.glint; ecoSave(); }
       return true;
@@ -1340,7 +1569,7 @@ function drawHUDHLP(){
   lab('SUPPORT', alX+4, alBY+7);
   ctx.fillStyle=alCan?TH('accent'):TH('textDim'); ctx.font=thValue(9, true);
   ctx.fillText(thFit(alRdy?(anyTicket()?'READY':'NO PTS'):(allies.length?'DEPLOYED':'STANDBY'), alBW-8), alX+4, mid+1);
-  lab('[C]', alX+4, alBY+alBH-7);
+  lab('['+bindKey('call')+']', alX+4, alBY+alBH-7);
   window._allyBtnRect={x:alX, y:alBY, w:alBW, h:alBH};
   x+=alBW+5;
 
@@ -1362,7 +1591,7 @@ function drawHUDHLP(){
     var swSt=btnState(shipSwapReady()||shipMenu, shipMenu, hovering(swX, bY, bW, bH));
     thButton(swX, bY, bW, bH, swSt);
     var swPl=barPulseLevel('swap'); if(swPl>0) thGlowPath(swX-3, bY-2, bW+6, bH+4, 5, swPl);
-    var swC=btnText(swSt); drawShipsIcon(swX+bW/2, icy, swC); keyHint(swX, 'V', swC);
+    var swC=btnText(swSt); drawShipsIcon(swX+bW/2, icy, swC); keyHint(swX, bindKeyShort('ship'), swC);
     window._shipBtnRect={x:swX, y:bY, w:bW, h:bH};
   } else window._shipBtnRect=null;
   // R
@@ -1371,22 +1600,22 @@ function drawHUDHLP(){
     var rmSt=btnState(rearmReady()||rearmMenu, rearmMenu, hovering(rmX, bY, bW, bH));
     thButton(rmX, bY, bW, bH, rmSt);
     var rmPl=barPulseLevel('rearm'); if(rmPl>0) thGlowPath(rmX-3, bY-2, bW+6, bH+4, 5, rmPl);
-    var rmC=btnText(rmSt); drawMissilesIcon(rmX+bW/2, icy, rmC); keyHint(rmX, 'R', rmC);
+    var rmC=btnText(rmSt); drawMissilesIcon(rmX+bW/2, icy, rmC); keyHint(rmX, bindKeyShort('rearm'), rmC);
     window._rearmBtnRect={x:rmX, y:bY, w:bW, h:bH};
   } else window._rearmBtnRect=null;
   // M
-  drawMuteButton(bX0+2*(bW+bG), bY, bW, bH, 'M');
+  drawMuteButton(bX0+2*(bW+bG), bY, bW, bH, bindKeyShort('sound'));
   // S
   var stbX=bX0+3*(bW+bG);
   var stbSt=btnState(true, settingsOpen, hovering(stbX, bY, bW, bH));
   thButton(stbX, bY, bW, bH, stbSt);
-  var stbC=btnText(stbSt); drawGearSolid(stbX+bW/2, icy, 5.6, stbC); keyHint(stbX, 'S', stbC);
+  var stbC=btnText(stbSt); drawGearSolid(stbX+bW/2, icy, 5.6, stbC); keyHint(stbX, bindKeyShort('settings'), stbC);
   window._settingsBtnRect={x:stbX, y:bY, w:bW, h:bH};
   // P
   var pbX=bX0+4*(bW+bG);
   var pbSt=btnState(true, paused, hovering(pbX, bY, bW, bH));
   thButton(pbX, bY, bW, bH, pbSt);
-  var pbC=btnText(pbSt); drawPauseIcon(pbX+bW/2, icy, pbC, !paused); keyHint(pbX, 'P', pbC);
+  var pbC=btnText(pbSt); drawPauseIcon(pbX+bW/2, icy, pbC, !paused); keyHint(pbX, bindKeyShort('pause'), pbC);
   window._pauseBtnRect={x:pbX, y:bY, w:bW, h:bH};
 
   ctx.textAlign='left'; ctx.textBaseline='top';
@@ -2107,9 +2336,10 @@ function hgName(t, x, y){
 // What closes a window from the keyboard (v194): its own key always; ESC
 // only outside full screen, where the browser takes ESC to leave full
 // screen and the game never sees it (Silvio).
-function closeKeys(k, small){
-  const fs = (typeof isFullscreen === 'function') && isFullscreen();
-  const t = fs ? k+' closes' : k+' or ESC closes';
+// v207: ESC is left to the browser altogether (Silvio); a window closes
+// with its own key, as the table has it.
+function closeKeys(id, small){
+  const t = (bindKey(id) || id)+' closes';
   return small ? t : t.toUpperCase();
 }
 function drawDoneButton(x, y, w, sub, rects){
@@ -2237,7 +2467,7 @@ function drawShipMenu(){
 
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim');
   ctx.font=thValue(10, false);
-  ctx.fillText('DIGIT OR CLICK SWITCHES  -  '+closeKeys('V'), mx+L.mw/2, my+L.mh-11);
+  ctx.fillText('DIGIT OR CLICK SWITCHES  -  '+closeKeys('ship'), mx+L.mw/2, my+L.mh-11);
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
@@ -2678,7 +2908,7 @@ function drawRearmMenu(){
   // the button says that closing keeps it.
   drawDoneButton(L.c2, my+RM_H-58, RM_C2_W, 'YOUR FIT IS KEPT', window._rearmRects);
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim'); ctx.font=thValue(9, false);
-  ctx.fillText('1-'+L.banks.length+' bank  -  UP / DOWN and ENTER weapon  -  every pick is fitted at once  -  '+closeKeys('R', true), mx+L.mw/2, my+L.mh-10);
+  ctx.fillText('1-'+L.banks.length+' bank  -  UP / DOWN and ENTER weapon  -  every pick is fitted at once  -  '+closeKeys('rearm', true), mx+L.mw/2, my+L.mh-10);
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
@@ -2871,7 +3101,7 @@ function drawCallMenu(){
 
   ctx.textAlign='center'; ctx.fillStyle=TH('textDim');
   ctx.font=thValue(10, false);
-  ctx.fillText('KEY OR CLICK CALLS  -  '+closeKeys('C'), mx+L.mw/2, my+L.mh-11);
+  ctx.fillText('KEY OR CLICK CALLS  -  '+closeKeys('call'), mx+L.mw/2, my+L.mh-11);
   ctx.restore();
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
@@ -3081,27 +3311,20 @@ function drawTitle(){
 
   // The controls, as a block of its own on a plate, so they read as reference
   // rather than as more title. The whole list, in two columns, and where to
-  // find it again during a run (v185, Silvio).
-  const half = Math.ceil(CONTROLS.length/2), rowH = 15;
-  const bw = 600, bh = half*rowH + 46, bx = (W-bw)/2, by = H-70-bh;
+  // find it again during a run (v185, Silvio). v207: from the key table,
+  // so it always shows the keys as they are.
+  const cL = ctlRows('flight'), cR = ctlRows('game').concat(ctlRows('menu').map(function(r){ return [r[0], 'window: '+r[1], r[2]]; }));
+  const rowH = 14, nR = Math.max(cL.length, cR.length);
+  const bw = 640, bh = nR*rowH + 46, bx = (W-bw)/2, by = H-62-bh;
   thPlate(bx, by, bw, bh, thRGBA('panelBack', 0.72));
   ctx.textAlign='left'; ctx.textBaseline='middle';
   ctx.fillStyle = TH('textDim'); ctx.font = thLabel(9);
   ctx.fillText('CONTROLS', bx+16, by+12);
-  const all = CONTROLS;
-  for(let c=0;c<2;c++){
-    const part = all.slice(c*half, (c+1)*half);
-    for(let i=0;i<part.length;i++){
-      const ry = by+24+i*rowH, cx0 = bx+16+c*(bw/2);
-      ctx.fillStyle = TH('accentWarm'); ctx.font = thLabel(10);
-      ctx.fillText(thFit(part[i][0], 128), cx0, ry+rowH/2);
-      ctx.fillStyle = TH('text'); ctx.font = thValue(11, false);
-      ctx.fillText(thFit(part[i][1], bw/2-150), cx0+134, ry+rowH/2);
-    }
-  }
+  drawCtlRows(cL, bx+16, by+22, bw/2-24, rowH, 150);
+  drawCtlRows(cR, bx+16+bw/2, by+22, bw/2-16, rowH, 126);
   ctx.textAlign='center';
   ctx.fillStyle = TH('textDim'); ctx.font = thValue(10, false);
-  ctx.fillText('also in the game: S - SETTINGS - CONTROLS', W/2, by+bh-9);
+  ctx.fillText('change them in the game: '+bindKey('settings')+' - SETTINGS - CONTROLS', W/2, by+bh-9);
 
   // The one thing to do. It pulses rather than blinks: a blink says hurry.
   const k = 0.55 + 0.45*Math.sin(fc*0.05);
@@ -3328,44 +3551,48 @@ function updateSecBtn(){
   btn.style.background=rdy?(player.secType==='missile'?'rgba(180,60,0,0.9)':'rgba(120,0,0,0.9)'):'rgba(50,50,50,0.7)';
 }
 
-// Keyboard
-document.addEventListener('keydown',function(ev){
-  K[ev.code]=true;
-  // M: all sound off or on, anywhere.
-  if(ev.code==='KeyM'){ sndToggleMute(); ev.preventDefault(); return; }
-  // S opens and closes the panel, Escape closes it before it reaches pause.
-  if(ev.code==='KeyS' && !callMenu && !shipMenu && GS==='playing'){
-    setSettings(!settingsOpen); ev.preventDefault(); return;
+// Keyboard (v207): every key goes through the key table (BINDS). Order:
+// a slot of the CONTROLS tab waiting for a key takes it; then the keys
+// that work anywhere; then, in flight, an open window reads its own fixed
+// keys and closes on its own key; otherwise the flight keys. ESC is left
+// to the browser (Silvio: it always leaves full screen).
+function windowOpen(){ return callMenu ? 'call' : (rearmMenu ? 'rearm' : (shipMenu ? 'ship' : '')); }
+function closeWindow(w){
+  if(w === 'call') setCallMenu(false); else if(w === 'rearm') setRearmMenu(false); else if(w === 'ship') setShipMenu(false);
+}
+// One press of a key or an extra mouse button. True when it did something.
+function inputPress(ev){
+  if(ctlKey(ev)) return true;
+  if(bindIs('sound', ev)){ sndToggleMute(); return true; }
+  if(bindIs('full', ev) && (GS==='playing'||GS==='title'||GS==='gameover')){ toggleFullscreen(); return true; }
+  if(GS==='title'||GS==='gameover'){
+    if(ev.code==='Space'||ev.code==='Enter'){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); return true; }
+    return false;
   }
-  if(settingsOpen && ev.code==='Escape'){ setSettings(false); ev.preventDefault(); return; }
-  if(ev.code==='KeyF' && (GS==='playing'||GS==='title'||GS==='gameover')){
-    toggleFullscreen(); ev.preventDefault(); return;
+  if(GS!=='playing') return false;
+  if(bindIs('settings', ev) && !windowOpen()){ setSettings(!settingsOpen); return true; }
+  if(bindIs('pause', ev)){ userPaused=!userPaused; syncPause(); return true; }
+  if(settingsOpen) return false;
+  if(resumeHold){ clearResumeHold(); return true; }
+  const w = windowOpen();
+  if(w){
+    if(bindIs(w, ev)){ closeWindow(w); return true; }
+    return windowKey(w, ev);
   }
-  // v194: ESC that closes a window only closes it. It used to switch the
-  // pause on as well, so the game stayed PAUSED after the resume tap.
-  const escMenu = ev.code==='Escape' && (callMenu || shipMenu || rearmMenu);
-  if((ev.code==='KeyP'||(ev.code==='Escape' && !escMenu))&&GS==='playing'){
-    userPaused=!userPaused; syncPause(); ev.preventDefault();
-  }
-  if((GS==='title'||GS==='gameover')&&(ev.code==='Space'||ev.code==='Enter')){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); }
-});
-document.addEventListener('keyup',function(ev){K[ev.code]=false;});
-
-// Request support
-document.addEventListener('keydown',function(ev){
-  if(GS!=='playing') return;
-  if(resumeHold){ clearResumeHold(); ev.preventDefault(); return; }
-  if(ev.code==='KeyV'){ toggleShipMenu(); ev.preventDefault(); return; }
-  // v194: in the support window R is a call key (the sixth Vasudan row),
-  // not the rearm window.
-  if(ev.code==='KeyR' && !callMenu){ toggleRearmMenu(); ev.preventDefault(); return; }
-  // Q / E: the same as the wheel (v186).
-  if(!callMenu && !shipMenu && !rearmMenu){
-    if(ev.code==='KeyQ'){ cyclePrimary(); ev.preventDefault(); return; }
-    if(ev.code==='KeyE'){ cycleSecondary(); ev.preventDefault(); return; }
-  }
-  if(rearmMenu){
-    if(ev.code==='Escape'){ setRearmMenu(false); ev.preventDefault(); return; }
+  if(bindIs('ship', ev)){ toggleShipMenu(); return true; }
+  if(bindIs('rearm', ev)){ toggleRearmMenu(); return true; }
+  if(bindIs('call', ev)){ toggleCallMenu(); return true; }
+  if(bindIs('priNext', ev)){ cyclePrimary(); return true; }
+  if(bindIs('priPrev', ev)){ cyclePrimary(-1); return true; }
+  if(bindIs('secNext', ev)){ cycleSecondary(); return true; }
+  if(bindIs('subsys', ev)){ toggleSubMarks(); return true; }
+  if(bindIs('fireSec', ev)){ SEC_HOLD.key = true; fireSecondary(); return true; }
+  if(bindIs('firePri', ev)) return true;          // held: read in the update (bindHeld)
+  return false;
+}
+// The fixed keys inside an open window.
+function windowKey(w, ev){
+  if(w === 'rearm'){
     var rd = ev.code.indexOf('Digit')===0 ? ev.code.slice(5)
            : (ev.code.indexOf('Numpad')===0 ? ev.code.slice(6) : '');
     var ri = parseInt(rd,10);
@@ -3374,40 +3601,66 @@ document.addEventListener('keydown',function(ev){
     if(ri>=1){
       for(const q of rearmLayout().banks)
         if(q.num===ri){ rmSelectBank(q.slot); break; }
-      ev.preventDefault();
+      return true;
     }
-    if(ev.code==='ArrowUp'||ev.code==='ArrowDown'){ rmStep(ev.code==='ArrowUp' ? -1 : 1); ev.preventDefault(); }
-    if(ev.code==='Enter'||ev.code==='NumpadEnter'){ fitWeapon(rmBank, rmShow || rmBankKey(rmBank)); ev.preventDefault(); }
-    return;
+    if(ev.code==='ArrowUp'||ev.code==='ArrowDown'){ rmStep(ev.code==='ArrowUp' ? -1 : 1); return true; }
+    if(ev.code==='Enter'||ev.code==='NumpadEnter'){ fitWeapon(rmBank, rmShow || rmBankKey(rmBank)); return true; }
+    return false;
   }
-  if(shipMenu){
-    if(ev.code==='Escape'){ setShipMenu(false); ev.preventDefault(); return; }
+  if(w === 'ship'){
     if(cycleTabs() && (ev.code==='Tab'||ev.code==='ArrowLeft'||ev.code==='ArrowRight')){
-      hangarTab = nextTab(hangarTab, hangarTabOpen); ev.preventDefault(); return; }
+      hangarTab = nextTab(hangarTab, hangarTabOpen); return true; }
     var sd = ev.code.indexOf('Digit')===0 ? ev.code.slice(5) : (ev.code.indexOf('Numpad')===0 ? ev.code.slice(6) : '');
     var si = parseInt(sd,10);
     // The same order the panel shows, so the digit beside a hull is the
     // digit that takes it.
     var ord = hangarOrder();
-    if(si>=1 && si<=ord.length){ swapShip(PLAYER_SHIPS[ord[si-1]].key); ev.preventDefault(); }
-    return;
+    if(si>=1 && si<=ord.length){ swapShip(PLAYER_SHIPS[ord[si-1]].key); return true; }
+    return false;
   }
-  if(ev.code==='KeyC'){ toggleCallMenu(); ev.preventDefault(); return; }
-  if(ev.code==='Escape' && callMenu){ setCallMenu(false); ev.preventDefault(); return; }
-  if(callMenu && cycleTabs() && (ev.code==='Tab'||ev.code==='ArrowLeft'||ev.code==='ArrowRight')){
-    callTab = nextTab(callTab, callTabOpen); ev.preventDefault(); return; }
-  if(callMenu){
+  if(w === 'call'){
+    if(cycleTabs() && (ev.code==='Tab'||ev.code==='ArrowLeft'||ev.code==='ArrowRight')){
+      callTab = nextTab(callTab, callTabOpen); return true; }
     // Eleven entries no longer fit on the number row alone, so the second
     // column sits on the keys directly above it.
     var ch='';
     if(ev.code.indexOf('Digit')===0)  ch=ev.code.slice(5);
     else if(ev.code.indexOf('Numpad')===0) ch=ev.code.slice(6);
     else if(ev.code.indexOf('Key')===0)    ch=ev.code.slice(3);
-    if(ch===ALLY_SPECIAL_KEY){ callAlly(ALLY_SPECIAL); ev.preventDefault(); return; }
+    if(ch===ALLY_SPECIAL_KEY){ callAlly(ALLY_SPECIAL); return true; }
     const ki=ALLY_KEYS.indexOf(ch);
-    if(ki>=0){ callAlly(ALLY_ORDER[ki]); ev.preventDefault(); }
+    if(ki>=0){ callAlly(ALLY_ORDER[ki]); return true; }
   }
+  return false;
+}
+document.addEventListener('keydown',function(ev){
+  K[ev.code]=true;
+  // Tab would move the browser's focus away from the game
+  if(GS==='playing' && ev.code==='Tab') ev.preventDefault();
+  if(ev.repeat && !ctlEdit) return;
+  if(inputPress(ev)) ev.preventDefault();
 });
+document.addEventListener('keyup',function(ev){
+  K[ev.code]=false;
+  if(!bindHeld('fireSec')) SEC_HOLD.key = false;
+});
+// Extra mouse buttons (4, 5): keys like any other. The browser would take
+// them for back and forward, so they are stopped on the way.
+function extraBtn(ev){ return ev.button >= 3; }
+document.addEventListener('mousedown',function(ev){
+  if(!extraBtn(ev)) return;
+  ev.preventDefault();
+  K['Mouse'+(ev.button+1)] = true;
+  inputPress(ev);
+}, true);
+document.addEventListener('mouseup',function(ev){
+  if(!extraBtn(ev)) return;
+  ev.preventDefault();
+  K['Mouse'+(ev.button+1)] = false;
+  if(!bindHeld('fireSec')) SEC_HOLD.key = false;
+}, true);
+document.addEventListener('auxclick',function(ev){ if(extraBtn(ev)) ev.preventDefault(); }, true);
+window.addEventListener('blur',function(){ for(const k in K) K[k]=false; SEC_HOLD.key=false; });
 
 
 let lastErr='';

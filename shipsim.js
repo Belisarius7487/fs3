@@ -73,7 +73,9 @@ const names = [
   'hangarTabOpen','callTabOpen','pickTab','nextTab','drawFleetTabs','allyFacOn','titleFsHit','forceShip','releaseShip',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','thButton','btnState','btnText','thDivider','drawSwapIcon','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
-const keyHandler = between("document.addEventListener('keydown',function(ev){\n  if(GS!=='playing') return;");
+// v207: keys go through the key table (BINDS) and inputPress.
+const bindDecl = src.slice(src.indexOf('const BINDS = ['), src.indexOf('// The rows as a list (title)'));
+const keyHandler = 'function(ev){ inputPress(ev); }';
 const downStart = src.indexOf("CVS.addEventListener('mousedown',");
 const mouseHandler = src.slice(src.indexOf('function', downStart), blockEnd(src, src.indexOf('function', downStart)));
 const launch = fn('launchGame');
@@ -155,6 +157,9 @@ const world = `
   let shipUnlockedFac = {terran:1, vasudan:1};
   ${fleetDecl}
   ${names.map(fn).join('\n')}
+  let K = {}; const SEC_HOLD = {};
+  ${bindDecl}
+  ${['windowOpen','closeWindow','inputPress','windowKey'].map(fn).join('\n')}
   const onKey = ${keyHandler};
   const onDown = ${mouseHandler};
   return {
@@ -300,23 +305,23 @@ console.log('DONE (v194)');
 console.log('Keyboard');
 const key = (code)=>W.run(`onKey({code:'${code}', preventDefault(){}})`);
 reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]);
-key('KeyV'); ok('V opens', W.get('shipMenu')===true);
+key('F2'); ok('F2 (hangar) opens', W.get('shipMenu')===true);
 // Four hulls open: roster 0 to 3. The digits follow the panel, so 4 is the
 // Seth, which is still locked, and 6 is the first bomber.
 key('Digit4'); ok('4 (the Seth, not unlocked yet) does nothing',
                   W.get('shipMenu')===true && P().ship==='fitoth');
 key('Digit6'); ok('6 takes the Osiris, first row of the bombers',
                   P().ship==='boosiris' && W.get('shipMenu')===false);
-reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]); key('KeyV');
+reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]); key('F2');
 key('Digit3'); ok('3 takes the Serapis, third row down',
                   P().ship==='fiserapis' && W.get('shipMenu')===false);
-reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]); key('KeyV'); key('Escape');
-ok('Escape closes', W.get('shipMenu')===false);
+reset(); W.run("shipUnlocked=4"); W.set('allies',[destroyer()]); key('F2'); key('F2');
+ok('its own key (F2) closes', W.get('shipMenu')===false);
 ok('and holds the pause, like every other way of leaving a panel',
    W.get('paused')===true && W.get('resumeHold')===true);
 W.run('clearResumeHold()');
 ok('after the tap the game runs again', W.get('paused')===false);
-reset(); key('KeyV'); ok('V without a destroyer does nothing', W.get('shipMenu')===false);
+reset(); key('F2'); ok('F2 without a destroyer does nothing', W.get('shipMenu')===false);
 
 console.log('Restart guard');
 W.run("launchGame=function(){launched++}");

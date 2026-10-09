@@ -89,6 +89,9 @@ const CLR = ()=>{ CALLS.length = 0; };
 const fonts = ()=> CALLS.filter(c=>c.fn==='set font').map(c=>String(c.args[0]));
 
 const world = `
+  function bindKey(id){ return {ship:'F2',rearm:'SHIFT+R',call:'C',settings:'F4',pause:'P',sound:'M',full:'F8'}[id]||''; }
+  function bindKeyShort(id){ return bindKey(id).replace('SHIFT+','\u21e7'); }
+
   // The bar's attention pulses are the field simulation's business.
   let BAR_PULSE={}; function barPulseLevel(){ return 0; } function barPulse(){}
 
@@ -165,11 +168,12 @@ console.log('\nThe bar of v186 (variant A)');
   CLR(); W.run('drawHUD()');
   const g = (k)=>W.run('window.'+k);
   const btn = [g('_shipBtnRect'), g('_rearmBtnRect'), g('_muteRect'), g('_settingsBtnRect'), g('_pauseBtnRect')];
-  ok('five buttons, V R M S P', btn.every(b=>!!b));
+  ok('five buttons: ship, rearm, sound, settings, pause', btn.every(b=>!!b));
   ok('all of one size and on one line', btn.every(b=>b.w===btn[0].w && b.h===btn[0].h && b.y===btn[0].y));
   ok('left to right, without overlap', btn.every((b,i)=>!i || b.x >= btn[i-1].x+btn[i-1].w));
+  // v207: the letters come from the key table (F2, shift R, F4, P)
   ok('every one carries its key letter',
-     ['V','R','S','P'].every(k=>CALLS.some(c=>c.fn==='fillText' && c.args[0]===k)));
+     ['F2','\u21e7R','F4','P'].every(k=>CALLS.some(c=>c.fn==='fillText' && c.args[0]===k)));
   ok('the last ends inside the canvas', btn[4].x+btn[4].w <= 800);
   const al = g('_allyBtnRect');
   ok('the tickets end before the buttons start', al.x+al.w+5+82 <= btn[0].x);

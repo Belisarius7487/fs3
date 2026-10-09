@@ -305,9 +305,10 @@ scenario('Title: fullscreen button', '', `
   click(b.x + b.w/2, b.y + b.h/2);
   r.buttonSwitches = calls===1;
   r.andDoesNotStartTheRun = GS==='title';
-  document.dispatchEvent(new KeyboardEvent('keydown', {code:'KeyF'}));
-  document.dispatchEvent(new KeyboardEvent('keyup', {code:'KeyF'}));
-  r.fKeyOnTheTitle = calls===2 && GS==='title';
+  // v207: full screen is F8 (the key table)
+  document.dispatchEvent(new KeyboardEvent('keydown', {code:'F8'}));
+  document.dispatchEvent(new KeyboardEvent('keyup', {code:'F8'}));
+  r.fullKeyOnTheTitle = calls===2 && GS==='title';
   click(W/2, H/2);
   r.elsewhereStartsTheRun = GS==='playing' && calls===2;
   return r;`, true);
@@ -1673,7 +1674,8 @@ scenario('v162: inertia, keys, flight, drift, debris, escorts', 'm=31', `
   const keys = []; const of = ctx.fillText;
   ctx.fillText = function(s){ keys.push(String(s)); return of.apply(this, arguments); };
   draw(); ctx.fillText = of;
-  r.keyHints = ['V','R','S'].every(k => keys.indexOf(k) >= 0);
+  // v207: from the key table - F2 hangar, shift R rearm, F4 settings
+  r.keyHints = ['F2','\u21e7R','F4'].every(k => keys.indexOf(k) >= 0);
   // Capital ships turn their drift round, they do not flip it.
   const c = {type:'cruiser', y:300, vy:0.4, minY:200, maxY:320, subs:null};
   let flips = 0, prev = c.vy;
@@ -2788,8 +2790,9 @@ scenario('v186: FS2 factors land where they belong', 'm=33', `
   player.pMode = 0;
   CVS.dispatchEvent(new WheelEvent('wheel', {deltaY:-100, cancelable:true}));
   r.wheelUpSteps = player.pMode === 1;
-  document.dispatchEvent(new KeyboardEvent('keydown', {code:'KeyE'}));
-  r.keyEStepsSec = player.sSel === 1;
+  // v207: FS2's slash steps the secondary bank (E no longer)
+  document.dispatchEvent(new KeyboardEvent('keydown', {code:'Slash'}));
+  r.slashStepsSec = player.sSel === 1;
   return r;`);
 
 scenario('HoL start unchanged', 'm=1', `
@@ -2910,8 +2913,9 @@ scenario('v194: DONE in hangar and support, model trim', 'm=26', `
   r.gCallsColossus = STATS.escortsCalled === c0+1 && allies.some(a=>a.colossus);
   reset(); setCallMenu(true); c0 = STATS.escortsCalled; key('KeyC');
   r.cCloses = !callMenu && STATS.escortsCalled === c0;
+  // v207: ESC is the browser's - the game does nothing with it
   reset(); setCallMenu(true); key('Escape'); clearResumeHold();
-  r.escClosesWithoutPause = !callMenu && !userPaused && !paused;
+  r.escLeftToTheBrowser = callMenu && !userPaused;
   reset();
   // only the last M3D_KEEP hulls stay on the graphics card
   const keep = M3D.models; M3D.models = {};
