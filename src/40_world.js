@@ -672,7 +672,7 @@ function flareCanvas(){
 
 function drawLuciShield(e){
   if(!(e.bShield > 0)) return;
-  // v205: drawn from her model, the bubble is drawn with her (f3dShDraw)
+  // v205/v206: drawn from her model, her shield is her shield mesh (f3dShDraw)
   if(f3dOn(e)){
     if(e.shieldFlares) for(let i=e.shieldFlares.length-1;i>=0;i--) if(--e.shieldFlares[i].life <= 0) e.shieldFlares.splice(i,1);
     return;
