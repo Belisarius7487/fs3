@@ -418,7 +418,7 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
       const pen = shieldPen(e, kind);
       const shd = dmg*F.s*pen;
       e.shDelay = SMALL_SH_DELAY;
-      e.shHit = SH_FLASH;
+      e.shHit = SH_FLASH; f3dShieldHit(e, hx, hy);
       // A shield the round cannot touch stops it whole (Stiletto, FS2).
       if(shd <= 0 || pen < 1){
         if(fromPlayer && shd > 0) e.shPts = (e.shPts||0) + Math.min(e.sh, shd);
@@ -444,14 +444,14 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
       if(fromPlayer) e.shPts = (e.shPts||0) + Math.min(e.sh, dmg*pen);
       e.sh = Math.max(0, e.sh - dmg*pen);
       e.shDelay = SMALL_SH_DELAY;
-      e.shHit = SH_FLASH;
+      e.shHit = SH_FLASH; f3dShieldHit(e, hx, hy);
       return;
     }
     const absorbed = Math.min(e.sh, dmg);
     if(fromPlayer) e.shPts = (e.shPts||0) + absorbed;
     e.sh -= absorbed;
     e.shDelay = SMALL_SH_DELAY;
-    e.shHit = SH_FLASH;
+    e.shHit = SH_FLASH; f3dShieldHit(e, hx, hy);
     dmg -= absorbed;
     if(dmg <= 0) return;
   }
@@ -656,6 +656,8 @@ function addShieldFlare(e, x, y, str){
   if(e.shieldFlares.length > 14) e.shieldFlares.shift();
   // Stored relative to the hull so the flare travels with the ship.
   e.shieldFlares.push({lx:x-e.x, ly:y-e.y, life:34, ml:34, str:str||1});
+  // v205: on her model the flare lies on her shield bubble
+  if(e.bShield > 0) f3dShieldHit(e, x, y);
 }
 
 // Small scratch canvas for the flares. One flare is a piece of the skin cut
@@ -670,6 +672,11 @@ function flareCanvas(){
 
 function drawLuciShield(e){
   if(!(e.bShield > 0)) return;
+  // v205: drawn from her model, the bubble is drawn with her (f3dShDraw)
+  if(f3dOn(e)){
+    if(e.shieldFlares) for(let i=e.shieldFlares.length-1;i>=0;i--) if(--e.shieldFlares[i].life <= 0) e.shieldFlares.splice(i,1);
+    return;
+  }
   const skin = shieldSkin(e.img);
   if(!skin) return;
   const frac = e.bShield/e.bShieldMax;
@@ -954,6 +961,7 @@ function drawSubMsgs(){
 
 function drawShield(e){
   if(!e.maxSh || e.shHit <= 0 || e.sh <= 0) return;
+  if(f3dOn(e)) return;            // v205: on her model (f3dShDraw)
   const img = IMGS[e.img]; if(!img) return;
   if(hullShield(e.img, e.faction, e.x, e.y, e.sc, e.flip, e.ang||0, e.sh/e.maxSh, e.shHit)) return;
   const col = e.faction==='shivan' ? 'rgba(255,110,70,COL)' : 'rgba(90,190,255,COL)';
@@ -994,6 +1002,7 @@ function drawHoldRing(){
 
 function drawPlayerShield(){
   if(player.shHit <= 0 || player.sh <= 0) return;
+  if(f3dPlayerOn()) return;       // v205: on her model (f3dShDraw)
   const img = IMGS[player.ship]; if(!img) return;
   const sc = playerSc();
   const pf = (shipStats(player.ship).fac) || 'terran';

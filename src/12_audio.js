@@ -140,7 +140,7 @@ const SND_MIX = {
 const SND_VOICES = {
   wpn_prometheus:3, wpn_sidhe:2, wpn_dante:2, wpn_subach:3,
   expl_secondary:2, expl_small:3, expl_medium:2, expl_big:2, missile_explosion:2,
-  hit_shield:1, hit_player:1, warp_open:2, warp_in_big:2, warp_out_big:2,
+  hit_shield:1, hit_player:1, warp_open:2, warp_in_big:4, warp_out_big:4,
   L_Prom_R:3, L_Prom_S:3, L_Sidearm:3, L_Scalpel:3, L_Flail:3, L_Kayser:3, L_Circle:3, L_Newton:3,
   fs_hit:2, fs_boom:2,
   beam_charge:3, beam_down:2, ai_fire:2, ai_sec:1, sub_destroyed:2,
@@ -163,15 +163,21 @@ const PRI_SND = {prometheus:'wpn_prometheus', hl7:'wpn_subach', scatter:'wpn_sid
 // a Dante sound is longer than the time between two Dante shots.
 const SND_STEAL = {wpn_prometheus:1, wpn_subach:1, wpn_sidhe:1, wpn_dante:1,
                    L_Prom_R:1, L_Prom_S:1, L_Sidearm:1, L_Scalpel:1, L_Flail:1,
-                   L_Kayser:1, L_Circle:1, L_Newton:1};
+                   L_Kayser:1, L_Circle:1, L_Newton:1,
+                   // v205 (Silvio): a capital ship's jump is always heard -
+                   // with all four voices busy the oldest jump gives way
+                   warp_in_big:1, warp_out_big:1};
 const SND_LOOP_MAX = 3;   // beam loops heard at once; more fire silently
 // Distance from the player: full level up to SND_NEAR points, then it
 // falls off, down to SND_ATT_MIN at the far side of the field.
 const SND_NEAR = 140, SND_FALL = 300, SND_ATT_MIN = 0.22;
-function sndAtt(x, y){
+// v205 (Silvio): a capital ship's jump fills the whole field - it barely
+// fades with distance, down to this floor at the most.
+const SND_ATT_FLOOR = {warp_in_big:0.75, warp_out_big:0.75};
+function sndAtt(x, y, ch){
   if(x == null || typeof player === 'undefined' || !player) return 1;
   const d = Math.hypot(x - player.x, (y == null ? player.y : y) - player.y);
-  return Math.max(SND_ATT_MIN, 1/(1 + Math.max(0, d - SND_NEAR)/SND_FALL));
+  return Math.max((ch && SND_ATT_FLOOR[ch]) || SND_ATT_MIN, 1/(1 + Math.max(0, d - SND_NEAR)/SND_FALL));
 }
 
 // Beams: which sound set a battery uses, and how long it charges. The loop
@@ -293,7 +299,7 @@ function sndStart(name, x, vol, loop, mix, y){
   src.loop = !!loop;
   const g = sndCtx.createGain();
   const base = (SND_MIX[ch] || 0.3) * (vol == null ? 1 : vol);
-  g.gain.value = base * sndAtt(x, y);
+  g.gain.value = base * sndAtt(x, y, ch);
   let node = g;
   if(sndCtx.createStereoPanner){
     const p = sndCtx.createStereoPanner(); p.pan.value = sndPan(x);

@@ -4,6 +4,7 @@ let hullFlash   = 0;  // hull hit overlay flash
 
 function shieldHit(x, y) {
   shieldFlash = 8;
+  f3dShieldHit(F3D_PL, x, y);     // v205: the hit on her shield mesh
   // Schild-Funken: blau-cyan, konzentriert um Hitpunkt
   for(var i=0;i<14;i++){
     var a=Math.random()*Math.PI*2, spd=0.5+Math.random()*1.8;

@@ -616,7 +616,8 @@ function f3dPlayer(key, x, y, sc, flip, ang, a){
   const k = f3dKey({img: key}); if(!k) return false;
   const L = f3dReadyLevel(k); if(!L) return false;
   const P = F3D_PL;
-  if(P.img !== key){ P.img = key; P._f3r = null; P._f3n = null; }
+  if(P.img !== key){ P.img = key; P._f3r = null; P._f3n = null; P._shq = null;
+    P.faction = (typeof shipStats === 'function' && shipStats(key).fac) || 'terran'; }
   P.sc = sc; P.flip = !!flip; P.ang = ang || 0; P.x = x; P.y = y;
   if(typeof player !== 'undefined'){ P.rvx = player.vx || 0; P.rvy = player.vy || 0; }
   P._f3fc = (typeof fc !== 'undefined') ? fc : 0;
@@ -704,6 +705,8 @@ function f3dRender(items, warm){
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.idx);
       gl.drawElements(gl.TRIANGLES, p.n, p.big ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT, 0);
     }
+    // v205: her shield where it was hit, over her hull
+    if(!warm) f3dShDraw(it, M0, cam);
   }
   gl.disable(gl.BLEND);
   if(!warm) ctx.drawImage(can, 0, 0, W, H);
@@ -1178,4 +1181,235 @@ function f3dDrawHulks(){
   const items = [];
   for(const P of F3D_HULKS){ const it = f3dHulkItem(P); if(it) items.push(it); }
   if(items.length){ try{ f3dRender(items); }catch(er){ F3D.err = String(er && er.message || er); } }
+}
+// ── SHIELDS AS IN FREESPACE (v205) ───────────────────────────
+// Silvio: the shield is not shown all the time. A hit lights up a piece of
+// the ship's shield mesh (the POF's SHLD chunk, a coarse hull around her)
+// round the place it struck, painted with the MediaVPs' animated shield
+// texture (ShieldHit01a) in the colour of her side, fading in about half a
+// second. Display only: one shield, no quadrants. Hulls without a shield
+// mesh (sentries, pods, containers) get an ellipsoid round the hull. The
+// Lucifer's shield is not in her model either: she gets a bubble round the
+// hull that glimmers at its rim while it holds, and flares where it is hit.
+// Data: models/shields.json.gz (mkshields.py), models/shieldhit.webp (the
+// 13 frames in a 4x4 grid, grey; tinted here).
+const F3D_SH_DUR = 0.55;            // seconds a hit is seen
+const F3D_SH_FRAMES = 13;
+const F3D_SH_MAX = 4;               // hits seen at once on one ship
+const F3D_SH = {state: null, data: null, tex: null, prog: null, loc: null, mesh: {}};
+function f3dShLoad(){
+  if(F3D_SH.state) return F3D_SH.state === 'ready';
+  F3D_SH.state = 'loading';
+  const gl = F3D.gl;
+  try{
+    const vs = 'attribute vec3 aP; attribute vec3 aN; uniform mat4 uM; uniform mat4 uVP;'
+      + 'uniform vec3 uH; uniform vec3 uT; uniform vec3 uB; uniform vec3 uHN; uniform float uR;'
+      + 'varying vec2 vU; varying float vF; varying vec3 vNw; varying vec3 vWp;'
+      + 'void main(){ vec3 d = aP - uH; vU = vec2(dot(d, uT), dot(d, uB))/(2.0*uR) + 0.5;'
+      + ' vF = dot(normalize(aN), uHN); vec4 w = uM*vec4(aP, 1.0); vWp = w.xyz; vNw = mat3(uM)*aN; gl_Position = uVP*w; }';
+    const fs = 'precision mediump float; varying vec2 vU; varying float vF; varying vec3 vNw; varying vec3 vWp;'
+      + 'uniform sampler2D tS; uniform vec2 uFr; uniform vec3 uCol; uniform float uA; uniform float uMode; uniform vec3 uCam;'
+      + 'void main(){ vec3 c;'
+      + ' if(uMode < 0.5){'
+      + '  if(vU.x < 0.0 || vU.x > 1.0 || vU.y < 0.0 || vU.y > 1.0) discard;'
+      + '  vec2 st = (uFr + clamp(vU, vec2(0.004), vec2(0.996)))*0.25;'
+      + '  float t = texture2D(tS, st).r*smoothstep(-0.15, 0.35, vF);'
+      // the side's colour, going white where the texture is brightest
+      + '  c = (uCol*t + vec3(t*t*t*0.55))*uA;'
+      + ' } else {'
+      // the Lucifer's bubble: only its rim, where one looks along it
+      + '  float f = 1.0 - abs(dot(normalize(vNw), normalize(uCam - vWp)));'
+      + '  c = uCol*pow(f, 2.5)*uA; }'
+      + ' gl_FragColor = vec4(c, max(c.r, max(c.g, c.b))); }';
+    const sh = function(t, src){ const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s);
+      if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    const pr = gl.createProgram();
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(pr);
+    if(!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error('link');
+    const loc = {};
+    for(const a of ['aP', 'aN']) loc[a] = gl.getAttribLocation(pr, a);
+    for(const u of ['uM', 'uVP', 'uH', 'uT', 'uB', 'uHN', 'uR', 'tS', 'uFr', 'uCol', 'uA', 'uMode', 'uCam'])
+      loc[u] = gl.getUniformLocation(pr, u);
+    F3D_SH.prog = pr; F3D_SH.loc = loc; F3D_SH.gl = gl;
+  }catch(er){ F3D_SH.state = 'failed'; F3D.err = String(er && er.message || er); return false; }
+  const rev = (typeof M3D_REV !== 'undefined') ? M3D_REV : 0;
+  const pTex = new Promise(function(res){
+    const im = new Image();
+    im.onload = function(){
+      if(gl !== F3D.gl) return res();
+      const tx = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tx);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      F3D_SH.tex = tx; res();
+    };
+    im.onerror = function(){ res(); };
+    const ip = M3D_BASE + 'shieldhit.webp';
+    const pb = (typeof window !== 'undefined' && window.FS3_MODELS) ? window.FS3_MODELS[ip] : null;
+    if(pb){ delete window.FS3_MODELS[ip]; im.src = URL.createObjectURL(pb); }
+    else im.src = ip + '?r=' + rev;
+  });
+  const pData = f3dFetchBin(M3D_BASE + 'shields.json.gz').then(function(buf){
+    F3D_SH.data = JSON.parse(new TextDecoder().decode(new Uint8Array(buf)));
+  }, function(){ F3D_SH.data = {}; });
+  Promise.all([pTex, pData]).then(function(){ F3D_SH.state = F3D_SH.tex ? 'ready' : 'failed'; });
+  return false;
+}
+// An ellipsoid of the given half axes (an icosphere, three times divided).
+function f3dShEllipsoid(ax){
+  const t = (1 + Math.sqrt(5))/2;
+  let V = [[-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]].map(f3dNorm);
+  let F = [[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+           [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
+  for(let r = 0; r < 3; r++){
+    const mid = {}, F2 = [];
+    const m = function(a, b){ const k = a < b ? a + '_' + b : b + '_' + a;
+      if(mid[k] == null){ const p = V[a], q = V[b]; V.push(f3dNorm([p[0]+q[0], p[1]+q[1], p[2]+q[2]])); mid[k] = V.length - 1; }
+      return mid[k]; };
+    for(const f of F){ const a = m(f[0], f[1]), b = m(f[1], f[2]), c = m(f[2], f[0]);
+      F2.push([f[0], a, c], [f[1], b, a], [f[2], c, b], [a, b, c]); }
+    F = F2;
+  }
+  const v = [], f = [];
+  for(const p of V) v.push(p[0]*ax[0], p[1]*ax[1], p[2]*ax[2]);
+  for(const q of F) f.push(q[0], q[1], q[2]);
+  return {v: v, f: f, norm: true};
+}
+// The shield mesh of one hull in the model's own space (as its level is
+// drawn), with a normal at every corner. Lucifer: the bubble.
+function f3dShMesh(key, L, bubble){
+  const id = key + (bubble ? '|b' : '');
+  let S = F3D_SH.mesh[id];
+  if(S && S.gl === F3D.gl) return S;
+  const gl = F3D.gl, hd = L.head;
+  const half = [0, 1, 2].map(function(a){ return hd.size[a]/2/hd.ext; });
+  let v, f;
+  const raw = !bubble && F3D_SH.data && F3D_SH.data[key];
+  if(raw){
+    v = new Float32Array(raw.v.length); f = raw.f;
+    for(let i = 0; i < raw.v.length; i += 3) for(let a = 0; a < 3; a++) v[i+a] = (raw.v[i+a] - hd.centre[a])/hd.ext;
+  } else {
+    // no shield in the model: a hull a little larger than hers
+    const k = bubble ? 1.10 : 1.18, m = bubble ? 0.06 : 0.12;
+    const E = f3dShEllipsoid(half.map(function(h){ return h*k + m; }));
+    v = new Float32Array(E.v); f = E.f;
+  }
+  const n = new Float32Array(v.length);
+  for(let i = 0; i < f.length; i += 3){
+    const a = f[i]*3, b = f[i+1]*3, c = f[i+2]*3;
+    const u = [v[b]-v[a], v[b+1]-v[a+1], v[b+2]-v[a+2]], w = [v[c]-v[a], v[c+1]-v[a+1], v[c+2]-v[a+2]];
+    const x = f3dCross(u, w);
+    for(const j of [a, b, c]){ n[j] += x[0]; n[j+1] += x[1]; n[j+2] += x[2]; }
+  }
+  // outward, whichever way the corners run
+  let out = 0;
+  for(let i = 0; i < v.length; i += 3) out += v[i]*n[i] + v[i+1]*n[i+1] + v[i+2]*n[i+2];
+  if(out < 0) for(let i = 0; i < n.length; i++) n[i] = -n[i];
+  const mk = function(target, arr){ const b = gl.createBuffer(); gl.bindBuffer(target, b);
+    gl.bufferData(target, arr, gl.STATIC_DRAW); return b; };
+  S = F3D_SH.mesh[id] = {gl: gl, v: v, f: f, n: f.length, flip: out < 0,
+    pos: mk(gl.ARRAY_BUFFER, v), nrm: mk(gl.ARRAY_BUFFER, n),
+    idx: mk(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(f))};
+  return S;
+}
+// A hit on the shield, at (x, y) on the field (null: somewhere on it).
+// v205: the player's hull is drawn from her model this frame
+function f3dPlayerOn(){
+  return F3D_PL._f3fc != null && typeof fc !== 'undefined' && fc - F3D_PL._f3fc <= 2
+      && typeof player !== 'undefined' && F3D_PL.img === player.ship;
+}
+function f3dShieldHit(e, x, y){
+  if(!e || F3D.off) return;
+  const q = e._shq || (e._shq = []);
+  if(q.length >= F3D_SH_MAX) q.shift();
+  q.push({wx: x == null ? null : x - e.x, wy: x == null ? null : y - e.y, t: f3dNow()/1000, p: null});
+}
+// Where a hit lies on the mesh: from her middle out towards where it
+// struck, leaning towards the viewer (the side that is seen), to where that
+// line leaves the shield.
+function f3dShPlace(h, S, M0){
+  let dx, dy;
+  if(h.wx == null || (Math.abs(h.wx) + Math.abs(h.wy)) < 0.5){ const a = Math.random()*Math.PI*2; dx = Math.cos(a); dy = Math.sin(a); }
+  else { const l = Math.hypot(h.wx, h.wy); dx = h.wx/l; dy = h.wy/l; }
+  const Dw = f3dNorm([dx, -dy, 0.55]);
+  const D = f3dNorm([0, 4, 8].map(function(o){ return M0[o]*Dw[0] + M0[o+1]*Dw[1] + M0[o+2]*Dw[2]; }));
+  const v = S.v, f = S.f;
+  let best = -1;
+  for(let i = 0; i < f.length; i += 3){
+    const a = f[i]*3, b = f[i+1]*3, c = f[i+2]*3;
+    const e1 = [v[b]-v[a], v[b+1]-v[a+1], v[b+2]-v[a+2]], e2 = [v[c]-v[a], v[c+1]-v[a+1], v[c+2]-v[a+2]];
+    const p = f3dCross(D, e2), det = f3dDot(e1, p);
+    if(Math.abs(det) < 1e-9) continue;
+    const s = [-v[a], -v[a+1], -v[a+2]], u = f3dDot(s, p)/det;
+    if(u < 0 || u > 1) continue;
+    const qv = f3dCross(s, e1), w = f3dDot(D, qv)/det;
+    if(w < 0 || u + w > 1) continue;
+    const t = f3dDot(e2, qv)/det;
+    if(t > best) best = t;
+  }
+  if(best <= 0){
+    for(let i = 0; i < v.length; i += 3){ const t = v[i]*D[0] + v[i+1]*D[1] + v[i+2]*D[2]; if(t > best) best = t; }
+  }
+  const T = f3dNorm(Math.abs(D[1]) > 0.9 ? f3dCross(D, [1, 0, 0]) : f3dCross(D, [0, 1, 0]));
+  h.p = [D[0]*best, D[1]*best, D[2]*best]; h.n = D; h.tg = T; h.bt = f3dCross(D, T);
+}
+// The shield of one ship, right after her hull (f3dRender): her hull is in
+// the depth buffer, so what of the shield lies behind her is hidden.
+function f3dShDraw(it, M0, cam){
+  const e = it.e;
+  if(!e || it.deb != null || it.clip || !it.L.head) return;
+  const luci = e.bShield > 0 && e.rollT == null;
+  if(!luci && !(e._shq && e._shq.length)) return;
+  if(!f3dShLoad()) return;
+  const gl = F3D.gl, sl = F3D_SH.loc, now = f3dNow()/1000;
+  for(const a of ['aP', 'aN', 'aT']) if(F3D.loc[a] >= 0) gl.disableVertexAttribArray(F3D.loc[a]);
+  const key = F3D_ALIAS[e.img] || e.img;
+  const S = f3dShMesh(key, it.L, luci);
+  const s = Math.hypot(M0[0], M0[1], M0[2]) || 1;
+  const fac = e.player ? (e.faction || 'terran') : e.faction;
+  const hc = hullShieldCol(fac), col = [0, 2, 4].map(function(i){ return parseInt(hc.glow.substr(1 + i, 2), 16)/255; });
+  gl.useProgram(F3D_SH.prog);
+  gl.uniformMatrix4fv(sl.uM, false, M0); gl.uniformMatrix4fv(sl.uVP, false, cam.vp);
+  gl.uniform3fv(sl.uCam, cam.eye); gl.uniform3fv(sl.uCol, col); gl.uniform1i(sl.tS, 0);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, F3D_SH.tex);
+  gl.bindBuffer(gl.ARRAY_BUFFER, S.pos); gl.enableVertexAttribArray(sl.aP); gl.vertexAttribPointer(sl.aP, 3, gl.FLOAT, false, 12, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, S.nrm); gl.enableVertexAttribArray(sl.aN); gl.vertexAttribPointer(sl.aN, 3, gl.FLOAT, false, 12, 0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, S.idx);
+  gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.ONE, gl.ONE, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  gl.depthMask(false);
+  if(luci){
+    // the bubble's near half: its rim glimmers, thinner as it weakens
+    const frac = Math.max(0, Math.min(1, e.bShield/(e.bShieldMax || 1)));
+    const pulse = 0.5 + 0.5*Math.sin(now*2.7);
+    gl.enable(gl.CULL_FACE); gl.cullFace(S.flip ? gl.FRONT : gl.BACK);
+    gl.uniform1f(sl.uMode, 1); gl.uniform1f(sl.uA, (0.16 + 0.40*frac)*(0.82 + 0.18*pulse)*it.a);
+    gl.drawElements(gl.TRIANGLES, S.n, gl.UNSIGNED_SHORT, 0);
+  }
+  gl.disable(gl.CULL_FACE);
+  gl.uniform1f(sl.uMode, 0);
+  const q = e._shq || [];
+  const frac = e.player ? (typeof player !== 'undefined' && player.maxSh ? player.sh/player.maxSh : 1)
+                        : (luci ? 1 : (e.maxSh ? e.sh/e.maxSh : 1));
+  // a hit is as wide on the screen as a fighter's flank, a little less on
+  // a big hull
+  const len = s*2, rpx = Math.max(16, Math.min(80, 0.36*len));
+  for(let i = q.length - 1; i >= 0; i--){
+    const h = q[i], a = (now - h.t)/F3D_SH_DUR;
+    if(a >= 1 || a < 0){ q.splice(i, 1); continue; }
+    if(!h.p) f3dShPlace(h, S, M0);
+    const fr = Math.min(F3D_SH_FRAMES - 1, Math.floor(a*F3D_SH_FRAMES*1.15));
+    gl.uniform2f(sl.uFr, fr % 4, Math.floor(fr/4));
+    gl.uniform3fv(sl.uH, h.p); gl.uniform3fv(sl.uHN, h.n); gl.uniform3fv(sl.uT, h.tg); gl.uniform3fv(sl.uB, h.bt);
+    gl.uniform1f(sl.uR, rpx/s);
+    const fade = a < 0.7 ? 1 : (1 - a)/0.3;
+    gl.uniform1f(sl.uA, 1.6*fade*(0.55 + 0.45*Math.max(0, frac))*it.a);
+    gl.drawElements(gl.TRIANGLES, S.n, gl.UNSIGNED_SHORT, 0);
+  }
+  gl.depthMask(true); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.disable(gl.BLEND);
+  gl.disableVertexAttribArray(sl.aP); gl.disableVertexAttribArray(sl.aN);
+  gl.useProgram(F3D.prog);
 }
