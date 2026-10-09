@@ -8,7 +8,7 @@
 const M3D_BASE    = 'models/';
 // v195: raised whenever the model files change, so neither the browser nor
 // Cloudflare hands out the old ones from its cache.
-const M3D_REV     = 201;
+const M3D_REV     = 202;
 const M3D_FOV     = 30 * Math.PI / 180;
 const M3D_SPIN    = 0.6;          // rad/s while the pointer is on the picture
 const M3D_YAW0    = 1.22;         // at rest: starboard side, bow to the right, a little of the bow

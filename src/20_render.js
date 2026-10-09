@@ -364,22 +364,34 @@ function fsWarp(e){
   // ahead of her; only its colour is the portal's (drawFsPortals).
   if(!WARP_STYLE || e.type==='asteroid') return null;
   if(!(e.warp>0) && !(e.warpOut>0)) return null;
+  // v202: docked to a larger ship in the same jump - through her vortex,
+  // moved as she is (tickDockWarp)
+  const ld = e._wLead;
+  if(ld && ld !== e && !ld._wLead){ const lg = fsWarp(ld); if(lg) return Object.assign({}, lg, {mem: true}); }
   const img = IMGS[e.img]; const mW = e.warpMax||100;
   if(!img || mW<=1) return null;
   const out = e.warpOut>0;
   const t = out ? (mW-e.warpOut)/mW : (mW-e.warp)/mW;
   let q = e._fsG;
   if(!q || q.out !== out){
-    const f = fsNose(e), L = img.width*e.sc, G = L*0.6;   // G: vortex to ship centre
+    const f = fsNose(e), L = img.width*e.sc;
+    // How far the ship - with what is docked to her - reaches ahead of and
+    // behind her centre along the nose, and across it (v202).
+    const x = fsGroupExt(e, f, L, img.height*e.sc);
+    const span = x.front - x.back;
+    // G: vortex to ship centre, a tenth of the length beyond the bow when
+    // leaving, beyond the stern when coming
+    const G = out ? x.front + 0.1*span : -x.back + 0.1*span;
     const sg = out ? 1 : -1;               // ahead when leaving, behind when coming
     const at = out ? {x: e.x, y: e.y} : fsLanding(e);
     // On the screen edge at the most: what sticks out beyond it cannot be
     // seen, so nothing pops into view when the cut goes.
     const px = Math.max(0, Math.min(W, at.x + sg*f.x*G));
-    e._fsG = q = {out, fx: f.x, fy: f.y, L, G, px, py: at.y + sg*f.y*G,
+    e._fsG = q = {out, fx: f.x, fy: f.y, L, G, D: out ? G - x.back : G + x.front, across: x.across,
+                  px, py: at.y + sg*f.y*G,
                   x0: e.x, y0: e.y, lx: at.x, ly: at.y, e0: out ? mW-e.warpOut : mW-e.warp, v0: null};
   }
-  const fx = q.fx, fy = q.fy, L = q.L, D = q.G + L/2;   // D: the whole way through
+  const fx = q.fx, fy = q.fy, L = q.L, D = q.D;   // D: the whole way through
   const wS = t<0.30 ? 0.05+0.95*t/0.30 : (t<0.75 ? 1 : Math.max(0, 1-(t-0.75)/0.25));
   // Going out the picture leaves from where the jump began, whatever the
   // game still does with the ship meanwhile.
@@ -410,6 +422,20 @@ function fsWarp(e){
   }
   return {out, fx, fy, px: q.px, py: q.py, wS, wA: Math.min(1, wS*1.4),
           dx: bx - e.x + fx*u, dy: by - e.y + fy*u, vis};
+}
+// Reach of a ship along her nose f (front ahead of her centre, back behind
+// it, negative) and across it, with the ships docked to her that jump
+// with her (v202). Alone: half her length either way.
+function fsGroupExt(e, f, L, Hh){
+  let front = L/2, back = -L/2, across = Hh/2;
+  for(const m of (e._wMem || [])){
+    const im = IMGS[m.img]; if(!im) continue;
+    const r = Math.max(im.width, im.height)*m.sc/2;
+    const ax = (m.x - e.x)*f.x + (m.y - e.y)*f.y, cx = -(m.x - e.x)*f.y + (m.y - e.y)*f.x;
+    front = Math.max(front, ax + r); back = Math.min(back, ax - r);
+    across = Math.max(across, Math.abs(cx) + r);
+  }
+  return {front, back, across};
 }
 // Speed along the nose a ship flies at right after coming in, in points
 // a tick - the same numbers the game moves it by.

@@ -81,33 +81,67 @@ const AI_SEC_RATE = {mx64:1, cyclops:1, stiletto:1.1, infyrno:1.3, tornado:1.6};
 // The AI's bolt speed: its own base speed, scaled like the player's gun.
 function aiBoltSpd(w){ return EBULLET_SPD * (w.spd || 9) / 9; }
 
-// One volley of the primaries. Each mount keeps its own clock, so mixed
-// guns fire at their own beat. Returns the steps until the next one is due.
+// The primaries, fired like the player fires them (v202, Silvio): while the
+// target sits in the cone ahead the trigger stays down. Every gun on the
+// hull fires - one bank per kind of gun, each at its own FS2 fire wait -
+// and every shot of a bank is paid from a weapon energy store, filled and
+// recharged per hull from ships.tbl like the player's (56_banks.js). An
+// empty store waits for its recharge. Both sides, fighters and bombers.
+// The damage a second while firing stays what the old volleys did on
+// their beat (AI_REF_BEAT), until the balancing round sets it anew.
+// Returns the steps until the next shot is due.
 // ahead: fire straight ahead instead of leading the target (the nose is on
-// a large hull, v178).
-// rk: beat and damage per shot scaled together (a stream on a hull, v179).
-function aiGunVolley(e, t, lo, pts, spread, ahead, rk){
-  rk = rk || 1;
-  const n = pts.length, dpb = eVolleyDmg(n) * rk;
-  if(!e.mT) e.mT = [];
-  let next = Infinity, heard = {};
-  for(let i=0;i<n;i++){
-    const w = priDef(Array.isArray(lo.p) ? lo.p[i % lo.p.length] : lo.p);
-    const beat = Math.max(6, Math.round((e.fR || 120) * (w.rate || 1) * rk));
-    if(e.mT[i] && e.mT[i] > fc){ next = Math.min(next, e.mT[i] - fc); continue; }
-    e.mT[i] = fc + beat; next = Math.min(next, beat);
-    const spd = aiBoltSpd(w);
-    const aim = (ahead!=null) ? ahead : leadAngle(pts[i].x, pts[i].y, t, spd);
-    const life = w.range ? Math.max(1, Math.round(w.range/spd)) : 0;
-    const k = w.pellets || 1, d = dpb * (w.dmg || 1);
-    for(let j=0;j<k;j++){
-      const a = (k===1 ? aim : aim + (j/(k-1) - 0.5)*w.spread + (Math.random()-0.5)*(w.spread/k))
-              + (Math.random()*2 - 1)*spread;
-      aiBolt(e, pts[i].x, pts[i].y, a, spd, d/k, life, w);
-    }
-    if(!heard[w.key]){ heard[w.key] = 1; sndStart(PRI_SND[w.key] || 'wpn_prometheus', pts[i].x, 1, false, 'ai_fire', pts[i].y); }
+// a large hull, v178). rk: no longer used (the stream on a hull, v179, is
+// what every gun does now).
+const AI_REF_BEAT = {fighter:115, bomber:14};      // the old mean volley beat
+function aiWait(w){ return w.wait || Math.max(4, Math.round((w.rate || 1) * FR_BASE_STEPS)); }
+function aiEnCost(w){ return (w.en != null) ? w.en : 0.6 * (w.rate || 1); }
+// The store: filled at the first shot, recharged by the steps gone since.
+function aiEnergy(e){
+  if(e.enMax == null){
+    const b = (typeof SHIP_BANKS !== 'undefined' && SHIP_BANKS[e.img]) || BANKS_FALLBACK;
+    e.enMax = Math.max(1, (b.eng || 150) * EN_STORE_K);
+    e.enRe = (b.pow || 2.4) * EN_REGEN_K / 60;
+    e.en = e.enMax; e.enT = fc;
+  } else if(fc > e.enT){
+    e.en = Math.min(e.enMax, e.en + (fc - e.enT) * e.enRe); e.enT = fc;
   }
-  return next === Infinity ? 12 : next;
+}
+function aiGunVolley(e, t, lo, pts, spread, ahead, rk){
+  const n = pts.length, dpb = eVolleyDmg(n);
+  const ref = AI_REF_BEAT[e.type === 'bomber' ? 'bomber' : 'fighter'];
+  if(!e.mT || Array.isArray(e.mT)) e.mT = {};
+  aiEnergy(e);
+  // the guns by kind: one bank each
+  const banks = {};
+  for(let i=0;i<n;i++){
+    const k = Array.isArray(lo.p) ? lo.p[i % lo.p.length] : lo.p;
+    (banks[k] || (banks[k] = [])).push(i);
+  }
+  let next = Infinity;
+  for(const k in banks){
+    const w = priDef(k), wait = aiWait(w);
+    if(e.mT[k] && e.mT[k] > fc){ next = Math.min(next, e.mT[k] - fc); continue; }
+    const cost = aiEnCost(w);
+    if(e.en < cost){ next = Math.min(next, Math.max(1, Math.ceil((cost - e.en) / e.enRe))); continue; }
+    e.en -= cost;
+    e.mT[k] = fc + wait; next = Math.min(next, wait);
+    const spd = aiBoltSpd(w);
+    const life = w.range ? Math.max(1, Math.round(w.range/spd)) : 0;
+    const pk = w.pellets || 1;
+    const d = dpb * (w.dmg || 1) * wait / (ref * (w.rate || 1));
+    for(const i of banks[k]){
+      const aim = (ahead!=null) ? ahead : leadAngle(pts[i].x, pts[i].y, t, spd);
+      for(let j=0;j<pk;j++){
+        const a = (pk===1 ? aim : aim + (j/(pk-1) - 0.5)*w.spread + (Math.random()-0.5)*(w.spread/pk))
+                + (Math.random()*2 - 1)*spread;
+        aiBolt(e, pts[i].x, pts[i].y, a, spd, d/pk, life, w);
+      }
+    }
+    const p0 = pts[banks[k][0]];
+    sndStart(PRI_SND[w.key] || 'wpn_prometheus', p0.x, 1, false, 'ai_fire', p0.y);
+  }
+  return next === Infinity ? 6 : Math.max(1, next);
 }
 // One bolt. Allied bolts go into the player's list, enemy bolts into theirs.
 function aiBolt(e, x, y, a, spd, d, life, w){

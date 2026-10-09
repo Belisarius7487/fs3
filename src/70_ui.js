@@ -68,17 +68,22 @@ function draw(){
 
   // State-Reset vor Enemy-Render
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
-  // v196: capital ships with a 3D model are drawn first and all at once
-  // (59_field3d.js), with their vortex and thrusters under them. The loop
-  // below then only puts their damage, marks and bars on top.
-  let F3D_DONE = null;
-  try{ if(typeof f3dFieldPass === 'function') F3D_DONE = f3dFieldPass(SHIPS_ON_FIELD); }catch(e3){ F3D_DONE = null; }
+  // v196: capital ships with a 3D model are drawn from their model
+  // (59_field3d.js), with their vortex and thrusters under them and their
+  // damage, marks and bars on top. v202: in the loop's order - the 3D
+  // ships between two sprite ships go in one batch, so a model is no
+  // longer under every sprite (Typhon and Arcadia, M11).
+  let F3D_DONE = null, _f3seg = [];
+  try{ if(typeof f3dFieldPrep === 'function') F3D_DONE = f3dFieldPrep(SHIPS_ON_FIELD); }catch(e3){ F3D_DONE = null; }
+  const _f3flush = function(){
+    if(!_f3seg.length) return;
+    try{ f3dFlush(_f3seg); }catch(ef){ ctx.restore(); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }
+    _f3seg = [];
+  };
   for(const e of SHIPS_ON_FIELD){
-    const _f3 = !!(F3D_DONE && F3D_DONE.has(e));
-    if(_f3){
-      try{ f3dShipTop(e); }catch(et){ ctx.restore(); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }
-      continue;
-    }
+    const _f3 = F3D_DONE && F3D_DONE.get(e);
+    if(_f3){ _f3seg.push(_f3); continue; }
+    _f3flush();
     try{ drawVortexOf(e); }catch(ev){ ctx.restore(); ctx.globalAlpha=1; }
     ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
     try{
@@ -136,6 +141,7 @@ function draw(){
     }
     ctx.globalAlpha=1;
     }catch(ee){ctx.restore();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}}
+  _f3flush();
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
   drawShots(false);
 
@@ -996,7 +1002,7 @@ function settingsRows(){
      value:isFullscreen()?'ON':'OFF', on:isFullscreen(),
      act:'fullscreen', enabled:avail},
     {label:'PRACTICE MODE',
-     hint:'no lives are lost, 10 tickets of each kind every wave',
+     hint:'no lives are lost',
      value:practiceMode?'ON':'OFF', on:practiceMode,
      act:'practice', enabled:true},
     {label:'PRACTICE LOG', hint:'every wave of this run - copy it for balancing',
@@ -1321,40 +1327,12 @@ function drawHUDHLP(){
   thButton(alX, alBY, alBW, alBH, btnState(alCan, callMenu, hovering(alX, alBY, alBW, alBH)));
   lab('SUPPORT', alX+4, alBY+7);
   ctx.fillStyle=alCan?TH('accent'):TH('textDim'); ctx.font=thValue(9, true);
-  ctx.fillText(thFit(alRdy?(anyTicket()?'READY':'NO TICKET'):(allies.length?'DEPLOYED':'STANDBY'), alBW-8), alX+4, mid+1);
+  ctx.fillText(thFit(alRdy?(anyTicket()?'READY':'NO PTS'):(allies.length?'DEPLOYED':'STANDBY'), alBW-8), alX+4, mid+1);
   lab('[C]', alX+4, alBY+alBH-7);
   window._allyBtnRect={x:alX, y:alBY, w:alBW, h:alBH};
   x+=alBW+5;
 
-  // 7  TICKETS, 2 x 2
-  {
-    var tkX=x, tkY=3, tkW=41, tkH=24;
-    for(var ti=0; ti<TICKET_ORDER.length; ti++){
-      var tk=TICKET_ORDER[ti], tn=tickets[tk]||0;
-      var lit=tn>0;
-      var tPl=barPulseLevel('ticket:'+tk);
-      var col=(tPl>0.3)?TH('accentWarm'):(lit?TH('accent'):TH('textDim'));
-      var tico=ICONS[TICKET_ICON[tk]];
-      var tcx=tkX+(ti%2)*tkW, tcy=tkY+((ti/2)|0)*tkH;
-      ctx.textAlign='left'; ctx.textBaseline='top';
-      ctx.fillStyle=col; ctx.font=thValue(11, true);
-      var nt=tn+'x', ntw=ctx.measureText(nt).width;
-      ctx.fillText(nt, tcx, tcy+6);
-      var icoX=tcx+ntw+2, tih=10, tiw=0, tiMax=tkW-(icoX-tcx)-3;
-      if(tico){ tiw=Math.max(1, Math.round(tico.width*(tih/tico.height)));
-                if(tiw>tiMax){ tih=Math.max(5, tih*tiMax/tiw); tiw=tiMax; } }
-      else { ctx.font=thLabel(8); tiw=ctx.measureText(TICKET_ABBR[tk]).width; }
-      if(tPl>0) thGlowPath(tcx-3, tcy+2, (icoX-tcx)+tiw+6, tkH-2, 3, tPl);
-      if(tico){
-        ctx.globalAlpha=lit?1:0.28;
-        ctx.drawImage(tico, icoX, tcy+6+(11-tih)/2, tiw, tih);
-        ctx.globalAlpha=1;
-      } else {
-        ctx.fillStyle=col; ctx.font=thLabel(8);
-        ctx.fillText(TICKET_ABBR[tk], icoX, tcy+7);
-      }
-    }
-  }
+  // 7  (v202: the support tickets are gone - support is paid in points)
   ctx.textBaseline='middle';
 
   // 8  V R M S P - five buttons of one kind, each with its key at the foot
@@ -1571,6 +1549,9 @@ function applyShip(key, keep){
     player.sh      = Math.min(player.maxSh, Math.round(player.maxSh*keep.sh));
     player.en      = player.enMax*enF;
   }
+  // v202: a new hull is no damage taken - the practice log starts counting
+  // from her (it read the change as damage from 'other', M62)
+  try{ if(PL){ PL._hp = player.hp; PL._sh = player.sh; } }catch(ePL){}
 }
 // Unlocks follow the score within a run. Several thresholds can fall in
 // one step, e.g. after a big bonus, so this loops.
@@ -2372,8 +2353,8 @@ function allyCard(id, keyLabel){
   if(d.colossus) lines.push(COLOSSUS_TIME+' s on station, then she jumps out');
   if(d.cls === 'destroyer') lines.push('Launches wings  -  her hangar lets you switch ship (V)');
   if(d.cls === 'corvette') lines.push('Rearms you while she is on the field (R)');
-  const rk = allyTicket(id);
-  lines.push('In hand: '+(tickets[rk]||0)+(canRefine(rk) ? '  -  '+REFINE_COST+' refine into one of the next class' : ''));
+  // v202: paid in points, what she has left comes back
+  lines.push('Costs '+allyCost(id)+' points, her hull left is refunded');
   // v195: no hull bar. It repeated the HULL figure of the facts, and every
   // destroyer and the Colossus filled it to the end (Silvio).
   return {model:d.spr, title:allyLabel(d), sub:(CM_FAC_HEAD[d.fac]||'').toUpperCase(), facts:facts,
@@ -2729,7 +2710,7 @@ const CM_PIC      = 28;   // picture cell
 const CM_PIC_W    = 44;
 const CM_NAME     = 78;
 const CM_REFINE_W = 46;   // refining keeps its own ground on the right
-const CM_TICKET_W = 34;   // and the count in hand sits beside it
+const CM_TICKET_W = 56;   // and the price in points sits beside it (v202)
 // Where everything sits, before anything is drawn. Both the drawing and the
 // tap rectangles read this rather than working it out twice.
 function callMenuLayout(){
@@ -2797,11 +2778,13 @@ function drawAllyRow(x, y, w, id, d, keyLabel, hot){
   ctx.fillStyle = TH('textDim'); ctx.font = thValue(9, false);
   ctx.fillText(thFit(sub, textW), x+nameX, y+27);
 
-  // How many are in hand, not merely whether one can be afforded.
+  // The price in points (v202), and whether the score covers it.
   ctx.textAlign='right';
   ctx.fillStyle = ok ? TH('accent') : TH('textDim');
-  ctx.font = thValue(14, true);
-  ctx.fillText((tickets[rk]||0)+'x', x+w-(ref ? CM_REFINE_W+8 : 10), y+CM_ROW/2);
+  ctx.font = thValue(13, true);
+  ctx.fillText(String(allyCost(id)), x+w-10, y+CM_ROW/2-4);
+  ctx.fillStyle = TH('textDim'); ctx.font = thLabel(7);
+  ctx.fillText('POINTS', x+w-10, y+CM_ROW/2+9);
   ctx.textAlign='left';
 
   // Refining sits on its own generous button. A narrow one against a call
@@ -2834,7 +2817,7 @@ function drawCallMenu(){
   ctx.fillText('REQUEST SUPPORT', mx+CM_PAD, my+16);
   ctx.textAlign='right';
   ctx.fillStyle=TH('textDim'); ctx.font=thValue(10, false);
-  ctx.fillText('THREE OF A CLASS REFINE INTO ONE OF THE NEXT', mx+L.mw-CM_PAD, my+16);
+  ctx.fillText('PAID IN POINTS  -  WHAT SURVIVES THE WAVE COMES BACK', mx+L.mw-CM_PAD, my+16);   // v202
 
   window._callRects=[];
   if(L.tabs)
@@ -3552,12 +3535,12 @@ function plogPick(kind, full){
   }
 }
 // A support call, with what it cost.
-function plogCall(a, kind){
+function plogCall(a, cost){
   if(!PL || !a) return;
   PL.calls.push(plogName(a));
-  PL.tUsed[kind] = (PL.tUsed[kind]||0) + 1;
-  plogEvent('called '+plogName(a)+' (-1 '+kind+' ticket)', 'info');
-  PL._tickets = Object.assign({}, tickets);
+  plogEvent('called '+plogName(a)+' (-'+cost+' points)', 'info');
+  // what the call cost is not points lost in the fight
+  PL._score = score;
 }
 // Tickets turned into a bigger one: neither used nor earned.
 function plogRefine(kind, n, up){
@@ -3566,7 +3549,14 @@ function plogRefine(kind, n, up){
   plogEvent('refined '+n+' '+kind+' -> 1 '+up, 'info');
   PL._tickets = Object.assign({}, tickets);
 }
-function plogHit(b){ if(PL && b && !b.ally && !b.sec && !b.shard) PL.hits++; }
+// v202: one hit per bolt at most, and a bolt that hits in the step it was
+// fired is counted as fired too - the rate went over 100 % (M53, M78).
+function plogHit(b){
+  if(!PL || !b || b.ally || b.sec || b.shard || b._ph) return;
+  b._ph = 1;
+  if(!b._pl){ b._pl = 1; PL.bolts++; }
+  PL.hits++;
+}
 function plogSec(){ if(PL) PL.secFired++; }
 function plogRearm(){ if(PL){ PL.rearms++; plogEvent('rearmed', 'info'); } }
 function plogDeath(){
@@ -3654,9 +3644,7 @@ function plogText(){
     L.push('  picked up: lives '+(r.picked.life||0)+
            (r.picked.lifeFull ? ' ('+r.picked.lifeFull+' at the maximum)' : '')+
            ', repairs '+(r.picked.repair||0));
-    L.push('  tickets in '+JSON.stringify(r.tGot)+', out '+JSON.stringify(r.tUsed)+
-           (r.calls.length ? '  calls ['+r.calls.join(', ')+']' : '')+
-           (r.refined.length ? '  refined ['+r.refined.join(', ')+']' : ''));
+    L.push('  support calls: '+(r.calls.length ? r.calls.join(', ') : '-'));
     L.push('  damage taken: hull '+Math.round(r.hull)+', shield '+Math.round(r.shield)+
            '  by source '+Object.keys(r.dmgBy).map(x=>x+' '+Math.round(r.dmgBy[x])).join(', '));
     L.push('  kills: fighters/bombers '+k.small+', capital ships '+k.cap+
@@ -3722,7 +3710,7 @@ function drawPlogCard(){
   line(col1, cy+47, 'OBJECTIVES', o.ok+' done, '+o.bad+' failed');
   line(col1, cy+64, 'DEATHS', String(r.deaths.length));
   line(col1, cy+81, 'HULL LOST', String(Math.round(r.hull)));
-  line(col2, cy+30, 'TICKETS', '+'+plogSum(r.tGot)+'  / -'+plogSum(r.tUsed));
+  line(col2, cy+30, 'CALLS', String(r.calls.length));
   line(col2, cy+47, 'KILLS', k.small+' small, '+k.cap+' capital');
   line(col2, cy+64, 'PICKED UP', (r.picked.life||0)+' lives, '+(r.picked.repair||0)+' repairs');
   line(col2, cy+81, 'LOSSES', r.allyLost+' allies, '+r.lost+' protected');
@@ -3747,7 +3735,7 @@ function drawPlog(){
   ctx.fillText(rows.length+' waves this run  -  tap a row for its details', px+140, py+13);
   // Columns.
   const C = [['WAVE',0],['MISSION',38],['TIME',210],['+SCORE',254],['-SCORE',314],['OBJ',370],
-             ['DEATHS',420],['TICKETS',472],['KILLS',540],['HULL',600],['ESC',650],['LOST',700]];
+             ['DEATHS',420],['CALLS',472],['KILLS',540],['HULL',600],['ESC',650],['LOST',700]];
   const tx = px+14, ty = py+34;
   ctx.fillStyle = TH('text'); ctx.font = thLabel(9);
   for(const c of C) ctx.fillText(c[0], tx+c[1], ty);
@@ -3760,7 +3748,7 @@ function drawPlog(){
     if(n===plogSel){ ctx.fillStyle = 'rgba(255,160,70,0.16)'; ctx.fillRect(tx-6, y-2, pw-16, 16); }
     const cells = [String(r.wave), thFit(String(r.name), 166)+(r.running?' *':''), plogTime(r.tEnd!=null?r.tEnd:r.t),
                    '+'+r.gain, '-'+r.loss, o.ok+' / '+o.bad, String(r.deaths.length),
-                   '+'+plogSum(r.tGot)+' / -'+plogSum(r.tUsed), k.small+' / '+k.cap,
+                   String(r.calls.length), k.small+' / '+k.cap,
                    String(Math.round(r.hull)), String(r.escaped), String(r.allyLost+r.lost)];
     for(let c=0; c<C.length; c++){
       ctx.fillStyle = (c===5 && o.bad) || (c===6 && r.deaths.length) ? '#ff8866' : TH('textBright');
@@ -3798,9 +3786,6 @@ function drawPlog(){
       'subsystems '+(s.subsKilled||0)+', bombs shot down '+(s.bombsShot||0)+', escaped '+r.escaped,
       'bolts '+r.bolts+', hits '+r.hits+(r.bolts?' ('+Math.round(100*r.hits/r.bolts)+' %)':'')+
         ', secondaries '+r.secFired+', rearms '+r.rearms,
-      'tickets in '+(Object.keys(r.tGot).map(x=>x+' '+r.tGot[x]).join(', ')||'-')+
-        ', out '+(Object.keys(r.tUsed).map(x=>x+' '+r.tUsed[x]).join(', ')||'-')+
-        (r.refined.length ? ', refined '+r.refined.length+'x' : ''),
       'lives picked up '+(r.picked.life||0)+(r.picked.lifeFull ? ' ('+r.picked.lifeFull+' at max)' : '')+
         ', repairs '+(r.picked.repair||0)+', calls '+(r.calls.join(', ')||'-'),
       'allies lost '+r.allyLost+', protected lost '+r.lost+' / through '+r.saved
@@ -3873,10 +3858,14 @@ function drawOwnVortex(e){
   if(e.warp>0 || e.warpOut>0){
     // FreeSpace style: the vortex stands across the flight path.
     const fg = fsWarp(e);
+    // v202: docked to a larger ship in the same jump - her vortex only
+    if(fg && fg.mem) return;
     if(fg){
       try{
         let WSf = 120; const fImg = IMGS[e.img];
         if(fImg) WSf = Math.max(100, fImg.height*e.sc*1.9, fImg.width*e.sc*0.62);
+        // big enough for what is docked to her (v202)
+        if(e._fsG && e._fsG.across && e._wMem) WSf = Math.max(WSf, e._fsG.across*2*1.6);
         // Coming in: the vortex is drawn by drawFsPortals() after this.
         if(!fg.out){ fsPortalOpen(e, fg, WSf); return; }
         ctx.save();

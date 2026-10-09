@@ -329,6 +329,31 @@ function mkEnemy(type, spr0, yWant){
 // shield, subsystem), set by the player's hit code around the call
 // (v186). Without it a hit counts the same everywhere, as before.
 let DMG_F = null;
+// ── POINTS (v202, Silvio) ────────────────────────────────────
+// The player earns what he does himself: every point of hull he takes off
+// an enemy is a point, the moment it comes off. Shield he shoots down is
+// written to the ship and paid when she dies - whoever finishes her - so
+// a shield cannot be farmed by waiting for it to come back (variant 2).
+// What the escorts and the wingmen destroy earns him nothing. Objectives,
+// scans and captures keep their own bonus.
+let SCORE_FRAC = 0;
+function awardPts(n){
+  if(!(n > 0)) return;
+  SCORE_FRAC += n;
+  const w = Math.floor(SCORE_FRAC);
+  if(w > 0){ score += w; SCORE_FRAC -= w; }
+}
+// Her shield points, once, as she dies.
+function payShieldPts(e){
+  if(!e || e._shPaid) return;
+  e._shPaid = true;
+  awardPts(e.shPts || 0);
+}
+// The lowest a ship's hull is held at while a lock is on (no points below it).
+function hullLockFloor(e){
+  return (e.defectLock || e.captureLock || e.keepAlive || (e.scanLock && !e.scanned) ||
+          (e.disableTgt && !e.disableMet)) ? e.maxHp * DISABLE_HULL_FLOOR : 0;
+}
 function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   if(!e || e.dead) return;
   if(fromPlayer) e.pDmg = (e.pDmg||0) + dmg;
@@ -341,6 +366,7 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   if(e.reactorOnly){
     const r = reactorAt(e, hx, hy, kind==='sec' ? LUCI_REACTOR_R_SEC : 0);
     if(!r){ if(hx!=null && Math.random()<0.3) spawnFireball(hx, hy, 4, 6); return; }
+    if(fromPlayer && r.hp > 0) awardPts(Math.min(dmg, r.hp));
     r.hp -= dmg;
     if(hx!=null) addShieldFlare(e, hx, hy, 1.4);
     if(r.hp <= 0){
@@ -394,8 +420,12 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
       e.shDelay = SMALL_SH_DELAY;
       e.shHit = SH_FLASH;
       // A shield the round cannot touch stops it whole (Stiletto, FS2).
-      if(shd <= 0 || pen < 1){ e.sh = Math.max(0, e.sh - shd); return; }
+      if(shd <= 0 || pen < 1){
+        if(fromPlayer && shd > 0) e.shPts = (e.shPts||0) + Math.min(e.sh, shd);
+        e.sh = Math.max(0, e.sh - shd); return;
+      }
       const absorbed = Math.min(e.sh, shd);
+      if(fromPlayer) e.shPts = (e.shPts||0) + absorbed;
       e.sh -= absorbed;
       dmg *= (shd - absorbed)/shd;    // what is left of the round
       if(dmg <= 0) return;
@@ -411,12 +441,14 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
       // nothing through, however heavy it was. Without the early return a
       // strong hit would still spill onto the hull and the rule would only
       // slow the fleet down instead of stopping it.
+      if(fromPlayer) e.shPts = (e.shPts||0) + Math.min(e.sh, dmg*pen);
       e.sh = Math.max(0, e.sh - dmg*pen);
       e.shDelay = SMALL_SH_DELAY;
       e.shHit = SH_FLASH;
       return;
     }
     const absorbed = Math.min(e.sh, dmg);
+    if(fromPlayer) e.shPts = (e.shPts||0) + absorbed;
     e.sh -= absorbed;
     e.shDelay = SMALL_SH_DELAY;
     e.shHit = SH_FLASH;
@@ -428,6 +460,8 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   if(e.rollT!=null) return; // bricht schon auseinander
   // The plating: see hullMul() in 55_arms.js.
   const _hd = dmg * hullMul(e, src || (kind==='beam' ? 'beam' : ''));
+  // the hull that really comes off, down to a lock's floor at the most
+  if(fromPlayer) awardPts(Math.max(0, Math.min(_hd, e.hp - hullLockFloor(e))));
   e.hp -= _hd;
   dmgHit(e, hx, hy, _hd);          // what it leaves on the hull (v180)
   // A ship that is to be taken does not start to break up: the lock
@@ -1405,19 +1439,11 @@ function maybeDropTicket(e){
     // only source of tickets in the waves without capital ships. The life
     // roll is separate again so it is not crowded out by the others.
     if(Math.random() < REPAIR_DROP_BOMBER) spawnTicket(e.x, e.y, 'repair');
-    if(Math.random() < BOMBER_TICKET_CHANCE) spawnTicket(e.x, e.y, 'cruiser');
     if(Math.random() < LIFE_DROP_BOMBER) spawnTicket(e.x, e.y, 'life');
     return;
   }
-  const share = TICKET_SHARE[e.type];
-  if(share == null) return;
-  if((e.pDmg||0) < e.maxHp*share) return;
-  // The boss pays in Colossus, which is why her ticket always arrives one
-  // campaign before she is needed.
-  // She is the heaviest thing reachable outside a boss wave and pays
-  // accordingly.
-  const kind = e.iceni ? 'destroyer' : (e.type==='boss' ? 'colossus' : e.type);
-  spawnTicket(e.x, e.y, kind);
+  // v202: no support tickets any more - support is paid for in points
+  // (allyCost). Repairs and lives still drop.
 }
 
 function updateItems(){
@@ -1664,9 +1690,8 @@ function allyTicket(id){
 // surplus somewhere to go instead of sitting in the counter.
 const REFINE_COST = 3;
 const REFINE_UP = {cruiser:'corvette', corvette:'destroyer', destroyer:'colossus'};
-function canRefine(kind){
-  return !!REFINE_UP[kind] && (tickets[kind]||0) >= REFINE_COST;
-}
+// v202: gone with the tickets.
+function canRefine(kind){ return false; }
 function refineTicket(kind){
   if(!canRefine(kind)) return false;
   tickets[kind] -= REFINE_COST;
@@ -1678,9 +1703,26 @@ function refineTicket(kind){
   return true;
 }
 
+// v202 (Silvio): a ship is called with points - as many as her hull. What
+// she still has when the wave is won comes back (allyRefunds).
+function allyCost(id){
+  const d = ALLY_DEFS[id]; if(!d) return Infinity;
+  return Math.round(allyHull(d));
+}
 function allyAffordable(id){
-  const k=allyTicket(id);
-  return !!k && (tickets[k]||0) > 0;
+  return !!ALLY_DEFS[id] && score >= allyCost(id);
+}
+// The hull the called ships still have, back as points as the wave is won.
+function allyRefunds(){
+  for(const a of allies){
+    if(!a.callCost || a._refunded || a.dead || !(a.hp > 0)) continue;
+    a._refunded = true;
+    const back = Math.min(a.callCost, Math.round(a.hp));
+    if(back <= 0) continue;
+    score += back;
+    SUB_MSGS.push({x:a.x, y:a.y-40, txt:'+'+back+' RETURNED', life:200, ml:200, ally:true, tone:'good'});
+    if(typeof plogEvent === 'function') plogEvent(plogName(a)+' returned: +'+back, 'good');
+  }
 }
 
 let allyCd = 0;            // lockout after losing an escort
@@ -1701,8 +1743,9 @@ function allyReady(){
   return true;
 }
 // Anything at all to spend?
+// v202: anything the points can pay for
 function anyTicket(){
-  for(const k of TICKET_ORDER) if(tickets[k]>0) return true;
+  for(const id in ALLY_DEFS) if(allyFacOn(ALLY_DEFS[id].fac) && allyAffordable(id)) return true;
   return false;
 }
 
@@ -1961,9 +2004,10 @@ function callAlly(id){
   const a = mkAlly(id);
   if(!a) return false;
   initSubsystems(a);
-  tickets[allyTicket(id)]--;
+  const cost = allyCost(id);
+  score -= cost; a.callCost = cost;
   STATS.escortsCalled++;
-  plogCall(a, allyTicket(id));
+  plogCall(a, cost);
   if(!a.colossus) assignStation(a);   // she has one station and it is the top
   allies.push(a);
   setCallMenu(false);
@@ -1994,7 +2038,9 @@ function playerOnly(o){
 // v162 only scan targets were spared, so escorts shot at ships that were
 // only to be disabled and taken. noTarget also covers what is taken.
 function escortSpares(o){
-  return !!(o.noTarget || o.captureLock || (o.disableTgt && !o.disableMet) ||
+  // v202: a ship we have taken is ours - nobody of ours fires on her while
+  // she jumps out (the Deimos, M38).
+  return !!(o.noTarget || o.captureLock || o.captured || (o.disableTgt && !o.disableMet) ||
             (o.scanLock && !o.scanned));
 }
 function nearestEnemy(x, y){
@@ -2251,7 +2297,7 @@ function reapEnemies(){
     if(e.rollT!=null) continue;
     if(e.hp<=0 && !e.dead && !e.rolled && startDeathRoll(e)) continue;
     if(e.hp<=0 && !e.dead){
-      e.dead = true; score += e.pts; statKill(e.type); plogKill(e);
+      e.dead = true; payShieldPts(e); statKill(e.type); plogKill(e);
       maybeDropTicket(e);
       triggerExpl(e.x, e.y, e.type, e.faction||'ntf', e);
       if(e.type==='boss'){ bossAlive=false; bossSlain=true; }

@@ -565,10 +565,9 @@ scenario('Pickups light up the bar, not the field', 'm=31', `
   // Drawn: the glow ring goes round the hull bar and the ticket cell.
   const rings = []; const og = thGlowPath;
   thGlowPath = function(x,y,w,h){ rings.push({x,y,w,h}); return og.apply(this, arguments); };
-  barPulse('hull'); barPulse('ticket:cruiser'); FS.step(40); draw(); thGlowPath = og;
+  barPulse('hull'); FS.step(40); draw(); thGlowPath = og;
   r.ringAroundHull = rings.some(g=>g.x===109 && g.w===80);   // the v187 bar (lives icon back)
-  // The ring follows what is drawn in the cell (v162), within the cell.
-  r.ringAroundTicket = rings.some(g=>g.x===584 && g.w>=20 && g.w<=44);
+  // v202: no ticket cells in the bar any more
   // Its time is up: the pulse is over and gone. (Stepping the game to get
   // there would let loot from the fight light it up again.)
   barPulse('hull'); BAR_PULSE.hull.t0 = fc - BAR_PULSE_T;
@@ -576,16 +575,15 @@ scenario('Pickups light up the bar, not the field', 'm=31', `
   r.softNotHard = (()=>{ barPulse('hull'); const a = barPulseLevel('hull'); FS.step(10); const b = barPulseLevel('hull'); return a===0 && b>0 && b<1; })();
   return r;`);
 
-scenario('Mission reward ticket: in the bar', 'm=35', `
+scenario('Mission reward: points (v202, was a ticket)', 'm=35', `
   FS.step(300);
   const d = allies.find(a=>a.uid==='A1');
   d.hp = d.maxHp = 1e7; for(const s of d.subs||[]) s.hp = s.maxHp = 1e7;
-  TICKET_MSGS.length = 0;
+  TICKET_MSGS.length = 0; const s0 = score;
   // Rocks and wreckage take a share of the hull rather than points, so a
   // big hull alone does not keep her alive: she is topped up as she goes.
   const t = FS.until(()=>{ if(allies.includes(d)) d.hp = d.maxHp; return waveOver; }, 12000, true);
-  const k = Object.keys(BAR_PULSE).find(x=>/^ticket:/.test(x));
-  const r = {rewarded: t>=0 && !!k, notInTheField: TICKET_MSGS.length===0};
+  const r = {rewarded: t>=0 && score - s0 >= capHull(HULL.cruiser)*0.9, notInTheField: TICKET_MSGS.length===0};
   if(!r.rewarded) r.dbg = {t, gl:guardLost, gw:guardWanted, gs:guardSpawned, keys:Object.keys(BAR_PULSE), wave, fc};
   return r;`);
 
@@ -974,13 +972,10 @@ scenario('Practice mode', 'm=40&practice=1', `
   const r = {};
   FS.step(100);
   r.onFromTheAddress = practiceMode===true;
-  r.tenOfEach = TICKET_ORDER.every(k=>tickets[k]>=10);
   const l0 = lives; playerDie();
   r.noLifeLost = lives===l0;
-  tickets.cruiser = 2;
   FS.until(()=>waveOver, 40000, false, true); ITEMS.length = 0;
   const w = wave; FS.until(()=>wave===w+1, 6000, false, false);
-  r.toppedUpNextWave = tickets.cruiser>=10;
   practiceMode = false; const l1 = lives; playerDie();
   r.offCostsALife = lives===l1-1;
   return r;`);
@@ -997,12 +992,6 @@ scenario('Practice log', 'm=42&practice=1', `
   score = 1000; FS.step(1);
   plogLoss('escaped', v); score = Math.max(0, score-100); FS.step(2);
   r.lossWithReason = PL.loss>=100 && PL.events.some(e=>/escaped/.test(e.txt));
-  // Tickets used are counted, the practice top-up is not counted as earned.
-  const got0 = plogSum(PL.tGot);
-  tickets.cruiser--; FS.step(2);
-  r.ticketUsed = PL.tUsed.cruiser===1;
-  practiceTickets(); FS.step(2);
-  r.topUpNotEarned = plogSum(PL.tGot)===got0;
   // An objective card goes into the log.
   objAnnounce('OBJECTIVE COMPLETE', 'TEST DONE', 'done'); FS.step(2);
   r.objectiveLogged = PL.cards.some(c=>c.txt==='TEST DONE' && c.tone==='done');
@@ -1024,14 +1013,12 @@ scenario('Practice log', 'm=42&practice=1', `
   // Plain updates: FS.step puts the lives back to 3 every step.
   ITEMS.push({x:player.x, y:player.y, vx:0, vy:0, kind:'life', life:5000}); update(); update(); update();
   r.lifeAtMaxCounted = (PL.picked.life||0)===l0+1 && PL.picked.lifeFull===1;
-  // A refit is neither used nor earned; a call is logged by name.
-  const u0 = plogSum(PL.tUsed), g0 = plogSum(PL.tGot);
-  tickets.cruiser = 10; PL._tickets = Object.assign({}, tickets);
-  refineTicket('cruiser'); FS.step(2);
-  r.refineNotUsed = plogSum(PL.tUsed)===u0 && plogSum(PL.tGot)===g0 && PL.refined.length===1;
+  // A call is logged by name, with what it cost (v202: points).
+  score = 1e6; PL._score = score;
   const _ar = allyReady; allyReady = function(){ return true; };
   const called = callAlly('ter_fenris'); allyReady = _ar; FS.step(2);
-  r.callLogged = called && PL.calls.length===1 && /FENRIS/.test(PL.calls[0]) && PL.tUsed.cruiser>=1;
+  r.callLogged = called && PL.calls.length===1 && /FENRIS/.test(PL.calls[0]) &&
+                 PL.events.some(e=>/points[)]/.test(e.txt)) && PL.loss === 0;
   r.closedAndNext = PLOG.length===1 && PLOG[0].wave===42 && PL.wave===43;
   const t = plogText();
   r.textExport = /WAVE 42 - The Hecate/.test(t) && /died: beam/.test(t) && /timeline:/.test(t);
@@ -1734,6 +1721,7 @@ scenario('v163: M61 The Reconnaissance', 'm=61', `
   FS.until(()=>spawnT > 62*TICK_HZ, 8000, true);
   r.escalates = waveLive > live0;
   // The end: the Aeolus goes down, the Shivans jump out, the wave ends.
+  score = Math.max(score, 5000);       // v202: kills by others pay nothing now
   const s0 = score;
   const aa = FS.ids('A1')[0]; if(aa) aa.hp = 0;
   FS.step(40 + (aa ? deathRollLen(aa) : 0));      // v183: the long way
@@ -2911,7 +2899,7 @@ scenario('v194: DONE in hangar and support, model trim', 'm=26', `
   clearResumeHold();
   // keys in the support window (v194)
   const key = function(code){ document.dispatchEvent(new KeyboardEvent('keydown', {code:code})); };
-  for(const q in tickets) tickets[q] = 5;
+  score = 1e6;                // v202: support is paid in points
   const reset = function(){ allies.length = 0; setCallMenu(false); setShipMenu(false); clearResumeHold(); userPaused = false; syncPause(); };
   reset(); setCallMenu(true); let c0 = STATS.escortsCalled; key('KeyR');
   r.rCallsNotRearm = STATS.escortsCalled === c0+1 && !rearmMenu;
@@ -3014,7 +3002,8 @@ scenario('v199: every turret of the model with its FS weapon; a dying ward is lo
   r.sathAll = m.beams.length === 13 && m.primary.length === 22 && m.flak.length === 13 && m.secondary.length === 5;
   r.gunProfile = m.primary.every(p=>p.g && p.g.dmg > 0 && p.g.rate > 0);
   r.bfred = m.beams.filter(b=>b.wpn==='BFred').length === 4 && m.beams.some(b=>!b.large);
-  r.fenrisNoBeams = (mountsFor('crfenris').beams||[]).length === 0;
+  // v202: the FS2 Fenris (@GTC Fenris): one LTerSlash, two AAAf
+  r.fenrisBeams = (mountsFor('crfenris').beams||[]).length === 3;
   const e = {img:'sdsathanas', type:'boss', faction:'shivan'};
   r.capGun = capGun(e, 0) === m.primary[0].g;
   r.flakHas = flakHas({img:'sdsathanas', type:'boss'}) === true && flakHas({img:'deorionright', type:'destroyer'}) === false;
@@ -3070,6 +3059,71 @@ scenario('v201: NTF in 3D, turrets turn, shots over the ships, hit beyond the sp
   // shots: drawn after the ships; one from a far flank under its ship
   r.shots = typeof drawShots === 'function' && shotUnder({hidE:null}) === false;
   r.noBoxWithoutLoader = (f3dLoadBoxShow(), !document.querySelector('div[style*="z-index:50"]'));
+  try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
+  return r;`);
+
+scenario('v202: Fenris beams, points, calls, docked jumps, wingmen, AI fire', 'm=1', `
+  const r = {};
+  // Fenris: her FS2 table (@GTC Fenris) - one LTerSlash, two AAAf
+  const fm = mountsFor('crfenris');
+  r.fenrisBeams = !!(fm && fm.beams && fm.beams.length === 3 && fm.beams.filter(b => b.large).length === 1);
+  r.newKeys = ['sdhades','frtriton','trargo','inarcadia','gmrahu'].every(k => f3dKey({img:k}) === k) &&
+              f3dKey({img:'inknossosfront'}) === 'inknossos';
+  r.batches = typeof f3dFieldPrep === 'function' && typeof f3dFlush === 'function';
+  // M1: three Thoth fly with the player
+  FS.step(400);
+  const th = allies.filter(a => a.small && a.img === 'fitoth');
+  r.m1Wingmen = th.length === 3;
+  // points: hull the player takes off, shield paid when she dies
+  const e = enemies.find(o => o.type === 'fighter' && !(o.warp > 0));
+  r.haveFighter = !!e;
+  if(e){
+    e.sh = 10; e.maxSh = 10; e.hp = 40; e.maxHp = 40;
+    const s0 = score;
+    damageEnemy(e, 5, e.x, e.y, true, 'bolt');          // shield only
+    r.shieldNotYet = score === s0 && (e.shPts||0) >= 5;
+    damageEnemy(e, 20, e.x, e.y, true, 'bolt');         // 5 shield, 15 hull
+    r.hullPaidAtOnce = score - s0 >= 14 && score - s0 <= 16;
+    const s1 = score;
+    damageEnemy(e, 30, e.x, e.y, false, 'bolt');        // an ally finishes her
+    killEnemy(e, enemies.indexOf(e), false, false);
+    r.shieldOnKill = score - s1 === 10;
+  }
+  // a call costs her hull in points; what is left comes back
+  const id = 'vas_aten', cost = allyCost(id);
+  score = 0; r.cannotAfford = !allyAffordable(id);
+  score = cost + 500;
+  for(const a of allies.slice()) if(!a.small){ allies.splice(allies.indexOf(a), 1); }
+  allyCd = 0;
+  const ok = callAlly(id);
+  r.called = ok && score === 500;
+  const al = allies.find(a => a.callCost === cost);
+  if(al){ al.hp = 300; allyRefunds(); }
+  r.refund = !!al && score === 800;
+  // a ship taken is nobody's target (M38)
+  r.capturedSpared = escortSpares({captured:true});
+  // docked: one vortex, sized for the pair
+  const big = {img:'trargo', sc:0.5, x:400, y:300, warpOut:100, warpMax:160, side:'ally'};
+  const box = {img:'fcttc1', sc:0.5, x:400, y:340, warpOut:90, warpMax:160, carrier:big, side:'ally'};
+  allies.push(big, box);
+  tickDockWarp();
+  const g = fsWarp(box);
+  r.dockOneVortex = box._wLead === big && !!g && g.mem === true && box.warpOut === big.warpOut;
+  allies.splice(allies.indexOf(big), 1); allies.splice(allies.indexOf(box), 1);
+  // AI fire: every gun, paid from a store
+  const f = enemies.find(o => o.type === 'fighter') || allies.find(a => a.small);
+  if(f){
+    const lo = aiLoadout(f), pts = entMounts(f, 'primary');
+    if(lo && pts && pts.length){
+      f.enMax = null; f.mT = null;
+      const nb = eBullets.length + pBullets.length;
+      aiGunVolley(f, player, lo, pts, 0, null, 1);
+      r.allGuns = eBullets.length + pBullets.length - nb >= pts.length;
+      r.paysEnergy = f.en < f.enMax;
+    } else { r.allGuns = true; r.paysEnergy = true; }
+  }
+  // one hit per bolt in the log
+  if(PL){ const b = {}; const h0 = PL.hits; plogHit(b); plogHit(b); r.oneHitPerBolt = PL.hits === h0 + 1; }
   try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
   return r;`);
 

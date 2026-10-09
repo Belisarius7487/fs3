@@ -848,6 +848,7 @@ function drawEmpFX(){
 
 function drawDebris(){
   drawHulks();                     // the large sections of broken ships (v183)
+  try{ if(typeof f3dDrawHulks === 'function') f3dDrawHulks(); }catch(eh){}   // and their 3D debris (v202)
   for(const d of debris){
     const img = d.can || IMGS[d.key]; if(!img) continue;
     const w = d.sw*d.sc, h = d.sh*d.sc;
@@ -1417,7 +1418,9 @@ function smallFire(e, t){
     let off=aim-e.head;
     while(off> Math.PI) off-=Math.PI*2;
     while(off<-Math.PI) off+=Math.PI*2;
-    if(Math.abs(off)>EFIRE_CONE){ e.fT=12; return; }   // no bearing, check again soon
+    // no bearing: looked at again soon - the trigger goes down as soon as
+    // the target is in the cone (v202)
+    if(Math.abs(off)>EFIRE_CONE){ e.fT=4; return; }
   }
   const spread=ESPREAD_NEAR+(ESPREAD_FAR-ESPREAD_NEAR)*Math.min(1,d/fireRange());
   // Escort bolts go into the player's list so they hit enemies, enemy
@@ -1439,7 +1442,7 @@ function smallFire(e, t){
   const pts=entMounts(e,'primary');
   // Hulls with a loadout fire its guns, each mount on its own beat.
   const lo=aiLoadout(e);
-  if(lo && pts && pts.length){ e.fT=aiGunVolley(e, t, lo, pts, spread, onHull ? e.head : null, rk); return; }
+  if(lo && pts && pts.length){ e.fT=aiGunVolley(e, t, lo, pts, spread, onHull ? e.head : null, 1); return; }
   if(pts&&pts.length){
     const dpb=eVolleyDmg(pts.length)*rk;
     for(const p of pts) shot(p.x,p.y, aim+(Math.random()*2-1)*spread, dpb);
@@ -1617,6 +1620,8 @@ function targetAlive(e, o){
   if(!o) return false;
   if(o === player) return GS==='playing' && player.hp>0;
   if(o.dead) return false;
+  // v202: taken while the turret charged - the charge is dropped (M38)
+  if(e.side==='ally' && escortSpares(o)) return false;
   return (e.side==='ally' ? enemies : allies).indexOf(o) >= 0;
 }
 

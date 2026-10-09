@@ -124,6 +124,8 @@ const world = `
   function allyHull(d){ return capHull(HULL[d.cls]); }
   function allyReady(){ return true; }
   function allyAffordable(id){ return affordAll; }
+  // v202: support is paid in points
+  let score = 1e9; function allyCost(id){ return 1; }
   function mkAlly(id){ return {id:id}; }
   function initSubsystems(){}
   function assignStation(){}

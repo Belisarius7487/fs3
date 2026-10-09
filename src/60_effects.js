@@ -417,7 +417,9 @@ function triggerExplBody(x, y, shipType, faction, src) {
   // so nothing is forgotten when a sixth one is added.
   // A capital ship that has rolled breaks into sections of her own picture
   // instead of shedding random plates (v183).
-  if(src && !(src.rolled && dmgBreakup(src))) spawnWreck(src, shipType, x, y);
+  // v202: a ship drawn from her model breaks into her model's debris
+  if(src && !(typeof f3dBreakup === 'function' && f3dBreakup(src)) &&
+     !(src.rolled && dmgBreakup(src))) spawnWreck(src, shipType, x, y);
   // Hulls the mount data calls out for a big blast radius. The class
   // profile below still runs; this is the extra wave on top of it.
   if(src && BIG_BLAST[src.img]){
@@ -597,12 +599,10 @@ function launchGame(){
   // and are lost on game over.
   tickets={cruiser:TICKET_START.cruiser, corvette:TICKET_START.corvette,
            destroyer:TICKET_START.destroyer, colossus:TICKET_START.colossus};
-  // One of every class: the hangar needs a destroyer, the rearm panel a
-  // corvette, and the Colossus changes what both of them say.
-  if(UI_TICKETS){
-    tickets.cruiser+=1; tickets.corvette+=1;
-    tickets.destroyer+=1; tickets.colossus+=1;
-  }
+  // ?ui=1: points to call with from the start (v202: support costs points;
+  // the hangar needs a destroyer, the rearm panel a corvette)
+  if(UI_TICKETS) score += UI_START_PTS;
+  SCORE_FRAC = 0;
   ITEMS=[];ticketFlash=0;TICKET_MSGS=[];SUB_MSGS=[];BAR_PULSE={};forcedPrev='';
   player={x:80,y:H/2,ang:0,head:0,aimAng:0,flip:false,vx:0,vy:0,
           hp:100,maxHp:100,sh:100,maxSh:100,
@@ -657,7 +657,7 @@ function nextWave(){
   practiceTickets();
   protSaved=0; protLost=0;
   crossDone=0; crossTotal=0; commsCut=false; commsSeen=false;
-  enemies=[];eBullets=[];allies=[];debris=[];HULKS=[];empOut=0;allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;spawnQ=getWaveDef(wave);spawnT=0;
+  enemies=[];eBullets=[];allies=[];debris=[];HULKS=[];if(typeof F3D_HULKS!=='undefined')F3D_HULKS=[];empOut=0;allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;spawnQ=getWaveDef(wave);spawnT=0;
   plogStart();
   for(let i=0;i<allyWingWanted;i++){
     const a = mkAllySmall('fighter','terran',
@@ -705,7 +705,7 @@ function update(){
   if(GS==='title'){ fc++; tickStars(); tickNebula(); return; }
   sndTick();                          // freezes the sound while paused
   if(paused) return;                  // covers the settings panel too
-  fc++;tickStars();dmgEmitAll();tickParts();tickHulks();tickNebula();tickFinale();tickDanger();tickBlastFuses();
+  fc++;tickStars();dmgEmitAll();tickParts();tickHulks();if(typeof f3dTickHulks==='function')f3dTickHulks();tickNebula();tickFinale();tickDanger();tickBlastFuses();
   plogTick();
   // Der Abbau stand unter "if(GS!=='playing')return;". Nach einem Game
   // Over lief update() also nie mehr bis dorthin, waehrend draw() den
@@ -842,6 +842,7 @@ function update(){
   for(const o of enemies) if(o.img) clampToField(o);
   for(const o of allies)  if(o.img) clampToField(o);
   tickCarry();
+  tickDockWarp();
   reapEnemies();
   updateAsteroidImpacts();
   updateDebris();
@@ -983,11 +984,13 @@ function update(){
       // She made it: that is the whole objective of the wave.
       if(guardWanted && guardSpawned && !guardLost){
         guardWanted=false;
-        tickets[guardReward]=(tickets[guardReward]||0)+1;
-        ticketFlash=120; ticketFlashKind=guardReward;
-        // In the bar, where it lands - no longer in the middle of the field.
-        barPulse('ticket:'+guardReward);
+        // v202: points instead of a ticket - a hull's worth of her class
+        const gp = capHull(HULL[guardReward] || HULL.cruiser);
+        score += gp;
+        SUB_MSGS.push({x:W/2, y:H*0.3, txt:'ESCORT COMPLETE +'+gp, life:200, ml:200, ally:true, tone:'good'});
       }
+      // v202: what the called ships still have comes back
+      allyRefunds();
       waveOver=true;
       // The clearing beat stretches if escorts are still jumping out, the
       // jump itself always gets its full TRANS_OUT.

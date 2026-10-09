@@ -96,16 +96,13 @@ function fs1First(){
 // Uebungsmodus. Nur in der Kampagne: im Endlosmodus ist der Lebensverlust
 // die einzige Uhr, die laeuft.
 // Now in every mode, and ?practice=1 starts with it on. Lives are not
-// lost, and every ticket kind is topped up to PRACTICE_TICKETS at the
-// start of every wave - a test bench, not a way to play.
+// lost - a test bench, not a way to play. (Until v201 it also topped up
+// the support tickets; there are none since v202.)
 let practiceMode = /[?&]practice=1/.test(location.search);
 const PRACTICE_TICKETS = 10;
-function practiceTickets(){
-  if(!practiceMode) return;
-  for(const k of TICKET_ORDER) tickets[k] = Math.max(tickets[k]||0, PRACTICE_TICKETS);
-  // A top-up is no ticket earned.
-  if(PL) PL._tickets = Object.assign({}, tickets);
-}
+// v202: there are no tickets any more (support costs points); kept as a
+// no-op for its callers.
+function practiceTickets(){}
 
 // What the player is allowed to fly, checked against the command briefings
 // of Acts 1 and 2, where each of these is announced as new technology.
@@ -298,7 +295,8 @@ function buildFS1Wave(n){
 // drifted apart: the primary bolt path dropped pickups, the secondary path
 // did not. Adding the crossfire between hostile factions would have made a
 // third copy, so they are folded together here first.
-//   award  the player gets the points. False when one enemy kills another.
+//   award  (v202: no longer pays - the player is paid for his damage as it
+//          lands, damageEnemy). Kept for the death roll's bookkeeping.
 //   drop   pickups fall. Only from a kill the player earned.
 function killEnemy(e, idx, award, drop){
   if(!e || e.dead) return;
@@ -308,7 +306,7 @@ function killEnemy(e, idx, award, drop){
   if(e.rollT != null) return;
   e.dead = true;
   if(e.pickup) cargoLost(e);
-  if(award) score += e.pts;
+  payShieldPts(e);              // v202: her shield, shot down by the player
   statKill(e.type);
   plogKill(e);
   if(drop) maybeDropTicket(e);
@@ -777,6 +775,34 @@ function dropCargo(c){
   let k = allies.indexOf(c);  if(k>=0) allies.splice(k,1);
   k = enemies.indexOf(c);     if(k>=0) enemies.splice(k,1);
 }
+// v202: ships docked together jump through one vortex, as in FreeSpace
+// (Silvio). A freighter and her cargo, a boarding party and her prize:
+// while both are in the same jump, the larger one leads - her vortex is
+// sized for the pair and the other one comes and goes through it on the
+// same clock (fsWarp). A ship that jumps alone keeps her own vortex.
+function dockPartner(e){
+  if(e.carrier && unitAlive(e.carrier)) return e.carrier;
+  if(e.dockedOn && unitAlive(e.dockedOn)) return e.dockedOn;
+  return null;
+}
+function tickDockWarp(){
+  const all = enemies.concat(allies);
+  for(const e of all){ e._wLead = null; e._wMem = null; }
+  for(const m of all){
+    const p = dockPartner(m);
+    if(!p || m.dead) continue;
+    const out = m.warpOut>0 && p.warpOut>0, inn = m.warp>0 && p.warp>0;
+    if(!out && !inn) continue;
+    const im = IMGS[m.img], ip = IMGS[p.img];
+    const sm = im ? im.width*m.sc : 0, sp = ip ? ip.width*p.sc : 0;
+    const lead = sp >= sm ? p : m, mem = lead === p ? m : p;
+    if(mem._wLead || lead._wLead) continue;          // pairs only
+    mem._wLead = lead; (lead._wMem || (lead._wMem = [])).push(mem);
+    // the same clock: both come out / go in together
+    mem.warpMax = lead.warpMax;
+    if(out) mem.warpOut = lead.warpOut; else mem.warp = lead.warp;
+  }
+}
 function tickCarry(){
   for(const e of enemies.concat(allies)) if(e.dockedTo) carryCargo(e);
   for(const c of enemies.concat(allies))
@@ -853,7 +879,7 @@ function tickDocking(){
       t.carried = true; t.guard = false; t.scenery = true;
       e.hasCargo = true;
       carryCargo(e);
-    }
+    } else e.dockedOn = t;          // v202: docked to a ship (tickDockWarp)
     e.dockTo = null; e.dockRes = null;
     // A boarding party leaves with its prize: a jump, not a drive on.
     if(e.dockHold){
@@ -1322,6 +1348,7 @@ function testShip(){
 }
 const UI_SHIPS   = UI_SHIPS_MATCH ? parseInt(UI_SHIPS_MATCH[1],10) : 1;
 const UI_TICKETS = /[?&]ui=1/.test(location.search);
+const UI_START_PTS = 20000;     // v202: what ?ui=1 starts with, to call support
 // ?wpn=1 opens every weapon whatever the score. Separate from ?ui=1 on
 // purpose, so the locked rows can still be looked at with ui alone.
 const UI_WEAPONS = /[?&]wpn=1/.test(location.search);
@@ -1838,6 +1865,8 @@ function rollWave(n){
 // wait heisst: kommt nur, wenn ein Ereignis es einwarpen laesst.
 const SCRIPT_WAVES = {
   1: {name:'First Contact', fac:'hol', o:'clear', live:4, u:[
+       // v202: three Thoth fly with the player (Silvio, practice log v201)
+       {id:'W1', c:'fi', n:1, size:3, spr:'fitoth', side:'ally'},
        {id:'E1', c:'fi', n:3}
      ]},
 
@@ -1849,6 +1878,8 @@ const SCRIPT_WAVES = {
      ]},
 
   3: {name:'Reinforcements', fac:'hol', o:'clear', live:4, u:[
+       // v202: two wings of three Thoth on our side (Silvio)
+       {id:'W1', c:'fi', n:2, size:3, spr:'fitoth', side:'ally'},
        {id:'E1', c:'fi', n:2},
        {id:'K1', c:'cr', n:1, spr:'craten', wait:true},
        {id:'E2', c:'fi', n:1, wait:true}
@@ -1861,6 +1892,8 @@ const SCRIPT_WAVES = {
 
   6: {name:'Encounter', fac:'hol', o:'guard', live:5, u:[
        {id:'A1', c:'co', n:1, spr:'cosobek', side:'ally'},
+       // v202: two wings of three Thoth on our side (Silvio)
+       {id:'W1', c:'fi', n:2, size:3, spr:'fitoth', side:'ally'},
        {id:'V1', c:'co', n:1, spr:'cosobek'},
        {id:'E1', c:'fi', n:2},
        {id:'B1', c:'bo', n:1, wait:true}
