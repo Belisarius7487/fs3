@@ -604,12 +604,16 @@ function getMask(key){
 
 // Does this world point land on visible hull?
 // cx,cy = ship centre, sc = scale, flip = mirrored
-function onHull(key, cx, cy, sc, flip, wx, wy, ang){
+// o: the ship herself, when known (v204: her roll picks the map)
+function onHull(key, cx, cy, sc, flip, wx, wy, ang, o){
   const img = IMGS[key];
   if(!img) return true;                 // with no image, behave as before
   // v201: a ship drawn from her model is hit where the model is, also
   // beyond the sprite's box (MASKS3D, ky: the map's height in sprite heights)
-  const m3 = (typeof MASKS3D !== 'undefined' && !(typeof F3D !== 'undefined' && F3D.off)) ? MASKS3D[key] : null;
+  // v204: a small craft on the outline of her model as it is drawn, rolled
+  // and banked (f3dRollMask, 59_field3d.js)
+  const mr = (o && typeof f3dRollMask === 'function') ? f3dRollMask(key, o) : null;
+  const m3 = mr || ((typeof MASKS3D !== 'undefined' && !(typeof F3D !== 'undefined' && F3D.off)) ? MASKS3D[key] : null);
   const m = m3 || getMask(key);
   if(!m) return true;                   // no map available, do not block
   const pw = img.width*sc, ph = img.height*sc*(m.ky || 1);
@@ -650,18 +654,20 @@ function bulletOnHull(e, b){
   if(e.invuln && e.scenery) return false;
   const ea = e.ang || 0;
   const pr = probeAxis(b);
-  return onHull(e.img, e.x, e.y, e.sc, e.flip, b.x+pr[0], b.y+pr[1], ea)
-      || onHull(e.img, e.x, e.y, e.sc, e.flip, b.x,       b.y,       ea)
-      || onHull(e.img, e.x, e.y, e.sc, e.flip, b.x-pr[0], b.y-pr[1], ea);
+  return onHull(e.img, e.x, e.y, e.sc, e.flip, b.x+pr[0], b.y+pr[1], ea, e)
+      || onHull(e.img, e.x, e.y, e.sc, e.flip, b.x,       b.y,       ea, e)
+      || onHull(e.img, e.x, e.y, e.sc, e.flip, b.x-pr[0], b.y-pr[1], ea, e);
 }
 
 function bulletOnPlayer(b){
   const sc = playerSc(), fl = player.flip || false;
   const pa = player.ang || 0;
   const pr = probeAxis(b);
-  return onHull(player.ship, player.x, player.y, sc, fl, b.x+pr[0], b.y+pr[1], pa)
-      || onHull(player.ship, player.x, player.y, sc, fl, b.x,       b.y,       pa)
-      || onHull(player.ship, player.x, player.y, sc, fl, b.x-pr[0], b.y-pr[1], pa);
+  // v204: her model as it is drawn (F3D_PL, 59_field3d.js)
+  const po = (typeof F3D_PL !== 'undefined' && F3D_PL.img === player.ship) ? F3D_PL : null;
+  return onHull(player.ship, player.x, player.y, sc, fl, b.x+pr[0], b.y+pr[1], pa, po)
+      || onHull(player.ship, player.x, player.y, sc, fl, b.x,       b.y,       pa, po)
+      || onHull(player.ship, player.x, player.y, sc, fl, b.x-pr[0], b.y-pr[1], pa, po);
 }
 
 // ── DRAW SHIP ─────────────────────────────────────────────────
@@ -1781,6 +1787,9 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
   if(D.dirty && (fc - (D.built||-99) >= 3 || !D.can || D.k !== dmgK(e))) dmgBuild(e, D);
   const img = IMGS[e.img];
   const w = img.width*scale, h = img.height*scale;
+  // v204: drawn from her model the marks lie on the model (f3dDmgBind,
+  // 59_field3d.js); here only the pictures are kept up to date
+  if(e._gl3 === 2){ dmgFx(e, D, cx, cy, w, h, flipX, ang, true); return; }
   ctx.save();
   ctx.translate(cx|0, cy|0);
   if(ang) ctx.rotate(ang);
@@ -1839,8 +1848,8 @@ function dmgStamp(g, x, y, r, a){
 }
 // The glow on the hull: one small canvas over the damaged stretch,
 // refreshed every third frame and stamped every frame.
-function dmgFx(e, D, cx, cy, w, h, flipX, ang){
-  if(!D.gashes.length && !D.craters.length) return;
+function dmgFx(e, D, cx, cy, w, h, flipX, ang, only){
+  if(!D.gashes.length && !D.craters.length){ D.fxR = null; return; }
   const unit = Math.max(1, h/40);
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
   const take = function(u, v, r){
@@ -1871,6 +1880,9 @@ function dmgFx(e, D, cx, cy, w, h, flipX, ang){
     gl.globalCompositeOperation = 'source-over'; gl.globalAlpha = 1;
     D.fxT = fc;
   }
+  // where the layer lies in her box, for the model (v204)
+  D.fxR = {x0: x0, y0: y0, fw: fw, fh: fh, w: w, h: h};
+  if(only) return;
   ctx.save();
   ctx.translate(cx|0, cy|0);
   if(ang) ctx.rotate(ang);

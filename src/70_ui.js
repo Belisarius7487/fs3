@@ -80,7 +80,16 @@ function draw(){
     try{ f3dFlush(_f3seg); }catch(ef){ ctx.restore(); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }
     _f3seg = [];
   };
+  // v204: the 3D debris of a ship that broke up keeps her place in this
+  // order (Silvio: M11, the Typhon's pieces went behind the Arcadia)
+  const _hk = (typeof f3dHulksOn === 'function' && f3dHulksOn()) ? F3D_HULKS.slice().sort(function(a,b){ return b.fp - a.fp; }) : [];
+  let _hi = 0;
+  const _fpOf = function(o){ const im = IMGS[o.img]; return im ? im.width*o.sc*im.height*o.sc : 0; };
   for(const e of SHIPS_ON_FIELD){
+    if(_hi < _hk.length){
+      const fpe = _fpOf(e);
+      while(_hi < _hk.length && _hk[_hi].fp >= fpe) _f3seg.push({hulk: _hk[_hi++]});
+    }
     const _f3 = F3D_DONE && F3D_DONE.get(e);
     if(_f3){ _f3seg.push(_f3); continue; }
     _f3flush();
@@ -141,6 +150,7 @@ function draw(){
     }
     ctx.globalAlpha=1;
     }catch(ee){ctx.restore();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}}
+  while(_hi < _hk.length) _f3seg.push({hulk: _hk[_hi++]});
   _f3flush();
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
   drawShots(false);
@@ -233,7 +243,7 @@ function shotUnder(b){
   const e = b.hidE;
   if(!e) return false;
   if(e.dead || (allies.indexOf(e) < 0 && enemies.indexOf(e) < 0) ||
-     !onHull(e.img, e.x, e.y, e.sc, e.flip, b.x, b.y, e.ang||0)){ b.hidE = null; return false; }
+     !onHull(e.img, e.x, e.y, e.sc, e.flip, b.x, b.y, e.ang||0, e)){ b.hidE = null; return false; }
   return true;
 }
 function drawShots(under){

@@ -848,7 +848,7 @@ function drawEmpFX(){
 
 function drawDebris(){
   drawHulks();                     // the large sections of broken ships (v183)
-  try{ if(typeof f3dDrawHulks === 'function') f3dDrawHulks(); }catch(eh){}   // and their 3D debris (v202)
+  // (their 3D debris: in the ship loop since v204, 70_ui.js)
   for(const d of debris){
     const img = d.can || IMGS[d.key]; if(!img) continue;
     const w = d.sw*d.sc, h = d.sh*d.sc;
@@ -2024,7 +2024,7 @@ function hullTrace(o, mx, my, ang){
   let entry = null, exit = null;
   for(let t=from; t<=to; t+=step){
     const px = mx+ux*t, py = my+uy*t;
-    if(onHull(o.img, o.x, o.y, o.sc, o.flip, px, py, o.ang || 0)){
+    if(onHull(o.img, o.x, o.y, o.sc, o.flip, px, py, o.ang || 0, o)){
       if(!entry) entry = {x:px, y:py};
       exit = {x:px, y:py};
     }

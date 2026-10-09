@@ -23,9 +23,10 @@ const F3D_KEYS = ['crcain', 'crlilith', 'crrakshasa', 'comoloch', 'dedemon', 'de
   // freighters, transports, installations, gas miners and the Knossos
   'sdhades', 'scfaustus', 'mehippocrates', 'frasmodeus', 'frbast', 'frbes', 'frchronos', 'frdis', 'frmaat',
   'frmephisto', 'frposeidon', 'frsatis', 'frtriton', 'trargo', 'trazrael', 'trelysium', 'trisis',
-  'inarcadia', 'incommnode', 'inknossos', 'gmanuket', 'gmrahu', 'gmzephyrus'];
-// (the Pharos stays a sprite: the MediaVPs' nav buoy is not the station of
-// the game's picture)
+  'inarcadia', 'incommnode', 'inknossos', 'gmanuket', 'gmrahu', 'gmzephyrus',
+  // v204 (Silvio): the GTNB Pharos is the MediaVPs' nav buoy (navbuoy.pof),
+  // a mast with solar panels - the sprite shows her from the side
+  'inpharos'];
 // v203 (the 2.5D plan, step 2): the small craft as well - fighters and
 // bombers of every side, the player's hull, sentries, support ships,
 // escape pods and containers. They load their maps at 512 pixels (they are
@@ -265,11 +266,12 @@ function f3dInit(){
     const deriv = !!gl.getExtension('OES_standard_derivatives');
     gl.getExtension('OES_element_index_uint');
     const vs = 'attribute vec3 aP; attribute vec3 aN; attribute vec2 aT;'
-      + 'uniform mat4 uM; uniform mat4 uVP; varying vec3 vW; varying vec3 vN; varying vec2 vT;'
-      + 'void main(){ vec4 w = uM*vec4(aP,1.0); vW = w.xyz; vN = mat3(uM)*aN; vT = aT*3.99994-1.0; gl_Position = uVP*w; }';
+      + 'uniform mat4 uM; uniform mat4 uVP; varying vec3 vW; varying vec3 vN; varying vec2 vT; varying vec3 vP; varying vec3 vMN;'
+      + 'void main(){ vec4 w = uM*vec4(aP,1.0); vW = w.xyz; vN = mat3(uM)*aN; vT = aT*3.99994-1.0; vP = aP; vMN = aN; gl_Position = uVP*w; }';
     const fs = (deriv ? '#extension GL_OES_standard_derivatives : enable\n#define DERIV 1\n' : '')
-      + 'precision mediump float; varying vec3 vW; varying vec3 vN; varying vec2 vT;'
-      + 'uniform sampler2D tC; uniform sampler2D tN; uniform sampler2D tG;'
+      + 'precision mediump float; varying vec3 vW; varying vec3 vN; varying vec2 vT; varying vec3 vP; varying vec3 vMN;'
+      + 'uniform sampler2D tC; uniform sampler2D tN; uniform sampler2D tG; uniform sampler2D tD; uniform sampler2D tF;'
+      + 'uniform vec4 uDP; uniform vec3 uDD; uniform vec4 uFR; uniform float uFon;'
       + 'uniform float uHasN; uniform float uKind; uniform vec3 uCam; uniform vec3 uL1; uniform vec3 uL2;'
       + 'uniform vec3 uClip; uniform float uA; uniform vec3 uGA; uniform vec3 uGF;'
       + 'void main(){'
@@ -290,6 +292,14 @@ function f3dInit(){
       + ' if(uKind < 0.5){ vec2 gt = vT;'
       + '  if(uGF.z > 0.5) gt = (uGF.xy + clamp(fract(vT), vec2(uGA.z), vec2(1.0-uGA.z)))/uGA.xy;'
       + '  col += texture2D(tG, gt).rgb; }'
+      // v204: what she has taken, on her hull - the damage picture of her
+      // side view (20_render.js) laid onto the model across her flanks,
+      // faded where the plating turns away from the side
+      + ' if(uDP.w > 0.5){ vec2 su = vec2(0.5 + uDP.x*vP.z + uDP.y*vP.x, 0.5 + uDP.z*vP.y);'
+      + '  float fw = smoothstep(0.12, 0.45, abs(dot(normalize(vMN), uDD)));'
+      + '  if(su.x > 0.0 && su.x < 1.0 && su.y > 0.0 && su.y < 1.0){ vec4 m = texture2D(tD, su); col = mix(col, m.rgb, m.a*fw);'
+      + '   if(uFon > 0.5){ vec2 fu = (su - uFR.xy)/uFR.zw;'
+      + '    if(fu.x > 0.0 && fu.x < 1.0 && fu.y > 0.0 && fu.y < 1.0){ vec4 f = texture2D(tF, fu); col = mix(col, f.rgb, f.a*fw); } } } }'
       + ' gl_FragColor = vec4(col*uA, uA); }';
     const sh = function(t, src){ const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s);
       if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
@@ -299,7 +309,8 @@ function f3dInit(){
     if(!gl.getProgramParameter(pr, gl.LINK_STATUS)) return false;
     const loc = {};
     for(const a of ['aP', 'aN', 'aT']) loc[a] = gl.getAttribLocation(pr, a);
-    for(const u of ['uM', 'uVP', 'tC', 'tN', 'tG', 'uHasN', 'uKind', 'uCam', 'uL1', 'uL2', 'uClip', 'uA', 'uGA', 'uGF']) loc[u] = gl.getUniformLocation(pr, u);
+    for(const u of ['uM', 'uVP', 'tC', 'tN', 'tG', 'uHasN', 'uKind', 'uCam', 'uL1', 'uL2', 'uClip', 'uA', 'uGA', 'uGF',
+                    'tD', 'tF', 'uDP', 'uDD', 'uFR', 'uFon']) loc[u] = gl.getUniformLocation(pr, u);
     const px = function(r, g, b){ const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([r, g, b, 255])); return t; };
     F3D.white = px(160, 160, 160); F3D.black = px(0, 0, 0); F3D.flatN = px(128, 128, 255);
@@ -643,7 +654,7 @@ function f3dRender(items, warm){
   gl.uniformMatrix4fv(loc.uVP, false, cam.vp);
   gl.uniform3fv(loc.uCam, cam.eye);
   gl.uniform3fv(loc.uL1, f3dNorm(F3D_L1)); gl.uniform3fv(loc.uL2, f3dNorm(F3D_L2));
-  gl.uniform1i(loc.tC, 0); gl.uniform1i(loc.tN, 1); gl.uniform1i(loc.tG, 2);
+  gl.uniform1i(loc.tC, 0); gl.uniform1i(loc.tN, 1); gl.uniform1i(loc.tG, 2); gl.uniform1i(loc.tD, 3); gl.uniform1i(loc.tF, 4);
   const now = ((typeof performance !== 'undefined') ? performance.now() : Date.now())/1000;
   for(const it of items){
     const L = it.L;
@@ -659,6 +670,7 @@ function f3dRender(items, warm){
     let curNode = -1;
     gl.uniformMatrix4fv(loc.uM, false, M0);
     gl.uniform1f(loc.uA, it.a);
+    f3dDmgBind(it.deb != null ? null : it.e, L);
     // the clip of a ship sliding through her vortex (fsWarpClip), in the
     // field's own units with y turned up
     if(it.clip){ const c = it.clip; gl.uniform3f(loc.uClip, c.sg*c.fx, -c.sg*c.fy, -c.sg*(c.px*c.fx + c.py*c.fy)); }
@@ -695,6 +707,50 @@ function f3dRender(items, warm){
   }
   gl.disable(gl.BLEND);
   if(!warm) ctx.drawImage(can, 0, 0, W, H);
+}
+// ── DAMAGE ON THE MODEL (v204) ───────────────────────────────
+// Silvio (M38): the damage of a ship drawn from her model lies on her
+// model, under whatever is in front of her. The damage picture is still
+// made as before (dmgBuild: scoring, tears, craters, in the sprite's side
+// view; dmgFx: hot edges, fire, arcs), but handed to the graphics card and
+// laid onto the hull across her flanks: it turns with her and is hidden
+// by any hull in front.
+function f3dDmgTex(old, src){
+  const gl = F3D.gl;
+  const t = (old && old.gl === gl) ? old : {gl: gl, t: gl.createTexture(), w: 0, h: 0};
+  // uploaded on a unit of its own: the units 0-4 hold what is being drawn
+  gl.activeTexture(gl.TEXTURE5);
+  gl.bindTexture(gl.TEXTURE_2D, t.t);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return t;
+}
+function f3dDmgBind(e, L){
+  const gl = F3D.gl, loc = F3D.loc;
+  const D = e && e.dm, img = e && IMGS[e.img];
+  if(!D || !D.can || !D.gl3 || !img || !img.width || !L.head || F3D_ROLL[e.img]){
+    gl.uniform4f(loc.uDP, 0, 0, 0, 0); return;
+  }
+  // the marks: uploaded again when they were drawn again
+  if(!D.t3 || D.t3.gl !== gl || D.t3b !== D.built){ D.t3 = f3dDmgTex(D.t3, D.can); D.t3b = D.built; }
+  // model (normalised) -> the sprite's box, as f3dMat and f3dMounts place her
+  const vw = F3D_VIEW[e.img] || 0, cv = Math.cos(vw), sv = Math.sin(vw);
+  const sz = L.head.size, ext = L.head.ext;
+  const span = sz[2]*Math.abs(cv) + sz[0]*Math.abs(sv);
+  const sg = spriteFacing(e.img) === 'left' ? -1 : 1;
+  gl.uniform4f(loc.uDP, sg*cv*ext/span, sg*sv*ext/span, -ext*img.width/(span*img.height), 1);
+  gl.uniform3f(loc.uDD, cv, 0, -sv);
+  gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, D.t3.t);
+  const R = D.fxR;
+  if(D.fxL && R && R.w > 0){
+    if(!D.t4 || D.t4.gl !== gl || D.t4b !== D.fxT){ D.t4 = f3dDmgTex(D.t4, D.fxL); D.t4b = D.fxT; }
+    gl.uniform4f(loc.uFR, R.x0/R.w, R.y0/R.h, R.fw/R.w, R.fh/R.h);
+    gl.uniform1f(loc.uFon, 1);
+    gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, D.t4.t);
+  } else gl.uniform1f(loc.uFon, 0);
 }
 // ── MOVING PARTS (v201) ──────────────────────────────────────
 // Turrets turn to what they shoot at, as in FreeSpace: the base about its
@@ -843,6 +899,83 @@ function f3dVis(e){
   }
   return {x: e.x|0, y: e.y|0, a: a, g: null, clip: null};
 }
+// The model's side view as a hit map, in the sprite's box (as wide as the
+// sprite, as tall as the model is): sg the sprite's facing, rl the turn
+// about her length.
+function f3dBuildMask(L, img, sg, rl){
+  const hd = L.head;
+  // a hull turned about her length (F3D_ROLL) shows another height
+  const cr = Math.cos(rl), sr = Math.sin(rl);
+  const hy = Math.abs(cr)*hd.size[1] + Math.abs(sr)*hd.size[0];
+  const ky = Math.max(1, hy/hd.size[2]*img.width/img.height*1.02);
+  const f = Math.min(1, MASK_MAX/Math.max(img.width, img.height*ky));
+  const mw = Math.max(1, Math.round(img.width*f)), mh = Math.max(1, Math.round(img.height*ky*f));
+  const e = hd.ext/32767, s = mw/hd.size[2];
+  // v199b (Silvio: a few seconds of still picture at the start): filled
+  // here pixel by pixel instead of as one canvas path - a path of 90,000
+  // triangles held the Sathanas up for seconds. Each triangle sets the
+  // map cells whose centre it covers, at most a few dozen cells apiece.
+  const bits = new Uint8Array(mw*mh);
+  for(const pt of L.cpu){
+    const P = pt.pos, I = pt.idx;
+    for(let i = 0; i + 2 < I.length; i += 3){
+      const a = I[i]*3, b = I[i+1]*3, c3 = I[i+2]*3;
+      const ax = mw/2 + sg*P[a+2]*e*s, ay = mh/2 - (P[a+1]*cr + P[a]*sr)*e*s;
+      const bx = mw/2 + sg*P[b+2]*e*s, by = mh/2 - (P[b+1]*cr + P[b]*sr)*e*s;
+      const cx = mw/2 + sg*P[c3+2]*e*s, cy = mh/2 - (P[c3+1]*cr + P[c3]*sr)*e*s;
+      const ar = (bx-ax)*(cy-ay) - (by-ay)*(cx-ax);
+      const x0 = Math.max(0, Math.floor(Math.min(ax, bx, cx))), x1 = Math.min(mw-1, Math.ceil(Math.max(ax, bx, cx)));
+      const y0 = Math.max(0, Math.floor(Math.min(ay, by, cy))), y1 = Math.min(mh-1, Math.ceil(Math.max(ay, by, cy)));
+      if(x1 < x0 || y1 < y0) continue;
+      if(Math.abs(ar) < 1e-6){
+        // edge-on: a sliver still counts where it lies (thin spines)
+        bits[(Math.min(mh-1, Math.max(0, Math.round(ay))))*mw + Math.min(mw-1, Math.max(0, Math.round(ax)))] = 1;
+        continue;
+      }
+      const sgn = ar > 0 ? 1 : -1;
+      for(let y = y0; y <= y1; y++){
+        const py = y + 0.5;
+        for(let x = x0; x <= x1; x++){
+          const px = x + 0.5;
+          const w0 = ((bx-ax)*(py-ay) - (by-ay)*(px-ax))*sgn;
+          const w1 = ((cx-bx)*(py-by) - (cy-by)*(px-bx))*sgn;
+          const w2 = ((ax-cx)*(py-cy) - (ay-cy)*(px-cx))*sgn;
+          if(w0 >= 0 && w1 >= 0 && w2 >= 0) bits[y*mw + x] = 1;
+        }
+      }
+      // a triangle smaller than a cell still marks the cell it sits in
+      if(x1 - x0 <= 1 && y1 - y0 <= 1){
+        const mx = Math.min(mw-1, Math.max(0, Math.floor((ax+bx+cx)/3))), my = Math.min(mh-1, Math.max(0, Math.floor((ay+by+cy)/3)));
+        bits[my*mw + mx] = 1;
+      }
+    }
+  }
+  return {w: mw, h: mh, bits: bits, ky: ky, model: true};
+}
+// v204 (Silvio: a hull that turns is hit where she is): the small craft are
+// hit on their model's outline as it is drawn - one map per stage of her
+// roll, built when first asked for. Only while she is drawn from her model
+// (the sprite's map otherwise).
+const F3D_RSTEPS = 16;
+const F3D_RMASK = {};
+function f3dRollMask(key, o){
+  if(!o || F3D.off || o._f3fc == null || typeof fc === 'undefined' || fc - o._f3fc > 2) return null;
+  const k = F3D_ALIAS[key] || key;
+  if(!f3dSmall(k) || F3D_VIEW[key]) return null;
+  const m = F3D.models[k], L = m && m.lo;
+  const img = IMGS[key];
+  if(!L || L.state !== 'ready' || !L.cpu || !img || !img.width) return null;
+  const s = o._f3r, tw = 2*Math.PI;
+  let r = (s ? s.r + s.b : 0) + (F3D_ROLL[key] || 0);
+  r = ((r % tw) + tw) % tw;
+  const i = Math.round(r/tw*F3D_RSTEPS) % F3D_RSTEPS;
+  const A = F3D_RMASK[key] || (F3D_RMASK[key] = []);
+  if(A[i] === undefined){
+    try{ A[i] = f3dBuildMask(L, img, spriteFacing(key) === 'left' ? -1 : 1, i*tw/F3D_RSTEPS); }
+    catch(err){ A[i] = null; }
+  }
+  return A[i];
+}
 // v199 (Silvio: model and the old data do not always line up): a ship
 // drawn from her model is hit where her model is. The hit map of the sprite
 // (buildMask, 20_render.js) is replaced by the model's side view, drawn from
@@ -862,55 +995,7 @@ function f3dMask(skey, mkey){
   F3D_MASKED[skey] = true;
   if(F3D_VIEW[skey]) return;            // scenery seen face on keeps its sprite map (v202)
   try{
-    const hd = L.head;
-    // a hull turned about her length (F3D_ROLL) shows another height
-    const rl = F3D_ROLL[skey] || 0, cr = Math.cos(rl), sr = Math.sin(rl);
-    const hy = Math.abs(cr)*hd.size[1] + Math.abs(sr)*hd.size[0];
-    const ky = Math.max(1, hy/hd.size[2]*img.width/img.height*1.02);
-    const f = Math.min(1, MASK_MAX/Math.max(img.width, img.height*ky));
-    const mw = Math.max(1, Math.round(img.width*f)), mh = Math.max(1, Math.round(img.height*ky*f));
-    const e = hd.ext/32767, s = mw/hd.size[2];
-    const sg = spriteFacing(skey) === 'left' ? -1 : 1;
-    // v199b (Silvio: a few seconds of still picture at the start): filled
-    // here pixel by pixel instead of as one canvas path - a path of 90,000
-    // triangles held the Sathanas up for seconds. Each triangle sets the
-    // map cells whose centre it covers, at most a few dozen cells apiece.
-    const bits = new Uint8Array(mw*mh);
-    for(const pt of L.cpu){
-      const P = pt.pos, I = pt.idx;
-      for(let i = 0; i + 2 < I.length; i += 3){
-        const a = I[i]*3, b = I[i+1]*3, c3 = I[i+2]*3;
-        const ax = mw/2 + sg*P[a+2]*e*s, ay = mh/2 - (P[a+1]*cr + P[a]*sr)*e*s;
-        const bx = mw/2 + sg*P[b+2]*e*s, by = mh/2 - (P[b+1]*cr + P[b]*sr)*e*s;
-        const cx = mw/2 + sg*P[c3+2]*e*s, cy = mh/2 - (P[c3+1]*cr + P[c3]*sr)*e*s;
-        const ar = (bx-ax)*(cy-ay) - (by-ay)*(cx-ax);
-        const x0 = Math.max(0, Math.floor(Math.min(ax, bx, cx))), x1 = Math.min(mw-1, Math.ceil(Math.max(ax, bx, cx)));
-        const y0 = Math.max(0, Math.floor(Math.min(ay, by, cy))), y1 = Math.min(mh-1, Math.ceil(Math.max(ay, by, cy)));
-        if(x1 < x0 || y1 < y0) continue;
-        if(Math.abs(ar) < 1e-6){
-          // edge-on: a sliver still counts where it lies (thin spines)
-          bits[(Math.min(mh-1, Math.max(0, Math.round(ay))))*mw + Math.min(mw-1, Math.max(0, Math.round(ax)))] = 1;
-          continue;
-        }
-        const sgn = ar > 0 ? 1 : -1;
-        for(let y = y0; y <= y1; y++){
-          const py = y + 0.5;
-          for(let x = x0; x <= x1; x++){
-            const px = x + 0.5;
-            const w0 = ((bx-ax)*(py-ay) - (by-ay)*(px-ax))*sgn;
-            const w1 = ((cx-bx)*(py-by) - (cy-by)*(px-bx))*sgn;
-            const w2 = ((ax-cx)*(py-cy) - (ay-cy)*(px-cx))*sgn;
-            if(w0 >= 0 && w1 >= 0 && w2 >= 0) bits[y*mw + x] = 1;
-          }
-        }
-        // a triangle smaller than a cell still marks the cell it sits in
-        if(x1 - x0 <= 1 && y1 - y0 <= 1){
-          const mx = Math.min(mw-1, Math.max(0, Math.floor((ax+bx+cx)/3))), my = Math.min(mh-1, Math.max(0, Math.floor((ay+by+cy)/3)));
-          bits[my*mw + mx] = 1;
-        }
-      }
-    }
-    MASKS3D[skey] = {w: mw, h: mh, bits: bits, ky: ky, model: true};
+    MASKS3D[skey] = f3dBuildMask(L, img, spriteFacing(skey) === 'left' ? -1 : 1, F3D_ROLL[skey] || 0);
     // the hull's box is read off the map again (40_world.js)
     if(typeof SPR_BOX !== 'undefined') delete SPR_BOX[skey];
   }catch(err){ F3D.err = String(err && err.message || err); }
@@ -937,6 +1022,7 @@ function f3dFieldPrep(list){
 function f3dFlush(seg){
   const items = [];
   for(const s of seg){
+    if(s.hulk){ const hi = f3dHulkItem(s.hulk); if(hi) items.push(hi); continue; }
     const e = s.e;
     try{ drawVortexOf(e); }catch(ev){ ctx.restore(); }
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
@@ -956,6 +1042,7 @@ function f3dFlush(seg){
     try{ f3dRender(items); }catch(er){ F3D.err = String(er && er.message || er); }
   }
   for(const s of seg){
+    if(s.hulk) continue;
     try{ f3dShipTop(s.e); }catch(et){ ctx.restore(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
   }
 }
@@ -984,7 +1071,7 @@ function f3dShipTop(e){
   ctx.globalAlpha = 1;
 }
 function f3dDamage(e){
-  e._gl3 = true;
+  e._gl3 = 2;            // v204: the marks go onto the model (f3dDmgBind)
   try{ drawShipE(e, e.x|0, e.y|0, e.sc, e.flip, e.ang||0); }
   finally{ e._gl3 = false; }
 }
@@ -1025,6 +1112,9 @@ function f3dBreakup(e){
   if(!N) return false;
   const M0 = f3dMat(e, e.x, e.y, L), A0 = f3dM3(M0);
   const img = IMGS[e.img], span = img ? img.width*e.sc : 100;
+  // her place in the field's order (the footprint the ship loop sorts by):
+  // her pieces stay in her layer (v204, Silvio: M11)
+  const fp = img ? img.width*e.sc*img.height*e.sc : 0;
   const svx = (e.rvx != null ? e.rvx : (e._vx||0)), svy = (e.rvy != null ? e.rvy : (e._vy||0));
   let made = 0;
   for(let j = 1; j < N.length; j++){
@@ -1037,7 +1127,7 @@ function f3dBreakup(e){
     const push = (0.12 + 0.26*Math.random())*(1 - 0.5*mass);
     let ax = [Math.random()-0.5, Math.random()-0.5, Math.random()-0.5];
     const al = Math.hypot(ax[0], ax[1], ax[2]) || 1; ax = [ax[0]/al, ax[1]/al, ax[2]/al];
-    F3D_HULKS.push({L: L, j: j, pv: n.pv, A0: A0, x: x, y: y, z: z, r: rr,
+    F3D_HULKS.push({L: L, j: j, pv: n.pv, A0: A0, x: x, y: y, z: z, r: rr, fp: fp,
       vx: svx + dx/dl*push, vy: svy + dy/dl*push + (Math.random()-0.5)*0.05,
       ax: ax, w: (0.002 + Math.random()*0.006)*(1 - 0.6*mass)*(Math.random()<0.5 ? -1 : 1), a: 0,
       heat: 1, fac: e.faction,
@@ -1069,17 +1159,23 @@ function f3dTickHulks(){
     }
   }
 }
+// v204: the pieces as items of the ship loop's batches, each at the place of
+// the ship she came from (70_ui.js): in front of what lay behind her, behind
+// what lay in front.
+function f3dHulkItem(P){
+  if(!P.L || P.L.state !== 'ready') return null;
+  // T(pos) * R(tumble) * A0 * T(-pv)
+  const A = f3dMulA(f3dAxisRot(P.ax, P.a), P.A0);
+  const q = f3dMulV(A, P.pv);
+  const M = new Float32Array([A[0], A[1], A[2], 0, A[3], A[4], A[5], 0, A[6], A[7], A[8], 0,
+                              P.x - q[0], -P.y - q[1], P.z - q[2], 1]);
+  return {e: null, L: P.L, deb: P.j, M: M, a: 1, clip: null};
+}
+function f3dHulksOn(){ return F3D_HULKS.length > 0 && !F3D.off && f3dInit(); }
+// all of them at once (tests, older callers)
 function f3dDrawHulks(){
-  if(!F3D_HULKS.length || F3D.off || !f3dInit()) return;
+  if(!f3dHulksOn()) return;
   const items = [];
-  for(const P of F3D_HULKS){
-    if(!P.L || P.L.state !== 'ready') continue;
-    // T(pos) * R(tumble) * A0 * T(-pv)
-    const A = f3dMulA(f3dAxisRot(P.ax, P.a), P.A0);
-    const q = f3dMulV(A, P.pv);
-    const M = new Float32Array([A[0], A[1], A[2], 0, A[3], A[4], A[5], 0, A[6], A[7], A[8], 0,
-                                P.x - q[0], -P.y - q[1], P.z - q[2], 1]);
-    items.push({e: null, L: P.L, deb: P.j, M: M, a: 1, clip: null});
-  }
+  for(const P of F3D_HULKS){ const it = f3dHulkItem(P); if(it) items.push(it); }
   if(items.length){ try{ f3dRender(items); }catch(er){ F3D.err = String(er && er.message || er); } }
 }

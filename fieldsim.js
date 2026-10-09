@@ -3174,6 +3174,50 @@ scenario('v203: small craft in 3D, armed freighters, scans under fire, FS2 AI ar
   try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
   return r;`);
 
+scenario('v204: hit on the model as drawn, damage on the model, debris in its layer, Pharos', 'm=1', `
+  const r = {};
+  // a flat plate, wide across (x) and thin (y), 4 long (z): side on it is a
+  // thin strip, rolled a quarter turn it is as tall as it is wide
+  const Q = 32767;
+  const pos = new Int16Array([ -Q,-Q/10,-Q,  Q,-Q/10,-Q,  Q,Q/10,Q,  -Q,Q/10,Q,  -Q,Q/10,-Q,  Q,Q/10,-Q ]);
+  const idx = new Uint16Array([0,1,2, 0,2,3, 0,4,2, 1,5,2]);
+  const L = {state:'ready', head:{size:[4,0.4,4], ext:2}, cpu:[{pos:pos, idx:idx}]};
+  const img = document.createElement('canvas'); img.width = 80; img.height = 20;
+  const m0 = f3dBuildMask(L, img, 1, 0), m90 = f3dBuildMask(L, img, 1, Math.PI/2);
+  r.rolledTaller = m90.ky > m0.ky * 2;
+  // the roll picks the map: a point above the sprite's box hits only rolled
+  const key = 'fimyrmidon', keep = IMGS[key], keepM = F3D.models[key], keepOff = F3D.off;
+  IMGS[key] = img; F3D.models[key] = {lo: L, full: L}; F3D.off = false;
+  const o = {img:key, x:300, y:200, sc:1, flip:false, ang:0, _f3fc: fc, _f3r: {r:0, b:0}};
+  const hitFlat = onHull(key, 300, 200, 1, false, 300, 200 - 25, 0, o);
+  o._f3r = {r:Math.PI/2, b:0};
+  const hitRolled = onHull(key, 300, 200, 1, false, 300, 200 - 25, 0, o);
+  const oldFc = o._f3fc; o._f3fc = fc - 10;
+  const hitStale = onHull(key, 300, 200, 1, false, 300, 200 - 25, 0, o);
+  r.rollMask = hitFlat === false && hitRolled === true && hitStale === false;
+  r.stages = (F3D_RMASK[key] || []).filter(Boolean).length >= 2;
+  IMGS[key] = keep; if(keepM) F3D.models[key] = keepM; else delete F3D.models[key]; F3D.off = keepOff; delete F3D_RMASK[key];
+  // damage of a ship drawn from her model: kept up to date, not painted in 2D
+  const cap = enemies.find(e => !e.small && e.type !== 'asteroid') || allies.find(a => !a.small);
+  if(cap){
+    cap.dm = null; cap.hp = cap.maxHp * 0.4;
+    try{ dmgPreset(cap); }catch(ex){}
+    const D = cap.dm;
+    if(D){
+      const di = ctx.drawImage; let n = 0; ctx.drawImage = function(){ n++; return di.apply(ctx, arguments); };
+      D.dirty = true; D.built = -99;
+      cap._gl3 = 2; try{ drawShipE(cap, cap.x, cap.y, cap.sc, cap.flip, cap.ang||0); } finally { cap._gl3 = false; ctx.drawImage = di; }
+      r.dmgNot2D = n === 0 && !!D.can && D.gl3 === true;
+    } else r.dmgNot2D = true;
+  } else r.dmgNot2D = true;
+  r.dmgBind = typeof f3dDmgBind === 'function';
+  // debris items carry their ship's place
+  r.hulkItems = typeof f3dHulkItem === 'function' && typeof f3dHulksOn === 'function';
+  // the Pharos is drawn from her model
+  r.pharos3d = f3dKey({img:'inpharos'}) === 'inpharos' && !f3dSmall('inpharos');
+  try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();
