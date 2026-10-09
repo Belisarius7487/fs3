@@ -26,11 +26,31 @@ const F3D_KEYS = ['crcain', 'crlilith', 'crrakshasa', 'comoloch', 'dedemon', 'de
   'inarcadia', 'incommnode', 'inknossos', 'gmanuket', 'gmrahu', 'gmzephyrus'];
 // (the Pharos stays a sprite: the MediaVPs' nav buoy is not the station of
 // the game's picture)
+// v203 (the 2.5D plan, step 2): the small craft as well - fighters and
+// bombers of every side, the player's hull, sentries, support ships,
+// escape pods and containers. They load their maps at 512 pixels (they are
+// small on the field), keep the hit maps of their sprites and turn in 3D:
+// where the sprite was mirrored the hull rolls half round her length, and
+// she banks into her turns (f3dTurnRoll).
+const F3D_SMALL = ['boamun', 'boartemisdh', 'boboanerges', 'bonahema', 'bonephilim', 'boseraphim', 'boshaitan', 'botaurvi', 'bozeus',
+  'ephermes', 'epra', 'fcmeson', 'fcsac3', 'fcsc5', 'fctac1', 'fctc2', 'fctctri', 'fctsc2', 'fcttc1', 'fcvac4', 'fcvac5', 'fcvc3',
+  'fiaeshma', 'fianubis', 'fiastaroth', 'fibasilisk', 'fidragon', 'filoki', 'fimanticore', 'fiscorpion',
+  'sgalastor', 'sgankh', 'sgbelial', 'sgcerberus', 'sgtrident', 'sgwatchdog', 'sucentaur', 'suhygeia', 'sunephthys', 'suscarab',
+  // the player's hulls (flown by the AI as well)
+  'fitoth', 'fihorus', 'boosiris', 'fiserapis', 'fiseth', 'bobakha', 'fitauret', 'bosekhmet', 'fiptah', 'fimyrmidon',
+  'fiperseus', 'fiherc', 'boartemis', 'fihercmk2', 'bomedusa', 'fierinyes', 'boursa', 'fiares', 'fipegasus', 'fiulysses',
+  'fiapollo', 'fivalyrie', 'boathena', 'fimara'];
+const F3D_SMALLSET = new Set(F3D_SMALL);
+for(const k of F3D_SMALL) F3D_KEYS.push(k);
+function f3dSmall(key){ return F3D_SMALLSET.has(key); }
 const F3D_ALIAS = {deorionleft: 'deorionright', inknossos45deg: 'inknossos', inknossosfront: 'inknossos'};
 // v202: hulls not seen from the side - the turn about the vertical from the
 // side view (radians). The Knossos sprites show her face on and at 45
 // degrees; the Arcadia and the Unknown Device are seen from the front.
-const F3D_VIEW = {inknossosfront: Math.PI/2, inknossos45deg: Math.PI/4, inarcadia: Math.PI/2, incommnode: Math.PI/2};
+const F3D_VIEW = {inknossosfront: Math.PI/2, inknossos45deg: Math.PI/4, inarcadia: Math.PI/2, incommnode: Math.PI/2,
+  // v203: small craft whose sprites show another side (silsmall.py): the
+  // Meson bomb is drawn stern first, the SC 5 face on
+  fcmeson: Math.PI, fcsc5: Math.PI/2};
 // and the turn about her own length (radians), should a picture need it
 const F3D_ROLL = {};
 // v198: animated glow maps, as the MediaVPs have them (Silvio: the Ravana's
@@ -149,7 +169,7 @@ const F3D_GUNS = {
   trisis:{"primary":[[0.038,-0.157,0.002,0.0,1.0,0.0,"Mekhu HL-7",0],[0.573,0.384,0.002,0.0,-1.0,0.0,"Mekhu HL-7",1]],"thr":[[-0.96,-0.108,0.0239]]},
   inarcadia:{"primary":[[0.05,-0.394,-0.724,0.0,1.0,0.0,"Terran Turret",0],[-0.434,-0.371,-0.685,0.0,0.88,-0.48,"Terran Turret",1],[0.057,0.262,-0.61,-0.09,-1.0,0.0,"Terran Turret",2],[-0.366,0.255,-0.657,-0.09,-1.0,-0.0,"Terran Turret",3],[-0.56,-0.354,0.047,-0.0,0.0,-1.0,"Terran Turret",4],[0.271,-0.335,0.047,0.0,0.0,1.0,"Terran Turret",5],[0.19,-1.046,0.018,0.0,1.0,0.0,"Terran Turret",6],[-0.238,0.582,0.14,0.0,-0.71,-0.71,"Terran Turret",7],[0.175,1.046,0.135,0.0,-1.0,-0.0,"Terran Turret",8],[-0.271,0.026,1.398,0.0,1.0,0.0,"Terran Turret",9],[-0.271,0.172,1.403,0.0,-1.0,-0.0,"Terran Turret",10],[-0.934,0.026,0.423,0.0,1.0,0.0,"Terran Turret",11],[0.793,-0.027,1.079,0.0,1.0,0.0,"Terran Turret",12],[0.792,0.176,1.079,0.0,-1.0,-0.0,"Terran Turret",13],[-0.935,0.177,0.421,0.0,-1.0,-0.0,"Terran Turret",14],[0.318,-0.017,-0.636,0.0,-0.04,1.0,"Terran Turret",15],[-0.541,-0.156,-0.588,-0.03,-0.04,-1.0,"Terran Turret",16],[-0.386,-0.063,-1.406,-1.0,-0.04,-0.0,"Terran Turret",17],[0.079,-0.063,-1.429,-1.0,-0.04,-0.0,"Terran Turret",18]],"secondary":[[0.243,-0.526,0.043,-0.0,0.17,0.98,"FighterKiller",19],[-0.259,-0.503,0.091,0.0,0.87,-0.5,"FighterKiller",20],[0.073,-0.229,-1.254,-0.5,0.87,-0.0,"FighterKiller",21],[-0.35,0.103,-1.246,-0.6,-0.8,0.01,"FighterKiller",22],[-0.269,0.105,1.463,1.0,-0.0,0.0,"FighterKiller",23]]},
   gmanuket:{"primary":[[-0.352,0.152,-0.0,0.0,-1.0,0.0,"Vasudan Turret Weak",0],[-0.4,0.012,0.083,0.72,0.56,-0.42,"Vasudan Turret Weak",2],[0.135,0.014,-0.09,-0.81,0.35,-0.48,"Subach HL-7",3],[0.135,0.014,0.09,0.81,0.35,-0.48,"Subach HL-7",4]],"flak":[[-0.4,0.012,-0.083,-0.72,0.56,-0.42,"Standard Flak",1]],"thr":[[-0.738,0.065,0.0057],[-0.74,0.08,0.0068]]},
-  gmrahu:{"thr":[[-0.815,-0.001,0.1431]]},
+  gmrahu:{"primary":[[0.315,0.023,-0.205,-0.8,0.0,0.6,"Shivan Heavy Laser",0],[0.315,0.023,0.205,0.8,0.0,0.6,"Shivan Heavy Laser",1],[0.753,0.164,0.0,0.0,-0.45,0.89,"Shivan Heavy Laser",2]],"thr":[[-0.815,-0.001,0.1431]]},
   gmzephyrus:{"primary":[[0.608,-0.229,-0.0,0.0,1.0,0.0,"Terran Turret Weak",0],[-0.592,-0.101,-0.188,-0.98,0.21,0.01,"Terran Turret Weak",2],[0.536,0.129,0.0,0.0,-1.0,0.0,"Subach HL-7",3],[-0.559,-0.148,0.0,0.0,0.0,-1.0,"Subach HL-7",4]],"flak":[[-0.592,-0.101,0.188,0.98,0.21,0.01,"Standard Flak",1]],"thr":[[-0.777,-0.139,0.019],[-0.773,-0.022,0.0159],[-0.758,-0.199,0.0072]]}
 };
 const F3D_MNT = {};
@@ -506,7 +526,7 @@ function f3dPreloadBar(){
 function f3dModel(key){
   let m = F3D.models[key];
   if(!m){
-    const L = f3dLevel(key, 'full', 1024);
+    const L = f3dLevel(key, 'full', f3dSmall(key) ? 512 : 1024);
     m = F3D.models[key] = {lo: L, full: L};
   }
   return m;
@@ -526,7 +546,7 @@ function f3dMat(e, x, y, L){
   const sz = L.head.size, span = sz[2]*Math.abs(Math.cos(vw)) + sz[0]*Math.abs(Math.sin(vw));
   const s = w/Math.max(0.01, span/L.head.ext);
   const a = -(e.ang||0), ca = Math.cos(a), sa = Math.sin(a), cy = Math.cos(yaw), sy = Math.sin(yaw);
-  const rl = F3D_ROLL[e.img];
+  const rl = (F3D_ROLL[e.img] || 0) + (f3dSmall(F3D_ALIAS[e.img] || e.img) ? f3dTurnRoll(e) : 0);
   if(rl){
     // translate * rotZ(a) * rotY(yaw) * roll about the bow * scale (v202)
     const A = f3dMulA(f3dMulA([ca, sa, 0, -sa, ca, 0, 0, 0, 1], [cy, 0, -sy, 0, 1, 0, sy, 0, cy]),
@@ -540,6 +560,61 @@ function f3dMat(e, x, y, L){
     -s*sa,   s*ca,    0,     0,
     s*ca*sy, s*sa*sy, s*cy,  0,
     x,       -y,      0,     1]);
+}
+// v203: how far a small craft is rolled about her length. The sprite was
+// mirrored when her nose came round past the vertical (poseFor, KEEP_UPRIGHT);
+// a mirrored side view is the hull rolled half round her length, so the
+// model rolls through that half turn instead (about a third of a second),
+// the way her heading turns. And she banks while she turns, a little,
+// so her back or her belly shows.
+const F3D_ROLL_RATE = Math.PI/0.32;                       // rad/s
+const F3D_BANK_K = 0.30, F3D_BANK_MAX = 0.65, F3D_BANK_TAU = 0.12;
+function f3dTurnRoll(e){
+  const now = f3dNow()/1000, fl = !!e.flip, h = (e.ang || 0) + (fl ? Math.PI : 0);
+  let s = e._f3r;
+  if(!s){ s = e._f3r = {fl: fl, h: h, t: now, r: 0, b: 0}; return 0; }
+  const dt = Math.max(0, Math.min(0.1, now - s.t)); s.t = now;
+  let dh = h - s.h; s.h = h;
+  while(dh > Math.PI) dh -= 2*Math.PI; while(dh < -Math.PI) dh += 2*Math.PI;
+  if(fl !== s.fl){
+    s.fl = fl;
+    // the picture is the same hull rolled by pi: start from there and roll
+    // back, the way she is turning
+    let r = s.r + Math.PI;
+    while(r > Math.PI) r -= 2*Math.PI; while(r < -Math.PI) r += 2*Math.PI;
+    if(Math.abs(Math.abs(r) - Math.PI) < 0.3) r = (dh >= 0 ? 1 : -1)*Math.abs(r);
+    s.r = r;
+  }
+  if(s.r){
+    const st = F3D_ROLL_RATE*dt;
+    s.r = Math.abs(s.r) <= st ? 0 : s.r - Math.sign(s.r)*st;
+  }
+  if(dt > 0){
+    const bw = f3dBow(e);
+    const want = Math.max(-F3D_BANK_MAX, Math.min(F3D_BANK_MAX, F3D_BANK_K*bw*dh/dt));
+    s.b += (want - s.b)*(1 - Math.exp(-dt/F3D_BANK_TAU));
+  }
+  return s.r + s.b;
+}
+// The player's hull, drawn from her model (70_ui.js): one object that keeps
+// her roll and is handed to the break-up when she dies. False: draw the
+// sprite.
+const F3D_PL = {img: null, sc: 1, flip: false, ang: 0, x: 0, y: 0, faction: 'terran', player: true};
+function f3dPlayer(key, x, y, sc, flip, ang, a){
+  if(F3D.off || typeof document === 'undefined') return false;
+  const k = f3dKey({img: key}); if(!k) return false;
+  const L = f3dReadyLevel(k); if(!L) return false;
+  const P = F3D_PL;
+  if(P.img !== key){ P.img = key; P._f3r = null; P._f3n = null; }
+  P.sc = sc; P.flip = !!flip; P.ang = ang || 0; P.x = x; P.y = y;
+  if(typeof player !== 'undefined'){ P.rvx = player.vx || 0; P.rvy = player.vy || 0; }
+  P._f3fc = (typeof fc !== 'undefined') ? fc : 0;
+  const ga = ctx.globalAlpha;
+  ctx.globalAlpha = 1;
+  try{ f3dRender([{e: P, L: L, x: x, y: y, a: ga, clip: null}]); }
+  catch(er){ F3D.err = String(er && er.message || er); ctx.globalAlpha = ga; return false; }
+  ctx.globalAlpha = ga;
+  return true;
 }
 function f3dVP(){
   const D = (H/2)/Math.tan(F3D_FOV/2), asp = W/H, f = 1/Math.tan(F3D_FOV/2);
@@ -572,6 +647,11 @@ function f3dRender(items, warm){
   const now = ((typeof performance !== 'undefined') ? performance.now() : Date.now())/1000;
   for(const it of items){
     const L = it.L;
+    // v203: every ship on her own depth - drawn in the field's order (the
+    // big ones first), each lies wholly in front of the ones before it, as
+    // the sprites did; two hulls never cut into each other (Silvio: M11,
+    // M38, M54, M78)
+    gl.clear(gl.DEPTH_BUFFER_BIT);
     const M0 = it.M || f3dMat(it.e, it.x, it.y, L);
     // v201: moving parts - one matrix per node (turret bases, barrels,
     // spinning dishes), the hull's own for node 0
@@ -848,7 +928,7 @@ function f3dFieldPrep(list){
   for(const e of list){
     const key = f3dKey(e); if(!key) continue;
     const L = f3dReadyLevel(key); if(!L) continue;
-    if(!F3D_MASKED[e.img]) f3dMask(e.img, key);
+    if(!F3D_MASKED[e.img] && !f3dSmall(key)) f3dMask(e.img, key);
     e._f3fc = (typeof fc !== 'undefined') ? fc : 0;
     done.set(e, {e: e, L: L});
   }
@@ -938,6 +1018,7 @@ function f3dAxisRot(u, a){
 function f3dBreakup(e){
   // drawn from her model: a key and a loaded model (not f3dOn - the game
   // may run steps between two pictures)
+  if(e && e.player && !e.ang && F3D_PL.img === e.img) e = F3D_PL;   // the player (60_effects.js)
   if(!e || e._f3fc == null) return false;
   const key = f3dKey(e), L = key ? f3dReadyLevel(key) : null;
   const N = L && L.head && L.head.nodes;
@@ -960,7 +1041,8 @@ function f3dBreakup(e){
       vx: svx + dx/dl*push, vy: svy + dy/dl*push + (Math.random()-0.5)*0.05,
       ax: ax, w: (0.002 + Math.random()*0.006)*(1 - 0.6*mass)*(Math.random()<0.5 ? -1 : 1), a: 0,
       heat: 1, fac: e.faction,
-      next: fc + Math.round(TICK_HZ*(2 + Math.random()*4.5))});
+      // a small craft's pieces burn out sooner (v203)
+      next: fc + Math.round(TICK_HZ*(f3dSmall(key) ? 0.8 + Math.random()*2.2 : 2 + Math.random()*4.5))});
     made++;
   }
   return made > 0;

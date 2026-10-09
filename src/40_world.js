@@ -2030,7 +2030,8 @@ function playerOnly(o){
   // Marked with a TAG it is fair game for our ships too (v170, M67).
   if(o.tagT > 0) return false;
   if(o.type==='container') return true;
-  return o.type==='freighter' && !WPN[o.type];
+  // v203: a freighter that fights back is fair game for the escorts too
+  return o.type==='freighter' && !freighterArmed(o);
 }
 
 // Ships the escorts leave alone because the mission wants them whole:

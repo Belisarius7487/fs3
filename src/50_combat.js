@@ -2275,8 +2275,19 @@ const WPN = {
   station:   {rate:[260,420], big:0.30,
               sec:{type:'missile', rate:[520,860], dmg:16, spd:2.6, turn:0.026}},
   boss:      {rate:[80,140],  big:0.38,
-              sec:{type:'missile', rate:[280,470], dmg:20, spd:2.8, turn:0.028}}
+              sec:{type:'missile', rate:[280,470], dmg:20, spd:2.8, turn:0.028}},
+  // v203 (Silvio): freighters, transports and gas miners fight with what
+  // their model and table give them, as in FreeSpace - at a cruiser's beat
+  freighter: {rate:[110,190], big:0,
+              sec:{type:'missile', rate:[460,760], dmg:14, spd:2.6, turn:0.026}}
 };
+// Does a freighter carry any guns at all (model turrets or mount lists)?
+// One without stays a target only the player may shoot (playerOnly).
+function freighterArmed(e){
+  const m = e && mountsFor(e.img);
+  return !!(m && ((m.primary && m.primary.length) || (m.beams && m.beams.length) ||
+                  (m.flak && m.flak.length) || (m.secondary && m.secondary.length)));
+}
 
 function rndR(r){ return (r[0] + Math.random()*(r[1]-r[0]))|0; }
 
@@ -2627,6 +2638,8 @@ function turretTick(o, isPlayer){
 // Freighters that carry guns (the gas miners): their primary mounts fire
 // like a slow cruiser battery, at allied capital ships first, else the
 // player. No missiles and no flak - they are working ships.
+// Until v202 only these three fired, from freighterGuns(); since v203 every
+// armed freighter fires through capitalFire() (Silvio: as in FreeSpace).
 const FREIGHTER_GUNS = {gmzephyrus:1, gmanuket:1, gmrahu:1};
 const FREIGHTER_GUN_RATE = [150, 240];
 function freighterGuns(e){

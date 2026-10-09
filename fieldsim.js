@@ -1411,19 +1411,22 @@ scenario('v158: arms of the other ships', 'm=52', `
   FS.step(30);
   const mk = (img, type, side, x, y) => { const o = {type:type, img:img, sc:0.3, x:x, y:y, ang:Math.PI, head:Math.PI, flip:false,
       side:side, faction:side==='ally'?'terran':'ntf', hp:100, maxHp:100, fR:100, fT:0, warp:0}; return o; };
-  // An enemy Perseus fires Subach bolts with the Subach's reach.
+  // An enemy Perseus fires both her FS2 banks, Subach and Prometheus R (v203).
   player.x = 300; player.y = 250; eBullets.length = 0;
   const pe = mk('fiperseus', 'fighter', 'enemy', 500, 250);
   smallFire(pe, player);
-  r.subachReach = eBullets.length > 0 && eBullets.every(b => b.eLife > 0);
-  // A Myrmidon: a cone of pellets from one mount, bolts from the others.
+  r.subachReach = eBullets.some(b => b.col === priDef('subach').col) && eBullets.some(b => b.col === priDef('promr').col);
+  // A Myrmidon: a cone of pellets from one mount, bolts from the others
+  // (a Sidhe given by hand since v203: the FS2 banks carry none).
   eBullets.length = 0;
   const my = mk('fimyrmidon', 'fighter', 'enemy', 500, 250);
+  my._lo = {p:['scatter', 'hl7', 'hl7'], s:'tornado'};
   smallFire(my, player);
   r.myrmidonMixed = eBullets.length === 7 + 2;
   // An Ares fires Dante shells that burst into shrapnel at range.
   eBullets.length = 0;
   const ar = mk('fiares', 'fighter', 'enemy', 700, 250);
+  ar._lo = {p:'dante', s:'infyrno'};     // by hand since v203
   smallFire(ar, player);
   const shell = eBullets.find(b => b.dfuse);
   r.danteShell = !!shell;
@@ -1447,7 +1450,7 @@ scenario('v158: arms of the other ships', 'm=52', `
   eBullets.length = 0;
   const he = mk('fiherc', 'fighter', 'enemy', 520, 250);
   player.x = 300; player.y = 250;
-  aiSecondary(he, 520, 250, aiLoadout(he), WPN.fighter.sec);
+  aiSecondary(he, 520, 250, {p:'promr', s:'infyrno'}, WPN.fighter.sec);   // v203: no fighter carries one by default
   let burst = false;
   for(let i=0;i<200 && !burst;i++){ player.x = 300; player.y = 250; update(); burst = eBullets.some(b => b.shard); }
   r.enemyInfyrnoBursts = burst;
@@ -1455,13 +1458,13 @@ scenario('v158: arms of the other ships', 'm=52', `
   pBullets.length = 0;
   const ah = mk('fiherc', 'fighter', 'ally', 200, 250);
   const tg = mk('fimyrmidon', 'fighter', 'enemy', 420, 250); tg.hp = 1e6; enemies.push(tg);
-  aiSecondary(ah, 200, 250, aiLoadout(ah), WPN.fighter.sec);
+  aiSecondary(ah, 200, 250, {p:'promr', s:'infyrno'}, WPN.fighter.sec);
   r.escortRoundNotPlayers = liveBurstRound() === null;
   let ab = false;
   for(let i=0;i<200 && !ab;i++){ tg.x = 420; tg.y = 250; update(); ab = pBullets.some(b => b.shard && b.ally); }
   r.escortInfyrnoBursts = ab;
   // Shivans fly their own lasers (since v161).
-  r.shivanOwn = aiLoadout({img:'fibasilisk', faction:'shivan'}).p === 'shh';
+  r.shivanOwn = String(aiLoadout({img:'fibasilisk', faction:'shivan'}).p) === 'shm,shh';   // v203: FS2 banks
   // Capital guns see the player in the nebula when he comes close.
   const wm = waveMod; waveMod = 'nebula';
   const cg = {x:500, y:250};
@@ -1621,8 +1624,8 @@ scenario('v161: capital turrets, point defence, Shivan arms, colours, portal jum
   // Shivan fighters: red lasers, the Mega one heavy and short.
   const sh = {type:'fighter', img:'fimanticore', faction:'shivan'};
   const bo = {type:'bomber', img:'bonephilim', faction:'shivan'};
-  r.shivanLoadouts = aiLoadout(sh).p === 'shh' && aiLoadout(bo).p === 'shm' && aiLoadout(bo).pair === true;
-  r.megaLaser = priDef('shm').range > 0 && priDef('shm').dmg === 2 && /^#ff/.test(priDef('shm').col);
+  r.shivanLoadouts = aiLoadout(sh).p === 'shm' && aiLoadout(bo).p === 'shl' && aiLoadout(bo).pair === true;   // v203: FS2 banks
+  r.megaLaser = priDef('shm').range > 0 && priDef('shm').dmg === 30/18 && /^#ff/.test(priDef('shm').col);
   r.nephilimTurret = !!(mountsFor('bonephilim').turret && mountsFor('boseraphim').turret);
   // Flak is the Dante.
   eBullets.length = 0; flakBurst(400, 250, false, 'ntf');
@@ -3124,6 +3127,50 @@ scenario('v202: Fenris beams, points, calls, docked jumps, wingmen, AI fire', 'm
   }
   // one hit per bolt in the log
   if(PL){ const b = {}; const h0 = PL.hits; plogHit(b); plogHit(b); r.oneHitPerBolt = PL.hits === h0 + 1; }
+  try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
+  return r;`);
+
+scenario('v203: small craft in 3D, armed freighters, scans under fire, FS2 AI arms', 'm=1', `
+  const r = {};
+  // small craft and the player's hulls are 3D keys, loaded at 512
+  r.smallKeys = ['fiaeshma','bonephilim','sgcerberus','sucentaur','ephermes','fctac1','fitoth','fimyrmidon'].every(k => f3dKey({img:k}) === k && f3dSmall(k));
+  r.capsStay = !f3dSmall('crfenris') && !f3dSmall('sgmjolnir');
+  // the turn: a mirrored picture becomes a half roll, gone after ~0.3 s
+  const e = {img:'fimyrmidon', ang:0, flip:false, sc:0.3};
+  f3dTurnRoll(e);
+  e.flip = true; e.ang = Math.PI - 0.2;
+  e._f3r.t -= 0.016;
+  const r0 = f3dTurnRoll(e);
+  r.rollStarts = Math.abs(Math.abs(r0) - Math.PI) < 0.4;
+  for(let i = 0; i < 30; i++){ e._f3r.t -= 0.016; f3dTurnRoll(e); }
+  r.rollEnds = Math.abs(e._f3r.r) < 1e-6 && Math.abs(e._f3r.b) < 0.1;
+  // the hangar keeps its levels for small hulls
+  r.hangarLevels = typeof m3dDraw === 'function';
+  // armed freighters: a Rahu has guns and is no player-only target
+  const rh = {type:'freighter', img:'gmrahu', x:500, y:250, hp:1000, maxHp:1000, faction:'shivan', side:'enemy', warp:0};
+  r.rahuArmed = freighterArmed(rh) === true && playerOnly(rh) === false;
+  const tc = {type:'freighter', img:'frchronos', x:500, y:250, hp:1000, maxHp:1000, faction:'ntf', side:'enemy', warp:0};
+  r.freighterWpn = !!WPN.freighter;
+  // scanning: a hit does not set it back, only leaving the range
+  const sc = {type:'freighter', img:'frposeidon', x:player.x + 40, y:player.y, hp:1000, maxHp:1000, scan:true, scanT:0, faction:'ntf', side:'enemy', warp:0};
+  enemies.push(sc);
+  for(let i = 0; i < 20; i++){ tickScan(); if(i === 10){ player.hitT = 30; if(typeof hullFlash !== 'undefined') hullFlash = 7; } }
+  r.scanUnderFire = sc.scanT === 20;
+  sc.x = player.x + SCAN_R + 200; tickScan();
+  r.scanDecays = sc.scanT < 20;
+  enemies.splice(enemies.indexOf(sc), 1);
+  // the AI's arms: FS2 default banks
+  r.aiFs2 = String(aiLoadout({img:'fiperseus'}).p) === 'subach,promr' && aiLoadout({img:'fitoth'}).p === 'promr' &&
+            aiLoadout({img:'fiseth'}).p === 'mekhu' && aiLoadout({img:'boursa'}).pair === true && aiLoadout({img:'boursa'}).s === 'cyclops';
+  r.aiArsenalGun = priDef('subach').key === 'subach' && priDef('mekhu').en > 0;
+  // a fighter with two banks fires both, each paid from the store
+  const f = {type:'fighter', img:'fiperseus', x:600, y:250, side:'enemy', faction:'ntf', hp:100, maxHp:100};
+  const pts = [{x:600, y:245}, {x:600, y:255}];
+  eBullets.length = 0;
+  aiGunVolley(f, player, aiLoadout(f), pts, 0, null, 1);
+  r.twoBanks = eBullets.length === 2 && Object.keys(f.mT).length === 2;
+  // the player's break-up uses the hull last drawn in 3D
+  r.playerObj = typeof f3dPlayer === 'function' && F3D_PL.player === true;
   try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
   return r;`);
 

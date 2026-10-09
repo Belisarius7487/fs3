@@ -8,7 +8,7 @@
 const M3D_BASE    = 'models/';
 // v195: raised whenever the model files change, so neither the browser nor
 // Cloudflare hands out the old ones from its cache.
-const M3D_REV     = 202;
+const M3D_REV     = 203;
 const M3D_FOV     = 30 * Math.PI / 180;
 const M3D_SPIN    = 0.6;          // rad/s while the pointer is on the picture
 const M3D_YAW0    = 1.22;         // at rest: starboard side, bow to the right, a little of the bow
@@ -105,6 +105,10 @@ function m3dLevel(key, tag, size){
     L.head = head;
     const want = {};
     for(const p of head.parts){
+      // v203: the debris pieces (v202) sit inside the hull; only a ship
+      // breaking up shows them (Silvio: flicker in the support window)
+      const pn = head.nodes && p.node ? head.nodes[p.node] : null;
+      if(pn && pn.k === 'deb') continue;
       const mk = function(target, from, bytes){ const b = gl.createBuffer(); gl.bindBuffer(target, b);
         gl.bufferData(target, new Uint8Array(data, from, bytes), gl.STATIC_DRAW); return b; };
       L.parts.push({kind:p.kind, tex:(p.tex||'').toLowerCase(), n:p.ni, big:p.big,
@@ -188,7 +192,8 @@ function m3dDraw(key, x, y, w, h, o){
   // v196: a capital ship has a 'full' level (every part of the finest
   // level, 59_field3d.js) and takes it right away: the coarser levels show
   // black patches where the finest one has its detail parts (Silvio: Orion).
-  const cap = typeof F3D_KEYS !== 'undefined' && F3D_KEYS.indexOf(key) >= 0;
+  // (v203: the small craft are in F3D_KEYS too; here they keep their levels)
+  const cap = typeof F3D_KEYS !== 'undefined' && F3D_KEYS.indexOf(key) >= 0 && !(typeof f3dSmall === 'function' && f3dSmall(key));
   if((cap || Math.max(o.zoom||1, M3D_VIEW.zoomT||1) >= M3D_ZOOM_HI) && !m.hi) m.hi = m3dLevel(key, cap ? 'full' : 'hi', 1024);
   const L = (m.hi && m.hi.state === 'ready') ? m.hi : m.lo;
   if(L.state !== 'ready') return false;

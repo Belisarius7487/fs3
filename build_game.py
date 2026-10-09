@@ -477,8 +477,11 @@ def model_files(root="models"):
         d = os.path.join(root, key)
         if not os.path.isfile(os.path.join(d, "full.bin.gz")):
             continue
+        # v203: the small craft (fighters, bombers, sentries, support
+        # ships, pods, containers) take their 512 px maps on the field
+        small = key[:2] in ("fi", "bo", "ep", "fc", "su") or (key[:2] == "sg" and key != "sgmjolnir")
         for fn in sorted(os.listdir(d)):
-            if fn == "full.bin.gz" or fn.endswith("1024.webp"):
+            if fn == "full.bin.gz" or fn.endswith("512.webp" if small else "1024.webp"):
                 st = os.stat(os.path.join(d, fn))
                 out.append(["models/%s/%s" % (key, fn), st.st_size, "%d-%d" % (int(st.st_mtime), st.st_size)])
     print("Modelle fuer die Ladeseite: %d Dateien, %.1f MB" % (len(out), sum(f[1] for f in out) / 1048576.0))

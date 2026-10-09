@@ -1256,10 +1256,16 @@ function update(){
       if(e.warp>0){ e.warp--; e.x-=0.3; continue; }
       // Leaving after a dock: through the vortex, then gone.
       if(e.warpOut>0){ e.warpOut--; if(e.warpOut<=0) enemies.splice(i,1); continue; }
+      // v203: armed as in FreeSpace (also on her way to a dock) - turrets, beams, flak, launchers
+      if(freighterArmed(e) && !e.captured){
+        if(e.beams === undefined){ e.beams = null; initBeams(e); }
+        if(!e.gunT) initWeapons(e);
+        capitalFire(e);
+        if(e.beams && e.dockTo) updateBeams(e);   // the loop's own call is skipped then
+      }
       // On its way to a dock tickDocking() does the driving, and a
       // transport with a job does not turn and run when shot at.
       if(e.dockTo) continue;
-      if(FREIGHTER_GUNS[e.img]) freighterGuns(e);
       // Being shot at, not damage, is what sends it running. The first
       // version asked whether the hull was below maximum, which a drifting
       // asteroid answers just as well as a laser: in the test the freighter
@@ -1298,7 +1304,14 @@ function update(){
     else if(e.type==='station'){
       // An armed installation fires until its guns are out or it is
       // taken. The unarmed ones are scenery or targets and stay quiet.
-      if(e.armed && !e.captured) capitalFire(e);
+      // v203 (Silvio, as in FreeSpace): every installation with guns fires,
+      // not only the ones a mission marks armed - scenery and the
+      // untouchable ones excepted
+      if((e.armed || (!e.invuln && !e.scenery && freighterArmed(e))) && !e.captured){
+        if(e.beams === undefined){ e.beams = null; initBeams(e); }
+        if(!e.gunT) initWeapons(e);
+        capitalFire(e);
+      }
     }
     else if(e.type==='corvette'||e.type==='destroyer'){
       if(e.warp>0){e.warp--;e.x-=0.2;continue;}

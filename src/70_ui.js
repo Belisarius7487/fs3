@@ -158,7 +158,9 @@ function draw(){
       // A Ptah nobody can see is drawn faint (v170). Not a Mara in
       // disguise: she is in plain sight, only taken for one of theirs.
       if(player.ship===PTAH_HULL && !playerSeen()) ctx.globalAlpha = 0.45 + 0.1*Math.sin(fc*0.1);
-      drawShip(player.ship,player.x|0,player.y|0,playerSc()*_js,_pf,player.ang||0);
+      // v203: her model, when it has loaded (59_field3d.js)
+      if(!(typeof f3dPlayer === 'function' && f3dPlayer(player.ship,player.x|0,player.y|0,playerSc()*_js,_pf,player.ang||0)))
+        drawShip(player.ship,player.x|0,player.y|0,playerSc()*_js,_pf,player.ang||0);
       ctx.globalAlpha = 1;
       if(_js>=1) drawPlayerShield();
       drawJumpVortex();

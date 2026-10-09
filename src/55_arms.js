@@ -4,6 +4,12 @@
 // the game, chosen by what the hull is for (the notes in the mount data,
 // agreed with Silvio). The Vasudans call the Subach the Mekhu. The Shivans
 // keep their own guns and missiles.
+// v203 (Silvio: the AI with its FS2 arsenal): the primaries are the default
+// banks of the hull in the FS2 ships.tbl (FS1 for the FSPort hulls, their
+// FS1 guns mapped as for the player, 56_banks.js), every bank at once; the
+// fighters' missile is their first secondary bank, on the AI's own
+// launchers. Bombers keep their bomb: the table's defaults give most of
+// them none, the missions hand them one (genailo.py).
 //
 // An AI weapon keeps the character of the player's version - beat, speed,
 // reach, spread, shrapnel, guidance - on the AI's own, lower damage scale:
@@ -13,33 +19,30 @@
 // p: primary, or one per mount (the Myrmidon mixes a Sidhe with two
 // Subachs); s: secondary; pair: two bombs at once (heavy bombers).
 const LOADOUT = {
-  // Interceptors: quick guns, missiles that spread over several targets.
-  fiperseus:{p:'hl7', s:'tornado'}, fiserapis:{p:'hl7', s:'tornado'}, fivalyrie:{p:'hl7', s:'tornado'},
-  // Light and stealth fighters.
-  fianubis:{p:'hl7', s:'mx64'}, fihorus:{p:'hl7', s:'mx64'}, fipegasus:{p:'hl7', s:'mx64'},
-  fiptah:{p:'hl7', s:'mx64'}, filoki:{p:'hl7', s:'mx64'},
-  // Space superiority.
-  fimyrmidon:{p:['scatter', 'hl7', 'hl7'], s:'tornado'},
-  fiulysses:{p:'prometheus', s:'tornado'}, fiapollo:{p:'prometheus', s:'tornado'}, fitoth:{p:'prometheus', s:'tornado'},
-  // Heavy assault.
-  fiherc:{p:'prometheus', s:'infyrno'}, fihercmk2:{p:'prometheus', s:'infyrno'}, fiseth:{p:'prometheus', s:'infyrno'},
-  // Heavy fighters with a slow beat.
-  fiares:{p:'dante', s:'infyrno'}, fierinyes:{p:'dante', s:'infyrno'}, fitauret:{p:'dante', s:'infyrno'},
-  // Light bombers: into the subsystems of capital ships.
-  boathena:{p:'hl7', s:'stiletto'}, bozeus:{p:'hl7', s:'stiletto'}, boartemisdh:{p:'hl7', s:'stiletto'},
-  // Medium bombers.
-  boartemis:{p:'prometheus', s:'cyclops'}, bomedusa:{p:'prometheus', s:'cyclops'}, bobakha:{p:'prometheus', s:'cyclops'},
-  // Heavy bombers: two bombs at once.
-  boursa:{p:'hl7', s:'cyclops', pair:true}, boboanerges:{p:'hl7', s:'cyclops', pair:true},
-  boosiris:{p:'hl7', s:'cyclops', pair:true}, bosekhmet:{p:'hl7', s:'cyclops', pair:true},
-  boamun:{p:'hl7', s:'cyclops', pair:true},
-  // Shivans (v161, agreed with Silvio): their own lasers, the same
-  // missiles and bombs as everyone else, in Shivan red.
-  fiaeshma:{p:'shl', s:'mx64'}, fiscorpion:{p:'shl', s:'mx64'},
-  fiastaroth:{p:'shl', s:'tornado'}, fidragon:{p:'shl', s:'tornado'},
-  fibasilisk:{p:'shh', s:'tornado'}, fimara:{p:'shh', s:'mx64'}, fimanticore:{p:'shh', s:'infyrno'},
-  boshaitan:{p:'shh', s:'stiletto'}, bonahema:{p:'shh', s:'cyclops'}, botaurvi:{p:'shh', s:'cyclops'},
-  bonephilim:{p:'shm', s:'cyclops', pair:true}, boseraphim:{p:'shm', s:'cyclops', pair:true}
+  // Terran and Vasudan fighters.
+  fiperseus:{p:['subach', 'promr'], s:'mx64'}, fiserapis:{p:['promr', 'akheton'], s:'mx64'},
+  fivalyrie:{p:['subach', 'proms'], s:'mx64'}, fianubis:{p:'subach', s:'mx64'},
+  fihorus:{p:['mekhu', 'morningstar'], s:'mx64'}, fipegasus:{p:'subach', s:'mx64'},
+  fiptah:{p:'mekhu', s:'mx64'}, filoki:{p:['subach', 'promr'], s:'mx64'},
+  fimyrmidon:{p:['promr', 'subach'], s:'mx64'}, fiulysses:{p:['subach', 'promr'], s:'mx64'},
+  fiapollo:{p:['promr', 'subach'], s:'mx64'}, fitoth:{p:'promr', s:'mx64'},
+  fiherc:{p:['subach', 'promr'], s:'mx64'}, fihercmk2:{p:['subach', 'promr'], s:'mx64'},
+  fiseth:{p:'mekhu', s:'mx64'}, fiares:{p:['subach', 'promr'], s:'mx64'},
+  fierinyes:{p:['subach', 'promr'], s:'mx64'}, fitauret:{p:'mekhu', s:'mx64'},
+  // Terran and Vasudan bombers; the heavy ones drop two bombs at once.
+  boathena:{p:['promr', 'morningstar'], s:'stiletto'}, bozeus:{p:'promr', s:'stiletto'},
+  boartemisdh:{p:'subach', s:'cyclops'}, boartemis:{p:'subach', s:'cyclops'},
+  bomedusa:{p:'promr', s:'cyclops'}, bobakha:{p:'mekhu', s:'stiletto'},
+  boursa:{p:'promr', s:'cyclops', pair:true}, boboanerges:{p:'promr', s:'cyclops', pair:true},
+  boosiris:{p:'mekhu', s:'stiletto', pair:true}, bosekhmet:{p:'promr', s:'cyclops', pair:true},
+  boamun:{p:['kayser', 'promr'], s:'cyclops', pair:true},
+  // Shivans: their own lasers, the same missiles and bombs as everyone else, in Shivan red.
+  fiaeshma:{p:['shm', 'shh'], s:'mx64'}, fiscorpion:{p:['shl', 'shh'], s:'mx64'},
+  fiastaroth:{p:'shm', s:'mx64'}, fidragon:{p:'shh', s:'mx64'},
+  fibasilisk:{p:['shm', 'shh'], s:'mx64'}, fimara:{p:['shm', 'shh'], s:'mx64'},
+  fimanticore:{p:'shm', s:'mx64'}, boshaitan:{p:['shl', 'shh'], s:'stiletto'},
+  bonahema:{p:['shl', 'shh'], s:'cyclops'}, botaurvi:{p:['shl', 'shh'], s:'cyclops'},
+  bonephilim:{p:'shl', s:'cyclops', pair:true}, boseraphim:{p:'shl', s:'cyclops', pair:true}
 };
 // The lasers of Shivan fighters and bombers (wiki data from Silvio), on the
 // scale of the player's guns: the Heavy Laser is the Prometheus. The Light
@@ -52,11 +55,14 @@ const AI_PRIMARIES = {
        col:'#ccff88', glow:'rgba(180,255,80,0.30)'},
   hl7:{key:'hl7', name:'Mekhu HL-7', nameTer:'Subach HL-7', dmg:0.62, rate:0.60, spd:10.5, range:330,
        col:'#bfe9ff', glow:'rgba(120,200,255,0.30)'},
-  shl:{key:'shl', name:'Shivan Light Laser', dmg:0.53, rate:0.6, spd:8.5, range:0,
+  // v203: FS2's weapons.tbl values, on the player's scale (56_banks.js):
+  // damage against the Prometheus R's 18, fire wait, speed and energy as
+  // they are
+  shl:{key:'shl', name:'Shivan Light Laser', dmg:8/18, wait:18, rate:18/28, spd:9, en:0.30, range:0,
        col:'#ff7a5a', glow:'rgba(255,70,40,0.34)'},
-  shh:{key:'shh', name:'Shivan Heavy Laser', dmg:1.00, rate:1.0, spd:9,   range:0,
+  shh:{key:'shh', name:'Shivan Heavy Laser', dmg:15/18, wait:30, rate:30/28, spd:9.5, en:0.40, range:0,
        col:'#ff4a30', glow:'rgba(255,40,20,0.38)'},
-  shm:{key:'shm', name:'Shivan Mega Laser',  dmg:2.00, rate:1.5, spd:7.6, range:420,
+  shm:{key:'shm', name:'Shivan Mega Laser',  dmg:30/18, wait:45, rate:45/28, spd:8, en:0.90, range:420,
        col:'#ff2a14', glow:'rgba(255,30,10,0.46)', heavy:true}
 };
 function aiLoadout(e){
@@ -139,7 +145,7 @@ function aiGunVolley(e, t, lo, pts, spread, ahead, rk){
       }
     }
     const p0 = pts[banks[k][0]];
-    sndStart(PRI_SND[w.key] || 'wpn_prometheus', p0.x, 1, false, 'ai_fire', p0.y);
+    sndStart(PRI_SND[w.key] || w.snd || 'wpn_prometheus', p0.x, 1, false, 'ai_fire', p0.y);
   }
   return next === Infinity ? 6 : Math.max(1, next);
 }

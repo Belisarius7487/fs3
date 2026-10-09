@@ -348,9 +348,8 @@ function disableDone(){
 
 // ── SCANNING ─────────────────────────────────────────────────
 // Proximity plus dwell. No new control: fly close, stay there, a ring
-// fills. Taking a hit stops the fill, which is what makes a quiet wave
-// tense instead of slow. player.shDelay is set to 90 on any hit and is
-// therefore the signal that already exists for "under fire right now".
+// fills. Until v202 taking a hit stopped the fill; since v203 only leaving
+// the range does, as in FreeSpace (Silvio: freighters fire back now).
 const SCAN_R    = 110;     // px, a little over two ship lengths
 const SCAN_TIME = 210;     // steps at 100 Hz, so 2.1 s of undisturbed dwell
 const SCAN_DECAY = 2;      // lost per step when out of range or under fire
@@ -363,7 +362,9 @@ function tickScan(){
   for(const e of enemies){
     if(!e.scan || e.scanned || e.dead) continue;
     const d = Math.hypot(player.x-e.x, player.y-e.y);
-    if(d<=SCAN_R && (scanUnderFire || player.shDelay<=0)){
+    // v203 (Silvio, as in FreeSpace): being hit does not stop a scan, only
+    // leaving the range does
+    if(d<=SCAN_R){
       e.scanT = (e.scanT||0)+1;
       sndScanStep(e, e.x, e.y, true);
       if(e.scanT>=SCAN_TIME){
@@ -402,7 +403,7 @@ function tickSubScan(){
     }
     for(const s of e.subs){
       if(s.scanned) continue;
-      if(s===best && player.shDelay<=0){ s.scanT++; sndScanStep(s, e.x, e.y, true); }
+      if(s===best){ s.scanT++; sndScanStep(s, e.x, e.y, true); }   // v203: hits do not stop it
       else if(s.scanT>0){ s.scanT = Math.max(0, s.scanT-SCAN_DECAY); if(s.scanT<=0) sndScanStep(s, 0, 0, false); }
       if(s.scanT >= SUB_SCAN_TIME){
         s.scanned = true; score += 100;
