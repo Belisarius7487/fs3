@@ -53,7 +53,7 @@ function capGunShot(e, x, y, ang, g, ally, pd, hidE){
   const n = (g.big && CAP_TRIPLE.test(e.img)) ? 3 : 1;
   for(let k=0;k<n;k++){
     const a = ang + (n>1 ? (k-1)*0.07 : 0);
-    const sp = ally ? g.aspd : g.spd;
+    const sp = (ally ? g.aspd : g.spd)*TEMPO_K;     // v209: TEMPO_K
     if(ally){
       pBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
         w:g.big?13:11, h:g.big?13:4, dmg:g.admg, ally:true, fac:e.faction, cap:true,
@@ -70,7 +70,7 @@ function capGunShot(e, x, y, ang, g, ally, pd, hidE){
 // The blob turrets are the best defence against bombs there is: a bomb on
 // its way in is shot at before anything else. Both sides do it (Silvio),
 // the enemy ships at the player's bombs and the escorts' too.
-const PD_RANGE = 240;
+const PD_RANGE = 240*TEMPO_K;     // v209: reach as in v207 on the screen
 function pdTarget(e, p, ally){
   let best = null, bd = PD_RANGE*PD_RANGE;
   if(ally){
@@ -119,7 +119,7 @@ function drawLaser(b, core, glow, hot){
     // Muzzle flash: the first time it is seen. Not for a round from a far
     // flank (v201): the flash would sit on top of the hull that hides it.
     if(PARTS.length < LASER_SPARK_CAP && !b.hidE){
-      PARTS.push({x:bx, y:by, vx:0, vy:0, life:5, ml:0, sz:b.w*0.45+1.5, clr:hot});
+      PARTS.push({x:bx, y:by, vx:0, vy:0, life:5, ml:0, sz:Math.min(b.w, 21)*0.45+1.5, clr:hot});   // v209: sz is drawn times fxG()
       for(let k=0;k<1;k++){
         const a = ang + (Math.random()-0.5)*1.2, s = 0.8 + Math.random()*1.4;
         PARTS.push({x:bx, y:by, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
@@ -127,7 +127,10 @@ function drawLaser(b, core, glow, hot){
       }
     }
   }
-  const len = Math.max(b.w, 6), wid = Math.max(b.h, 3);
+  // v209: as long as it flies (its box already is, see pShootWith), at
+  // least its v207 length on the screen; as thick as in v207 (fxG)
+  const G = fxG(), spd = Math.hypot(b.vx, b.vy);
+  const len = Math.max(b.w, Math.min(b.w*G, spd*1.4), 6*G), wid = Math.max(b.h, 3)*G;
   ctx.save();
   ctx.translate(bx|0, by|0);
   ctx.rotate(ang);

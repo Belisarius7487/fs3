@@ -641,13 +641,13 @@ function drawShocks(){
 
     // Breiter warmer Schimmer hinter der Front.
     ctx.strokeStyle='rgba(255,'+((205-80*t)|0)+','+((140-105*t)|0)+','+(a*0.55).toFixed(3)+')';
-    ctx.lineWidth=Math.max(2, 13*(1-t));
+    ctx.lineWidth=Math.max(2, 13*(1-t))*fxG();     // v209
     ctx.beginPath(); ctx.arc(s.x,s.y,Math.max(1,s.r-5),0,Math.PI*2); ctx.stroke();
 
     // Der harte Vorderrand. Duenn, fast weiss, und er bleibt duenn -
     // genau das hat vorher gefehlt.
     ctx.strokeStyle='rgba(255,253,244,'+(a*0.95).toFixed(3)+')';
-    ctx.lineWidth=t<0.5?2.6:2.0;
+    ctx.lineWidth=(t<0.5?2.6:2.0)*fxG();
     ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.stroke();
 
     // Funkenwurf auf der Front.
@@ -658,7 +658,7 @@ function drawShocks(){
       const ca=Math.cos(p.a), sa=Math.sin(p.a);
       const len=p.l*(0.4+0.6*(1-t));
       ctx.strokeStyle='rgba(255,'+((240-60*t)|0)+','+((190-140*t)|0)+','+(a*0.8).toFixed(3)+')';
-      ctx.lineWidth=p.w;
+      ctx.lineWidth=p.w*fxG();
       ctx.beginPath();
       ctx.moveTo(s.x+ca*rr, s.y+sa*rr);
       ctx.lineTo(s.x+ca*(rr+len), s.y+sa*(rr+len));
@@ -909,12 +909,14 @@ function pShootWith(wp, ms){
   // damage is shared out over the pellets and each barrel throws the lot.
   const n=wp.pellets||1;
   // A fast round is drawn longer, so its hit test spans what it flies.
-  const bw=Math.max(14, Math.round(wp.spd*1.3));
+  // v209: TEMPO_K - the bolt flies faster for the same time, so it is
+  // longer in the world as well (the same length on the screen as in v207)
+  const bw=Math.round(Math.max(14, wp.spd*1.3)*TEMPO_K), vs=wp.spd*TEMPO_K;
   function throwFrom(px, py, d){
     for(let k=0;k<n;k++){
       const ja = (n===1) ? a : a + (k/(n-1) - 0.5)*wp.spread
                                + (Math.random()-0.5)*(wp.spread/n);
-      pBullets.push({x:px, y:py, vx:Math.cos(ja)*wp.spd, vy:Math.sin(ja)*wp.spd,
+      pBullets.push({x:px, y:py, vx:Math.cos(ja)*vs, vy:Math.sin(ja)*vs,
                      w:n>1?8:bw, h:3, dmg:d/n, f:wp.f,
                      col:wp.col, glow:wp.glow, pLife:life,
                      fuse:wp.fuse ? Math.max(1, Math.round(wp.fuse/wp.spd)) : 0,
@@ -940,7 +942,7 @@ function eSmall(ex,ey,fac,ang,spd,dmg,scatter){
   const s=spd||EBULLET_SPD;
   const sc=scatter||1;
   if(ang==null){
-    eBullets.push({x:ex,y:ey,vx:-s,vy:(Math.random()-.5)*1.8*sc,w:8,h:4,big:false,faction:fac||'ntf',dmg:dmg});
+    eBullets.push({x:ex,y:ey,vx:-s,vy:(Math.random()-.5)*1.8*sc*TEMPO_K,w:8,h:4,big:false,faction:fac||'ntf',dmg:dmg});
     return;
   }
   eBullets.push({x:ex,y:ey,vx:Math.cos(ang)*s,vy:Math.sin(ang)*s,w:8,h:4,big:false,faction:fac||'ntf',dmg:dmg});}
@@ -948,13 +950,13 @@ function eSmall(ex,ey,fac,ang,spd,dmg,scatter){
 // other turret shot; without one it keeps the old slow drift to the left.
 function eBig(ex,ey,fac,ang){
   if(ang==null){
-    eBullets.push({x:ex,y:ey,vx:-2.5,vy:(Math.random()-.5)*1.2,w:12,h:12,big:true,faction:fac||'ntf'});
+    eBullets.push({x:ex,y:ey,vx:-2.5*TEMPO_K,vy:(Math.random()-.5)*1.2*TEMPO_K,w:12,h:12,big:true,faction:fac||'ntf'});
     return;
   }
-  eBullets.push({x:ex,y:ey,vx:Math.cos(ang)*2.5,vy:Math.sin(ang)*2.5,w:12,h:12,big:true,faction:fac||'ntf'});}
+  eBullets.push({x:ex,y:ey,vx:Math.cos(ang)*2.5*TEMPO_K,vy:Math.sin(ang)*2.5*TEMPO_K,w:12,h:12,big:true,faction:fac||'ntf'});}
 function eSpread(ex,ey,fac){const base=Math.atan2(player.y-ey,player.x-ex);
   for(const da of[-0.35,-0.175,0,0.175,0.35]){const a=base+da;
-    eBullets.push({x:ex,y:ey,vx:Math.cos(a)*2.2,vy:Math.sin(a)*2.2,w:6,h:6,big:false,
+    eBullets.push({x:ex,y:ey,vx:Math.cos(a)*2.2*TEMPO_K,vy:Math.sin(a)*2.2*TEMPO_K,w:6,h:6,big:false,
       faction:fac||'ntf'});}}
 
 
@@ -1557,12 +1559,16 @@ function tagged(o){ return o.tagT > 0; }
 function drawTagMark(e){
   if(!tagged(e)) return;
   const img = IMGS[e.img]; if(!img) return;
-  const hw = img.width*e.sc*0.5 + 6, hh = img.height*e.sc*0.5 + 6;
+  // v209: on the screen - the box round her outline, the margin and the
+  // strokes in screen pixels
+  const hw = img.width*e.sc*0.5*CAM.z + 6, hh = img.height*e.sc*0.5*CAM.z + 6;
   const L = 10, k = 0.6 + 0.4*Math.sin(fc*0.2);
   ctx.save();
+  camScreen();
   ctx.globalAlpha = (e.tagT < 200 && fc%20 < 8) ? 0.25 : k;
   ctx.strokeStyle = '#ffb030'; ctx.lineWidth = 2;
-  const x0 = e.x-hw, x1 = e.x+hw, y0 = e.y-hh, y1 = e.y+hh;
+  const cx = w2sX(e.x), cy = w2sY(e.y);
+  const x0 = cx-hw, x1 = cx+hw, y0 = cy-hh, y1 = cy+hh;
   ctx.beginPath();
   ctx.moveTo(x0, y0+L); ctx.lineTo(x0, y0); ctx.lineTo(x0+L, y0);
   ctx.moveTo(x1-L, y0); ctx.lineTo(x1, y0); ctx.lineTo(x1, y0+L);
@@ -2099,8 +2105,9 @@ function drawScorch(o){
   for(const sc of o.scorch){
     const t = sc.life/sc.ml;
     const mx0 = (pw/2)*sc.lx*s, my0 = (ph/2)*sc.ly;
-    const x = o.x + (a ? mx0*ca - my0*sa : mx0);
-    const y = o.y + (a ? mx0*sa + my0*ca : my0);
+    // v209: on her model, through the perspective
+    const vp = hullPt(o, o.x + (a ? mx0*ca - my0*sa : mx0), o.y + (a ? mx0*sa + my0*ca : my0));
+    const x = vp.x, y = vp.y;
     const r = sc.r*(0.7+0.3*t);
     // slight flicker so the ember feels alive
     const fl = 0.88 + 0.12*Math.sin(fc*0.4 + sc.lx*40);
@@ -2122,8 +2129,10 @@ function beamImpact(o, mx, my, ang, large, tr){
   const scale = large ? 1.0 : 0.55;
 
   // Entry
-  const ex = tr ? tr.entry.x : o.x, ey = tr ? tr.entry.y : o.y;
-  addScorch(o, ex, ey);
+  const ex0 = tr ? tr.entry.x : o.x, ey0 = tr ? tr.entry.y : o.y;
+  addScorch(o, ex0, ey0);
+  // v209: the fire is drawn on her model, through the perspective
+  const vEn = hullPt(o, ex0, ey0), ex = vEn.x, ey = vEn.y;
   if(fc%2===0){
     spawnFireball(ex, ey, (large?15:9), (large?16:11));
     for(let i=0;i<(large?4:2);i++){
@@ -2140,12 +2149,13 @@ function beamImpact(o, mx, my, ang, large, tr){
     const dx = tr.exit.x-tr.entry.x, dy = tr.exit.y-tr.entry.y;
     if(dx*dx+dy*dy > 100){          // only when the beam really passes through
       addScorch(o, tr.exit.x, tr.exit.y);
+      const vEx = hullPt(o, tr.exit.x, tr.exit.y);     // v209
       if(fc%2===0){
-        spawnFireball(tr.exit.x, tr.exit.y, (large?18:10), (large?20:12));
+        spawnFireball(vEx.x, vEx.y, (large?18:10), (large?20:12));
         for(let i=0;i<(large?7:3);i++){
           const a = ang + (Math.random()-0.5)*0.55;
           const sp = 2.2+Math.random()*4.5;
-          PARTS.push({x:tr.exit.x, y:tr.exit.y,
+          PARTS.push({x:vEx.x, y:vEx.y,
             vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
             life:20+Math.random()*22, ml:0,
             sz:(2+Math.random()*3)*scale,
@@ -2314,12 +2324,13 @@ function eSecondary(x, y, fac, s){
   const ang = Math.atan2(player.y-y, player.x-x);
   const isBomb = (s.type === 'bomb');
   sndAiSec(x, isBomb, y);
+  const vs = s.spd*TEMPO_K;          // v209
   eBullets.push({
     x:x, y:y,
-    vx:Math.cos(ang)*s.spd, vy:Math.sin(ang)*s.spd,
+    vx:Math.cos(ang)*vs, vy:Math.sin(ang)*vs,
     w:isBomb?15:11, h:isBomb?15:6,
     big:false, faction:fac||'ntf',
-    kind:s.type, dmg:s.dmg, hom:true, turn:s.turn, spd:s.spd,
+    kind:s.type, dmg:s.dmg, hom:true, turn:s.turn, spd:vs,
     life:isBomb?560:440,
     hp:isBomb?1:0            // hp>0 means it can be shot down
   });
@@ -2382,7 +2393,7 @@ function aSecondary(x, y, fac, s){
   sndAiSec(x, isBomb, y);
   pBullets.push({
     x:x, y:y,
-    vx:Math.cos(ang)*s.spd, vy:Math.sin(ang)*s.spd,
+    vx:Math.cos(ang)*s.spd*TEMPO_K, vy:Math.sin(ang)*s.spd*TEMPO_K,
     w:isBomb?16:18, h:isBomb?16:6,
     sec:true, type:s.type, homing:true, life:isBomb?300:220,
     ally:true, fac:fac, dmg:isBomb?80:35
@@ -2420,9 +2431,11 @@ const CAP_NEBULA_SIGHT = 460;   // how far a capital's gunners see in the gas
 // later grows a flak position with it.
 const FLAK_TYPES       = {cruiser:1, corvette:1, destroyer:1, boss:1};
 const FLAK_RATE        = [115, 205];  // steps between rounds, rolled each time
-const FLAK_SPD         = 6.0;
-const FLAK_DIST        = 300;         // how far out the wall stands
-const FLAK_MIN         = 110;         // and no nearer, or it bursts on itself
+// v209: shell speed and the distances of the wall times TEMPO_K, the
+// shrapnel is scaled in shardSpread()
+const FLAK_SPD         = 6.0*TEMPO_K;
+const FLAK_DIST        = 300*TEMPO_K; // how far out the wall stands
+const FLAK_MIN         = 110*TEMPO_K; // and no nearer, or it bursts on itself
 // A gun on the right must not build its wall off the left of the screen. The
 // burst point is pulled back until it sits this far inside the field.
 const FLAK_EDGE_KEEP   = 130;
@@ -2560,7 +2573,7 @@ function capitalFire(e){
         if(_md && _md.n3 && typeof mountCanAim === 'function' && !mountCanAim(e, _md, pts[i].x, pts[i].y, gt.x, gt.y)){
           e.gunT[i] = 12 + (Math.random()*18|0); continue;
         }
-        const ga = (bomb ? leadAngle(pts[i].x, pts[i].y, bomb, g.spd)
+        const ga = (bomb ? leadAngle(pts[i].x, pts[i].y, bomb, g.spd*TEMPO_K)
                          : Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x))
                  + (Math.random()-0.5)*0.10*eScat*g.scat;
         sndAiShot(pts[i].x, pts[i].y, g.snd);
@@ -2608,7 +2621,8 @@ function turretTick(o, isPlayer){
   if(!pts || !pts.length) return;
   // Shivan hulls (Nephilim, Seraphim) carry a Shivan Light Laser up there.
   const shiv = !isPlayer && o.faction==='shivan';
-  const wp = priDef(shiv ? 'shl' : TURRET_WPN), reach = wp.range || 330;
+  // v209: reach and bolt speed times TEMPO_K (same flight time)
+  const wp = priDef(shiv ? 'shl' : TURRET_WPN), reach = (wp.range || 330)*TEMPO_K, vs = wp.spd*TEMPO_K;
   // Above the hull: the sprite's up, turned with the ship.
   const ux = Math.sin(a), uy = -Math.cos(a);
   const mine = isPlayer || o.side==='ally';
@@ -2625,11 +2639,11 @@ function turretTick(o, isPlayer){
   if(!best){ o.turT = 10; return; }
   o.turT = TURRET_CD;
   for(const p of pts){
-    const ang = leadAngle(p.x, p.y, best, wp.spd) + (Math.random()-0.5)*0.06;
+    const ang = leadAngle(p.x, p.y, best, vs) + (Math.random()-0.5)*0.06;
     if(mine){
-      pBullets.push({x:p.x, y:p.y, vx:Math.cos(ang)*wp.spd, vy:Math.sin(ang)*wp.spd,
+      pBullets.push({x:p.x, y:p.y, vx:Math.cos(ang)*vs, vy:Math.sin(ang)*vs,
                      w:14, h:3, dmg:volleyDmg(1)*wp.dmg*TURRET_DMG,
-                     col:wp.col, glow:wp.glow, pLife:Math.max(1, Math.round(reach/wp.spd)),
+                     col:wp.col, glow:wp.glow, pLife:Math.max(1, Math.round(reach/vs)),
                      ally:!isPlayer, fac:o.faction, turret:true});
     } else {
       eSmall(p.x, p.y, o.faction, ang, aiBoltSpd(wp), eVolleyDmg(1)*wp.dmg);
@@ -2701,15 +2715,17 @@ const PLAYER_W_BOMBER  = 66;
 // what the nose aims along.
 const PLAYER_SPD_FIGHTER = 3.2;   // 320 px per second, field crossed in ~2.5 s
 const PLAYER_SPD_BOMBER  = 2.4;
-const AIM_DEAD = 4;          // pointer distance in px below which the aim holds
+const AIM_DEAD = 4*TEMPO_K;          // pointer distance in px below which the aim holds
 const PLAYER_TURN = 0.14;    // max heading change per logic step, half turn in ~0.22 s
 // Inside the hold radius the pointer only turns the ship. Past it speed
 // ramps up across a band rather than switching on hard, so small
 // corrections stay fine grained. The radius follows the hull size, since
 // a fixed number would sit inside the sprite of a large bomber.
 const HOLD_R_MULT = 1.2;     // multiple of the half sprite extent
-const HOLD_R_MIN  = 26;
-const HOLD_BAND   = 45;      // px over which speed climbs from zero to full
+// v209: the pointer is read on the screen, so its distances are v207's
+// screen distances in the world (TEMPO_K)
+const HOLD_R_MIN  = 26*TEMPO_K;
+const HOLD_BAND   = 45*TEMPO_K;     // px over which speed climbs from zero to full
 // Inertia of the player's ship, by how nimble the hull is (its turn rate):
 // the time it takes to reach full speed from a standstill, and to stop
 // again. An interceptor (turn 0.18) takes about a fifth of a second, a heavy
@@ -2734,7 +2750,7 @@ function playerThrust(){
 // v166: a little faster and noticeably tighter in the turn, so they come
 // back round onto the target instead of drifting through wide loops.
 // Fighters 2.2 / 0.050 and bombers 1.5 / 0.032 before.
-const EFIGHTER_SPD = 2.4, EBOMBER_SPD = 1.6;      // player does 3.2, so he can disengage
+const EFIGHTER_SPD = 2.4*TEMPO_K, EBOMBER_SPD = 1.6*TEMPO_K;      // player does 3.2, so he can disengage (v209: TEMPO_K)
 const EFIGHTER_TURN = 0.066, EBOMBER_TURN = 0.038;
 const ATTACK_QUOTA = 3;      // how many may run in at the same time
 // Rammstoss. Ein Bomber traegt Bomben, deshalb reisst er ein Loch und
@@ -2792,8 +2808,8 @@ function shipBound(e){
   return Math.max(BOUND_MIN, Math.max(img.width, img.height)*e.sc*0.5);
 }
 const EFIRE_CONE = 0.50;     // half angle in rad within which they will shoot (0.42 before v166)
-const EFIRE_RANGE = 430;
-const EBULLET_SPD = 4.5;
+const EFIRE_RANGE = 430*TEMPO_K;     // v209: reach as in v207 on the screen
+const EBULLET_SPD = 4.5*TEMPO_K;     // v209: TEMPO_K
 // Fire from a distance has to be inaccurate, otherwise standing off is
 // simply better than closing in and the player gets picked apart from
 // behind with no counterplay.
@@ -3027,6 +3043,18 @@ function mountPos(e, beam) {
   };
 }
 
+// v209: where the beam turret is drawn - her mount moved through the
+// perspective to the depth of the turret on her model (hullPt). The beam
+// logic keeps mountPos().
+function mountDepth(e, b){
+  const img = IMGS[e.img];
+  if(!img || b.mx == null || typeof f3dBow !== 'function') return 0;
+  return -f3dBow(e)*(img.width*e.sc/2)*b.mx;
+}
+function mountPosV(e, b){
+  const p = mountPos(e, b);
+  return (typeof hullPt === 'function') ? hullPt(e, p.x, p.y, mountDepth(e, b)) : p;
+}
 // fireInWarp: once a third of her is out of the vortex she opens fire
 // (the Sathanas in 77, v179) instead of first driving well into the field.
 function warpFiring(e){
@@ -3183,25 +3211,26 @@ function drawBeamRays(e, own) {
     if(b.state!=='firing') continue;
     const col=beamCol(e.faction, b.large);
     const ang = b.type==='slash' ? b.curAngle : b.angle;
-    const mpF=mountPos(e,b);
-    const len = own ? ownHullRun(e, mpF.x, mpF.y, ang) : 2000;
+    const mpF=mountPosV(e,b);                  // v209: where it is drawn
+    const len = own ? ownHullRun(e, mpF.x, mpF.y, ang) : 2000/CAM.z;
+    const g = fxG();                           // v209: v207 widths on the screen
     if(len <= 0) continue;
     const ex=mpF.x+Math.cos(ang)*len, ey=mpF.y+Math.sin(ang)*len;
     const flicker=0.85+0.15*Math.sin(fc*0.8);
     ctx.save();
     // Outer glow
     ctx.globalAlpha=0.15*flicker;
-    ctx.strokeStyle=col; ctx.lineWidth=b.large?22:10;
+    ctx.strokeStyle=col; ctx.lineWidth=(b.large?22:10)*g;
     ctx.shadowColor=col; ctx.shadowBlur=ecoBlur(30);
     ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
     // Mid glow
     ctx.globalAlpha=0.35*flicker;
-    ctx.lineWidth=b.large?10:5;
+    ctx.lineWidth=(b.large?10:5)*g;
     ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
     // Core
     ctx.globalAlpha=0.95*flicker;
     ctx.strokeStyle='#ffffff';
-    ctx.lineWidth=b.large?2.5:1.5;
+    ctx.lineWidth=(b.large?2.5:1.5)*g;
     ctx.shadowBlur=ecoBlur(6);
     ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
     ctx.restore();
@@ -3249,15 +3278,15 @@ function warpBeamOrbs(e, g){
 // The charge glow or the muzzle orb of one beam turret.
 function drawBeamOrb(e, b) {
   {
-    const mp=mountPos(e,b);
+    const g=fxG();                 // v209: v207 sizes on the screen
     const col=beamCol(e.faction, b.large);
     const cMax=b.chargeMax||b.chargeT;
     const chargeProg=Math.max(0,Math.min(1,(cMax-b.timer)/cMax));
 
     if(b.state==='charging') {
-      const mpC=mountPos(e,b);
+      const mpC=mountPosV(e,b);       // v209: on the drawn turret
       const pulse=0.6+0.4*Math.sin(fc*0.5);
-      const cr=Math.max(1,(b.large?14:8)*chargeProg);
+      const cr=Math.max(1,(b.large?14:8)*chargeProg)*g;
       ctx.save();
       ctx.globalAlpha=0.2*pulse*chargeProg;
       ctx.shadowColor=col; ctx.shadowBlur=ecoBlur(b.large?35:18);
@@ -3277,7 +3306,7 @@ function drawBeamOrb(e, b) {
       ctx.shadowBlur=0;
       if(chargeProg>0.15&&fc%3===0){
         var ang=Math.random()*Math.PI*2;
-        var dist=18+Math.random()*(b.large?40:22);
+        var dist=(18+Math.random()*(b.large?40:22))*g;
         PARTS.push({type:'mag',
           x:mpC.x+Math.cos(ang)*dist, y:mpC.y+Math.sin(ang)*dist,
           tx:mpC.x, ty:mpC.y,
@@ -3287,14 +3316,14 @@ function drawBeamOrb(e, b) {
       ctx.restore();
     } else if(b.state==='firing') {
       const ang = b.type==='slash' ? b.curAngle : b.angle;
-      const mpF=mountPos(e,b);
+      const mpF=mountPosV(e,b);       // v209: on the drawn turret
       const flicker=0.85+0.15*Math.sin(fc*0.8);
       ctx.save();
       // Muzzle orb. This is the same sphere that builds up while charging,
       // held at full size for the whole discharge. Only the inrushing
       // magnetic particles stop, the glow itself does not collapse into
       // the flat disc it used to be.
-      const orbR = (b.large?14:8) * (1.0 + 0.10*Math.sin(fc*0.55));
+      const orbR = (b.large?14:8) * (1.0 + 0.10*Math.sin(fc*0.55)) * g;
       ctx.shadowColor=col; ctx.shadowBlur=ecoBlur(b.large?38:20);
       ctx.globalAlpha=0.24*flicker;
       ctx.fillStyle=col;

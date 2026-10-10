@@ -280,6 +280,7 @@ function drawShots(under){
         ctx.save();
         ctx.translate(b.x, b.y);
         ctx.rotate(Math.atan2(b.vy, b.vx));
+        { const G=ordG(); ctx.scale(G, G); }   // v209: see ordG()
         const hw=b.w/2;
         // Engine glow at the tail, in the race's colour
         ctx.fillStyle=oc.glow;
@@ -302,12 +303,12 @@ function drawShots(under){
       } else {
         // Bomb: dark sphere with a pulsing warning glow
         const pulse=0.5+0.5*Math.sin(fc*0.25);
-        const br=b.w/2;
+        const br=b.w/2*ordG();          // v209: see ordG()
         // Outer warning ring, in the race's colour
         ctx.globalAlpha=0.3+pulse*0.5;
         ctx.strokeStyle=oc.core;
-        ctx.lineWidth=2;
-        ctx.beginPath();ctx.arc(b.x,b.y,br+4+pulse*4,0,Math.PI*2);ctx.stroke();
+        ctx.lineWidth=2*ordG();
+        ctx.beginPath();ctx.arc(b.x,b.y,br+(4+pulse*4)*ordG(),0,Math.PI*2);ctx.stroke();
         ctx.globalAlpha=1;
         // Bomb body
         const grad=ctx.createRadialGradient(b.x-br*0.3,b.y-br*0.3,0,b.x,b.y,br);
@@ -328,7 +329,7 @@ function drawShots(under){
     if(shotUnder(b) !== under) continue;
         const bx=b.x|0, by=b.y|0;
     if(b.kind){
-      const ang=Math.atan2(b.vy,b.vx);
+      const ang=Math.atan2(b.vy,b.vx), G=ordG();   // v209: see ordG()
       // Missiles and bombs in the colour of the race (Silvio, v161):
       // Shivans red, Terrans - the NTF among them - blue, Vasudans yellow.
       const race=raceOf(b.faction);
@@ -338,7 +339,7 @@ function drawShots(under){
 
       // Halo underneath the ordnance so it never blends into a nebula.
       // Drawn unrotated and additively, then the body goes on top.
-      const halo=(b.kind==='bomb'?2.6:1.9)*b.w*(0.92+0.08*Math.sin(fc*0.5));
+      const halo=(b.kind==='bomb'?2.6:1.9)*b.w*G*(0.92+0.08*Math.sin(fc*0.5));
       ctx.save();
       ctx.globalCompositeOperation='lighter';
       try{
@@ -364,7 +365,7 @@ function drawShots(under){
       }
 
       ctx.save();
-      ctx.translate(bx,by); ctx.rotate(ang);
+      ctx.translate(bx,by); ctx.rotate(ang); ctx.scale(G, G);
       // Exhaust plume trailing behind
       ctx.globalAlpha=0.75;
       const fl=ctx.createLinearGradient(0,0,-b.w*1.6,0);
@@ -589,9 +590,10 @@ function drawHostileMark(e){
     if(d >= CHEV_FADE) return;
     a = (d <= CHEV_FULL) ? 1 : (CHEV_FADE-d)/(CHEV_FADE-CHEV_FULL);
   }
+  // v209: on the screen in a fixed size, over her outline
   const img = IMGS[e.img];
-  const h = img ? img.height*e.sc : 30;
-  const y = e.y - h*0.5 - 9;
+  const h = (img ? img.height*e.sc : 30)*CAM.z;
+  const ex = w2sX(e.x), y = w2sY(e.y) - h*0.5 - 9;
   // Im Anflug ein anderes Zeichen: ein Schiff, das gleich einschlaegt,
   // soll sich von einem unterscheiden, das nur vorbeifliegt. In FreeSpace
   // warnt der Funk davor - hier muss es das Bild tun.
@@ -604,6 +606,7 @@ function drawHostileMark(e){
     run = !!(t && t!==player && !t.small && t.side==='ally');
   }
   ctx.save();
+  camScreen();
   ctx.globalAlpha = a;
   ctx.strokeStyle = run ? '#ffcc22' : '#ff2a1a';
   ctx.lineWidth = 2;
@@ -611,11 +614,11 @@ function drawHostileMark(e){
   if(run){
     // Doppelwinkel, blinkend
     if(fc%24 < 17){
-      ctx.moveTo(e.x-7, y-6); ctx.lineTo(e.x, y);   ctx.lineTo(e.x+7, y-6);
-      ctx.moveTo(e.x-7, y-11);ctx.lineTo(e.x, y-5); ctx.lineTo(e.x+7, y-11);
+      ctx.moveTo(ex-7, y-6); ctx.lineTo(ex, y);   ctx.lineTo(ex+7, y-6);
+      ctx.moveTo(ex-7, y-11);ctx.lineTo(ex, y-5); ctx.lineTo(ex+7, y-11);
     }
   } else {
-    ctx.moveTo(e.x-6, y-5); ctx.lineTo(e.x, y); ctx.lineTo(e.x+6, y-5);
+    ctx.moveTo(ex-6, y-5); ctx.lineTo(ex, y); ctx.lineTo(ex+6, y-5);
   }
   ctx.stroke();
   ctx.restore();
@@ -1884,7 +1887,7 @@ function shipStats(key){
 function applyShip(key, keep){
   const s = shipStats(key);
   player.ship   = key;
-  player.spd    = s.spd;
+  player.spd    = s.spd*TEMPO_K;      // v209: TEMPO_K, as in v207 on the screen
   player.mvx = 0; player.mvy = 0;     // a new hull starts at rest
   player.turn   = s.turn;
   player.baseHp = s.hp;
@@ -2143,8 +2146,10 @@ function shardSpread(n, spd, range){
   const out = [];
   for(let i=0;i<m;i++){
     const a  = off + i*gap + (Math.random()-0.5)*gap*0.9;
-    const s  = spd * (0.72 + Math.random()*0.56);
-    const rg = range * (0.65 + Math.random()*0.7);
+    // v209: speed and reach are given in v207 units; both times TEMPO_K,
+    // so a burst lasts as long as before and looks the same on the screen
+    const s  = spd * TEMPO_K * (0.72 + Math.random()*0.56);
+    const rg = range * TEMPO_K * (0.65 + Math.random()*0.7);
     const big = Math.random();
     out.push({a:a, spd:s, life:Math.max(1, Math.round(rg/s)),
               w:(5 + big*6)|0, h:big > 0.6 ? 4 : (big > 0.25 ? 3 : 2),

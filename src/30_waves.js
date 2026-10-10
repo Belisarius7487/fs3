@@ -424,9 +424,10 @@ function tickSubScan(){
 function drawSubScan(e){
   const pulse = 0.5 + 0.5*Math.sin(fc*0.10);
   for(const s of e.subs){
-    const p = subPos(e, s);
+    const p0 = subPos(e, s), vp = hullPt(e, p0.x, p0.y);
     ctx.save();
-    ctx.translate(p.x|0, p.y|0);
+    camScreen();                         // v209: on the screen, on her model
+    ctx.translate(w2sX(vp.x)|0, w2sY(vp.y)|0);
     ctx.lineWidth = 1.5;
     if(s.scanned){
       ctx.strokeStyle = 'rgba(77,255,136,0.85)';
@@ -449,9 +450,11 @@ function drawScanRing(e){
   if(e.scanSubs && !e.scanned){ drawSubScan(e); return; }
   if(!e.scan) return;
   const img = IMGS[e.img];
-  const r = (img ? Math.max(img.width,img.height)*e.sc*0.62 : 24) + 8;
+  // v209: on the screen, round her outline, the margin in pixels
+  const r = (img ? Math.max(img.width,img.height)*e.sc*0.62 : 24)*CAM.z + 8;
   ctx.save();
-  ctx.translate(e.x|0, e.y|0);
+  camScreen();
+  ctx.translate(w2sX(e.x)|0, w2sY(e.y)|0);
   if(e.scanned){
     ctx.strokeStyle='rgba(90,255,170,0.55)'; ctx.lineWidth=2;
     ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.stroke();

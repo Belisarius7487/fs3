@@ -61,7 +61,12 @@ const F3D_GANIM = {ravanapulse: {n: 30, fps: 25, cols: 8, rows: 4}};
 // v208: a long lens. With real sizes a destroyer is thousands of units long;
 // at 30 degrees she reached through the camera. 1.2 degrees keeps every hull
 // in front of it and looks nearly flat, as the drafts did (Silvio).
-const F3D_FOV = 1.2*Math.PI/180;
+// v209: a real perspective like the 2.5D demo (Silvio). The camera still
+// looks straight down; f3dVP puts the eye so that the play plane z = 0
+// lies on the screen exactly as the 2D field does, so shots, effects, the
+// HUD and the pointer are not distorted. What sticks out of the plane
+// (above it: nearer) is drawn larger, what lies under it smaller.
+const F3D_FOV = 40*Math.PI/180;
 // key light from the upper left and in front, a weak fill from below
 // right - the same as the previews
 const F3D_L1 = [-0.45, 0.65, 0.62], F3D_L2 = [0.7, -0.25, 0.4];
@@ -568,12 +573,17 @@ function f3dMat(e, x, y, L){
     return new Float32Array([s*A[0], s*A[1], s*A[2], 0, s*A[3], s*A[4], s*A[5], 0,
                              s*A[6], s*A[7], s*A[8], 0, x, -y, 0, 1]);
   }
+  // v209: a capital ship is sunk below the play plane by half her
+  // thickness, so the side facing the camera lies in the plane - fighters
+  // fly over her, and her drawn hull is never larger than her 2D outline
+  // (Silvio). f3dMidZ() gives the same depth to the 2D overlays.
+  const tz = f3dSmall(F3D_ALIAS[e.img] || e.img) ? 0 : -s*(sz[0]*Math.abs(Math.cos(vw)) + sz[2]*Math.abs(Math.sin(vw)))/2/L.head.ext;
   // translate * rotZ(a) * rotY(yaw) * scale, column-major
   return new Float32Array([
     s*ca*cy, s*sa*cy, -s*sy, 0,
     -s*sa,   s*ca,    0,     0,
     s*ca*sy, s*sa*sy, s*cy,  0,
-    x,       -y,      0,     1]);
+    x,       -y,      tz,    1]);
 }
 // v203: how far a small craft is rolled about her length. The sprite was
 // mirrored when her nose came round past the vertical (poseFor, KEEP_UPRIGHT);
@@ -631,13 +641,52 @@ function f3dPlayer(key, x, y, sc, flip, ang, a){
   ctx.globalAlpha = ga;
   return true;
 }
+// v209: the eye's height over the play plane, in world units (f3dVP)
+function f3dEyeD(){
+  const z = (typeof CAM !== 'undefined' && CAM.z) || 1;
+  return (H/2)/Math.tan(F3D_FOV/2)/z;
+}
+// v209: a world point at height z over the play plane (negative: under
+// it) moved to where the camera shows it in the plane - the same rays as
+// the 3D picture (f3dVP), so a 2D overlay drawn there sits on the drawn
+// model. Logic and hits stay in the plane; this is only for drawing.
+function f3dPersp(x, y, z){
+  if(!z || F3D_FOV < 0.1) return {x: x, y: y};
+  const D = f3dEyeD(), k = D/Math.max(D*0.05, D - z);
+  const ex = (typeof CAM !== 'undefined') ? s2wX(W/2) : W/2, ey = (typeof CAM !== 'undefined') ? s2wY(H/2) : H/2;
+  return {x: ex + (x - ex)*k, y: ey + (y - ey)*k};
+}
+// v209: how deep under the play plane the middle of a hull drawn from her
+// model lies (f3dMat sinks a capital ship by half her thickness). 0 for
+// small craft, sprites and the sprite mode.
+function f3dMidZ(e){
+  if(!f3dOn(e) || e.type === 'asteroid') return 0;
+  if(f3dSmall(F3D_ALIAS[e.img] || e.img)) return 0;
+  const k = f3dKey(e), L = k ? f3dReadyLevel(k) : null;
+  if(!L || !L.head || !L.head.size) return 0;
+  const vw = F3D_VIEW[e.img] || 0, sz = L.head.size, img = IMGS[e.img];
+  const span = sz[2]*Math.abs(Math.cos(vw)) + sz[0]*Math.abs(Math.sin(vw));
+  const s = (img ? img.width*e.sc : 100)/Math.max(0.01, span/L.head.ext);
+  return -s*(sz[0]*Math.abs(Math.cos(vw)) + sz[2]*Math.abs(Math.sin(vw)))/2/L.head.ext;
+}
+// v209: a point on a hull (in the plane, as the game has it) moved to
+// where her model is drawn: at the depth of her middle, d higher (towards
+// the camera; a turret's own depth, mountDepth). Safe for every ship: a
+// sprite or a small craft gets the point back as it is.
+function hullPt(e, x, y, d){
+  const z = f3dMidZ(e);
+  if(!z) return {x: x, y: y};
+  return f3dPersp(x, y, Math.min(0, z + (d || 0)));
+}
 function f3dVP(){
   // v208: through the camera (10_core.js). The canvas covers the whole
   // screen; its middle is the world point s2w(W/2, H/2), and the zoom moves
   // the eye back.
-  const z = (typeof CAM !== 'undefined' && CAM.z) || 1;
-  const D = (H/2)/Math.tan(F3D_FOV/2)/z, asp = W/H, f = 1/Math.tan(F3D_FOV/2);
-  const near = D*0.3, far = D*3, nf = 1/(near - far);
+  const D = f3dEyeD(), asp = W/H, f = 1/Math.tan(F3D_FOV/2);
+  // v209: checked for 40 degrees - a sunk Colossus reaches ~D+1200 deep,
+  // the overview D ~5900; a debris piece standing up comes nearer than
+  // the plane, so the near plane sits closer than before (0.3)
+  const near = D*0.15, far = D*3, nf = 1/(near - far);
   const P = [f/asp,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,2*far*near*nf,0];
   const ex = (typeof CAM !== 'undefined') ? s2wX(W/2) : W/2, ey = -((typeof CAM !== 'undefined') ? s2wY(H/2) : H/2);
   // camera at (ex, ey, D) looking down -z: the view only moves the world
@@ -1138,7 +1187,8 @@ function f3dBreakup(e){
   for(let j = 1; j < N.length; j++){
     const n = N[j]; if(!n || n.k !== 'deb' || n.empty) continue;
     const c = f3dMulV(A0, n.pv);
-    const x = M0[12] + c[0], y = -(M0[13] + c[1]), z = c[2];
+    // v209: from her depth (a capital ship is sunk, f3dMat)
+    const x = M0[12] + c[0], y = -(M0[13] + c[1]), z = M0[14] + c[2];
     const dx = x - e.x, dy = y - e.y, dl = Math.hypot(dx, dy) || 1;
     const rr = (n.r || 0.2)*span/2;
     const mass = Math.min(1, rr/80);
@@ -1348,7 +1398,11 @@ function f3dShPlace(h, S, M0){
   const toM = function(w){ return [0, 4, 8].map(function(o){ return (M0[o]*w[0] + M0[o+1]*w[1] + M0[o+2]*w[2])/s2; }); };
   let P = null, D = null;
   if(h.wx != null){
-    const O = toM([h.wx, -h.wy, 1e5]), V = f3dNorm(toM([0, 0, -1]));
+    // v209: the ray comes from the real eye (f3dVP) through the point in
+    // the plane where the hit was, both relative to her middle (M0)
+    const E = f3dVP().eye, ox = M0[12], oy = M0[13], oz = M0[14];
+    const O = toM([E[0] - ox, E[1] - oy, E[2] - oz]);
+    const V = f3dNorm(toM([ox + h.wx - E[0], oy - h.wy - E[1], -E[2]]));
     const r = f3dShRay(S, O, V, true);
     if(r){ P = [O[0] + V[0]*r.t, O[1] + V[1]*r.t, O[2] + V[2]*r.t]; D = [-V[0], -V[1], -V[2]]; }
   }

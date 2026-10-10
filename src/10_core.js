@@ -48,8 +48,17 @@ const SIZE_UPM = 3.75;
 let FIELD_K = 1, MW = W, MH = H;
 let WX0 = 0, WX1 = W, WY0 = HUD_H, WY1 = H;
 const FIELD_CX = W/2, FIELD_CY = (HUD_H+H)/2;
-const CAM = {x: FIELD_CX, y: FIELD_CY, z: 1, zt: 1, over: false};
-const CAM_OVER_Z = 1/3;             // overview: three times further out
+// v209: the normal view is further out (like the 2.5D demo, Silvio)
+const CAM_BASE_Z = 0.35;
+// v209 (Silvio): small craft and every round fly this much faster in the
+// world, so on the screen at CAM_BASE_Z they move as they did in v207.
+// The player, fighters, bombers, bolts, missiles, bombs and flak - turret
+// rounds included. A round keeps its flight time, so its reach in the
+// world grows by the same factor (on the screen it is as in v207).
+// Capital ships, beams and scripted runs keep their v208 pace.
+const TEMPO_K = 1/CAM_BASE_Z;
+const CAM = {x: FIELD_CX, y: FIELD_CY, z: CAM_BASE_Z, zt: CAM_BASE_Z, over: false};
+const CAM_OVER_Z = CAM_BASE_Z/3;             // overview: three times further out
 // Rest zone: the camera only follows once the player leaves the middle of
 // the field, as a fraction of the half field on the screen.
 const CAM_REST_X = 0.40, CAM_REST_Y = 0.40;
@@ -58,6 +67,18 @@ function w2sY(y){ return FIELD_CY + (y - CAM.y)*CAM.z; }
 function s2wX(x){ return CAM.x + (x - FIELD_CX)/CAM.z; }
 function s2wY(y){ return CAM.y + (y - FIELD_CY)/CAM.z; }
 // Puts the camera on the context (after the screen's own scale).
+// v209: small 2D things - shots, sparks, trails, beams, marks - are drawn
+// this many times their world size: at CAM_BASE_Z that is exactly their
+// v207 size on the screen, and in the overview never less than
+// FX_MIN_SCR of it. Hit tests do not use it.
+const FX_MIN_SCR = 0.5;
+function fxG(){ return Math.max(TEMPO_K, FX_MIN_SCR/CAM.z); }
+// Missiles and bombs at half of that: at their full v207 size they would
+// be larger than the fighters that carry them.
+const ORD_G = 0.5;
+function ordG(){ return Math.max(1, ORD_G*fxG()); }
+// A world length that is at least px pixels on the screen.
+function minPx(s, px){ return Math.max(s, px/CAM.z); }
 function camApply(){
   ctx.translate(FIELD_CX, FIELD_CY);
   ctx.scale(CAM.z, CAM.z);
@@ -78,7 +99,7 @@ function camClamp(){
 }
 // Follows a world point (the player) with a rest zone around the middle.
 function camFollow(px, py){
-  CAM.zt = CAM.over ? CAM_OVER_Z : 1;
+  CAM.zt = CAM.over ? CAM_OVER_Z : CAM_BASE_Z;
   if(Math.abs(CAM.z - CAM.zt) > 1e-4){
     // zoom about the point that is followed, so it stays where it is
     const sx = w2sX(px), sy = w2sY(py);
@@ -110,7 +131,7 @@ function mouseTick(){
   if(MOUSE.scr){ MOUSE.x = s2wX(MOUSE.sx); MOUSE.y = s2wY(MOUSE.sy); }
 }
 function camSnap(px, py){
-  CAM.z = CAM.zt = CAM.over ? CAM_OVER_Z : 1;
+  CAM.z = CAM.zt = CAM.over ? CAM_OVER_Z : CAM_BASE_Z;
   CAM.x = px; CAM.y = py;
   camClamp();
 }

@@ -59,7 +59,7 @@ function burstRound(b){
     // ahead, each with the table's damage, speed and lifetime.
     for(let k=0;k<wp.children;k++){
       const a=Math.atan2(b.vy, b.vx) + (k/(wp.children-1)-0.5)*Math.PI;
-      pBullets.push({x:b.x, y:b.y, vx:Math.cos(a)*wp.childSpd, vy:Math.sin(a)*wp.childSpd, w:8, h:3,
+      pBullets.push({x:b.x, y:b.y, vx:Math.cos(a)*wp.childSpd*TEMPO_K, vy:Math.sin(a)*wp.childSpd*TEMPO_K, w:8, h:3,
         sec:true, type:'missile', homing:true, life:wp.childLife, maxSpd:wp.childSpd, turn:0.5,
         dmg:wp.childDmg, f:wp.f, wd:CLUSTER_CHILD, wpn:'cluster_child', burst:false, ally:b.ally});
     }
@@ -156,7 +156,7 @@ function fireSecondary(){
     for(let k=0;k<wp.swarm;k++){
       const a=sa+(wp.swarm>1 ? (k/(wp.swarm-1)-0.5)*wp.fan : 0);
       pBullets.push({x:sp.x, y:sp.y,
-        vx:Math.cos(a)*wp.spd, vy:Math.sin(a)*wp.spd,
+        vx:Math.cos(a)*wp.spd*TEMPO_K, vy:Math.sin(a)*wp.spd*TEMPO_K,
         w:12, h:4, sec:true, type:'missile', homing:true, life:wp.life,
         maxSpd:wp.spd, turn:wp.turn, f:wp.f, wd:wp,
         target:tg[k], swarm:true, salvo:id, dmg:wp.dmg, wpn:wp.key, burst:false});
@@ -165,7 +165,7 @@ function fireSecondary(){
   }
   const aspect = wp.homing==='aspect';
   pBullets.push({x:sp.x, y:sp.y,
-    vx:Math.cos(sa)*wp.spd, vy:Math.sin(sa)*wp.spd,
+    vx:Math.cos(sa)*wp.spd*TEMPO_K, vy:Math.sin(sa)*wp.spd*TEMPO_K,      // v209: TEMPO_K
     w:bomb?16:18, h:bomb?16:6, sec:true,
     type:bomb?'bomb':'missile', homing:!!wp.homing, aspect:aspect, life:wp.life,
     maxSpd:wp.spd, turn:wp.turn, f:wp.f, wd:wp,
@@ -230,8 +230,9 @@ function updateSecBullets(){
           if(b.aimR){ var rp=reactorPos(nearest, b.aimR); aimX=rp.x; aimY=rp.y; }
         }
         var ang=Math.atan2(aimY-b.y,aimX-b.x);
-        var turnRate=b.turn||(b.type==='missile'?0.18:0.06); // Bombs turn far more slowly
-        var maxSpd=b.maxSpd||(b.type==='missile'?5.5:3.0);
+        // v209: both in v207 units, the round flies TEMPO_K faster
+        var turnRate=(b.turn||(b.type==='missile'?0.18:0.06))*TEMPO_K; // Bombs turn far more slowly
+        var maxSpd=(b.maxSpd||(b.type==='missile'?5.5:3.0))*TEMPO_K;
         b.vx+=(Math.cos(ang)*turnRate);
         b.vy+=(Math.sin(ang)*turnRate);
         var spd=Math.hypot(b.vx,b.vy);
@@ -297,16 +298,17 @@ function updateSecBullets(){
           if(e.hp<=0&&!e.dead){ killEnemy(e, j, true, false); }
           break;
         }
+        const vh=hullPt(e, b.x, b.y);       // v209: the blast on her model
         if(b.type==='bomb'){
           sndPlay('sec_cyclops_hit', b.x);
-          spawnFireball(b.x,b.y,45,40);
-          spawnRing(b.x,b.y,(sw && sw.blast) ? sw.blast.o : 70,30,4,255,120,0);
-          spawnDebris(b.x,b.y,25,255,180,50,200,60,0,true);
-          spawnSmoke(b.x,b.y,8);
+          spawnFireball(vh.x,vh.y,45,40);
+          spawnRing(vh.x,vh.y,(sw && sw.blast) ? sw.blast.o : 70,30,4,255,120,0);
+          spawnDebris(vh.x,vh.y,25,255,180,50,200,60,0,true);
+          spawnSmoke(vh.x,vh.y,8);
         } else {
           sndPlay(b.f ? 'fs_boom' : 'missile_explosion', b.x);   // FS2 round: boom_2 (v187)
-          spawnFireball(b.x,b.y,20,22);
-          spawnDebris(b.x,b.y,10,255,220,100,255,100,0,true);
+          spawnFireball(vh.x,vh.y,20,22);
+          spawnDebris(vh.x,vh.y,10,255,220,100,255,100,0,true);
         }
         pBullets.splice(i,1);hit=true;
         if(e.hp<=0&&!e.dead){ killEnemy(e, j, true, false); }
@@ -609,7 +611,7 @@ function launchGame(){
           hp:100,maxHp:100,sh:100,maxSh:100,
           shRecharge:0.22,shDelay:0,
           fT:0,fR:28,
-          spd:PLAYER_SPD_FIGHTER, turn:PLAYER_TURN, baseHp:100,
+          spd:PLAYER_SPD_FIGHTER*TEMPO_K, turn:PLAYER_TURN, baseHp:100,
           // The player scales too, otherwise a later cycle is only longer
           // rather than harder.
           hullMult:1,
@@ -1113,7 +1115,7 @@ function update(){
         if(!overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ox,oy,ow,oh)) continue;
         if(!bulletOnHull(o,b)) continue;
         damageEnemy(o, b.dmg||(b.big?20:8), b.x, b.y, false, 'bolt', eSrc(b));
-        hullHit(b.x,b.y);
+        { const vh = hullPt(o, b.x, b.y); hullHit(vh.x, vh.y); }   // v209: on her model
         if(b.kind==='bomb') bombBlast(b.x,b.y); else if(b.kind==='missile') sndPlay('missile_explosion', b.x);
         // No points and no pickups: the player did not earn this one.
         if(o.hp<=0 && !o.dead) killEnemy(o, fi, false, false);
@@ -1143,8 +1145,9 @@ function update(){
         a.hp-=_ad;    // our capital ships are plated too
         if(!a.small) dmgHit(a, b.x, b.y, _ad);   // and they keep the marks (v180)
         if(a.small) a.jinkReq=true;
-        hullHit(b.x,b.y);
-        if(!b.kind) laserSpark(b.x, b.y, b.col || raceCol(b.faction).core);
+        const vh=hullPt(a, b.x, b.y);        // v209: the sparks on her model
+        hullHit(vh.x, vh.y);
+        if(!b.kind) laserSpark(vh.x, vh.y, b.col || raceCol(b.faction).core);
         if(b.kind==='bomb') bombBlast(b.x,b.y); else if(b.kind==='missile') sndPlay('missile_explosion', b.x);
         eBullets.splice(i,1);
         consumed=true;
@@ -1225,7 +1228,8 @@ function update(){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
         if(b.f && !b.ally) sndPlay('fs_hit', b.x, 1, b.y);   // FS2 impact, hit_1 (v187)
-        laserHit(b.x,b.y,b.col);STATS.hits++;plogHit(b);e.shotAt=true;DMG_F=b.f||null;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt',(b.cap||b.flak)?'capgun':(b.shard?'shard':'gun'));DMG_F=null;
+        { const vh=hullPt(e,b.x,b.y); laserHit(vh.x,vh.y,b.col); }   // v209: on her model
+        STATS.hits++;plogHit(b);e.shotAt=true;DMG_F=b.f||null;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt',(b.cap||b.flak)?'capgun':(b.shard?'shard':'gun'));DMG_F=null;
         if(b.flak){
           flakBurst(b.x, b.y, true, b.fac, b.fmul);
           pBullets.splice(i,1); hit=true;

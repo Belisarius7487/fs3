@@ -1662,7 +1662,8 @@ scenario('v162: inertia, keys, flight, drift, debris, escorts', 'm=31', `
   // Inertia: from rest the ship takes several steps to reach full speed,
   // and it glides on when the pointer stops asking.
   player.x = 200; player.y = 300; player.mvx = 0; player.mvy = 0;
-  MOUSE.x = 700; MOUSE.y = 300;
+  // v209: the ship is TEMPO_K faster, so the pointer is that much further
+  MOUSE.x = 200 + 500*(typeof TEMPO_K !== 'undefined' ? TEMPO_K : 1); MOUSE.y = 300;
   FS.step(1);
   const v1 = Math.hypot(player.mvx, player.mvy);
   FS.step(60);

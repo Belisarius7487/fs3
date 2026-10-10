@@ -69,8 +69,12 @@ function hullClass(key){
 function hullWidth(key){
   const L = HULL_LEN[key];
   if(!L) return 100;                       // unknown: a cruiser of old
-  return L*SIZE_UPM*(SIZE_KEY_MUL[key] || 1);
+  // v209 preview: two scales - up to CAP_L0 metres true to fighters, the
+  // rest of a hull counts CAP_K
+  const Lc = L <= CAP_L0 ? L : CAP_L0 + (L - CAP_L0)*CAP_K;
+  return Lc*SIZE_UPM*(SIZE_KEY_MUL[key] || 1);
 }
+const CAP_L0 = 40, CAP_K = 0.2;
 function hullWidthOld(key){
   if(SIZE_FIXED[key]!=null) return SIZE_FIXED[key];
   const c = hullClass(key);
@@ -774,10 +778,11 @@ function drawReactors(e){
   const pulse = 0.5 + 0.5*Math.sin(fc*0.16);
   for(const r of e.reactors){
     if(r.dead) continue;
-    const p = reactorPos(e, r);
+    const p0 = reactorPos(e, r), vp = hullPt(e, p0.x, p0.y);
     const hr = Math.max(0, r.hp/r.maxHp);
     ctx.save();
-    ctx.translate(p.x|0, p.y|0);
+    camScreen();                         // v209: on the screen, on her model
+    ctx.translate(w2sX(vp.x)|0, w2sY(vp.y)|0);
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = 0.55 + 0.45*pulse;
     ctx.strokeStyle = hullCol(hr);
@@ -830,8 +835,13 @@ function drawHullBlocks(e, bx, by, bw, ratio, showShield){
   const crit = (ratio<=HULL_CRIT && !showShield);
   let a = crit ? 1 : HB_CALM + (1-HB_CALM)*hot;
   e._hbAlpha = a;
-  const w = Math.max(24, Math.round(bw)), x0 = Math.round(e.x - w/2), y = Math.round(by);
+  // v209: drawn on the screen in a fixed size, placed through the camera
+  // (w2sX/w2sY) - readable at any zoom. Its width follows her outline.
   ctx.save();
+  camScreen();
+  const ex = w2sX(e.x);
+  by = w2sY(by + 6) - 6;
+  const w = Math.max(24, Math.round(bw*CAM.z)), x0 = Math.round(ex - w/2), y = Math.round(by);
   ctx.globalAlpha = a;
   hullBandPath(x0, y, w);
   ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fill();
@@ -847,14 +857,13 @@ function drawHullBlocks(e, bx, by, bw, ratio, showShield){
   ctx.lineWidth = 1;
   ctx.strokeStyle = (e.side==='ally') ? 'rgba(120,190,255,0.7)' : 'rgba(255,110,90,0.7)';
   ctx.stroke();
-  ctx.restore();
 
   // Subsysteme, dieselben Symbole wie auf dem Rumpf - aber OBERHALB des
   // Balkens, sonst liegen sie auf dem Schiff.
   if(e.subs && e.subs.length){
     const sr = 4, sg = 4;
     const sw = e.subs.length*(sr*2) + (e.subs.length-1)*sg;
-    let sx = e.x - sw*0.5 + sr;
+    let sx = ex - sw*0.5 + sr;
     const sy = by - 8;
     for(const s of e.subs){
       const ok = s.hp > 0;
@@ -886,9 +895,10 @@ function drawHullBlocks(e, bx, by, bw, ratio, showShield){
     ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
     ctx.globalAlpha = 0.85;
     ctx.fillStyle = (e.side==='ally') ? '#9fd0ff' : '#ffb0a0';
-    ctx.fillText(nm, e.x|0, by-19);
+    ctx.fillText(nm, ex|0, by-19);
     ctx.restore();
   }
+  ctx.restore();
 }
 
 const SUB_CORNERS = [[-1,-1],[1,-1],[1,1],[-1,1]];
@@ -932,13 +942,16 @@ function drawSubsystems(e){
     if(s.dead) continue;                    // gone is gone, nothing is drawn
     const p=subPos(e,s);
     const hr=Math.max(0,s.hp/s.maxHp);
+    // v209: on the screen, where her model shows the subsystem
+    const vp=hullPt(e,p.x,p.y), sp={x:w2sX(vp.x), y:w2sY(vp.y)};
     ctx.save();
-    ctx.translate(p.x|0,p.y|0);
+    camScreen();
+    ctx.translate(sp.x|0,sp.y|0);
     ctx.globalAlpha=0.85;
     ctx.strokeStyle=hullCol(hr); ctx.lineWidth=1.3;
     // The marks follow the real hit area, or a subsystem enlarged by hand
     // would be shown wrong.
-    const rr=Math.max(7, Math.min(20, subRadius(e, s)*0.55));
+    const rr=Math.max(7, Math.min(20, subRadius(e, s)*0.55*CAM.z));
     const a=rr*0.8, b=rr*0.35;
     for(const c of SUB_CORNERS){
       ctx.beginPath(); ctx.moveTo(c[0]*a, c[1]*(a-b)); ctx.lineTo(c[0]*a, c[1]*a); ctx.lineTo(c[0]*(a-b), c[1]*a); ctx.stroke();
@@ -950,12 +963,13 @@ function drawSubsystems(e){
       const d2=dx*dx+dy*dy;
       if(d2<nearD){
         const proj=(dx*cs+dy*sn)/Math.max(1,Math.sqrt(d2));
-        if(proj>Math.cos(SUB_NAME_CONE)){ nearD=d2; near=s; nearP=p; }
+        if(proj>Math.cos(SUB_NAME_CONE)){ nearD=d2; near=s; nearP=sp; }
       }
     }
   }
   if(near){
     ctx.save();
+    camScreen();
     ctx.font=thLabel(9);
     ctx.textAlign='center'; ctx.textBaseline='bottom';
     ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
@@ -1010,11 +1024,15 @@ function drawShield(e){
 // running. This ring makes it findable. It sits at the hold radius, so it
 // also tells the truth about where pointer movement starts, and the bright
 // arc marks the nose so heading is readable without studying the sprite.
+const HOLD_RING_MIN = 14;
 function drawHoldRing(){
-  const r = player.holdR || HOLD_R_MIN;
+  // v209: on the screen - the hold radius through the camera, the strokes
+  // in screen pixels, never smaller than HOLD_RING_MIN
+  const r = Math.max(HOLD_RING_MIN, (player.holdR || HOLD_R_MIN)*CAM.z);
   const pulse = 0.5 + 0.5*Math.sin(fc*0.06);
   ctx.save();
-  ctx.translate(player.x|0, player.y|0);
+  camScreen();
+  ctx.translate(w2sX(player.x)|0, w2sY(player.y)|0);
   ctx.globalCompositeOperation = 'lighter';
   // Soft halo underneath, so the ring survives a bright nebula.
   const g = ctx.createRadialGradient(0,0,r*0.70,0,0,r*1.14);
@@ -1586,8 +1604,11 @@ function drawItems(){
     // obviously about to be lost.
     if(it.life<300 && fc%20<8) continue;
     const pulse=0.6+0.4*Math.sin(fc*0.12);
+    // v209: on the screen in a fixed size, placed through the camera
+    const isx=w2sX(it.x)|0, isy=w2sY(it.y)|0;
     ctx.save();
-    ctx.translate(it.x|0, it.y|0);
+    camScreen();
+    ctx.translate(isx, isy);
     ctx.globalCompositeOperation='lighter';
     try{
       const rep=(it.kind==='repair');
@@ -1598,7 +1619,8 @@ function drawItems(){
     }catch(ex){}
     ctx.restore();
     ctx.save();
-    ctx.translate(it.x|0, it.y|0);
+    camScreen();
+    ctx.translate(isx, isy);
     // A life pickup wears the same symbol as the lives counter.
     let icoKey=TICKET_ICON[it.kind];
     if(it.kind==='life'){
@@ -2133,7 +2155,7 @@ function allyFire(a){
       if(_ad && typeof f3dAim === 'function') f3dAim(a, _ad.ti, tg.x, tg.y);
       // Aimed where the target will be, not where it is (M35, v159).
       // Turrets cover the full circle.
-      const ang = leadAngle(pts[i].x, pts[i].y, tg, g.aspd)
+      const ang = leadAngle(pts[i].x, pts[i].y, tg, g.aspd*TEMPO_K)
                 + (Math.random()-0.5)*0.06*aScat*g.scat;
       sndAiShot(pts[i].x, pts[i].y, g.snd);
       capGunShot(a, pts[i].x, pts[i].y, ang, g, true, false,
@@ -2466,7 +2488,7 @@ function rollWaveMod(n){
 function nebulaOn(){ return waveMod==='nebula' || waveMod==='emp'; }
 
 // Sight and lock range. The nebula is the reason this is a function.
-function fireRange(){ return nebulaOn() ? 240 : EFIRE_RANGE; }
+function fireRange(){ return nebulaOn() ? 240*TEMPO_K : EFIRE_RANGE; }   // v209: TEMPO_K
 
 let debris = [];
 const DEBRIS_MAX = 90;           // broken capital ships leave a lot (v183)
@@ -2524,9 +2546,9 @@ function launchBombRaid(){
 function portalBomb(x, y, ang, tgt){
   eBullets.push({
     x:x, y:y,
-    vx:Math.cos(ang)*1.7, vy:Math.sin(ang)*1.7,
+    vx:Math.cos(ang)*1.7*TEMPO_K, vy:Math.sin(ang)*1.7*TEMPO_K,      // v209: TEMPO_K
     w:15, h:15, big:false, faction:currentFaction,
-    kind:'bomb', dmg:tgt ? SSB_DMG : 26, hom:true, turn:tgt ? 0.02 : 0.013, spd:1.7,
+    kind:'bomb', dmg:tgt ? SSB_DMG : 26, hom:true, turn:tgt ? 0.02 : 0.013, spd:1.7*TEMPO_K,
     life:tgt ? 900 : 560, hp:1, tgt:tgt||null
   });
 }

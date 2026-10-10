@@ -170,7 +170,10 @@ const SND_STEAL = {wpn_prometheus:1, wpn_subach:1, wpn_sidhe:1, wpn_dante:1,
 const SND_LOOP_MAX = 3;   // beam loops heard at once; more fire silently
 // Distance from the player: full level up to SND_NEAR points, then it
 // falls off, down to SND_ATT_MIN at the far side of the field.
-const SND_NEAR = 140, SND_FALL = 300, SND_ATT_MIN = 0.22;
+// v209: screen distances of the normal view - in the world divided by
+// CAM_BASE_Z, so what is in the picture sounds as loud as in v207. The
+// overview (Z) does not change it.
+const SND_NEAR = 140/CAM_BASE_Z, SND_FALL = 300/CAM_BASE_Z, SND_ATT_MIN = 0.22;
 // v205 (Silvio): a capital ship's jump fills the whole field - it barely
 // fades with distance, down to this floor at the most.
 const SND_ATT_FLOOR = {warp_in_big:0.75, warp_out_big:0.75};

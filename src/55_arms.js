@@ -132,8 +132,8 @@ function aiGunVolley(e, t, lo, pts, spread, ahead, rk){
     if(e.en < cost){ next = Math.min(next, Math.max(1, Math.ceil((cost - e.en) / e.enRe))); continue; }
     e.en -= cost;
     e.mT[k] = fc + wait; next = Math.min(next, wait);
-    const spd = aiBoltSpd(w);
-    const life = w.range ? Math.max(1, Math.round(w.range/spd)) : 0;
+    const spd = aiBoltSpd(w);      // v209: already times TEMPO_K (EBULLET_SPD)
+    const life = w.range ? Math.max(1, Math.round(w.range*TEMPO_K/spd)) : 0;
     const pk = w.pellets || 1;
     const d = dpb * (w.dmg || 1) * wait / (ref * (w.rate || 1));
     for(const i of banks[k]){
@@ -152,7 +152,7 @@ function aiGunVolley(e, t, lo, pts, spread, ahead, rk){
 // One bolt. Allied bolts go into the player's list, enemy bolts into theirs.
 function aiBolt(e, x, y, a, spd, d, life, w){
   const vx = Math.cos(a)*spd, vy = Math.sin(a)*spd;
-  const fuse = w.fuse ? Math.max(1, Math.round(w.fuse/spd)) : 0;
+  const fuse = w.fuse ? Math.max(1, Math.round(w.fuse*TEMPO_K/spd)) : 0;   // v209: TEMPO_K
   if(e.side === 'ally'){
     pBullets.push({x:x, y:y, vx:vx, vy:vy, w:w.pellets ? 8 : 11, h:4, dmg:d*2, ally:true, fac:e.faction,
                    pLife:life, fuse:fuse, wpn:fuse ? w.key : undefined,
@@ -162,7 +162,7 @@ function aiBolt(e, x, y, a, spd, d, life, w){
                big:false, faction:e.faction, dmg:d, eLife:life, sm:true,
                col:w.col, glow:w.glow};     // the weapon's colours, not the side's
     // A Dante bursts on its own at range, and where it strikes.
-    if(w.shards){ b.dfuse = fuse; b.sh = {n:w.shards, dmg:d*w.shardDmg, spd:w.shardSpd*spd/w.spd, range:w.shardRange}; }
+    if(w.shards){ b.dfuse = fuse; b.sh = {n:w.shards, dmg:d*w.shardDmg, spd:w.shardSpd*(spd/TEMPO_K)/w.spd, range:w.shardRange}; }   // sh in v207 units, see shardSpread()
     eBullets.push(b);
   }
 }
@@ -226,7 +226,7 @@ function aiSecondary(e, x, y, lo, sec){
     const px = x + (lo.pair && bomb ? -Math.sin(base)*off*16 : 0);
     const py = y + (lo.pair && bomb ? Math.cos(base)*off*16 : 0);
     if(ally){
-      pBullets.push({x:px, y:py, vx:Math.cos(a)*w.spd, vy:Math.sin(a)*w.spd,
+      pBullets.push({x:px, y:py, vx:Math.cos(a)*w.spd*TEMPO_K, vy:Math.sin(a)*w.spd*TEMPO_K,
         w:bomb?16:(w.swarm?12:18), h:bomb?16:(w.swarm?4:6), sec:true, type:bomb?'bomb':'missile',
         homing:!!w.homing, life:w.life, target:tgt, swarm:!!w.swarm, ally:true, fac:e.faction,
         dmg:w.dmg, wpn:key, burst:!!w.burst, auto:!!w.burst, salvo:salvo});
@@ -234,7 +234,7 @@ function aiSecondary(e, x, y, lo, sec){
       // The enemy's own scale: its old launcher damage, weighted like the
       // player's version against the MX-64.
       const d = sec.dmg * (key==='tornado' ? 0.4 : (bomb ? (key==='stiletto' ? 1.0 : 1.2) : (key==='infyrno' ? 0.8 : 1)));
-      const spd = bomb ? Math.min(sec.spd, w.spd) : sec.spd * (key==='infyrno' ? 1.3 : 1);
+      const spd = (bomb ? Math.min(sec.spd, w.spd) : sec.spd * (key==='infyrno' ? 1.3 : 1))*TEMPO_K;   // v209
       const b = {x:px, y:py, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd,
         w:bomb?15:(w.swarm?8:11), h:bomb?15:(w.swarm?4:6), big:false, faction:e.faction||'ntf',
         kind:bomb?'bomb':'missile', dmg:d, hom:!!w.homing, turn:sec.turn*(w.swarm?1.4:1), spd:spd,
@@ -257,6 +257,7 @@ function aiBurstCheck(b, x, y, range){
   const t = b.tgt || b.target;
   if(!t || t.dead) return false;
   const d = Math.hypot(t.x-x, t.y-y);
+  range *= TEMPO_K;                 // v209: shrapnel reach in v207 units
   const go = d < range*AI_BURST_REACH || (b._bd != null && d > b._bd + 0.3 && b._bd < range*2.5);
   b._bd = d;
   return go;

@@ -1109,7 +1109,9 @@ const STAR_PAR = 0.05;
 function drawStars(){
   const cx = (typeof CAM !== 'undefined' && GS==='playing') ? CAM.x : 0, cy = (typeof CAM !== 'undefined' && GS==='playing') ? CAM.y : 0;
   for(const s of STARS){
-    const px = ((s.x - cx*s.spd*STAR_PAR) % W + W) % W, py = ((s.y - cy*s.spd*STAR_PAR) % H + H) % H;
+    // v209: times CAM_BASE_Z - the stars keep their v208 share of the
+    // plane's movement on the screen, and the overview does not move them
+    const px = ((s.x - cx*CAM_BASE_Z*s.spd*STAR_PAR) % W + W) % W, py = ((s.y - cy*CAM_BASE_Z*s.spd*STAR_PAR) % H + H) % H;
     ctx.fillStyle=s.clr;ctx.globalAlpha=0.7;ctx.fillRect(px|0,py|0,s.sz,s.sz);
   }
   ctx.globalAlpha=1;
@@ -1146,8 +1148,13 @@ function tickParts(){
     if(--p.life<=0)PARTS.splice(i,1);
   }
 }
+const FB_MIN_PX = 5;      // v209: a fireball is never smaller on the screen
 function drawParts(){
   ctx.save();
+  // v209: sparks, debris and trails at their v207 size on the screen
+  // (fxG), a fireball at least FB_MIN_PX across; smoke clouds keep the
+  // size of their blast
+  var G=fxG(), FBm=FB_MIN_PX/CAM.z;
   for(var pi=0;pi<PARTS.length;pi++){
     var p=PARTS[pi];
     if(!p.ml||p.ml===0) p.ml=p.life;
@@ -1156,7 +1163,7 @@ function drawParts(){
     if(p.type==='fb'){
       // Feuerball: Radialverlauf (eigenes save/restore)
       var prog=1-(p.life/p.ml);
-      var r=Math.max(2, p.maxR*(0.4+0.6*prog));
+      var r=Math.max(2, FBm*(0.4+0.6*prog), p.maxR*(0.4+0.6*prog));
       try {
         var gr=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
         gr.addColorStop(0,'rgba(255,255,255,1)');
@@ -1179,23 +1186,23 @@ function drawParts(){
       var rr=p.r+(p.maxR-p.r)*rp;
       ctx.globalAlpha=Math.min(1,a*1.2);
       ctx.strokeStyle='rgba('+p.cr+','+p.cg+','+p.cb+','+Math.min(1,a*1.2)+')';
-      ctx.lineWidth=Math.max(0.5,p.lw*(1.5-rp));
+      ctx.lineWidth=Math.max(0.5,p.lw*(1.5-rp))*G;
       ctx.beginPath();ctx.arc(p.x,p.y,rr,0,Math.PI*2);ctx.stroke();
 
     } else if(p.type==='mag'){
       // Magnetic particles: stacked circles for glow, no shadowBlur
       ctx.globalAlpha=a*0.35;
       ctx.fillStyle=p.clr||'#ffffff';
-      ctx.beginPath();ctx.arc(p.x,p.y,(p.sz||1.5)*2.5,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,(p.sz||1.5)*2.5*G,0,Math.PI*2);ctx.fill();
       ctx.globalAlpha=a;
       ctx.fillStyle='#ffffff';
-      ctx.beginPath();ctx.arc(p.x,p.y,p.sz||1.5,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,(p.sz||1.5)*G,0,Math.PI*2);ctx.fill();
 
     } else if(p.type==='deb'){
       // Debris: glow from stacked circles
       var tp=1-(p.life/p.ml);
       var dclr=lerpRGB(p.sr,p.sg,p.sb,p.er,p.eg,p.eb,tp);
-      var sz=Math.max(0.8,p.sz*(1-tp*0.4));
+      var sz=Math.max(0.8,p.sz*(1-tp*0.4))*G;
       // Outer glow, large and transparent
       ctx.globalAlpha=a*0.25;
       ctx.fillStyle=lerpRGB(255,220,100,200,80,0,tp*0.7);
@@ -1213,12 +1220,12 @@ function drawParts(){
       var v=p.v||50;
       ctx.globalAlpha=a*0.3;
       ctx.fillStyle='rgb('+v+','+v+','+v+')';
-      var sr2=p.sz*(1+tp2*1.5);
+      var sr2=p.sz*(1+tp2*1.5);         // a cloud: as large as its blast
       ctx.beginPath();ctx.arc(p.x,p.y,sr2,0,Math.PI*2);ctx.fill();
 
     } else {
       // Default: two stacked circles for glow, no shadowBlur
-      var sz2=p.sz||2;
+      var sz2=(p.sz||2)*G;
       var clr=p.clr||'#ffffff';
       // Outer glow
       ctx.globalAlpha=a*0.28;
@@ -1301,7 +1308,7 @@ let shipMenu=false;     // is the ship menu open?
 let gameOverAt=0;       // guards against restarting with the tap that died
 let player={x:80,y:250,ang:0,head:0,aimAng:0,flip:false,vx:0,vy:0,
     hp:100,maxHp:100,sh:100,maxSh:100,
-    shRecharge:0.22,shDelay:0,shHit:0,fT:0,fR:28,spd:3.2,
+    shRecharge:0.22,shDelay:0,shHit:0,fT:0,fR:28,spd:3.2*TEMPO_K,
     ship:'fiherc',secAmmo:0,secMax:0,secTimer:0,secType:'missile',
     pri:'prometheus',sec:'mx64'};
 let pBullets=[],eBullets=[],enemies=[];
@@ -1485,7 +1492,8 @@ function dmgWorld(e, u, v){
   const img = IMGS[e.img], hw = img.width*e.sc/2, hh = img.height*e.sc/2;
   let px = u*hw*(e.flip ? -1 : 1), py = v*hh; const a = e.ang||0;
   if(a){ const c=Math.cos(a), s=Math.sin(a); const qx=px*c-py*s; py=px*s+py*c; px=qx; }
-  return {x: e.x+px, y: e.y+py};
+  // v209: damage effects go where her model is drawn (perspective)
+  return (typeof hullPt === 'function') ? hullPt(e, e.x+px, e.y+py) : {x: e.x+px, y: e.y+py};
 }
 // A hit on the hull: now and then it leaves a streak of scoring.
 function dmgHit(e, hx, hy, amount){
