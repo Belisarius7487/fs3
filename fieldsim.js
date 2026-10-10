@@ -1290,11 +1290,13 @@ scenario('Sound build: beams, log, names', 'm=52', `
   r.beamShipFound = !!sh;
   if(sh){
     for(const b of sh.beams){ b.state='firing'; b.angle=Math.PI; b.curAngle=Math.PI; }
-    let n = 0; const st = ctx.stroke;
+    // v213: beams are drawn as images (drawBeamRay, glowAt) - count those too
+    let n = 0; const st = ctx.stroke, di = ctx.drawImage;
     ctx.stroke = function(){ n++; return st.apply(this, arguments); };
+    ctx.drawImage = function(){ n++; return di.apply(this, arguments); };
     sh.warpOut = 0; drawBeams(sh); const firing = n;
     n = 0; sh.warpOut = 50; drawBeams(sh); const jumping = n;
-    ctx.stroke = st;
+    ctx.stroke = st; ctx.drawImage = di;
     r.beamDrawnWhileFiring = firing > 0;
     r.noBeamWhileJumpingOut = jumping === 0;
     sh.warpOut = 0;

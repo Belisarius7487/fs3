@@ -3224,24 +3224,11 @@ function drawBeamRays(e, own) {
     const g = fxG();                           // v209: v207 widths on the screen
     if(len <= 0) continue;
     const ex=mpF.x+Math.cos(ang)*len, ey=mpF.y+Math.sin(ang)*len;
-    const flicker=0.85+0.15*Math.sin(fc*0.8);
-    ctx.save();
-    // Outer glow
-    ctx.globalAlpha=0.15*flicker;
-    ctx.strokeStyle=col; ctx.lineWidth=(b.large?22:10)*g;
-    ctx.shadowColor=col; ctx.shadowBlur=ecoBlur(30);
-    ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
-    // Mid glow
-    ctx.globalAlpha=0.35*flicker;
-    ctx.lineWidth=(b.large?10:5)*g;
-    ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
-    // Core
-    ctx.globalAlpha=0.95*flicker;
-    ctx.strokeStyle='#ffffff';
-    ctx.lineWidth=(b.large?2.5:1.5)*g;
-    ctx.shadowBlur=ecoBlur(6);
-    ctx.beginPath(); ctx.moveTo(mpF.x,mpF.y); ctx.lineTo(ex,ey); ctx.stroke();
-    ctx.restore();
+    const flicker=0.92+0.08*Math.sin(fc*0.8);
+    // v213 (Silvio: too plain, plainly 2D): a soft profile with light
+    // running along it (drawBeamRay, 61_glow.js); a little wider while the
+    // shot builds up and as it dies away
+    drawBeamRay(mpF.x, mpF.y, ang, len, (b.large?7.5:3.6)*g*flicker, col, 0.95, fc);
     if(hid) drawBeamOrb(e, b);
   }
 }
@@ -3293,61 +3280,25 @@ function drawBeamOrb(e, b) {
 
     if(b.state==='charging') {
       const mpC=mountPosV(e,b);       // v209: on the drawn turret
-      const pulse=0.6+0.4*Math.sin(fc*0.5);
-      const cr=Math.max(1,(b.large?14:8)*chargeProg)*g;
-      ctx.save();
-      ctx.globalAlpha=0.2*pulse*chargeProg;
-      ctx.shadowColor=col; ctx.shadowBlur=ecoBlur(b.large?35:18);
-      ctx.fillStyle=col;
-      ctx.beginPath(); ctx.arc(mpC.x,mpC.y,cr*2.8,0,Math.PI*2); ctx.fill();
-      ctx.globalAlpha=chargeProg;
-      try {
-        var cg=ctx.createRadialGradient(mpC.x,mpC.y,0,mpC.x,mpC.y,Math.max(1,cr*1.6));
-        cg.addColorStop(0,'rgba(255,255,255,1)');
-        cg.addColorStop(0.3,'rgba(255,255,255,0.85)');
-        var cBase=col.indexOf('rgb(')>=0?col.replace('rgb(','rgba(').replace(')',',0.6)'):col;
-        cg.addColorStop(0.6,cBase);
-        cg.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle=cg;
-      } catch(ex){ ctx.fillStyle=col; }
-      ctx.beginPath(); ctx.arc(mpC.x,mpC.y,Math.max(1,cr*1.6),0,Math.PI*2); ctx.fill();
-      ctx.shadowBlur=0;
-      if(chargeProg>0.15&&fc%3===0){
-        var ang=Math.random()*Math.PI*2;
-        var dist=(18+Math.random()*(b.large?40:22))*g;
-        PARTS.push({type:'mag',
-          x:mpC.x+Math.cos(ang)*dist, y:mpC.y+Math.sin(ang)*dist,
-          tx:mpC.x, ty:mpC.y,
-          life:(10+Math.random()*8)|0, ml:0,
-          sz:b.large?2.5:1.5, clr:col});
+      // v213: the charge as a soft orb that swells (drawBeamGlowOrb), the
+      // light round it drawn in ever faster (chargeSpawn, 61_glow.js)
+      const pulse=0.85+0.15*Math.sin(fc*0.5);
+      const cr=Math.max(1,(b.large?11:6.5)*chargeProg)*g;
+      drawChargeParts(e, b);
+      drawBeamGlowOrb(mpC.x, mpC.y, cr*pulse, col, 0.35 + 0.65*chargeProg, b.angle||0);
+      if(!paused && chargeProg>0.05 && chargeProg<0.97){
+        const n = b.large ? 2 : 1;
+        for(let k=0;k<n;k++) if(Math.random() < 0.55) chargeSpawn(e, b, g, !!b.large);
       }
-      ctx.restore();
     } else if(b.state==='firing') {
       const ang = b.type==='slash' ? b.curAngle : b.angle;
       const mpF=mountPosV(e,b);       // v209: on the drawn turret
       const flicker=0.85+0.15*Math.sin(fc*0.8);
       ctx.save();
-      // Muzzle orb. This is the same sphere that builds up while charging,
-      // held at full size for the whole discharge. Only the inrushing
-      // magnetic particles stop, the glow itself does not collapse into
-      // the flat disc it used to be.
-      const orbR = (b.large?14:8) * (1.0 + 0.10*Math.sin(fc*0.55)) * g;
-      ctx.shadowColor=col; ctx.shadowBlur=ecoBlur(b.large?38:20);
-      ctx.globalAlpha=0.24*flicker;
-      ctx.fillStyle=col;
-      ctx.beginPath(); ctx.arc(mpF.x,mpF.y,orbR*2.9,0,Math.PI*2); ctx.fill();
-      ctx.globalAlpha=1;
-      try{
-        const fg=ctx.createRadialGradient(mpF.x,mpF.y,0,mpF.x,mpF.y,Math.max(1,orbR*1.7));
-        fg.addColorStop(0,'rgba(255,255,255,1)');
-        fg.addColorStop(0.32,'rgba(255,255,255,0.9)');
-        const fBase=col.indexOf('rgb(')>=0?col.replace('rgb(','rgba(').replace(')',',0.65)'):col;
-        fg.addColorStop(0.62,fBase);
-        fg.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle=fg;
-      }catch(ex){ ctx.fillStyle=col; }
-      ctx.beginPath(); ctx.arc(mpF.x,mpF.y,Math.max(1,orbR*1.7),0,Math.PI*2); ctx.fill();
-      ctx.shadowBlur=0;
+      // Muzzle orb, the same orb that built up while charging, held at
+      // full size for the whole discharge (v213: soft, with its flare)
+      const orbR = (b.large?11:6.5) * (1.0 + 0.08*Math.sin(fc*0.55)) * g;
+      drawBeamGlowOrb(mpF.x, mpF.y, orbR*flicker, col, 1, ang);
 
       // Sparks thrown forward out of the muzzle
       if(fc%2===0){

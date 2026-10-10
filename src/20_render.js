@@ -1137,14 +1137,17 @@ function tickStars(){if(GS==='playing')return;for(const s of STARS){s.x-=s.spd;i
 // so flying across the large world can be seen against them.
 const STAR_PAR = 0.05;
 function drawStars(){
-  const cx = (typeof CAM !== 'undefined' && GS==='playing') ? CAM.x : 0, cy = (typeof CAM !== 'undefined' && GS==='playing') ? CAM.y : 0;
-  for(const s of STARS){
-    // v209: times CAM_BASE_Z - the stars keep their v208 share of the
-    // plane's movement on the screen, and the overview does not move them
-    const px = ((s.x - cx*CAM_BASE_Z*s.spd*STAR_PAR) % W + W) % W, py = ((s.y - cy*CAM_BASE_Z*s.spd*STAR_PAR) % H + H) % H;
-    ctx.fillStyle=s.clr;ctx.globalAlpha=0.7;ctx.fillRect(px|0,py|0,s.sz,s.sz);
+  // v213: three painted layers (starLayers, 61_glow.js), behind the planets
+  const L = (typeof starLayers === 'function') ? starLayers() : [];
+  const play = (typeof CAM !== 'undefined' && GS==='playing');
+  const cx = play ? CAM.x : 0, cy = play ? CAM.y : 0;
+  for(const l of L){
+    // v209/v210: the camera's way times CAM_BASE_Z; on the title they drift
+    let ox = -cx*CAM_BASE_Z*l.par*STAR_PAR, oy = -cy*CAM_BASE_Z*l.par*STAR_PAR;
+    if(!play) ox -= ((typeof fc !== 'undefined') ? fc : 0)*0.35*l.par;
+    ox = ((ox % W) + W) % W; oy = ((oy % H) + H) % H;
+    for(const dx of [ox - W, ox]) for(const dy of [oy - H, oy]) ctx.drawImage(l.c, dx, dy, W, H);
   }
-  ctx.globalAlpha=1;
 }
 
 // ── PARTICLES ─────────────────────────────────────────────────
@@ -1220,27 +1223,21 @@ function drawParts(){
       ctx.beginPath();ctx.arc(p.x,p.y,rr,0,Math.PI*2);ctx.stroke();
 
     } else if(p.type==='mag'){
-      // Magnetic particles: stacked circles for glow, no shadowBlur
-      ctx.globalAlpha=a*0.35;
-      ctx.fillStyle=p.clr||'#ffffff';
-      ctx.beginPath();ctx.arc(p.x,p.y,(p.sz||1.5)*2.5*G,0,Math.PI*2);ctx.fill();
-      ctx.globalAlpha=a;
-      ctx.fillStyle='#ffffff';
-      ctx.beginPath();ctx.arc(p.x,p.y,(p.sz||1.5)*G,0,Math.PI*2);ctx.fill();
+      // v213: a soft glow (glowAt, 61_glow.js) instead of stacked circles
+      ctx.globalAlpha=1;
+      glowAt(p.x, p.y, (p.sz||1.5)*2.6*G, (p.sz||1.5)*2.6*G, p.clr||'#ffffff', a, 0.8);
 
     } else if(p.type==='deb'){
       // Debris: glow from stacked circles
       var tp=1-(p.life/p.ml);
       var dclr=lerpRGB(p.sr,p.sg,p.sb,p.er,p.eg,p.eb,tp);
       var sz=Math.max(0.8,p.sz*(1-tp*0.4))*G;
-      // Outer glow, large and transparent
-      ctx.globalAlpha=a*0.25;
-      ctx.fillStyle=lerpRGB(255,220,100,200,80,0,tp*0.7);
-      ctx.beginPath();ctx.arc(p.x,p.y,sz*1.8,0,Math.PI*2);ctx.fill();
-      // Core
+      // v213: a soft glow round a small hot core, no hard ring
+      ctx.globalAlpha=1;
+      glowAt(p.x, p.y, sz*2.2, sz*2.2, lerpRGB(255,220,100,200,80,0,tp*0.7), a*0.6, 0);
       ctx.globalAlpha=a;
       ctx.fillStyle=dclr;
-      ctx.beginPath();ctx.arc(p.x,p.y,sz*0.7,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,sz*0.55,0,Math.PI*2);ctx.fill();
 
     } else if(p.free){
       dmgDrawPart(p, a);
@@ -1257,18 +1254,9 @@ function drawParts(){
       // Default: two stacked circles for glow, no shadowBlur
       var sz2=(p.sz||2)*G;
       var clr=p.clr||'#ffffff';
-      // Outer glow
-      ctx.globalAlpha=a*0.28;
-      ctx.fillStyle=clr;
-      ctx.beginPath();ctx.arc(p.x,p.y,sz2*1.6,0,Math.PI*2);ctx.fill();
-      // Core
-      ctx.globalAlpha=a;
-      ctx.fillStyle=clr;
-      ctx.beginPath();ctx.arc(p.x,p.y,sz2*0.6,0,Math.PI*2);ctx.fill();
-      // White centre point
-      ctx.globalAlpha=a*0.8;
-      ctx.fillStyle='#ffffff';
-      ctx.beginPath();ctx.arc(p.x,p.y,sz2*0.2,0,Math.PI*2);ctx.fill();
+      // v213: one soft glow with a white-hot heart (glowAt), no rings
+      ctx.globalAlpha=1;
+      glowAt(p.x, p.y, sz2*1.9, sz2*1.9, clr, a, 0.7);
     }
   }
   ctx.restore(); // stellt globalAlpha, lineWidth, etc. wieder her

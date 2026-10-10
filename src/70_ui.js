@@ -24,7 +24,7 @@ function draw(){
   ctx.setLineDash([]);
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
   if(GS==='playing' && subspaceOn()) drawSubspace();
-  else { drawNebula(); drawBodies(); drawStars(); }
+  else { drawNebula(); drawStars(); drawBodies(); }   // v213: the stars behind the planets
 
   if(GS==='title'){drawTitle(); if(typeof f3dPreloadBar==='function') try{ f3dPreloadBar(); }catch(ep){} return;}
   if(GS==='gameover'){drawGO();return;}

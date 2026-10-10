@@ -135,25 +135,16 @@ function drawLaser(b, core, glow, hot){
   // its box times G (as long as v209 drew it), not its flight per step
   const G = fxG();
   const len = Math.max(b.w*G, 6*G), wid = Math.max(b.h, 3)*G;
+  // v213 (Silvio: the glows were visible rims of light): soft sprites
+  // only (glowAt, 61_glow.js) - a fading trail, the glowing body, a
+  // white-hot core - no filled ellipse with an edge
   ctx.save();
-  ctx.translate(bx|0, by|0);
+  ctx.translate(bx, by);
   ctx.rotate(ang);
-  ctx.globalCompositeOperation = 'lighter';
-  // The trail: three glows falling back along the path.
-  for(let k=3;k>=1;k--){
-    ctx.globalAlpha = 0.16*(4-k)/3;
-    ctx.fillStyle = glow;
-    ctx.beginPath(); ctx.ellipse(-len*0.55*k, 0, len*0.55, wid*0.55, 0, 0, Math.PI*2); ctx.fill();
-  }
-  ctx.globalAlpha = 0.9;
-  ctx.fillStyle = glow;
-  ctx.beginPath(); ctx.ellipse(0, 0, len*0.75, wid*1.1, 0, 0, Math.PI*2); ctx.fill();
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = core;
-  ctx.beginPath(); ctx.ellipse(0, 0, len*0.45, wid*0.55, 0, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = hot;
-  ctx.beginPath(); ctx.ellipse(len*0.08, 0, len*0.22, wid*0.26, 0, 0, Math.PI*2); ctx.fill();
+  for(let k=3;k>=1;k--) glowAt(-len*0.55*k, 0, len*0.75, wid*0.9, glow, 0.30*(4-k)/3, 0);
+  glowAt(0, 0, len*0.95, wid*1.7, glow, 0.95, 0);
+  glowAt(0, 0, len*0.62, wid*0.85, core, 1, 0.5);
+  glowAt(len*0.08, 0, len*0.34, wid*0.42, hot, 1, 1);
   ctx.restore();
   // A spark now and then, thrown back off the bolt.
   if((fc + b._ls) % 6 === 0 && PARTS.length < LASER_SPARK_CAP){
