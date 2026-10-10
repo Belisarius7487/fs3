@@ -200,8 +200,132 @@ function capDrift(o, mul){
   o.vy+=Math.max(-ra, Math.min(ra, tgt-o.vy));
   o.y+=o.vy*(mul||1);
 }
-// Turn a capital ship's drift towards a side (+1 down, -1 up).
+// Turn a capital ship's drift towards a side (+1 down, -1 up). v211: a
+// ship on a lane keeps it - the lanes are apart already (laneInit).
 function capSteer(o, dir){
+  if(o._lane && !o._lane.stand) return;
   if(o._dv==null){ o._dv=Math.abs(o.vy||0); o._dd=(o.vy||0)<0?-1:1; }
   o._dd=dir<0?-1:1;
+}
+
+// ── CAPITAL SHIP LANES (v211, Silvio) ──
+// The up and down patrol (capDrift) was left over from the side scroller.
+// Now a capital ship drives along her own lane, towards the other side,
+// and turns round - before the edge of the mission area, and before a ship
+// or installation that stands still in her lane - then back to where she
+// took station, and turns again. Lanes are kept apart: no two ships that
+// drive share a band, so they pass each other. Ships held by a task stand
+// (still, transit, docking, ramming, fleeing, dead engines); stations and
+// the bosses of the missions stand as well.
+// Speed: FS $Max Velocity (m/s) in the ratio of the small craft
+// (SMALL_SPD_ANCHOR, TEMPO_K).
+const CAP_VEL = {
+  cacharybdis:20, casetekh:20, codeimos:30, coiceni:35, comoloch:30, cosobek:30,
+  craeolus:30, craten:25, crcain:30, crfenris:20, crleviathan:10, crlilith:20, crmentu:35,
+  crrakshasa:20, scfaustus:25, mehippocrates:20,
+  dedemon:20, dehatshepsut:15, dehecate:15, deorionleft:15, deorionright:15, deorion:15,
+  deravana:20, detyphon:15, sdhades:15, sdlucifer:15, sdsathanas:25, sdcolossus:25,
+  frasmodeus:50, frbast:50, frbes:50, frchronos:40, frdis:50, frmaat:50, frmephisto:50,
+  frposeidon:50, frsatis:50, frtriton:30, trargo:30, trazrael:55, trelysium:40, trisis:35
+};
+const CAP_VEL_TYPE = {cruiser:25, corvette:30, destroyer:15, freighter:40, transport:40};
+// seconds for the half turn (Claude: FS has no rotation time for them here)
+const CAP_TURN_S = {cruiser:4, corvette:6, destroyer:9};
+const LANE_GAP  = 40;     // world units between two lanes, and before a ship that stands
+const LANE_EDGE = 60;     // and before the edge of the mission area
+const LANE_SQ_MIN = 0.2;  // her width seen bow on, of her length
+const LANE_MIN = 500;     // the shortest stretch worth driving between two turns
+function capCruise(o){
+  const k = String(o.img || '').replace(/^ntf/, '');
+  return (CAP_VEL[k] || CAP_VEL_TYPE[o.type] || 20)*SMALL_SPD_ANCHOR*TEMPO_K;
+}
+function capBow(o){ return ((spriteFacing(o.img) === 'right') !== !!o.flip) ? 1 : -1; }
+// held where she is by her task in the mission
+function capHolds(o){
+  // a ship someone is coming to dock with waits for them (M80, the Hecate
+  // patched up by transports) - cargoStillWanted(), 30_waves.js
+  if(o.uid && typeof cargoStillWanted === 'function' && cargoStillWanted(o)) return true;
+  return !!(o.still || o.capRam || o.transit || o.dockTo || o.fleeing || o.escaping || o.platform
+            || o.colossus || (o.minY != null && o.maxY != null && o.maxY - o.minY < 1));
+}
+function capMovers(){
+  const out = [];
+  for(const o of enemies) if(o._lane && !o._lane.stand && !o.dead) out.push(o);
+  for(const o of allies)  if(o._lane && !o._lane.stand && !o.dead) out.push(o);
+  return out;
+}
+// big things that stand: a ship or installation she must turn before
+function laneBlockers(o){
+  const out = [];
+  const add = b => {
+    if(b === o || b.dead || b.small || (b._lane && !b._lane.stand) || b.scenery || b.ghost) return;
+    if(b.type === 'fighter' || b.type === 'bomber' || b.type === 'asteroid' || b.type === 'sentry' || b.type === 'container') return;
+    if(b.warp > 0) return;
+    if(b.type === 'freighter' && Math.abs(b.vx || 0) > 0.05) return;   // crossing, not standing
+    out.push(b);
+  };
+  for(const b of enemies) add(b);
+  for(const b of allies) add(b);
+  return out;
+}
+// Her lane is the band she is in when she takes station - no sliding
+// sideways through the others. If that band is taken by a ship that
+// already drives (the clearance the hulls keep anyway, CAPITAL_GAP), she
+// stands where she is, and the others turn before her.
+function laneHalf(o){ return (typeof halfH === 'function') ? halfH(o) : hullBox(o).hh; }
+function laneInit(o){
+  const hh = laneHalf(o);
+  const free = capMovers().every(m => Math.abs(m._lane.y - o.y) >= (hh + laneHalf(m))*CAPITAL_GAP + 4);
+  if(!free){ o._lane = {stand: true}; return; }
+  o._lane = {y: o.y, dir: capBow(o), dir0: capBow(o), home: o.x, t: null};
+}
+// where her middle has to stop going in direction d
+function laneLimit(o, L, d){
+  const B = hullBox(o), hw = B.hw;
+  let lim = d > 0 ? MW - LANE_EDGE - hw : LANE_EDGE + hw;
+  // back towards her station: no further than where she took it
+  if(d !== L.dir0) lim = d > 0 ? Math.min(lim, L.home) : Math.max(lim, L.home);
+  for(const b of laneBlockers(o)){
+    const C = hullBox(b);
+    // not in her lane: as far apart as the hulls keep anyway (CAPITAL_GAP)
+    if(Math.abs(b.y - o.y) >= (laneHalf(o) + laneHalf(b))*CAPITAL_GAP) continue;
+    if(d > 0 && C.cx > o.x) lim = Math.min(lim, C.cx - C.hw - LANE_GAP - hw);
+    if(d < 0 && C.cx < o.x) lim = Math.max(lim, C.cx + C.hw + LANE_GAP + hw);
+  }
+  return lim;
+}
+function capLane(o, mul){
+  if(!subOK(o, 'engines')){ o.vy = 0; return; }       // dead in the water
+  if(o._lane && o._lane.t){ capTurnStep(o, mul); return; }  // a turn once begun is finished
+  if(capHolds(o)){ o.vy = 0; return; }
+  if(!o._lane) laneInit(o);
+  if(o._lane.stand){ o.vy = 0; return; }
+  const L = o._lane, v = capCruise(o)*(mul || 1);
+  // back into her lane if something pushed her out of it
+  const dy = L.y - o.y; o.vy = Math.max(-v*0.4, Math.min(v*0.4, dy*0.02)); o.y += o.vy;
+  const lim = laneLimit(o, L, L.dir), ahead = L.dir > 0 ? lim - o.x : o.x - lim;
+  // too little room between her two turns: she holds in her lane until
+  // there is more
+  const back = laneLimit(o, L, -L.dir);
+  L.hold = Math.abs(lim - back) < Math.max(LANE_MIN, hullBox(o).hw*3);
+  if(L.hold){ o.vy = 0; return; }
+  if(ahead <= 0){
+    L.t = {p: 0, n: Math.round((CAP_TURN_S[o.type] || 6)*60)};
+    capTurnStep(o, mul); return;
+  }
+  // slows down over the last two seconds before the turn
+  o.x += L.dir*v*Math.max(0.3, Math.min(1, ahead/(v*120)));
+}
+// The half turn: she swings round about her middle (her model yaws, seen
+// bow on half way), coasting on slowly. turnSq is her length across the
+// picture, signed - mounts, outline and hits follow it.
+function capTurnStep(o, mul){
+  const L = o._lane, T = L.t, v = capCruise(o)*(mul || 1);
+  T.p = Math.min(1, T.p + 1/T.n);
+  const c = Math.cos(Math.PI*T.p);
+  o.x += L.dir*v*0.3*c;
+  o.turnP = T.p; o.turnSq = (c < 0 ? -1 : 1)*Math.max(LANE_SQ_MIN, Math.abs(c));
+  if(T.p >= 1){
+    o.flip = !o.flip; L.dir = -L.dir; L.t = null; o.turnP = null; o.turnSq = null;
+  }
 }

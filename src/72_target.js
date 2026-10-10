@@ -12,7 +12,6 @@
 const TGT = {e: null, sub: null, lock: 0, lockOf: null, px: 0, py: 0, vx: 0, vy: 0};
 const TGT_LOCK_CONE = 0.35;    // rad off the nose a lock is built in (the reticle)
 const TGT_RETICLE_CONE = 0.35; // rad: Y / V take what lies within this of the nose
-const TGT_BRACKET_MIN = 14;    // screen px, the smallest bracket box
 function tgtIsBomb(o){ return !!o && o.kind === 'bomb' && eBullets.indexOf(o) >= 0 && (o.hp||0) > 0; }
 // May the player hold this one?
 function tgtCan(o){
@@ -200,63 +199,97 @@ function tgtLead(o, s){
 }
 // The marks on the field, on the screen (after camScreen): brackets, the
 // subsystem, the lock and the lead indicator.
+// v211 (Silvio): the marks as FreeSpace draws them (hudbrackets.cpp,
+// draw_brackets_square): four corners, each a quarter of the box long and
+// fading towards its end, round her drawn outline plus a margin, never
+// smaller than FS's 30 px at 1024 (23 here). The distance as a plain
+// number right aligned under the lower right corner. A dark edge under
+// every line so the marks hold against fire and beams.
+const TGT_BOX_MIN = 23, TGT_BOX_PAD = 3, MARK_HALO = 'rgba(0,0,0,0.78)';
+function fsBrackets(x1, y1, x2, y2, col, lw, alpha){
+  const bw = (x2-x1)/4, bh = (y2-y1)/4;
+  const seg = [[x1,y1,x1+bw,y1],[x1,y2,x1+bw,y2],[x2,y1,x2-bw,y1],[x2,y2,x2-bw,y2],
+               [x1,y1,x1,y1+bh],[x2,y1,x2,y1+bh],[x1,y2,x1,y2-bh],[x2,y2,x2,y2-bh]];
+  ctx.save(); ctx.globalAlpha *= alpha; ctx.lineCap = 'butt';
+  ctx.strokeStyle = MARK_HALO; ctx.lineWidth = lw + 2;
+  ctx.beginPath(); for(const q of seg){ ctx.moveTo(q[0],q[1]); ctx.lineTo(q[2],q[3]); } ctx.stroke();
+  ctx.lineWidth = lw;
+  for(const q of seg){
+    const g = ctx.createLinearGradient(q[0],q[1],q[2],q[3]); g.addColorStop(0, col); g.addColorStop(1, col + '30');
+    ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(q[0],q[1]); ctx.lineTo(q[2],q[3]); ctx.stroke();
+  }
+  ctx.restore();
+}
+// her drawn box on the screen, with a margin and a smallest size
+function markBox(o, pad, min){
+  let b;
+  if(o.kind === 'bomb') b = [o.x - 8, o.y - 8, 16, 16]; else b = eBox(o);
+  let x1 = w2sX(b[0]) - pad, y1 = w2sY(b[1]) - pad, x2 = w2sX(b[0]+b[2]) + pad, y2 = w2sY(b[1]+b[3]) + pad;
+  if(x2-x1 < min){ const c = (x1+x2)/2; x1 = c - min/2; x2 = c + min/2; }
+  if(y2-y1 < min){ const c = (y1+y2)/2; y1 = c - min/2; y2 = c + min/2; }
+  return [x1, y1, x2, y2];
+}
+function markText(t, x, y, col, al, bl){
+  ctx.font = thValue(9, true); ctx.textAlign = al; ctx.textBaseline = bl; ctx.lineJoin = 'round';
+  ctx.lineWidth = 3; ctx.strokeStyle = MARK_HALO; ctx.strokeText(t, x, y);
+  ctx.fillStyle = col; ctx.fillText(t, x, y);
+}
 function drawTargetMarks(){
   if(GS !== 'playing' || inJump()) return;
   const o = TGT.e; if(!o) return;
   const ally = allies.indexOf(o) >= 0, col = (o.kind === 'bomb') ? OFF_COL.enemy : offColour(o, ally);
   ctx.save();
-  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.4; ctx.lineJoin = 'round';
-  // her box as drawn: the hit box of v210 (eBox) on the screen
-  let bx, by, bw, bh;
-  if(o.kind === 'bomb'){ bx = o.x - 8; by = o.y - 8; bw = 16; bh = 16; }
-  else { const b = eBox(o); bx = b[0]; by = b[1]; bw = b[2]; bh = b[3]; }
-  let sx = w2sX(bx), sy = w2sY(by), sw = bw*CAM.z, sh = bh*CAM.z;
-  if(sw < TGT_BRACKET_MIN){ sx -= (TGT_BRACKET_MIN - sw)/2; sw = TGT_BRACKET_MIN; }
-  if(sh < TGT_BRACKET_MIN){ sy -= (TGT_BRACKET_MIN - sh)/2; sh = TGT_BRACKET_MIN; }
-  sx -= 3; sy -= 3; sw += 6; sh += 6;
-  if(sx + sw > 0 && sx < W && sy + sh > HUD_H && sy < H){
-    const L = Math.max(4, Math.min(14, Math.min(sw, sh)*0.25));
-    ctx.beginPath();
-    ctx.moveTo(sx, sy + L); ctx.lineTo(sx, sy); ctx.lineTo(sx + L, sy);
-    ctx.moveTo(sx + sw - L, sy); ctx.lineTo(sx + sw, sy); ctx.lineTo(sx + sw, sy + L);
-    ctx.moveTo(sx + sw, sy + sh - L); ctx.lineTo(sx + sw, sy + sh); ctx.lineTo(sx + sw - L, sy + sh);
-    ctx.moveTo(sx + L, sy + sh); ctx.lineTo(sx, sy + sh); ctx.lineTo(sx, sy + sh - L);
-    ctx.stroke();
-    // the subsystem: a small box of its own
+  const [x1, y1, x2, y2] = markBox(o, TGT_BOX_PAD, TGT_BOX_MIN);
+  if(x2 > 0 && x1 < W && y2 > HUD_H && y1 < H){
+    fsBrackets(x1, y1, x2, y2, col, 1.6, 1);
+    markText(String(Math.round(tgtDist(o)/SIZE_UPM)), x2 + 1, y2 + 3, col, 'right', 'top');   // metres, as in the bar
+    // the subsystem: FS's small square brackets (12 px at 1024 or more)
     if(TGT.sub && o.kind !== 'bomb'){
       const p = tgtSubPos(o, TGT.sub), px = w2sX(p.x), py = w2sY(p.y), r = 6;
-      ctx.strokeRect(px - r, py - r, r*2, r*2);
-      ctx.font = thLabel(8); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-      ctx.fillText(String(TGT.sub.label || '').toUpperCase(), px, py - r - 2);
+      const dead = !!TGT.sub.dead;          // FS: grey once destroyed
+      fsBrackets(px - r, py - r, px + r, py + r, dead ? '#9a9a9a' : col, 1.3, 1);
+      markText(String(TGT.sub.label || '').toUpperCase(), px, py - r - 3, col, 'center', 'bottom');
     }
-    // the lock: a diamond closing in on her while it builds, solid when held
+    // the aspect lock as in FS2: the lock ring travels from the nose to
+    // her while it builds, then spins round her, LOCKED under it. In her
+    // side colour (Silvio).
     const bank = selSecBank(), w = bank ? secDefP(bank.key) : null;
     if(w && w.homing === 'aspect' && TGT.lock > 0){
       const f = Math.min(1, TGT.lock/(w.lockT || 1)), locked = f >= 1;
-      const cx = sx + sw/2, cy = sy + sh/2, r = Math.max(sw, sh)*0.5*(1 + (1 - f)*1.5) + 4;
-      ctx.save();
-      ctx.strokeStyle = locked ? '#ffe040' : col; ctx.globalAlpha = locked ? 1 : 0.7;
-      if(!locked) ctx.setLineDash([4, 4]);
-      ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx + r, cy); ctx.lineTo(cx, cy + r); ctx.lineTo(cx - r, cy); ctx.closePath(); ctx.stroke();
-      if(locked){ ctx.fillStyle = '#ffe040'; ctx.font = thLabel(8); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('LOCK', cx, cy + r + 2); }
-      ctx.restore();
+      const cx = (x1+x2)/2, cy = (y1+y2)/2;
+      const ns = player.flip ? -1 : 1, na = player.ang || 0;
+      const p0x = w2sX(player.x + Math.cos(na)*ns*40), p0y = w2sY(player.y + Math.sin(na)*ns*40);
+      const lx = locked ? cx : p0x + (cx - p0x)*f, ly = locked ? cy : p0y + (cy - p0y)*f;
+      const R = Math.max(x2-x1, y2-y1)*0.5 + 7, rot = locked ? fc*0.06 : f*5;
+      ctx.lineWidth = 3.4; ctx.strokeStyle = MARK_HALO; ctx.beginPath(); ctx.arc(lx, ly, R, 0, Math.PI*2); ctx.stroke();
+      ctx.lineWidth = 1.4; ctx.strokeStyle = col; ctx.globalAlpha = locked ? 1 : 0.85;
+      ctx.beginPath(); ctx.arc(lx, ly, R, 0, Math.PI*2); ctx.stroke();
+      for(let k = 0; k < 3; k++){
+        const a = rot + k*Math.PI*2/3, c = Math.cos(a), si = Math.sin(a);
+        ctx.beginPath(); ctx.moveTo(lx + c*(R-6), ly + si*(R-6));
+        ctx.lineTo(lx + c*(R+3) - si*4, ly + si*(R+3) + c*4); ctx.lineTo(lx + c*(R+3) + si*4, ly + si*(R+3) - c*4); ctx.closePath();
+        ctx.strokeStyle = MARK_HALO; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = col; ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      if(locked) markText('LOCKED', lx, ly + R + 6, col, 'center', 'top');
     }
   }
-  // the lead indicator: only for a ship, within the reach of the primaries
-  // now firing, and only where it is on the screen
+  // the lead indicator as in FS2: four small triangles pointing in. Only
+  // for a ship, within the reach of the primaries now firing, on screen.
   if(o.kind !== 'bomb'){
     const pr = tgtPriReach();
     if(pr.spd > 0 && tgtDist(o) <= pr.reach){
       const L = tgtLead(o, pr.spd);
       if(L){
-        const lx = w2sX(L.x), ly = w2sY(L.y);
+        const lx = w2sX(L.x), ly = w2sY(L.y), r0 = 3.5, r1 = 8;
         if(lx > 0 && lx < W && ly > HUD_H && ly < H){
-          ctx.lineWidth = 1.2; ctx.globalAlpha = 0.9;
-          ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI*2); ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(lx - 9, ly); ctx.lineTo(lx - 6, ly); ctx.moveTo(lx + 6, ly); ctx.lineTo(lx + 9, ly);
-          ctx.moveTo(lx, ly - 9); ctx.lineTo(lx, ly - 6); ctx.moveTo(lx, ly + 6); ctx.lineTo(lx, ly + 9);
-          ctx.stroke();
+          for(const pass of [0, 1]) for(let k = 0; k < 4; k++){
+            const a = k*Math.PI/2, c = Math.cos(a), si = Math.sin(a);
+            ctx.beginPath(); ctx.moveTo(lx + c*r0, ly + si*r0);
+            ctx.lineTo(lx + c*r1 - si*2.6, ly + si*r1 + c*2.6); ctx.lineTo(lx + c*r1 + si*2.6, ly + si*r1 - c*2.6); ctx.closePath();
+            if(pass === 0){ ctx.strokeStyle = MARK_HALO; ctx.lineWidth = 2; ctx.stroke(); }
+            else { ctx.fillStyle = col; ctx.fill(); }
+          }
         }
       }
     }

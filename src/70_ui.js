@@ -591,37 +591,25 @@ function drawHostileMark(e){
     if(d >= CHEV_FADE) return;
     a = (d <= CHEV_FULL) ? 1 : (CHEV_FADE-d)/(CHEV_FADE-CHEV_FULL);
   }
-  // v209: on the screen in a fixed size, over her outline
-  const img = IMGS[e.img];
-  const h = (img ? img.height*e.sc : 30)*CAM.z;
-  const ex = w2sX(e.x), y = w2sY(e.y) - h*0.5 - 9;
-  // Im Anflug ein anderes Zeichen: ein Schiff, das gleich einschlaegt,
-  // soll sich von einem unterscheiden, das nur vorbeifliegt. In FreeSpace
-  // warnt der Funk davor - hier muss es das Bild tun.
-  // Gelb nur, wenn dieser Bomber gerade ein verbuendetes Grosskampfschiff
-  // anfliegt - dann lohnt es, ihn vorzuziehen. Ein Anflug auf den Spieler
-  // bleibt rot wie jeder andere Gegner.
+  // v211 (Silvio): the red chevron over her was lost too quickly among
+  // the effects. Now FS-style corner brackets round her (fsBrackets,
+  // 72_target.js), thinner and paler than the target's, with a dark edge.
+  // The target has her own, larger ones (drawTargetMarks).
+  if(e === TGT.e) return;
+  // On a run at one of our capital ships: yellow and blinking, as the
+  // double chevron was - a bomber about to strike is to be told apart from
+  // one that only passes. A run at the player stays red like any other.
   let run = false;
   if(ramsOnContact(e) && e.role==='attack' && e.passT<=0){
     const t = smallTarget(e);
     run = !!(t && t!==player && !t.small && t.side==='ally');
   }
+  if(run && fc%24 >= 17) return;
   ctx.save();
   camScreen();
   ctx.globalAlpha = a;
-  ctx.strokeStyle = run ? '#ffcc22' : '#ff2a1a';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  if(run){
-    // Doppelwinkel, blinkend
-    if(fc%24 < 17){
-      ctx.moveTo(ex-7, y-6); ctx.lineTo(ex, y);   ctx.lineTo(ex+7, y-6);
-      ctx.moveTo(ex-7, y-11);ctx.lineTo(ex, y-5); ctx.lineTo(ex+7, y-11);
-    }
-  } else {
-    ctx.moveTo(ex-6, y-5); ctx.lineTo(ex, y); ctx.lineTo(ex+6, y-5);
-  }
-  ctx.stroke();
+  const bx = markBox(e, 2, 16);
+  fsBrackets(bx[0], bx[1], bx[2], bx[3], run ? '#ffcc22' : OFF_COL.enemy, 1.2, run ? 1 : 0.8);
   ctx.restore();
 }
 
@@ -1876,15 +1864,18 @@ function shipOffered(key){
 }
 // Hulls a mission can put the player into that no roster offers.
 const EXTRA_SHIPS = {
-  fipegasus: {key:'fipegasus', name:'GTF Pegasus', fac:'terran', spd:3.6, turn:0.17,
+  fipegasus: {key:'fipegasus', name:'GTF Pegasus', fac:'terran', spd:4.08,   // v211: FS 90 m/s
+              turn:0.17,
               hp:76, sh:85, sec:20},
   // Vasudan stealth fighter, lent for the reactor scan (M71, v170).
-  fiptah:    {key:'fiptah', name:'GVF Ptah', fac:'vasudan', spd:3.5, turn:0.17,
+  fiptah:    {key:'fiptah', name:'GVF Ptah', fac:'vasudan', spd:4.08,   // v211: FS 90 m/s
+              turn:0.17,
               hp:76, sh:85, sec:20},
   // A captured Shivan fighter, for the flight beyond the second portal
   // (M78, v177). Flown by a Terran pilot it is FreeSpace's "SF Mara
   // (terrans)": 475/700 in the table, far tougher than the AI's (v185).
-  fimara:    {key:'fimara', name:'SF Mara', fac:'shivan', spd:3.5, turn:0.18,
+  fimara:    {key:'fimara', name:'SF Mara', fac:'shivan', spd:3.4,   // v211: FS 75 m/s (terrans)
+              turn:0.18,
               hp:164, sh:179, sec:20}
 };
 // The player's own hull while a mission lends another, or ''.
@@ -1911,7 +1902,8 @@ function shipStats(key){
   if(EXTRA_SHIPS[key]) return EXTRA_SHIPS[key];
   const b = isBomberHull(key);
   const v = SMALL_TBL[key] || [100,100];
-  return {key:key, name:key, spd:b?PLAYER_SPD_BOMBER:PLAYER_SPD_FIGHTER, turn:PLAYER_TURN,
+  const fsv = (typeof SMALL_VEL !== 'undefined') ? SMALL_VEL[key] : 0;   // v211: FS speed
+  return {key:key, name:key, spd:fsv ? fsv*SMALL_SPD_ANCHOR : (b?PLAYER_SPD_BOMBER:PLAYER_SPD_FIGHTER), turn:PLAYER_TURN,
           hp:v[0], sh:v[1], sec:b?10:20};
 }
 // Puts the player into a hull. Without keep everything is refilled. With
@@ -1921,7 +1913,8 @@ function shipStats(key){
 function applyShip(key, keep){
   const s = shipStats(key);
   player.ship   = key;
-  player.spd    = s.spd*TEMPO_K;      // v209: TEMPO_K, as in v207 on the screen
+  // v211: the hull's FS speed (smallSpd, TEMPO_K included), else as before
+  player.spd    = s.spd*TEMPO_K;     // v211: s.spd is the FS speed (rosters, SMALL_VEL)
   player.mvx = 0; player.mvy = 0;     // a new hull starts at rest
   player.turn   = s.turn;
   player.baseHp = s.hp;

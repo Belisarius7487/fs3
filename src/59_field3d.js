@@ -558,7 +558,10 @@ function f3dReadyLevel(key){
 function f3dMat(e, x, y, L){
   const right = (spriteFacing(e.img) === 'right') !== !!e.flip;
   const vw = F3D_VIEW[e.img] || 0;
-  const yaw = (right ? Math.PI/2 : -Math.PI/2) - (right ? vw : -vw);
+  let yaw = (right ? Math.PI/2 : -Math.PI/2) - (right ? vw : -vw);
+  // v211: a capital ship in her turn (capTurnStep) yaws from her heading
+  // to the other one, bow on half way
+  if(e.turnP){ const yTo = (!right ? Math.PI/2 : -Math.PI/2) - (!right ? vw : -vw); yaw += (yTo - yaw)*e.turnP; }
   const img = IMGS[e.img], w = img ? img.width*e.sc : 100;
   // the hull's width across the picture: her length from the side, her
   // beam face on (F3D_VIEW)

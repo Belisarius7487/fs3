@@ -55,7 +55,10 @@ const CAM_BASE_Z = 0.35;
 // missed too easily. Kept as a factor of 1, so the v209 lines that use it
 // stay as they are. What is read on the screen (the hold ring, the pointer,
 // the size of shots and sparks) keeps 1/CAM_BASE_Z (SCR_K).
-const TEMPO_K = 1;
+// v211 (Silvio): v210 was too slow, the quick pace was lost - halfway
+// between v210 and v209, about twice the v210 pace. Small craft, every
+// round and their reach (same flight time as v208).
+const TEMPO_K = 2;
 const SCR_K = 1/CAM_BASE_Z;
 const CAM = {x: FIELD_CX, y: FIELD_CY, z: CAM_BASE_Z, zt: CAM_BASE_Z, over: false};
 const CAM_OVER_Z = CAM_BASE_Z/3;             // overview: three times further out

@@ -491,7 +491,7 @@ console.log('A mission can lend a hull');
   W.run("forceShip('fipegasus')");
   ok('the player flies the lent hull', P().ship==='fipegasus');
   ok('with its own figures, not the fighter defaults',
-     P().maxSh===85 && P().spd===3.6 && W.run("shipStats('fipegasus').name")==='GTF Pegasus');
+     P().maxSh===85 && P().spd===4.08 && W.run("shipStats('fipegasus').name")==='GTF Pegasus');
   ok('and the hangar is closed for this mission', W.run('shipSwapReady()')===false);
   ok('it is announced in the column', W.get('NOTICE_LOG').some(n=>/PEGASUS ASSIGNED/.test(n.txt)));
   W.run("player.hp=10; releaseShip()");

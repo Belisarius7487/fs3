@@ -631,6 +631,9 @@ function onHull(key, cx, cy, sc, flip, wx, wy, ang, o){
     const rx = ox*ca - oy*sa, ry = ox*sa + oy*ca;
     ox = rx; oy = ry;
   }
+  // v211: a capital ship half way through her turn (capTurnStep) is
+  // shorter across the picture, and mirrored past the middle of it
+  if(o && o.turnSq) ox /= o.turnSq;
   let lx = ox / pw + 0.5;               // 0..1 across the sprite width
   const ly = oy / ph + 0.5;
   if(flip) lx = 1 - lx;
@@ -1819,6 +1822,13 @@ function dmgK(e){
 }
 // The ship, with what she has taken. Same transform as drawShip().
 function drawShipE(e, cx, cy, scale, flipX, ang){
+  // v211: in her turn (capTurnStep) the picture is narrowed about her middle
+  if(e.turnSq && !drawShipE._in){
+    ctx.save(); ctx.translate(cx, cy); if(ang) ctx.rotate(ang); ctx.scale(e.turnSq, 1); if(ang) ctx.rotate(-ang); ctx.translate(-cx, -cy);
+    drawShipE._in = true;
+    try{ drawShipE(e, cx, cy, scale, flipX, ang); } finally { drawShipE._in = false; ctx.restore(); }
+    return;
+  }
   // A ship that comes on already hurt (a mission sets her hull low) brings
   // her damage with her: marked and torn from the first frame, quietly.
   if(!e.dm && e.maxHp && e.hp < e.maxHp*0.95 && dmgEligible(e)) dmgPreset(e);

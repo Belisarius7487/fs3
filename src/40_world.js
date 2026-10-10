@@ -162,7 +162,7 @@ function mkEnemy(type, spr0, yWant){
     return {type:'fighter',img:spr,faction:typeFac(type),
       pts:100,x:ax,y,warpX:ax,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:WY0+22,maxY:WY1-22,
       vx:-(0.9+Math.random()*0.9),vy:0,ang:0,
-      head:Math.PI, spd:EFIGHTER_SPD, turn:EFIGHTER_TURN,
+      head:Math.PI, spd:smallSpd(spr)||EFIGHTER_SPD, turn:EFIGHTER_TURN,   // v211: FS speed
       role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
       prefD:90+Math.random()*130,
       fT:(60+Math.random()*60)|0,fR:(85+Math.random()*60)|0,
@@ -178,7 +178,7 @@ function mkEnemy(type, spr0, yWant){
     return {type:'bomber',img:spr,faction:typeFac(type),
       pts:150,x:axb,y,warpX:axb,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:WY0+22,maxY:WY1-22,
       vx:-(0.5+Math.random()*0.6),vy:0,ang:0,
-      head:Math.PI, spd:EBOMBER_SPD, turn:EBOMBER_TURN,
+      head:Math.PI, spd:smallSpd(spr)||EBOMBER_SPD, turn:EBOMBER_TURN,     // v211: FS speed
       role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
       prefD:200+Math.random()*140,
       fT:(15+Math.random()*20)|0,fR:(12+Math.random()*4)|0,
@@ -1138,8 +1138,8 @@ function spriteBox(key){
 function hullBox(o){
   const b = spriteBox(o.img), sc = o.sc || 1;
   if(!b) return {cx:o.x, cy:o.y, hw:40*sc, hh:20*sc};
-  const s = o.flip ? -1 : 1;
-  return {cx:o.x + b.cx*sc*s, cy:o.y + b.cy*sc, hw:b.hw*sc, hh:b.hh*sc};
+  const s = (o.flip ? -1 : 1)*(o.turnSq || 1), q = Math.abs(o.turnSq || 1);   // v211: turnSq
+  return {cx:o.x + b.cx*sc*s, cy:o.y + b.cy*sc, hw:b.hw*sc*q, hh:b.hh*sc};
 }
 // Beruehren sich zwei Rumpfe? Waagerecht und senkrecht getrennt geprueft:
 // ein Kreis laesst ein Schiff hoch ueber einem anderen explodieren, weil
@@ -1263,7 +1263,11 @@ function separateCapitals(){
       const push = (needY-Math.abs(dy))*SEPARATE_FORCE*0.5;
       const dir = dy>0 ? 1 : -1;
       // heavier ships give way less
-      const wa = halfH(a), wb = halfH(b);
+      let wa = halfH(a), wb = halfH(b);
+      // v211: a ship on her lane (capLane) keeps it; the one that stands
+      // gives way, all of it
+      const la = !!(a._lane && !a._lane.stand), lb = !!(b._lane && !b._lane.stand);
+      if(la && !lb){ wa = 1; wb = 0; } else if(lb && !la){ wa = 0; wb = 1; }
       const tot = wa+wb;
       a.y -= push*dir*(wb/tot)*2;
       b.y += push*dir*(wa/tot)*2;
@@ -1915,7 +1919,7 @@ function mkAllySmall(kind, fac, spr, y){
     sh:st.sh, maxSh:st.sh, shRe:st.re,
     shDelay:0, shHit:0, minY:WY0+22, maxY:WY1-22,
     vx:0, vy:0, ang:0, head:0,
-    spd: bomber?EBOMBER_SPD:EFIGHTER_SPD,
+    spd: smallSpd(spr) || (bomber?EBOMBER_SPD:EFIGHTER_SPD),   // v211: FS speed
     turn: bomber?EBOMBER_TURN:EFIGHTER_TURN,
     role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
     prefD: bomber?(200+Math.random()*140):(90+Math.random()*130),
@@ -2253,7 +2257,9 @@ function updateAllies(){
         if(a.guard) guardGone = true;
       }
     }
-    capDrift(a, 1);                         // dead in the water without engines
+    // v211: warships and freighters on their lanes (capLane), the rest stands
+    if(CAP_VEL_TYPE[a.type] || CAP_VEL[String(a.img||'').replace(/^ntf/,'')]) capLane(a, 1);
+    else a.vy = 0;
     a.y = Math.max(a.minY, Math.min(a.maxY, a.y));
     allyFire(a);
     updateBeams(a);

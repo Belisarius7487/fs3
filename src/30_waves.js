@@ -1517,6 +1517,27 @@ const SMALL_TBL = {
   fiapollo:[83,90],    fivalyrie:[69,51],  boathena:[86,128],   fianubis:[55,51],
   boamun:[216,205],    fiscorpion:[62,154], boshaitan:[138,256]
 };
+// v211 (Silvio): speeds in the ratio of FreeSpace. $Max Velocity (m/s,
+// ships.tbl, FSPort for the FS1 hulls). The Myrmidon is the anchor at the
+// game speed she had (3.4 per step at TEMPO_K 1); every other hull gets her
+// ratio to 75 m/s. The same for the player and the AI (Silvio: as in FS).
+const SMALL_VEL = {
+  fiulysses:70, fiherc:50, fihercmk2:55, fiares:50, fierinyes:65, filoki:75, fipegasus:90,
+  fiperseus:80, fimyrmidon:75, boartemis:65, boartemisdh:65, bomedusa:50, boursa:45,
+  bozeus:55, boboanerges:55,
+  fiseth:55, fihorus:90, fitoth:65, fiserapis:75, fitauret:65, fiptah:90,
+  bosekhmet:60, boosiris:50, bobakha:65,
+  fidragon:75, fibasilisk:65, fimanticore:87, fiaeshma:68, fimara:70, fiastaroth:80,
+  bonephilim:60, botaurvi:65, bonahema:90, boseraphim:60,
+  fiapollo:60, fivalyrie:85, boathena:60, fianubis:75, boamun:40, fiscorpion:70, boshaitan:60
+};
+const SMALL_SPD_ANCHOR = 3.4/75;          // game speed per m/s (Myrmidon)
+// Top speed of a small craft in points per step, TEMPO_K included; null
+// for a hull without a FS value (it keeps its old class speed).
+function smallSpd(key){
+  const v = SMALL_VEL[key];
+  return v ? v*SMALL_SPD_ANCHOR*TEMPO_K : null;
+}
 // NPC shields come back like the player's: the same rate, the same quiet
 // time after a hit (player.shRecharge, player.shDelay).
 const SMALL_SH_RE = 0.22, SMALL_SH_DELAY = 90;
@@ -1572,6 +1593,9 @@ const ROSTER_NTF = [
   {key:'boursa',     name:'GTB Ursa',          fac:'terran', unlock:43000, spd:2.3, turn:0.10, hp:190, sh:218, sec:14},
   {key:'fiares',     name:'GTF Ares',          fac:'terran', unlock:58000, spd:3.3, turn:0.15, hp:147, sh:167, sec:32}
 ];
+// v211: the rosters show and fly the FS speed (SMALL_VEL, without TEMPO_K)
+if(typeof SMALL_VEL !== 'undefined') for(const r of [ROSTER_HOL, ROSTER_NTF]) for(const s of r)
+  if(SMALL_VEL[s.key]) s.spd = Math.round(SMALL_VEL[s.key]*SMALL_SPD_ANCHOR*100)/100;
 // first: the first wave of the cycle. call: which support columns answer.
 // tabs: both fleets at once, each on its own tab in the hangar and in the
 // support menu (the Shivan cycle, v163). roster then holds the Terran hulls

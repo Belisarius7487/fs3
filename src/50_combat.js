@@ -2809,7 +2809,9 @@ function shipBound(e){
 }
 const EFIRE_CONE = 0.50;     // half angle in rad within which they will shoot (0.42 before v166)
 const EFIRE_RANGE = 430*TEMPO_K;     // v209: reach as in v207 on the screen
-const EBULLET_SPD = 4.5*TEMPO_K;     // v209: TEMPO_K
+// v211 (Silvio, as in FS): the AI's bolts fly as fast as the same gun's
+// on the player (aiBoltSpd: 9 = 450 m/s), not half of it any more
+const EBULLET_SPD = 9*TEMPO_K;
 // Fire from a distance has to be inaccurate, otherwise standing off is
 // simply better than closing in and the player gets picked apart from
 // behind with no counterplay.
@@ -3029,7 +3031,7 @@ function mountPos(e, beam) {
   const img=IMGS[e.img]; if(!img) return {x:e.x,y:e.y};
   const pw=img.width*e.sc, ph=img.height*e.sc;
   const s = e.flip ? -1 : 1;   // drawn mirrored, so flip dx
-  const px = (pw/2)*beam.dx*s, py = (ph/2)*beam.dy;
+  const px = (pw/2)*beam.dx*s*(e.turnSq || 1), py = (ph/2)*beam.dy;   // v211: turnSq
   const a = e.ang || 0;
   // Still coming out of her vortex: the guns are where the picture is
   // (a ship firing on her way out of the portal, M77 v179).

@@ -902,7 +902,9 @@ scenario('M56 Die Verraeter', 'm=56', `
   // She stays on the left and faces into the field, not the edge behind her.
   r.facesIntoTheField = !!t && t.x < MW*0.5 && t.flip===needsFlip(t.img, false);
   const _tx = t.x; FS.step(200);
-  r.staysWhereSheIs = Math.abs(t.x-_tx) < 1;
+  // v211: a warship drives her lane (capLane) - she stands, or she moves
+  // the way her bow points, into the field
+  r.staysWhereSheIs = Math.abs(t.x-_tx) < 1 || (!!t._lane && !t._lane.stand && (t.x-_tx)*capBow(t) > 0 && t.x < MW*0.75);
   FS.step(3);
   r.newObjective = missionObj==='DESTROY THE LEVIATHAN';
   r.moreComing = enemies.some(e=>e.uid==='E2') || spawnQ.some(q=>q.uid==='E2' || q.uid==='B1') || enemies.some(e=>e.uid==='B1');
@@ -1673,7 +1675,8 @@ scenario('v162: inertia, keys, flight, drift, debris, escorts', 'm=31', `
   const x0 = player.x; FS.step(1);
   r.glides = player.x > x0 + 0.5;
   FS.step(120);
-  r.stops = Math.hypot(player.mvx, player.mvy) < 0.01;
+  // v211: from twice the pace it glides out a little longer - scaled with it
+  r.stops = Math.hypot(player.mvx, player.mvy) < 0.01*(typeof TEMPO_K !== 'undefined' ? TEMPO_K : 1);
   r.nimbleFaster = (function(){ const t0 = player.turn; player.turn = 0.18; const a = playerInertia().acc/player.spd;
                     player.turn = 0.10; const b = playerInertia().acc/player.spd; player.turn = t0; return a > b*1.8; })();
   // WASD no longer flies the ship.

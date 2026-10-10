@@ -590,7 +590,7 @@ function rotExtent(pw, ph, ang){
 function eBox(e){
   if(e.type==='asteroid'){const r=16*e.sc;return[e.x-r,e.y-r,r*2,r*2];}
   const img=IMGS[e.img];if(!img)return[e.x-20,e.y-20,40,40];
-  const bx=rotExtent(img.width*e.sc, img.height*e.sc, e.ang||0);
+  const bx=rotExtent(img.width*e.sc*(e.turnSq?Math.abs(e.turnSq):1), img.height*e.sc, e.ang||0);   // v211: turnSq
   // v210: where her hull is drawn (hullView), the box around that
   const v=(typeof hullView==='function')?hullView(e):null;
   if(v){ const cx=v.cx+(e.x-v.cx)*v.k, cy=v.cy+(e.y-v.cy)*v.k, w=bx[0]*v.k, h=bx[1]*v.k; return[cx-w*.5,cy-h*.5,w,h]; }
@@ -1373,8 +1373,9 @@ function update(){
       if(runFlee(e,i)) continue;
       // Wie beim Kreuzer: ein Rammkurs faehrt seinen eigenen Kurs.
       if(!e.capRam){
-        if(e.x>e.targetX)e.x=Math.max(e.targetX,e.x-0.6);
-        capDrift(e, 1);
+        // v211: to her station, then on her lane (capLane)
+        if(e.x>e.targetX && !e._lane) e.x=Math.max(e.targetX,e.x-0.6);
+        else capLane(e, 1);
       }
       e.y=Math.max(WY0+18,Math.min(WY1-18,e.y));
       if(e.x<WX0-300){enemies.splice(i,1);continue;}
@@ -1396,8 +1397,8 @@ function update(){
       // die Fahrt bei x = 0: der linke Bildrand, an dem er hing.
       if(!e.capRam){
         // Zu Kampfposition gleiten
-        if(e.x>e.targetX) e.x=Math.max(e.targetX,e.x-0.8);
-        capDrift(e, 1);
+        if(e.x>e.targetX && !e._lane) e.x=Math.max(e.targetX,e.x-0.8);
+        else capLane(e, 1);                  // v211: on her lane
       }
       e.y=Math.max(WY0+18,Math.min(WY1-18,e.y));
       if(e.x<WX0-200){enemies.splice(i,1);continue;}
@@ -1486,7 +1487,8 @@ function update(){
       // them a deadline. Losing their guns does.
       if(runFlee(e,i)) continue;
       if(e.hp<e.maxHp*.5&&e.phase===1){ e.phase=2; e.fireBoost=0.62; }
-      capDrift(e, e.phase===2?1.3:1.0);
+      // v211: a boss holds her station - no more drifting up and down
+      e.vy = 0;
       e.y=Math.max(e.minY,Math.min(e.maxY,e.y));
 
       // Fire as soon as the boss is on screen. This call used to sit in the
