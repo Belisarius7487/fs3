@@ -2715,7 +2715,7 @@ const PLAYER_W_BOMBER  = 66;
 // what the nose aims along.
 const PLAYER_SPD_FIGHTER = 3.2;   // 320 px per second, field crossed in ~2.5 s
 const PLAYER_SPD_BOMBER  = 2.4;
-const AIM_DEAD = 4*TEMPO_K;          // pointer distance in px below which the aim holds
+const AIM_DEAD = 4*SCR_K;   // v210: SCR_K (TEMPO_K is 1 again)          // pointer distance in px below which the aim holds
 const PLAYER_TURN = 0.14;    // max heading change per logic step, half turn in ~0.22 s
 // Inside the hold radius the pointer only turns the ship. Past it speed
 // ramps up across a band rather than switching on hard, so small
@@ -2723,9 +2723,9 @@ const PLAYER_TURN = 0.14;    // max heading change per logic step, half turn in 
 // a fixed number would sit inside the sprite of a large bomber.
 const HOLD_R_MULT = 1.2;     // multiple of the half sprite extent
 // v209: the pointer is read on the screen, so its distances are v207's
-// screen distances in the world (TEMPO_K)
-const HOLD_R_MIN  = 26*TEMPO_K;
-const HOLD_BAND   = 45*TEMPO_K;     // px over which speed climbs from zero to full
+// screen distances in the world (v210: SCR_K, the ring stays as in v209)
+const HOLD_R_MIN  = 26*SCR_K;
+const HOLD_BAND   = 45*SCR_K;     // px over which speed climbs from zero to full
 // Inertia of the player's ship, by how nimble the hull is (its turn rate):
 // the time it takes to reach full speed from a standstill, and to stop
 // again. An interceptor (turn 0.18) takes about a fifth of a second, a heavy

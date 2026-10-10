@@ -50,13 +50,13 @@ let WX0 = 0, WX1 = W, WY0 = HUD_H, WY1 = H;
 const FIELD_CX = W/2, FIELD_CY = (HUD_H+H)/2;
 // v209: the normal view is further out (like the 2.5D demo, Silvio)
 const CAM_BASE_Z = 0.35;
-// v209 (Silvio): small craft and every round fly this much faster in the
-// world, so on the screen at CAM_BASE_Z they move as they did in v207.
-// The player, fighters, bombers, bolts, missiles, bombs and flak - turret
-// rounds included. A round keeps its flight time, so its reach in the
-// world grows by the same factor (on the screen it is as in v207).
-// Capital ships, beams and scripted runs keep their v208 pace.
-const TEMPO_K = 1/CAM_BASE_Z;
+// v209 made small craft and every round fly 1/CAM_BASE_Z faster. v210
+// (Silvio): back to the v208 pace and reach - at that speed the player
+// missed too easily. Kept as a factor of 1, so the v209 lines that use it
+// stay as they are. What is read on the screen (the hold ring, the pointer,
+// the size of shots and sparks) keeps 1/CAM_BASE_Z (SCR_K).
+const TEMPO_K = 1;
+const SCR_K = 1/CAM_BASE_Z;
 const CAM = {x: FIELD_CX, y: FIELD_CY, z: CAM_BASE_Z, zt: CAM_BASE_Z, over: false};
 const CAM_OVER_Z = CAM_BASE_Z/3;             // overview: three times further out
 // Rest zone: the camera only follows once the player leaves the middle of
@@ -72,7 +72,7 @@ function s2wY(y){ return CAM.y + (y - FIELD_CY)/CAM.z; }
 // v207 size on the screen, and in the overview never less than
 // FX_MIN_SCR of it. Hit tests do not use it.
 const FX_MIN_SCR = 0.5;
-function fxG(){ return Math.max(TEMPO_K, FX_MIN_SCR/CAM.z); }
+function fxG(){ return Math.max(SCR_K, FX_MIN_SCR/CAM.z); }   // v210: SCR_K
 // Missiles and bombs at half of that: at their full v207 size they would
 // be larger than the fighters that carry them.
 const ORD_G = 0.5;

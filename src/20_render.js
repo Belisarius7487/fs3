@@ -651,6 +651,11 @@ function probeAxis(b){
   return [vx/sp*off, vy/sp*off];
 }
 
+// v210: is this point of the plane on her hull as it is drawn?
+function onHullAt(e, x, y){
+  const p = (typeof hullUnPt === 'function') ? hullUnPt(e, x, y) : {x: x, y: y};
+  return onHull(e.img, e.x, e.y, e.sc, e.flip, p.x, p.y, e.ang||0, e);
+}
 function bulletOnHull(e, b){
   if(e && e.ghost) return false;    // shots pass through (M78, v178)
   if(e.type === 'asteroid') return true;
@@ -660,9 +665,13 @@ function bulletOnHull(e, b){
   if(e.invuln && e.scenery) return false;
   const ea = e.ang || 0;
   const pr = probeAxis(b);
-  return onHull(e.img, e.x, e.y, e.sc, e.flip, b.x+pr[0], b.y+pr[1], ea, e)
-      || onHull(e.img, e.x, e.y, e.sc, e.flip, b.x,       b.y,       ea, e)
-      || onHull(e.img, e.x, e.y, e.sc, e.flip, b.x-pr[0], b.y-pr[1], ea, e);
+  // v210: against her hull as it is drawn (hullView, 59_field3d.js)
+  const v = (typeof hullView === 'function') ? hullView(e) : null;
+  let bx = b.x, by = b.y;
+  if(v){ bx = v.cx + (bx - v.cx)/v.k; by = v.cy + (by - v.cy)/v.k; pr[0] /= v.k; pr[1] /= v.k; }
+  return onHull(e.img, e.x, e.y, e.sc, e.flip, bx+pr[0], by+pr[1], ea, e)
+      || onHull(e.img, e.x, e.y, e.sc, e.flip, bx,       by,       ea, e)
+      || onHull(e.img, e.x, e.y, e.sc, e.flip, bx-pr[0], by-pr[1], ea, e);
 }
 
 function bulletOnPlayer(b){
@@ -1030,6 +1039,9 @@ function rollBodies(){
 }
 
 function tickBodies(){
+  // v210 (Silvio): in a wave the planets and suns have no motion of their
+  // own; they move only with the camera (drawBodies). The title keeps it.
+  if(GS==='playing') return;
   for(const b of bodies){
     b.x -= b.spd;
     if(b.x + b.w < -40){
@@ -1042,6 +1054,16 @@ function tickBodies(){
   }
 }
 
+// v210: how far the camera has moved a body on the screen - a share of
+// the camera's way from the middle of the world, as the stars have it
+// (STAR_PAR), larger bodies (nearer, BODY_SPD) a larger share. Times
+// CAM_BASE_Z, so the overview moves nothing.
+const BODY_PAR = 0.05;
+function bodyPar(b){
+  if(GS!=='playing' || typeof CAM === 'undefined') return {x: 0, y: 0};
+  const k = (b.spd/BODY_SPD_MAX)*BODY_PAR*CAM_BASE_Z;
+  return {x: (CAM.x - MW/2)*k, y: (CAM.y - (HUD_H + MH)/2)*k};
+}
 function drawBodies(){
   if(!bodies.length) return;
   // Die verbleibenden 8 %, die die Blende offen laesst, wuerden den
@@ -1055,18 +1077,21 @@ function drawBodies(){
     const img = BODY_IMG[b.key];
     if(!img || !img.complete || !img.naturalWidth) continue;
     const h = b.w*img.height/img.width;
-    const x0 = b.x - b.w/2, y0 = b.y - h/2;
+    // v210: moved only by the camera, the larger (nearer) body more
+    const bp = bodyPar(b);
+    const bx = b.x - bp.x, by = b.y - bp.y;
+    const x0 = bx - b.w/2, y0 = by - h/2;
     if(b.kind==='sun'){
       dim = Math.max(dim, Math.min(BODY_DIM_MAX, (b.w/SUN_W_MAX)*BODY_DIM_MAX));
       const gr = Math.min(SUN_GLOW_MAX, (b.w/SUN_W_MAX)*SUN_GLOW_MAX + 0.06);
-      const g = ctx.createRadialGradient(b.x,b.y,b.w*0.42, b.x,b.y,b.w*1.25);
+      const g = ctx.createRadialGradient(bx,by,b.w*0.42, bx,by,b.w*1.25);
       g.addColorStop(0,'rgba(255,224,160,'+gr.toFixed(3)+')');
       g.addColorStop(0.55,'rgba(255,180,90,'+(gr*0.35).toFixed(3)+')');
       g.addColorStop(1,'rgba(255,150,60,0)');
       ctx.save();
       ctx.globalCompositeOperation='lighter';
       ctx.fillStyle=g;
-      ctx.fillRect(b.x-b.w*1.3, b.y-b.w*1.3, b.w*2.6, b.w*2.6);
+      ctx.fillRect(bx-b.w*1.3, by-b.w*1.3, b.w*2.6, b.w*2.6);
       ctx.restore();
     }
     ctx.save();
@@ -1102,7 +1127,9 @@ const STARS=Array.from({length:120},()=>({
   spd:0.3+Math.random()*1.2,sz:Math.random()<0.06?2:1,
   clr:['#ffffff','#aaaaff','#ffcccc'][Math.floor(Math.random()*3)],
 }));
-function tickStars(){for(const s of STARS){s.x-=s.spd;if(s.x<0){s.x=W;s.y=Math.random()*H;}}}
+// v210 (Silvio): in a wave the stars have no drift of their own - they
+// move only with the camera (drawStars). The title keeps the drift.
+function tickStars(){if(GS==='playing')return;for(const s of STARS){s.x-=s.spd;if(s.x<0){s.x=W;s.y=Math.random()*H;}}}
 // v208: the stars move with the camera too, the near ones more (parallax),
 // so flying across the large world can be seen against them.
 const STAR_PAR = 0.05;

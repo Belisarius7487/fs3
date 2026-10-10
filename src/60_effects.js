@@ -151,25 +151,33 @@ function fireSecondary(){
   player.secTimer=wp.cd; player.secCdMax=wp.cd;
   syncLegacyWeapons();
   sndPlay(wp.snd || ('sec_'+wp.key), player.x);
+  // v210: an aspect seeker takes the target it holds a lock on (TGT,
+  // 72_target.js) and its subsystem; without a lock it flies straight
+  // (FS2). A heat seeker takes the player's target if it lies in its cone,
+  // else the nearest heat source there (heatAcquire).
+  const lockOn = (wp.homing==='aspect' && typeof tgtLocked==='function' && tgtLocked()) ? TGT.e : null;
+  const lockSub = lockOn ? TGT.sub : null;
   if(wp.swarm){
-    const tg=swarmTargets(sp.x, sp.y, wp.swarm), id=++swarmSalvo;
+    const id=++swarmSalvo;
     for(let k=0;k<wp.swarm;k++){
       const a=sa+(wp.swarm>1 ? (k/(wp.swarm-1)-0.5)*wp.fan : 0);
       pBullets.push({x:sp.x, y:sp.y,
         vx:Math.cos(a)*wp.spd*TEMPO_K, vy:Math.sin(a)*wp.spd*TEMPO_K,
         w:12, h:4, sec:true, type:'missile', homing:true, life:wp.life,
-        maxSpd:wp.spd, turn:wp.turn, f:wp.f, wd:wp,
-        target:tg[k], swarm:true, salvo:id, dmg:wp.dmg, wpn:wp.key, burst:false});
+        maxSpd:wp.spd, turn:wp.turn, f:wp.f, wd:wp, aspect:true,
+        target:lockOn, sub:lockSub, swarm:true, salvo:id, dmg:wp.dmg, wpn:wp.key, burst:false});
     }
     return;
   }
-  const aspect = wp.homing==='aspect';
+  const aspect = wp.homing==='aspect', heat = wp.homing==='heat';
+  let hTgt = null, hSub = null;
+  if(heat && TGT.e && TGT.e.kind!=='bomb' && enemies.indexOf(TGT.e)>=0 && heatSees(sp.x, sp.y, sa, wp.cone, TGT.e)){ hTgt = TGT.e; hSub = TGT.sub; }
   pBullets.push({x:sp.x, y:sp.y,
     vx:Math.cos(sa)*wp.spd*TEMPO_K, vy:Math.sin(sa)*wp.spd*TEMPO_K,      // v209: TEMPO_K
     w:bomb?16:18, h:bomb?16:6, sec:true,
-    type:bomb?'bomb':'missile', homing:!!wp.homing, aspect:aspect, life:wp.life,
+    type:bomb?'bomb':'missile', homing:!!wp.homing, aspect:aspect, heat:heat, cone:wp.cone, life:wp.life,
     maxSpd:wp.spd, turn:wp.turn, f:wp.f, wd:wp,
-    target:aspect ? aspectTarget(sp.x, sp.y, sa, !!wp.bigFirst) : null, dmg:wp.dmg, wpn:wp.key, burst:!!wp.burst});
+    target:aspect ? lockOn : hTgt, sub:aspect ? lockSub : hSub, dmg:wp.dmg, wpn:wp.key, burst:!!wp.burst});
 }
 
 // Held secondary button: the next round leaves as soon as the launcher is
@@ -199,8 +207,11 @@ function updateSecBullets(){
     // Missile: mild homing onto the nearest enemy
     if(b.homing){
       var nearest=null,minD=Infinity;
-      if(b.swarm){
-        if(!swarmHolds(b.target)) b.target=swarmRetarget(b);
+      if(b.heat){
+        // v210: a heat seeker keeps what is in its cone, else takes the
+        // nearest heat source there; nothing in it - straight on
+        if(!(b.target && !b.target.dead && enemies.indexOf(b.target)>=0 && canLockOn(b.target) &&
+             heatSees(b.x, b.y, Math.atan2(b.vy, b.vx), b.cone, b.target))){ b.target = heatAcquire(b); b.sub = null; }
         nearest=b.target;
       } else if(b.aspect){
         // An aspect lock holds its one target; lost, it flies on straight.
@@ -222,12 +233,23 @@ function updateSecBullets(){
         if(!bigOnly) break;
       }
       }
+      // v210: never back over its own tail - a target more than a quarter
+      // turn off its flight is not followed (Silvio: missiles flew away
+      // backwards); the aspect seeker keeps it and follows when it is ahead
+      if(nearest && !b.ally){
+        var hoff=Math.atan2(nearest.y-b.y, nearest.x-b.x)-Math.atan2(b.vy, b.vx);
+        while(hoff>Math.PI) hoff-=Math.PI*2; while(hoff<-Math.PI) hoff+=Math.PI*2;
+        if(Math.abs(hoff)>Math.PI/2) nearest=null;
+      }
       if(nearest){
         // On the Lucifer in subspace only a reactor counts: aim at one (v171).
-        var aimX=nearest.x, aimY=nearest.y;
+        // v210: where her hull is drawn (tgtDrawn), at the chosen subsystem
+        var dp=(typeof tgtDrawn==='function') ? tgtDrawn(nearest) : nearest;
+        var aimX=dp.x, aimY=dp.y;
+        if(b.sub && !b.sub.dead && nearest.subs && nearest.subs.indexOf(b.sub)>=0){ var sq=tgtSubPos(nearest, b.sub); aimX=sq.x; aimY=sq.y; }
         if(nearest.reactorOnly){
           if(!b.aimR || b.aimR.dead) b.aimR = nearestReactor(nearest, b.x, b.y);
-          if(b.aimR){ var rp=reactorPos(nearest, b.aimR); aimX=rp.x; aimY=rp.y; }
+          if(b.aimR){ var rp=reactorPos(nearest, b.aimR); if(typeof hullPt==='function') rp=hullPt(nearest, rp.x, rp.y); aimX=rp.x; aimY=rp.y; }
         }
         var ang=Math.atan2(aimY-b.y,aimX-b.x);
         // v209: both in v207 units, the round flies TEMPO_K faster
@@ -271,6 +293,8 @@ function updateSecBullets(){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
         e.shotAt=true;
+        // v210: the point of her outline under the shot (hullUnPt)
+        const _hp=hullUnPt(e,b.x,b.y), hx=_hp.x, hy=_hp.y;
         // A subsystem warhead spends itself inside and leaves only the
         // bleed for the hull. On a ship with nothing to wreck it behaves
         // like any other bomb rather than being wasted.
@@ -279,13 +303,13 @@ function updateSecBullets(){
         if(b.f){
           // FS2 round (v186): a subsystem warhead puts its subsystem share
           // into the nearest system, the hull only gets its armour share.
-          if(sw && sw.subs){ subStrikeRaw(e, b.dmg*b.f.u, b.x, b.y); DMG_F={a:b.f.a, s:b.f.s, u:0}; }
+          if(sw && sw.subs){ subStrikeRaw(e, b.dmg*b.f.u, hx, hy); DMG_F={a:b.f.a, s:b.f.s, u:0}; }
           else DMG_F=b.f;
-          damageEnemy(e,b.dmg,b.x,b.y,!b.ally,'sec',ss);
+          damageEnemy(e,b.dmg,hx,hy,!b.ally,'sec',ss);
           DMG_F=null;
         }
-        else if(sw && sw.subs) damageEnemy(e,subStrike(e,b.dmg,b.x,b.y),b.x,b.y,!b.ally,'sec',ss);
-        else              damageEnemy(e,b.dmg,b.x,b.y,!b.ally,'sec',ss);
+        else if(sw && sw.subs) damageEnemy(e,subStrike(e,b.dmg,hx,hy),hx,hy,!b.ally,'sec',ss);
+        else              damageEnemy(e,b.dmg,hx,hy,!b.ally,'sec',ss);
         if(sw && sw.emp) empBurst(b.x, b.y);
         // TAG: the ship is marked for our beams (v169).
         if(sw && sw.tag && !e.dead){
@@ -298,7 +322,7 @@ function updateSecBullets(){
           if(e.hp<=0&&!e.dead){ killEnemy(e, j, true, false); }
           break;
         }
-        const vh=hullPt(e, b.x, b.y);       // v209: the blast on her model
+        const vh=hullPt(e, hx, hy);       // v209: the blast on her model (v210: = the shot)
         if(b.type==='bomb'){
           sndPlay('sec_cyclops_hit', b.x);
           spawnFireball(vh.x,vh.y,45,40);
@@ -567,6 +591,9 @@ function eBox(e){
   if(e.type==='asteroid'){const r=16*e.sc;return[e.x-r,e.y-r,r*2,r*2];}
   const img=IMGS[e.img];if(!img)return[e.x-20,e.y-20,40,40];
   const bx=rotExtent(img.width*e.sc, img.height*e.sc, e.ang||0);
+  // v210: where her hull is drawn (hullView), the box around that
+  const v=(typeof hullView==='function')?hullView(e):null;
+  if(v){ const cx=v.cx+(e.x-v.cx)*v.k, cy=v.cy+(e.y-v.cy)*v.k, w=bx[0]*v.k, h=bx[1]*v.k; return[cx-w*.5,cy-h*.5,w,h]; }
   return[e.x-bx[0]*.5,e.y-bx[1]*.5,bx[0],bx[1]];}   // full extent, the mask handles the detail
 function pBox(){
   const img=IMGS[player.ship];
@@ -753,6 +780,7 @@ function update(){
   }
   if(GS!=='playing')return;
   if(!callMenu) runTime++;
+  if(typeof tgtTick==='function') tgtTick();   // v210: the player's target and lock
   // Locked: the ship is committed to the jump. Everything else on the
   // field keeps running, so a wave still finishes cleanly around it.
   if(inJump()){
@@ -1114,8 +1142,9 @@ function update(){
         const[ox,oy,ow,oh]=eBox(o);
         if(!overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ox,oy,ow,oh)) continue;
         if(!bulletOnHull(o,b)) continue;
-        damageEnemy(o, b.dmg||(b.big?20:8), b.x, b.y, false, 'bolt', eSrc(b));
-        { const vh = hullPt(o, b.x, b.y); hullHit(vh.x, vh.y); }   // v209: on her model
+        const _hp = hullUnPt(o, b.x, b.y);    // v210: her outline under the shot
+        damageEnemy(o, b.dmg||(b.big?20:8), _hp.x, _hp.y, false, 'bolt', eSrc(b));
+        hullHit(b.x, b.y);   // v210: the shot is on her drawn hull
         if(b.kind==='bomb') bombBlast(b.x,b.y); else if(b.kind==='missile') sndPlay('missile_explosion', b.x);
         // No points and no pickups: the player did not earn this one.
         if(o.hp<=0 && !o.dead) killEnemy(o, fi, false, false);
@@ -1137,15 +1166,16 @@ function update(){
         const[ax,ay,aw,ah]=eBox(a);
         if(!overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ax,ay,aw,ah)) continue;
         if(!bulletOnHull(a,b)) continue;      // impact landed on empty space
+        const _hp=hullUnPt(a, b.x, b.y), hx=_hp.x, hy=_hp.y;   // v210: her outline under the shot
         let adm=b.dmg||(b.big?20:8);
-        if(b.subs && a.subs) adm=subStrike(a, adm, b.x, b.y);   // a Stiletto goes for the innards
-        else if(a.subs) adm=subHit(a, adm, b.x, b.y);   // escorts have them too
+        if(b.subs && a.subs) adm=subStrike(a, adm, hx, hy);   // a Stiletto goes for the innards
+        else if(a.subs) adm=subHit(a, adm, hx, hy);   // escorts have them too
         if(b.sh) eShards(b.x, b.y, b.sh, b.faction);
         const _ad = adm*hullMul(a, eSrc(b));
         a.hp-=_ad;    // our capital ships are plated too
-        if(!a.small) dmgHit(a, b.x, b.y, _ad);   // and they keep the marks (v180)
+        if(!a.small) dmgHit(a, hx, hy, _ad);   // and they keep the marks (v180)
         if(a.small) a.jinkReq=true;
-        const vh=hullPt(a, b.x, b.y);        // v209: the sparks on her model
+        const vh=hullPt(a, hx, hy);        // v209: the sparks on her model (v210: = the shot)
         hullHit(vh.x, vh.y);
         if(!b.kind) laserSpark(vh.x, vh.y, b.col || raceCol(b.faction).core);
         if(b.kind==='bomb') bombBlast(b.x,b.y); else if(b.kind==='missile') sndPlay('missile_explosion', b.x);
@@ -1228,8 +1258,9 @@ function update(){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
         if(b.f && !b.ally) sndPlay('fs_hit', b.x, 1, b.y);   // FS2 impact, hit_1 (v187)
-        { const vh=hullPt(e,b.x,b.y); laserHit(vh.x,vh.y,b.col); }   // v209: on her model
-        STATS.hits++;plogHit(b);e.shotAt=true;DMG_F=b.f||null;damageEnemy(e,(b.dmg||22),b.x,b.y,!b.ally,'bolt',(b.cap||b.flak)?'capgun':(b.shard?'shard':'gun'));DMG_F=null;
+        const _hp=hullUnPt(e,b.x,b.y);    // v210: her outline under the shot
+        laserHit(b.x,b.y,b.col);   // v209: on her model (v210: the shot is on it)
+        STATS.hits++;plogHit(b);e.shotAt=true;DMG_F=b.f||null;damageEnemy(e,(b.dmg||22),_hp.x,_hp.y,!b.ally,'bolt',(b.cap||b.flak)?'capgun':(b.shard?'shard':'gun'));DMG_F=null;
         if(b.flak){
           flakBurst(b.x, b.y, true, b.fac, b.fmul);
           pBullets.splice(i,1); hit=true;

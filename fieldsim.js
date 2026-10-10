@@ -574,7 +574,7 @@ scenario('Pickups light up the bar, not the field', 'm=31', `
   const rings = []; const og = thGlowPath;
   thGlowPath = function(x,y,w,h){ rings.push({x,y,w,h}); return og.apply(this, arguments); };
   barPulse('hull'); FS.step(40); draw(); thGlowPath = og;
-  r.ringAroundHull = rings.some(g=>g.x===109 && g.w===80);   // the v187 bar (lives icon back)
+  r.ringAroundHull = rings.some(g=>g.x===109 && g.w===56);   // the v187 bar (lives icon back); v210: bars 50 wide
   // v202: no ticket cells in the bar any more
   // Its time is up: the pulse is over and gone. (Stepping the game to get
   // there would let loot from the fight light it up again.)
@@ -1326,7 +1326,7 @@ scenario('Sound build 2: mute, tabs, scan, music', 'm=43', `
   // Settings: tabs instead of pages.
   setSettings(true); draw();
   const tabs = (window._setRects||[]).filter(q => /^tab/.test(q.act));
-  r.fiveTabs = tabs.length === 5;   // CONTROLS since v185
+  r.sixTabs = tabs.length === 6;   // CONTROLS since v185, TARGETING since v210
   const t3 = tabs[3];
   settingsClick(t3.x+4, t3.y+4);
   r.tabOpensSound = settingsPage === 3;

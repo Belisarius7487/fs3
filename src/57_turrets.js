@@ -50,6 +50,9 @@ function raceCol(fac){ return RACE_COL[raceOf(fac)]; }
 // hull until it is clear of it (drawShots, 70_ui.js)
 function capGunShot(e, x, y, ang, g, ally, pd, hidE){
   const rc = raceCol(e.faction);
+  // v210: from where her turret is drawn - shots fly in the plane and hit
+  // what is drawn there (hullView), so they leave the drawn hull too
+  if(typeof hullPt === 'function'){ const vp = hullPt(e, x, y); x = vp.x; y = vp.y; }
   const n = (g.big && CAP_TRIPLE.test(e.img)) ? 3 : 1;
   for(let k=0;k<n;k++){
     const a = ang + (n>1 ? (k-1)*0.07 : 0);
@@ -127,10 +130,11 @@ function drawLaser(b, core, glow, hot){
       }
     }
   }
-  // v209: as long as it flies (its box already is, see pShootWith), at
-  // least its v207 length on the screen; as thick as in v207 (fxG)
-  const G = fxG(), spd = Math.hypot(b.vx, b.vy);
-  const len = Math.max(b.w, Math.min(b.w*G, spd*1.4), 6*G), wid = Math.max(b.h, 3)*G;
+  // v209: at least its v207 length on the screen, as thick as in v207
+  // (fxG). v210: the bolt flies at its v208 pace again, so the length is
+  // its box times G (as long as v209 drew it), not its flight per step
+  const G = fxG();
+  const len = Math.max(b.w*G, 6*G), wid = Math.max(b.h, 3)*G;
   ctx.save();
   ctx.translate(bx|0, by|0);
   ctx.rotate(ang);

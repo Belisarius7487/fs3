@@ -225,6 +225,7 @@ function draw(){
   camScreen();
   drawTicketMsgs();
   drawSubMsgs();
+  try{ drawTargetMarks(); }catch(et){}   // v210: brackets, lock, lead
   try{ drawOffscreen(); }catch(eo){}
   if(whiteOut>0){ ctx.fillStyle='rgba(255,250,235,'+Math.min(0.85, whiteOut/WHITEOUT_T).toFixed(3)+')';
                   ctx.fillRect(0, HUD_H, W, H-HUD_H); }
@@ -257,7 +258,7 @@ function shotUnder(b){
   const e = b.hidE;
   if(!e) return false;
   if(e.dead || (allies.indexOf(e) < 0 && enemies.indexOf(e) < 0) ||
-     !onHull(e.img, e.x, e.y, e.sc, e.flip, b.x, b.y, e.ang||0, e)){ b.hidE = null; return false; }
+     !onHullAt(e, b.x, b.y)){ b.hidE = null; return false; }
   return true;
 }
 function drawShots(under){
@@ -796,6 +797,8 @@ const OFF_COL = {friend:'#3ce06a', enemy:'#ff4a33', neutral:'#ff8cd0', tagged:'#
 function offShows(e, ally){
   if(!e || e.dead || e.type==='asteroid' || !e.img) return false;
   if(e.warp>0) return false;
+  // v210: with a target only hers (as in FS)
+  if(typeof TGT !== 'undefined' && TGT.e) return e === TGT.e;
   // small: fighters, bombers and whatever is no longer than one (sentry
   // guns, containers, pods)
   const small = e.type==='fighter' || e.type==='bomber' || e.small || (HULL_LEN[e.img] || 0) < 60;
@@ -1051,10 +1054,12 @@ function setRow(bx, by, bw, bh, label, hint, value, on, act, enabled){
 
 // Zwei Seiten zu vier Zeilen. Acht Zeilen am Stueck waeren 460 von 500
 // Bildpunkten Hoehe gewesen.
-const SETTINGS_PAGES = 5;
+const SETTINGS_PAGES = 6;   // v210: TARGETING
 const SETTINGS_TITLES = ['SETTINGS', 'ECONOMY', 'APPEARANCE', 'SOUND', 'CONTROLS'];
-const SETTINGS_TABS = ['GENERAL', 'ECONOMY', 'APPEARANCE', 'SOUND', 'CONTROLS'];
+const SETTINGS_TABS = ['GENERAL', 'ECONOMY', 'APPEARANCE', 'SOUND', 'CONTROLS', 'TARGETING'];
 const SETTINGS_CONTROLS = 4;   // the page that shows CONTROLS instead of rows
+const SETTINGS_TARGETING = 5;  // v210: the targeting keys, laid out like CONTROLS
+function settingsKeysPage(){ return settingsPage===SETTINGS_CONTROLS || settingsPage===SETTINGS_TARGETING; }
 
 // ── CONTROLS (v207) ──────────────────────────────────────────
 // Every input the game reads, in one table. The title screen, the CONTROLS
@@ -1078,6 +1083,20 @@ const BINDS = [
   {id:'call',     ctx:'flight', label:'call support ships',   mouse:'',         key:['KeyC','']},
   {id:'rearm',    ctx:'flight', label:'rearm / swap weapons',   mouse:'',         key:['Shift+KeyR','']},
   {id:'ship',     ctx:'flight', label:'change ship (hangar)',   mouse:'',         key:['F2','']},
+  // v210: targeting, the FreeSpace 2 keys (own tab, TARGETING)
+  {id:'tgtNext',      ctx:'target', label:'next ship',                  mouse:'', key:['KeyT','']},
+  {id:'tgtPrev',      ctx:'target', label:'previous ship',              mouse:'', key:['Shift+KeyT','']},
+  {id:'tgtHostNext',  ctx:'target', label:'next closest hostile',       mouse:'', key:['KeyH','']},
+  {id:'tgtHostPrev',  ctx:'target', label:'previous closest hostile',   mouse:'', key:['Shift+KeyH','']},
+  {id:'tgtFriendNext',ctx:'target', label:'next closest friendly',      mouse:'', key:['KeyF','']},
+  {id:'tgtFriendPrev',ctx:'target', label:'previous closest friendly',  mouse:'', key:['Shift+KeyF','']},
+  {id:'tgtReticle',   ctx:'target', label:'ship in the reticle',        mouse:'', key:['KeyY','']},
+  {id:'tgtAttacker',  ctx:'target', label:'closest ship attacking you', mouse:'', key:['KeyR','']},
+  {id:'tgtBombNext',  ctx:'target', label:'next bomb',                  mouse:'', key:['KeyB','']},
+  {id:'tgtBombPrev',  ctx:'target', label:'previous bomb',              mouse:'', key:['Shift+KeyB','']},
+  {id:'subNext',      ctx:'target', label:'next subsystem',             mouse:'', key:['KeyS','']},
+  {id:'subPrev',      ctx:'target', label:'previous subsystem',         mouse:'', key:['Shift+KeyS','']},
+  {id:'subReticle',   ctx:'target', label:'subsystem in the reticle',   mouse:'', key:['KeyV','']},
   {id:'settings', ctx:'game',   label:'settings window',               mouse:'',         key:['F4','']},
   {id:'pause',    ctx:'game',   label:'pause / resume',                mouse:'',         key:['KeyP','Pause']},
   {id:'sound',    ctx:'game',   label:'sound on / off',                mouse:'',         key:['KeyM','']},
@@ -1092,7 +1111,7 @@ const BIND_SLOTS = 2;
 // screen) and keys the menus use while they are open.
 const BIND_BANNED = ['Escape','F1','F3','F5','F6','F7','F10','F11','F12','Tab','MetaLeft','MetaRight',
   'AltLeft','AltRight','ContextMenu','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
-const BIND_AREA = {flight:['flight','game'], game:['flight','game']};
+const BIND_AREA = {flight:['flight','game','target'], game:['flight','game','target'], target:['flight','game','target']};   // v210: target
 // Keys the windows read while they are open (fixed): an 'anywhere' key or a
 // window's own key there would be taken by the window instead.
 const WINDOW_KEYS = {
@@ -1293,11 +1312,19 @@ function drawCtlColumn(title, rows, x, y, w, rowH){
   }
   return y + rows.length*rowH;
 }
-function drawControlsTab(mx, my, mw, top, bottom){
+function drawControlsTab(mx, my, mw, top, bottom, tgt){
   const gap = 12, cw = (mw - 3*gap)/2, rowH = 18;
+  if(tgt){
+    // v210: the targeting keys - ships on the left, bombs and subsystems right
+    const rows = ctlRows('target');
+    drawCtlColumn('TARGET SHIPS', rows.filter(r => /^tgt(Next|Prev|Host|Friend|Reticle|Attacker)/.test(r[2].id)), mx+gap, top, cw, rowH);
+    const y2 = drawCtlColumn('TARGET BOMBS', rows.filter(r => /^tgtBomb/.test(r[2].id)), mx+2*gap+cw, top, cw, rowH);
+    drawCtlColumn('TARGET SUBSYSTEMS', rows.filter(r => /^sub/.test(r[2].id)), mx+2*gap+cw, y2+8, cw, rowH);
+  } else {
   drawCtlColumn('IN FLIGHT', ctlRows('flight'), mx+gap, top, cw, rowH);
   const y2 = drawCtlColumn('ANYWHERE', ctlRows('game'), mx+2*gap+cw, top, cw, rowH);
   drawCtlColumn('IN A WINDOW', ctlRows('menu'), mx+2*gap+cw, y2+8, cw, rowH);
+  }
   // the line for messages, and the way back to the defaults
   const by = bottom - 24, bw = 150, bx = mx + mw - gap - bw;
   const hv = hovering(bx, by, bw, 20);
@@ -1315,7 +1342,7 @@ function drawControlsTab(mx, my, mw, top, bottom){
 }
 const SETTINGS_ROWS_MAX = 5;   // the panel keeps one height for every tab
 function settingsRows(){
-  if(settingsPage===SETTINGS_CONTROLS) return [];
+  if(settingsKeysPage()) return [];
   if(settingsPage===3) return [
     {label:'SOUND', hint:'all sound on or off - also M or the speaker',
      value:SND.on?'ON':'OFF', on:SND.on, act:'sndon', enabled:true},
@@ -1365,7 +1392,7 @@ function drawSettings(){
   window._setRects=[];
   // 380 wide since v185: five tabs (CONTROLS added) need the room.
   // v207: the CONTROLS tab is wider - two columns of keys to click.
-  const bw=(settingsPage===SETTINGS_CONTROLS)?740:380, bh=40, gap=8;
+  const bw=settingsKeysPage()?740:380, bh=40, gap=8;
   // The height follows the page, so a shorter page leaves no hole.
   const rows=Math.max(1, settingsRows().length);
   const hintH=22;   // room for the closing hint, which used to land inside
@@ -1405,6 +1432,10 @@ function drawSettings(){
     // The keys in the room the rows would take (v207).
     const top=my+30+tabH+gap, room=bh*rowsH+gap*(rowsH-1);
     drawControlsTab(mx, my, mw, top, top+room+gap);
+  }
+  if(settingsPage===SETTINGS_TARGETING){
+    const top=my+30+tabH+gap, room=bh*rowsH+gap*(rowsH-1);
+    drawControlsTab(mx, my, mw, top, top+room+gap, true);
   }
   const list=settingsRows();
   for(let i=0;i<list.length;i++){
@@ -1572,8 +1603,9 @@ function drawHUDHLP(){
   ctx.fillText(fmtTime(runTime), 34, H2-8);
   var x=72; thDivider(x, 4, H2-4); x+=6;
 
-  // 2  HULL, SHIELD, ENERGY - three bars, the share at the end
-  var bw=74, bh=Math.max(5, (H2-16)/3-6), gap=(H2-8)/3, bx=x+34;
+  // 2  HULL, SHIELD, ENERGY - three bars, the share at the end (v210:
+  // narrower, and PRIMARY, SECONDARY, SUPPORT too: room for the radar)
+  var bw=50, bh=Math.max(5, (H2-16)/3-6), gap=(H2-8)/3, bx=x+34;
   var hR=Math.max(0, player.hp/player.maxHp);
   var sR=player.maxSh ? Math.max(0, player.sh/player.maxSh) : 0;
   var eR=player.enMax ? Math.max(0, player.en/player.enMax) : 0;
@@ -1634,21 +1666,21 @@ function drawHUDHLP(){
     ctx.fillStyle=on?TH('accent'):TH('textDim'); ctx.font=thLabel(7);
     ctx.fillText(String(pi+1), x, py);
     ctx.fillStyle=on?(poor?'#ff5a44':TH('textBright')):TH('textDim'); ctx.font=thValue(9, on);
-    ctx.fillText(thFit(weaponName(pw).toUpperCase(), 90), x+9, py);
+    ctx.fillText(thFit(weaponName(pw).toUpperCase(), 74), x+9, py);
     var g=(pb.length>=2 && nM>=2) ? Math.ceil((nM-pi)/2) : Math.max(1, nM);
     ctx.fillStyle=TH('textDim'); ctx.font=thValue(8, false); ctx.textAlign='right';
-    ctx.fillText(g+'×', x+112, py); ctx.textAlign='left';
+    ctx.fillText(g+'×', x+96, py); ctx.textAlign='left';
   }
   if(fire.length>1){
     ctx.strokeStyle=TH('accent'); ctx.lineWidth=1.2;
     var y0=14+prow*0.5-4, y1=14+prow*(pb.length-0.5)+4;
-    ctx.beginPath(); ctx.moveTo(x+117,y0); ctx.lineTo(x+120,y0); ctx.lineTo(x+120,y1); ctx.lineTo(x+117,y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+101,y0); ctx.lineTo(x+104,y0); ctx.lineTo(x+104,y1); ctx.lineTo(x+101,y1); ctx.stroke();
     ctx.fillStyle=TH('accent'); ctx.font=thLabel(6);
-    ctx.save(); ctx.translate(x+126,(y0+y1)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('LINK',0,0); ctx.restore();
+    ctx.save(); ctx.translate(x+110,(y0+y1)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('LINK',0,0); ctx.restore();
   }
-  window._priRect=(pb.length>=2)?{x:px0-3, y:3, w:132, h:H2-6}:null;
-  if(window._priRect && hovering(px0-3, 3, 132, H2-6)) thGlowPath(px0-3, 3, 130, H2-6, 4, 0.35);
-  x+=132; thDivider(x, 4, H2-4); x+=6;
+  window._priRect=(pb.length>=2)?{x:px0-3, y:3, w:116, h:H2-6}:null;
+  if(window._priRect && hovering(px0-3, 3, 116, H2-6)) thGlowPath(px0-3, 3, 114, H2-6, 4, 0.35);
+  x+=116; thDivider(x, 4, H2-4); x+=6;
 
   // 5  SECONDARY: one row per bank with its own rack, the chosen one lit.
   // A tap on another row chooses it, on the chosen one it fires (touch).
@@ -1657,7 +1689,7 @@ function drawHUDHLP(){
   window._secRows=[]; window._secBtnRect=null;
   for(var si=0;si<sb.length;si++){
     var sy=14+si*srow+srow/2, son=(si===player.sSel), sw=secDefP(sb[si].key);
-    var rr={x:x-2, y:sy-srow/2+1, w:118, h:srow-2, i:si};
+    var rr={x:x-2, y:sy-srow/2+1, w:102, h:srow-2, i:si};
     if(son){
       // The theme's own glow, not a fixed orange (it read red on Void).
       ctx.fillStyle='rgba('+TH('glow')+',0.30)'; ctx.fillRect(rr.x, rr.y, rr.w, rr.h);
@@ -1669,15 +1701,15 @@ function drawHUDHLP(){
     } else if(hovering(rr.x, rr.y, rr.w, rr.h)){ ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.fillRect(rr.x, rr.y, rr.w, rr.h); }
     ctx.fillStyle=son?TH('accent'):TH('textDim'); ctx.font=thLabel(7); ctx.fillText(String(si+1), x, sy);
     ctx.fillStyle=son?TH('textBright'):(sb[si].ammo?TH('text'):TH('textDim')); ctx.font=thValue(9, son);
-    ctx.fillText(thFit(weaponName(sw).toUpperCase(), 78), x+9, sy);
+    ctx.fillText(thFit(weaponName(sw).toUpperCase(), 64), x+9, sy);
     ctx.fillStyle=sb[si].ammo?(son?TH('textBright'):TH('text')):'#ff5a44'; ctx.font=thValue(9, true); ctx.textAlign='right';
-    ctx.fillText(String(sb[si].ammo).padStart(2,'0'), x+112, sy); ctx.textAlign='left';
+    ctx.fillText(String(sb[si].ammo).padStart(2,'0'), x+96, sy); ctx.textAlign='left';
     window._secRows.push(rr);
   }
-  x+=120; thDivider(x, 4, H2-4); x+=5;
+  x+=104; thDivider(x, 4, H2-4); x+=5;
 
   // 6  SUPPORT - a narrow button
-  var alX=x, alBW=54, alBH=H2-10, alBY=5;
+  var alX=x, alBW=50, alBH=H2-10, alBY=5;
   var alRdy=allyReady(), alCan=alRdy && anyTicket();
   thButton(alX, alBY, alBW, alBH, btnState(alCan, callMenu, hovering(alX, alBY, alBW, alBH)));
   lab('SUPPORT', alX+4, alBY+7);
@@ -1686,6 +1718,8 @@ function drawHUDHLP(){
   lab('['+bindKey('call')+']', alX+4, alBY+alBH-7);
   window._allyBtnRect={x:alX, y:alBY, w:alBW, h:alBH};
   x+=alBW+5;
+  // v210: radar and target view in one window (72_target.js)
+  if(typeof drawBarScope==='function') drawBarScope(x);
 
   // 7  (v202: the support tickets are gone - support is paid in points)
   ctx.textBaseline='middle';
@@ -3705,6 +3739,7 @@ function inputPress(ev){
   // v208: the overview, three times further out; a switch, not held
   if(bindIs('overview', ev)){ CAM.over = !CAM.over; return true; }
   if(bindIs('fireSec', ev)){ SEC_HOLD.key = true; fireSecondary(); return true; }
+  if(typeof tgtKey === 'function' && tgtKey(ev)) return true;   // v210: targeting
   if(bindIs('firePri', ev)) return true;          // held: read in the update (bindHeld)
   return false;
 }

@@ -678,6 +678,30 @@ function hullPt(e, x, y, d){
   if(!z) return {x: x, y: y};
   return f3dPersp(x, y, Math.min(0, z + (d || 0)));
 }
+// v210 (Silvio): hits land where the hull is drawn. A capital ship's
+// model lies sunk below the play plane (f3dMat), so the camera shows her
+// shrunk towards the middle of the picture by k = D/(D - z) at the depth
+// of her middle (f3dMidZ) - the same rays as hullPt(). Shots fly in the
+// plane, so a shot is tested against her 2D outline at the point the
+// drawing puts under it: hullUnPt(). Null / unchanged for small craft,
+// sprites, ships not drawn this moment and the sprite mode. Once per step.
+function hullView(e){
+  if(!e || F3D_FOV < 0.1) return null;
+  const f = ((typeof fc !== 'undefined') ? fc : 0) + '|' + ((typeof CAM !== 'undefined') ? CAM.x + ',' + CAM.y + ',' + CAM.z : '');
+  if(e._hvFc === f) return e._hv;
+  e._hvFc = f; e._hv = null;
+  const z = f3dMidZ(e);
+  if(!z) return null;
+  const D = f3dEyeD(), k = D/Math.max(D*0.05, D - z);
+  const cx = (typeof CAM !== 'undefined') ? s2wX(W/2) : W/2, cy = (typeof CAM !== 'undefined') ? s2wY(H/2) : H/2;
+  return (e._hv = {cx: cx, cy: cy, k: k});
+}
+// a point in the plane (a shot) -> the point of her 2D outline drawn there
+function hullUnPt(e, x, y){
+  const v = hullView(e);
+  if(!v) return {x: x, y: y};
+  return {x: v.cx + (x - v.cx)/v.k, y: v.cy + (y - v.cy)/v.k};
+}
 function f3dVP(){
   // v208: through the camera (10_core.js). The canvas covers the whole
   // screen; its middle is the world point s2w(W/2, H/2), and the zoom moves

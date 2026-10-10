@@ -40,7 +40,9 @@ const names = ['priDef','secDef','curPri','curSec','hullSecCls','weaponName','we
                'liveBurstRound','burstRound','volleyDmg','volleyTotal','primaryCount',
                'flakHas','flakBurst','flakReach','flakFire',
                'swarmTargets','swarmRetarget','swarmHolds','updateSecBullets',
-               'secHoldTick','shardSpread'];
+               'secHoldTick','shardSpread',
+               // v210: the player's target, the aspect lock, the heat cone
+               'tgtLocked','heatSees','heatAcquire','tgtDrawn','tgtSubPos','tgtSet'];
 const consts = [
   decl(/const PLAYER_FR_BASE[\s\S]*?\n\];/),
   // v186: the FS2 arsenal and the banks, the AI's old tables.
@@ -57,12 +59,13 @@ const consts = [
   decl(/const FLAK_TYPES[\s\S]*?const FLAK_SHARD_RANGE = \d+;/),
   decl(/let swarmSalvo = 0;/),
   decl(/const SEC_HOLD = \{[^}]*\};/),
-  decl(/const HULL_TRAITS = \{[\s\S]*?\n\};/)
+  decl(/const HULL_TRAITS = \{[\s\S]*?\n\};/),
+  decl(/const TGT = \{[^}]*\};/)
 ];
 
 const WORLD = `
 const W = 800, H = 500, HUD_H = 54;
-const MW=W, MH=H, FIELD_K=1, TEMPO_K=1, CAM_BASE_Z=1, WX0=0, WX1=W, WY0=54, WY1=H, SIZE_UPM=3.75, FIELD_CX=W/2, FIELD_CY=(54+H)/2; const CAM={x:W/2, y:(54+H)/2, z:1, zt:1, over:false}; function camSees(){ return true; } function hullPt(e, x, y){ return {x: x, y: y}; } function fxG(){ return 1; } function camHalfW(){ return W/2; } function camHalfH(){ return (H-54)/2; } function w2sX(x){ return x; } function w2sY(y){ return y; } function s2wX(x){ return x; } function s2wY(y){ return y; } function camFollow(){} function camSnap(){} function mouseTick(){} function worldSet(){} function worldForWave(){} function mouseAt(p){ if(typeof MOUSE!=="undefined"){ MOUSE.x=p.x; MOUSE.y=p.y; } } function mouseHold(){ if(typeof MOUSE!=='undefined' && typeof player!=='undefined'){ MOUSE.x=player.x; MOUSE.y=player.y; } }  // v208: the world is the old field in the sims; v209: tempo and zoom 1
+const MW=W, MH=H, FIELD_K=1, TEMPO_K=1, CAM_BASE_Z=1, WX0=0, WX1=W, WY0=54, WY1=H, SIZE_UPM=3.75, FIELD_CX=W/2, FIELD_CY=(54+H)/2; const CAM={x:W/2, y:(54+H)/2, z:1, zt:1, over:false}; function camSees(){ return true; } function hullPt(e, x, y){ return {x: x, y: y}; } function hullUnPt(e, x, y){ return {x: x, y: y}; } function fxG(){ return 1; } function camHalfW(){ return W/2; } function camHalfH(){ return (H-54)/2; } function w2sX(x){ return x; } function w2sY(y){ return y; } function s2wX(x){ return x; } function s2wY(y){ return y; } function camFollow(){} function camSnap(){} function mouseTick(){} function worldSet(){} function worldForWave(){} function mouseAt(p){ if(typeof MOUSE!=="undefined"){ MOUSE.x=p.x; MOUSE.y=p.y; } } function mouseHold(){ if(typeof MOUSE!=='undefined' && typeof player!=='undefined'){ MOUSE.x=player.x; MOUSE.y=player.y; } }  // v208: the world is the old field in the sims; v209: tempo and zoom 1
 var pBullets = [], eBullets = [], PARTS = [], SUB_MSGS = [], enemies = [], allies = [];
 var fc = 0, score = 0, FS1_MODE = false, UI_WEAPONS = false;
 const UI_TICKETS = false;
@@ -197,7 +200,10 @@ fitShip('fitoth', ['scatter'], ['harpoon']); shoot();
   ok('the reach is short', b[0].pLife>0 && b[0].pLife*w.spd <= w.range+w.spd);
 }
 
-console.log('\nSwarms: one press, four seekers, four targets');
+// v210: a lock as tgtTick() builds it - the target held for its full time
+function lockOn(e){ run('TGT.e=null; TGT.sub=null; TGT.lock=0; TGT.lockOf=null'); ctxObj.__t = e; run('tgtSet(__t); TGT.lock=1e6'); }
+function lockOff(){ run('TGT.e=null; TGT.sub=null; TGT.lock=0'); }
+console.log('\nSwarms (v210): one press, four seekers, all on the locked target');
 {
   const mk = (x,y)=>({x:x, y:y, hp:100, dead:false});
   fitShip('fiherc', ['subach','promr'], ['harpoon','tornado']);
@@ -205,28 +211,40 @@ console.log('\nSwarms: one press, four seekers, four targets');
   set('enemies', [mk(300,200), mk(300,300), mk(400,250), mk(500,250)]);
   ctxObj.enemies = run('enemies'); clear();
   const before = get('player').sb[1].ammo;
+  lockOn(run('enemies')[2]);
   run('fireSecondary()');
   const b = bullets().filter(x=>x.sec);
   ok('four Tornados leave', b.length===4);
   ok('and they cost one round, not four', get('player').sb[1].ammo===before-1);
-  ok('each has a different target', new Set(b.map(x=>x.target)).size===4);
+  ok('all four go for the locked target', b.every(x=>x.target===run('enemies')[2]));
   ok('each carries its FS2 factors (hull 2.0 of a Harpoon)', b.every(x=>x.f && x.f.a===2));
+  clear(); lockOff(); run('player.secTimer=0; fireSecondary()');
+  ok('without a lock they fly straight (no target)', bullets().filter(x=>x.sec).every(x=>x.target===null));
+  lockOff();
 }
 
-console.log('\nAspect seekers keep their lock, heat seekers take the nearest');
+console.log('\nAspect seekers fly to their lock, heat seekers take what is in their cone (v210)');
 {
   const near = {x:200, y:250, hp:100, dead:false}, ahead = {x:600, y:250, hp:100, dead:false}, behind = {x:20, y:250, hp:100, dead:false};
   run('enemies.length=0'); run('enemies').push(behind, ahead);
-  fitShip('fitoth', ['promr'], ['harpoon']); run('player.secTimer=0; fireSecondary()');
+  fitShip('fitoth', ['promr'], ['harpoon']); lockOn(ahead); run('player.secTimer=0; fireSecondary()');
   const h = bullets().find(x=>x.sec);
-  ok('a Harpoon locks on what is ahead, not on what is behind', h.target===ahead && h.aspect===true);
+  ok('a Harpoon flies to the ship it holds a lock on', h.target===ahead && h.aspect===true);
   run('enemies').push(near);
   run('updateSecBullets()');
   ok('a nearer ship turning up does not take the lock', h.target===ahead);
+  clear(); lockOff(); run('player.secTimer=0; fireSecondary()');
+  const h0 = bullets().find(x=>x.sec), vy0 = h0.vy;
+  run('updateSecBullets()');
+  ok('without a lock a Harpoon flies straight', h0.target===null && h0.vy===vy0);
+  clear(); run('enemies.length=0'); run('enemies').push(behind);
   fitShip('fitoth', ['promr'], ['rockeye']); run('player.secTimer=0; fireSecondary()');
-  const r = bullets().find(x=>x.sec);
-  ok('a Rockeye has no lock of its own', !r.aspect && r.target===null && r.homing===true);
-  run('enemies.length=0');
+  const r = bullets().find(x=>x.sec), rvx = r.vx;
+  run('updateSecBullets()');
+  ok('a Rockeye does not turn back for a ship behind it', !r.aspect && r.heat && r.target===null && r.vx===rvx);
+  run('enemies').push(ahead); run('updateSecBullets()');
+  ok('a Rockeye takes a heat source in its cone', r.target===ahead);
+  clear(); run('enemies.length=0');
 }
 
 console.log('\nDante: a burst on impact and a burst by itself');
@@ -269,30 +287,31 @@ console.log('\nv187b: a seeker comes round in its FS2 turn time, whatever its sp
   // than its turning circle it would orbit, as in FS2.
   const e = {x:600, y:390, hp:1e6, maxHp:1e6, dead:false, type:'fighter', img:'fidragon', w:30, h:12};
   run('enemies.length=0'); run('enemies').push(e);
-  fitShip('fitoth', ['promr'], ['harpoon']);
+  fitShip('fitoth', ['promr'], ['harpoon']); lockOn(e);
   run('player.x=300; player.y=250; player.head=Math.PI/2; player.secTimer=0; fireSecondary()');
   const m = bullets().find(x=>x.sec);
   let best = 1e9;
   for(let i=0;i<150 && bullets().indexOf(m)>=0;i++){ run('updateSecBullets()'); best = Math.min(best, Math.hypot(m.x-e.x, m.y-e.y)); }
   ok('a Harpoon launched sideways still reaches its target (closest '+Math.round(best)+')', best < 12 || bullets().indexOf(m)<0);
-  run('enemies.length=0'); clear();
+  run('enemies.length=0'); clear(); lockOff();
 }
 
-console.log('\nv189: slow seekers go for a capital ship first');
+console.log('\nv189/v210: the Trebuchet on the locked cruiser, the Stiletto II looks for a capital ship');
 {
   const fi = {x:220, y:250, hp:1e6, dead:false, type:'fighter'}, cr = {x:600, y:250, hp:1e6, dead:false, type:'cruiser'};
   run('enemies.length=0'); run('enemies').push(fi, cr);
-  fitShip('fitoth', ['promr'], ['trebuchet']); run('player.x=100; player.y=250; player.head=0; player.secTimer=0; fireSecondary()');
-  ok('a Trebuchet locks the cruiser, not the nearer fighter', bullets().find(x=>x.sec).target === cr);
-  clear(); fitShip('fitoth', ['promr'], ['harpoon']); run('player.secTimer=0; fireSecondary()');
-  ok('a Harpoon still takes the nearer fighter', bullets().find(x=>x.sec).target === fi);
-  clear(); fitShip('boosiris', ['mekhu'], ['stiletto2']); run('player.secTimer=0; fireSecondary()');
+  fitShip('fitoth', ['promr'], ['trebuchet']); lockOn(cr); run('player.x=100; player.y=250; player.head=0; player.secTimer=0; fireSecondary()');
+  ok('a Trebuchet locked on the cruiser flies to it, not to the nearer fighter', bullets().find(x=>x.sec).target === cr);
+  clear(); fitShip('fitoth', ['promr'], ['harpoon']); lockOn(fi); run('player.secTimer=0; fireSecondary()');
+  ok('a Harpoon locked on the fighter takes the fighter', bullets().find(x=>x.sec).target === fi);
+  clear(); lockOff(); fitShip('boosiris', ['mekhu'], ['stiletto2']); run('player.secTimer=0; fireSecondary()');
   const st = bullets().find(x=>x.sec), vy0 = st.vy;
   cr.y = 150; run('updateSecBullets()');
   ok('a Stiletto II steers for the cruiser (up), not the fighter ahead', st.vy < vy0);
   run('enemies.length=0'); run('enemies').push(fi);
-  clear(); fitShip('fitoth', ['promr'], ['trebuchet']); run('player.secTimer=0; fireSecondary()');
-  ok('with no capital ship about, the Trebuchet takes the fighter', bullets().find(x=>x.sec).target === fi);
+  clear(); fitShip('fitoth', ['promr'], ['stiletto2']); run('player.secTimer=0; fireSecondary()');
+  run('updateSecBullets()');
+  ok('with no capital ship about, the Stiletto II takes the fighter in its cone', bullets().find(x=>x.sec).target === fi);
   run('enemies.length=0'); clear();
 }
 

@@ -72,20 +72,20 @@ const ARSENAL_P = [
 // nearest, 'aspect' keeps the target it was fired at.
 const ARSENAL_S = [
   {key:'harpoon', name:'Harpoon', cls:'missile', unlock:0, snd:'m_shrike', homing:'aspect',
-   fs:{d:100, v:250, w:2.0, l:5.0, a:1.0, s:0.8, u:0.5, cargo:2.5, turn:1.0},
+   fs:{d:100, v:250, w:2.0, l:5.0, a:1.0, s:0.8, u:0.5, cargo:2.5, turn:1.0, lock:2.0},
    note:'the all-round aspect seeker'},
   {key:'rockeye', name:'Rockeye', cls:'missile', unlock:0, snd:'m_wasp', homing:'heat',
-   fs:{d:45, v:190, w:0.5, l:10.0, a:1.0, s:0.8, u:0.8, cargo:4, turn:0.85},
+   fs:{d:45, v:190, w:0.5, l:10.0, a:1.0, s:0.8, u:0.8, cargo:4, turn:0.85, cone:100},
    note:'heat seeker, quick off the rail'},
   {key:'tempest', name:'Tempest', cls:'missile', unlock:3000, snd:'m_fury', homing:null,
    fs:{d:45, v:360, w:0.3, l:1.8, a:0.9, s:0.5, u:0.6, cargo:0.25, turn:1},
    note:'dumbfire, a deep rack, short reach'},
   {key:'tornado', name:'Tornado', cls:'missile', unlock:10000, snd:'m_swarm', homing:'aspect',
    swarm:4, fan:0.6,
-   fs:{d:25, v:230, w:2.5, l:7.0, a:2.0, s:1.0, u:0.3, cargo:1.25, turn:1.25},
+   fs:{d:25, v:230, w:2.5, l:7.0, a:2.0, s:1.0, u:0.3, cargo:1.25, turn:1.25, lock:2.25},
    note:'four faster seekers, each its own target'},
   {key:'emp', name:'EMP Adv.', cls:'missile', unlock:14000, snd:'m_emp', homing:'aspect', emp:true,
-   fs:{d:45, v:275, w:2.0, l:5.0, a:1.0, s:0.8, u:0.5, cargo:4, turn:1.0},
+   fs:{d:45, v:275, w:2.0, l:5.0, a:1.0, s:0.8, u:0.5, cargo:4, turn:1.0, lock:2.0},
    note:'fighters near the blast stop firing for a while'},
   {key:'infyrno', name:'Infyrno', cls:'missile', unlock:18000, snd:'m_cluster', homing:null,
    burst:true, children:14, shardRange:90,
@@ -93,16 +93,16 @@ const ARSENAL_S = [
        child:{d:100, v:250, l:0.3}},      // 14 x "Cluster Bomb Baby"
    note:'fired straight - press again to burst it into 14 small seekers'},
   {key:'trebuchet', name:'Trebuchet', cls:'missile', unlock:18000, snd:'m_angel', homing:'aspect', bigFirst:true,
-   fs:{d:350, v:280, w:6.0, l:18.0, a:0.9, s:0.5, u:2.4, cargo:8, turn:3.0},
+   fs:{d:350, v:280, w:6.0, l:18.0, a:0.9, s:0.5, u:2.4, cargo:8, turn:3.0, lock:3.5},
    note:'long range, heavy, for subsystems'},
   {key:'stiletto2', name:'Stiletto II', cls:'missile', unlock:26000, snd:'m_stiletto', homing:'heat', subs:true, bigFirst:true,
-   fs:{d:775, v:220, w:2.0, l:25.0, a:0.01, s:0.0, u:1.0, cargo:8, turn:1.0},
+   fs:{d:775, v:220, w:2.0, l:25.0, a:0.01, s:0.0, u:1.0, cargo:8, turn:1.0, cone:80},
    note:'into the subsystems, not the hull'},
   {key:'tagc', name:'TAG-C', cls:'missile', unlock:0, fromWave:67, snd:'m_angel', homing:'aspect', tag:true,
-   fs:{d:10, v:205, w:8.0, l:13.0, a:0.1, s:0.1, u:0.1, cargo:4, turn:1.75},
+   fs:{d:10, v:205, w:8.0, l:13.0, a:0.1, s:0.1, u:0.1, cargo:4, turn:1.75, lock:2.5},
    note:'marks the target - our beams find it, even in the nebula'},
   {key:'cyclops', name:'Cyclops', cls:'bomb', unlock:0, snd:'m_tsunami', homing:'aspect', bigFirst:true,
-   fs:{d:2000, v:95, w:20.0, l:25.0, a:1.0, s:0.02, u:0.5, cargo:15, turn:1.0,
+   fs:{d:2000, v:95, w:20.0, l:25.0, a:1.0, s:0.02, u:0.5, cargo:15, turn:1.0, lock:5.0,
        blast:{i:100, o:200}},             // FS2 inner / outer radius (v190)
    note:'slow and heavy, for hulls that cannot dodge'}
 ];
@@ -173,6 +173,10 @@ function shipBanks(key){ return SHIP_BANKS[key] || BANKS_FALLBACK; }
     w.turn = (w.cls==='bomb') ? 0.06 / (f.turn||1)
                               : w.spd * Math.PI / (60 * (f.turn||1));
     w.cargo = f.cargo;
+    // v210: FS2 $Min Lock Time of an aspect seeker (steps) and +View Cone
+    // of a heat seeker (half of it, rad) - weapons.tbl
+    w.lockT = Math.round((f.lock || 0)*60);
+    w.cone  = (f.cone || 0)*Math.PI/360;
     if(f.blast) w.blast = {i:f.blast.i*BLAST_PX_PER_M, o:f.blast.o*BLAST_PX_PER_M};
     if(f.child){            // spawned warheads, same anchor as the round
       w.childDmg  = f.child.d * anc.game / anc.d;
