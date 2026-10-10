@@ -1532,6 +1532,25 @@ const SMALL_VEL = {
   fiapollo:60, fivalyrie:85, boathena:60, fianubis:75, boamun:40, fiscorpion:70, boshaitan:60
 };
 const SMALL_SPD_ANCHOR = 3.4/75;          // game speed per m/s (Myrmidon)
+// v212: the AI flies like the demo - 88 % of the FS speed of its hull (the
+// demo's Perseus and Hercules against the player's Myrmidon), and turns
+// like the demo, 3.2 rad/s for the Myrmidon, every other hull after its FS
+// pitch rotation time (ships.tbl $Rotation time, first value, seconds; the
+// play plane is seen from the side, so a turn in it is a pitch).
+const AI_SPD_K = 0.88;
+const SMALL_ROT = {
+  fiulysses:3.0, fiherc:4.0, fihercmk2:3.8, fiares:4.5, fierinyes:3.8, filoki:3.2, fipegasus:2.5,
+  fiperseus:3.3, fimyrmidon:4.0, boartemis:5.0, boartemisdh:5.0, bomedusa:5.0, boursa:5.5,
+  bozeus:4.0, boboanerges:5.5,
+  fiseth:4.0, fihorus:3.4, fitoth:2.7, fiserapis:2.6, fitauret:4.1, fiptah:2.5,
+  bosekhmet:4.0, boosiris:5.0, bobakha:4.2,
+  fidragon:2.5, fibasilisk:3.5, fimanticore:3.2, fiaeshma:3.3, fimara:3.0, fiastaroth:3.4,
+  bonephilim:6.0, botaurvi:6.0, bonahema:6.0, boseraphim:6.0,
+  fiapollo:3.2, fivalyrie:3.5, boathena:4.5, fianubis:3.0, boamun:6.0, fiscorpion:2.0, boshaitan:4.0
+};
+const AI_TURN_ANCHOR = 3.2/100;           // rad per step (100 steps a second), Myrmidon
+function aiSpd(key){ const s = smallSpd(key); return s ? s*AI_SPD_K : null; }
+function aiTurn(key){ const r = SMALL_ROT[key]; return r ? AI_TURN_ANCHOR*4.0/r : null; }
 // Top speed of a small craft in points per step, TEMPO_K included; null
 // for a hull without a FS value (it keeps its old class speed).
 function smallSpd(key){

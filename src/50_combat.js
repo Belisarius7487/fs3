@@ -939,7 +939,7 @@ function pShootWith(wp, ms){
 // turrets still rely on. Small ships pass a direction. scatter widens the
 // spread and is what a ship with its sensors shot out fires like.
 function eSmall(ex,ey,fac,ang,spd,dmg,scatter){
-  const s=spd||EBULLET_SPD;
+  const s=Math.max(spd||EBULLET_SPD, PROJ_MIN*TEMPO_K);   // v212: no slower than the ships
   const sc=scatter||1;
   if(ang==null){
     eBullets.push({x:ex,y:ey,vx:-s,vy:(Math.random()-.5)*1.8*sc*TEMPO_K,w:8,h:4,big:false,faction:fac||'ntf',dmg:dmg});
@@ -950,13 +950,13 @@ function eSmall(ex,ey,fac,ang,spd,dmg,scatter){
 // other turret shot; without one it keeps the old slow drift to the left.
 function eBig(ex,ey,fac,ang){
   if(ang==null){
-    eBullets.push({x:ex,y:ey,vx:-2.5*TEMPO_K,vy:(Math.random()-.5)*1.2*TEMPO_K,w:12,h:12,big:true,faction:fac||'ntf'});
+    eBullets.push({x:ex,y:ey,vx:-pSpd(2.5)*TEMPO_K,vy:(Math.random()-.5)*1.2*TEMPO_K,w:12,h:12,big:true,faction:fac||'ntf'});
     return;
   }
-  eBullets.push({x:ex,y:ey,vx:Math.cos(ang)*2.5*TEMPO_K,vy:Math.sin(ang)*2.5*TEMPO_K,w:12,h:12,big:true,faction:fac||'ntf'});}
+  eBullets.push({x:ex,y:ey,vx:Math.cos(ang)*pSpd(2.5)*TEMPO_K,vy:Math.sin(ang)*pSpd(2.5)*TEMPO_K,w:12,h:12,big:true,faction:fac||'ntf'});}
 function eSpread(ex,ey,fac){const base=Math.atan2(player.y-ey,player.x-ex);
   for(const da of[-0.35,-0.175,0,0.175,0.35]){const a=base+da;
-    eBullets.push({x:ex,y:ey,vx:Math.cos(a)*2.2*TEMPO_K,vy:Math.sin(a)*2.2*TEMPO_K,w:6,h:6,big:false,
+    eBullets.push({x:ex,y:ey,vx:Math.cos(a)*pSpd(2.2)*TEMPO_K,vy:Math.sin(a)*pSpd(2.2)*TEMPO_K,w:6,h:6,big:false,
       faction:fac||'ntf'});}}
 
 
@@ -1156,6 +1156,7 @@ const FLY_TURN_ACC = 0.35;       // share of the turn rate gained per step (0.22
 const FLY_ACC      = 0.022;      // share of full speed gained or lost per step
 const FLY_CRUISE   = 0.82;       // speed while holding station
 const FLY_PASS     = 1.08;       // speed through the pass
+const FLY_SLIDE    = 0.03;       // v212: share of the wanted velocity taken per step (demo: 3/s)
 const RUN_OFF_MIN = 26, RUN_OFF_MAX = 48;   // how far beside the target a run goes in
 const RUN_SIDE_D = 150;          // inside this the run starts to slide beside the target (v166)
 const JINK_T = [30, 55], JINK_CD = 130;     // evasion, in steps (45-80 / 110 before v166)
@@ -1351,7 +1352,11 @@ function flySmall(e){
   if(e.cs==null) e.cs=e.spd*want;
   const ws=e.spd*want, ca=e.spd*FLY_ACC;
   e.cs+=Math.max(-ca,Math.min(ca,ws-e.cs));
-  e.vx=Math.cos(e.head)*e.cs; e.vy=Math.sin(e.head)*e.cs;
+  // v212 (Silvio, as the demo): the path follows the nose with a lag of
+  // about a third of a second, so she slides through her turns instead of
+  // snapping round
+  if(e.vx==null || !isFinite(e.vx)){ e.vx=0; e.vy=0; }
+  e.vx+=(Math.cos(e.head)*e.cs-e.vx)*FLY_SLIDE; e.vy+=(Math.sin(e.head)*e.cs-e.vy)*FLY_SLIDE;
   // Drop thrust that only pushes into the clamp. The component along the
   // boundary is kept, so a ship that arrives nose first slides clear
   // while its turn comes round instead of grinding against the glass.
@@ -2324,7 +2329,7 @@ function eSecondary(x, y, fac, s){
   const ang = Math.atan2(player.y-y, player.x-x);
   const isBomb = (s.type === 'bomb');
   sndAiSec(x, isBomb, y);
-  const vs = s.spd*TEMPO_K;          // v209
+  const vs = pSpd(s.spd)*TEMPO_K;     // v212: pSpd
   eBullets.push({
     x:x, y:y,
     vx:Math.cos(ang)*vs, vy:Math.sin(ang)*vs,
@@ -2393,7 +2398,7 @@ function aSecondary(x, y, fac, s){
   sndAiSec(x, isBomb, y);
   pBullets.push({
     x:x, y:y,
-    vx:Math.cos(ang)*s.spd*TEMPO_K, vy:Math.sin(ang)*s.spd*TEMPO_K,
+    vx:Math.cos(ang)*pSpd(s.spd)*TEMPO_K, vy:Math.sin(ang)*pSpd(s.spd)*TEMPO_K,
     w:isBomb?16:18, h:isBomb?16:6,
     sec:true, type:s.type, homing:true, life:isBomb?300:220,
     ally:true, fac:fac, dmg:isBomb?80:35
@@ -2573,7 +2578,7 @@ function capitalFire(e){
         if(_md && _md.n3 && typeof mountCanAim === 'function' && !mountCanAim(e, _md, pts[i].x, pts[i].y, gt.x, gt.y)){
           e.gunT[i] = 12 + (Math.random()*18|0); continue;
         }
-        const ga = (bomb ? leadAngle(pts[i].x, pts[i].y, bomb, g.spd*TEMPO_K)
+        const ga = (bomb ? leadAngle(pts[i].x, pts[i].y, bomb, pSpd(g.spd)*TEMPO_K)
                          : Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x))
                  + (Math.random()-0.5)*0.10*eScat*g.scat;
         sndAiShot(pts[i].x, pts[i].y, g.snd);
@@ -2807,11 +2812,12 @@ function shipBound(e){
   if(!img) return BOUND_MIN;
   return Math.max(BOUND_MIN, Math.max(img.width, img.height)*e.sc*0.5);
 }
-const EFIRE_CONE = 0.50;     // half angle in rad within which they will shoot (0.42 before v166)
-const EFIRE_RANGE = 430*TEMPO_K;     // v209: reach as in v207 on the screen
+// v212 (Silvio, as the demo): only with the nose almost on the target
+const EFIRE_CONE = 0.12;     // half angle in rad within which they will shoot (0.50 before v212)
+const EFIRE_RANGE = 660*TEMPO_K;     // v212: as the demo, about half the screen
 // v211 (Silvio, as in FS): the AI's bolts fly as fast as the same gun's
 // on the player (aiBoltSpd: 9 = 450 m/s), not half of it any more
-const EBULLET_SPD = 9*TEMPO_K;
+const EBULLET_SPD = 9*TEMPO_K*((typeof EKK !== 'undefined') ? EKK : 1);   // v212: &ekk test switch
 // Fire from a distance has to be inaccurate, otherwise standing off is
 // simply better than closing in and the player gets picked apart from
 // behind with no counterplay.

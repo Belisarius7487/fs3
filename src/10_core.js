@@ -55,10 +55,19 @@ const CAM_BASE_Z = 0.35;
 // missed too easily. Kept as a factor of 1, so the v209 lines that use it
 // stay as they are. What is read on the screen (the hold ring, the pointer,
 // the size of shots and sparks) keeps 1/CAM_BASE_Z (SCR_K).
-// v211 (Silvio): v210 was too slow, the quick pace was lost - halfway
-// between v210 and v209, about twice the v210 pace. Small craft, every
-// round and their reach (same flight time as v208).
-const TEMPO_K = 2;
+// v211 doubled it, which together with AI changes was far too much.
+// v212 (Silvio): the pace of the 2.5D demo (08.10.), measured on the screen:
+// a Myrmidon crosses it in ~4.2 s, a Prometheus bolt in ~1.5 s. That is
+// 1.6. Test switches in the address (Silvio tunes without a new build):
+// &tempo=1.2 scales the whole pace, &ekk=0.7 the speed of enemy rounds.
+const URLQ = (typeof location !== 'undefined' && location.search && typeof URLSearchParams !== 'undefined') ? new URLSearchParams(location.search) : null;
+function urlNum(k, d, lo, hi){
+  const v = URLQ ? parseFloat(URLQ.get(k)) : NaN;
+  return isFinite(v) ? Math.max(lo, Math.min(hi, v)) : d;
+}
+const TEMPO_K = 1.6*urlNum('tempo', 1, 0.3, 3);
+const EKK = urlNum('ekk', 1, 0.2, 3);
+// The floor for the speed of rounds (PROJ_MIN, pSpd) is in 56_banks.js.
 const SCR_K = 1/CAM_BASE_Z;
 const CAM = {x: FIELD_CX, y: FIELD_CY, z: CAM_BASE_Z, zt: CAM_BASE_Z, over: false};
 const CAM_OVER_Z = CAM_BASE_Z/3;             // overview: three times further out

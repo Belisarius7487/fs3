@@ -2175,7 +2175,8 @@ function shardSpread(n, spd, range){
     const a  = off + i*gap + (Math.random()-0.5)*gap*0.9;
     // v209: speed and reach are given in v207 units; both times TEMPO_K,
     // so a burst lasts as long as before and looks the same on the screen
-    const s  = spd * TEMPO_K * (0.72 + Math.random()*0.56);
+    // v212: no slower than the ships (PROJ_MIN), still uneven above that
+    const s  = (Math.max(spd*0.72, PROJ_MIN) + spd*Math.random()*0.56) * TEMPO_K;
     const rg = range * TEMPO_K * (0.65 + Math.random()*0.7);
     const big = Math.random();
     out.push({a:a, spd:s, life:Math.max(1, Math.round(rg/s)),

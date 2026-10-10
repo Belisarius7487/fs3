@@ -162,7 +162,7 @@ function mkEnemy(type, spr0, yWant){
     return {type:'fighter',img:spr,faction:typeFac(type),
       pts:100,x:ax,y,warpX:ax,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:WY0+22,maxY:WY1-22,
       vx:-(0.9+Math.random()*0.9),vy:0,ang:0,
-      head:Math.PI, spd:smallSpd(spr)||EFIGHTER_SPD, turn:EFIGHTER_TURN,   // v211: FS speed
+      head:Math.PI, spd:aiSpd(spr)||EFIGHTER_SPD, turn:aiTurn(spr)||EFIGHTER_TURN,   // v212: FS speed and turn, as the demo
       role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
       prefD:90+Math.random()*130,
       fT:(60+Math.random()*60)|0,fR:(85+Math.random()*60)|0,
@@ -178,7 +178,7 @@ function mkEnemy(type, spr0, yWant){
     return {type:'bomber',img:spr,faction:typeFac(type),
       pts:150,x:axb,y,warpX:axb,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:WY0+22,maxY:WY1-22,
       vx:-(0.5+Math.random()*0.6),vy:0,ang:0,
-      head:Math.PI, spd:smallSpd(spr)||EBOMBER_SPD, turn:EBOMBER_TURN,     // v211: FS speed
+      head:Math.PI, spd:aiSpd(spr)||EBOMBER_SPD, turn:aiTurn(spr)||EBOMBER_TURN,     // v212: FS speed and turn, as the demo
       role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
       prefD:200+Math.random()*140,
       fT:(15+Math.random()*20)|0,fR:(12+Math.random()*4)|0,
@@ -1080,6 +1080,10 @@ const SEPARATE_FORCE = 0.10;
 // margins were fixed numbers that ignored how tall a sprite actually is,
 // so large hulls hung into the HUD or off the bottom.
 function clampToField(o, half){
+  // v212: not small craft - they fly the whole world as the player does
+  // (they stopped at an invisible wall above and below the mission area,
+  // Silvio); flySmall() keeps them inside the world
+  if(o.type === 'fighter' || o.type === 'bomber' || o.small) return;
   const hh = (half != null) ? half : halfH(o);
   const top = HUD_H + hh, bot = MH - hh;
   if(top >= bot){ o.y = (HUD_H + MH)*0.5; return; }   // taller than the field
@@ -1919,8 +1923,8 @@ function mkAllySmall(kind, fac, spr, y){
     sh:st.sh, maxSh:st.sh, shRe:st.re,
     shDelay:0, shHit:0, minY:WY0+22, maxY:WY1-22,
     vx:0, vy:0, ang:0, head:0,
-    spd: smallSpd(spr) || (bomber?EBOMBER_SPD:EFIGHTER_SPD),   // v211: FS speed
-    turn: bomber?EBOMBER_TURN:EFIGHTER_TURN,
+    spd: aiSpd(spr) || (bomber?EBOMBER_SPD:EFIGHTER_SPD),   // v212: FS speed and turn, as the demo
+    turn: aiTurn(spr) || (bomber?EBOMBER_TURN:EFIGHTER_TURN),
     role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
     prefD: bomber?(200+Math.random()*140):(90+Math.random()*130),
     fT:(40+Math.random()*40)|0, fR:(85+Math.random()*60)|0,
@@ -2159,7 +2163,7 @@ function allyFire(a){
       if(_ad && typeof f3dAim === 'function') f3dAim(a, _ad.ti, tg.x, tg.y);
       // Aimed where the target will be, not where it is (M35, v159).
       // Turrets cover the full circle.
-      const ang = leadAngle(pts[i].x, pts[i].y, tg, g.aspd*TEMPO_K)
+      const ang = leadAngle(pts[i].x, pts[i].y, tg, pSpd(g.aspd)*TEMPO_K)
                 + (Math.random()-0.5)*0.06*aScat*g.scat;
       sndAiShot(pts[i].x, pts[i].y, g.snd);
       capGunShot(a, pts[i].x, pts[i].y, ang, g, true, false,
@@ -2552,9 +2556,9 @@ function launchBombRaid(){
 function portalBomb(x, y, ang, tgt){
   eBullets.push({
     x:x, y:y,
-    vx:Math.cos(ang)*1.7*TEMPO_K, vy:Math.sin(ang)*1.7*TEMPO_K,      // v209: TEMPO_K
+    vx:Math.cos(ang)*pSpd(1.7)*TEMPO_K, vy:Math.sin(ang)*pSpd(1.7)*TEMPO_K,      // v212: pSpd
     w:15, h:15, big:false, faction:currentFaction,
-    kind:'bomb', dmg:tgt ? SSB_DMG : 26, hom:true, turn:tgt ? 0.02 : 0.013, spd:1.7*TEMPO_K,
+    kind:'bomb', dmg:tgt ? SSB_DMG : 26, hom:true, turn:tgt ? 0.02 : 0.013, spd:pSpd(1.7)*TEMPO_K,
     life:tgt ? 900 : 560, hp:1, tgt:tgt||null
   });
 }

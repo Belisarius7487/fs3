@@ -254,7 +254,7 @@ function updateSecBullets(){
         var ang=Math.atan2(aimY-b.y,aimX-b.x);
         // v209: both in v207 units, the round flies TEMPO_K faster
         var turnRate=(b.turn||(b.type==='missile'?0.18:0.06))*TEMPO_K; // Bombs turn far more slowly
-        var maxSpd=(b.maxSpd||(b.type==='missile'?5.5:3.0))*TEMPO_K;
+        var maxSpd=pSpd(b.maxSpd||(b.type==='missile'?5.5:3.0))*TEMPO_K;   // v212: pSpd
         b.vx+=(Math.cos(ang)*turnRate);
         b.vy+=(Math.sin(ang)*turnRate);
         var spd=Math.hypot(b.vx,b.vy);

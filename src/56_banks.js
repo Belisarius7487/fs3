@@ -20,6 +20,10 @@
 // AI_SECONDARIES in 55_arms.js).
 
 const MPS_TO_PX   = 0.02;    // m/s -> points per step
+// v212 (Silvio): no round may be slower than the player's ship - 1.1 x the
+// fastest small craft (90 m/s, SMALL_VEL) on the game scale, before TEMPO_K
+const PROJ_MIN = 4.5;
+function pSpd(v){ return Math.max(v || 0, PROJ_MIN); }
 // Blast radii (FS2 metres) on the field: the capital-ship scale, where a
 // cruiser of ~250 m is ~100 px long (v190).
 const BLAST_PX_PER_M = 0.4;
@@ -165,6 +169,9 @@ function shipBanks(key){ return SHIP_BANKS[key] || BANKS_FALLBACK; }
     w.cd   = Math.max(6, Math.round(f.w*60));
     w.spd  = f.v*MPS_TO_PX;
     w.life = Math.round(f.l*60);
+    // v212 (Silvio): no round slower than the ships (PROJ_MIN); a raised
+    // one keeps its FS reach, so it lives shorter
+    if(w.spd < PROJ_MIN){ w.life = Math.max(1, Math.round(w.life*w.spd/PROJ_MIN)); w.spd = PROJ_MIN; }
     // Turn: FS2's $Turn Time is the time for a half circle, whatever the
     // speed. A missile steers by adding turn to its velocity each step, so
     // a faster one needs more of it to come round as quickly (v187b: the

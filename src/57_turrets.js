@@ -56,7 +56,7 @@ function capGunShot(e, x, y, ang, g, ally, pd, hidE){
   const n = (g.big && CAP_TRIPLE.test(e.img)) ? 3 : 1;
   for(let k=0;k<n;k++){
     const a = ang + (n>1 ? (k-1)*0.07 : 0);
-    const sp = (ally ? g.aspd : g.spd)*TEMPO_K;     // v209: TEMPO_K
+    const sp = pSpd(ally ? g.aspd : g.spd)*TEMPO_K;     // v212: pSpd
     if(ally){
       pBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
         w:g.big?13:11, h:g.big?13:4, dmg:g.admg, ally:true, fac:e.faction, cap:true,

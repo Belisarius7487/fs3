@@ -365,8 +365,12 @@ function barTargetModel(e, x, y, w, h){
   const k = f3dKey(e), L = k ? f3dReadyLevel(k) : null; if(!L) return false;
   const img = IMGS[e.img]; if(!img) return false;
   const a = e.ang || 0, lw = img.width*e.sc, lh = img.height*e.sc;
-  const bw = lw*Math.abs(Math.cos(a)) + lh*Math.abs(Math.sin(a)), bh = lw*Math.abs(Math.sin(a)) + lh*Math.abs(Math.cos(a));
-  const kk = Math.max(bw/(w*0.92), bh/(h*0.80));             // world units per bar unit
+  // v212 (Silvio): one fixed size per ship - fitted to her length, not to
+  // her turned outline, which made the picture zoom in and out as she turned
+  // her outline seen level (as at a heading of 0) fills the window; turned
+  // steeply she may reach past its edge, which the window cuts off
+  const kk = Math.max(lw/(w*0.92), lh/(h*0.80));              // world units per bar unit
+
   const D = kk*H/(2*Math.tan(F3D_FOV/2));
   const M = f3dMat(e, 0, 0, L);
   M[14] = 0;                                                  // her middle on the plane

@@ -75,21 +75,23 @@ function aiLoadout(e){
 // v211 (Silvio, as in FS): speed and life of the FS2 round each stands
 // for (weapons.tbl, $Velocity x 0.02, $Lifetime x 60): MX-64 = Harpoon
 // 250 m/s 5 s, Cyclops 95 / 25, Infyrno 120 / 7, Tornado 230 / 7, TAG-C
-// 205 / 13, Stiletto = Stiletto II 220 / 25 - the same as the player's
+// 205 / 13, Stiletto = Stiletto II 220 / 25 - the same as the player's.
+// v212: none slower than PROJ_MIN (4.5); a raised one keeps its FS reach
+// (shorter life): Cyclops, Infyrno, TAG-C, Stiletto
 const AI_SECONDARIES = [
   {key:'mx64', name:'MX-64', cls:'missile', ammoMul:1.0, dmg:35, cd:45, spd:5.0, life:300, homing:true},
-  {key:'cyclops', name:'Cyclops', cls:'bomb', ammoMul:1.0, dmg:80, cd:90, spd:1.9, life:1500, homing:true},
-  {key:'infyrno', name:'Infyrno', cls:'missile', ammoMul:0.7, dmg:40, cd:55, spd:2.4, life:420, homing:false,
+  {key:'cyclops', name:'Cyclops', cls:'bomb', ammoMul:1.0, dmg:80, cd:90, spd:4.5, life:633, homing:true},
+  {key:'infyrno', name:'Infyrno', cls:'missile', ammoMul:0.7, dmg:40, cd:55, spd:4.5, life:224, homing:false,
    burst:true, shards:12, shardDmg:30, shardSpd:3.0, shardRange:90},
   {key:'tornado', name:'Tornado', cls:'missile', ammoMul:0.5, dmg:14, cd:60, spd:4.6, life:420, homing:true,
    swarm:4, fan:0.9},
-  {key:'tag', name:'TAG-C', cls:'missile', snd:'mx64', ammoMul:0.6, dmg:6, cd:40, spd:4.1, life:780, homing:true, tag:true},
-  {key:'stiletto', name:'Stiletto', cls:'bomb', ammoMul:1.0, dmg:70, cd:95, spd:4.4, life:1500, homing:true, subs:true}
+  {key:'tag', name:'TAG-C', cls:'missile', snd:'mx64', ammoMul:0.6, dmg:6, cd:40, spd:4.5, life:711, homing:true, tag:true},
+  {key:'stiletto', name:'Stiletto', cls:'bomb', ammoMul:1.0, dmg:70, cd:95, spd:4.5, life:1467, homing:true, subs:true}
 ];
 // A secondary fires less often the more it carries in one go.
 const AI_SEC_RATE = {mx64:1, cyclops:1, stiletto:1.1, infyrno:1.3, tornado:1.6};
 // The AI's bolt speed: its own base speed, scaled like the player's gun.
-function aiBoltSpd(w){ return EBULLET_SPD * (w.spd || 9) / 9; }
+function aiBoltSpd(w){ return Math.max(EBULLET_SPD * (w.spd || 9) / 9, PROJ_MIN*TEMPO_K); }
 
 // The primaries, fired like the player fires them (v202, Silvio): while the
 // target sits in the cone ahead the trigger stays down. Every gun on the
