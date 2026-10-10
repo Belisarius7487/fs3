@@ -59,6 +59,9 @@ const HELPERS = `
     // Step until cond() holds, clearing small craft every so often.
     // every: how often the small craft are cleared, in steps (default 200).
     until(cond, max, clear, all, every){ const ev = every || 200;
+           // v208: a world FIELD_K times larger at the old speeds - every wait
+           // may last longer (an upper bound only)
+           max *= Math.max(1, Math.min(6, (typeof FIELD_K !== 'undefined' ? FIELD_K : 1)/2));
            for(let t=0;t<max;t+=20){ if(cond()) return t;
              if(clear && t%ev===0) FS.killSmall();
              if(all && t%200===0) for(const e of enemies){
@@ -119,9 +122,10 @@ scenario('M31 Der Aufstand', 'm=31', `
   r.waveOpenWhileSheLives = !waveOver;
   r.headsRight = !!e && e.x > x0;
   // Left alone she reaches the edge and jumps.
-  const t = FS.until(()=>!!EV_LEFT['A1'], 8000, true);
-  r.jumpsAtTheEdge = t>=0 && e.warpOut>0 && e.x < W;
-  r.whileFullyOnScreen = !!e && e.x + IMGS[e.img].width*e.sc*0.5 <= W;
+  // v208: the mission area is FIELD_K times the old field, her speed is not
+  const t = FS.until(()=>!!EV_LEFT['A1'], 8000*FIELD_K, true);
+  r.jumpsAtTheEdge = t>=0 && e.warpOut>0 && e.x < MW;
+  r.whileFullyOnScreen = !!e && e.x + IMGS[e.img].width*e.sc*0.5 <= MW;
   FS.until(()=>!enemies.includes(e), 1000, false);
   r.goneAfterJump = !enemies.includes(e);
   FS.until(()=>waveOver || wave>31, 4000, true);
@@ -158,10 +162,10 @@ scenario('M33 Die Relaisstation', 'm=33', `
   FS.step(300);
   const s = enemies.find(e=>e.uid==='S1');
   r.faustus = !!s && s.img==='scfaustus';
-  r.atGivenHeight = !!s && Math.abs(s.y-250) < 1;
+  r.atGivenHeight = !!s && Math.abs(s.y-250*FIELD_K) < 1;
   const x0 = s ? s.x : 0;
   FS.step(1200);
-  r.staysPut = !!s && Math.abs(s.x-x0) < 1 && Math.abs(s.y-250) < 1;
+  r.staysPut = !!s && Math.abs(s.x-x0) < 1 && Math.abs(s.y-250*FIELD_K) < 1;
   r.noFlak = !!s && flakHas(s)===false;
   r.guns = enemies.filter(e=>e.uid==='G1').length===4;
   // Reinforcements keep coming while she stands.
@@ -197,7 +201,7 @@ scenario('M35 Der Ueberlaeufer', 'm=35', `
   FS.step(300);
   const d = allies.find(a=>a.uid==='A1');
   r.ntfDeimos = !!d && d.img==='ntfcodeimos' && d.type==='corvette';
-  r.comesFromTheRight = !!d && d.x > W*0.6;
+  r.comesFromTheRight = !!d && d.x > MW*0.6;
   r.facesLeft = !!d && d.flip===needsFlip('ntfcodeimos', true);
   r.crossing = !!d && d.transit===true;
   r.firstWingHuntsHer = waveHunt==='A1';
@@ -229,8 +233,10 @@ scenario('M36 Die Iceni', 'm=36', `
   r.iceni = !!i && i.iceni===true && i.img==='coiceni';
   r.noNavigation = !!i && !!i.subs && i.subs.length===4 && subOK(i,'navigation');
   r.deadline = !!i && i.fleeT>0 && i.fleeT <= 25*TICK_HZ;
-  FS.step(600);
-  r.wholeHullOnScreen = !!i && i.x + IMGS[i.img].width*i.sc*0.5 <= W;
+  // v208: her real hull is long and her speed old - she takes longer to her station
+  FS.until(()=>!i || i.x <= i.targetX + 50, 600*Math.max(1, FIELD_K), false);
+  // her station keeps the whole hull inside (she eases into it)
+  r.wholeHullOnScreen = !!i && i.targetX + IMGS[i.img].width*i.sc*0.5 <= MW && i.x - i.targetX < 100;
   const t = FS.until(()=>!enemies.some(e=>e.uid==='V1'), 6000, false);
   r.jumpsOut = t>=0 && icenEscapes===1;
   r.noPenalty = score >= s0;
@@ -261,7 +267,8 @@ scenario('M13 both transports on time', 'm=13', `
 // 61 ends only when the Aeolus is lost; its own scenario covers that.
 // 71 is a scan, flown in its own scenario like 12 and 23.
 for(const m of Array.from({length:80},(_,i)=>i+1)) if(m!==12 && m!==23 && m!==61 && m!==71) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
-  const t = FS.until(()=>waveOver, 40000, false, true);
+  // v208: speeds unchanged in a world FIELD_K times larger - more time
+  const t = FS.until(()=>waveOver, 40000*Math.max(1, Math.min(4, FIELD_K/2)), false, true);
   ITEMS.length = 0;     // pickups hold the jump open until they expire
   const j = FS.until(()=>wave === ${m}+1, 6000, false, false);
   return {ends: t >= 0, nextWave: j >= 0};`);
@@ -337,7 +344,7 @@ scenario('M38 Die Kaperung', 'm=38', `
   FS.step(400);
   const d = enemies.find(e=>e.uid==='D1');
   r.deimos = !!d && d.img==='ntfcodeimos';
-  r.midField = !!d && Math.abs(d.y-260) < 1;
+  r.midField = !!d && Math.abs(d.y-260*FIELD_K) < 1;
   r.headsRight = !!d && d.escaping>0 && d.flip===needsFlip(d.img, false);
   r.saysWhatToDo = missionObj==='DISABLE THE DEIMOS - ENGINES AND WEAPONS';
   damageEnemy(d, d.maxHp*5, d.x, d.y, true, 'bolt'); FS.step(3);
@@ -380,7 +387,7 @@ scenario('M38 left alone she jumps at the edge', 'm=38', `
   const d = enemies.find(e=>e.uid==='D1');
   const t = FS.until(()=>!!EV_LEFT['D1'], 8000, true);
   FS.step(2);
-  return {jumps: t>=0 && d.warpOut>0 && !d.captured, onScreen: d.x + IMGS[d.img].width*d.sc*0.5 <= W,
+  return {jumps: t>=0 && d.warpOut>0 && !d.captured, onScreen: d.x + IMGS[d.img].width*d.sc*0.5 <= MW,
           failCard: !!objCard && objCard.tone==='fail' && objCard.txt==='THE DEIMOS GOT AWAY'};`);
 
 scenario('M39 Die Gasernte', 'm=39', `
@@ -417,7 +424,7 @@ scenario('M41 Das Lazarett', 'm=41', `
   r.hippocrates = !!h && h.img==='mehippocrates';
   r.hunted = waveHunt==='H1';
   const x0 = h ? h.x : 0; FS.step(300);
-  r.crossesSlowly = !!h && h.x > x0 && (h.x-x0) < 100;
+  r.crossesSlowly = !!h && h.x > x0 && (h.x-x0) < 100*FIELD_K;
   r.bombers = enemies.some(e=>e.uid==='B1' && e.img==='bomedusa');
   const orig = drawHullBlocks; let barFor = false;
   drawHullBlocks = function(e){ if(e===h) barFor = true; return orig.apply(this, arguments); };
@@ -617,7 +624,7 @@ scenario('M49 Das Reparaturdock', 'm=49', `
   r.transportComes = !!t1 && t1.img==='trargo';
   // Hull just before the dock, stepped singly so nothing else gets in.
   let h0 = d.hp, got = -1;
-  for(let i=0;i<6000;i++){ if(EV_DOCK['T1']){ got = i; break; } h0 = d.hp; if(i%200===0) FS.killSmall(); FS.step(1); }
+  for(let i=0;i<6000*Math.max(1, FIELD_K);i++){ if(EV_DOCK['T1']){ got = i; break; } h0 = d.hp; if(i%200===0) FS.killSmall(); FS.step(1); }
   r.dockRepairsAQuarter = got>=0 && Math.abs((d.hp-h0)/d.maxHp - 0.25) < 0.03;
   r.transportJumpsOut = t1.warpOut>0 || !enemies.includes(t1);
   // All three through: she is whole and jumps. That is a failure.
@@ -723,8 +730,8 @@ scenario('M52 Das Artilleriefeuer', 'm=52', `
   const ms = allies.filter(a=>a.uid==='M1' || a.uid==='M2');
   r.twoMjolnirs = ms.length===2 && ms.every(m=>m.img==='sgmjolnir' && m.platform && !m.subs && m.beams && m.beams.some(b=>b.large));
   const m1 = ms.find(m=>m.uid==='M1'), m2 = ms.find(m=>m.uid==='M2');
-  r.inPlace = !!m1 && !!m2 && Math.abs(m1.x-70)<1 && Math.abs(m1.y-140)<1 && Math.abs(m2.y-360)<1;
-  r.deimosAtTheBottom = allies.some(a=>a.uid==='A1' && a.img==='codeimos' && Math.abs(a.y-440)<1);
+  r.inPlace = !!m1 && !!m2 && Math.abs(m1.x-70*FIELD_K)<1 && Math.abs(m1.y-140*FIELD_K)<1 && Math.abs(m2.y-360*FIELD_K)<1;
+  r.deimosAtTheBottom = allies.some(a=>a.uid==='A1' && a.img==='codeimos' && Math.abs(a.y-440*FIELD_K)<1);
   r.supportStillCallable = allyReady();
   const _v1 = enemies.find(e=>e.uid==='V1');
   r.shorterDeadline = !!_v1 && _v1.fleeT>0 && _v1.fleeT <= 30*TICK_HZ;
@@ -740,7 +747,7 @@ scenario('M52 Das Artilleriefeuer', 'm=52', `
   let most = 0; const seen = {};
   FS.until(()=>{ const caps = enemies.filter(e=>/^V/.test(e.uid||'') && !(e.warp>0));
     most = Math.max(most, caps.length); for(const e of caps) seen[e.uid] = e;
-    for(const e of caps) if(e.warp<=0 && e.x < W-60){ e.hp = 0; }
+    for(const e of caps) if(e.warp<=0 && e.x < MW-60*FIELD_K){ e.hp = 0; }
     return ['V1','V2','V3','V4','V5','V6'].every(k=>EV_SEEN[k]) && !byId('V5').length && !byId('V6').length; }, 20000, true);
   r.allSixCome = wave===52 && ['V1','V2','V3','V4','V5','V6'].every(k=>EV_SEEN[k]);
   r.neverMoreThanTwo = most<=2;
@@ -756,7 +763,7 @@ scenario('M53 Der Gegenangriff', 'm=53', `
   tickets.cruiser = 1;
   FS.step(300);
   const a1 = allies.find(a=>a.uid==='A1'), a2 = allies.find(a=>a.uid==='A2');
-  r.fleetPlaced = !!a1 && !!a2 && Math.abs(a1.y-170)<60 && Math.abs(a2.y-390)<60;
+  r.fleetPlaced = !!a1 && !!a2 && Math.abs(a1.y-170*FIELD_K)<60*FIELD_K && Math.abs(a2.y-390*FIELD_K)<60*FIELD_K;
   r.noCallWhileBothStand = !allyReady();
   r.noEnemyDestroyersYet = !enemies.some(e=>e.uid==='V1'||e.uid==='V2');
   FS.until(()=>enemies.some(e=>e.uid==='V1') && enemies.some(e=>e.uid==='V2'), 2000, true);
@@ -781,7 +788,7 @@ scenario('M54 Die Evakuierung', 'm=54', `
   const r = {};
   let t1 = null;
   FS.until(()=>{ t1 = allies.find(a=>a.uid==='T1'); return !!t1; }, 1000, false);
-  r.leavesTheStation = !!t1 && Math.abs(t1.x-560) < 15 && t1.crossing < 0 && t1.flip===needsFlip(t1.img, true);
+  r.leavesTheStation = !!t1 && Math.abs(t1.x-560*FIELD_K) < 15*FIELD_K && t1.crossing < 0 && t1.flip===needsFlip(t1.img, true);
   const x0 = t1.x; FS.step(100);
   r.fliesLeft = t1.x < x0 - 30;
   // Keep them alive; they fly out to the left.
@@ -826,7 +833,7 @@ scenario('Beams run under the hulls', 'm=42', `
   // ...but on top of the ship that fires it.
   const sh = order.indexOf('shooter'), own = order.indexOf('own');
   r.onTopOfTheShooter = sh>=0 && own>sh;
-  r.ownStretchShort = ownHullRun(shooter, shooter.x, shooter.y, 0) > 0 && ownHullRun(shooter, shooter.x, shooter.y, 0) < 1000;
+  r.ownStretchShort = ownHullRun(shooter, shooter.x, shooter.y, 0) > 0 && ownHullRun(shooter, shooter.x, shooter.y, 0) < 1000*FIELD_K;
   return r;`);
 
 scenario('Knossos scene: same sky within a run', 'm=55', `
@@ -862,10 +869,10 @@ scenario('M55 Der Anflug', 'm=55', `
   const r = {};
   let k = null;
   FS.until(()=>{ k = enemies.find(e=>e.uid==='K1' && !(e.warp>0)); return !!k; }, 2000, true);
-  r.cruiserFromTheLeft = !!k && k.x < 100 && k.escaping>0 && k.escWarp;
+  r.cruiserFromTheLeft = !!k && k.x < 100*FIELD_K && k.escaping>0 && k.escWarp;
   k.hp = k.maxHp = 1e7;
   const f = FS.until(()=>{ k.hp = k.maxHp; return k.warpOut>0; }, 6000, true);
-  r.jumpsAtThePortal = f>=0 && k.x >= PORTAL_X && k.x < W && k.portalWarp===true;
+  r.jumpsAtThePortal = f>=0 && k.x >= PORTAL_X*FIELD_K && k.x < MW && k.portalWarp===true;
   FS.step(5);
   r.failCard = !!objCard && objCard.txt==='A CRUISER REACHED THE PORTAL';
   return r;`);
@@ -893,7 +900,7 @@ scenario('M56 Die Verraeter', 'm=56', `
   const t = enemies.find(e=>e.uid==='A1');
   r.goesOver = !!t && t.side==='enemy' && t.img==='ntfcrleviathan';
   // She stays on the left and faces into the field, not the edge behind her.
-  r.facesIntoTheField = !!t && t.x < W*0.5 && t.flip===needsFlip(t.img, false);
+  r.facesIntoTheField = !!t && t.x < MW*0.5 && t.flip===needsFlip(t.img, false);
   const _tx = t.x; FS.step(200);
   r.staysWhereSheIs = Math.abs(t.x-_tx) < 1;
   FS.step(3);
@@ -961,7 +968,7 @@ scenario('M60 Der Sprung', 'm=60', `
   damageEnemy(v, v.maxHp*5, v.x, v.y, true, 'bolt'); FS.step(2);
   r.cannotBeDestroyed = enemies.includes(v) && v.hp>0;
   const j = FS.until(()=>v.warpOut>0, 9000, true);
-  r.throughThePortal = j>=0 && v.portalWarp===true && v.x >= PORTAL_X;
+  r.throughThePortal = j>=0 && v.portalWarp===true && v.x >= PORTAL_X*FIELD_K;
   FS.until(()=>!enemies.includes(v), 1000, false);
   FS.step(5);
   r.sheGotAway = icenEscapes===esc0+1 && NOTICES.some(n=>n.txt==='THE ICENI IS THROUGH THE KNOSSOS');
@@ -1051,7 +1058,8 @@ scenario('Warp sheets and the Sidhe', 'm=1', `
   // It keeps turning on its own clock, 30 frames a second: 20 steps later
   // (0.2 s) it is 6 frames on, whatever the jump is doing.
   const idx = a=>Math.round(a[0]/256) + 9*Math.round(a[1]/256);
-  r.turnsOnItsOwn = ((idx(f) - idx(f0) + 75) % 75)===6;
+  // v208: 25 frames a second (WarpMap01.eff): 20 steps later 5 frames on
+  r.turnsOnItsOwn = ((idx(f) - idx(f0) + 75) % 75)===Math.round(20*WARP_FPS/TICK_HZ);
   // And it spins: the angle it is drawn at moves on with the clock.
   const rots = []; const _r = ctx.rotate, _d2 = ctx.drawImage;
   ctx.rotate = function(a){ rots.push(a); return _r.apply(this, arguments); };
@@ -1167,7 +1175,7 @@ scenario('M46 Die Wissenschaftler', 'm=46', `
   score = 1000;
   FS.step(400);
   const f = enemies.find(e=>e.uid==='F1');
-  r.faustusParked = !!f && Math.abs(f.y-250) < 1;
+  r.faustusParked = !!f && Math.abs(f.y-250*FIELD_K) < 1;
   r.onADeadline = !!f && f.fleeT>0;
   // The countdown sits at the right edge, clear of the objective line.
   const _ft = [], _pl = [];
@@ -1225,7 +1233,7 @@ scenario('M47 Die zweite Flucht', 'm=47', `
   const _y1 = _v1 && _v1.y, _y2 = _v2 && _v2.y;
   FS.step(300);
   r.shipsHoldHeight = !!_v1 && !!_v2 && Math.abs(_v1.y-_y1)<0.5 && Math.abs(_v2.y-_y2)<0.5 &&
-    Math.abs(_v1.y-150)<1 && Math.abs(_v2.y-350)<1;
+    Math.abs(_v1.y-150*FIELD_K)<1 && Math.abs(_v2.y-350*FIELD_K)<1;
   r.iceniFortySeconds = !!_v1 && _v1.fleeT>0 && _v1.fleeT <= 40*TICK_HZ;
   r.noEndlessReinforcement = !evReinf;
   const t = FS.until(()=>!enemies.some(e=>e.uid==='V1'), 9000, true);
@@ -1797,7 +1805,7 @@ scenario('v165: M63 Charybdis lets the beams see', 'm=63', `
   enemies.push(n2); r.goneBlind = beamTargets(FS.ids('A1')[0], false).indexOf(n2) < 0; enemies.pop(); c.dead = false;
   // In play the beams actually fire at small craft.
   let fired = 0;
-  for(let i=0;i<3000;i+=20){ FS.step(20); for(const a of allies) for(const b of (a.beams||[])) if(!b.large && b.state==='firing' && b.tgt && (b.tgt.type==='fighter'||b.tgt.type==='bomber')) fired++; }
+  for(let i=0;i<3000*Math.max(1, FIELD_K/2);i+=20){ FS.step(20); for(const a of allies) for(const b of (a.beams||[])) if(!b.large && b.state==='firing' && b.tgt && (b.tgt.type==='fighter'||b.tgt.type==='bomber')) fired++; }
   r.beamsFire = fired > 0;
   let ringDrawn = false; const arc = ctx.arc; ctx.arc = function(x,y,rad){ if(rad===AWACS_R) ringDrawn = true; return arc.apply(this, arguments); };
   draw(); ctx.arc = arc;
@@ -1830,7 +1838,7 @@ scenario('v166: M66 freighters come in from the edge', 'm=66', `
 scenario('v166: M65 buoys smaller, and they stay to the end', 'm=65', `
   FS.step(300);
   const p = FS.ids('P1')[0];
-  const r = {smaller: hullWidth('inpharos') < 0.7*Math.round(Math.min(SIZE_MAX, Math.max(Math.min(SIZE_REF_W, SIZE_REF_W*Math.pow(HULL_LEN.inpharos/SIZE_REF_L, SIZE_E)), SIZE_K*Math.pow(HULL_LEN.inpharos, SIZE_E))))+1,
+  const r = {smaller: hullWidth('inpharos') < 0.7*HULL_LEN.inpharos*SIZE_UPM+1,   // v208: a third under her real length
              stays: !!p && p.stay===true};
   FS.until(()=>waveOver, 30000, true, true);
   FS.step(60);
@@ -1852,7 +1860,7 @@ scenario('v168: arrivals open inside the ring', 'm=61', `
   let inside = 0, n = 0;
   for(let i=0;i<200;i++){ const q = portalPoint(); n++;
     const u = (q.x-p.x)/rx, w = (q.y-p.y)/ry;
-    if(u*u + w*w <= 0.56*0.56 && q.x <= p.x && q.x <= W-14) inside++; }
+    if(u*u + w*w <= 0.56*0.56 && q.x <= p.x && q.x <= MW-14) inside++; }
   return {inside: inside === n};`);
 
 scenario('v168: M65 done means the Shivans pull out', 'm=65', `
@@ -2052,7 +2060,7 @@ scenario('v170: M70 an Azrael, a clean jump, the Iceni scuttled', 'm=70', `
   const r = {};
   FS.step(20);
   let x = null, jumped = false, mOK = true;
-  for(let i=0;i<2000;i++){ FS.step(1); x = FS.ids('X1')[0] || x;
+  for(let i=0;i<2000*Math.max(1, FIELD_K/2);i++){ FS.step(1); x = FS.ids('X1')[0] || x;
     if(x && x.warpOut>0){ jumped = true; mOK = x.warpMax > 1 && x.warpOut <= x.warpMax; break; } }
   r.azrael = !!x && x.img==='trazrael';
   r.cleanJump = jumped && mOK;
@@ -2300,15 +2308,15 @@ scenario('v177: M75 the Lucifer drives right to left on the clock', 'm=75', `
   const l = FS.ids('L1')[0];
   r.timer2min = missionTimer.total === 120*TICK_HZ;
   const x0 = l.x;
-  r.startsRight = x0 > W*0.85;
+  r.startsRight = x0 > MW*0.85;
   FS.until(()=>missionTimerLeft() < 60*TICK_HZ, 20000, true, false);
   // About the middle at half time (her glide out of the vortex adds a bit).
-  r.halfway = l.x > W*0.3 && l.x < W*0.55;
+  r.halfway = l.x > MW*0.3 && l.x < MW*0.55;
   FS.until(()=>missionTimerLeft() < 2*TICK_HZ, 20000, true, false);
-  r.endsLeft = l.x < W*0.1;
+  r.endsLeft = l.x < MW*0.1;
   FS.until(()=>missedJumps>0, 1000, false, false);
   FS.step(5);
-  r.backRight = missedJumps===1 && l.x > W*0.9 && !l.dead;
+  r.backRight = missedJumps===1 && l.x > MW*0.9 && !l.dead;
   return r;`);
 
 scenario('v177: M77 the Sathanas comes through and takes the Hatshepsut', 'm=77', `
@@ -2334,7 +2342,7 @@ scenario('v177: M78 the Mara in disguise, nine Sathanas, three comm nodes', 'm=7
   FS.step(20);
   r.mara = player.ship==='fimara';
   let hit = 0, sath = 0, mara = false;
-  for(let i=0;i<2500;i++){ const h = player.hp + player.sh; update(); if(i%25===0) draw();
+  for(let i=0;i<2500*Math.max(1, FIELD_K/2);i++){ const h = player.hp + player.sh; update(); if(i%25===0) draw();
     hit += Math.max(0, h - (player.hp + player.sh)); player.hp = player.maxHp; player.sh = player.maxSh;
     for(const e of enemies){ if(e.img==='sdsathanas' && e.invuln && e.noHold && !e._c){ e._c = 1; sath++; } if(e.img==='fimara') mara = true; } }
   r.disguisedUnhurt = hit < 5 && !disguiseBlown;
@@ -2345,7 +2353,7 @@ scenario('v177: M78 the Mara in disguise, nine Sathanas, three comm nodes', 'm=7
   damageEnemy(n, 1, n.x, n.y, true, 'bolt');
   r.coverBlown = disguiseBlown === true;
   hit = 0;
-  for(let i=0;i<2000;i++){ const h = player.hp + player.sh; update(); if(i%25===0) draw();
+  for(let i=0;i<2000*Math.max(1, FIELD_K/2);i++){ const h = player.hp + player.sh; update(); if(i%25===0) draw();
     hit += Math.max(0, h - (player.hp + player.sh)); player.hp = player.maxHp; player.sh = player.maxSh; }
   r.nowHunted = hit > 20;
   // The nodes go up in a big blast.
@@ -2463,7 +2471,7 @@ scenario('v178: M78 ghosts, wingmen, no support, no TAG, ends with the devices',
   r.wingmenQuiet = shots === 0;
   r.wingmenUnhurt = w2.every((a,i)=>a.hp >= h0[i]);
   // The Sathanas: shots pass, no subsystems.
-  let s = null; for(let i=0;i<3000 && !s;i+=20){ FS.step(20); s = enemies.find(e=>e.img==='sdsathanas' && !(e.warp>0) && e.x < W) || null; }
+  let s = null; for(let i=0;i<3000 && !s;i+=20){ FS.step(20); s = enemies.find(e=>e.img==='sdsathanas' && !(e.warp>0) && e.x < MW) || null; }
   r.ghost = !!s && s.ghost && !s.subs && !bulletOnHull(s, {x:s.x, y:s.y, w:4, h:4});
   // The devices go: the mission ends, waves or not.
   for(const n of FS.ids('N1')) n.scanned = true;   // scanned first since v180
@@ -2692,7 +2700,7 @@ scenario('v183: our capital ships die the same way', 'm=80', `
   return r;`);
 scenario('v183: M55 a cruiser dying on her way to the portal drifts, does not escape', 'm=55', `
   const r = {};
-  FS.until(()=>{ const k = FS.ids('K1')[0]; return !!k && k.escaping && !(k.warp>0) && k.x > 120; }, 4000, true);
+  FS.until(()=>{ const k = FS.ids('K1')[0]; return !!k && k.escaping && !(k.warp>0) && k.x > 120*FIELD_K; }, 4000, true);
   const k = FS.ids('K1')[0];
   const x0 = k.x; FS.step(20); const v0 = (k.x - x0)/20;
   const esc0 = escGone;
@@ -2702,7 +2710,7 @@ scenario('v183: M55 a cruiser dying on her way to the portal drifts, does not es
   FS.step(5); const x1 = k.x; FS.step(50); const v1 = (k.x - x1)/50;
   r.sameSpeed = v0 > 0.05 && Math.abs(v1 - v0) < v0*0.15;
   // put her right at the portal: dying, she still does not get through
-  k.x = PORTAL_X + 5; FS.step(k.rollT + 10);
+  k.x = PORTAL_X*FIELD_K + 5; FS.step(k.rollT + 10);
   r.notEscaped = escGone === esc0 && !EV_LEFT['K1'] && k.dead;
   // the breakup is her big blast now: nothing of her left in the queue
   r.noLateBlasts = !EXPL_Q.some(q => q.t > fc && Math.hypot(q.x - k.x, q.y - k.y) < 150);
@@ -2818,11 +2826,12 @@ scenario('v188: capital hulls in FS2 ratio, subsystems from the models', 'm=31',
   // subsystems: where two circles overlap, the nearer centre takes the hit
   const e = aeo; e.x = 400; e.y = 250; e.warp = 0; initSubsystems(e);
   const s0 = e.subs[0], s1 = e.subs[1];
-  const p0 = subPos(e, s0), p1 = subPos(e, s1);
-  const mx = p0.x + (p1.x-p0.x)*0.3, my = p0.y + (p1.y-p0.y)*0.3;
-  const big = s0.r; s0.r = s1.r = 1;   // make them overlap
-  r.nearestTakesHit = subAt(e, mx, my) === s0;
-  s0.r = big; s1.r = big;
+  // v208: at real size two systems lie far apart; set two overlapping
+  // circles 30 units apart for the rule itself
+  const _sp = subPos; subPos = function(o, q){ return q===s0 ? {x:400, y:250} : (q===s1 ? {x:430, y:250} : _sp(o, q)); };
+  const big = s0.r; s0.r = s1.r = 1;   // the largest circle subRadius allows
+  r.nearestTakesHit = subAt(e, 409, 250) === s0;
+  subPos = _sp; s0.r = big; s1.r = big;
   // the Aten's weapons sit forward, by the bow, as in the model
   r.atenWeaponsForward = (MOUNTS.craten.subs.find(s=>s.id==='weapons').dx > 0.5);
   return r;`);
@@ -2837,7 +2846,8 @@ scenario('v190: a bomb goes off over an area, a missile does not', 'm=31', `
   const cr = mkEnemy('cr_ntf', 'ntfcrfenris', 250); cr.x = 500; cr.y = 250; cr.warp = 0;
   const mkF = (dx)=>{ const f = mkEnemy('fi_ntf', null, 250); f.x = 500+dx; f.y = 250; f.warp = 0; f.dead = false;
                       f.hp = f.maxHp = 1000; f.sh = f.maxSh = 0; return f; };
-  const near = mkF(-20), mid = mkF(-60), far = mkF(-200);
+  // v208: fighters at real size - their hitboxes reach further
+  const near = mkF(-20), mid = mkF(-110), far = mkF(-260);
   for(const e of [cr, near, mid, far]) if(enemies.indexOf(e) < 0) enemies.push(e);
   const crHp = cr.hp;
   const b = {x:500, y:250, dmg:cyc.dmg, f:cyc.f};

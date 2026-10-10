@@ -271,8 +271,8 @@ function seedWreckField(n, keys, sc){
     const p = cutPiece(keys[(Math.random()*keys.length)|0], sc, 0,
                        0.16+Math.random()*0.18, 0.28+Math.random()*0.34, DEBRIS_HP);
     if(!p) continue;
-    p.x = W+40+Math.random()*W;
-    p.y = HUD_H+20+Math.random()*(H-HUD_H-40);
+    p.x = MW+40+Math.random()*MW;
+    p.y = HUD_H+20+Math.random()*(MH-HUD_H-40);
     p.vx = -(0.5+Math.random()*0.9); p.vy = (Math.random()-0.5)*0.5;
     pushDebris(p);
   }
@@ -334,7 +334,7 @@ function updateDebris(){
     // wreckage of a broken ship goes on breaking up (v183)
     if(d.fuse != null && fc >= d.fuse){ wreckSplit(i); continue; }
     const s = debSpan(d);
-    if(d.x<-80-s || d.x>W+260+s || d.y<-80-s || d.y>H+80+s){ debris.splice(i,1); continue; }
+    if(d.x<WX0-80-s || d.x>WX1+260+s || d.y<WY0-134-s || d.y>WY1+80+s){ debris.splice(i,1); continue; }
     if(d.hp<=0){ breakDebris(i); continue; }
 
     const b = debBox(d);
@@ -1062,7 +1062,7 @@ function unseenTarget(e){
   const a = nearestOf(allies, e, 'any');
   if(a) return a;
   if(!e.wpt || Math.hypot(e.wpt.x-e.x, e.wpt.y-e.y) < 60 || --e.wptT <= 0){
-    e.wpt = {x: W*(0.35+Math.random()*0.55), y: HUD_H+50+Math.random()*(H-HUD_H-100), pseudo:true};
+    e.wpt = {x: MW*(0.35+Math.random()*0.55), y: HUD_H+50+Math.random()*(MH-HUD_H-100), pseudo:true};
     e.wptT = 500;
   }
   return e.wpt;
@@ -1315,12 +1315,12 @@ function flySmall(e){
   if(wl>0.0001){ wx/=wl; wy/=wl; } else { wx=0; wy=0; }
   // Edge pressure on a square ramp: gentle at the margin, overwhelming at
   // the boundary itself.
-  if(e.x<EDGE_M){ const u=1-e.x/EDGE_M; wx += u*u*EDGE_F; }
-  else if(e.x>W-EDGE_M){ const u=1-(W-e.x)/EDGE_M; wx -= u*u*EDGE_F; }
-  if(e.y<HUD_H+EDGE_M){ const u=1-(e.y-HUD_H)/EDGE_M; wy += u*u*EDGE_F; }
-  else if(e.y>H-EDGE_M){ const u=1-(H-e.y)/EDGE_M; wy -= u*u*EDGE_F; }
+  if(e.x<WX0+EDGE_M){ const u=1-(e.x-WX0)/EDGE_M; wx += u*u*EDGE_F; }
+  else if(e.x>WX1-EDGE_M){ const u=1-(WX1-e.x)/EDGE_M; wx -= u*u*EDGE_F; }
+  if(e.y<WY0+EDGE_M){ const u=1-(e.y-WY0)/EDGE_M; wy += u*u*EDGE_F; }
+  else if(e.y>WY1-EDGE_M){ const u=1-(WY1-e.y)/EDGE_M; wy -= u*u*EDGE_F; }
   // Nothing sensible left to want: head for the middle rather than freeze.
-  if(wx*wx+wy*wy < 0.0004){ wx=W*0.5-e.x; wy=(HUD_H+H)*0.5-e.y; }
+  if(wx*wx+wy*wy < 0.0004){ wx=MW*0.5-e.x; wy=(HUD_H+MH)*0.5-e.y; }
   // Jinking: most of the wish goes sideways for a moment.
   if(e.jinkT>0){
     e.jinkT--;
@@ -1354,18 +1354,18 @@ function flySmall(e){
   // boundary is kept, so a ship that arrives nose first slides clear
   // while its turn comes round instead of grinding against the glass.
   const bnd=shipBound(e);
-  if(e.x<=bnd && e.vx<0) e.vx=0;
-  else if(e.x>=W-bnd && e.vx>0) e.vx=0;
-  if(e.y<=HUD_H+bnd && e.vy<0) e.vy=0;
-  else if(e.y>=H-bnd && e.vy>0) e.vy=0;
+  if(e.x<=WX0+bnd && e.vx<0) e.vx=0;
+  else if(e.x>=WX1-bnd && e.vx>0) e.vx=0;
+  if(e.y<=WY0+bnd && e.vy<0) e.vy=0;
+  else if(e.y>=WY1-bnd && e.vy>0) e.vy=0;
   // Direct sidestep, capped. Two ships closing head on cover more ground
   // in one step than either can steer away, so steering alone lets them
   // pass straight through one another.
   const sl=Math.sqrt(spx*spx+spy*spy);
   if(sl>0.001){ const c=Math.min(SEP_PUSH,sl)/sl; e.x+=spx*c; e.y+=spy*c; }
   e.x+=e.vx; e.y+=e.vy;
-  e.x=Math.max(bnd,Math.min(W-bnd,e.x));
-  e.y=Math.max(HUD_H+bnd,Math.min(H-bnd,e.y));
+  e.x=Math.max(WX0+bnd,Math.min(WX1-bnd,e.x));
+  e.y=Math.max(WY0+bnd,Math.min(WY1-bnd,e.y));
   const pose=poseFor(e.head, e.flip);
   e.ang=pose.ang; e.flip=pose.flip;
   return t;
@@ -1626,10 +1626,16 @@ function targetAlive(e, o){
 }
 
 // Is a point close enough to the beam line?
+const BEAM_REACH = 2400;
 function beamHits(mx, my, ang, tx, ty, rad){
   const ux=Math.cos(ang), uy=Math.sin(ang);
   const proj=(tx-mx)*ux + (ty-my)*uy;
-  if(proj < 0 || proj > 2400) return false;
+  // v208: the reach counts to her hull, not to her centre (a destroyer is
+  // thousands of units long now), and grows with the mission area like
+  // every distance of an old mission - so capital ships placed FIELD_K
+  // times further apart still reach each other. Interim, until ranges
+  // follow FS in their own build.
+  if(proj < 0 || proj > BEAM_REACH*FIELD_K + rad) return false;
   const cx=mx+ux*proj, cy=my+uy*proj;
   return ((tx-cx)**2 + (ty-cy)**2) < rad*rad;
 }
@@ -2458,7 +2464,7 @@ function flakReach(px, py, ang, want){
   const cx = Math.cos(ang), cy = Math.sin(ang);
   for(let k=0;k<12;k++){
     const bx = px + cx*d, by = py + cy*d;
-    if(bx >= FLAK_EDGE_KEEP && bx <= W-FLAK_EDGE_KEEP && by >= 0 && by <= H) break;
+    if(bx >= WX0+FLAK_EDGE_KEEP && bx <= WX1-FLAK_EDGE_KEEP && by >= WY0-HUD_H && by <= WY1) break;
     d -= 22;
     if(d <= FLAK_MIN){ d = FLAK_MIN; break; }
   }
@@ -2828,7 +2834,10 @@ function leadAngle(ex, ey, t, bs){
 function playerSc(key){
   const img = IMGS[key || player.ship];
   if(!img || !img.width) return 0.28;
-  const isBomber = isBomberHull(key || player.ship);
+  // v208: her real length, as every other hull (hullScale)
+  const k = key || player.ship;
+  if(HULL_LEN[k]) return hullScale(k, 0.28);
+  const isBomber = isBomberHull(k);
   const target = isBomber ? PLAYER_W_BOMBER : PLAYER_W_FIGHTER;
   return Math.min(0.6, target/img.width);
 }
@@ -2897,6 +2906,8 @@ function thrusterCol(faction){
 
 // e: the ship, when its damage should show in the flames (v180).
 function drawThrusters(key, cx, cy, sc, flip, faction, intensity, ang, e){
+  // v208: a hull drawn from her model has her flames in 3D (f3dThDraw)
+  if(typeof f3dDrawsThr === 'function' && f3dDrawsThr(key)) return;
   const m = mountsFor(key), img = IMGS[key];
   if(!m || !img || !m.thrusters || !m.thrusters.length) return;
   const hw = img.width*sc/2, hh = img.height*sc/2, s = flip ? -1 : 1;

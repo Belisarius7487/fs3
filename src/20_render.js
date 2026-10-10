@@ -325,7 +325,8 @@ function imgReady(im){ return !!im && im.complete && im.naturalWidth>0; }
 const WARP_GLOW_SIZE = 2.0;     // glow width as a multiple of the vortex
 // The frames are a loop, played at its own pace from the vortex's own
 // starting frame (seed), however long the vortex stays open.
-const WARP_FPS = 30;
+// v208: 25, as the MediaVPs 5.0.2 play WarpMap01 (WarpMap01.eff)
+const WARP_FPS = 25;
 // Turn of the vortex, radians a second (1.6 is about a quarter turn).
 const WARP_SPIN = 1.6;
 // Ships come out of the vortex as in FreeSpace, through a side-on oval.
@@ -357,7 +358,7 @@ function fsSmall(e){ return e.small || e.type==='fighter' || e.type==='bomber'; 
 function fsLanding(e){
   if(!fsSmall(e)) return {x: e.x, y: e.y};
   const b = shipBound(e);
-  return {x: Math.max(b, Math.min(W-b, e.x)), y: Math.max(HUD_H+b, Math.min(H-b, e.y))};
+  return {x: Math.max(WX0+b, Math.min(WX1-b, e.x)), y: Math.max(WY0+b, Math.min(WY1-b, e.y))};
 }
 function fsWarp(e){
   // A ship going through the Knossos jumps the same way, into a vortex
@@ -386,7 +387,8 @@ function fsWarp(e){
     const at = out ? {x: e.x, y: e.y} : fsLanding(e);
     // On the screen edge at the most: what sticks out beyond it cannot be
     // seen, so nothing pops into view when the cut goes.
-    const px = Math.max(0, Math.min(W, at.x + sg*f.x*G));
+    // v208: in the world now, not on the screen (the camera moves)
+    const px = Math.max(WX0, Math.min(WX1, at.x + sg*f.x*G));
     e._fsG = q = {out, fx: f.x, fy: f.y, L, G, D: out ? G - x.back : G + x.front, across: x.across,
                   px, py: at.y + sg*f.y*G,
                   x0: e.x, y0: e.y, lx: at.x, ly: at.y, e0: out ? mW-e.warpOut : mW-e.warp, v0: null};
@@ -504,6 +506,10 @@ function drawFsPortals(only){
     let wS = Math.min(1, 0.05 + 0.95*age/(p.mW*0.30));
     if(p.closeT >= 0) wS = Math.min(wS, 1 - (fc - p.closeT)/(p.mW*0.25));
     if(wS <= 0){ FS_PORTALS.splice(i,1); if(p.e._fsp===p) p.e._fsp = null; continue; }
+    // v208: the MediaVPs' warp model in 3D (f3dWarp); the picture of
+    // before where there is no 3D
+    if(WARP_STYLE==='oval' && typeof f3dWarp === 'function' &&
+       f3dWarp(p.px, p.py, p.fx, p.fy, p.WS, wS, Math.min(1, wS*1.4), warpSeed(p.e), !!p.e.portalWarp)) continue;
     ctx.save();
     ctx.globalAlpha = Math.min(1, wS*1.4);
     ctx.translate(p.px|0, p.py|0);
@@ -1097,7 +1103,17 @@ const STARS=Array.from({length:120},()=>({
   clr:['#ffffff','#aaaaff','#ffcccc'][Math.floor(Math.random()*3)],
 }));
 function tickStars(){for(const s of STARS){s.x-=s.spd;if(s.x<0){s.x=W;s.y=Math.random()*H;}}}
-function drawStars(){for(const s of STARS){ctx.fillStyle=s.clr;ctx.globalAlpha=0.7;ctx.fillRect(s.x|0,s.y|0,s.sz,s.sz);}ctx.globalAlpha=1;}
+// v208: the stars move with the camera too, the near ones more (parallax),
+// so flying across the large world can be seen against them.
+const STAR_PAR = 0.05;
+function drawStars(){
+  const cx = (typeof CAM !== 'undefined' && GS==='playing') ? CAM.x : 0, cy = (typeof CAM !== 'undefined' && GS==='playing') ? CAM.y : 0;
+  for(const s of STARS){
+    const px = ((s.x - cx*s.spd*STAR_PAR) % W + W) % W, py = ((s.y - cy*s.spd*STAR_PAR) % H + H) % H;
+    ctx.fillStyle=s.clr;ctx.globalAlpha=0.7;ctx.fillRect(px|0,py|0,s.sz,s.sz);
+  }
+  ctx.globalAlpha=1;
+}
 
 // ── PARTICLES ─────────────────────────────────────────────────
 let PARTS=[];
@@ -1256,13 +1272,13 @@ function clearResumeHold(){
   if(!resumeHold) return false;
   resumeHold = false;
   syncPause();
-  if(GS==='playing'){ MOUSE.x = player.x; MOUSE.y = player.y; }
+  if(GS==='playing'){ mouseHold(); }
   syncCursor();
   return true;
 }
 
 const K={};
-const MOUSE={x:400,y:250,down:false};
+const MOUSE={x:400,y:250,down:false,sx:400,sy:250,scr:false};
 // Ten, because the game asks for far more than it did when this was three
 // and hull damage now carries across waves.
 const LIVES_START = 10;
@@ -2376,7 +2392,7 @@ function tickHulks(){
     if(H.heat > 0) H.heat = Math.max(0, H.heat - 1/(TICK_HZ*9));
     // gone only when it has flown off the field
     const span = Math.max(H.w, H.h);
-    if(H.x < -span-60 || H.x > W+span+60 || H.y < -span-60 || H.y > H_FIELD()+span+60){ HULKS.splice(i, 1); continue; }
+    if(H.x < WX0-span-60 || H.x > WX1+span+60 || H.y < WY0-HUD_H-span-60 || H.y > WY1+span+60){ HULKS.splice(i, 1); continue; }
     // what still burns in it comes out at the broken edges
     if(H.edge.length && H.heat > 0.15 && fc % 5 === i % 5){
       const p = H.edge[(Math.random()*H.edge.length)|0];

@@ -271,7 +271,8 @@ function sndUnlock(){
 // Left and right after where it happens on the field.
 function sndPan(x){
   if(x == null) return 0;
-  return Math.max(-0.8, Math.min(0.8, (x/W*2 - 1)*0.8));
+  // v208: where it is on the screen (the camera), not in the world
+  return Math.max(-0.8, Math.min(0.8, (w2sX(x)/W*2 - 1)*0.8));
 }
 // Starts one sound. mix: a channel of its own for level, voice count and
 // spacing when a file is shared (the beam sets, and the guns of every

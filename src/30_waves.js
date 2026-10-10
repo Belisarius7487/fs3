@@ -519,7 +519,7 @@ function spawnProtected(sp){
     a.crossAfter = sp.cross || 0.38;
     // Die Hoehe darf nicht gepinnt sein, sonst kommt er nie zum
     // Andockpunkt hoch.
-    a.minY = HUD_H+20; a.maxY = H-20;
+    a.minY = HUD_H+20*FIELD_K; a.maxY = MH-20*FIELD_K;
   }
   if(sp.still){ a.vy = 0; a.minY = a.y; a.maxY = a.y; }
   // An installation does not jump out at the end of the wave; it stays
@@ -534,7 +534,7 @@ function spawnProtected(sp){
     a.crossing = sp.cross;         // Bildpunkte je Schritt
     // Below zero she flies out to the left and faces that way.
     a.flip = needsFlip(a.img, sp.cross < 0);
-    if(sp.x == null) a.x = (sp.cross < 0) ? W+40 : -40;
+    if(sp.x == null) a.x = (sp.cross < 0) ? MW+40*FIELD_K : -40*FIELD_K;
   }
   allies.push(a);
 }
@@ -592,14 +592,14 @@ function defectCap(a){
   // field instead, and does not drive off to an enemy station.
   if(!a.defectRun){
     e.targetX = e.x;
-    e.flip = needsFlip(e.img, e.x > W*0.5);
+    e.flip = needsFlip(e.img, e.x > MW*0.5);
   }
   if(a.defectRun){
     e.escaping = a.defectRun;
     e.escWarp = true;
     e.noFlee = true;
     const _ri = IMGS[e.img];
-    e.targetX = W + (_ri ? _ri.width*e.sc : 120)*2;
+    e.targetX = MW + (_ri ? _ri.width*e.sc : 120)*2;
     e.vx = 0;
     e.flip = needsFlip(e.img, false);
     escTotal++;
@@ -959,19 +959,19 @@ const PORTAL_SPREAD = 70;      // arrivals scatter this far above and below
 function portalPoint(){
   const p = enemies.find(function(o){ return o.img==='inknossos45deg' && !o.dead; });
   const img = p && IMGS[p.img];
-  if(!img) return {x: PORTAL_X, y: PORTAL_Y + (Math.random()*2-1)*PORTAL_SPREAD};
+  if(!img) return {x: PORTAL_X*FIELD_K, y: (PORTAL_Y + (Math.random()*2-1)*PORTAL_SPREAD)*FIELD_K};
   const rx = img.width*p.sc*0.5, ry = img.height*p.sc*0.5;
   const r = 0.15 + Math.random()*0.40;                 // well inside the ring
   const a = Math.PI*(0.62 + Math.random()*0.76);       // the left half only
-  return {x: Math.min(W-14, p.x + Math.cos(a)*rx*r), y: p.y + Math.sin(a)*ry*r};
+  return {x: Math.min(MW-14, p.x + Math.cos(a)*rx*r), y: p.y + Math.sin(a)*ry*r};
 }
 // The middle of the ring, for a ship too large to come out anywhere else
 // (the Sathanas, M77 v179).
 function portalMiddle(){
   const p = enemies.find(function(o){ return o.img==='inknossos45deg' && !o.dead; });
   const img = p && IMGS[p.img];
-  if(!img) return {x: PORTAL_X, y: PORTAL_Y};
-  return {x: Math.min(W-14, p.x - img.width*p.sc*0.08), y: p.y};
+  if(!img) return {x: PORTAL_X*FIELD_K, y: PORTAL_Y*FIELD_K};
+  return {x: Math.min(MW-14, p.x - img.width*p.sc*0.08), y: p.y};
 }
 function portalArrive(e){
   if(!e || e.type==='asteroid' || e.type==='station' || !(e.warp>0)) return;
@@ -983,7 +983,7 @@ function portalArrive(e){
   // ellipse, and the ship comes out to the left of it.
   const v = e.portalMid ? portalMiddle() : portalPoint();
   e.x = v.x - L*0.6;
-  e.y = Math.max(HUD_H+30, Math.min(H-30, v.y));
+  e.y = Math.max(HUD_H+30, Math.min(MH-30, v.y));
   e.warpX = e.x; e.warpY = e.y;
   e.portalWarp = true;
   // A capital ship drives on to the left of where it came out. Its station
@@ -1008,7 +1008,7 @@ function tickEscapers(){
     const _ew = _ei ? _ei.width*e.sc : 120;
     // With the Knossos on the field they jump at the portal, through its
     // own vortex, instead of at the edge.
-    const _atJump = portalOn ? (e.x >= PORTAL_X) : (e.x + _ew*0.5 >= W - TRANS_EDGE_PAD);
+    const _atJump = portalOn ? (e.x >= PORTAL_X*FIELD_K) : (e.x + _ew*0.5 >= MW - TRANS_EDGE_PAD);
     if(e.escWarp && _atJump){
       plogEvent(plogName(e)+(portalOn ? ' reached the portal' : ' reached the edge'), 'bad');
       if(portalOn){ e.portalWarp = true; e.portalOut = true; }
@@ -1021,17 +1021,17 @@ function tickEscapers(){
       e.warpX = e.x; e.warpY = e.y;
       // An untouchable ship leaving is the story, not a miss (the Azrael).
       if(!e.invuln)
-        SUB_MSGS.push({x:W-110, y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
+        SUB_MSGS.push({x:e.x, y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
                        ally:false, tone:'bad'});
       continue;
     }
     // Ganz draussen heisst: die linke Kante hat den rechten Rand passiert.
-    if(e.x - _ew*0.5 > W + 8){
+    if(e.x - _ew*0.5 > WX1 + 8 || (e.x - _ew*0.5 > MW + 8 && !camSees(e.x, e.y, _ew))){
       escGone++;
       EV_LEFT[e.uid] = true;
       plogLoss('escaped', e);
       score = Math.max(0, score - Math.round((e.pts||200)*ESCAPE_PENALTY));
-      SUB_MSGS.push({x:W-110, y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
+      SUB_MSGS.push({x:Math.min(e.x, CAM.x+camHalfW()*0.8), y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
                      ally:false, tone:'bad'});
       enemies.splice(i,1);
     }
@@ -1041,7 +1041,7 @@ function tickCrossGuards(){
   for(const a of allies.slice()){
     if(!a.crossing || a.dead || allies.indexOf(a)<0) continue;
     a.x += a.crossing;
-    if(a.crossing > 0 ? a.x > W+60 : a.x < -60){
+    if(a.crossing > 0 ? (a.x > WX1+60 || (a.x > MW+60 && !camSees(a.x, a.y, 200))) : (a.x < WX0-60 || (a.x < -60 && !camSees(a.x, a.y, 200)))){
       if(a.dockedTo){ a.dockedTo.dead = true;
         const _ci = allies.indexOf(a.dockedTo);
         if(_ci>=0) allies.splice(_ci,1);
@@ -1050,7 +1050,7 @@ function tickCrossGuards(){
       crossDone++; if(!a.emptyRun) protSaved++;
       if(a.uid) EV_LEFT[a.uid] = true;
       { const _fi = allies.indexOf(a); if(_fi>=0) allies.splice(_fi,1); }
-      SUB_MSGS.push({x:(a.crossing > 0) ? W-90 : 90, y:a.y,
+      SUB_MSGS.push({x:a.x, y:a.y,
                      txt: (hullClass(a.img)==='ep') ? 'RESCUED'
                           : (a.emptyRun ? 'LEFT EMPTY' : 'DELIVERED'),
                      life:150, ml:150, ally:true, tone:'good'});
@@ -1117,10 +1117,10 @@ function tickDefectors(){
 // end like any other loose object.
 function seedStaticField(n){
   for(let i=0;i<n;i++){
-    const y = HUD_H+40+Math.random()*(H-HUD_H-80);
+    const y = HUD_H+40+Math.random()*(MH-HUD_H-80);
     const a = mkEnemy('ast', null, y);
     if(!a) continue;
-    a.x = 90+Math.random()*(W-180);
+    a.x = 90+Math.random()*(MW-180);
     a.vx = 0; a.vy = 0;
     a.rotS = (Math.random()-0.5)*0.02;
     a.scenery = true; a.side='enemy'; a.warpMax = 1;
@@ -1151,7 +1151,7 @@ function applySpawnOpts(e, sp){
     e.capRam = sp.capRam; e.noFlee = true;
     // Volle Hoehe: ein Rammkurs muss steigen und sinken koennen. still
     // gilt nur fuer das Ziel, nicht fuer den Angreifer.
-    e.minY = HUD_H+10; e.maxY = H-10;
+    e.minY = HUD_H+10; e.maxY = MH-10;
   }
   if(sp.dockTo) e.dockTo = sp.dockTo;
   if(sp.dockHold) e.dockHold = Math.round(sp.dockHold*TICK_HZ);
@@ -1180,7 +1180,7 @@ function applySpawnOpts(e, sp){
   if(sp.edge){
     const _ii = IMGS[e.img];
     const _iw = _ii ? _ii.width*e.sc : 400;
-    e.x = W + _iw*(sp.edge-0.5); e.warpX = e.x;
+    e.x = MW + _iw*(sp.edge-0.5); e.warpX = e.x;
   }
   // Waits this many seconds before it sets off (the Azrael at the Iceni).
   if(sp.escDelay) e.escHold = Math.round(sp.escDelay*TICK_HZ);
@@ -1191,7 +1191,7 @@ function applySpawnOpts(e, sp){
     // targetX davor liegt, parkt das Schiff ausserhalb des Bildes.
     const _si = IMGS[e.img];
     const _sw = _si ? _si.width*e.sc : 120;
-    e.targetX = W + _sw*2;
+    e.targetX = MW + _sw*2;
     e.vx = 0; e.vy = 0;    // gefahren wird ueber tickEscapers, nicht ueber vx
     e.flip = needsFlip(e.img, false);
   }
@@ -1354,7 +1354,9 @@ const UI_START_PTS = 20000;     // v202: what ?ui=1 starts with, to call support
 // purpose, so the locked rows can still be looked at with ui alone.
 const UI_WEAPONS = /[?&]wpn=1/.test(location.search);
 
-const TEST_MATCH = /[?&]test=([1-4])/.exec(location.search);
+// v208: test=5 is the test area (buildTestWave(5)), a free exercise that
+// does not rotate with the other four.
+const TEST_MATCH = /[?&]test=([1-5])/.exec(location.search);
 const TEST_MODE  = !!TEST_MATCH;
 const TEST_FIRST = TEST_MATCH ? parseInt(TEST_MATCH[1],10) : 1;
 
@@ -1418,6 +1420,34 @@ function buildTestWave(n){
     q.push({time:1, type:'sentry', spr:'sgtrident', fac:'shivan',
             x:W*0.84, y:H*0.82, noWarp:1});
     testWing(q, 500, 'fi_ntf', 'fibasilisk', 'shivan', 2, ++wingSeq, 0);
+  }
+  else if(n===5){
+    // v208: the test area (Silvio). A free exercise for the real sizes, the
+    // camera, the overview and the markers at the edge: capital ships of
+    // both sides and fighters, the Shivan wings coming in the middle of the
+    // field again and again. Places in the old 800 x 500 field, scaled to
+    // the mission area like every mission.
+    currentFaction = 'shivan';
+    waveLive = 12;
+    gateWings = false;
+    waveTitle = 'TEST AREA'; titleT = TITLE_TIME;
+    // the two lines about a kilometre apart, the player behind her own
+    q.push({time:1,  type:'ally', allyId:'ter_orion',  spr:'deorionright', x:W*0.30, y:H*0.30});
+    q.push({time:1,  type:'ally', allyId:'ter_deimos', spr:'codeimos',     x:W*0.40, y:H*0.74});
+    q.push({time:1,  type:'ally', allyId:'ter_aeolus', spr:'craeolus',     x:W*0.45, y:H*0.52});
+    q.push({time:40, type:'de_sh', spr:'deravana', fac:'shivan', x:W*0.74, y:H*0.30});
+    q.push({time:50, type:'co_sh', spr:'comoloch', fac:'shivan', x:W*0.66, y:H*0.76});
+    q.push({time:60, type:'cr_sh', spr:'crcain',   fac:'shivan', x:W*0.58, y:H*0.46});
+    q.push({time:70, type:'cr_sh', spr:'crlilith', fac:'shivan', x:W*0.60, y:H*0.60});
+    const TA_FI = ['fidragon', 'fimanticore', 'fibasilisk', 'fiscorpion'], TA_BO = ['bonahema', 'boseraphim'];
+    for(let k = 0; k < 24; k++){
+      const bo = (k % 3 === 2), wid = ++wingSeq, t0 = 120 + k*1400;
+      const spr = bo ? TA_BO[k % TA_BO.length] : TA_FI[k % TA_FI.length];
+      const y0 = H*(0.25 + 0.5*Math.random());
+      for(let i = 0; i < 3; i++)
+        q.push({time:t0 + i*WING_STAGGER, type:bo ? 'bo_sh' : 'fi_sh', spr:spr, wing:wid, fac:'shivan',
+                x:W*(0.42 + 0.10*Math.random()), y:y0 + (i-1)*WING_SPACING});
+    }
   }
   else if(n===4){
     // Out of the Dark, Into the Night in miniature, and the only test for
@@ -3591,8 +3621,9 @@ function evFire(ev){
       const src = (held && held[0] && held[0].at) ? EV_POS[held[0].at] : null;
       if(held){ for(const q of held){
                   q.time = spawnT + (q.delay||0);
+                  // v208: a place on the field already (world units)
                   if(src){ q.x = src[0] + (Math.random()*2-1)*26;
-                           q.y = src[1] + (Math.random()*2-1)*22; }
+                           q.y = src[1] + (Math.random()*2-1)*22; q._k = 1; }
                   spawnQ.push(q); }
                 delete EV_HELD[arg];
                 spawnQ.sort(function(a,b){ return a.time-b.time; }); }
@@ -3721,9 +3752,9 @@ function evFire(ev){
       }
       eBullets.length = 0; pBullets.length = 0;
       player.hp = player.maxHp;
-      player.x = W*0.18; player.y = H*0.5; player.vx = 0; player.vy = 0;
+      player.x = MW*0.18; player.y = MH*0.5; player.vx = 0; player.vy = 0;
       // A ship that drifts on the clock starts again from the right.
-      for(const e of enemies) if(e.subDrift){ e.subX0 = W*SUB_DRIFT_X0; e.subK0 = 0; e.subV = 0; e.subOff = 0; }
+      for(const e of enemies) if(e.subDrift){ e.subX0 = MW*SUB_DRIFT_X0; e.subK0 = 0; e.subV = 0; e.subOff = 0; }
       missionTimer = {end: spawnT + (parseFloat(parts[0])||150)*TICK_HZ,
                       total: (parseFloat(parts[0])||150)*TICK_HZ,
                       label: String(parts[1]||missionTimer.label||'TIME').toUpperCase()};
@@ -4104,7 +4135,7 @@ function buildScripted(def){
 function getWaveDef(n){
   // Test mode replaces the wave plan entirely. Without ?test=1 on the URL
   // none of this is reachable and the normal game is untouched.
-  if(TEST_MODE) return buildTestWave(((n-2+TEST_FIRST)%4)+1);
+  if(TEST_MODE) return buildTestWave(TEST_FIRST===5 ? 5 : ((n-2+TEST_FIRST)%4)+1);
   if(FS1_MODE)  return buildFS1Wave(n);
   // Written mission, if there is one for this wave. ?m=36 starts the run
   // at wave 36 (see launchGame) and it carries on from there; the dice

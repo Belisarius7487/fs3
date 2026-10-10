@@ -7,11 +7,14 @@ function draw(){
   // Re-establishing both every frame turns that into one dropped frame.
   // restore() on an empty stack is defined as a no-op, so draining is safe.
   for(let i = 0; i < 8; i++) ctx.restore();
-  ctx.setTransform(RES_X, 0, 0, RES_Y, 0, 0);
+  // v208: the shake is part of the camera's base (camScreen), so the
+  // field, the 3D ships and the overlays all shake together
+  CAM_SHX = 0; CAM_SHY = 0;
   if(shakeT>0){
     const k = shakeMag*(shakeT>12?1:shakeT/12);
-    ctx.translate((Math.random()-0.5)*k, (Math.random()-0.5)*k);
+    CAM_SHX = (Math.random()-0.5)*k; CAM_SHY = (Math.random()-0.5)*k;
   }
+  camScreen();
   // Nuclear reset: jeder Frame startet sauber
   ctx.globalAlpha=1;
   ctx.globalCompositeOperation='source-over';
@@ -34,6 +37,8 @@ function draw(){
 
 
 
+  // v208: from here on the field is drawn through the camera (world units)
+  camOn();
   // v201 (Silvio's layer order): the shots go over the ships now - capital
   // ships, then small craft, then shots. What a turret on the far flank
   // fires is drawn here, under the hulls, until it is clear of its ship.
@@ -176,15 +181,15 @@ function draw(){
       drawJumpVortex();
     }
   }catch(ep2){ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}
-  // Fadenkreuz an Mausposition
-  const mx=MOUSE.x|0,my=MOUSE.y|0;
+  try{drawParts();}catch(ep){}
+  // Fadenkreuz an Mausposition (v208: on the screen, where the pointer is)
+  camScreen();
+  const mx=(MOUSE.scr?MOUSE.sx:w2sX(MOUSE.x))|0,my=(MOUSE.scr?MOUSE.sy:w2sY(MOUSE.y))|0;
   ctx.strokeStyle=MOUSE.down?'rgba(255,255,100,0.9)':'rgba(0,255,136,0.7)';
   ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(mx-10,my);ctx.lineTo(mx+10,my);ctx.stroke();
   ctx.beginPath();ctx.moveTo(mx,my-10);ctx.lineTo(mx,my+10);ctx.stroke();
   ctx.beginPath();ctx.arc(mx,my,4,0,Math.PI*2);ctx.stroke();
-
-  try{drawParts();}catch(ep){}
 
   // Treffer-Flashes
   if(shieldFlash>0){
@@ -203,15 +208,24 @@ function draw(){
   // Haze and interference sit over ships and wreckage. Pickups and
   // messages go on top of them, so nothing is lost in the murk that the
   // player has no way to shoot at.
+  // v208: what lies on the field through the camera, the haze and the
+  // interference on the screen
+  camOn();
   drawBombPortals();
   drawShocks();
+  camScreen();
   drawNebulaFog();
+  camOn();
   try{ drawAwacsRings(); }catch(ea){ ctx.restore(); }
+  camScreen();
   drawEmpWarn();
   drawEmpFX();
+  camOn();
   drawItems();
+  camScreen();
   drawTicketMsgs();
   drawSubMsgs();
+  try{ drawOffscreen(); }catch(eo){}
   if(whiteOut>0){ ctx.fillStyle='rgba(255,250,235,'+Math.min(0.85, whiteOut/WHITEOUT_T).toFixed(3)+')';
                   ctx.fillRect(0, HUD_H, W, H-HUD_H); }
   // The shake must not reach the instruments, so the transform is put
@@ -762,6 +776,97 @@ function drawObjCard(){
 // Right aligned under the bar: the objective line and the notices own
 // the left side, and a long objective reached into a centred plate.
 const FLEE_ROWS = 3;
+// ── OFFSCREEN INDICATORS (v208) ──────────────────────────────
+// As in FreeSpace (hudtarget.cpp, HudGaugeOffscreen::
+// renderOffscreenIndicator): at the edge of the picture, in the direction
+// of a ship outside it, two small triangles pointing out of the picture
+// with a gap between them, and her distance in metres beside them. Filled:
+// she is ahead of the player's nose; outlined: behind it. Colours as FS:
+// friend green, enemy red, neutral pink (here the non-combatants, which
+// only the player may shoot), tagged yellow. In v208 for every capital ship
+// and for enemy fighters and bombers within OFF_NEAR; from v209 (targeting
+// and radar) for the target only, as in FS.
+const OFF_NEAR = 2400;              // world units, about 640 m
+const OFF_MARGIN = 9;               // from the edge of the field, screen px
+const OFF_TRI_B = 7, OFF_TRI_H = 6; // triangle base and height, screen px
+const OFF_COL = {friend:'#3ce06a', enemy:'#ff4a33', neutral:'#ff8cd0', tagged:'#ffe040'};
+function offShows(e, ally){
+  if(!e || e.dead || e.type==='asteroid' || !e.img) return false;
+  if(e.warp>0) return false;
+  // small: fighters, bombers and whatever is no longer than one (sentry
+  // guns, containers, pods)
+  const small = e.type==='fighter' || e.type==='bomber' || e.small || (HULL_LEN[e.img] || 0) < 60;
+  if(!small) return true;
+  if(ally) return false;
+  return Math.hypot(e.x - player.x, e.y - player.y) <= OFF_NEAR;
+}
+function offColour(e, ally){
+  if(e.tagT > 0) return OFF_COL.tagged;
+  if(ally) return OFF_COL.friend;
+  if(typeof playerOnly === 'function' && playerOnly(e)) return OFF_COL.neutral;
+  return OFF_COL.enemy;
+}
+function drawOffscreen(){
+  if(GS!=='playing' || inJump()) return;
+  const x0 = OFF_MARGIN, x1 = W - OFF_MARGIN, y0 = HUD_H + OFF_MARGIN, y1 = H - OFF_MARGIN;
+  // the player's nose, for ahead and behind
+  const ns = player.flip ? -1 : 1, nx = Math.cos(player.ang||0)*ns, ny = Math.sin(player.ang||0)*ns;
+  ctx.save();
+  ctx.font = thValue(9, true); ctx.lineWidth = 1; ctx.lineJoin = 'round';
+  const list = [];
+  for(const e of enemies) if(offShows(e, false)) list.push([e, false]);
+  for(const a of allies) if(offShows(a, true)) list.push([a, true]);
+  // the nearest first: where markers crowd, hers is the distance shown
+  list.sort(function(p, q){ return Math.hypot(p[0].x-player.x, p[0].y-player.y) - Math.hypot(q[0].x-player.x, q[0].y-player.y); });
+  const used = [];
+  for(const it of list){
+    const e = it[0], ally = it[1];
+    const img = IMGS[e.img], half = img ? Math.max(img.width, img.height)*e.sc*0.5 : 20;
+    if(camSees(e.x, e.y, half)) continue;
+    // from the middle of the field towards her, to where it leaves it
+    const dx = w2sX(e.x) - FIELD_CX, dy = w2sY(e.y) - FIELD_CY;
+    let t = Infinity, dir = 0;
+    if(dx > 0 && (x1-FIELD_CX)/dx < t){ t = (x1-FIELD_CX)/dx; dir = 0; }
+    if(dx < 0 && (x0-FIELD_CX)/dx < t){ t = (x0-FIELD_CX)/dx; dir = 1; }
+    if(dy > 0 && (y1-FIELD_CY)/dy < t){ t = (y1-FIELD_CY)/dy; dir = 2; }
+    if(dy < 0 && (y0-FIELD_CY)/dy < t){ t = (y0-FIELD_CY)/dy; dir = 3; }
+    if(!isFinite(t)) continue;
+    const px = FIELD_CX + dx*t, py = FIELD_CY + dy*t;
+    // the gap grows with the size of the ship, as in FS
+    const g = Math.max(2, Math.min(12, half*CAM.z*0.02 + 2));
+    const ahead = ((e.x - player.x)*nx + (e.y - player.y)*ny) >= 0;
+    const col = offColour(e, ally);
+    ctx.fillStyle = col; ctx.strokeStyle = col;
+    // the two triangles, the point outwards; u: out of the picture,
+    // v: along the edge
+    const u = [[1,0],[-1,0],[0,1],[0,-1]][dir], v = [-u[1], u[0]];
+    for(const sg of [-1, 1]){
+      const c = g + OFF_TRI_B/2;
+      const ax = px + v[0]*sg*c, ay = py + v[1]*sg*c;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(ax - u[0]*OFF_TRI_H + v[0]*OFF_TRI_B/2, ay - u[1]*OFF_TRI_H + v[1]*OFF_TRI_B/2);
+      ctx.lineTo(ax - u[0]*OFF_TRI_H - v[0]*OFF_TRI_B/2, ay - u[1]*OFF_TRI_H - v[1]*OFF_TRI_B/2);
+      ctx.closePath();
+      if(ahead) ctx.fill(); else ctx.stroke();
+    }
+    // her distance in metres, inside the picture next to the triangles
+    const m = Math.round(Math.hypot(e.x - player.x, e.y - player.y)/SIZE_UPM);
+    const txt = m + 'm';
+    ctx.textAlign = dir===0 ? 'right' : (dir===1 ? 'left' : 'center');
+    ctx.textBaseline = dir===2 ? 'bottom' : (dir===3 ? 'top' : 'middle');
+    const tx = px - u[0]*(OFF_TRI_H + 4), ty = py - u[1]*(OFF_TRI_H + 4);
+    const tw = ctx.measureText(txt).width;
+    const rx = ctx.textAlign==='right' ? tx - tw : (ctx.textAlign==='center' ? tx - tw/2 : tx);
+    const ry = ctx.textBaseline==='bottom' ? ty - 11 : (ctx.textBaseline==='top' ? ty : ty - 6);
+    if(used.some(function(r){ return rx < r[0]+r[2]+4 && rx+tw+4 > r[0] && ry < r[1]+12 && ry+12 > r[1]; })) continue;
+    used.push([rx, ry, tw]);
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.75)'; ctx.strokeText(txt, tx, ty);
+    ctx.fillText(txt, tx, ty); ctx.lineWidth = 1;
+  }
+  ctx.restore();
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+}
 function drawFleeWarning(){
   if(GS!=='playing') return;
   const list=fleeingEnemies();
@@ -966,6 +1071,7 @@ const BINDS = [
   {id:'priPrev',  ctx:'flight', label:'previous primary bank',         mouse:'',         key:['Comma','']},
   {id:'secNext',  ctx:'flight', label:'next secondary bank',           mouse:'WHEEL DN', key:['Slash','']},
   {id:'subsys',   ctx:'flight', label:'show subsystems on / off',      mouse:'M-BUTTON', key:['','']},
+  {id:'overview', ctx:'flight', label:'overview on / off',             mouse:'',         key:['KeyZ','']},
   {id:'call',     ctx:'flight', label:'call support ships',   mouse:'',         key:['KeyC','']},
   {id:'rearm',    ctx:'flight', label:'rearm / swap weapons',   mouse:'',         key:['Shift+KeyR','']},
   {id:'ship',     ctx:'flight', label:'change ship (hangar)',   mouse:'',         key:['F2','']},
@@ -1264,8 +1370,9 @@ function drawSettings(){
   const verH=16;    // eigene Zeile fuer die Versionsnummer, aus demselben
                     // Grund getrennt gerechnet statt in den Hinweis gequetscht
   const tabH=22;    // the row of tabs under the title
+  const doneH=DONE_H+gap;   // v208: DONE on every tab, as in the other windows
   const rowsH=Math.max(rows, SETTINGS_ROWS_MAX);
-  const mw=bw+gap*2, mh=bh*rowsH+gap*(rowsH+1)+30+tabH+hintH+verH;
+  const mw=bw+gap*2, mh=bh*rowsH+gap*(rowsH+1)+30+tabH+doneH+hintH+verH;
   const mx=(W-mw)/2, my=(H-mh)/2;
   uiDialog(mx, my, mw, mh, 'rgba(0,14,6,0.96)', '#00aa44');
   ctx.fillStyle=UI('textBright','#00ee55');
@@ -1303,6 +1410,9 @@ function drawSettings(){
            r.label, r.hint, r.value, r.on, r.act, r.enabled);
   }
 
+  // v208 (Silvio): DONE, as the hangar, support and rearm windows have it
+  drawDoneButton(mx+((mw-DONE_W)/2|0), my+mh-hintH-verH-DONE_H-2, DONE_W, 'CHANGES ARE SAVED', null);
+  window._setRects.push({x:mx+((mw-DONE_W)/2|0), y:my+mh-hintH-verH-DONE_H-2, w:DONE_W, h:DONE_H, act:'done'});
   ctx.textAlign='center'; ctx.textBaseline='top';
   ctx.fillStyle=UI('edgeLight','#005522'); ctx.font=uiValue(10, false, '9px Courier New');
   ctx.fillText('FS3  '+GAME_VERSION, mx+mw/2, my+mh-hintH-verH+4);
@@ -1318,6 +1428,7 @@ function settingsClick(mx,my){
   const rs=window._setRects||[];
   for(const r of rs){
     if(mx>=r.x&&mx<=r.x+r.w&&my>=r.y&&my<=r.y+r.h){
+      if(r.act==='done'){ setSettings(false); return true; }
       if(r.act==='fullscreen') toggleFullscreen();
       else if(r.act==='fps'){ showFps=!showFps; fpsFrames=0; fpsLast=0; }
       else if(r.act==='obj'){ showObj=!showObj; }
@@ -1844,7 +1955,7 @@ function setShipMenu(open){
   // needed, so opening one closes the other.
   if(open) callMenu = false;
   syncPause();
-  if(!open && GS==='playing'){ MOUSE.x = player.x; MOUSE.y = player.y; }
+  if(!open && GS==='playing'){ mouseHold(); }
   syncCursor();
 }
 function toggleShipMenu(){
@@ -2158,7 +2269,7 @@ function setRearmMenu(open){
   rearmMenu = open;
   if(open){ shipMenu = false; callMenu = false; rmBank = 'p0'; rmShow = null; }
   syncPause();
-  if(!open && GS==='playing'){ MOUSE.x = player.x; MOUSE.y = player.y; }
+  if(!open && GS==='playing'){ mouseHold(); }
   syncCursor();
 }
 function toggleRearmMenu(){
@@ -3112,7 +3223,7 @@ function setCallMenu(open){
   callMenu = open;
   if(open){ shipMenu = false; cmShow = null; }
   syncPause();
-  if(!open && GS==='playing'){ MOUSE.x = player.x; MOUSE.y = player.y; }
+  if(!open && GS==='playing'){ mouseHold(); }
   syncCursor();
 }
 
@@ -3415,7 +3526,7 @@ CVS.addEventListener('mousedown',function(ev){
   }
   if(ev.button!==0&&ev.button!==2) return;
   var p=toGC(ev.clientX,ev.clientY);
-  MOUSE.x=p.x; MOUSE.y=p.y;
+  mouseAt(p);
   if(ev.button===0){
     isFiring=true; MOUSE.down=true;
     if(GS==='title'||GS==='gameover'){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); }
@@ -3468,7 +3579,7 @@ CVS.addEventListener('mousemove',function(ev){
   syncCursor();
   // touchmove hatte diesen Schutz, mousemove nicht.
   if(p.y<HUD_H&&GS==='playing') return;   // Leiste: keine Steuereingabe
-  MOUSE.x=p.x; MOUSE.y=p.y;
+  mouseAt(p);
 });
 // Off the canvas: nothing is hovered, and the pointer is the browser's
 // business again.
@@ -3497,7 +3608,7 @@ CVS.addEventListener('touchstart',function(ev){
     if(window._secBtnRect){var r2=window._secBtnRect;if(p.x>=r2.x&&p.x<=r2.x+r2.w&&p.y>=r2.y&&p.y<=r2.y+r2.h){SEC_HOLD.btn=true;fireSecondary();return;}}
     return; // sonstiger HUD-Touch → ignorieren
   }
-  MOUSE.x=p.x; MOUSE.y=p.y;
+  mouseAt(p);
   isFiring=true; MOUSE.down=true;
   if(GS==='title'||GS==='gameover'){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); }
   // Pause-Button Tap
@@ -3521,7 +3632,7 @@ CVS.addEventListener('touchmove',function(ev){
   var p=toGC(t.clientX,t.clientY);
   if(callMenu||shipMenu) return;
   if(p.y<HUD_H&&GS==='playing') return; // HUD area, no movement input
-  MOUSE.x=p.x; MOUSE.y=p.y;
+  mouseAt(p);
   isFiring=true; MOUSE.down=true;
 },{passive:false});
 
@@ -3586,6 +3697,8 @@ function inputPress(ev){
   if(bindIs('priPrev', ev)){ cyclePrimary(-1); return true; }
   if(bindIs('secNext', ev)){ cycleSecondary(); return true; }
   if(bindIs('subsys', ev)){ toggleSubMarks(); return true; }
+  // v208: the overview, three times further out; a switch, not held
+  if(bindIs('overview', ev)){ CAM.over = !CAM.over; return true; }
   if(bindIs('fireSec', ev)){ SEC_HOLD.key = true; fireSecondary(); return true; }
   if(bindIs('firePri', ev)) return true;          // held: read in the update (bindHeld)
   return false;
@@ -4133,6 +4246,9 @@ function drawOwnVortex(e){
         if(e._fsG && e._fsG.across && e._wMem) WSf = Math.max(WSf, e._fsG.across*2*1.6);
         // Coming in: the vortex is drawn by drawFsPortals() after this.
         if(!fg.out){ fsPortalOpen(e, fg, WSf); return; }
+        // v208: the warp model in 3D, the old picture without 3D
+        if(WARP_STYLE==='oval' && typeof f3dWarp === 'function' &&
+           f3dWarp(fg.px, fg.py, fg.fx, fg.fy, WSf, fg.wS, fg.wA, warpSeed(e), warpTurquoise(e))) return;
         ctx.save();
         ctx.globalAlpha = fg.wA;
         ctx.translate(fg.px|0, fg.py|0);
@@ -4156,7 +4272,7 @@ function drawOwnVortex(e){
       } else {
         var t3=(elapsed-p2)/(mW-p2); wS=1.0-t3; wA=Math.max(0,1.0-t3);
       }
-      const wx2=(e.warpX||W-20)|0,wy2=(e.warpY||e.y)|0;
+      const wx2=(e.warpX||MW-20)|0,wy2=(e.warpY||e.y)|0;
       ctx.save();
       ctx.globalAlpha=wA;
       ctx.translate(wx2,wy2);

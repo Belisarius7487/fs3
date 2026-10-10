@@ -58,7 +58,10 @@ const F3D_ROLL = {};
 // cable bundle pulses). The frames lie in one picture, cols x rows, row by
 // row: <tex>_ga512.webp / _ga1024.webp next to the other maps.
 const F3D_GANIM = {ravanapulse: {n: 30, fps: 25, cols: 8, rows: 4}};
-const F3D_FOV = 30*Math.PI/180;
+// v208: a long lens. With real sizes a destroyer is thousands of units long;
+// at 30 degrees she reached through the camera. 1.2 degrees keeps every hull
+// in front of it and looks nearly flat, as the drafts did (Silvio).
+const F3D_FOV = 1.2*Math.PI/180;
 // key light from the upper left and in front, a weak fill from below
 // right - the same as the previews
 const F3D_L1 = [-0.45, 0.65, 0.62], F3D_L2 = [0.7, -0.25, 0.4];
@@ -629,10 +632,14 @@ function f3dPlayer(key, x, y, sc, flip, ang, a){
   return true;
 }
 function f3dVP(){
-  const D = (H/2)/Math.tan(F3D_FOV/2), asp = W/H, f = 1/Math.tan(F3D_FOV/2);
+  // v208: through the camera (10_core.js). The canvas covers the whole
+  // screen; its middle is the world point s2w(W/2, H/2), and the zoom moves
+  // the eye back.
+  const z = (typeof CAM !== 'undefined' && CAM.z) || 1;
+  const D = (H/2)/Math.tan(F3D_FOV/2)/z, asp = W/H, f = 1/Math.tan(F3D_FOV/2);
   const near = D*0.3, far = D*3, nf = 1/(near - far);
   const P = [f/asp,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,2*far*near*nf,0];
-  const ex = W/2, ey = -H/2;
+  const ex = (typeof CAM !== 'undefined') ? s2wX(W/2) : W/2, ey = -((typeof CAM !== 'undefined') ? s2wY(H/2) : H/2);
   // camera at (ex, ey, D) looking down -z: the view only moves the world
   const Vw = [1,0,0,0, 0,1,0,0, 0,0,1,0, -ex,-ey,-D,1];
   const o = new Float32Array(16);
@@ -705,11 +712,19 @@ function f3dRender(items, warm){
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.idx);
       gl.drawElements(gl.TRIANGLES, p.n, p.big ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT, 0);
     }
-    // v205: her shield where it was hit, over her hull
+    // v208: her engine flames (FUEL), then v205: her shield where it was
+    // hit, over her hull
+    if(!warm){ try{ f3dThDraw(it, M0, cam); }catch(et){ F3D.err = String(et && et.message || et); } }
     if(!warm) f3dShDraw(it, M0, cam);
   }
   gl.disable(gl.BLEND);
-  if(!warm) ctx.drawImage(can, 0, 0, W, H);
+  // v208: the picture is the screen's, whatever transform the field has
+  if(!warm){
+    ctx.save();
+    if(typeof camScreen === 'function') camScreen();
+    ctx.drawImage(can, 0, 0, W, H);
+    ctx.restore();
+  }
 }
 // ── DAMAGE ON THE MODEL (v204) ───────────────────────────────
 // Silvio (M38): the damage of a ship drawn from her model lies on her
@@ -1035,7 +1050,7 @@ function f3dFlush(seg){
       ctx.save();
       if(v.g){ fsWarpClip(v.g); ctx.translate(v.g.dx, v.g.dy); }
       else ctx.globalAlpha = v.a;
-      drawThrusters(e.img, e.x|0, e.y|0, e.sc, e.flip, e.faction, v.g ? (v.g.out ? 1 : 0.6) : (e.warp > 0 ? 0.35 : 1), e.ang||0, e);
+      // v208: her flames are drawn in her 3D pass (f3dThDraw)
       ctx.restore();
     }catch(et){ ctx.restore(); }
     ctx.globalAlpha = 1;
@@ -1145,7 +1160,7 @@ function f3dTickHulks(){
     const P = F3D_HULKS[i];
     P.x += P.vx; P.y += P.vy; P.a += P.w;
     if(P.heat > 0) P.heat = Math.max(0, P.heat - 1/(TICK_HZ*9));
-    if(P.x < -P.r-60 || P.x > W+P.r+60 || P.y < -P.r-60 || P.y > H+P.r+60){ F3D_HULKS.splice(i, 1); continue; }
+    if(P.x < WX0-P.r-60 || P.x > WX1+P.r+60 || P.y < WY0-HUD_H-P.r-60 || P.y > WY1+P.r+60){ F3D_HULKS.splice(i, 1); continue; }
     // what still burns in it smokes
     if(P.heat > 0.15 && fc % 6 === i % 6){
       const a = Math.random()*Math.PI*2, sp = 0.08 + Math.random()*0.2, hot = Math.random() < P.heat*0.6;
@@ -1195,6 +1210,14 @@ function f3dDrawHulks(){
 // 13 frames in a 4x4 grid, grey; tinted here).
 const F3D_SH_DUR = 0.55;            // seconds a hit is seen
 const F3D_SH_FRAMES = 13;
+// v208: the hit of each species as the MediaVPs 5.0.2 give it
+// (mv_effects-sdf.tbm): ShieldHit01a Terran (the v205 sheet, 13 frames 4x4),
+// ShieldHit02a Vasudan (45 frames, 7x7), ShieldHit03a Shivan (22, 5x5);
+// grey, tinted in the colour of her side as before. A sheet that did not
+// load falls back to the Terran one.
+const F3D_SH_SP = {terran: {f: 'shieldhit.webp', n: 13, g: 4},
+                   vasudan: {f: 'shieldhit02.webp', n: 45, g: 7},
+                   shivan: {f: 'shieldhit03.webp', n: 22, g: 5}};
 const F3D_SH_MAX = 4;               // hits seen at once on one ship
 const F3D_SH = {state: null, data: null, tex: null, prog: null, loc: null, mesh: {}};
 function f3dShLoad(){
@@ -1208,11 +1231,11 @@ function f3dShLoad(){
       + 'void main(){ vec3 d = aP - uH; vU = vec2(dot(d, uT), dot(d, uB))/(2.0*uR) + 0.5; vZ = dot(d, uHN)/uR;'
       + ' vF = dot(normalize(aN), uHN); vec4 w = uM*vec4(aP, 1.0); vWp = w.xyz; vNw = mat3(uM)*aN; gl_Position = uVP*w; }';
     const fs = 'precision mediump float; varying vec2 vU; varying float vF; varying float vZ; varying vec3 vNw; varying vec3 vWp;'
-      + 'uniform sampler2D tS; uniform vec2 uFr; uniform vec3 uCol; uniform float uA; uniform float uMode; uniform vec3 uCam;'
+      + 'uniform sampler2D tS; uniform vec2 uFr; uniform vec3 uCol; uniform float uA; uniform float uMode; uniform vec3 uCam; uniform float uGrid;'
       + 'void main(){ vec3 c;'
       + ' if(uMode < 0.5){'
       + '  if(vU.x < 0.0 || vU.x > 1.0 || vU.y < 0.0 || vU.y > 1.0) discard;'
-      + '  vec2 st = (uFr + clamp(vU, vec2(0.004), vec2(0.996)))*0.25;'
+      + '  vec2 st = (uFr + clamp(vU, vec2(0.004), vec2(0.996)))/uGrid;'
       + '  float t = texture2D(tS, st).r*smoothstep(-0.15, 0.35, vF)*(1.0 - smoothstep(0.35, 0.9, abs(vZ)));'
       // the side's colour, going white where the texture is brightest
       + '  c = (uCol*t + vec3(t*t*t*0.55))*uA;'
@@ -1226,12 +1249,13 @@ function f3dShLoad(){
     if(!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error('link');
     const loc = {};
     for(const a of ['aP', 'aN']) loc[a] = gl.getAttribLocation(pr, a);
-    for(const u of ['uM', 'uVP', 'uH', 'uT', 'uB', 'uHN', 'uR', 'tS', 'uFr', 'uCol', 'uA', 'uMode', 'uCam'])
+    for(const u of ['uM', 'uVP', 'uH', 'uT', 'uB', 'uHN', 'uR', 'tS', 'uFr', 'uCol', 'uA', 'uMode', 'uCam', 'uGrid'])
       loc[u] = gl.getUniformLocation(pr, u);
     F3D_SH.prog = pr; F3D_SH.loc = loc; F3D_SH.gl = gl;
   }catch(er){ F3D_SH.state = 'failed'; F3D.err = String(er && er.message || er); return false; }
   const rev = (typeof M3D_REV !== 'undefined') ? M3D_REV : 0;
-  const pTex = new Promise(function(res){
+  F3D_SH.texs = {};
+  const loadTex = function(sp){ return new Promise(function(res){
     const im = new Image();
     im.onload = function(){
       if(gl !== F3D.gl) return res();
@@ -1241,14 +1265,15 @@ function f3dShLoad(){
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      F3D_SH.tex = tx; res();
+      F3D_SH.texs[sp] = tx; if(sp === 'terran') F3D_SH.tex = tx; res();
     };
     im.onerror = function(){ res(); };
-    const ip = M3D_BASE + 'shieldhit.webp';
+    const ip = M3D_BASE + F3D_SH_SP[sp].f;
     const pb = (typeof window !== 'undefined' && window.FS3_MODELS) ? window.FS3_MODELS[ip] : null;
     if(pb){ delete window.FS3_MODELS[ip]; im.src = URL.createObjectURL(pb); }
     else im.src = ip + '?r=' + rev;
-  });
+  }); };
+  const pTex = Promise.all(Object.keys(F3D_SH_SP).map(loadTex));
   const pData = f3dFetchBin(M3D_BASE + 'shields.json.gz').then(function(buf){
     F3D_SH.data = JSON.parse(new TextDecoder().decode(new Uint8Array(buf)));
   }, function(){ F3D_SH.data = {}; });
@@ -1358,7 +1383,12 @@ function f3dShDraw(it, M0, cam){
   gl.useProgram(F3D_SH.prog);
   gl.uniformMatrix4fv(sl.uM, false, M0); gl.uniformMatrix4fv(sl.uVP, false, cam.vp);
   gl.uniform3fv(sl.uCam, cam.eye); gl.uniform3fv(sl.uCol, col); gl.uniform1i(sl.tS, 0);
-  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, F3D_SH.tex);
+  // v208: her species' hit (F3D_SH_SP)
+  let spk = (typeof raceOf === 'function') ? raceOf(fac || 'terran') : 'terran';
+  if(!F3D_SH.texs || !F3D_SH.texs[spk]) spk = 'terran';
+  const SP = F3D_SH_SP[spk];
+  gl.uniform1f(sl.uGrid, SP.g);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, (F3D_SH.texs && F3D_SH.texs[spk]) || F3D_SH.tex);
   gl.bindBuffer(gl.ARRAY_BUFFER, S.pos); gl.enableVertexAttribArray(sl.aP); gl.vertexAttribPointer(sl.aP, 3, gl.FLOAT, false, 12, 0);
   gl.bindBuffer(gl.ARRAY_BUFFER, S.nrm); gl.enableVertexAttribArray(sl.aN); gl.vertexAttribPointer(sl.aN, 3, gl.FLOAT, false, 12, 0);
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, S.idx);
@@ -1376,8 +1406,8 @@ function f3dShDraw(it, M0, cam){
     const h = q[i], a = (now - h.t)/F3D_SH_DUR;
     if(a >= 1 || a < 0){ q.splice(i, 1); continue; }
     if(!h.p) f3dShPlace(h, S, M0);
-    const fr = Math.min(F3D_SH_FRAMES - 1, Math.floor(a*F3D_SH_FRAMES*1.15));
-    gl.uniform2f(sl.uFr, fr % 4, Math.floor(fr/4));
+    const fr = Math.min(SP.n - 1, Math.floor(a*SP.n*1.15));
+    gl.uniform2f(sl.uFr, fr % SP.g, Math.floor(fr/SP.g));
     gl.uniform3fv(sl.uH, h.p); gl.uniform3fv(sl.uHN, h.n); gl.uniform3fv(sl.uT, h.tg); gl.uniform3fv(sl.uB, h.bt);
     gl.uniform1f(sl.uR, rpx/s);
     const fade = a < 0.7 ? 1 : (1 - a)/0.3;
@@ -1388,4 +1418,260 @@ function f3dShDraw(it, M0, cam){
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.disable(gl.BLEND);
   gl.disableVertexAttribArray(sl.aP); gl.disableVertexAttribArray(sl.aN);
   gl.useProgram(F3D.prog);
+}
+// ── ENGINE FLAMES AND WARP IN 3D (v208) ──────────────────────
+// One small program for the effects of the MediaVPs (5.0.2) laid into the
+// 3D pass: textured quads in world space, added to what is drawn (the
+// flames), or laid over it with their own alpha (the warp). uClip cuts
+// them like the hull of a ship sliding through her vortex.
+const F3D_FX = {prog: null, loc: null, buf: null, ok: null};
+function f3dFxProg(){
+  if(F3D_FX.ok !== null && F3D_FX.gl === F3D.gl) return F3D_FX.ok;
+  const gl = F3D.gl; F3D_FX.gl = gl; F3D_FX.ok = false;
+  try{
+    const vs = 'attribute vec3 aP; attribute vec3 aT; uniform mat4 uVP; uniform mat4 uM;'
+      + 'varying vec3 vT; varying vec3 vW;'
+      + 'void main(){ vec4 w = uM*vec4(aP, 1.0); vW = w.xyz; vT = aT; gl_Position = uVP*w; }';
+    const fs = 'precision mediump float; varying vec3 vT; varying vec3 vW;'
+      + 'uniform sampler2D tS; uniform vec3 uClip; uniform float uA; uniform vec4 uUV; uniform float uPre;'
+      + 'void main(){ if(dot(uClip.xy, vW.xy) + uClip.z < 0.0) discard;'
+      + ' vec4 c = texture2D(tS, uUV.xy + clamp(vT.xy, vec2(0.002), vec2(0.998))*uUV.zw); float a = vT.z*uA;'
+      + ' if(uPre > 0.5) gl_FragColor = vec4(c.rgb*c.a*a, c.a*a);'
+      + ' else { vec3 k = c.rgb*a; gl_FragColor = vec4(k, max(k.r, max(k.g, k.b))); } }';
+    const sh = function(t, src){ const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s);
+      if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    const pr = gl.createProgram();
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(pr);
+    if(!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error('fx link');
+    const loc = {};
+    for(const a of ['aP', 'aT']) loc[a] = gl.getAttribLocation(pr, a);
+    for(const u of ['uVP', 'uM', 'tS', 'uClip', 'uA', 'uUV', 'uPre']) loc[u] = gl.getUniformLocation(pr, u);
+    F3D_FX.prog = pr; F3D_FX.loc = loc; F3D_FX.buf = gl.createBuffer(); F3D_FX.ok = true;
+  }catch(er){ F3D.err = String(er && er.message || er); }
+  return F3D_FX.ok;
+}
+const F3D_ID = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
+// A picture of the effects (models/fx/ or images/) as a texture of this
+// context, null until it has loaded.
+const F3D_FXTEX = {};
+function f3dFxTex(path, img){
+  let T = F3D_FXTEX[path];
+  if(T && T.gl === F3D.gl) return T.t;
+  if(T && T.loading) return null;
+  const gl = F3D.gl;
+  const up = function(im){
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    F3D_FXTEX[path] = {gl: gl, t: t};
+  };
+  // a picture already in the page (the warp sheets, images/)
+  if(img){ if(!(img.complete && img.naturalWidth > 0)) return null; up(img); return F3D_FXTEX[path].t; }
+  F3D_FXTEX[path] = {loading: true};
+  const im = new Image();
+  im.onload = function(){ if(gl === F3D.gl) up(im); else delete F3D_FXTEX[path]; };
+  im.onerror = function(){ F3D_FXTEX[path] = {gl: gl, t: null}; };
+  const pb = (typeof window !== 'undefined' && window.FS3_MODELS) ? window.FS3_MODELS[path] : null;
+  if(pb){ delete window.FS3_MODELS[path]; im.src = URL.createObjectURL(pb); }
+  else im.src = path + '?r=' + ((typeof M3D_REV !== 'undefined') ? M3D_REV : 0);
+  return null;
+}
+// Draws quads (6 corners each: x, y, z, u, v, alpha) with the fx program.
+function f3dFxDraw(arr, n, tex, M, cam, clip, A, pre, uv){
+  const gl = F3D.gl, l = F3D_FX.loc;
+  gl.useProgram(F3D_FX.prog);
+  gl.uniformMatrix4fv(l.uVP, false, cam.vp); gl.uniformMatrix4fv(l.uM, false, M || F3D_ID);
+  gl.uniform1i(l.tS, 0); gl.uniform1f(l.uA, A); gl.uniform1f(l.uPre, pre ? 1 : 0);
+  const u = uv || [0, 0, 1, 1]; gl.uniform4f(l.uUV, u[0], u[1], u[2], u[3]);
+  if(clip) gl.uniform3f(l.uClip, clip.sg*clip.fx, -clip.sg*clip.fy, -clip.sg*(clip.px*clip.fx + clip.py*clip.fy));
+  else gl.uniform3f(l.uClip, 0, 0, 1);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.bindBuffer(gl.ARRAY_BUFFER, F3D_FX.buf);
+  gl.bufferData(gl.ARRAY_BUFFER, arr.subarray(0, n*6), gl.DYNAMIC_DRAW);
+  gl.enableVertexAttribArray(l.aP); gl.vertexAttribPointer(l.aP, 3, gl.FLOAT, false, 24, 0);
+  gl.enableVertexAttribArray(l.aT); gl.vertexAttribPointer(l.aT, 3, gl.FLOAT, false, 24, 12);
+  gl.drawArrays(gl.TRIANGLES, 0, n);
+  gl.disableVertexAttribArray(l.aP); gl.disableVertexAttribArray(l.aT);
+}
+// One quad into arr at corner k: centre c, half axes a and b (world), the
+// atlas rect r (u0, v0, du, dv) and its alpha.
+function f3dQuad(arr, k, c, a, b, r, al){
+  const P = [[-1,-1],[1,-1],[1,1],[-1,-1],[1,1],[-1,1]];
+  for(let i = 0; i < 6; i++){
+    const s = P[i][0], t = P[i][1], o = (k+i)*6;
+    arr[o] = c[0] + a[0]*s + b[0]*t; arr[o+1] = c[1] + a[1]*s + b[1]*t; arr[o+2] = c[2] + a[2]*s + b[2]*t;
+    arr[o+3] = r[0] + r[2]*(s+1)/2; arr[o+4] = r[1] + r[3]*(t+1)/2; arr[o+5] = al;
+  }
+  return k + 6;
+}
+
+// Engine flames as in FreeSpace: at every glow point of the POF (FUEL:
+// position, direction, radius) the glow (thrusterglow0N), the flame
+// stretched out behind along the direction (thruster02-0N) and a flare at
+// the nozzle (thruster03-0N) - N by species as the MediaVPs' species table
+// gives them (mv_effects-sdf.tbm): 1 Terran, 2 Vasudan, 3 Shivan. Drawn in
+// her 3D pass, so they roll, turn and bank with her and her hull hides
+// what is behind it. They replace the old flames (drawThrusters), which
+// stay for the ships drawn as sprites (&f3d=0).
+// Data: models/fx/thrusters.json.gz (mkthrusters.py), models/fx/thrusters.webp
+// (3 columns by species; rows: glow, flare, flame).
+const F3D_TH = {state: null, data: null};
+const F3D_TH_SP = {terran: 0, vasudan: 1, shivan: 2};
+const F3D_TH_GLOW = 2.3, F3D_TH_FLARE = 1.5;       // half sizes, in thruster radii
+const F3D_TH_LEN = [4.0, 10.0], F3D_TH_WID = 1.0;  // flame: length idle..full, half width
+let F3D_TH_ARR = new Float32Array(6*6*3*16);
+function f3dThLoad(){
+  if(F3D_TH.state) return F3D_TH.state === 'ready';
+  F3D_TH.state = 'loading';
+  f3dFetchBin(M3D_BASE + 'fx/thrusters.json.gz').then(function(buf){
+    F3D_TH.data = JSON.parse(new TextDecoder().decode(new Uint8Array(buf))); F3D_TH.state = 'ready';
+  }, function(){ F3D_TH.data = {}; F3D_TH.state = 'failed'; });
+  return false;
+}
+// Drawn from her model this frame, flames and all (drawThrusters leaves
+// her alone then).
+function f3dDrawsThr(key){
+  if(F3D.off || typeof document === 'undefined' || !F3D.ok) return false;
+  const k = f3dKey({img: key}); if(!k) return false;
+  return !!f3dReadyLevel(k);
+}
+// How hard her engines run, 0..1 and a little over for the player's burn.
+function f3dThMag(e){
+  if(e.player) return (typeof playerThrust === 'function') ? Math.min(1.2, playerThrust()) : 0.8;
+  let m;
+  if(e.small || e.type === 'fighter' || e.type === 'bomber') m = 0.35 + 0.65*Math.min(1, Math.abs(e.cs || 0)/(e.spd || 2));
+  else m = 0.45 + Math.min(0.55, Math.hypot(e._fvx || 0, e._fvy || 0)*1.5);
+  if(e.warp > 0) m *= 0.6;
+  // engines shot out: a sputter (v180's damaged flames)
+  if(typeof hasSubsystems === 'function' && hasSubsystems(e) && typeof subOK === 'function' && !subOK(e, 'engines'))
+    m *= (Math.random() < 0.3) ? 0.6 : 0.08;
+  return m;
+}
+function f3dThDraw(it, M0, cam){
+  const e = it.e;
+  if(!e || it.deb != null || !it.L.head) return;
+  if(!f3dThLoad() || !F3D_TH.data) return;
+  const key = F3D_ALIAS[e.img] || e.img, G = F3D_TH.data[key];
+  if(!G || !G.length) return;
+  const tex = f3dFxTex(M3D_BASE + 'fx/thrusters.webp'); if(!tex) return;
+  if(!f3dFxProg()) return;
+  const hd = it.L.head, ext = hd.ext, cn = hd.centre;
+  const sp = F3D_TH_SP[(typeof raceOf === 'function') ? raceOf(e.faction || 'terran') : 'terran'] || 0;
+  const s = Math.hypot(M0[0], M0[1], M0[2]);          // world units per model unit (normalised)
+  const mag = f3dThMag(e), al = it.a*(0.85 + 0.15*Math.random());
+  const need = G.length*18*6;
+  if(F3D_TH_ARR.length < need) F3D_TH_ARR = new Float32Array(need);
+  const A = F3D_TH_ARR, cu = sp/3;
+  let k = 0;
+  for(const g of G){
+    const p = [(g[0]-cn[0])/ext, (g[1]-cn[1])/ext, (g[2]-cn[2])/ext];
+    const c = [M0[0]*p[0] + M0[4]*p[1] + M0[8]*p[2] + M0[12], M0[1]*p[0] + M0[5]*p[1] + M0[9]*p[2] + M0[13],
+               M0[2]*p[0] + M0[6]*p[1] + M0[10]*p[2] + M0[14]];
+    const n = f3dNorm([M0[0]*g[3] + M0[4]*g[4] + M0[8]*g[5], M0[1]*g[3] + M0[5]*g[4] + M0[9]*g[5], M0[2]*g[3] + M0[6]*g[4] + M0[10]*g[5]]);
+    const r = g[6]/ext*s;
+    if(!(r > 0.05)) continue;
+    // the glow and the flare face the camera; seen from her stern they
+    // are brighter, from the side as FS shows them, a little less
+    const face = 0.75 + 0.25*Math.abs(n[2]);
+    const hg = r*F3D_TH_GLOW*(0.85 + 0.25*mag), hf = r*F3D_TH_FLARE*(0.7 + 0.4*mag);
+    k = f3dQuad(A, k, c, [hg, 0, 0], [0, hg, 0], [cu, 0, 1/3, 256/576], al*face*Math.min(1, 0.55 + 0.5*mag));
+    k = f3dQuad(A, k, [c[0] + n[0]*r*0.3, c[1] + n[1]*r*0.3, c[2] + n[2]*r*0.3], [hf, 0, 0], [0, hf, 0], [cu, 256/576, 1/3, 256/576], al*face*0.8);
+    // the flame, from the nozzle out along her direction, turned about its
+    // own axis to face the camera (a beam, as FS draws it)
+    const ax = Math.hypot(n[0], n[1]);
+    if(ax > 0.08){
+      const len = r*(F3D_TH_LEN[0] + (F3D_TH_LEN[1] - F3D_TH_LEN[0])*Math.min(1.2, mag))*ax;
+      const d = [n[0]/ax, n[1]/ax, 0], w = [-d[1]*r*F3D_TH_WID, d[0]*r*F3D_TH_WID, 0];
+      const hl = len/2, cc = [c[0] + d[0]*hl, c[1] + d[1]*hl, c[2]];
+      // the texture's hot end is its left edge: u runs out from the nozzle
+      k = f3dQuad(A, k, cc, [d[0]*hl, d[1]*hl, 0], w, [cu, 512/576, 1/3, 64/576], al*Math.min(1, 0.5 + 0.6*mag));
+    }
+  }
+  if(!k) return;
+  const gl = F3D.gl;
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); gl.depthMask(false); gl.disable(gl.CULL_FACE);
+  try{ f3dFxDraw(A, k, tex, null, cam, it.clip, 1, false); }
+  finally{
+    gl.depthMask(true); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.disable(gl.BLEND);
+    gl.useProgram(F3D.prog);
+  }
+}
+
+// The warp as in the MediaVPs 5.0.2, style "cinematic" (mv_effects-fbl.tbm):
+// the model Warp.pof (its finest disc, warp01a) painted with the animation
+// WarpMap01 (75 frames, 25 a second), the glow WarpGlow01 over it; the
+// Knossos' own WarpMap02 / WarpGlow02. The disc stands across the flight
+// path as in FS, leaned towards the camera (WARP_OVAL), so it shows as the
+// oval of before - now from the model, with depth. Drawn where the old
+// vortex was drawn (drawWarpFrame), in its own small pass.
+// Data: models/fx/warp.json.gz (mkwarp.py); the frame sheets are the
+// page's images/warp_img.webp etc., as for the sprite fallback.
+const F3D_WP = {state: null, n: 0, arr: null};
+function f3dWarpLoad(){
+  if(F3D_WP.state) return F3D_WP.state === 'ready';
+  F3D_WP.state = 'loading';
+  f3dFetchBin(M3D_BASE + 'fx/warp.json.gz').then(function(buf){
+    const w = JSON.parse(new TextDecoder().decode(new Uint8Array(buf)));
+    const n = w.i.length, a = new Float32Array(n*6);
+    for(let j = 0; j < n; j++){
+      const v = w.i[j];
+      a[j*6] = w.p[v*3]; a[j*6+1] = w.p[v*3+1]; a[j*6+2] = w.p[v*3+2];
+      a[j*6+3] = w.t[v*2]; a[j*6+4] = w.t[v*2+1]; a[j*6+5] = 1;
+    }
+    F3D_WP.arr = a; F3D_WP.n = n; F3D_WP.state = 'ready';
+  }, function(){ F3D_WP.state = 'failed'; });
+  return false;
+}
+const F3D_WP_GLOW = new Float32Array(36);
+// px, py: where the vortex stands; fx, fy: the way through it; WS: its
+// size across; wS: how far open (0..1); alpha; seed: its own start frame.
+// False: not drawn (no 3D) - the caller draws the old picture.
+function f3dWarp(px, py, fx, fy, WS, wS, alpha, seed, knossos){
+  if(F3D.off || typeof document === 'undefined' || !F3D.ok || !F3D.gl) return false;
+  if(!f3dWarpLoad() || !f3dFxProg()) return false;
+  const sheetImg = (knossos && imgReady(KNOSSOS_WARP_IMG)) ? KNOSSOS_WARP_IMG : WARP_IMG;
+  const glowImg = (knossos && imgReady(KNOSSOS_GLOW_IMG)) ? KNOSSOS_GLOW_IMG : WARP_GLOW_IMG;
+  const ts = f3dFxTex(knossos ? 'warp_knossos' : 'warp', sheetImg);
+  if(!ts) return false;
+  const tg = imgReady(glowImg) ? f3dFxTex(knossos ? 'glow_knossos' : 'glow', glowImg) : null;
+  const gl = F3D.gl, can = F3D.can;
+  const pw = (typeof CVS !== 'undefined' && CVS.width) || Math.round(W), ph = (typeof CVS !== 'undefined' && CVS.height) || Math.round(H);
+  if(can.width !== pw || can.height !== ph){ can.width = pw; can.height = ph; }
+  gl.viewport(0, 0, pw, ph);
+  gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.disable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE); gl.enable(gl.BLEND);
+  const cam = f3dVP();
+  // the disc: its axis along the way through, leaned towards the camera
+  const c = WARP_OVAL, s = Math.sqrt(1 - c*c);
+  const nl = Math.hypot(fx, fy) || 1;
+  const n = [fx/nl*s, -fy/nl*s, c], u = f3dNorm([n[1], -n[0], 0]), v = f3dCross(n, u);
+  const th = fc*WARP_SPIN/TICK_HZ + (seed || 0), ct = Math.cos(th), st = Math.sin(th);
+  const X = [u[0]*ct + v[0]*st, u[1]*ct + v[1]*st, u[2]*ct + v[2]*st];
+  const Y = [-u[0]*st + v[0]*ct, -u[1]*st + v[1]*ct, -u[2]*st + v[2]*ct];
+  const R = WS/2*wS, C = [px, -py, 0];
+  const M = new Float32Array([X[0]*R, X[1]*R, X[2]*R, 0, Y[0]*R, Y[1]*R, Y[2]*R, 0, n[0]*R, n[1]*R, n[2]*R, 0, C[0], C[1], C[2], 1]);
+  const wF = Math.floor(fc*WARP_FPS/TICK_HZ + (seed || 0)) % WARP_FRAMES;
+  const cs = 1/WARP_COLS;
+  // the glow first, added; then the disc with its own alpha
+  if(tg){
+    const G = WS*wS*WARP_GLOW_SIZE*0.5;
+    f3dQuad(F3D_WP_GLOW, 0, C, [u[0]*G, u[1]*G, 0], [-u[1]*G*0.6, u[0]*G*0.6, 0], [0, 0, 1, 1], 1);
+    gl.blendFunc(gl.ONE, gl.ONE);
+    f3dFxDraw(F3D_WP_GLOW, 6, tg, null, cam, null, alpha, false);
+  }
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  f3dFxDraw(F3D_WP.arr, F3D_WP.n, ts, M, cam, null, alpha, true, [(wF % WARP_COLS)*cs, Math.floor(wF/WARP_COLS)*cs, cs, cs]);
+  gl.disable(gl.BLEND); gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
+  gl.useProgram(F3D.prog);
+  ctx.save();
+  if(typeof camScreen === 'function') camScreen();
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  ctx.drawImage(can, 0, 0, W, H);
+  ctx.restore();
+  return true;
 }

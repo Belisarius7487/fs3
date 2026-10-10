@@ -44,6 +44,7 @@ let enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_L
 let protSaved=0, protLost=0, guardLost=false, guardGone=false, crossDone=0, crossTotal=0;
 let score=0, bossAlive=false, bossSlain=false, expl=0;
 const W=800, H=500, HUD_H=44, DOCK_SPD=0.55, DOCK_NEAR=22;
+const MW=W, MH=H, FIELD_K=1, WX0=0, WX1=W, WY0=54, WY1=H, SIZE_UPM=3.75, FIELD_CX=W/2, FIELD_CY=(54+H)/2; const CAM={x:W/2, y:(54+H)/2, z:1, zt:1, over:false}; function camSees(){ return true; } function camHalfW(){ return W/2; } function camHalfH(){ return (H-54)/2; } function w2sX(x){ return x; } function w2sY(y){ return y; } function s2wX(x){ return x; } function s2wY(y){ return y; } function camFollow(){} function camSnap(){} function mouseTick(){} function worldSet(){} function worldForWave(){} function mouseAt(p){ if(typeof MOUSE!=="undefined"){ MOUSE.x=p.x; MOUSE.y=p.y; } } function mouseHold(){ if(typeof MOUSE!=='undefined' && typeof player!=='undefined'){ MOUSE.x=player.x; MOUSE.y=player.y; } }  // v208: the world is the old field in the sims
 const MOUNTS = ${JSON.stringify(MOUNTS)};
 const IMGS = { frbast:{width:60,height:26}, fcvc3:{width:30,height:22},
   trisis:{width:60,height:24}, dehatshepsut:{width:391,height:150} };

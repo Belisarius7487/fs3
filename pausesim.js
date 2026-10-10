@@ -62,6 +62,7 @@ const optional = ['syncPause'];
 
 const world = `
   const W=800, H=500, HUD_H=54;
+  const MW=W, MH=H, FIELD_K=1, WX0=0, WX1=W, WY0=54, WY1=H, SIZE_UPM=3.75, FIELD_CX=W/2, FIELD_CY=(54+H)/2; const CAM={x:W/2, y:(54+H)/2, z:1, zt:1, over:false}; function camSees(){ return true; } function camHalfW(){ return W/2; } function camHalfH(){ return (H-54)/2; } function w2sX(x){ return x; } function w2sY(y){ return y; } function s2wX(x){ return x; } function s2wY(y){ return y; } function camFollow(){} function camSnap(){} function mouseTick(){} function worldSet(){} function worldForWave(){} function mouseAt(p){ if(typeof MOUSE!=="undefined"){ MOUSE.x=p.x; MOUSE.y=p.y; } } function mouseHold(){ if(typeof MOUSE!=='undefined' && typeof player!=='undefined'){ MOUSE.x=player.x; MOUSE.y=player.y; } }  // v208: the world is the old field in the sims
   let GS='playing', paused=false, userPaused=false;
   let shipMenu=false, callMenu=false, settingsOpen=false, settingsPage=0;
   let settingsWasPaused=false, shipUnlocked=3, shipSwapWave=-1, wave=1;

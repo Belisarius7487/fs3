@@ -28,6 +28,106 @@ const CVS=document.getElementById('c');
 const ctx=CVS.getContext('2d');
 const W=800,H=500,HUD_H=54;
 
+// ── WORLD AND CAMERA (v208) ──────────────────────────────────
+// The field is no longer the screen. Ships have their real length
+// (SIZE_UPM units a metre, a Myrmidon of 16 m is 60 units as before), and
+// the screen is a camera over a world large enough for every ship of the
+// mission and everything that can be called in (the Colossus).
+//   Mission area  where a mission puts things: the old 800 x 500 field
+//                 scaled by FIELD_K, x 0..MW, y HUD_H..MH. FIELD_K follows
+//                 the largest ship of the mission, so a layout keeps its
+//                 proportions to the hulls in it (Silvio: missions are
+//                 scaled roughly in v208, redesigned later).
+//   World bounds  WX0..WX1, WY0..WY1: the mission area plus room on every
+//                 side for the largest ship that can be called in. What
+//                 flies or is clamped is clamped to these.
+//   Screen        W x H as before; the field is the part below the bar.
+// Camera: CAM.x/CAM.y is the world point at the centre of the field on the
+// screen, CAM.z the zoom (1 normal, 1/3 overview on Z).
+const SIZE_UPM = 3.75;
+let FIELD_K = 1, MW = W, MH = H;
+let WX0 = 0, WX1 = W, WY0 = HUD_H, WY1 = H;
+const FIELD_CX = W/2, FIELD_CY = (HUD_H+H)/2;
+const CAM = {x: FIELD_CX, y: FIELD_CY, z: 1, zt: 1, over: false};
+const CAM_OVER_Z = 1/3;             // overview: three times further out
+// Rest zone: the camera only follows once the player leaves the middle of
+// the field, as a fraction of the half field on the screen.
+const CAM_REST_X = 0.40, CAM_REST_Y = 0.40;
+function w2sX(x){ return FIELD_CX + (x - CAM.x)*CAM.z; }
+function w2sY(y){ return FIELD_CY + (y - CAM.y)*CAM.z; }
+function s2wX(x){ return CAM.x + (x - FIELD_CX)/CAM.z; }
+function s2wY(y){ return CAM.y + (y - FIELD_CY)/CAM.z; }
+// Puts the camera on the context (after the screen's own scale).
+function camApply(){
+  ctx.translate(FIELD_CX, FIELD_CY);
+  ctx.scale(CAM.z, CAM.z);
+  ctx.translate(-CAM.x, -CAM.y);
+}
+// Half the field the camera sees, in world units.
+function camHalfW(){ return (W/2)/CAM.z; }
+function camHalfH(){ return ((H-HUD_H)/2)/CAM.z; }
+// Is a world point (with a margin r around it) inside the picture?
+function camSees(x, y, r){
+  r = r || 0;
+  return Math.abs(x - CAM.x) <= camHalfW() + r && Math.abs(y - CAM.y) <= camHalfH() + r;
+}
+function camClamp(){
+  const hw = camHalfW(), hh = camHalfH();
+  CAM.x = (WX1 - WX0 <= 2*hw) ? (WX0 + WX1)/2 : Math.max(WX0 + hw, Math.min(WX1 - hw, CAM.x));
+  CAM.y = (WY1 - WY0 <= 2*hh) ? (WY0 + WY1)/2 : Math.max(WY0 + hh, Math.min(WY1 - hh, CAM.y));
+}
+// Follows a world point (the player) with a rest zone around the middle.
+function camFollow(px, py){
+  CAM.zt = CAM.over ? CAM_OVER_Z : 1;
+  if(Math.abs(CAM.z - CAM.zt) > 1e-4){
+    // zoom about the point that is followed, so it stays where it is
+    const sx = w2sX(px), sy = w2sY(py);
+    CAM.z += (CAM.zt - CAM.z)*0.18;
+    CAM.x = px - (sx - FIELD_CX)/CAM.z; CAM.y = py - (sy - FIELD_CY)/CAM.z;
+  } else CAM.z = CAM.zt;
+  const rx = camHalfW()*CAM_REST_X, ry = camHalfH()*CAM_REST_Y;
+  if(px - CAM.x >  rx) CAM.x = px - rx;
+  if(px - CAM.x < -rx) CAM.x = px + rx;
+  if(py - CAM.y >  ry) CAM.y = py - ry;
+  if(py - CAM.y < -ry) CAM.y = py + ry;
+  camClamp();
+}
+// The shake of the frame, in screen units, and the screen transform with it.
+let CAM_SHX = 0, CAM_SHY = 0;
+function camScreen(){ ctx.setTransform(RES_X, 0, 0, RES_Y, CAM_SHX*RES_X, CAM_SHY*RES_Y); }
+function camOn(){ camScreen(); camApply(); }
+// The pointer (v208): kept on the screen, where it is, and turned into a
+// place in the world each step - so a pointer held near the edge keeps the
+// ship flying on while the camera follows.
+function mouseAt(p){
+  MOUSE.sx = p.x; MOUSE.sy = p.y; MOUSE.scr = true;
+  MOUSE.x = s2wX(p.x); MOUSE.y = s2wY(p.y);
+}
+function mouseHold(){
+  MOUSE.x = player.x; MOUSE.y = player.y; MOUSE.scr = false;
+}
+function mouseTick(){
+  if(MOUSE.scr){ MOUSE.x = s2wX(MOUSE.sx); MOUSE.y = s2wY(MOUSE.sy); }
+}
+function camSnap(px, py){
+  CAM.z = CAM.zt = CAM.over ? CAM_OVER_Z : 1;
+  CAM.x = px; CAM.y = py;
+  camClamp();
+}
+// Sets mission area and world for a scale k (mission) and the length in
+// world units of the largest ship that may join (need).
+function worldSet(k, need){
+  FIELD_K = Math.max(1, k || 1);
+  MW = W*FIELD_K; MH = H*FIELD_K;
+  const cx = MW/2, cy = (HUD_H + MH)/2;
+  // room for the largest ship lying across the middle, with a margin
+  const ww = Math.max(MW, (need || 0)*1.5), wh = Math.max(MH - HUD_H, ww*(H-HUD_H)/W);
+  // a margin round the mission area: missions place ships just outside
+  // the old field (x -80, the far edge) to come in from there
+  WX0 = Math.min(-150*FIELD_K, cx - ww/2); WX1 = Math.max(MW + 150*FIELD_K, cx + ww/2);
+  WY0 = Math.min(HUD_H - 100*FIELD_K, cy - wh/2); WY1 = Math.max(MH + 100*FIELD_K, cy + wh/2);
+}
+
 // The canvas holds a fixed 800x500 coordinate space, but CSS stretches it
 // across the whole viewport. Without a matching backing store every pixel
 // gets upscaled, which is why text used to look smeared. We size the

@@ -61,7 +61,17 @@ function hullClass(key){
   if(!key) return '';
   return (key.indexOf('ntf')===0) ? key.substr(3,2) : key.substr(0,2);
 }
+// v208: real size. The length in metres times SIZE_UPM (10_core.js); the
+// Myrmidon of 16 m stays at the 60 units every fighter had. Only the
+// buoys keep their own factor (Silvio, v166). The curve below is kept as
+// hullWidthOld(): it is what the hulls were drawn at until v207, and the
+// missions are scaled by how much larger their ships have become.
 function hullWidth(key){
+  const L = HULL_LEN[key];
+  if(!L) return 100;                       // unknown: a cruiser of old
+  return L*SIZE_UPM*(SIZE_KEY_MUL[key] || 1);
+}
+function hullWidthOld(key){
   if(SIZE_FIXED[key]!=null) return SIZE_FIXED[key];
   const c = hullClass(key);
   if(SIZE_CLASS_FIXED[c]!=null) return SIZE_CLASS_FIXED[c];
@@ -80,8 +90,32 @@ function hullWidth(key){
 // Eintrag in SIZE_FIXED steht - dort stehen die Ruempfe, deren Sprite bei
 // gleicher Breite mehr Flaeche fuellt als der Rest.
 function smallWidth(key, klasse){
-  if(SIZE_FIXED[key]!=null) return SIZE_FIXED[key];
+  // v208: real size for fighters and bombers too
+  if(HULL_LEN[key]) return hullWidth(key);
   return SIZE_CLASS_FIXED[klasse];
+}
+// v208: mission area and world for a wave (worldSet in 10_core.js). k: how
+// many times larger than in v207 the largest ship of the mission is drawn
+// now - the mission's places are scaled by it, so its ships keep their
+// distances to one another. need: the longest ship of the mission or on
+// call (the Colossus), which the world must hold.
+function worldForWave(q){
+  let k = 1, need = 0;
+  const look = function(key, mission){
+    const L = key && HULL_LEN[key]; if(!L) return;
+    const nw = hullWidth(key);
+    need = Math.max(need, nw);
+    if(mission) k = Math.max(k, nw/Math.max(1, hullWidthOld(key)));
+  };
+  for(const s of (q || [])){
+    if(s.spr) look(s.spr, true);
+    else { let pool = null; try{ pool = poolFor(s.type); }catch(e){ pool = null; }
+           for(const p of (pool || [])) look(p, true); }
+  }
+  for(const id of ALLY_ORDER.concat([ALLY_SPECIAL])){
+    const d = ALLY_DEFS[id]; if(d && allyFacOn(d.fac)) look(d.spr, false);
+  }
+  worldSet(k, need);
 }
 function hullScale(key, fallback){
   const img = IMGS[key];
@@ -110,19 +144,19 @@ function hullPoints(key, fallback){
 }
 
 function mkEnemy(type, spr0, yWant){
-  const y=(yWant!=null)?yWant:(60+Math.random()*(H-120));
+  const y=(yWant!=null)?yWant:(60*FIELD_K+Math.random()*(MH-120*FIELD_K));
   if(typeRole(type)==='fi'){
     const pool=poolFor(type);
     const spr=spr0||rnd(pool);
     const img=IMGS[spr];
     const _fw=smallWidth(spr,'fi');
-    const sc=img?Math.min(0.55,_fw/img.width):0.5;
+    const sc=img?_fw/Math.max(img.width,img.height||img.width):0.5;
     // One roll only: the vortex and the ship that comes out of it have to
     // agree on where the hole is.
     const ax=ambushX();
     const st=smallStats(spr,'fighter');
     return {type:'fighter',img:spr,faction:typeFac(type),
-      pts:100,x:ax,y,warpX:ax,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:HUD_H+22,maxY:H-22,
+      pts:100,x:ax,y,warpX:ax,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:WY0+22,maxY:WY1-22,
       vx:-(0.9+Math.random()*0.9),vy:0,ang:0,
       head:Math.PI, spd:EFIGHTER_SPD, turn:EFIGHTER_TURN,
       role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
@@ -134,11 +168,11 @@ function mkEnemy(type, spr0, yWant){
     const spr=spr0||rnd(pool);
     const img=IMGS[spr];
     const _bw=smallWidth(spr,'bo');
-    const sc=img?Math.min(0.55,_bw/img.width):0.5;
+    const sc=img?_bw/Math.max(img.width,img.height||img.width):0.5;
     const axb=ambushX();
     const st=smallStats(spr,'bomber');
     return {type:'bomber',img:spr,faction:typeFac(type),
-      pts:150,x:axb,y,warpX:axb,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:HUD_H+22,maxY:H-22,
+      pts:150,x:axb,y,warpX:axb,warpY:y,hp:st.hp,maxHp:st.hp,sh:st.sh,maxSh:st.sh,shRe:st.re,shDelay:0,shHit:0,minY:WY0+22,maxY:WY1-22,
       vx:-(0.5+Math.random()*0.6),vy:0,ang:0,
       head:Math.PI, spd:EBOMBER_SPD, turn:EBOMBER_TURN,
       role:'stand', passT:0, orbit:(Math.random()<0.5?-1:1),
@@ -156,9 +190,9 @@ function mkEnemy(type, spr0, yWant){
     const cr={type:'cruiser',img:spr,faction:typeFac(type),
       // Cruisers screen the heavier ships, so they take the forward band.
       // This used to be the rearmost of the three.
-      pts:400,x:W-20,y,warpX:W-20,warpY:y,targetX:W-118-Math.random()*40,hp:capHull(HULL.cruiser*capHullF(spr)),maxHp:capHull(HULL.cruiser*capHullF(spr)),
+      pts:400,x:MW-20*FIELD_K,y,warpX:MW-20*FIELD_K,warpY:y,targetX:Math.min(MW-118*FIELD_K-Math.random()*40, MW-(img ? img.width*sc*0.5 : 0)-12*FIELD_K),hp:capHull(HULL.cruiser*capHullF(spr)),maxHp:capHull(HULL.cruiser*capHullF(spr)),
       vy:(Math.random()<.5?1:-1)*(0.25+Math.random()*0.3),
-      minY:HUD_H+60,maxY:H-60,fT:80,fR:70,pat:0,dead:false,sc,warp:190};
+      minY:HUD_H+60*FIELD_K,maxY:MH-60*FIELD_K,fT:80,fR:70,pat:0,dead:false,sc,warp:190};
     initBeams(cr);return cr;}
   if(typeRole(type)==='co'){
     const pool=poolFor(type);
@@ -166,14 +200,14 @@ function mkEnemy(type, spr0, yWant){
     const img=IMGS[spr];
     const sc=hullScale(spr,0.9);
     const ent={type:'corvette',img:spr,faction:typeFac(type),
-      pts:600,x:W-20,y,warpX:W-20,warpY:y,
+      pts:600,x:MW-20*FIELD_K,y,warpX:MW-20*FIELD_K,warpY:y,
       // Corvettes sit behind the cruisers now. W-74 hiess: die aeussere
       // Haelfte eines 195 Bildpunkte breiten Rumpfs lag ausserhalb des
       // Feldes, waehrend das verbuendete Gegenstueck ganz zu sehen war.
-      targetX:W-150-Math.random()*34,
+      targetX:Math.min(MW-150*FIELD_K-Math.random()*34, MW-(img ? img.width*sc*0.5 : 0)-12*FIELD_K),  // v208: whole hull inside the mission area
       hp:capHull(HULL.corvette*capHullF(spr)),maxHp:capHull(HULL.corvette*capHullF(spr)),
       vy:(Math.random()<.5?1:-1)*(0.2+Math.random()*0.3),
-      minY:HUD_H+60,maxY:H-60,fT:80,fR:70,pat:0,dead:false,sc,warp:220};
+      minY:HUD_H+60*FIELD_K,maxY:MH-60*FIELD_K,fT:80,fR:70,pat:0,dead:false,sc,warp:220};
     initBeams(ent); return ent;
   }
   if(type==='iceni'){
@@ -185,13 +219,13 @@ function mkEnemy(type, spr0, yWant){
     const tough=Math.pow(1+ICENI_GROWTH, icenEscapes);
     const hp=capHull(Math.round(ICENI_HULL*tough));
     const ent={type:'corvette',iceni:true,label:'NTF Iceni',img:spr,faction:'ntf',
-      pts:900,x:W-20,y,warpX:W-20,warpY:y,
+      pts:900,x:MW-20*FIELD_K,y,warpX:MW-20*FIELD_K,warpY:y,
       // From her width, so the whole hull is on screen. A fixed distance
       // from the edge left the stern of a ship this size outside.
-      targetX:W-(img ? img.width*sc*0.5 : 150)-12-Math.random()*34,
+      targetX:MW-(img ? img.width*sc*0.5 : 150)-12-Math.random()*34,
       hp:hp,maxHp:hp,
       vy:(Math.random()<.5?1:-1)*(0.2+Math.random()*0.3),
-      minY:HUD_H+60,maxY:H-60,fT:70,fR:70,pat:0,dead:false,sc,warp:200};
+      minY:HUD_H+60*FIELD_K,maxY:MH-60*FIELD_K,fT:70,fR:70,pat:0,dead:false,sc,warp:200};
     // Four anti capital and five anti fighter beams, exactly as her mount
     // data states. She is a flagship and outguns any destroyer; the room
     // for that is bought with a longer deadline, not with a smaller
@@ -205,11 +239,11 @@ function mkEnemy(type, spr0, yWant){
     const img=IMGS[spr];
     const sc=hullScale(spr,2.0);
     const ent={type:'destroyer',img:spr,faction:typeFac(type),
-      pts:1200,x:W-80,y,warpX:W-80,warpY:y,
-      targetX:W-230-Math.random()*34,
+      pts:1200,x:MW-80*FIELD_K,y,warpX:MW-80*FIELD_K,warpY:y,
+      targetX:Math.min(MW-230*FIELD_K-Math.random()*34, MW-(img ? img.width*sc*0.5 : 0)-12*FIELD_K),
       hp:capHull(HULL.destroyer*capHullF(spr)),maxHp:capHull(HULL.destroyer*capHullF(spr)),
       vy:(Math.random()<.5?1:-1)*(0.15+Math.random()*0.2),
-      minY:HUD_H+46,maxY:H-46,fT:100,fR:80,pat:0,dead:false,sc,warp:260};
+      minY:HUD_H+46*FIELD_K,maxY:MH-46*FIELD_K,fT:100,fR:80,pat:0,dead:false,sc,warp:260};
     initBeams(ent); return ent;
   }
   // ── NON-COMBATANTS ──────────────────────────────────────
@@ -226,13 +260,13 @@ function mkEnemy(type, spr0, yWant){
     const sc=hullScale(spr,0.75);
     const _fh=hullPoints(spr,HULL.freighter);
     return {type:'freighter',img:spr,faction:'vasudan',
-      pts:250,x:W+40,y,warpX:W+40,warpY:y,
+      pts:250,x:MW+40*FIELD_K,y,warpX:MW+40*FIELD_K,warpY:y,
       hp:_fh,maxHp:_fh,
       // Drifts across at walking pace until it is shot at. FS1 freighters
       // run the moment they take a hit rather than at a hull threshold,
       // so the trigger is damage, not a percentage.
       vx:-0.30,vy:0,ang:0,head:Math.PI,fleeing:false,
-      minY:HUD_H+40,maxY:H-40,dead:false,sc,warp:150};
+      minY:HUD_H+40*FIELD_K,maxY:MH-40*FIELD_K,dead:false,sc,warp:150};
   }
   if(type==='container'){
     const spr=spr0||'fcvc3';
@@ -240,7 +274,7 @@ function mkEnemy(type, spr0, yWant){
     const sc=hullScale(spr,0.5);
     const _ch=hullPoints(spr,HULL.container);
     return {type:'container',img:spr,faction:'vasudan',
-      pts:40,x:W+30,y,warpX:W+30,warpY:y,
+      pts:40,x:MW+30*FIELD_K,y,warpX:MW+30*FIELD_K,warpY:y,
       hp:_ch,maxHp:_ch,
       vx:0,vy:0,ang:0,head:Math.PI,
       dead:false,sc,warp:120};
@@ -254,7 +288,7 @@ function mkEnemy(type, spr0, yWant){
     // Kleine Sperrgeschuetze folgen dem Jaegerboden nach unten.
     const sc=hullScale(spr,0.25);
     return {type:'sentry',img:spr,faction:'shivan',
-      pts:180,x:W-60,y,warpX:W-60,warpY:y,
+      pts:180,x:MW-60*FIELD_K,y,warpX:MW-60*FIELD_K,warpY:y,
       hp:HULL.sentry,maxHp:HULL.sentry,
       // A gun platform holds station. It has no drive, so vx stays at
       // zero and the update never moves it: the player has to come.
@@ -267,16 +301,16 @@ function mkEnemy(type, spr0, yWant){
     const img=IMGS[spr];
     const sc=hullScale(spr,1.0);
     const ent={type:'station',img:spr,faction:typeFac(type),
-      pts:1500,x:W*0.80,y:H*0.5,warpX:W*0.80,warpY:H*0.5,
+      pts:1500,x:MW*0.80,y:MH*0.5,warpX:MW*0.80,warpY:MH*0.5,
       targetX:null,
       hp:capHull(HULL.station),maxHp:capHull(HULL.station),
-      vx:0,vy:0,minY:H*0.5,maxY:H*0.5,
+      vx:0,vy:0,minY:MH*0.5,maxY:MH*0.5,
       fT:90,fR:80,pat:0,dead:false,sc,warp:0,warpMax:1,station:true};
     initSubsystems(ent); initBeams(ent); return ent;
   }
   if(type==='ast'){
     const sc=0.35+Math.random()*0.3;
-    const ast={type:'asteroid',img:null,pts:60,x:W+30,y,hp:HULL.asteroid,maxHp:HULL.asteroid,
+    const ast={type:'asteroid',img:null,pts:60,x:MW+30*FIELD_K,y,hp:HULL.asteroid,maxHp:HULL.asteroid,
       vx:astStill?0:-(1+Math.random()*2.5), vy:astStill?0:(Math.random()-.5)*1.5,
       rot:Math.random()*Math.PI*2,rotS:(Math.random()-.5)*0.06,sc,dead:false};
     // In the escort wave the belt is not scenery, it is the threat. The
@@ -299,9 +333,9 @@ function mkEnemy(type, spr0, yWant){
     const sc=hullScale(spr,1.0);
     const bn={type:'boss',img:spr,faction:'ntf',pts:3000,
       // A ship this size holds station. The drift belonged to a cruiser.
-      x:W-80,y:H/2,hp:capHull(HULL.boss_ntf),maxHp:capHull(HULL.boss_ntf),vy:0,minY:HUD_H+100,maxY:H-100,
-      fT:120,fR:50,pat:0,phase:1,targetX:W-200,dead:false,sc,warp:300,
-      warpX:W-80,warpY:H/2};
+      x:MW-80*FIELD_K,y:MH/2,hp:capHull(HULL.boss_ntf),maxHp:capHull(HULL.boss_ntf),vy:0,minY:HUD_H+100*FIELD_K,maxY:MH-100*FIELD_K,
+      fT:120,fR:50,pat:0,phase:1,targetX:MW-200*FIELD_K,dead:false,sc,warp:300,
+      warpX:MW-80*FIELD_K,warpY:MH/2};
     initBeams(bn);return bn;}
   if(type==='boss_sh'){
     bossAlive=true;
@@ -311,9 +345,9 @@ function mkEnemy(type, spr0, yWant){
     const sc=hullScale(spr,1.1);
     // Marker used below to find the arms, since only she has them.
     const bs={type:'boss',img:spr,faction:'shivan',pts:4000,
-      x:W-80,y:H/2,hp:capHull(HULL.boss_sh),maxHp:capHull(HULL.boss_sh),vy:0,minY:HUD_H+110,maxY:H-110,
-      fT:100,fR:45,pat:0,phase:1,targetX:W-220,dead:false,sc,warp:320,
-      warpX:W-80,warpY:H/2};
+      x:MW-80*FIELD_K,y:MH/2,hp:capHull(HULL.boss_sh),maxHp:capHull(HULL.boss_sh),vy:0,minY:HUD_H+110*FIELD_K,maxY:MH-110*FIELD_K,
+      fT:100,fR:45,pat:0,phase:1,targetX:MW-220*FIELD_K,dead:false,sc,warp:320,
+      warpX:MW-80*FIELD_K,warpY:MH/2};
     initBeams(bs);return bs;}
 }
 
@@ -946,14 +980,17 @@ function drawSubMsgs(){
     ctx.globalAlpha=Math.min(1,t*4)*0.92;
     ctx.font=thValue(10, true);
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    const y=m.y-(1-t)*18;
+    // v208: drawn on the screen at the place it belongs to (scr: a
+    // place on the screen already), so the text keeps its size in the
+    // overview
+    const mx=m.scr?m.x:w2sX(m.x), y=(m.scr?m.y:w2sY(m.y))-(1-t)*18;
     ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
-    ctx.strokeText(m.txt,m.x,y);
+    ctx.strokeText(m.txt,mx,y);
     ctx.fillStyle = (m.tone==='good') ? '#3ce06a'
                   : (m.tone==='bad')  ? '#ff4a33'
                   : (m.tone==='warn') ? '#ffcc44'
                   : (m.ally?'#ffcc44':'#ff8844');
-    ctx.fillText(m.txt,m.x,y);
+    ctx.fillText(m.txt,mx,y);
     ctx.restore();
   }
   ctx.textAlign='left'; ctx.textBaseline='top';
@@ -1026,8 +1063,8 @@ const SEPARATE_FORCE = 0.10;
 // so large hulls hung into the HUD or off the bottom.
 function clampToField(o, half){
   const hh = (half != null) ? half : halfH(o);
-  const top = HUD_H + hh, bot = H - hh;
-  if(top >= bot){ o.y = (HUD_H + H)*0.5; return; }   // taller than the field
+  const top = HUD_H + hh, bot = MH - hh;
+  if(top >= bot){ o.y = (HUD_H + MH)*0.5; return; }   // taller than the field
   if(o.y < top){ o.y = top; if(o.vy < 0) o.vy = -o.vy; }
   else if(o.y > bot){ o.y = bot; if(o.vy > 0) o.vy = -o.vy; }
 }
@@ -1139,8 +1176,8 @@ function assignStation(e){
   const others = capitalsOnField(e);
   const hh = halfH(e);
   const lo = Math.max(e.minY!=null ? e.minY : HUD_H+60, HUD_H+hh);
-  const hi = Math.min(e.maxY!=null ? e.maxY : H-60,     H-hh);
-  if(lo >= hi){ e.y = (HUD_H+H)*0.5; e.warpY = e.y; return; }
+  const hi = Math.min(e.maxY!=null ? e.maxY : MH-60*FIELD_K,     MH-hh);
+  if(lo >= hi){ e.y = (HUD_H+MH)*0.5; e.warpY = e.y; return; }
   if(!others.length){ e.y = lo + Math.random()*(hi-lo); e.warpY = e.y; return; }
 
   let bestY = e.y, bestScore = -Infinity;
@@ -1308,7 +1345,7 @@ function spawnGuardShip(){
     a.transit  = true;
     const gImg = IMGS[a.img];
     const gHalf = gImg ? gImg.width*a.sc*0.5 : 120;
-    a.transitEnd = W - gHalf - TRANS_EDGE_PAD;
+    a.transitEnd = MW - gHalf - TRANS_EDGE_PAD;
     a.transitV = (a.transitEnd - a.x) / (transitSecs*TICK_HZ);
   }
   allies.push(a);
@@ -1319,9 +1356,9 @@ function spawnVasReinforcement(){
   const pool = ROLES.ally_vas_fighters;
   if(!pool || !pool.length) return;
   const spr = pool[(Math.random()*pool.length)|0];
-  const mid = HUD_H+80 + Math.random()*(H-HUD_H-160);
+  const mid = HUD_H+80*FIELD_K + Math.random()*(MH-HUD_H-160*FIELD_K);
   for(let i=0;i<REINF_SIZE;i++){
-    const y = Math.max(HUD_H+26, Math.min(H-26, mid + (i-1)*WING_SPACING));
+    const y = Math.max(HUD_H+26, Math.min(MH-26, mid + (i-1)*WING_SPACING));
     const a = mkAllySmall('fighter', 'vasudan', spr, y);
     a.warp = 70 + i*WING_STAGGER; a.warpMax = a.warp;
     allies.push(a);
@@ -1339,7 +1376,7 @@ function updateVasudan(){
   if(transitSecs>0 && !waveOver && guardSpawned && !guardGone){
     if(--astStreamCd<=0){
       astStreamCd = AST_STREAM_MEAN + ((Math.random()*2-1)*AST_STREAM_JIT)|0;
-      const _a = mkEnemy('ast', null, HUD_H+30+Math.random()*(H-HUD_H-60));
+      const _a = mkEnemy('ast', null, HUD_H+30+Math.random()*(MH-HUD_H-60));
       if(_a){ _a.side='enemy'; _a.warpMax=1; enemies.push(_a); }
     }
   }
@@ -1470,10 +1507,10 @@ function updateItems(){
       }
     }
     it.x += it.vx; it.y += it.vy;
-    if(it.x<ITEM_MARGIN){ it.x=ITEM_MARGIN; it.vx=Math.abs(it.vx); }
-    else if(it.x>W-ITEM_MARGIN){ it.x=W-ITEM_MARGIN; it.vx=-Math.abs(it.vx); }
-    if(it.y<HUD_H+16){ it.y=HUD_H+16; it.vy=Math.abs(it.vy); }
-    else if(it.y>H-16){ it.y=H-16; it.vy=-Math.abs(it.vy); }
+    if(it.x<WX0+ITEM_MARGIN){ it.x=WX0+ITEM_MARGIN; it.vx=Math.abs(it.vx); }
+    else if(it.x>WX1-ITEM_MARGIN){ it.x=WX1-ITEM_MARGIN; it.vx=-Math.abs(it.vx); }
+    if(it.y<WY0+16){ it.y=WY0+16; it.vy=Math.abs(it.vy); }
+    else if(it.y>WY1-16){ it.y=WY1-16; it.vy=-Math.abs(it.vy); }
     if(--it.life<=0){ ITEMS.splice(i,1); continue; }
     if(GS==='playing' && player.hp>0){
       const dx=it.x-player.x, dy=it.y-player.y;
@@ -1514,12 +1551,12 @@ function drawTicketMsgs(){
     ctx.globalAlpha=Math.min(1, t*2.2)*0.92;
     ctx.font=thValue(10, true);
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    const y=m.y-(1-t)*20;
+    const mx=w2sX(m.x), y=w2sY(m.y)-(1-t)*20;
     const tt=(m.kind==='repair'?'+':'+1 ')+(TICKET_NAME[m.kind]||'');
     ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
-    ctx.strokeText(tt, m.x, y);
+    ctx.strokeText(tt, mx, y);
     ctx.fillStyle=m.rep?REPAIR_COL:'#8fe4ff';
-    ctx.fillText(tt, m.x, y);
+    ctx.fillText(tt, mx, y);
     ctx.restore();
   }
   ctx.textAlign='left'; ctx.textBaseline='top';
@@ -1774,10 +1811,10 @@ function mkAlly(id){
   // War dieselbe fest verdrahtete Tabelle wie in mkEnemy. Zwei Kopien
   // derselben Kurve laufen auseinander, siehe Handoff Abschnitt 11.
   const sc = hullScale(spr, 0.8);
-  let y = HUD_H + geo.mar + Math.random()*(H-HUD_H-geo.mar*2);
+  let y = HUD_H + geo.mar*FIELD_K + Math.random()*(MH-HUD_H-geo.mar*2*FIELD_K);
   // The Colossus spans the whole field and hugs the top edge, so neither
   // the random height nor the class scale apply to her.
-  let cx = geo.tx, colSc = sc;
+  let cx = geo.tx*FIELD_K, colSc = sc;
   if(d.colossus && img){
     // War W/img.width, also volle Feldbreite von 800 Bildpunkten. Bei
     // einer eingebetteten Breite von 1152 sind das 2,08fache
@@ -1785,7 +1822,7 @@ function mkAlly(id){
     // Spiel. 556 ist schaerfer UND kleiner.
     colSc = hullWidth('sdcolossus')/img.width;
     y = HUD_H + img.height*colSc*0.5 + 6;
-    cx = W/2;
+    cx = MW/2;
   }
   const a = {
     type:d.cls, side:'ally', id:id, label:allyLabel(d),
@@ -1796,7 +1833,7 @@ function mkAlly(id){
     hp:allyHull(d),
     maxHp:allyHull(d),
     vy:d.colossus?0:(Math.random()<.5?1:-1)*(0.2+Math.random()*0.25),
-    minY:d.colossus?y:HUD_H+geo.mar, maxY:d.colossus?y:H-geo.mar,
+    minY:d.colossus?y:HUD_H+geo.mar*FIELD_K, maxY:d.colossus?y:MH-geo.mar*FIELD_K,
     fT:60, fR:70, pat:0, dead:false, sc:colSc, ang:0,
     warp:geo.warp, warpMax:geo.warp,
     colossus:!!d.colossus,
@@ -1854,7 +1891,7 @@ function mkAllySmall(kind, fac, spr, y){
     x:-10, y:y, warpX:-10, warpY:y,
     hp:st.hp, maxHp:st.hp,
     sh:st.sh, maxSh:st.sh, shRe:st.re,
-    shDelay:0, shHit:0, minY:HUD_H+22, maxY:H-22,
+    shDelay:0, shHit:0, minY:WY0+22, maxY:WY1-22,
     vx:0, vy:0, ang:0, head:0,
     spd: bomber?EBOMBER_SPD:EFIGHTER_SPD,
     turn: bomber?EBOMBER_TURN:EFIGHTER_TURN,
@@ -1879,9 +1916,9 @@ function launchAllyWing(host){
     : ROLES[vas?'ally_vas_fighters':'ally_ter_fighters'];
   if(!pool || !pool.length) return;
   const spr = pool[(Math.random()*pool.length)|0];
-  const mid = Math.max(HUD_H+60, Math.min(H-60, host.y));
+  const mid = Math.max(HUD_H+60, Math.min(MH-60, host.y));
   for(let i=0;i<ALLY_WING_SIZE;i++){
-    const y = Math.max(HUD_H+26, Math.min(H-26, mid + (i-1)*WING_SPACING));
+    const y = Math.max(HUD_H+26, Math.min(MH-26, mid + (i-1)*WING_SPACING));
     const a = mkAllySmall(wantBomber?'bomber':'fighter', host.faction, spr, y);
     a.warp = 60 + i*WING_STAGGER; a.warpMax = a.warp;
     allies.push(a);
@@ -1917,9 +1954,9 @@ function sendInterceptors(host){
   const pool = ROLES[vas?'ally_vas_fighters':'ally_ter_fighters'];
   if(!pool || !pool.length) return;
   const spr = pool[(Math.random()*pool.length)|0];
-  const mid = Math.max(HUD_H+60, Math.min(H-60, host.y));
+  const mid = Math.max(HUD_H+60, Math.min(MH-60, host.y));
   for(let i=0;i<INTERCEPT_SIZE;i++){
-    const y = Math.max(HUD_H+26, Math.min(H-26, mid + (i-1)*WING_SPACING));
+    const y = Math.max(HUD_H+26, Math.min(MH-26, mid + (i-1)*WING_SPACING));
     const a = mkAllySmall('fighter', host.faction, spr, y);
     a.warp = INTERCEPT_DELAY + i*WING_STAGGER; a.warpMax = a.warp;
     // Scrambled against bombers, so that is what they go after first.
@@ -2146,7 +2183,7 @@ function updateAllies(){
       a.warp--;
       // Out of the vortex inside the field, where the flight model keeps it.
       if(a.warp<=0 && a.small){ const b = shipBound(a);
-        a.x = Math.max(b, Math.min(W-b, a.x)); a.y = Math.max(HUD_H+b, Math.min(H-b, a.y)); }
+        a.x = Math.max(WX0+b, Math.min(WX1-b, a.x)); a.y = Math.max(WY0+b, Math.min(WY1-b, a.y)); }
       if(a.small){ const wp=poseFor(a.head,a.flip); a.ang=wp.ang; a.flip=wp.flip; }
       continue;
     }
@@ -2442,8 +2479,8 @@ const DEB_SMALL_PX = 30;                    // below this a piece stops splittin
 // Reference Bible describes: a subspace hole opens in front of the pilot
 // and ships come out of it. The vortex animation already covers it.
 function ambushX(){
-  if(waveMod==='ambush' && Math.random()<0.40) return W*(0.30+Math.random()*0.28);
-  return W-10;
+  if(waveMod==='ambush' && Math.random()<0.40) return MW*(0.30+Math.random()*0.28);
+  return MW-10;
 }
 
 // ── SUBSPACE BOMB RAIDS ───────────────────────────────────────
@@ -2471,8 +2508,8 @@ function launchBombRaid(){
   const holes = PORTAL_MIN + ((Math.random()*(PORTAL_MAX-PORTAL_MIN+1))|0);
   for(let i=0;i<holes;i++){
     BOMB_PORTALS.push({
-      x: W*(PORTAL_X_MIN+Math.random()*(PORTAL_X_MAX-PORTAL_X_MIN)),
-      y: HUD_H+50+Math.random()*(H-HUD_H-100),
+      x: MW*(PORTAL_X_MIN+Math.random()*(PORTAL_X_MAX-PORTAL_X_MIN)),
+      y: HUD_H+50+Math.random()*(MH-HUD_H-100),
       // Versetzt, damit die Salve rollt statt als eine Wand anzukommen,
       // die man entweder ganz raeumt oder gar nicht.
       t: -i*PORTAL_STAGGER, max: PORTAL_LIFE, fired:false
@@ -2512,12 +2549,12 @@ function ssbSpot(j){
   for(let k=0;k<30;k++){
     let x, y;
     const side = Math.random();
-    if(side < 0.5){ x = W - 30 - Math.random()*90;  y = HUD_H + 40 + Math.random()*(H-HUD_H-80); }
-    else if(side < 0.75){ x = W*0.35 + Math.random()*W*0.6; y = HUD_H + 40 + Math.random()*40; }
-    else { x = W*0.35 + Math.random()*W*0.6; y = H - 40 - Math.random()*40; }
+    if(side < 0.5){ x = MW - 30 - Math.random()*90;  y = HUD_H + 40 + Math.random()*(MH-HUD_H-80); }
+    else if(side < 0.75){ x = MW*0.35 + Math.random()*MW*0.6; y = HUD_H + 40 + Math.random()*40; }
+    else { x = MW*0.35 + Math.random()*MW*0.6; y = MH - 40 - Math.random()*40; }
     if(Math.hypot(x-j.x, y-j.y) >= SSB_MIN_D) return {x:x, y:y};
   }
-  return {x: W-40, y: (j.y < H/2) ? H-60 : HUD_H+60};
+  return {x: MW-40, y: (j.y < MH/2) ? MH-60 : HUD_H+60};
 }
 function tickSetekhBombs(){
   if(!ssbOn || waveOver || inJump()) return;

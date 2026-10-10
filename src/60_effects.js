@@ -260,7 +260,7 @@ function updateSecBullets(){
         life:55,ml:55,sz:6+Math.random()*7,
         clr:Math.random()<0.5?'rgba(80,80,90,0.6)':'rgba(60,60,70,0.4)'});
     }
-    if(b.x>W+20||b.x<-20||b.y<-20||b.y>H+20){pBullets.splice(i,1);continue;}
+    if(b.x>WX1+20||b.x<WX0-20||b.y<WY0-80||b.y>WY1+20){pBullets.splice(i,1);continue;}
     // Collision
     var hit=false;
     for(var j=enemies.length-1;j>=0;j--){
@@ -582,7 +582,7 @@ function playerDie(){STATS.livesLost++; player.mvx=0; player.mvy=0;
   if(!practiceMode){
     if(--lives<=0){GS='gameover';gameOverAt=performance.now();return;}
   }
-  player.hp=player.maxHp;player.x=80;player.y=H/2;eBullets=[];
+  player.hp=player.maxHp;player.x=80*FIELD_K;player.y=MH/2;eBullets=[];
   // Was player.sh=100. In an era without shields that handed back
   // something the player is not supposed to have yet.
   resetPlayerShield();
@@ -622,7 +622,7 @@ function launchGame(){
   testShip();
   // Without this the ship would set off towards wherever the launch button
   // was pressed, which since the speed cap is a visible drive across the field.
-  MOUSE.x=player.x; MOUSE.y=player.y;
+  mouseHold();
   runTime=0;
   pBullets=[];eBullets=[];enemies=[];allies=[];allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;PARTS=[];ITEMS=[];
   resumeHold=false; sndAllOff();
@@ -648,7 +648,7 @@ function nextWave(){
   rollBodies();
   // Second half of the jump: the ship comes out at the field edge.
   arriveT = TRANS_IN; transFog = 0;
-  player.x = 80; player.y = H/2; MOUSE.x = player.x; MOUSE.y = player.y;
+  player.x = 80; player.y = H/2; mouseHold();
   // Leeren VOR getWaveDef, damit eine Welle ohne eigenen Titel nicht den
   // der vorigen erbt. buildFS1Wave setzt ihn gleich danach.
   waveTitle=''; titleT=0;
@@ -659,11 +659,16 @@ function nextWave(){
   protSaved=0; protLost=0;
   crossDone=0; crossTotal=0; commsCut=false; commsSeen=false;
   enemies=[];eBullets=[];allies=[];debris=[];HULKS=[];if(typeof F3D_HULKS!=='undefined')F3D_HULKS=[];empOut=0;allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;spawnQ=getWaveDef(wave);spawnT=0;
+  // v208: the world of this mission, the player at its left edge as before,
+  // the camera on her
+  worldForWave(spawnQ);
+  player.x = 80*FIELD_K; player.y = MH/2; mouseHold();
+  camSnap(player.x, player.y);
   plogStart();
   for(let i=0;i<allyWingWanted;i++){
     const a = mkAllySmall('fighter','terran',
                           rnd(ROLES.ally_ter_fighters||ROLES.ter_fighters||['fiherc']),
-                          H*(0.34+0.14*i));
+                          MH*(0.34+0.14*i));
     if(a) allies.push(a);
   }
   // Tickets carry over, the pickups on the field do not.
@@ -750,17 +755,18 @@ function update(){
   // field keeps running, so a wave still finishes cleanly around it.
   if(inJump()){
     player.fT = Math.max(player.fT, 4);
-    MOUSE.x = player.x; MOUSE.y = player.y;
+    mouseHold();
   }
   // The pointer is destination and aiming reference at once: the ship
   // flies towards it and the nose points at it. The whole field is open,
   // because enemy fighters do not stay on their half either.
+  mouseTick();
   const pImg=IMGS[player.ship];
   // A hull that can rotate needs a margin that survives any heading, so
   // the wider of the two sprite extents counts, not the height alone.
   const pHalf=pImg ? Math.max(pImg.width,pImg.height)*playerSc()*0.5 : 16;
-  const xMin=pHalf, xMax=W-pHalf;
-  const yTop=HUD_H+pHalf, yBot=H-pHalf;
+  const xMin=WX0+pHalf, xMax=WX1-pHalf;
+  const yTop=WY0+pHalf, yBot=WY1-pHalf;
   if(inJump()){ player.vx=0; player.vy=0; }
   const targetX=Math.max(xMin,Math.min(xMax,MOUSE.x));
   const targetY=Math.max(yTop,Math.min(yBot,MOUSE.y));
@@ -803,6 +809,10 @@ function update(){
   if(player.x>xMax){ player.x=xMax; if(player.mvx>0) player.mvx=0; }
   if(player.y<yTop){ player.y=yTop; if(player.mvy<0) player.mvy=0; }
   if(player.y>yBot){ player.y=yBot; if(player.mvy>0) player.mvy=0; }
+  // v208: the camera follows once she leaves the middle of the picture,
+  // and the pointer is a place in the world again for the aim below
+  camFollow(player.x, player.y);
+  mouseTick();
   // Movement record, used by enemy gunners to lead their shots.
   player.vx=player.x-pPrevX; player.vy=player.y-pPrevY;
   // Heading: at the pointer while there is a pointer to speak of, else
@@ -883,6 +893,15 @@ function update(){
         continue;
       }
       const _sp=spawnQ.shift();
+      // v208: the queue is written in the old 800 x 500 field (missions,
+      // reinforcements, replacements); its places are scaled to the
+      // mission area here, once. _k: already in world units.
+      // The scripted crossings (a ship driving across the field on the
+      // clock, convoys, runners making for the edge or the portal) keep
+      // their duration: their speed is scaled too.
+      if(!_sp._k){ if(_sp.x!=null) _sp.x*=FIELD_K; if(_sp.y!=null) _sp.y*=FIELD_K;
+                   if(_sp.crossLeft) _sp.crossLeft*=FIELD_K; if(_sp.cross) _sp.cross*=FIELD_K;
+                   if(_sp.escape) _sp.escape*=FIELD_K; _sp._k=1; }
       if(WING_TYPES[_sp.type] && _sp.wing) gateWing=_sp.wing;
       // A defector is not an enemy yet, so it never goes through mkEnemy.
       if(_sp.type==='defector'){ spawnDefector(_sp.y, _sp.spr); continue; }
@@ -929,9 +948,9 @@ function update(){
           // She warps in on screen, like every other capital ship, and
           // sets off once through. Starting half outside the edge with
           // no vortex read as popping into existence.
-          _a.x = _toLeft ? W - _gh - TRANS_EDGE_PAD : _gh + TRANS_EDGE_PAD;
+          _a.x = _toLeft ? MW - _gh - TRANS_EDGE_PAD : _gh + TRANS_EDGE_PAD;
           _a.warpX = _a.x;
-          _a.transitEnd = _toLeft ? _gh + TRANS_EDGE_PAD : W - _gh - TRANS_EDGE_PAD;
+          _a.transitEnd = _toLeft ? _gh + TRANS_EDGE_PAD : MW - _gh - TRANS_EDGE_PAD;
           _a.transitV = (_a.transitEnd - _a.x) / (_sp.crossSecs*TICK_HZ);
           _a.flip = needsFlip(_a.img, _toLeft);
           guardWanted = true; guardSpawned = true;
@@ -988,7 +1007,7 @@ function update(){
         // v202: points instead of a ticket - a hull's worth of her class
         const gp = capHull(HULL[guardReward] || HULL.cruiser);
         score += gp;
-        SUB_MSGS.push({x:W/2, y:H*0.3, txt:'ESCORT COMPLETE +'+gp, life:200, ml:200, ally:true, tone:'good'});
+        SUB_MSGS.push({scr:1, x:W/2, y:H*0.3, txt:'ESCORT COMPLETE +'+gp, life:200, ml:200, ally:true, tone:'good'});
       }
       // v202: what the called ships still have comes back
       allyRefunds();
@@ -1071,7 +1090,7 @@ function update(){
     // Shrapnel gives out on its own rather than flying to the edge.
     if(b.eLife && --b.eLife<=0){ eBullets.splice(i,1); continue; }
     if(debrisEatsBolt(b)){ eBullets.splice(i,1); continue; }
-    if(b.x<-60||b.x>W+60||b.y<-60||b.y>H+60){eBullets.splice(i,1);continue;}
+    if(b.x<WX0-60||b.x>WX1+60||b.y<WY0-114||b.y>WY1+60){eBullets.splice(i,1);continue;}
     if(!b.kind && fc%4===0){
       PARTS.push({x:b.x-b.vx*0.5, y:b.y-b.vy*0.5,
         vx:-b.vx*0.10, vy:-b.vy*0.10+(Math.random()-0.5)*0.2,
@@ -1173,7 +1192,7 @@ function update(){
     if(debrisEatsBolt(b)){ pBullets.splice(i,1); continue; }
     // Bolts can now travel in any direction, so the left edge needs a
     // bound too. Without it a shot fired backwards is never cleaned up.
-    if(b.x>W+40||b.x<-40||b.y<-40||b.y>H+40){pBullets.splice(i,1);continue;}
+    if(b.x>WX1+40||b.x<WX0-40||b.y<WY0-94||b.y>WY1+40){pBullets.splice(i,1);continue;}
     // Faint glowing trail behind every laser bolt
     if(!b.sec && fc%3===0){
       PARTS.push({x:b.x-b.vx*0.6, y:b.y-b.vy*0.6,
@@ -1235,7 +1254,7 @@ function update(){
         e.warp--;
         e.x-=0.4;
         const wb=shipBound(e);
-        e.y=Math.max(HUD_H+wb,Math.min(H-wb,e.y));
+        e.y=Math.max(WY0+wb,Math.min(WY1-wb,e.y));
         const wp=poseFor(e.head, e.flip);
         e.ang=wp.ang; e.flip=wp.flip;
         continue;
@@ -1274,7 +1293,7 @@ function update(){
       // bullet actually strikes.
       if(!e.fleeing && e.shotAt && !e.escaping && !e.still){ e.fleeing=true; e.vx=-1.9; }
       e.x+=e.vx;
-      if(e.x<-140){
+      if(e.x<WX0-140 || (e.x<-140*FIELD_K && !camSees(e.x, e.y, 300))){
         // It got away. The briefing for Small Deadly Space is explicit
         // that this is a defeat, so it is charged like one.
         if(e.runner){
@@ -1300,8 +1319,8 @@ function update(){
     }
     else if(e.type==='asteroid'){
       e.x+=e.vx;e.y+=e.vy;e.rot+=e.rotS;
-      if(e.y<20||e.y>H-20)e.vy*=-1;
-      if(e.x<-60){enemies.splice(i,1);continue;}}
+      if(e.y<WY0-34||e.y>WY1-20)e.vy*=-1;
+      if(e.x<WX0-60){enemies.splice(i,1);continue;}}
     else if(e.type==='station'){
       // An armed installation fires until its guns are out or it is
       // taken. The unarmed ones are scenery or targets and stay quiet.
@@ -1322,8 +1341,8 @@ function update(){
         if(e.x>e.targetX)e.x=Math.max(e.targetX,e.x-0.6);
         capDrift(e, 1);
       }
-      e.y=Math.max(HUD_H+18,Math.min(H-18,e.y));
-      if(e.x<-300){enemies.splice(i,1);continue;}
+      e.y=Math.max(WY0+18,Math.min(WY1-18,e.y));
+      if(e.x<WX0-300){enemies.splice(i,1);continue;}
       e.y=Math.max(e.minY,Math.min(e.maxY,e.y));
       capitalFire(e);
     }
@@ -1345,10 +1364,10 @@ function update(){
         if(e.x>e.targetX) e.x=Math.max(e.targetX,e.x-0.8);
         capDrift(e, 1);
       }
-      e.y=Math.max(HUD_H+18,Math.min(H-18,e.y));
-      if(e.x<-200){enemies.splice(i,1);continue;}
+      e.y=Math.max(WY0+18,Math.min(WY1-18,e.y));
+      if(e.x<WX0-200){enemies.splice(i,1);continue;}
       e.y=Math.max(e.minY,Math.min(e.maxY,e.y));
-      if(e.x>W+200){enemies.splice(i,1);continue;}
+      if(e.x>WX1+200){enemies.splice(i,1);continue;}
       capitalFire(e);}
     else if(e.type==='boss'){
       if(e.warp>0){
@@ -1371,7 +1390,7 @@ function update(){
         // The speed she comes out of her vortex with runs down gently
         // instead of stopping dead.
         if(e.subV > 0.01){ e.subOff += e.subV; e.subV *= 0.97; }
-        e.x = e.subX0 + (W*SUB_DRIFT_X1 - e.subX0)*_f - e.subOff;
+        e.x = e.subX0 + (MW*SUB_DRIFT_X1 - e.subX0)*_f - e.subOff;
         capitalFire(e);
         updateBeams(e);
         continue;
@@ -1380,7 +1399,7 @@ function update(){
       // crossAfter: she holds where she is while that ship lives (the
       // Sathanas over the Hatshepsut, M77 v179), then drives on.
       if(e.crossLeft && e.crossAfter && byId(e.crossAfter).length){
-        if(e.x < W+40) capitalFire(e);
+        if(e.x < WX1+40) capitalFire(e);
         updateBeams(e);
         continue;
       }
@@ -1395,19 +1414,19 @@ function update(){
             if(--e.warpOut<=0){ enemies.splice(i,1); }
             continue;
           }
-          if(e.x - _hw < W*0.04){
+          if(e.x - _hw < MW*0.04){
             e.warpMax = 220; e.warpOut = 220;
             e.warpX = e.x - _hw*0.6; e.warpY = e.y;
             if(e.uid) EV_LEFT[e.uid] = true;
             continue;
           }
         }
-        if(e.x < -_hw){
+        if(e.x < WX0-_hw || (e.x < -_hw && !camSees(e.x, e.y, _hw))){
           if(e.uid) EV_LEFT[e.uid] = true;
           plogEvent(plogName(e)+' is through', 'bad');
           enemies.splice(i,1); continue;
         }
-        if(e.x < W+40) capitalFire(e);
+        if(e.x < WX1+40) capitalFire(e);
         updateBeams(e);
         continue;
       }
@@ -1415,7 +1434,7 @@ function update(){
       // This counter used to run all the time and zeroed the hull in the
       // middle of a fight: 1800 steps was 30 seconds at 60 Hz,
       // seconds, but only 18 at 100 Hz.
-      if(e.x > W+20){
+      if(e.x > WX1+20){
         e.stuckTimer = (e.stuckTimer||0) + 1;
         if(e.stuckTimer > 900) e.x = e.targetX;   // place it instead of destroying it
       } else e.stuckTimer = 0;
@@ -1437,7 +1456,7 @@ function update(){
 
       // Fire as soon as the boss is on screen. This call used to sit in the
       // else branch of the approach and was therefore never reached.
-      if(e.x < W+40) capitalFire(e);}
+      if(e.x < WX1+40) capitalFire(e);}
     updateBeams(e);
     // Ramming no longer costs anything, in either direction. Hulls pass
     // through one another, weapons are the only thing that does damage.
@@ -1445,7 +1464,7 @@ function update(){
   // Cleanup: ships that have escaped the play field
   for(let ci=enemies.length-1;ci>=0;ci--){
     const ce=enemies[ci];
-    if(ce.x < -400 || ce.x > W+600 || ce.y < -400 || ce.y > H+400){
+    if(ce.x < WX0-400*FIELD_K || ce.x > WX1+600*FIELD_K || ce.y < WY0-454*FIELD_K || ce.y > WY1+400*FIELD_K){
       enemies.splice(ci,1);
     }
   }

@@ -115,6 +115,7 @@ function balanced(){
 
 const world = `
   const W=800,H=500,HUD_H=54, PLAYER_SPD_FIGHTER=3.2, PLAYER_SPD_BOMBER=2.4, PLAYER_TURN=0.14;
+  const MW=W, MH=H, FIELD_K=1, WX0=0, WX1=W, WY0=54, WY1=H, SIZE_UPM=3.75, FIELD_CX=W/2, FIELD_CY=(54+H)/2; const CAM={x:W/2, y:(54+H)/2, z:1, zt:1, over:false}; function camSees(){ return true; } function camHalfW(){ return W/2; } function camHalfH(){ return (H-54)/2; } function w2sX(x){ return x; } function w2sY(y){ return y; } function s2wX(x){ return x; } function s2wY(y){ return y; } function camFollow(){} function camSnap(){} function mouseTick(){} function worldSet(){} function worldForWave(){} function mouseAt(p){ if(typeof MOUSE!=="undefined"){ MOUSE.x=p.x; MOUSE.y=p.y; } } function mouseHold(){ if(typeof MOUSE!=='undefined' && typeof player!=='undefined'){ MOUSE.x=player.x; MOUSE.y=player.y; } }  // v208: the world is the old field in the sims
   let FS1_MODE=false, GS='playing', paused=false, callMenu=false, wave=1, score=0, allies=[], jump=false;
   let settingsOpen=false, userPaused=false;
   let SUB_MSGS=[], MOUSE={x:0,y:0}, lives=3, player={x:100,y:200,hullMult:1};
@@ -829,7 +830,7 @@ ok('and nothing calls launchGame straight from the game over screen',
 // Bar button placement: since v186 the whole bar is checked in hudsim.js.
 console.log('Cycle scaling keeps the hull');
 ok('nextWave scales from the hull base, not from 100', src.includes('player.maxHp=Math.round((player.baseHp||100)*pm);'));
-ok('respawn restores the full hull', src.includes('player.hp=player.maxHp;player.x=80;'));
+ok('respawn restores the full hull', src.includes('player.hp=player.maxHp;player.x=80*FIELD_K;'));
 
 console.log('\n' + (fails ? fails+' FAILED' : 'all passed'));
 process.exit(fails?1:0);
