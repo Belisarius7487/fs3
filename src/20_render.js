@@ -1708,6 +1708,7 @@ function dmgGashPath(g, gs, w, h){
 }
 // The lasting picture: sprite, dark windows, scoring, tears, craters.
 function dmgBuild(e, D){
+  if(typeof perfNote === 'function') perfNote('damage picture ' + e.img);   // v214
   const img = IMGS[e.img], w = img.width*e.sc, h = img.height*e.sc;
   const k = dmgK(e), pw = Math.max(1, Math.round(w*k)), ph = Math.max(1, Math.round(h*k));
   if(!D.can || D.can.width!==pw || D.can.height!==ph){

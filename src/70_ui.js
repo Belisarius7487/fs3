@@ -3835,9 +3835,12 @@ function stepUpdate(){
   requestAnimationFrame(loop);
   try{ musicTick(); }catch(ex){}
   if(typeof now !== 'number') now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  let _rawDt = 0, _st = 0;
+  const _t0 = (typeof perfNow === 'function') ? perfNow() : 0;
   if(!_prev){ _prev = now; stepUpdate(); }
   else {
     let dt = now - _prev;
+    _rawDt = dt;                     // v214: for the lag log (perfFrame)
     _prev = now;
     // After a tab switch or sleep, do not catch up for minutes
     if(dt > 250) dt = TICK_MS;
@@ -3849,8 +3852,11 @@ function stepUpdate(){
       steps++;
     }
     if(steps >= MAX_CATCHUP) _acc = 0;
+    _st = steps;
   }
+  const _t1 = (typeof perfNow === 'function') ? perfNow() : 0;
   try{draw();}catch(e){if(e.message!==lastErr){console.error('Draw error:',e);lastErr=e.message;}}
+  try{ if(typeof perfFrame === 'function') perfFrame(_rawDt, _t1 - _t0, perfNow() - _t1, _st); }catch(e){}
   try{drawCallMenu();}catch(e){}
   try{drawShipMenu();}catch(e){}
   try{drawRearmMenu();}catch(e){}
@@ -4068,6 +4074,7 @@ function plogText(){
     L.push('  weapons: bolts '+r.bolts+', hits '+r.hits+
            (r.bolts ? ' ('+Math.round(100*r.hits/r.bolts)+' %)' : '')+
            ', secondaries '+r.secFired+', rearms '+r.rearms+', support calls '+(s.escortsCalled||0));
+    if(typeof perfLines === 'function') for(const pl of perfLines(r)) L.push(pl);   // v214
     L.push('  timeline:');
     for(const ev of r.events) L.push('    '+plogTime(ev.t)+'  '+ev.txt);
   }

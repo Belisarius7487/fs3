@@ -426,6 +426,7 @@ function tickBlastFuses(){
   }
 }
 function triggerExpl(x, y, shipType, faction, src) {
+  if(typeof perfNote === 'function') perfNote('explosion ' + ((src && src.img) || shipType));   // v214
   sndExpl(x, shipType, src, y);
   EXPL_NOW = !!(src && src.rolled);
   try{ triggerExplBody(x, y, shipType, faction, src); } finally { EXPL_NOW = false; }
@@ -740,7 +741,7 @@ function update(){
   if(GS==='title'){ fc++; tickStars(); tickNebula(); return; }
   sndTick();                          // freezes the sound while paused
   if(paused) return;                  // covers the settings panel too
-  fc++;tickStars();dmgEmitAll();tickParts();if(typeof chargeTick==='function')chargeTick();tickHulks();if(typeof f3dTickHulks==='function')f3dTickHulks();tickNebula();tickFinale();tickDanger();tickBlastFuses();
+  fc++;tickStars();dmgEmitAll();tickParts();if(typeof chargeTick==='function')chargeTick();if(typeof perfTick==='function')perfTick();tickHulks();if(typeof f3dTickHulks==='function')f3dTickHulks();tickNebula();tickFinale();tickDanger();tickBlastFuses();
   plogTick();
   // Der Abbau stand unter "if(GS!=='playing')return;". Nach einem Game
   // Over lief update() also nie mehr bis dorthin, waehrend draw() den

@@ -3037,7 +3037,7 @@ function mountPos(e, beam) {
   const img=IMGS[e.img]; if(!img) return {x:e.x,y:e.y};
   const pw=img.width*e.sc, ph=img.height*e.sc;
   const s = e.flip ? -1 : 1;   // drawn mirrored, so flip dx
-  const px = (pw/2)*beam.dx*s*(e.turnSq || 1), py = (ph/2)*beam.dy;   // v211: turnSq
+  const px = (pw/2)*beam.dx*s*(e.turnC != null ? e.turnC : 1), py = (ph/2)*beam.dy;   // v214: turnC
   const a = e.ang || 0;
   // Still coming out of her vortex: the guns are where the picture is
   // (a ship firing on her way out of the portal, M77 v179).
@@ -3220,7 +3220,11 @@ function drawBeamRays(e, own) {
     const col=beamCol(e.faction, b.large);
     const ang = b.type==='slash' ? b.curAngle : b.angle;
     const mpF=mountPosV(e,b);                  // v209: where it is drawn
-    const len = own ? ownHullRun(e, mpF.x, mpF.y, ang) : 2000/CAM.z;
+    // v214: over her own hull only as far as her drawn outline reaches
+    // (drawnHullRun), then fading out over the stretch under it - the two
+    // pieces no longer lie on top of each other beside her hull, which was
+    // the hard edge (Silvio)
+    const len = own ? drawnHullRun(e, mpF.x, mpF.y, ang) : 2000/CAM.z;
     const g = fxG();                           // v209: v207 widths on the screen
     if(len <= 0) continue;
     const ex=mpF.x+Math.cos(ang)*len, ey=mpF.y+Math.sin(ang)*len;
@@ -3228,11 +3232,24 @@ function drawBeamRays(e, own) {
     // v213 (Silvio: too plain, plainly 2D): a soft profile with light
     // running along it (drawBeamRay, 61_glow.js); a little wider while the
     // shot builds up and as it dies away
-    drawBeamRay(mpF.x, mpF.y, ang, len, (b.large?7.5:3.6)*g*flicker, col, 0.95, fc);
+    const bw = (b.large?7.5:3.6)*g;
+    const fade = own ? Math.max(6, bw*3) : 0;
+    drawBeamRay(mpF.x, mpF.y, ang, own ? len + fade : len, bw*flicker, col, 0.95, fc, bw, fade);
     if(hid) drawBeamOrb(e, b);
   }
 }
 
+// v214: how far a ray from (x,y) at angle a runs over ship e's hull as it
+// is drawn - the last point on her outline (onHullAt, the same test the
+// hits use) within her box, in steps of a few units.
+function drawnHullRun(e, x, y, a){
+  const box = ownHullRun(e, x, y, a);
+  if(!(box > 0) || typeof onHullAt !== 'function') return box;
+  const c = Math.cos(a), s = Math.sin(a), st = Math.max(3, box/120);
+  let last = 0;
+  for(let t = 0; t <= box; t += st) if(onHullAt(e, x + c*t, y + s*t)) last = t;
+  return last;
+}
 // How far a ray from (x,y) at angle a runs before it leaves the box of
 // ship e.
 function ownHullRun(e, x, y, a){

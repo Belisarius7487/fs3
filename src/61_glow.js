@@ -9,6 +9,12 @@ const GLOW_SPR = {}, GLOW_RGB = {}, GLOW_N = 64;
 function glowRGB(col){
   if(GLOW_RGB[col]) return GLOW_RGB[col];
   let rgb = [255, 255, 255];
+  // v214: rgb()/rgba() strings are read directly and not kept - a colour
+  // that changes every frame (glowing debris cooling down) filled the
+  // store without end
+  const q0 = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i.exec(col);
+  if(q0) return [+q0[1]|0, +q0[2]|0, +q0[3]|0];
+  if(Object.keys(GLOW_RGB).length > 400) for(const k in GLOW_RGB) delete GLOW_RGB[k];
   try{
     const m = /^#([0-9a-f]{6})$/i.exec(col);
     const q = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i.exec(col);   // its alpha is the caller's business
@@ -24,12 +30,19 @@ function glowRGB(col){
 }
 // A round soft glow: white hot in the middle (hot 0..1), the colour round
 // it, falling off to nothing at the edge.
+// v214 (Silvio: short lags): the colour in steps of 16 and the white core
+// in tenths - a few dozen sprites in all, instead of a new one for every
+// shade (each one painted with a gradient: the hitch)
+const GLOW_Q = 16;
 function glowSprite(col, hot){
-  const k = col + '|' + (hot || 0);
+  const c0 = glowRGB(col), q = function(v){ return Math.min(255, Math.round(v/GLOW_Q)*GLOW_Q); };
+  const R = q(c0[0]), G = q(c0[1]), B = q(c0[2]), h = Math.round((hot || 0)*10)/10;
+  const k = R + ',' + G + ',' + B + '|' + h;
   if(GLOW_SPR[k]) return GLOW_SPR[k];
   if(typeof document === 'undefined') return null;
+  if(typeof perfNote === 'function') perfNote('new glow sprite');
   const c = document.createElement('canvas'); c.width = c.height = GLOW_N;
-  const g = c.getContext('2d'), r = GLOW_N/2, [R, G, B] = glowRGB(col), h = hot || 0;
+  const g = c.getContext('2d'), r = GLOW_N/2;
   const gr = g.createRadialGradient(r, r, 0, r, r, r);
   // a gaussian in steps: no step is visible as an edge
   for(let i = 0; i <= 10; i++){
@@ -65,6 +78,7 @@ const BEAM_TEX = {}, BEAM_FLOW = {};
 function beamTex(col){
   if(BEAM_TEX[col]) return BEAM_TEX[col];
   if(typeof document === 'undefined') return null;
+  if(typeof perfNote === 'function') perfNote('new beam texture');
   const c = document.createElement('canvas'); c.width = 4; c.height = 64;
   const g = c.getContext('2d'), [R, G, B] = glowRGB(col);
   const gr = g.createLinearGradient(0, 0, 0, 64);
@@ -96,20 +110,33 @@ function beamFlow(col){
 }
 // The ray from (x0,y0) at angle ang, len long, w wide (the sheath; the
 // halo reaches about twice as far). t: time for the flow.
-function drawBeamRay(x0, y0, ang, len, w, col, alpha, t){
+// fw: the width the light bands are spaced by - without the flicker, or
+// they jumped every frame (Silvio: beams jumping back and forth). fade:
+// the last stretch (world units) fades out, for the piece over her hull.
+function drawBeamRay(x0, y0, ang, len, w, col, alpha, t, fw, fade){
   const tex = beamTex(col); if(!tex || !(len > 0)) return;
   ctx.save();
   ctx.translate(x0, y0); ctx.rotate(ang);
   ctx.globalCompositeOperation = 'lighter';
   ctx.globalAlpha = Math.min(1, alpha);
-  // the body, a little thicker towards the turret
-  ctx.drawImage(tex, 0, -w*1.6, len, w*3.2);
-  // the flow, moving outward
+  const F = Math.max(0, Math.min(len, fade || 0)), L0 = len - F;
+  const fb = (fw > 0) ? fw : w;
+  // the body
+  if(L0 > 0) ctx.drawImage(tex, 0, -w*1.6, L0, w*3.2);
+  // the faded end in a few pieces, from full down to nothing
+  if(F > 0){
+    const n = 6;
+    for(let i = 0; i < n; i++){
+      ctx.globalAlpha = Math.min(1, alpha)*(1 - (i + 0.5)/n);
+      ctx.drawImage(tex, L0 + F*i/n, -w*1.6, F/n + 0.5, w*3.2);
+    }
+  }
+  // the flow, moving outward, steady spacing
   const fl = beamFlow(col);
   if(fl){
-    const seg = w*14, off = -((t*w*0.9) % seg);
+    const seg = fb*14, off = -((t*fb*0.9) % seg);
     ctx.globalAlpha = Math.min(1, alpha)*0.9;
-    ctx.beginPath(); ctx.rect(0, -w*2, len, w*4); ctx.clip();
+    ctx.beginPath(); ctx.rect(0, -w*2, Math.max(0, L0 + F*0.5), w*4); ctx.clip();
     for(let x = off; x < len; x += seg) ctx.drawImage(fl, x, -w*0.9, seg, w*1.8);
   }
   ctx.restore();

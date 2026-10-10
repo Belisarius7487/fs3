@@ -355,6 +355,7 @@ function f3dFetchBin(path){
 function f3dLevel(key, tag, size){
   const gl = F3D.gl, rev = (typeof M3D_REV !== 'undefined') ? M3D_REV : 0;
   const L = {state: 'loading', parts: [], tex: {}};
+  if(typeof perfNote === 'function') perfNote('model ' + key + ' loading');   // v214
   f3dFetchBin(M3D_BASE + key + '/' + (tag === 'full' ? 'full.bin.gz' : tag + '.bin')).then(function(buf){
     if(gl !== F3D.gl) throw new Error('lost');
     const hl = new DataView(buf).getUint32(0, true);
@@ -403,6 +404,7 @@ function f3dLevel(key, tag, size){
             }
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             L.tex[t][k] = tx; res();
+            if(typeof perfNote === 'function') perfNote('texture ' + key + ' ' + t + '_' + k + ' ' + im.width + 'px');   // v214
           };
           im.onload = function(){
             const go = function(){ f3dUpload(up); };
@@ -417,7 +419,8 @@ function f3dLevel(key, tag, size){
       }
     }
     return Promise.all(jobs);
-  }).then(function(){ L.state = 'ready'; }, function(){ L.state = 'failed'; });
+  }).then(function(){ L.state = 'ready'; if(typeof perfNote === 'function') perfNote('model ' + key + ' ready'); },
+          function(){ L.state = 'failed'; if(typeof perfNote === 'function') perfNote('model ' + key + ' failed'); });
   return L;
 }
 // ── UPLOADS AND LOADING UP FRONT (v200) ──────────────────────

@@ -1142,7 +1142,7 @@ function spriteBox(key){
 function hullBox(o){
   const b = spriteBox(o.img), sc = o.sc || 1;
   if(!b) return {cx:o.x, cy:o.y, hw:40*sc, hh:20*sc};
-  const s = (o.flip ? -1 : 1)*(o.turnSq || 1), q = Math.abs(o.turnSq || 1);   // v211: turnSq
+  const s = (o.flip ? -1 : 1)*(o.turnC != null ? o.turnC : 1), q = Math.abs(o.turnSq || 1);   // v214: turnC
   return {cx:o.x + b.cx*sc*s, cy:o.y + b.cy*sc, hw:b.hw*sc*q, hh:b.hh*sc};
 }
 // Beruehren sich zwei Rumpfe? Waagerecht und senkrecht getrennt geprueft:

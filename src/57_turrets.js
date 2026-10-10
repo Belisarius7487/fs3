@@ -316,7 +316,10 @@ function capTurnStep(o, mul){
   const c = Math.cos(Math.PI*T.p);
   o.x += L.dir*v*0.3*c;
   o.turnP = T.p; o.turnSq = (c < 0 ? -1 : 1)*Math.max(LANE_SQ_MIN, Math.abs(c));
+  // v214: the mounts follow c itself, through the middle - with turnSq
+  // they jumped from one side to the other half way (Silvio: beams jumping)
+  o.turnC = c;
   if(T.p >= 1){
-    o.flip = !o.flip; L.dir = -L.dir; L.t = null; o.turnP = null; o.turnSq = null;
+    o.flip = !o.flip; L.dir = -L.dir; L.t = null; o.turnP = null; o.turnSq = null; o.turnC = null;
   }
 }
