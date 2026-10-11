@@ -197,11 +197,44 @@ verschobenes Rechteck darin.
 Dass es am Anfang und Ende einer Mission auftritt, passt: dann gehen Fenster
 auf, und beim Übergang schließen sie wieder.
 
-**Noch zu tun:** im Browser nachmessen, welche der zehn Stellen es im
-Einzelfall ist, und sie alle auf den wirklich sichtbaren Bereich umstellen —
-an einer Stelle, nicht zehnmal einzeln.
+**Diese Vermutung ist widerlegt.** Im Browser gemessen: `W×H` = 800×500,
+Canvas = 1152×720, `RES` = 1,44, `CAM_SHX/CAM_SHY` = 0, und
+`fillRect(0,0,W,H)` deckt nach `camScreen()` **1152×720 ab 0,0** ab, also den
+ganzen Canvas. `applyResolution()` setzt den Canvas immer auf exakt
+`W*RES_X × H*RES_Y`; die Ränder macht CSS. Auch `drawNebFit` ist sauber
+(Cover-Zuschnitt, im Bildschirm-System gezeichnet).
 
-- Status: offen, Ursache eingegrenzt
+**Silvios Nachtrag:** Die Rechtecke tauchen **beim Übergang in eine neue
+Mission** auf und verschwinden, **sobald der Warp-In abgeschlossen ist**.
+Direkt nach dem Startbildschirm. Er spielt im **Vollbild**. Er kann sich
+nicht schnell genug bewegen, um zu sagen, ob es mit der Kamera wandert.
+
+**Wo es jetzt steht:** `draw()` leert zu Beginn jedes Bildes bewusst den
+Zustandsstapel (`for(let i = 0; i < 8; i++) ctx.restore();`) und setzt
+`camScreen()` neu. Der Kommentar darüber beschreibt Silvios Symptom wörtlich:
+
+> If the context is lost and restored, or if a frame throws between save and
+> restore, that single setup is gone for good and every later frame draws
+> unscaled into the top left corner while the clear below misses the rest of
+> the buffer.
+
+Gemessen: am Missionsanfang stehen 8 Ausschnitte (`clip`) und 8 `restore()`
+je Bild — das ist genau dieses gewollte Leeren, **kein** Fehler. Kein Bild
+hinterlässt in der Prüfumgebung einen Überhang.
+
+Der Unterschied ist Silvios Umgebung: Vollbild, echte Grafikkarte, echtes 3D.
+Beide im Kommentar genannten Auslöser — ein verlorener Grafikkontext, eine
+Ausnahme mitten im Bild — lassen sich dort nicht erzeugen.
+
+**Nächster Schritt:** Silvio schaut bei Auftreten in die Browser-Konsole
+(F12, Reiter „Console") nach roten Fehlermeldungen. Eine Ausnahme mitten im
+Bild wäre dort zu sehen und wäre die Ursache.
+
+Unabhängig davon ist das Leeren auf feste 8 Stufen begrenzt; bleiben mehr
+übrig, greift es nicht. Das zu härten ist billig, behebt aber nur dann
+etwas, wenn der Überhang die Ursache ist — ungeprüft nicht bauen.
+
+- Status: offen, zwei Vermutungen gemessen und eine davon widerlegt
 
 ### F5 — Das Sprungtor steht beim Auswarpen 180 Grad verkehrt
 
@@ -243,6 +276,33 @@ Schnittebene nicht passt. Die **Blickrichtung** des Tors prüft es nicht.
 
 - Behoben in: v219
 - Status: gebaut, wartet auf Silvios Test im Browser
+
+### F6 — Ein Schiff in der Kehre warpt seitlich in den Strudel
+
+**Befund (Silvio, schon in früheren Chats gemeldet):** „Wenn ein Schiff sich
+gerade in einer Wende befindet und die Mission beendet ist, fliegt es
+seitlich in den Warpstrudel."
+
+Sein Vorschlag: entweder warten, bis die Wende vollzogen ist, und es erst
+dann warpen lassen — und sicherstellen, dass es in die richtige Richtung
+herauswarpt.
+
+Hängt mit `capTurnStep` zusammen (`57_turrets.js`): während der Kehre zeigt
+der Rumpf quer, und der Sprung nimmt offenbar trotzdem die alte oder die
+neue Nasenrichtung.
+
+- Ursache: noch nicht untersucht
+- Status: offen
+
+### F7 — Sentryguns haben keine Markierung
+
+**Befund (Silvio, schon in früheren Chats gemeldet):** „Sentryguns haben
+keine Markierung um sich herum wie sie bspw. gegnerische Jäger und Bomber
+haben. Sie haben nur dann eine Markierung, wenn sie als Ziel aufgeschaltet
+wurden."
+
+- Ursache: noch nicht untersucht
+- Status: offen
 
 ---
 
