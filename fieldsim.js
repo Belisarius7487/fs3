@@ -260,6 +260,33 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// The last blast of a capital ship used to be one exp20 drawn across 115 per
+// cent of her length. A cell of that sheet is 128 px, so on a destroyer it
+// was pulled far past what it holds, and that is the mush Silvio sees (v226)
+// - the secondaries before it, at five to nine per cent of her, are sharp.
+// It is built from several along her now, none of them stretched far.
+scenario('A capital ship\'s last blast is several smaller ones, not one stretched over her', 'm=31', `
+  const r = {};
+  FS.step(60);
+  r.sheetsReady = FS.until(()=>fxReady(), 6000) >= 0;
+  const H = fxHull(null, 340);            // a destroyer's length
+  const sizes = [];
+  const ff = fxFire;
+  fxFire = function(k, x, y, d){ sizes.push({k: k, d: d}); };
+  EXPL_Q.length = 0;
+  scheduleExpl(0, 500, 300, H.L*0.08, 'final', null, H.L, H);
+  tickExplQueue();
+  fxFire = ff;
+  const big = sizes.filter(s => s.k === 'exp20');
+  r.hullLength = Math.round(H.L);
+  r.bigBlasts = big.length;
+  r.largestShareOfHer = big.length
+    ? Math.round(Math.max.apply(null, big.map(s => s.d))/H.L*100)/100 : 0;
+  // several of them, and none pulled across her
+  r.severalBlasts = big.length >= 3;
+  r.noneStretchedOverHer = r.largestShareOfHer > 0 && r.largestShareOfHer <= 0.5;
+  return r;`);
+
 // A ship caught half way round when the mission ends used to slide into her
 // own vortex side on: warpOut returns before capLane() is reached again, so
 // the turn froze where it stood - squashed by turnSq, while fsNose() placed

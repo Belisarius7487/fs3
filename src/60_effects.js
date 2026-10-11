@@ -403,9 +403,12 @@ function spawnSmoke(x, y, n) {
 // as usual, but its chain of secondaries already happened in the roll: only
 // the final blast is kept, and it comes now, with the breakup.
 let EXPL_NOW = false;
-function scheduleExpl(delay, x, y, r, type, snd, L) {
+// H (v227): her hull, as fxHull() gives it - length, beam and the cosine and
+// sine of her heading. The final needs it to lay its blasts along her, and
+// by the time it goes off she is no longer there to ask.
+function scheduleExpl(delay, x, y, r, type, snd, L, H) {
   if(EXPL_NOW){ if(type!=='final') return; delay = 0; snd = null; }
-  EXPL_Q.push({t:fc+delay, x:x, y:y, r:r, type:type, snd:snd, L:L||0});   // v216: L, her length
+  EXPL_Q.push({t:fc+delay, x:x, y:y, r:r, type:type, snd:snd, L:L||0, H:H||null});   // v216: L, her length
 }
 
 // r: reach of the wave, pct: share of the player's hull it takes at full
@@ -603,7 +606,7 @@ function fxCapBlast(x, y, shipType, src, r1,g1,b1, r2,g2,b2){
     const p = fxOnHull(H, x, y, rnd(-0.45, 0.45), rnd(-0.35, 0.35));
     scheduleExpl(8 + i*C.gap, p.x, p.y, H.L*rnd(0.05, 0.09), (i % C.med === 0) ? 'medium' : 'mini');
   }
-  scheduleExpl(C.fin, x, y, H.L*0.08, 'final', C.snd, H.L);
+  scheduleExpl(C.fin, x, y, H.L*0.08, 'final', C.snd, H.L, H);
 }
 
 function tickExplQueue() {
@@ -625,7 +628,34 @@ function tickExplQueue() {
         // v216 (Silvio: C with the flash of B): the big FS blast about as
         // wide as she was, a white flash and a wide ring over it
         if(e.L > 0 && typeof fxReady === 'function' && fxReady()){
-          fxFire('exp20', e.x, e.y, e.L*1.15, 210);
+          // One blast as wide as she was drew a 128 px cell of exp20 across
+          // the whole length of a destroyer, and that is where the mush came
+          // from (Silvio, v226) - the secondaries before it, at five to nine
+          // per cent of her length, are sharp. So the final is built from
+          // several along her instead: each is a third of her length, and
+          // spread they still cover her, while no cell is pulled past about
+          // three times what it was before.
+          //
+          // The flash and the ring stay as wide as they were. They are drawn
+          // rather than pulled from a sheet, so size costs them nothing, and
+          // they are what carries the size of the thing.
+          const H = e.H;
+          if(H){
+            const N = 5;
+            for(let k = 0; k < N; k++){
+              const t = -0.34 + k*(0.68/(N-1));
+              const p = fxOnHull(H, e.x, e.y, t, (Math.random()-0.5)*0.3);
+              fxFire('exp20', p.x, p.y, e.L*(0.30 + Math.random()*0.10), 170 + (Math.random()*50|0));
+            }
+            // a little finer texture over the seams between them
+            for(let k = 0; k < 3; k++){
+              const p = fxOnHull(H, e.x, e.y, (Math.random()-0.5)*0.6, (Math.random()-0.5)*0.4);
+              fxFire('exp05', p.x, p.y, e.L*(0.14 + Math.random()*0.08), 120);
+            }
+          } else {
+            // no hull to lay them along (an older caller): as before
+            fxFire('exp20', e.x, e.y, e.L*1.15, 210);
+          }
           fxFlash(e.x, e.y, e.L*0.55, 70);
           spawnRing(e.x,e.y,e.L*0.95,70,6,255,236,200);
         }

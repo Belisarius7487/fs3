@@ -612,12 +612,37 @@ auch sehr matschig."
 Spielfeld, hier ist das Ausgangsmaterial alt.
 
 Was im Spiel steckt (`src/63_fxanim.js`): `exp05` 47 Bilder à 128 px,
-`exp20` 38 Bilder à 128 px, `smoke` 18 Bilder à 128 px. Eine Zelle von
-**128 px** auf die Länge eines Zerstörers gezogen ist auf einem 1728 px
-breiten Bild ein erheblicher Hochzug — der Zerstörer ist daher der
-auffälligste Fall, genau wie Silvio sagt.
+`exp20` 38 Bilder à 128 px, `smoke` 18 Bilder à 128 px.
 
-- Status: offen, nicht dringend
+**Ursache (nachgemessen):** Die Nachzünder entlang des Rumpfes sind
+**5–9 %** der Rumpflänge (`H.L*rnd(0.05, 0.09)`) — die sind scharf. Der
+Abschluss war **eine** Explosion über **115 %**:
+
+```js
+fxFire('exp20', e.x, e.y, e.L*1.15, 210);
+```
+
+Eine 128-px-Zelle auf die volle Länge eines Zerstörers. Genau der eine
+Bildteil, den Silvio als matschig sieht.
+
+**Silvios Vorschlag** — mit dem vorhandenen Material mehrere kleinere
+Explosionen auf dem Rumpf verteilen — trifft die Sache, und die Maschinerie
+dafür stand schon (`fxOnHull`, von den Nachzündern benutzt).
+
+**Behoben in v228:** Der Abschluss besteht jetzt aus **fünf** Explosionen zu
+je 30–40 % der Rumpflänge, entlang des Rumpfes verteilt, plus drei kleineren
+für die Übergänge. Zusammen decken sie die Länge weiterhin ab, aber keine
+Zelle wird mehr als etwa ein Drittel so weit gezogen wie vorher.
+`scheduleExpl` trägt dafür die Rumpfachse mit (`H`) — beim Abschluss ist das
+Schiff nicht mehr da, um sie zu erfragen.
+
+**Blitz und Ring bleiben groß.** Sie werden gezeichnet, nicht aus Bildern
+gezogen, skalieren also verlustfrei und tragen den „großen" Eindruck.
+
+Neue Prüfung in `fieldsim.js`. Gegen v227: eine Explosion, 1,15 der
+Rumpflänge — fällt durch. Auf v228: fünf, größte 0,40.
+
+- Status: gebaut, wartet auf Silvios Test im Browser
 
 ---
 
