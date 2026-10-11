@@ -197,6 +197,7 @@ function updateSecBullets(){
   secHoldTick();
   for(var i=pBullets.length-1;i>=0;i--){
     var b=pBullets[i];
+    if(!b) break;        // the list can be emptied from inside - see below
     if(!b.sec) continue;
     b.life--;
     if(b.auto && b.burst && (b.life<=0 || aiBurstCheck(b, b.x, b.y, secDef(b.wpn).shardRange))){ burstRound(b); continue; }
@@ -1125,6 +1126,15 @@ function update(){
   if(eBullets.length>120)eBullets.splice(0,eBullets.length-120);
   for(let i=eBullets.length-1;i>=0;i--){
     const b=eBullets[i];
+    // The list can be emptied from inside this loop: a round that kills the
+    // player reaches playerDie(), which hands eBullets a NEW empty array
+    // (line ~676), and the Lucifer's missed jump empties it in place
+    // (30_waves.js). The counter then points past the end, b is undefined,
+    // and b.hom throws - which is what ended update() mid-frame and left
+    // draw() with the half-set state behind Silvio's rectangle (v219,
+    // 532 of them in one session). Everything below i is gone either way,
+    // so the loop is done.
+    if(!b) break;
     if(b.hom){
       if(--b.life<=0){ spawnFireball(b.x,b.y,12,16); eBullets.splice(i,1); continue; }
       // Guided rounds pick whichever friendly target is closest, so an
@@ -1268,7 +1278,11 @@ function update(){
         eBullets.splice(i,1);if(player.hp<=0)playerDie();}}}
 
   for(let i=pBullets.length-1;i>=0;i--){
-    const b=pBullets[i];b.x+=b.vx; if(b.vy) b.y+=b.vy;
+    const b=pBullets[i];
+    // Same as the enemy rounds above: the Lucifer's missed jump empties
+    // both lists in place (30_waves.js), and anything below i is gone.
+    if(!b) break;
+    b.x+=b.vx; if(b.vy) b.y+=b.vy;
     // A gun with a limited reach: the bolt gives out on its own. Without
     // pLife it runs to the edge, which is what every bolt used to do.
     // The fuse comes first: a round that bursts by itself has to do it

@@ -234,7 +234,12 @@ Unabhängig davon ist das Leeren auf feste 8 Stufen begrenzt; bleiben mehr
 übrig, greift es nicht. Das zu härten ist billig, behebt aber nur dann
 etwas, wenn der Überhang die Ursache ist — ungeprüft nicht bauen.
 
-- Status: offen, zwei Vermutungen gemessen und eine davon widerlegt
+**Vermutlich erledigt mit F10 (v220).** Silvios Konsole zeigte 532 Abstürze
+von `update()` mitten im Bild — genau der Auslöser, den der Kommentar über
+dem Stapel-Leeren in `draw()` nennt. Ob die Rechtecke damit weg sind, sagt
+nur sein Test: hier sind sie nie aufgetreten.
+
+- Status: offen, Ursache vermutlich F10 — Silvios Test entscheidet
 
 ### F5 — Das Sprungtor steht beim Auswarpen 180 Grad verkehrt
 
@@ -303,6 +308,77 @@ wurden."
 
 - Ursache: noch nicht untersucht
 - Status: offen
+
+### F8 — M9: die Aten entkommt, wird aber als Fehlschlag gewertet
+
+**Befund (Silvio, v219):** „In M9 entkommt die Aten erfolgreich, wird aber
+als Fehlschlag gewertet, vermutlich, weil ich die beiden Bast zuvor verloren
+habe."
+
+- Ursache: noch nicht untersucht
+- Status: offen
+
+### F9 — Bildschirm flackert auch ohne Treffer
+
+**Befund (Silvio, schon früher gemeldet):** „Selbst wenn ich keine Treffer
+abbekomme, habe ich ein Flackern des Bildschirms." Sein Rat: „dieses
+Flackern oder Aufleuchten ganz raus zu nehmen."
+
+Kandidaten im Code: `shieldFlash` und `hullFlash` (`70_ui.js:198/202`,
+vollflächige Aufheller bei Treffern) und `whiteOut` (`30_waves.js:3794`,
+„a short white flash" beim verpassten Lucifer-Sprung). Dass es **ohne**
+Treffer auftritt, spricht dafür, dass einer davon ausgelöst wird, ohne dass
+der Spieler getroffen wurde.
+
+- Ursache: noch nicht untersucht
+- Status: offen
+
+### F10 — `update()` stürzt ab, sobald der Spieler mit Geschossen im Feld stirbt
+
+**Befund (Silvio, v219, Browser-Konsole, 532 Fehler):**
+
+```
+Update error: TypeError: Cannot read properties of undefined (reading 'hom')
+    at update (...)
+    at stepUpdate (...)
+    at loop (...)
+```
+
+**Ursache (nachgewiesen):** `60_effects.js:1126` läuft über die
+Gegnergeschosse:
+
+```js
+for(let i=eBullets.length-1;i>=0;i--){
+  const b=eBullets[i];
+  if(b.hom){
+```
+
+In derselben Schleife steht bei `60_effects.js:1268`:
+
+```js
+eBullets.splice(i,1); if(player.hp<=0) playerDie();
+```
+
+und `playerDie()` setzt bei `60_effects.js:676` **`eBullets=[]`** — ein
+*neues*, leeres Array. Die Schleife läuft mit ihrem alten Zähler weiter,
+liest aus dem neuen Array ins Leere, `b` ist `undefined`, und `b.hom` wirft.
+Dasselbe gilt für `30_waves.js:3799` (`eBullets.length = 0` beim verpassten
+Lucifer-Sprung).
+
+Es trifft also **jeden Tod, bei dem noch Geschosse unterwegs sind** — und
+das ist der Normalfall.
+
+**Zusammenhang mit F4:** `update()` bricht dadurch mitten im Bild ab. Der
+Kommentar über dem Stapel-Leeren in `draw()` nennt genau das als Auslöser:
+„if a frame throws between save and restore … every later frame draws
+unscaled into the top left corner while the clear below misses the rest of
+the buffer." Das ist Silvios Rechteck.
+
+Nicht von den Änderungen in v217–v219 verursacht — die Schleife und
+`playerDie()` sind älter.
+
+- Behoben in: v220
+- Status: gebaut, wartet auf Silvios Test im Browser
 
 ---
 

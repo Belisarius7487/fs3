@@ -260,6 +260,35 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// A round that kills the player reaches playerDie(), and playerDie() hands
+// eBullets a NEW empty array. The loop it was called from keeps counting
+// down into that empty array, b comes back undefined, and b.hom throws -
+// update() ends mid-frame. Silvio's console had 532 of them in one session,
+// and a frame that throws is what leaves draw() with the half-set state
+// behind the rectangles he sees (v219).
+//
+// The lethal round goes in LAST so it sits at the top of the list and is
+// handled first, leaving rounds below it for the loop to read afterwards.
+scenario('A death with rounds still in flight does not end update()', 'm=31', `
+  const r = {};
+  FS.step(60);
+  lives = 5;                       // not the last one: playerDie() runs through
+  player.sh = 0; player.shDelay = 0; player.hp = 1;
+  const B = pBox(), cx = B[0] + B[2]/2, cy = B[1] + B[3]/2;
+  eBullets.length = 0;
+  for(let k = 0; k < 4; k++)
+    eBullets.push({x: player.x - 500 - k*40, y: player.y, w: 6, h: 6, vx: 0, vy: 0,
+                   hom: true, life: 300, dmg: 1, faction: 'shivan'});
+  eBullets.push({x: cx, y: cy, w: 24, h: 24, vx: 0, vy: 0,
+                 life: 300, dmg: 9999, faction: 'shivan'});
+  r.roundsInFlight = eBullets.length;
+  let thrown = '';
+  try{ update(); }catch(e){ thrown = String(e && e.message || e); }
+  r.thrown = thrown || 'nothing';
+  r.updateSurvives = thrown === '';
+  r.sheDied = lives === 4;
+  return r;`);
+
 // One opening, and its mouth faces the ship: it spits her out coming in and
 // swallows her going out. So the vortex she LEAVES through has to look back
 // at her, against her nose, while the one she arrives from looks the way she
