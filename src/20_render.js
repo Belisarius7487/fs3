@@ -1248,6 +1248,8 @@ function drawParts(){
     } else if(p.type==='smoke'){
       var tp2=1-(p.life/p.ml);
       var v=p.v||50;
+      // v216: an FS smoke cloud (ParticleSmoke01, 63_fxanim.js)
+      if(typeof drawFxSmoke==='function' && drawFxSmoke(p, a, p.sz*(1+tp2*1.5))) continue;
       ctx.globalAlpha=a*0.3;
       ctx.fillStyle='rgb('+v+','+v+','+v+')';
       var sr2=p.sz*(1+tp2*1.5);         // a cloud: as large as its blast

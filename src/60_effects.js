@@ -357,6 +357,12 @@ function lerpRGB(r1,g1,b1,r2,g2,b2,t){
 
 // Erweiterte Partikel: sq=Quadrat, ring=Schockwelle, fb=Fireball-Disc
 function spawnFireball(x, y, maxR, dur) {
+  // v216: the FS animation (Exp05, 63_fxanim.js) once its sheet is loaded;
+  // it plays a little longer than the drawn fireball lasted
+  if(typeof fxReady === 'function' && fxReady()){
+    fxFire('exp05', x, y, maxR*FX_FB_K, Math.max(24, Math.min(150, dur*1.6)));
+    return;
+  }
   PARTS.push({type:'fb', x:x, y:y, r:0, maxR:maxR, life:dur, ml:dur});
 }
 function spawnRing(x, y, maxR, dur, lw, r1,g1,b1) {
@@ -396,9 +402,9 @@ function spawnSmoke(x, y, n) {
 // as usual, but its chain of secondaries already happened in the roll: only
 // the final blast is kept, and it comes now, with the breakup.
 let EXPL_NOW = false;
-function scheduleExpl(delay, x, y, r, type, snd) {
+function scheduleExpl(delay, x, y, r, type, snd, L) {
   if(EXPL_NOW){ if(type!=='final') return; delay = 0; snd = null; }
-  EXPL_Q.push({t:fc+delay, x:x, y:y, r:r, type:type, snd:snd});
+  EXPL_Q.push({t:fc+delay, x:x, y:y, r:r, type:type, snd:snd, L:L||0});   // v216: L, her length
 }
 
 // r: reach of the wave, pct: share of the player's hull it takes at full
@@ -463,14 +469,22 @@ function triggerExplBody(x, y, shipType, faction, src) {
   var r1=255,g1=isShiv?80:200,b1=isShiv?0:50;
   var r2=255,g2=isShiv?20:120,b2=0;
 
+  // v216: with the FS animations a capital ship's blast runs along her own
+  // hull and is sized to her (fxCapBlast); the drawn profiles below stay
+  // for the tests and as long as the sheets are not loaded
+  if(FX_CAP_CFG[shipType] && src && !src.player && typeof fxReady === 'function' && fxReady()){
+    fxCapBlast(x, y, shipType, src, r1,g1,b1, r2,g2,b2);
+    return;
+  }
   if(shipType==='fighter'||shipType==='asteroid') {
-    spawnFireball(x,y,40,50);
+    // v216: the fireball as wide as twice her hull (FS Exp05)
+    spawnFireball(x,y,(src && typeof fxHull === 'function') ? Math.max(40, fxHull(src, 30).L*0.8) : 40,50);
     spawnRing(x,y,65,35,3,r1,g1,b1);
     spawnDebris(x,y,22,r1,g1,b1,r2,g2,b2,true);
     spawnSmoke(x,y,7);
 
   } else if(shipType==='bomber') {
-    spawnFireball(x,y,36,45);
+    spawnFireball(x,y,(src && typeof fxHull === 'function') ? Math.max(36, fxHull(src, 40).L*0.8) : 36,45);
     spawnRing(x,y,60,30,3,r1,g1,b1);
     spawnDebris(x,y,28,r1,g1,b1,r2,g2,b2,true);
     spawnSmoke(x,y,8);
@@ -551,6 +565,46 @@ function triggerExplBody(x, y, shipType, faction, src) {
   }
 }
 
+// v216: the capital ship classes - what each keeps of the old profile (the
+// wave, the shake, the count and timing of the secondaries, the final and
+// its sound); the sizes now come from her hull.
+const FX_CAP_CFG = {
+  cruiser:   {n:6,  gap:20, fin:140, snd:'expl_medium', shock:[165,3.4,0.030], shake:[8,32],  deb:85,  smk:5, med:6},
+  corvette:  {n:8,  gap:20, fin:180, snd:'expl_medium', shock:[205,4.0,0.035], shake:[10,38], deb:100, smk:6, med:3},
+  destroyer: {n:11, gap:21, fin:230, snd:'expl_big',    shock:[260,4.8,0.040], shake:[13,46], deb:120, smk:8, med:3},
+  boss:      {n:8,  gap:22, fin:200, snd:'expl_big',    shock:[300,5.4,0.045], shake:[16,60], deb:130, smk:8, med:1}
+};
+const FX_CAP_LEN = {cruiser:150, corvette:220, destroyer:340, boss:300};
+function fxCapBlast(x, y, shipType, src, r1,g1,b1, r2,g2,b2){
+  const C = FX_CAP_CFG[shipType], H = fxHull(src, FX_CAP_LEN[shipType]);
+  const rnd = function(a, b){ return a + Math.random()*(b - a); };
+  // the first bursts, along her hull
+  for(let k = 0; k < 3; k++){
+    const p = fxOnHull(H, x, y, rnd(-0.35, 0.35), rnd(-0.3, 0.3));
+    fxFire('exp05', p.x, p.y, H.L*rnd(0.18, 0.28), rnd(90, 130));
+  }
+  spawnRing(x, y, H.L*0.45, 50, 4, r1,g1,b1);
+  // debris and smoke from the whole length of her
+  for(let k = 0; k < 4; k++){
+    const p = fxOnHull(H, x, y, -0.375 + k*0.25, 0);
+    spawnDebris(p.x, p.y, (C.deb/4)|0, r1,g1,b1, r2,g2,b2, true);
+  }
+  for(let k = 0; k < C.smk; k++){
+    const p = fxOnHull(H, x, y, rnd(-0.45, 0.45), rnd(-0.4, 0.4)), a = Math.random()*Math.PI*2, sp = 0.2 + Math.random()*0.6;
+    PARTS.push({type:'smoke', x:p.x, y:p.y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life:150 + Math.random()*90, ml:0,
+                sz:H.B*(0.35 + Math.random()*0.35), v:50});
+  }
+  // the game side stays as it was: the wave and the shake
+  spawnShock(x, y, C.shock[0], C.shock[1], C.shock[2]);
+  addShake(C.shake[0], C.shake[1]);
+  // secondaries all along her, then the final
+  for(let i = 0; i < C.n; i++){
+    const p = fxOnHull(H, x, y, rnd(-0.45, 0.45), rnd(-0.35, 0.35));
+    scheduleExpl(8 + i*C.gap, p.x, p.y, H.L*rnd(0.05, 0.09), (i % C.med === 0) ? 'medium' : 'mini');
+  }
+  scheduleExpl(C.fin, x, y, H.L*0.08, 'final', C.snd, H.L);
+}
+
 function tickExplQueue() {
   for(var i=EXPL_Q.length-1;i>=0;i--) {
     if(fc>=EXPL_Q[i].t) {
@@ -567,6 +621,13 @@ function tickExplQueue() {
         spawnDebris(e.x,e.y,15,255,180,50,200,60,0,true);
         spawnSmoke(e.x,e.y,5);
       } else if(e.type==='final') {
+        // v216 (Silvio: C with the flash of B): the big FS blast about as
+        // wide as she was, a white flash and a wide ring over it
+        if(e.L > 0 && typeof fxReady === 'function' && fxReady()){
+          fxFire('exp20', e.x, e.y, e.L*1.15, 210);
+          fxFlash(e.x, e.y, e.L*0.55, 70);
+          spawnRing(e.x,e.y,e.L*0.95,70,6,255,236,200);
+        }
         spawnFireball(e.x,e.y,e.r*1.5,50);
         spawnRing(e.x,e.y,e.r*3,45,6,255,255,180);
         spawnDebris(e.x,e.y,30,255,255,200,255,100,0,true);
@@ -654,7 +715,7 @@ function launchGame(){
   // was pressed, which since the speed cap is a visible drive across the field.
   mouseHold();
   runTime=0;
-  pBullets=[];eBullets=[];enemies=[];allies=[];allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;PARTS=[];ITEMS=[];
+  pBullets=[];eBullets=[];enemies=[];allies=[];allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;PARTS=[];if(typeof FX_ANIMS!=='undefined')FX_ANIMS=[];ITEMS=[];
   resumeHold=false; sndAllOff();
   bossAlive=false;bossSlain=false;shakeT=0;shakeMag=0;campReset();rollBodies();nextWave();GS='playing';
 }
@@ -741,7 +802,7 @@ function update(){
   if(GS==='title'){ fc++; tickStars(); tickNebula(); return; }
   sndTick();                          // freezes the sound while paused
   if(paused) return;                  // covers the settings panel too
-  fc++;tickStars();dmgEmitAll();tickParts();if(typeof chargeTick==='function')chargeTick();if(typeof perfTick==='function')perfTick();tickHulks();if(typeof f3dTickHulks==='function')f3dTickHulks();tickNebula();tickFinale();tickDanger();tickBlastFuses();
+  fc++;tickStars();dmgEmitAll();tickParts();if(typeof tickFxAnims==='function')tickFxAnims();if(typeof chargeTick==='function')chargeTick();if(typeof perfTick==='function')perfTick();tickHulks();if(typeof f3dTickHulks==='function')f3dTickHulks();tickNebula();tickFinale();tickDanger();tickBlastFuses();
   plogTick();
   // Der Abbau stand unter "if(GS!=='playing')return;". Nach einem Game
   // Over lief update() also nie mehr bis dorthin, waehrend draw() den

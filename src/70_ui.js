@@ -182,6 +182,7 @@ function draw(){
     }
   }catch(ep2){ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}
   try{drawParts();}catch(ep){}
+  try{ if(typeof drawFxAnims==='function') drawFxAnims(); }catch(ef){ ctx.restore(); }   // v216: FS explosions
   // Fadenkreuz an Mausposition (v208: on the screen, where the pointer is)
   camScreen();
   const mx=(MOUSE.scr?MOUSE.sx:w2sX(MOUSE.x))|0,my=(MOUSE.scr?MOUSE.sy:w2sY(MOUSE.y))|0;
@@ -276,6 +277,8 @@ function drawShots(under){
       // the player's by the hull he flies (Silvio, v161).
       const oc = raceCol(b.ally ? b.fac : shipFac(player.ship));
       if(b.type==='missile'){
+        // v216: the FS trail behind it (drawTrail, 63_fxanim.js)
+        if(typeof drawTrail==='function') try{ drawTrail(b, (b.w||10)*0.5*ordG()); }catch(et){}
         // Missile: metallic body plus engine glow, drawn along its flight
         // direction (Silvio, v187: it always pointed to the right).
         ctx.save();
@@ -353,6 +356,8 @@ function drawShots(under){
       }catch(ex){}
       ctx.restore();
 
+      // v216: the FS trail behind a missile (drawTrail, 63_fxanim.js)
+      if(b.kind!=='bomb' && typeof drawTrail==='function') try{ drawTrail(b, b.w*0.5*G); }catch(et){}
       // Glowing sparks shed along the flight path
       if(fc%2===0){
         const sa=ang+Math.PI+(Math.random()-0.5)*0.8;

@@ -231,7 +231,18 @@ function f3dMounts(key, m){
   return (F3D_MNT[key] = c);
 }
 // Is the ship drawn from her model right now?
-function f3dOn(e){ return !!e && e._f3fc != null && typeof fc !== 'undefined' && fc - e._f3fc <= 2; }
+// v216 (Silvio: beams beside their orb, brackets on the Ravana jumping):
+// "drawn from her model" was counted in game steps (fc - _f3fc <= 2). A
+// frame that runs 3 or more steps (25 ms or longer: a busy fight, a slower
+// screen) then found every ship "not 3D" until she was drawn again - the
+// ray under the hulls, the hit outline (hullView) and the target box went
+// back to the flat point, the orb on top did not (measured: every such
+// frame, the Ravana's box 535 against 664 px). Now counted in pictures:
+// F3D_FRAME goes up once per picture (f3dFieldPrep), a ship drawn from her
+// model in the last picture is 3D until the next one says otherwise.
+let F3D_FRAME = 0;
+function f3dFresh(o){ return !!o && o._f3df != null && F3D_FRAME - o._f3df <= 1; }
+function f3dOn(e){ return f3dFresh(e); }
 // Which way the bow points on the screen: +1 right, -1 left.
 function f3dBow(e){ return ((spriteFacing(e.img) === 'right') !== !!e.flip) ? 1 : -1; }
 // A turret on the flank turned away from the player (Weg 3): it fires, but
@@ -640,6 +651,7 @@ function f3dPlayer(key, x, y, sc, flip, ang, a){
   P.sc = sc; P.flip = !!flip; P.ang = ang || 0; P.x = x; P.y = y;
   if(typeof player !== 'undefined'){ P.rvx = player.vx || 0; P.rvy = player.vy || 0; }
   P._f3fc = (typeof fc !== 'undefined') ? fc : 0;
+  P._f3df = F3D_FRAME;                 // v216
   const ga = ctx.globalAlpha;
   ctx.globalAlpha = 1;
   try{ f3dRender([{e: P, L: L, x: x, y: y, a: ga, clip: null}]); }
@@ -1056,7 +1068,7 @@ function f3dBuildMask(L, img, sg, rl){
 const F3D_RSTEPS = 16;
 const F3D_RMASK = {};
 function f3dRollMask(key, o){
-  if(!o || F3D.off || o._f3fc == null || typeof fc === 'undefined' || fc - o._f3fc > 2) return null;
+  if(!o || F3D.off || !f3dFresh(o)) return null;     // v216: pictures, not steps
   const k = F3D_ALIAS[key] || key;
   if(!f3dSmall(k) || F3D_VIEW[key]) return null;
   const m = F3D.models[k], L = m && m.lo;
@@ -1106,12 +1118,14 @@ function f3dMask(skey, mkey){
 // then damage, marks and bars - at its place in the ship loop.
 function f3dFieldPrep(list){
   const done = new Map();
+  F3D_FRAME++;                          // v216: one per picture (f3dFresh)
   if(F3D.off || typeof document === 'undefined') return done;
   for(const e of list){
     const key = f3dKey(e); if(!key) continue;
     const L = f3dReadyLevel(key); if(!L) continue;
     if(!F3D_MASKED[e.img] && !f3dSmall(key)) f3dMask(e.img, key);
     e._f3fc = (typeof fc !== 'undefined') ? fc : 0;
+    e._f3df = F3D_FRAME;
     done.set(e, {e: e, L: L});
   }
   return done;
@@ -1391,7 +1405,7 @@ function f3dShMesh(key, L){
 // A hit on the shield, at (x, y) on the field (null: somewhere on it).
 // v205: the player's hull is drawn from her model this frame
 function f3dPlayerOn(){
-  return F3D_PL._f3fc != null && typeof fc !== 'undefined' && fc - F3D_PL._f3fc <= 2
+  return f3dFresh(F3D_PL)
       && typeof player !== 'undefined' && F3D_PL.img === player.ship;
 }
 function f3dShieldHit(e, x, y){

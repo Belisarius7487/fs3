@@ -221,6 +221,7 @@ function fsBrackets(x1, y1, x2, y2, col, lw, alpha){
   ctx.restore();
 }
 // her drawn box on the screen, with a margin and a smallest size
+const LOCK_RING_R = 16;      // v216: the lock ring's radius on the screen
 function markBox(o, pad, min){
   let b;
   if(o.kind === 'bomb') b = [o.x - 8, o.y - 8, 16, 16]; else b = eBox(o);
@@ -260,7 +261,9 @@ function drawTargetMarks(){
       const ns = player.flip ? -1 : 1, na = player.ang || 0;
       const p0x = w2sX(player.x + Math.cos(na)*ns*40), p0y = w2sY(player.y + Math.sin(na)*ns*40);
       const lx = locked ? cx : p0x + (cx - p0x)*f, ly = locked ? cy : p0y + (cy - p0y)*f;
-      const R = Math.max(x2-x1, y2-y1)*0.5 + 7, rot = locked ? fc*0.06 : f*5;
+      // v216 (Silvio: huge on a destroyer): FS draws the lock ring at one
+      // size whatever the target, so it does here (LOCK_RING_R, screen px)
+      const R = LOCK_RING_R, rot = locked ? fc*0.06 : f*5;
       ctx.lineWidth = 3.4; ctx.strokeStyle = MARK_HALO; ctx.beginPath(); ctx.arc(lx, ly, R, 0, Math.PI*2); ctx.stroke();
       ctx.lineWidth = 1.4; ctx.strokeStyle = col; ctx.globalAlpha = locked ? 1 : 0.85;
       ctx.beginPath(); ctx.arc(lx, ly, R, 0, Math.PI*2); ctx.stroke();

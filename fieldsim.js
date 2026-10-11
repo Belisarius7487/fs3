@@ -3208,11 +3208,11 @@ scenario('v204: hit on the model as drawn, damage on the model, debris in its la
   // the roll picks the map: a point above the sprite's box hits only rolled
   const key = 'fimyrmidon', keep = IMGS[key], keepM = F3D.models[key], keepOff = F3D.off;
   IMGS[key] = img; F3D.models[key] = {lo: L, full: L}; F3D.off = false;
-  const o = {img:key, x:300, y:200, sc:1, flip:false, ang:0, _f3fc: fc, _f3r: {r:0, b:0}};
+  const o = {img:key, x:300, y:200, sc:1, flip:false, ang:0, _f3fc: fc, _f3df: F3D_FRAME, _f3r: {r:0, b:0}};   // v216: drawn = counted in pictures (_f3df)
   const hitFlat = onHull(key, 300, 200, 1, false, 300, 200 - 25, 0, o);
   o._f3r = {r:Math.PI/2, b:0};
   const hitRolled = onHull(key, 300, 200, 1, false, 300, 200 - 25, 0, o);
-  const oldFc = o._f3fc; o._f3fc = fc - 10;
+  const oldFc = o._f3fc; o._f3fc = fc - 10; o._f3df = F3D_FRAME - 10;
   const hitStale = onHull(key, 300, 200, 1, false, 300, 200 - 25, 0, o);
   r.rollMask = hitFlat === false && hitRolled === true && hitStale === false;
   r.stages = (F3D_RMASK[key] || []).filter(Boolean).length >= 2;
