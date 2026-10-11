@@ -395,8 +395,52 @@ wurden."
 als Fehlschlag gewertet, vermutlich, weil ich die beiden Bast zuvor verloren
 habe."
 
-- Ursache: noch nicht untersucht
-- Status: offen
+**Ursache (nachgewiesen):** Es gibt **zwei** Wege, auf denen ein beschütztes
+Schiff das Feld verlässt:
+
+- `cross:` — eine Geschwindigkeit, abgewickelt in `tickCrossGuards()`
+  (`30_waves.js:1053`): dort steht `crossDone++; if(!a.emptyRun) protSaved++;`
+- `crossSecs:` — eine Uhr, abgewickelt über den `transit`-Weg in
+  `updateAllies()` (`40_world.js:2273`): dort wurden `EV_LEFT` und
+  `guardGone` gesetzt, **aber `protSaved` nicht**.
+
+Die Aten in M9 hat `crossSecs:75`, läuft also über den zweiten Weg. Ihr
+Entkommen zählte für niemanden. Die Anzeige liest aber genau diesen Wert:
+`objFailed = guardLost`, und dann
+
+```js
+if(objFailed && protSaved>0)
+  objAnnounce('PARTIAL SUCCESS', protSaved+' OF '+(protSaved+protLost)+' GOT THROUGH');
+else objAnnounce('OBJECTIVE FAILED', …);
+```
+
+Mit beiden verlorenen Bast war `protLost` 2 und `protSaved` 0 — also
+„OBJECTIVE FAILED" statt „PARTIAL SUCCESS — 1 OF 3 GOT THROUGH". Und die
+Zahlen hatten die Aten in keiner von beiden.
+
+Betrifft sechs weitere Missionen mit `crossSecs` (M25, M26, M30, M35, M45,
+M50).
+
+**Behoben in v225:** der `transit`-Weg zählt sie jetzt mit, über dieselbe
+Markierung `protCounted`, die der Verlustweg benutzt — damit kann ein Schiff
+weder doppelt noch auf beiden Seiten gezählt werden.
+
+**Vorher geprüft, ob das Auslöser verschiebt:** `gerettet` (liest
+`protSaved`) steht nur in M54 und M66, beide benutzen `cross:`, nicht
+`crossSecs:`. Ebenso der Platzhalter `{saved}` (nur M54). Keine der sechs
+`crossSecs`-Missionen hat einen solchen Auslöser.
+
+Neue Prüfung in `fieldsim.js` („M09 a guard that crosses on a clock counts
+as one who got through"). Gegen v224: `protSaved` bleibt 0 — fällt durch.
+Auf v225: geht auf 1 und bleibt dort. In beiden Fällen legt die Aten ihren
+Sprung ein, der Unterschied ist allein die Zählung.
+
+**Was sich dadurch NICHT ändert:** Zwei verlorene Frachter bleiben ein
+Verlust. Die Mission zeigt jetzt „PARTIAL SUCCESS — 1 OF 3 GOT THROUGH"
+statt „OBJECTIVE FAILED". Wenn Silvio etwas anderes erwartet, ist das eine
+Spielentscheidung und keine Fehlerbehebung.
+
+- Status: gebaut, wartet auf Silvios Test im Browser
 
 ### F9 — Bildschirm flackert auch ohne Treffer
 
@@ -404,14 +448,23 @@ habe."
 abbekomme, habe ich ein Flackern des Bildschirms." Sein Rat: „dieses
 Flackern oder Aufleuchten ganz raus zu nehmen."
 
-Kandidaten im Code: `shieldFlash` und `hullFlash` (`70_ui.js:198/202`,
-vollflächige Aufheller bei Treffern) und `whiteOut` (`30_waves.js:3794`,
-„a short white flash" beim verpassten Lucifer-Sprung). Dass es **ohne**
-Treffer auftritt, spricht dafür, dass einer davon ausgelöst wird, ohne dass
-der Spieler getroffen wurde.
+**Ursache (nachgewiesen):** `hullHit()` und `shieldHit()` in `60_effects.js`
+machten zwei Dinge auf einmal — die Funken an der Trefferstelle **und** ein
+vollflächiges Aufleuchten (`hullFlash = 7`, `shieldFlash = 8`). Die Funken
+werden überall gebraucht, wo etwas getroffen wird: ein Gegner, ein rammender
+Asteroid, der Spieler. Also leuchtete der Bildschirm auf, wenn Silvio
+**traf** — nicht nur, wenn er getroffen wurde.
 
-- Ursache: noch nicht untersucht
-- Status: offen
+Auf die Frage, ob das Aufleuchten für eigene Treffer erhalten bleiben soll,
+entschied er: ganz raus.
+
+**Behoben in v221:** beide vollflächigen Aufheller entfernt, keine Reste im
+Code. Was einen Treffer weiterhin zeigt: die Balken oben, die Funken an der
+Trefferstelle, und das Schildaufleuchten am eigenen Rumpf (`player.shHit`,
+etwas anderes, unangetastet).
+
+- **Status: ERLEDIGT.** Silvio auf v224: „Ist auch erfolgreich behoben,
+  bzw. endlich raus."
 
 ### F10 — `update()` stürzt ab, sobald der Spieler mit Geschossen im Feld stirbt
 

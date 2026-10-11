@@ -260,6 +260,36 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// A guard that crosses on a clock (crossSecs) leaves through the transit
+// path, while one that crosses at a speed is counted in tickCrossGuards.
+// Only the second counted towards protSaved, so the Aten's escape in M9 was
+// worth nothing: with both Bast lost the banner read OBJECTIVE FAILED
+// although she came through, and the "X OF Y" never had her in either
+// number (Silvio, v219).
+scenario('M09 a guard that crosses on a clock counts as one who got through', 'm=9', `
+  const r = {};
+  // Out of her vortex as well: while a.warp runs, updateAllies() skips her
+  // before it ever reaches the transit step.
+  const aten = () => allies.find(a => a.uid === 'A1' && !a.dead && !(a.warp > 0));
+  r.sheArrives = FS.until(()=>!!aten(), 20000, true) >= 0;
+  const a = aten();
+  if(!a) return r;
+  r.onAClock = !!a.transit;
+  r.isGuard = !!a.guard;
+  const before = protSaved;
+  // a step short of the end of her run, so the next few steps take her over
+  const v = a.transitV || 0;
+  a.x = a.transitEnd - v*2;
+  FS.step(8);
+  r.sheEngagedHerDrive = (a.warpOut || 0) > 0;
+  r.protSavedBefore = before;
+  r.protSavedAfter = protSaved;
+  r.sheIsCounted = protSaved === before + 1;
+  // and not again on every step after it
+  FS.step(90);
+  r.countedOnce = protSaved === before + 1;
+  return r;`);
+
 // The darkness over the changeover belongs to the screen. drawJumpVortex()
 // otherwise works in world coordinates on purpose - the vortex sits at the
 // player's place in the world - and the darkening was drawn under the camera

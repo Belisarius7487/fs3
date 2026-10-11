@@ -2276,7 +2276,18 @@ function updateAllies(){
         if(a.uid) EV_LEFT[a.uid] = true;
         // The job is done the moment she engages her drive. The belt stops
         // feeding rocks at her while she is on her way out.
-        if(a.guard) guardGone = true;
+        if(a.guard){
+          guardGone = true;
+          // And she counts as one who got through. A guard that crosses on
+          // a clock (crossSecs) leaves this way, while the ones that cross
+          // at a speed are counted in tickCrossGuards - so her escape was
+          // worth nothing: in M9 the Aten came through, protSaved stayed 0,
+          // and with both Bast lost the banner read OBJECTIVE FAILED
+          // instead of PARTIAL SUCCESS, and the "X OF Y" never had her in
+          // either number (Silvio, v219). protCounted is the same flag the
+          // loss side uses, so she cannot be counted twice or both ways.
+          if(!a.protCounted){ a.protCounted = true; protSaved++; }
+        }
       }
     }
     // v211: warships and freighters on their lanes (capLane), the rest stands
