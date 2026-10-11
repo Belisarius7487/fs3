@@ -682,7 +682,12 @@ function drawHostileMark(e){
   // jeder Verbuendete denselben Winkel. Ein Ueberlaeufer hat nach defect()
   // side='enemy' und bekommt ihn dann zu Recht.
   if(e.side === 'ally') return;
-  if(e.type!=='fighter' && e.type!=='bomber') return;
+  // Sentry guns carry them too (Silvio, v216: they had none unless they
+  // were the target). They are the same case the brackets were made for -
+  // small, easily lost among the effects - and being stationary they are
+  // easier to miss than a fighter, not harder. The capital ships are left
+  // out on purpose: they are large enough to find without help.
+  if(e.type!=='fighter' && e.type!=='bomber' && e.type!=='sentry') return;
   if(e.dead || e.warp>0 || e.warpOut>0) return;
   let a = 1;
   if(nebulaOn()){

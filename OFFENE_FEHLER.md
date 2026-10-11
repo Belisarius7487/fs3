@@ -19,6 +19,23 @@ Stand: v216 ist die spielbare Fassung; v218 liegt zum Test bereit.
 
 ---
 
+## Wichtig für die Reihenfolge (Silvio, v225)
+
+**Alle Missionen müssen ohnehin von Grund auf neu gebaut werden.** Nach der
+Erweiterung des Spielfelds wurden sie nur **hochskaliert**. Dadurch gibt es
+Missionen mit langen Wartezeiten, weil Eskortziele jetzt viel weiter fliegen
+müssen.
+
+**Folge für die Arbeit:** Fehler in Missionen und Auftragsauswertung zu
+beheben bringt derzeit wenig — diese Missionen verschwinden ohnehin. Vorrang
+haben Fehler in der **Mechanik und Darstellung**, die den Neubau überleben.
+
+Der Neubau selbst ist ein eigener, großer Punkt und noch nicht geplant.
+Dabei zu bedenken: Flugzeiten und Wartezeiten gehören nicht hochskaliert,
+sondern neu bemessen.
+
+---
+
 ## Offen
 
 ### F1 — Dunkles Rechteck um Explosionen und Raketentrails
@@ -386,8 +403,27 @@ keine Markierung um sich herum wie sie bspw. gegnerische Jäger und Bomber
 haben. Sie haben nur dann eine Markierung, wenn sie als Ziel aufgeschaltet
 wurden."
 
-- Ursache: noch nicht untersucht
-- Status: offen
+**Ursache (nachgewiesen):** `drawHostileMark()` in `70_ui.js` stieg in der
+zweiten Zeile aus:
+
+```js
+if(e.type!=='fighter' && e.type!=='bomber') return;
+```
+
+Sentryguns haben `type === 'sentry'` und fielen damit heraus. Aufgeschaltet
+bekamen sie eine Markierung, weil die aus `drawTargetMarks()` kommt — ein
+anderer Weg.
+
+**Behoben in v226:** `'sentry'` steht jetzt mit in der Liste. Großkampf-
+schiffe bleiben bewusst draußen — die sind groß genug, um sie ohne Hilfe zu
+finden.
+
+Neue Prüfung in `fieldsim.js` („A sentry gun is bracketed like a fighter")
+mit zwei Gegenproben: ein Jäger bekommt Winkel (der bekannte gute Fall), ein
+**verbündetes** Schiff bekommt keine. Gegen v225: Sentry fällt durch, die
+beiden anderen bestehen. Auf v226: alle drei grün.
+
+- Status: gebaut, wartet auf Silvios Test im Browser
 
 ### F8 — M9: die Aten entkommt, wird aber als Fehlschlag gewertet
 

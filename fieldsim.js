@@ -260,6 +260,27 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// Sentry guns get the corner brackets that fighters and bombers get. They
+// had none unless they were the target, which left them to be found among
+// the effects by eye (Silvio, v216).
+scenario('A sentry gun is bracketed like a fighter', 'm=31', `
+  const r = {};
+  FS.step(60);
+  const mk = (type) => ({type: type, side: 'enemy', faction: 'ntf', img: 'sgtrident',
+                         x: player.x + 60, y: player.y, hp: 100, maxHp: 100,
+                         dead: false, warp: 0, warpOut: 0, sc: 1});
+  const seen = [];
+  const fb = fsBrackets;
+  fsBrackets = function(){ seen.push(1); };
+  const count = (e) => { seen.length = 0; try{ drawHostileMark(e); }catch(err){} return seen.length; };
+  r.fighterIsBracketed = count(mk('fighter')) > 0;    // the known good case
+  r.sentryIsBracketed  = count(mk('sentry'))  > 0;
+  // and an ally still gets none, whatever she is
+  const friend = mk('sentry'); friend.side = 'ally';
+  r.allyGetsNone = count(friend) === 0;
+  fsBrackets = fb;
+  return r;`);
+
 // A guard that crosses on a clock (crossSecs) leaves through the transit
 // path, while one that crosses at a speed is counted in tickCrossGuards.
 // Only the second counted towards protSaved, so the Aten's escape in M9 was
