@@ -140,7 +140,68 @@ misst die eine Regel — ein Schritt bewegt das Schiff um genau sein
 `crossing`. Gegen v216 gestellt: fällt durch (4,628 statt 1,001). Auf v217:
 grün (1,001).
 
+**Silvios Nachtrag (er testet noch v216):** M23 und M27 zeigen dasselbe. In
+M27 fliegt die Isis nach einigen Links-Rechts-Fahrten sogar **rückwärts nach
+rechts**. Er vermutet, es betreffe weitere Missionen.
+
+Beides bestätigt und von derselben Zeile erledigt:
+
+- **M23** „The Pickup": Bast-Frachter mit `cross:0.34`, `dockTo:'C1'` —
+  dieselbe Konstruktion wie M9.
+- **M27** „The Repair": die Isis-Transporter haben `dockTo:'A1'` und **kein**
+  eigenes `cross`, bekommen also den Vorgabewert `0.38` aus
+  `30_waves.js:522` und laufen danach durch dieselbe Stelle. `trisis` ist
+  Typ `transport`, der steht wie `freighter` in `CAP_VEL_TYPE`.
+- **Das Rückwärtsfliegen** ist `capTurnStep` (`57_turrets.js:318`):
+  `o.x += L.dir*v*0.3*c` mit `c = cos(π·p)`. In der zweiten Hälfte der Kehre
+  wird `c` negativ — das Schiff gleitet rückwärts, während das Queren weiter
+  nach rechts drückt.
+
+Weil die Behebung in `capHolds()` sitzt — der einen Stelle, die entscheidet,
+welche Schiffe sich selbst steuern — wirkt sie in **allen** Missionen
+zugleich, nicht Mission für Mission.
+
 - Status: gebaut, wartet auf Silvios Test im Browser
+
+### F4 — Halbtransparente Rechtecke am Anfang und Ende von Missionen
+
+**Befund (Silvio, v216, mit Screenshot):** „In vielen Situationen anfangs und
+am Ende einer Mission habe ich seit einigen Patches semitransparente
+Rechtecke im Bild, die beim Übergang in eine neue Mission dann verschwinden
+und deren Ursache ich nicht benennen kann."
+
+Auf dem Screenshot: ein dunkelblaues, achsenparalleles Rechteck über der
+Szene; die Sterne darin bleiben sichtbar, der rote Nebel darunter ist
+abgedunkelt. Unten rechts steht das PAUSE-Fenster.
+
+**Ursache (starker Verdacht, noch nicht gegengeprüft):** `W` und `H` sind
+feste Werte — `10_core.js:29`: `const W=800,H=500`. Zehn Stellen legen damit
+einen vollflächigen Schleier über das Bild:
+
+```
+20_render.js:133   thFrame      rgba(0,0,0,0.62)   der Schleier jedes Fensters
+20_render.js:1116  Hintergrund  rgba(4,6,12,…)
+20_render.js:904/922  drawSubspace
+70_ui.js:25,198,202,471,3411,4152
+```
+
+`camScreen()` (`10_core.js:130`) setzt die Darstellung aber auf
+`setTransform(RES_X, 0, 0, RES_Y, CAM_SHX*RES_X, CAM_SHY*RES_Y)` — seit dem
+größeren Spielfeld also **skaliert und verschoben**. Ein Rechteck von fest
+800×500 deckt den sichtbaren Bereich damit nicht mehr ab, sondern steht als
+verschobenes Rechteck darin.
+
+`70_ui.js:471` benutzt `rgba(0,0,8,0.50)`, ein dunkles Blauschwarz bei 50 % —
+über einem roten Nebel ergibt das genau das Navy auf dem Screenshot.
+
+Dass es am Anfang und Ende einer Mission auftritt, passt: dann gehen Fenster
+auf, und beim Übergang schließen sie wieder.
+
+**Noch zu tun:** im Browser nachmessen, welche der zehn Stellen es im
+Einzelfall ist, und sie alle auf den wirklich sichtbaren Bereich umstellen —
+an einer Stelle, nicht zehnmal einzeln.
+
+- Status: offen, Ursache eingegrenzt
 
 ---
 
