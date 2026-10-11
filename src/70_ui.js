@@ -22,6 +22,7 @@ function draw(){
   ctx.shadowColor='transparent';
   ctx.lineWidth=1;
   ctx.setLineDash([]);
+  if(DIAG_TRACE) diagTraceStart();
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
   if(GS==='playing' && subspaceOn()) drawSubspace();
   else { drawNebula(); drawStars(); drawBodies(); }   // v213: the stars behind the planets
@@ -265,7 +266,38 @@ function draw(){
 //
 // Screen space, top left under the bar, on a plate so it stays readable
 // over a bright nebula.
-const DIAG_ON = (typeof location !== 'undefined') && /[?&]diag=1/.test(location.search || '');
+const DIAG_ON = (typeof location !== 'undefined') && /[?&]diag=[12]/.test(location.search || '');
+// &diag=2 also watches a frame as it is drawn and names whatever puts a
+// large rectangle on the screen that does not cover it. That is the shape
+// of Silvio's F4: measured off his marked screenshot it is about 800 wide
+// and 460 high in WORLD units, which is to say a W x H rectangle drawn
+// under the camera instead of on the screen. Every candidate read out of
+// the code so far resets to screen space properly, so the one that does not
+// has to name itself on his machine - it never happens here.
+const DIAG_TRACE = (typeof location !== 'undefined') && /[?&]diag=2/.test(location.search || '');
+let DIAG_HITS = [];
+function diagTraceStart(){
+  const CW = CVS.width, CH = CVS.height, area = CW*CH;
+  DIAG_HITS = [];
+  const fr = ctx.fillRect, di = ctx.drawImage;
+  const note = (kind, x, y, w, h, what) => {
+    const m = ctx.getTransform();
+    const dx = m.a*x + m.c*y + m.e, dy = m.b*x + m.d*y + m.f;
+    const dw = Math.abs(m.a*w), dh = Math.abs(m.d*h);
+    if(dw*dh < area*0.03 || dw*dh > area*0.98) return;      // tiny, or the whole screen
+    if(dx <= 1 && dy <= 1 && dx + dw >= CW - 1 && dy + dh >= CH - 1) return;
+    const line = kind + ' ' + Math.round(dx) + ',' + Math.round(dy) + ' '
+                 + Math.round(dw) + 'x' + Math.round(dh)
+                 + ' k' + (Math.round(m.a*100)/100) + ' ' + String(what).slice(0, 22);
+    if(DIAG_HITS.indexOf(line) < 0 && DIAG_HITS.length < 6) DIAG_HITS.push(line);
+  };
+  ctx.fillRect = function(x, y, w, h){ note('fill', x, y, w, h, ctx.fillStyle); return fr.apply(ctx, arguments); };
+  ctx.drawImage = function(){ const a = arguments;
+    if(a.length === 5) note('img', a[1], a[2], a[3], a[4], a[0] && (a[0].id || a[0].tagName));
+    else if(a.length === 9) note('img', a[5], a[6], a[7], a[8], a[0] && (a[0].id || a[0].tagName));
+    return di.apply(ctx, arguments); };
+  ctx._diagOff = function(){ ctx.fillRect = fr; ctx.drawImage = di; ctx._diagOff = null; };
+}
 function drawDiag(){
   if(!DIAG_ON) return;
   const L = [];
@@ -288,6 +320,12 @@ function drawDiag(){
     L.push('state      ' + GS + '  wave ' + n(wave) + '  waveCd ' + n(waveCd)
            + '  mod ' + n(waveMod));
   }catch(e){ L.push('diag failed: ' + String(e && e.message || e).slice(0, 60)); }
+  if(DIAG_TRACE){
+    if(ctx._diagOff) ctx._diagOff();
+    L.push('--- large rectangles that do not cover the screen ---');
+    if(!DIAG_HITS.length) L.push('   none this frame');
+    for(const h of DIAG_HITS) L.push('   ' + h);
+  }
 
   ctx.save();
   camScreen();
