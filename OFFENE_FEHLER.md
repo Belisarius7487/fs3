@@ -309,7 +309,16 @@ durch. Auf v224: Maßstab 1,44 (= `RES`) und 1152×642, volle Canvasbreite.
 2. Stapel-Unwucht in `draw()` → das Leeren ist Absicht
 3. der `update()`-Absturz (F10) → behoben, Rechtecke blieben
 
-- Status: gebaut, wartet auf Silvios Test im Browser
+- **Status: ERLEDIGT.** Silvio auf v224: „Ich bestätige das Rechteck als
+  behoben. Es tauchte in keiner der getesteten Missionen zum Missionsanfang
+  mehr auf."
+
+**Lehre für die nächste Suche:** Vier Erklärungen wurden aus dem Code
+hergeleitet, alle plausibel, alle falsch. Gefunden hat es keine Lektüre,
+sondern eine Messung **auf der Maschine, auf der der Fehler auftritt**.
+Tritt ein Fehler in der Prüfumgebung nicht auf, ist das selbst der Befund —
+dann gehört das Messwerkzeug ins Spiel (`&diag=1`, `&diag=2`), statt weiter
+zu lesen.
 
 ### F5 — Das Sprungtor steht beim Auswarpen 180 Grad verkehrt
 
