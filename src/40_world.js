@@ -2242,6 +2242,7 @@ function updateAllies(){
     // dark and the next wave clears it away.
     if(waveOver && !a.warpOut && !a.platform && !a.stay){ a.warpOut = a.warpMax; a.warpX = a.x; a.warpY = a.y; }
     if(a.warpOut > 0){
+      capTurnSettle(a);     // not half way round into her own vortex
       a.warpOut--;
       // Jumped out: she left. Without this 'vernichtet' read her as
       // destroyed the moment she was gone.
@@ -2358,6 +2359,7 @@ function checkDisarmFlee(e){
 function runFlee(e, i){
   checkDisarmFlee(e);
   if(e.warpOut>0){
+    capTurnSettle(e);       // not half way round into her own vortex
     e.warpOut--;
     if(e.warpOut<=0){
       // Withdrawn by the mission ('abzug'): not an escape.

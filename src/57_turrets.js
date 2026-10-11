@@ -320,6 +320,29 @@ function capLane(o, mul){
 // The half turn: she swings round about her middle (her model yaws, seen
 // bow on half way), coasting on slowly. turnSq is her length across the
 // picture, signed - mounts, outline and hits follow it.
+// A jump out freezes a turn where it stands: once warpOut runs, the ship's
+// branch returns before capLane() is reached again, so turnSq keeps her
+// squashed side on while the vortex is placed by fsNose(), which reads the
+// heading she had BEFORE the turn. She slid into her own vortex sideways
+// (Silvio, v216).
+//
+// Waiting for the turn to finish, which is what he suggested, is not open to
+// us: a turn is CAP_TURN_S seconds - nine for a destroyer, 540 steps - while
+// the whole changeover is TRANS_CLEAR + TRANS_OUT, about 220. She would be
+// cleared away by the next wave instead of leaving at all.
+//
+// So the turn is settled to whichever heading she is nearer to. turnC is
+// cos(pi*p): positive in the first half, where she still mostly faces the
+// way she came from, negative in the second, where she is mostly round. Past
+// half way she is flipped as capTurnStep would have flipped her; before it
+// she keeps the heading she had. Either way she is drawn whole, facing
+// somewhere real, and her vortex is placed by that.
+function capTurnSettle(o){
+  const L = o && o._lane;
+  if(!L || !L.t) return;
+  if(o.turnC < 0){ o.flip = !o.flip; L.dir = -L.dir; }
+  L.t = null; o.turnP = null; o.turnSq = null; o.turnC = null;
+}
 function capTurnStep(o, mul){
   const L = o._lane, T = L.t, v = capCruise(o)*(mul || 1);
   T.p = Math.min(1, T.p + 1/T.n);

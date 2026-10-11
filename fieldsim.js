@@ -260,6 +260,46 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// A ship caught half way round when the mission ends used to slide into her
+// own vortex side on: warpOut returns before capLane() is reached again, so
+// the turn froze where it stood - squashed by turnSq, while fsNose() placed
+// the vortex by the heading she had BEFORE the turn (Silvio, v216).
+//
+// Waiting for the turn, as he suggested, is not open to us: nine seconds for
+// a destroyer against a changeover of about 220 steps. So the turn settles to
+// whichever heading she is nearer to, and she leaves facing something real.
+scenario('A ship caught mid-turn settles before she jumps out', 'm=9', `
+  const r = {};
+  const cap = () => allies.find(a => !a.small && !a.dead && !(a.warp > 0));
+  r.aCapitalShip = FS.until(()=>!!cap(), 20000, true) >= 0;
+  const ally = cap();
+  if(!ally) return r;
+
+  // half way and a little past it: she is mostly round, so she should finish
+  // the flip rather than fall back
+  const putMidTurn = (o, p, flip) => {
+    o.flip = flip;
+    o._lane = {y: o.y, dir: 1, dir0: 1, home: o.x, t: {p: p, n: 100}};
+    o.turnP = p; o.turnC = Math.cos(Math.PI*p);
+    o.turnSq = (o.turnC < 0 ? -1 : 1)*Math.max(0.2, Math.abs(o.turnC));
+  };
+
+  putMidTurn(ally, 0.7, false);
+  ally.warpOut = 30; ally.warpMax = 30; ally.warpX = ally.x; ally.warpY = ally.y;
+  FS.step(1);
+  r.pastHalf_turnCleared = ally._lane.t === null && ally.turnSq === null;
+  r.pastHalf_flipped = ally.flip === true;      // round the rest of the way
+  r.pastHalf_laneTurned = ally._lane.dir === -1;
+
+  // and before half way she keeps the heading she came in with
+  const ally2 = allies.find(a => !a.small && !a.dead && !(a.warp > 0) && a !== ally) || ally;
+  putMidTurn(ally2, 0.2, false);
+  ally2.warpOut = 30; ally2.warpMax = 30; ally2.warpX = ally2.x; ally2.warpY = ally2.y;
+  FS.step(1);
+  r.beforeHalf_turnCleared = ally2._lane.t === null && ally2.turnSq === null;
+  r.beforeHalf_keptHeading = ally2.flip === false;
+  return r;`);
+
 // Sentry guns get the corner brackets that fighters and bombers get. They
 // had none unless they were the target, which left them to be found among
 // the effects by eye (Silvio, v216).

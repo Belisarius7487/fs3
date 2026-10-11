@@ -389,12 +389,38 @@ Sein Vorschlag: entweder warten, bis die Wende vollzogen ist, und es erst
 dann warpen lassen — und sicherstellen, dass es in die richtige Richtung
 herauswarpt.
 
-Hängt mit `capTurnStep` zusammen (`57_turrets.js`): während der Kehre zeigt
-der Rumpf quer, und der Sprung nimmt offenbar trotzdem die alte oder die
-neue Nasenrichtung.
+**Ursache (nachgewiesen):** Sobald `warpOut` gesetzt ist, greift im
+Ablauf (`40_world.js`) wenige Zeilen weiter ein `continue`. Damit wird
+`capLane()` nie wieder erreicht, und die Kehre **friert auf halbem Weg
+ein**: `turnSq` hält den Rumpf quer gestaucht, während `fsNose()` das Tor
+nach der Nasenrichtung setzt, die das Schiff **vor** der Kehre hatte. Es
+gleitet seitlich in den eigenen Strudel.
 
-- Ursache: noch nicht untersucht
-- Status: offen
+**Warum nicht gewartet wird, wie Silvio vorschlug:** Eine Kehre dauert
+`CAP_TURN_S × 60` Schritte — beim Zerstörer **540**. Der ganze Übergang ist
+`TRANS_CLEAR + TRANS_OUT` = 80 + 140 = rund **220**. Auf die Kehre zu warten
+hieße also meistens, dass das Schiff gar nicht mehr wegkommt und von der
+nächsten Welle weggeräumt wird — schlimmer als der Fehler.
+
+**Behoben in v227:** neue Funktion `capTurnSettle()` in `57_turrets.js`. Sie
+löst die Kehre zu der Richtung auf, der das Schiff gerade **näher** ist:
+`turnC` ist `cos(π·p)`, in der ersten Hälfte positiv (es zeigt noch
+überwiegend in die alte Richtung, also bleibt es dabei), in der zweiten
+negativ (es ist fast herum, also wird die Drehung vollendet, wie
+`capTurnStep` es getan hätte). So oder so wird es ganz gezeichnet, zeigt in
+eine wirkliche Richtung, und das Tor wird danach gesetzt.
+
+Aufgerufen an **zwei** Stellen, damit keine Sprungart ausgelassen wird:
+`40_world.js:2245` (Verbündete) und `:2361` (gegnerische Großkampfschiffe).
+Die übrigen vier Auswarp-Stellen betreffen Jäger und Frachter, die keine
+Bahn fahren.
+
+Neue Prüfung in `fieldsim.js` („A ship caught mid-turn settles before she
+jumps out") mit beiden Hälften: kurz vor der Mitte behält das Schiff seine
+Richtung, kurz dahinter vollendet es die Drehung und die Bahn dreht mit.
+Gegen v226: vier von fünf fallen durch. Auf v227: alle grün.
+
+- Status: gebaut, wartet auf Silvios Test im Browser
 
 ### F7 — Sentryguns haben keine Markierung
 
@@ -549,6 +575,49 @@ Nicht von den Änderungen in v217–v219 verursacht — die Schleife und
 - Behoben in: v220
 - **Status: ERLEDIGT.** Silvio auf v220: „Bisher keine neue Fehlermeldung in
   der Console gehabt."
+
+### F11 — Hintergründe sehen hochskaliert matschig aus
+
+**Befund (Silvio, v226):** „Durch das Hochskalieren des Spielfeldes wurden
+auch die Hintergründe hochskaliert, was sie jetzt leider recht unansehnlich
+und matschig macht."
+
+**Zahlen dazu stehen schon fest**, aus Silvios eigener Diagnose-Tafel
+(`&diag=1`) auf seinem Vollbild:
+
+```
+canvas  1728x1080
+neb     cur Aldebaran 900x450   nxt AlphaCentauri 900x450
+```
+
+Die Nebelbilder sind also **900×450** und werden von `drawNebFit()` mit
+einem Cover-Zuschnitt auf 1728×1080 gezogen — knapp **das Doppelte** in
+jeder Richtung. Das ist die Matschigkeit, und sie ist kein Darstellungs-
+fehler, sondern schlicht zu wenig Bildmaterial.
+
+Lösungsrichtung: größere Quellbilder. Das vergrößert die gebaute
+`game.html` (derzeit 28,8 MB), also ist abzuwägen.
+
+- Status: offen, nicht dringend — erst nach dem seitlichen Auswarpen (F6)
+
+### F12 — Die MediaVP-Explosionen sind veraltet
+
+**Befund (Silvio, v226):** „Die Explosionseffekte aus den MediaVPs … werden
+nicht durch das Spielfeld hochskaliert, sondern sind einfach seit Jahren vom
+FSO-Team nicht mehr aktualisiert worden, weshalb sie leider auch nicht mehr
+sonderlich schön und modern aussehen. Ein Zerstörer explodiert zum Beispiel
+auch sehr matschig."
+
+**Ein anderer Fall als F11**, ausdrücklich: hier skaliert nicht das
+Spielfeld, hier ist das Ausgangsmaterial alt.
+
+Was im Spiel steckt (`src/63_fxanim.js`): `exp05` 47 Bilder à 128 px,
+`exp20` 38 Bilder à 128 px, `smoke` 18 Bilder à 128 px. Eine Zelle von
+**128 px** auf die Länge eines Zerstörers gezogen ist auf einem 1728 px
+breiten Bild ein erheblicher Hochzug — der Zerstörer ist daher der
+auffälligste Fall, genau wie Silvio sagt.
+
+- Status: offen, nicht dringend
 
 ---
 
