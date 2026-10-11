@@ -47,7 +47,8 @@ Repo, die Bögen lassen sich hier also nicht mit Alpha neu bauen.
 
 - Behoben in: v217 — das Alpha wird beim Laden aus der Helligkeit
   zurückgewonnen (schwarz wird durchsichtig)
-- Status: gebaut, wartet auf Silvios Test im Browser
+- **Status: ERLEDIGT.** Silvio auf v219: „Die schwarzen Rechtecke um
+  Raketentrails und Explosionsgrafiken sind verschwunden."
 
 ### F2 — Subsystemnamen werden nicht immer angezeigt
 
@@ -161,7 +162,13 @@ Weil die Behebung in `capHolds()` sitzt — der einen Stelle, die entscheidet,
 welche Schiffe sich selbst steuern — wirkt sie in **allen** Missionen
 zugleich, nicht Mission für Mission.
 
-- Status: gebaut, wartet auf Silvios Test im Browser
+- **Status: bestätigt für M9 und M23.** Silvio auf v219: „Die Bast fliegen
+  nicht mehr hin und her" (M9), und „M23 funktioniert, Bast drehen nicht
+  mehr hin und her". M27 steht noch aus.
+
+  Auch in der Prüfung sichtbar: `warpsim` meldete für M23 auf v216
+  `(wave did not end)` — die Welle endete nicht, weil die Frachter nie
+  hinausquerten. Ab v217 endet sie.
 
 ### F4 — Halbtransparente Rechtecke am Anfang und Ende von Missionen
 
