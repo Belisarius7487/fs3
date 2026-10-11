@@ -78,6 +78,9 @@ Subsysteme hunderte Einheiten auseinander, „näher als 120" heißt dort
 praktisch „fast im Rumpf". Dass immer nur eines benannt wurde, ist der Rest
 des Befunds: die übrigen Klammern blieben namenlos.
 
+**Status: ERLEDIGT.** Silvio auf v220: „Werden korrekt angezeigt, sehe keine
+Probleme mehr bei der Anzeige der Namen."
+
 **Behoben in v218**, nach Silvios Wahl (Variante „Ziel immer benannt"):
 
 - Das als Ziel gewählte Subsystem (Taste S, Shift+S, V) trägt seinen Namen
@@ -243,12 +246,26 @@ Unabhängig davon ist das Leeren auf feste 8 Stufen begrenzt; bleiben mehr
 übrig, greift es nicht. Das zu härten ist billig, behebt aber nur dann
 etwas, wenn der Überhang die Ursache ist — ungeprüft nicht bauen.
 
-**Vermutlich erledigt mit F10 (v220).** Silvios Konsole zeigte 532 Abstürze
-von `update()` mitten im Bild — genau der Auslöser, den der Kommentar über
-dem Stapel-Leeren in `draw()` nennt. Ob die Rechtecke damit weg sind, sagt
-nur sein Test: hier sind sie nie aufgetreten.
+**Die Vermutung „F10 ist die Ursache" ist WIDERLEGT.** Silvio auf v220:
+„Leider immer noch präsent" — und gleichzeitig keine Konsolenfehler mehr.
+Der Absturz war es also nicht.
 
-- Status: offen, Ursache vermutlich F10 — Silvios Test entscheidet
+**Was aus seinen zwei Screenshots folgt:** Auf dem ersten sitzt das Rechteck
+oben links, auf dem zweiten mitten im Bild, ohne offenes Fenster. Es ist also
+**nicht am Bildrand verankert, sondern wandert** — das spricht dafür, dass es
+in *Welt*-Koordinaten gezeichnet wird statt in Bildschirm-Koordinaten. Ein
+`fillRect(0,0,W,H)` unter der Kamera-Transformation wäre ein Rechteck von
+800×500 **Welteinheiten** am Weltursprung, das sich mit der Kamera bewegt.
+
+**Bisher widerlegt:**
+1. feste `W/H`-Schleier decken den Canvas nicht ab → gemessen, sie decken ihn
+2. Stapel-Unwucht in `draw()` → das Leeren ist Absicht, kein Fehler
+3. der `update()`-Absturz (F10) → behoben, Rechtecke bleiben
+
+**Nächster Schritt:** beim **Wellenübergang** messen statt mitten im Spiel.
+Genau dann tritt es auf, und genau dann wurde nie gemessen.
+
+- Status: offen, drei Vermutungen gemessen und widerlegt
 
 ### F5 — Das Sprungtor steht beim Auswarpen 180 Grad verkehrt
 
@@ -289,7 +306,8 @@ Bewegungsabläufe der Sprünge — ob etwas ruckt, zu früh schließt, die
 Schnittebene nicht passt. Die **Blickrichtung** des Tors prüft es nicht.
 
 - Behoben in: v219
-- Status: gebaut, wartet auf Silvios Test im Browser
+- **Status: ERLEDIGT.** Silvio auf v220: „Ist jetzt richtig herum soweit ich
+  überall sehen konnte."
 
 ### F6 — Ein Schiff in der Kehre warpt seitlich in den Strudel
 
@@ -387,7 +405,8 @@ Nicht von den Änderungen in v217–v219 verursacht — die Schleife und
 `playerDie()` sind älter.
 
 - Behoben in: v220
-- Status: gebaut, wartet auf Silvios Test im Browser
+- **Status: ERLEDIGT.** Silvio auf v220: „Bisher keine neue Fehlermeldung in
+  der Console gehabt."
 
 ---
 
