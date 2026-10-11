@@ -260,6 +260,57 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// The darkness over the changeover belongs to the screen. drawJumpVortex()
+// otherwise works in world coordinates on purpose - the vortex sits at the
+// player's place in the world - and the darkening was drawn under the camera
+// with it, which made it a rectangle of W x (H-HUD_H) world units that moved
+// with the view instead of covering the picture. Silvio had been reporting
+// that rectangle since v216; three explanations were measured and disproved
+// before the read-out on his own machine named this line.
+//
+// jumpDark() is stubbed rather than waited for: whether a changeover is
+// running is timing, and a check that waits for timing reports timing.
+scenario('The changeover darkness covers the picture, not a patch of world', 'm=31', `
+  const r = {};
+  FS.step(60);
+  // Three fixtures, because none of this can be waited for here: no warp
+  // image is in a logic file (the packer fills it on the server), the
+  // changeover is a matter of timing, and drawWarpFrame would then draw
+  // from that empty image. None of them touches the line under test.
+  const nw = Object.getOwnPropertyDescriptor(WARP_IMG, 'naturalWidth');
+  Object.defineProperty(WARP_IMG, 'naturalWidth', {value: 64, configurable: true});
+  Object.defineProperty(WARP_IMG, 'complete', {value: true, configurable: true});
+  const dwf = drawWarpFrame; drawWarpFrame = function(){};
+  const jd = jumpDark; jumpDark = function(){ return 0.8; };
+  const at = arriveT; arriveT = Math.max(1, Math.round(TRANS_IN*0.2));
+
+  const hits = [];
+  const fr = ctx.fillRect;
+  ctx.fillRect = function(x, y, w, h){
+    if(String(ctx.fillStyle).replace(/ /g, '').indexOf('rgba(6,9,20') >= 0){
+      const m = ctx.getTransform();
+      hits.push({k: Math.round(m.a*100)/100, w: Math.round(Math.abs(m.a*w)), h: Math.round(Math.abs(m.d*h))});
+    }
+    return fr.apply(ctx, arguments);
+  };
+  try{ camOn(); drawJumpVortex(); }
+  catch(e){ r.threw = String(e && e.message || e).slice(0, 60); }
+  finally {
+    ctx.fillRect = fr; drawWarpFrame = dwf; jumpDark = jd; arriveT = at;
+    if(nw) Object.defineProperty(WARP_IMG, 'naturalWidth', nw);
+    camScreen();
+  }
+  r.darknessDrawn = hits.length > 0;
+  if(!hits.length) return r;
+  const h = hits[0];
+  r.scale = h.k;
+  r.sizeOnScreen = h.w + 'x' + h.h;
+  // Screen space: the scale is RES, and it reaches across the whole canvas.
+  // Under the camera it would be CAM.z times that, and a patch of world.
+  r.inScreenSpace = Math.abs(h.k - RES_X) < 0.01;
+  r.coversTheWidth = h.w >= CVS.width - 1;
+  return r;`);
+
 // A round that kills the player reaches playerDie(), and playerDie() hands
 // eBullets a NEW empty array. The loop it was called from keeps counting
 // down into that empty array, b comes back undefined, and b.hom throws -

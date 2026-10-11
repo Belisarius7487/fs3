@@ -265,7 +265,51 @@ in *Welt*-Koordinaten gezeichnet wird statt in Bildschirm-Koordinaten. Ein
 **Nächster Schritt:** beim **Wellenübergang** messen statt mitten im Spiel.
 Genau dann tritt es auf, und genau dann wurde nie gemessen.
 
-- Status: offen, drei Vermutungen gemessen und widerlegt
+**GEFUNDEN — mit Silvios eigener Messung.** Er hat das Rechteck rot
+markiert und mit `&diag=2` den Detektor mitlaufen lassen. Dessen Ausgabe,
+in drei Bildern gleich:
+
+```
+fill 766,332  605x337  k0.76  rgba(6, 9, 20, 0.54)
+fill 788,403  605x337  k0.76  rgba(6, 9, 20, 0.682)
+fill 800,438  605x337  k0.76  rgba(6, 9, 20, 0.573)
+```
+
+- `k0.76` = seine `CAM.z` 0,35 × `RES` 2,16 → **unter der Kamera gezeichnet**
+- `605x337` ÷ 0,756 = **800 × 446** = `W` × (`H` − `HUD_H`)
+- Position wandert mit der Kamera, Größe nicht
+- Farbe `rgba(6,9,20, …)` mit gerechneter Deckkraft
+
+**Ursache:** `50_combat.js:699` in `drawJumpVortex()`:
+
+```js
+const k = jumpDark();
+if(k>0){
+  ctx.fillStyle='rgba(6,9,20,'+(k*0.92).toFixed(3)+')';
+  ctx.fillRect(0,HUD_H,W,H-HUD_H);
+}
+```
+
+Das ist die Abdunklung beim **Missionswechsel** („One darkness, sitting
+exactly on the changeover"). `drawJumpVortex()` arbeitet absichtlich in
+Weltkoordinaten — der Strudel sitzt an der Position des Spielerschiffs,
+`ctx.translate(player.x, player.y)`. Diese eine Abdunklung gehört aber auf
+den **Bildschirm**: sie soll alles Sichtbare verdunkeln, nicht ein 800×446
+großes Stück Weltall.
+
+**Behoben in v224:** die Abdunklung läuft jetzt in `ctx.save()` /
+`camScreen()` / `ctx.restore()`.
+
+Neue Prüfung in `fieldsim.js` („The changeover darkness covers the picture,
+not a patch of world"). Gegen v223: Maßstab 0,5, Größe 403×225 — fällt
+durch. Auf v224: Maßstab 1,44 (= `RES`) und 1152×642, volle Canvasbreite.
+
+**Vorher widerlegt** (alle drei gemessen, nicht bloß verworfen):
+1. feste `W/H`-Schleier decken den Canvas nicht ab → sie decken ihn
+2. Stapel-Unwucht in `draw()` → das Leeren ist Absicht
+3. der `update()`-Absturz (F10) → behoben, Rechtecke blieben
+
+- Status: gebaut, wartet auf Silvios Test im Browser
 
 ### F5 — Das Sprungtor steht beim Auswarpen 180 Grad verkehrt
 

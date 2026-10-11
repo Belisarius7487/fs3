@@ -697,8 +697,21 @@ function drawJumpVortex(){
   // lifts out of it as a single fade, with the background swap inside.
   const k = jumpDark();
   if(k>0){
+    // On the SCREEN, not on the field. This darkens everything the player
+    // can see while one mission changes over into the next, so it belongs
+    // to the picture. Drawn under the camera - which the vortex above it is
+    // rightly drawn under, since it sits at her place in the world - it came
+    // out as a rectangle of W x (H-HUD_H) WORLD units instead: about
+    // 800 x 446, moving with the view, dark where the field was bright.
+    // That is the half-transparent rectangle Silvio had been reporting
+    // since v216. Measured on his machine with &diag=2: a fill of 605x337
+    // at transform scale 0.76 (his CAM.z 0.35 x RES 2.16), in
+    // rgba(6,9,20,...) - this line and no other.
+    ctx.save();
+    if(typeof camScreen === 'function') camScreen();
     ctx.fillStyle='rgba(6,9,20,'+(k*0.92).toFixed(3)+')';
     ctx.fillRect(0,HUD_H,W,H-HUD_H);
+    ctx.restore();
   }
 }
 
