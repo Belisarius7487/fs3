@@ -59,27 +59,35 @@ EOF
 PASS=0
 FAILED=()
 
-run() {
-  local name="$1"; shift
-  printf '  %-10s ' "$name"
-  local out rc
-  out=$("$@" 2>&1); rc=$?
+# Decides whether a stage counts as failed, and says why. Its exit code is
+# not enough on its own: swtest reports its problems in the text and warpsim
+# calls them "findings".
+judge() {
+  local name="$1" out="$2" rc="$3"
   {
     echo "===== $name ====="
     printf '%s\n' "$out"
     echo "----- exit $rc -----"
     echo
   } >> "$LOG"
-  if [ $rc -ne 0 ] \
-     || grep -qE '[1-9][0-9]* (problems?|failed|FAIL)' <<<"$out" \
+  if [ "$rc" -ne 0 ] \
+     || grep -qE '[1-9][0-9]* (problems?|failed|findings)' <<<"$out" \
      || grep -qE '^ *FAIL' <<<"$out"; then
     echo "FAILED"
-    printf '%s\n' "$out" | grep -E '^ *FAIL|[1-9][0-9]* (problems?|failed)|Error|error:' | head -4 | sed 's/^/             /'
+    printf '%s\n' "$out" | grep -E '^ *FAIL|[1-9][0-9]* (problems?|failed|findings)|Error|error:' | head -4 | sed 's/^/             /'
     FAILED+=("$name")
   else
     echo "ok"
     PASS=$((PASS + 1))
   fi
+}
+
+run() {
+  local name="$1"; shift
+  printf '  %-10s ' "$name"
+  local out rc
+  out=$("$@" 2>&1); rc=$?
+  judge "$name" "$out" "$rc"
 }
 
 run "syntax"   node --check v82.js
@@ -102,9 +110,24 @@ if [ $FAST -eq 1 ]; then
   echo
   echo "  fieldsim and warpsim skipped (--fast). Run without --fast before delivering."
 else
-  echo "  (fieldsim and warpsim take minutes each - they play real missions)"
-  run "fieldsim" node fieldsim.js "$LOGIC" "$MOUNTS"
-  run "warpsim"  node warpsim.js  "$LOGIC" "$MOUNTS"
+  # Side by side, not one after the other. They are independent, each keeps
+  # about one core busy, and warpsim alone is around an hour and a half -
+  # measured at 1.6 minutes a mission over missions 1-60. Run in turn they
+  # put the wait past two hours for no reason.
+  #
+  # Their output goes to a file as it is produced, so the run can be watched
+  # while it happens. Captured in a variable, as the short stages are, there
+  # is nothing to see until the stage ends.
+  echo "  fieldsim and warpsim now run side by side; this takes a good hour."
+  echo "  Watch them: tail -f checks.fieldsim.log checks.warpsim.log"
+  node fieldsim.js "$LOGIC" "$MOUNTS" > checks.fieldsim.log 2>&1 &
+  FPID=$!
+  node warpsim.js  "$LOGIC" "$MOUNTS" > checks.warpsim.log 2>&1 &
+  WPID=$!
+  wait $FPID; FRC=$?
+  wait $WPID; WRC=$?
+  printf '  %-10s ' "fieldsim"; judge "fieldsim" "$(cat checks.fieldsim.log)" "$FRC"
+  printf '  %-10s ' "warpsim";  judge "warpsim"  "$(cat checks.warpsim.log)"  "$WRC"
 fi
 
 echo
