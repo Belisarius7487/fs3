@@ -248,6 +248,62 @@ function draw(){
   // Opening the settings pauses the game, so without this the pause
   // notice printed straight across the panel it had just opened.
   if(paused && !settingsOpen) drawPaused();
+  drawDiag();
+}
+
+// ── DIAGNOSTIC READ-OUT (&diag=1) ────────────────────────────
+// Off unless the address says so, and meant to be taken out again once the
+// rectangles (F4) are understood.
+//
+// It exists because the numbers that would settle that question live in
+// Silvio's browser, not here: it never happens in the check environment,
+// and three explanations have been measured and disproved. Reading them out
+// of the console was the obvious route and is closed to him - Chrome blocks
+// pasting until a phrase is typed, and a one-line dump is not something to
+// retype by hand. So the figures are drawn into the picture instead: he
+// presses P when a rectangle shows, and photographs it.
+//
+// Screen space, top left under the bar, on a plate so it stays readable
+// over a bright nebula.
+const DIAG_ON = (typeof location !== 'undefined') && /[?&]diag=1/.test(location.search || '');
+function drawDiag(){
+  if(!DIAG_ON) return;
+  const L = [];
+  const n = v => (v == null ? '-' : (typeof v === 'number' ? Math.round(v*100)/100 : v));
+  const sz = o => o ? (o.width + 'x' + o.height) : '-';
+  try{
+    L.push('W/H        ' + W + 'x' + H);
+    L.push('canvas     ' + CVS.width + 'x' + CVS.height);
+    L.push('css        ' + CVS.clientWidth + 'x' + CVS.clientHeight);
+    L.push('window     ' + innerWidth + 'x' + innerHeight + '  dpr ' + n(devicePixelRatio));
+    L.push('RES        ' + n(RES_X) + ' / ' + n(RES_Y) + '   ECOres ' + n(ECO && ECO.res));
+    L.push('CAM        ' + n(CAM.x) + ',' + n(CAM.y) + '  z ' + n(CAM.z));
+    L.push('shake      ' + n(CAM_SHX) + ',' + n(CAM_SHY));
+    L.push('neb        fade ' + (nebFading ? 'Y' : 'n') + ' a ' + n(nebAlpha)
+           + '  cur ' + n(nebCur) + ' ' + sz(NEBS[nebCur])
+           + '  nxt ' + n(nebNxt) + ' ' + sz(NEBS[nebNxt]));
+    L.push('f3d        ok ' + (F3D.ok === null ? '?' : (F3D.ok ? 'Y' : 'n'))
+           + ' off ' + (F3D.off ? 'Y' : 'n') + '  can ' + sz(F3D.can)
+           + (F3D.err ? ('  err ' + String(F3D.err).slice(0, 40)) : ''));
+    L.push('state      ' + GS + '  wave ' + n(wave) + '  waveCd ' + n(waveCd)
+           + '  mod ' + n(waveMod));
+  }catch(e){ L.push('diag failed: ' + String(e && e.message || e).slice(0, 60)); }
+
+  ctx.save();
+  camScreen();
+  ctx.font = thValue(11);
+  let w = 0;
+  for(const t of L) w = Math.max(w, ctx.measureText(t).width);
+  const x = 12, y = HUD_H + 12, pad = 8, lh = 14;
+  ctx.fillStyle = 'rgba(0,0,0,0.78)';
+  ctx.fillRect(x, y, w + pad*2, L.length*lh + pad*2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, w + pad*2, L.length*lh + pad*2);
+  ctx.fillStyle = '#9fe8c0';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  for(let i = 0; i < L.length; i++) ctx.fillText(L[i], x + pad, y + pad + i*lh);
+  ctx.restore();
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
 }
 
 // Everything that goes on a ship after her hull: marks, hull bar, shields,
