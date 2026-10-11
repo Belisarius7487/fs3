@@ -56,7 +56,7 @@ git add CODEMAP.md
 ## Full index
 
 <!-- AUTO:START -->
-Generated from `hlp_shooter_v220_logic.html` by `codemap.py` — do not edit by hand.
+Generated from `hlp_shooter_v221_logic.html` by `codemap.py` — do not edit by hand.
 
 ### (file start) (line 1)
 - data: `SPR_DATA`, `NEB_DATA`, `ROLES`, `NEB_NAMES`, `CVS`, `ctx`, `W`
@@ -1046,8 +1046,8 @@ Generated from `hlp_shooter_v220_logic.html` by `codemap.py` — do not edit by 
 - data: `F3D_FX`, `F3D_ID`, `F3D_FXTEX`, `F3D_TH`, `F3D_TH_SP`, `F3D_TH_GLOW`, `F3D_TH_LEN`, `F3D_TH_ARR`, `F3D_WP`, `F3D_WP_GLOW`
 
 ### HIT EFFECTS (line 17084)
-- `shieldHit()` 17088
-- `hullHit()` 17100
+- `shieldHit()` 17090 — They used to set a full-screen flash as well, which is why the screen…
+- `hullHit()` 17101
 - `laserHit()` 17111
 - `secMount()` 17125
 - `liveBurstRound()` 17132 — The one Infyrno in the air, if there is one.
@@ -1059,7 +1059,7 @@ Generated from `hlp_shooter_v220_logic.html` by `codemap.py` — do not edit by 
 - `fireSecondary()` 17217
 - `secHoldTick()` 17273
 - `updateSecBullets()` 17278
-- data: `shieldFlash`, `hullFlash`, `swarmSalvo`, `CLUSTER_CHILD`, `SEC_HOLD`
+- data: `swarmSalvo`, `CLUSTER_CHILD`, `SEC_HOLD`
 
 ### EXPLOSIONSSYSTEM (line 17432)
 - `lerpRGB()` 17436 — Helper: RGB interpolation for gradients

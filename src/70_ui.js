@@ -192,15 +192,15 @@ function draw(){
   ctx.beginPath();ctx.moveTo(mx,my-10);ctx.lineTo(mx,my+10);ctx.stroke();
   ctx.beginPath();ctx.arc(mx,my,4,0,Math.PI*2);ctx.stroke();
 
-  // Treffer-Flashes
-  if(shieldFlash>0){
-    ctx.fillStyle='rgba(0,100,255,'+(shieldFlash/8*0.07)+')';
-    ctx.fillRect(0,0,W,H); shieldFlash--;
-  }
-  if(hullFlash>0){
-    ctx.fillStyle='rgba(255,80,0,'+(hullFlash/7*0.08)+')';
-    ctx.fillRect(0,0,W,H); hullFlash--;
-  }
+  // The two full-screen flashes that used to sit here are gone (Silvio,
+  // v220). They were set in hullHit() and shieldHit(), which also make the
+  // sparks at the point of impact - and those are called wherever anything
+  // is hit, an enemy or a rammed asteroid included. So the screen lit up
+  // when the player HIT something, not only when she was hit, which is the
+  // flickering he reported even in a fight he was taking no damage in.
+  // Asked whether to keep it for her own hits alone, he chose to have it
+  // out altogether. A hit still shows: the bars above, the sparks at the
+  // point of impact, and the shield lighting up on her own hull.
 
   // HUD IMMER — State garantiert sauber
   ctx.globalAlpha=1;

@@ -1,9 +1,10 @@
 // ── HIT EFFECTS ──────────────────────────────────────────
-let shieldFlash = 0;  // Schild-Hit Overlay-Flash
-let hullFlash   = 0;  // hull hit overlay flash
-
+// Both of these make the sparks at the point of impact, and they are
+// called wherever anything is hit - an enemy, a rammed asteroid, the player.
+// They used to set a full-screen flash as well, which is why the screen lit
+// up when the player HIT something. Taken out in v220 (Silvio); see draw()
+// in 70_ui.js.
 function shieldHit(x, y) {
-  shieldFlash = 8;
   f3dShieldHit(F3D_PL, x, y);     // v205: the hit on her shield mesh
   // Schild-Funken: blau-cyan, konzentriert um Hitpunkt
   for(var i=0;i<14;i++){
@@ -15,7 +16,6 @@ function shieldHit(x, y) {
 }
 
 function hullHit(x, y) {
-  hullFlash = 7;
   // Hull sparks: orange yellow, sharp
   for(var i=0;i<14;i++){
     var a=Math.random()*Math.PI*2, spd=0.8+Math.random()*2.5;
