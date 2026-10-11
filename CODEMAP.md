@@ -56,7 +56,7 @@ git add CODEMAP.md
 ## Full index
 
 <!-- AUTO:START -->
-Generated from `hlp_shooter_v218_logic.html` by `codemap.py` — do not edit by hand.
+Generated from `hlp_shooter_v219_logic.html` by `codemap.py` — do not edit by hand.
 
 ### (file start) (line 1)
 - data: `SPR_DATA`, `NEB_DATA`, `ROLES`, `NEB_NAMES`, `CVS`, `ctx`, `W`
@@ -1388,38 +1388,38 @@ Generated from `hlp_shooter_v218_logic.html` by `codemap.py` — do not edit by 
 - `drawOwnVortex()` 23433
 - data: `PLOG`, `plogOpen`, `PLOG_ROWS`, `PLOG_STAT_KEYS`, `PLOG_STEP`, `RADAR_PNG`, `RADAR_MAP`
 
-### TARGETING (v210) (line 23524)
-- `tgtIsBomb()` 23538
-- `tgtCan()` 23540 — May the player hold this one?
-- `tgtHostile()` 23553
-- `tgtDist()` 23554
-- `tgtSet()` 23555
-- `tgtCycle()` 23560 — the next (dir 1) or previous (-1) of a list, nearest first
-- `tgtShips()` 23567
-- `tgtNearestHostile()` 23573
-- `tgtOff()` 23582 — how far off the player's nose a point lies, rad
-- `tgtDrawn()` 23588 — where a ship is drawn (v210: a capital ship's model sunk below the pl…
-- `tgtSubPos()` 23595
-- `heatSees()` 23601 — v210: heat seekers (FS2 +View Cone). Does a round flying along head s…
-- `heatAcquire()` 23609 — the nearest heat source in its cone and its reach; Stiletto II (bigFi…
-- `tgtKey()` 23625 — The keys. True when the key was one of them.
-- `tgtTick()` 23678 — Once a step: keep the target valid, its motion for the lead, the lock.
-- `tgtLocked()` 23698
-- `tgtPriReach()` 23703 — the reach of the primaries now firing - linked, the shorter one
-- `tgtLead()` 23710 — where to aim so a bolt meets her (her motion as seen, bolt speed s)
-- `fsBrackets()` 23732
-- `markBox()` 23748
-- `markText()` 23756
-- `drawTargetMarks()` 23761
+### TARGETING (v210) (line 23533)
+- `tgtIsBomb()` 23547
+- `tgtCan()` 23549 — May the player hold this one?
+- `tgtHostile()` 23562
+- `tgtDist()` 23563
+- `tgtSet()` 23564
+- `tgtCycle()` 23569 — the next (dir 1) or previous (-1) of a list, nearest first
+- `tgtShips()` 23576
+- `tgtNearestHostile()` 23582
+- `tgtOff()` 23591 — how far off the player's nose a point lies, rad
+- `tgtDrawn()` 23597 — where a ship is drawn (v210: a capital ship's model sunk below the pl…
+- `tgtSubPos()` 23604
+- `heatSees()` 23610 — v210: heat seekers (FS2 +View Cone). Does a round flying along head s…
+- `heatAcquire()` 23618 — the nearest heat source in its cone and its reach; Stiletto II (bigFi…
+- `tgtKey()` 23634 — The keys. True when the key was one of them.
+- `tgtTick()` 23687 — Once a step: keep the target valid, its motion for the lead, the lock.
+- `tgtLocked()` 23707
+- `tgtPriReach()` 23712 — the reach of the primaries now firing - linked, the shorter one
+- `tgtLead()` 23719 — where to aim so a bolt meets her (her motion as seen, bolt speed s)
+- `fsBrackets()` 23741
+- `markBox()` 23757
+- `markText()` 23765
+- `drawTargetMarks()` 23770
 - data: `TGT`, `TGT_LOCK_CONE`, `TGT_RETICLE_CONE`, `TGT_BOX_MIN`, `LOCK_RING_R`
 
-### RADAR AND TARGET VIEW IN THE BAR (v210, draft of 10.10.) (line 23826)
-- `radarImgs()` 23832
-- `radarIcon()` 23837
-- `radarIconOf()` 23848
-- `drawBarRadar()` 23855
-- `barTargetModel()` 23889 — the target's model, drawn by the field renderer through a camera of i…
-- `drawBarScope()` 23918 — called at the end of drawHUDHLP with the first free x after SUPPORT
+### RADAR AND TARGET VIEW IN THE BAR (v210, draft of 10.10.) (line 23835)
+- `radarImgs()` 23841
+- `radarIcon()` 23846
+- `radarIconOf()` 23857
+- `drawBarRadar()` 23864
+- `barTargetModel()` 23898 — the target's model, drawn by the field renderer through a camera of i…
+- `drawBarScope()` 23927 — called at the end of drawHUDHLP with the first free x after SUPPORT
 - data: `RADAR_IMG`, `RADAR_ICO_K`
 
 <!-- AUTO:END -->

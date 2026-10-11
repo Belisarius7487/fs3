@@ -260,6 +260,39 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// One opening, and its mouth faces the ship: it spits her out coming in and
+// swallows her going out. So the vortex she LEAVES through has to look back
+// at her, against her nose, while the one she arrives from looks the way she
+// flies. Both were drawn along her nose, leaving the one on the way out 180
+// degrees round (Silvio, v216). warpsim watches the timing and the movement
+// of a jump, never which way the vortex looks, so it could not see this.
+scenario('M31 the vortex she leaves through faces her', 'm=31', `
+  const r = {};
+  const pick = () => enemies.find(x=>!x.dead && !(x.warp>0) && IMGS[x.img]);
+  r.aShip = FS.until(()=>!!pick(), 20000, true) >= 0;
+  const e = pick();
+  if(!e) return r;
+  // send her out, the way the game does
+  e.warpOut = e.warpMax = 160; e.warpX = e.x; e.warpY = e.y; e._fsG = null;
+  const nose = fsNose(e), noseAng = Math.atan2(nose.y, nose.x);
+  // f3dWarp draws the model and returns true, which would end the call before
+  // the angle is ever handed to ctx. Stood aside here so both can be read.
+  const f3 = (typeof f3dWarp === 'function') ? f3dWarp : null;
+  let model = null;
+  if(f3) f3dWarp = function(px, py, fx, fy){ model = Math.atan2(fy, fx); return false; };
+  const rot = [];
+  const rr = ctx.rotate;
+  ctx.rotate = function(a){ rot.push(a); return rr.apply(ctx, arguments); };
+  try{ drawOwnVortex(e); } finally { ctx.rotate = rr; if(f3) f3dWarp = f3; }
+  const norm = a => Math.atan2(Math.sin(a), Math.cos(a));
+  const half = a => Math.abs(Math.abs(norm(a)) - Math.PI) < 0.05;   // about 180 deg
+  r.vortexWasDrawn = rot.length > 0;
+  if(!rot.length) return r;
+  r.turnedFromHerNose = Math.round(norm(rot[0] - noseAng)*100)/100;
+  r.mouthLooksBackAtHer = half(rot[0] - noseAng);
+  if(model !== null) r.modelLooksBackAtHer = half(model - noseAng);
+  return r;`);
+
 // The subsystem picked as the target keeps its name, wherever the player is
 // and wherever she looks. Before v217 one name was shown, and only within 120
 // world units AND 31 degrees of where her nose pointed - so on a hull

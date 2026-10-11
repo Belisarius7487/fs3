@@ -4292,13 +4292,22 @@ function drawOwnVortex(e){
         if(e._fsG && e._fsG.across && e._wMem) WSf = Math.max(WSf, e._fsG.across*2*1.6);
         // Coming in: the vortex is drawn by drawFsPortals() after this.
         if(!fg.out){ fsPortalOpen(e, fg, WSf); return; }
+        // The vortex is ONE opening, and its mouth faces the ship: it spits
+        // her out coming in, and swallows her going out. Coming in it stands
+        // behind her and the mouth looks the way she flies; going out it
+        // stands ahead of her, so the mouth has to look BACK at her, against
+        // her nose. Both were drawn along her nose, which left the one she
+        // leaves through 180 degrees round (Silvio, v216). fsWarpClip() has
+        // known the difference all along: `const sg = g.out ? -1 : 1`.
+        // A plain oval would not show it - the warp model does (v208, f3dWarp).
+        const mx = -fg.fx, my = -fg.fy;      // going out: the mouth looks back at her
         // v208: the warp model in 3D, the old picture without 3D
         if(WARP_STYLE==='oval' && typeof f3dWarp === 'function' &&
-           f3dWarp(fg.px, fg.py, fg.fx, fg.fy, WSf, fg.wS, fg.wA, warpSeed(e), warpTurquoise(e))) return;
+           f3dWarp(fg.px, fg.py, mx, my, WSf, fg.wS, fg.wA, warpSeed(e), warpTurquoise(e))) return;
         ctx.save();
         ctx.globalAlpha = fg.wA;
         ctx.translate(fg.px|0, fg.py|0);
-        if(WARP_STYLE==='oval'){ ctx.rotate(Math.atan2(fg.fy, fg.fx)); ctx.scale(WARP_OVAL*fg.wS, fg.wS); }
+        if(WARP_STYLE==='oval'){ ctx.rotate(Math.atan2(my, mx)); ctx.scale(WARP_OVAL*fg.wS, fg.wS); }
         else ctx.scale(fg.wS, fg.wS);
         drawWarpFrame(warpSeed(e), WSf, warpTurquoise(e));
         ctx.restore(); ctx.globalAlpha = 1;

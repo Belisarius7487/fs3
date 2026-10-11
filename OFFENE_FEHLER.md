@@ -203,6 +203,47 @@ an einer Stelle, nicht zehnmal einzeln.
 
 - Status: offen, Ursache eingegrenzt
 
+### F5 — Das Sprungtor steht beim Auswarpen 180 Grad verkehrt
+
+**Befund (Silvio, v216):** „Wenn Schiffe einwarpen, ist die Warpanimation
+richtig herum, wenn sie herauswarpen ist sie um 180 Grad falsch herum."
+
+Auf Rückfrage präzisiert: **Das Tor** steht verkehrt herum — das Schiff
+fliegt richtig, mit der Nase voran, hinein, aber der Trichter öffnet sich in
+die falsche Richtung.
+
+Silvios eigene Deutung, die zutrifft: „Die Öffnung, die Schiffe ausspuckt,
+ist auch die Öffnung, die sie wieder einsaugt." Das Tor hat keine Richtung,
+die von der Flugrichtung abhängt.
+
+**Ursache (nachgewiesen):** Beide Zeichenwege drehen das Tor nach der
+**Nasenrichtung des Schiffes** (`fsNose`):
+
+- Einwarpen: `20_render.js:516`, `ctx.rotate(Math.atan2(p.fy, p.fx))`
+- Auswarpen: `drawOwnVortex` in `70_ui.js`, `ctx.rotate(Math.atan2(fg.fy, fg.fx))`
+
+Das Tor steht aber auf verschiedenen Seiten des Schiffes — `fsWarp()` setzt
+`const sg = out ? 1 : -1`, also davor beim Hinausfliegen, dahinter beim
+Hereinkommen. Die Mündung muss **zum Schiff** zeigen: beim Einwarpen spuckt
+sie es nach vorn aus (Mündung in Nasenrichtung, richtig), beim Auswarpen
+verschluckt sie es (Mündung **entgegen** der Nase). Genommen wird aber beide
+Male die Nasenrichtung.
+
+`fsWarpClip()` kennt den Unterschied längst (`const sg = g.out ? -1 : 1`) —
+deshalb fliegt das Schiff korrekt hinein, während nur der Trichter falsch
+steht.
+
+Sichtbar wird es erst durch den unsymmetrischen Inhalt: ein reines Oval sähe
+um 180 Grad gedreht gleich aus. Seit v208 wird das MediaVP-Warpmodell in 3D
+gezeichnet (`f3dWarp`), und das hat eine Vorder- und eine Rückseite.
+
+**Warum keine Prüfstufe das fand:** `warpsim` prüft Zeitpunkte und
+Bewegungsabläufe der Sprünge — ob etwas ruckt, zu früh schließt, die
+Schnittebene nicht passt. Die **Blickrichtung** des Tors prüft es nicht.
+
+- Behoben in: v219
+- Status: gebaut, wartet auf Silvios Test im Browser
+
 ---
 
 ## Früher berichtet, hier noch nicht eingetragen
