@@ -49,17 +49,22 @@ const TRIG_NO_ID  = new Set(['sek', 'zeit', 'erfuellt', 'gerettet', 'verloren', 
 const EFFECT_UNIT = new Set(['einwarpen', 'seite', 'raus', 'heilen', 'kapern', 'freigeben', 'kulisse', 'ruf']);
 
 let errors = 0, missions = 0;
+const groups = [];
 for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
   const m = SCRIPT_WAVES[key], units = m.u || [], evs = m.ev || [];
   const tag = 'M' + String(key).padStart(3, '0');
+  // An id stands for a GROUP, not for one ship: byId() returns every unit
+  // carrying it, and a trigger may even name several with '+'. M78 gives its
+  // three devices one id so that one scan trigger covers all three. So a
+  // repeated id is the design, not a mistake - what is checked below is that
+  // the group as a whole can do what an event asks of it.
   const ids = new Map();
   const bad = [];
   missions++;
 
   for(const u of units){
     if(!u.id) bad.push('unit without id (' + u.c + ')');
-    else if(ids.has(u.id)) bad.push('id used twice: ' + u.id);
-    ids.set(u.id, u);
+    if(u.id){ if(!ids.has(u.id)) ids.set(u.id, []); ids.get(u.id).push(u); }
     // sd: a super destroyer by name (v169).
     if(!CAT_FAC[u.c] && !CAT_FIX[u.c] && u.c!=='sd')
       bad.push(u.id + ': unknown category "' + u.c + '" - would never spawn');
@@ -83,7 +88,7 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
     if(TRIGGERS.has(e.t) && !TRIG_NO_ID.has(e.t))
       for(const id of String(e.a).split('+'))
         if(!ids.has(id)) bad.push(where + ': trigger points at missing id ' + id);
-    if(e.t === 'angedockt' && ids.has(e.a) && !ids.get(e.a).dockTo)
+    if(e.t === 'angedockt' && ids.has(e.a) && !ids.get(e.a).some(u => u.dockTo))
       bad.push(where + ': ' + e.a + ' has no dockTo, it can never dock');
     if(EFFECT_UNIT.has(e.w) && !ids.has(arg))
       bad.push(where + ': effect points at missing id ' + arg);
@@ -91,7 +96,7 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
       bad.push(where + ': hunt target is a missing id ' + arg);
     if(e.w === 'einwarpen'){
       warpedIn.add(arg);
-      if(ids.has(arg) && !ids.get(arg).wait)
+      if(ids.has(arg) && !ids.get(arg).some(u => u.wait))
         bad.push(where + ': ' + arg + ' is not waiting - warping it in does nothing');
     }
     if(e.w === 'nachschub'){ if(arg === 'aus') reinfOff = true; else reinfOn = true; }
@@ -102,9 +107,13 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
   if(reinfOn && !reinfOff) bad.push('reinforcements switched on, never switched off');
   if(m.hunt && !ids.has(m.hunt)) bad.push('hunt points at missing id ' + m.hunt);
 
+  const grouped = [...ids].filter(([, g]) => g.length > 1).map(([id, g]) => id + ' x' + g.length);
+  if(grouped.length) groups.push(tag + ': ' + grouped.join(', '));
+
   if(bad.length){ errors += bad.length; console.log(tag + ' ' + (m.name || '')); bad.forEach(b => console.log('   ' + b)); }
 }
 console.log('\n' + missions + ' missions checked, ' + errors + ' problems');
+if(groups.length) console.log('ids standing for a group: ' + groups.join(' | '));
 console.log('known triggers: ' + [...TRIGGERS].join(' '));
 console.log('known effects:  ' + [...EFFECTS].join(' '));
 process.exit(errors ? 1 : 0);
