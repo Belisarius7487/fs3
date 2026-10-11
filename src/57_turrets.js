@@ -141,7 +141,8 @@ function drawLaser(b, core, glow, hot){
   ctx.save();
   ctx.translate(bx, by);
   ctx.rotate(ang);
-  for(let k=3;k>=1;k--) glowAt(-len*0.55*k, 0, len*0.75, wid*0.9, glow, 0.30*(4-k)/3, 0);
+  // v215: two trail glows (three before), less to fill on the graphics card
+  for(let k=2;k>=1;k--) glowAt(-len*0.6*k, 0, len*0.8, wid*0.9, glow, 0.32*(3-k)/2, 0);
   glowAt(0, 0, len*0.95, wid*1.7, glow, 0.95, 0);
   glowAt(0, 0, len*0.62, wid*0.85, core, 1, 0.5);
   glowAt(len*0.08, 0, len*0.34, wid*0.42, hot, 1, 1);

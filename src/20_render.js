@@ -1162,7 +1162,10 @@ function boom(x,y,n,big){
   }
 }
 function tickParts(){
-  if(PARTS.length>900)PARTS.splice(0,PARTS.length-900);
+  // v215: 650 (900 before) - in the lag log the long frames came with ~900
+  // particles, the time spent outside the game's code (drawing them on the
+  // graphics card, each a soft additive glow since v213)
+  if(PARTS.length>650)PARTS.splice(0,PARTS.length-650);
   for(var i=PARTS.length-1;i>=0;i--){
     var p=PARTS[i];
     if(p.ml===0) p.ml=p.life;
@@ -1256,7 +1259,7 @@ function drawParts(){
       var clr=p.clr||'#ffffff';
       // v213: one soft glow with a white-hot heart (glowAt), no rings
       ctx.globalAlpha=1;
-      glowAt(p.x, p.y, sz2*1.9, sz2*1.9, clr, a, 0.7);
+      if(a > 0.04) glowAt(p.x, p.y, sz2*1.6, sz2*1.6, clr, a, 0.7);   // v215: smaller, none when faded
     }
   }
   ctx.restore(); // stellt globalAlpha, lineWidth, etc. wieder her
@@ -1810,6 +1813,7 @@ function dmgK(e){
   return Math.max(1, Math.min(RES_X, 1/Math.max(0.05, e.sc), DMG_K_MAX));
 }
 // The ship, with what she has taken. Same transform as drawShip().
+const DMG_REBUILD_STEPS = 25;   // v215: steps between two builds of one ship's damage picture
 function drawShipE(e, cx, cy, scale, flipX, ang){
   // v211: in her turn (capTurnStep) the picture is narrowed about her middle
   if(e.turnSq && !drawShipE._in){
@@ -1834,7 +1838,11 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
   if(D.gen !== CACHE_GEN){ D.gen = CACHE_GEN; D.dirty = true; D.built = -99; D.fBuilt = -1; D.fxT = -99; }
   // the screen resolution changed (window, fullscreen): rebuild at the new one
   if(D.can && D.k !== dmgK(e)) D.dirty = true;
-  if(D.dirty && (fc - (D.built||-99) >= 3 || !D.can || D.k !== dmgK(e))) dmgBuild(e, D);
+  // v215 (Silvio's lag log: "damage picture" built 8-26 times a second per
+  // capital ship in a fight, the lags fell outside the game's code - the
+  // picture goes up to the graphics card each time): at most four times a
+  // second; a new mark shows up to a quarter second later
+  if(D.dirty && (fc - (D.built||-99) >= DMG_REBUILD_STEPS || !D.can || D.k !== dmgK(e))) dmgBuild(e, D);
   const img = IMGS[e.img];
   const w = img.width*scale, h = img.height*scale;
   // v204: drawn from her model the marks lie on the model (f3dDmgBind,

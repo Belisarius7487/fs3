@@ -3224,7 +3224,7 @@ function drawBeamRays(e, own) {
     // (drawnHullRun), then fading out over the stretch under it - the two
     // pieces no longer lie on top of each other beside her hull, which was
     // the hard edge (Silvio)
-    const len = own ? drawnHullRun(e, mpF.x, mpF.y, ang) : 2000/CAM.z;
+    const len = own ? ownRunSmooth(e, b, mpF.x, mpF.y, ang) : 2000/CAM.z;
     const g = fxG();                           // v209: v207 widths on the screen
     if(len <= 0) continue;
     const ex=mpF.x+Math.cos(ang)*len, ey=mpF.y+Math.sin(ang)*len;
@@ -3233,7 +3233,7 @@ function drawBeamRays(e, own) {
     // running along it (drawBeamRay, 61_glow.js); a little wider while the
     // shot builds up and as it dies away
     const bw = (b.large?7.5:3.6)*g;
-    const fade = own ? Math.max(6, bw*3) : 0;
+    const fade = own ? Math.max(10, bw*5) : 0;     // v215: a longer fade
     drawBeamRay(mpF.x, mpF.y, ang, own ? len + fade : len, bw*flicker, col, 0.95, fc, bw, fade);
     if(hid) drawBeamOrb(e, b);
   }
@@ -3249,6 +3249,32 @@ function drawnHullRun(e, x, y, a){
   let last = 0;
   for(let t = 0; t <= box; t += st) if(onHullAt(e, x + c*t, y + s*t)) last = t;
   return last;
+}
+// v215 (Silvio: beams still jumped, the ray apart from its turret): the
+// first test stepped coarsely and gave 0 whenever the turret sat a hair
+// outside the outline - then the ray seemed to start at the hull's edge,
+// and the next frame it was back (measured on the Deimos: 0, 96, 153, 288).
+// Now: fine steps, a gap of up to HULL_GAP units allowed (at the turret and
+// between parts of the hull), the end of that first stretch of hull, and
+// smoothed per beam from frame to frame.
+const HULL_GAP = 16;
+function hullRunFine(e, x, y, a){
+  const box = ownHullRun(e, x, y, a);
+  if(!(box > 0) || typeof onHullAt !== 'function') return box;
+  const c = Math.cos(a), s = Math.sin(a), st = Math.max(2, box/400);
+  let last = -1, miss = 0;
+  for(let t = 0; t <= box; t += st){
+    if(onHullAt(e, x + c*t, y + s*t)){ last = t; miss = 0; }
+    else if(last >= 0 || t > HULL_GAP){ miss += st; if(miss > HULL_GAP) break; }
+  }
+  return Math.max(0, last);
+}
+function ownRunSmooth(e, b, x, y, a){
+  const v = hullRunFine(e, x, y, a);
+  if(b._ownFc == null || fc - b._ownFc > 6 || b._own == null){ b._own = v; }
+  else b._own += (v - b._own)*0.2;
+  b._ownFc = fc;
+  return b._own;
 }
 // How far a ray from (x,y) at angle a runs before it leaves the box of
 // ship e.
