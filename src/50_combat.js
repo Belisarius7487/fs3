@@ -1701,8 +1701,12 @@ function subRadius(e, s){
   if(s && s.r) return Math.max(6, Math.min(40, w*s.r));
   return Math.max(9, Math.min(24, w*0.085));
 }
-const SUB_NAME_R = 120;       // how close before the name is spelled out
-const SUB_NAME_CONE = 0.55;   // and how far off the nose it may be
+// How near the reticle a bracket has to be, in SCREEN pixels, before its
+// name is spelled out. Measured on the screen on purpose: a pixel is a pixel
+// at every zoom and on every field size. The two values this replaces were
+// world units (120) and a cone off the player's nose (0.55 rad) - see
+// drawSubsystems() in 40_world.js for why both had to go.
+const SUB_NAME_PX = 70;
 
 // Angles in sprite space, 0 pointing forward along the hull.
 const SUB_DEFS = [

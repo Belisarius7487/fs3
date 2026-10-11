@@ -23,7 +23,7 @@ neue Änderung bekommt die nächste Nummer.
 
 ---
 
-## 1. Wenn ich sage „v217 liegt bereit"
+## 1. Wenn ich sage „v218 liegt bereit"
 
 ### Einmalig, beim allerersten Mal
 
@@ -62,11 +62,13 @@ Danach schaust du dir das Spiel an, unter der Adresse, die ich dir mitgebe.
 Sie sieht so aus:
 
 ```
-http://dev.hard-light.org/fs3/?v=217&ui=1&ships=9&wpn=1
+http://dev.hard-light.org/fs3/?v=218&ui=1&ships=9&wpn=1
 ```
 
 Die Nummer hinter `v=` ist nur dafür da, dass dein Browser nicht die alte
 Fassung aus seinem Zwischenspeicher zeigt. Sie muss zur neuen Version passen.
+Die Zahl wächst mit jeder Version — ich gebe dir die Adresse jedes Mal
+vollständig mit, du musst sie nicht selbst bauen.
 
 ---
 
@@ -95,7 +97,7 @@ harmlos, vergessen nicht.
 
 ## 3. Wenn eine Version gut ist
 
-Sag mir einfach: **„v217 ist gut."**
+Sag mir einfach: **„v218 ist gut."**
 
 Dann bringe ich sie in die Hauptspur `main`. Du musst dafür nichts auf GitHub
 klicken. Danach steht sie dauerhaft und ist der neue Ausgangspunkt.

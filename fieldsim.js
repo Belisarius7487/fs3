@@ -260,6 +260,49 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// The subsystem picked as the target keeps its name, wherever the player is
+// and wherever she looks. Before v217 one name was shown, and only within 120
+// world units AND 31 degrees of where her nose pointed - so on a hull
+// thousands of units long it was mostly absent, and which green bracket was
+// which had to be guessed (Silvio, v216).
+//
+// Set up so that ONLY the new rule can produce a label: she looks the other
+// way, stands well off, and the pointer sits in a corner. Under the old rule
+// nothing is drawn here.
+scenario('M31 the picked subsystem keeps its name', 'm=31', `
+  const r = {};
+  const withSubs = () => enemies.find(x=>x.subs && x.subs.length && !x.dead && !(x.warp>0));
+  r.enemyWithSubs = FS.until(()=>!!withSubs(), 20000, true) >= 0;
+  const e = withSubs();
+  if(!e) return r;
+  subMarksOn = true;
+  TGT.e = e; TGT.sub = e.subs.find(s=>!s.dead) || e.subs[0];
+  r.picked = !!TGT.sub;
+  // off to her left, nose pointing away from her
+  player.x = e.x - 600; player.y = e.y; player.head = Math.PI;
+  MOUSE.scr = true; MOUSE.sx = 5; MOUSE.sy = 5;      // pointer in a corner
+  const seen = [];
+  const ft = ctx.fillText;
+  ctx.fillText = function(t){ seen.push(String(t)); return ft.apply(ctx, arguments); };
+  try{ drawSubsystems(e); } finally { ctx.fillText = ft; }
+  r.labelsDrawn = seen.join(',');
+  r.pickedNameDrawn = seen.indexOf(TGT.sub.label) >= 0;
+
+  // and the reticle names whatever it is held over, so every bracket can be
+  // identified by pointing at it
+  const other = e.subs.find(s=>!s.dead && s!==TGT.sub);
+  if(other){
+    const op = subPos(e, other), ov = hullPt(e, op.x, op.y);
+    MOUSE.sx = w2sX(ov.x); MOUSE.sy = w2sY(ov.y);
+    const seen2 = [];
+    const ft2 = ctx.fillText;
+    ctx.fillText = function(t){ seen2.push(String(t)); return ft2.apply(ctx, arguments); };
+    try{ drawSubsystems(e); } finally { ctx.fillText = ft2; }
+    r.underReticle = seen2.join(',');
+    r.reticleNamesIt = seen2.indexOf(other.label) >= 0;
+  }
+  return r;`);
+
 // A ship driving across the field steers herself: tickCrossGuards() moves her
 // by her crossing, and nothing else may. capLane drove a crossing freighter as
 // well, at about eighteen times that speed, and turned her round at her lane

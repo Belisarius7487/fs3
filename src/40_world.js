@@ -934,10 +934,41 @@ function drawSubGlyph(id, r){
 // is named.
 let subMarksOn = false;
 function toggleSubMarks(){ subMarksOn = !subMarksOn; }
+// The name over a bracket.
+function drawSubName(s, p){
+  ctx.save();
+  camScreen();
+  ctx.font=thLabel(9);
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
+  ctx.strokeText(s.label,p.x,p.y-13);
+  ctx.fillStyle=hullCol(s.hp/s.maxHp);
+  ctx.fillText(s.label,p.x,p.y-13);
+  ctx.restore();
+  ctx.textAlign='left'; ctx.textBaseline='top';
+}
+// Two names at most: the subsystem picked as the target (S, Shift+S, V) and
+// the one the reticle is nearest to.
+//
+// Before v217 there was one name, and it was shown only if that subsystem
+// was within 120 world units of the player AND within 31 degrees of where
+// her nose pointed. The cone made it come and go with the smallest turn, and
+// the 120 were never scaled when the field grew, while the hulls grew to
+// thousands of units - on a Ravana the subsystems lie hundreds apart, so
+// "within 120" meant almost inside her. Every other bracket stayed unnamed,
+// so which green bracket was which had to be guessed (Silvio, v216).
+//
+// Now the picked one carries its name wherever the player is and wherever
+// she looks - she always knows what she is shooting at - and the reticle
+// names whatever it is held over.
 function drawSubsystems(e){
   if(!e.subs || !subMarksOn) return;
-  let near=null, nearD=SUB_NAME_R*SUB_NAME_R, nearP=null;
-  const pa=player.head||0, cs=Math.cos(pa), sn=Math.sin(pa);
+  let near=null, nearD=SUB_NAME_PX*SUB_NAME_PX, nearP=null;
+  let pick=null, pickP=null;
+  // Where the player is looking. With the pointer off the screen (mouseHold)
+  // her own place stands in for it.
+  const scr = (typeof MOUSE !== 'undefined') && MOUSE.scr;
+  const rx = scr ? MOUSE.sx : w2sX(player.x), ry = scr ? MOUSE.sy : w2sY(player.y);
   for(const s of e.subs){
     if(s.dead) continue;                    // gone is gone, nothing is drawn
     const p=subPos(e,s);
@@ -959,26 +990,13 @@ function drawSubsystems(e){
     ctx.restore();
     ctx.globalAlpha=1;
     if(GS==='playing'){
-      const dx=p.x-player.x, dy=p.y-player.y;
-      const d2=dx*dx+dy*dy;
-      if(d2<nearD){
-        const proj=(dx*cs+dy*sn)/Math.max(1,Math.sqrt(d2));
-        if(proj>Math.cos(SUB_NAME_CONE)){ nearD=d2; near=s; nearP=sp; }
-      }
+      if(typeof TGT !== 'undefined' && TGT.e === e && TGT.sub === s){ pick=s; pickP=sp; }
+      const dx=sp.x-rx, dy=sp.y-ry, d2=dx*dx+dy*dy;
+      if(d2<nearD){ nearD=d2; near=s; nearP=sp; }
     }
   }
-  if(near){
-    ctx.save();
-    camScreen();
-    ctx.font=thLabel(9);
-    ctx.textAlign='center'; ctx.textBaseline='bottom';
-    ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
-    ctx.strokeText(near.label,nearP.x,nearP.y-13);
-    ctx.fillStyle=hullCol(near.hp/near.maxHp);
-    ctx.fillText(near.label,nearP.x,nearP.y-13);
-    ctx.restore();
-    ctx.textAlign='left'; ctx.textBaseline='top';
-  }
+  if(pick) drawSubName(pick, pickP);
+  if(near && near!==pick) drawSubName(near, nearP);
 }
 
 function drawSubMsgs(){

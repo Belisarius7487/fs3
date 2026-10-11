@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-Stand: v216 ist die spielbare Fassung.
+Stand: v216 ist die spielbare Fassung; v218 liegt zum Test bereit.
 
 ---
 
@@ -55,12 +55,46 @@ Repo, die Bögen lassen sich hier also nicht mit Alpha neu bauen.
 die Namen der Subsysteme auf Schiffen nicht immer angezeigt, wenn der Spieler
 sich in deren Nähe befindet und darauf ausrichtet."
 
-„Nicht immer" heißt: es passiert, aber nicht bei jedem Schiff oder nicht in
-jeder Lage. Welche Schiffe und welche Lage, ist noch zu klären — **bei Silvio
-nachfragen, nicht raten.**
+**Silvios Nachtrag (auf Nachfrage):** Es betrifft **alle** Großkampfschiffe
+bzw. alle Schiffe mit angezeigten Subsystemen. „Nicht immer" bezog sich auf
+die **Ausrichtung**: je nachdem, wie er stand, war der Name da oder nicht —
+„ich musste raten, welche grüne Klammer auf dem Rumpf welches Subsystem
+markiert."
 
-- Ursache: noch nicht untersucht
-- Status: offen
+**Ursache (nachgewiesen, nicht vermutet):** `drawSubsystems()` in
+`40_world.js` zeigte **immer nur einen einzigen** Namen — das nächstgelegene
+Subsystem, das zwei Bedingungen zugleich erfüllte:
+
+- näher als `SUB_NAME_R = 120` **Welteinheiten**, und
+- innerhalb eines Kegels von `SUB_NAME_CONE = 0.55` rad (±31°) um die
+  Richtung, in die das Spielerschiff zeigt (`player.head`).
+
+Der Kegel ist die Ausrichtungs-Abhängigkeit: ein paar Grad gedreht, und der
+Name verschwand. Und die 120 waren ein **absoluter** Wert, der bei der
+Feldvergrößerung nie mitskaliert wurde — beide Konstanten wurden nirgends mit
+`FIELD_K` multipliziert. Auf einer Ravana (2346 Einheiten lang) liegen die
+Subsysteme hunderte Einheiten auseinander, „näher als 120" heißt dort
+praktisch „fast im Rumpf". Dass immer nur eines benannt wurde, ist der Rest
+des Befunds: die übrigen Klammern blieben namenlos.
+
+**Behoben in v218**, nach Silvios Wahl (Variante „Ziel immer benannt"):
+
+- Das als Ziel gewählte Subsystem (Taste S, Shift+S, V) trägt seinen Namen
+  **immer**, unabhängig von Entfernung und Ausrichtung.
+- Zusätzlich benennt das **Zielkreuz**, worüber es steht — gemessen in
+  Bildschirmpixeln (`SUB_NAME_PX = 70`) statt in Welteinheiten, damit es bei
+  jeder Zoomstufe und jeder Feldgröße gleich wirkt. Der Kegel um die
+  Schiffsnase ist weg.
+- Die beiden alten Konstanten sind ersetzt, keine Reste im Code.
+
+Neue Prüfung in `fieldsim.js` („M31 the picked subsystem keeps its name"):
+das Schiff sieht weg, steht 600 Einheiten entfernt, der Zeiger in der Ecke —
+nur die neue Regel kann dort einen Namen erzeugen. Gegen v217 gestellt: es
+wird **gar kein** Name gezeichnet, die Prüfung fällt durch. Auf v218:
+`"WEAPONS"` für das Ziel und `"WEAPONS,SENSORS"`, sobald das Zielkreuz über
+der zweiten Klammer steht.
+
+- Status: gebaut, wartet auf Silvios Test im Browser
 
 ### F3 — Bast-Frachter sind nicht mehr zu beschützen
 
