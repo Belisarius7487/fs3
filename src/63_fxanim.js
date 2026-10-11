@@ -22,6 +22,36 @@ const FX_SHEET_B64 = {
 };
 const FX_IMG = {};
 let FX_OK = null;
+// The sheets are lossy WebP and carry NO alpha channel (checked in the data:
+// mode RGB, the corner of every cell opaque black). So each cell is opaque,
+// black where it should be see-through.
+//
+// Fire and the trail are drawn with 'lighter', where black adds nothing, so
+// nothing showed there. Smoke is drawn with 'source-over' at 30-55%, and that
+// put a dark half-transparent rectangle around every explosion and every
+// missile trail - the explosion spawns smoke, and so does the trail (Silvio,
+// v216).
+//
+// The MediaVP originals are not in the repository, so the sheets cannot be
+// built again with alpha. The alpha is put back here instead, once per sheet
+// while it loads: how bright a pixel is, is how opaque it is. Black turns
+// see-through, the bright middle of a cloud stays solid. That is the same
+// rule the additive drawing already followed, only written into the image, so
+// 'source-over' obeys it too.
+function fxAlphaFromBrightness(im){
+  const c = document.createElement('canvas');
+  c.width = im.width; c.height = im.height;
+  const g = c.getContext('2d');
+  g.drawImage(im, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height), p = d.data;
+  for(let i = 0; i < p.length; i += 4){
+    // the brightest channel, so a coloured flame keeps its edge
+    const r = p[i], gr = p[i+1], b = p[i+2];
+    p[i+3] = r > gr ? (r > b ? r : b) : (gr > b ? gr : b);
+  }
+  g.putImageData(d, 0, 0);
+  return c;
+}
 function fxLoad(){
   if(FX_OK !== null || typeof Image === 'undefined') return;
   FX_OK = false;
@@ -29,7 +59,12 @@ function fxLoad(){
     let left = 0;
     for(const k in FX_SHEET_B64){
       const im = new Image(); left++;
-      im.onload = function(){ if(--left === 0) FX_OK = true; };
+      im.onload = (function(key, img){ return function(){
+        // Should the conversion ever fail, the raw sheet stays in place: the
+        // dark rectangle is back, but nothing crashes.
+        try{ FX_IMG[key] = fxAlphaFromBrightness(img); }catch(e){}
+        if(--left === 0) FX_OK = true;
+      }; })(k, im);
       im.onerror = function(){ FX_OK = false; };
       im.src = 'data:image/webp;base64,' + FX_SHEET_B64[k];
       FX_IMG[k] = im;

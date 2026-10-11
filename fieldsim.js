@@ -260,6 +260,38 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// A ship driving across the field steers herself: tickCrossGuards() moves her
+// by her crossing, and nothing else may. capLane drove a crossing freighter as
+// well, at about eighteen times that speed, and turned her round at her lane
+// limit - so the Bast freighters in The Convoy flew back and forth instead of
+// warping out to the right (Silvio, v216).
+//
+// "Does she get out" is not the check: whether she does depends on which way
+// her lane happens to run, and on v216 she sometimes did. What is measured is
+// the one thing that must hold - one step moves her by her crossing, no more.
+scenario('M09 a crossing freighter is driven by her crossing alone', 'm=9', `
+  const r = {};
+  const f1 = () => allies.filter(a=>a.uid==='F1' && !a.dead);
+  r.sheArrives = FS.until(()=>f1().length>0, 20000, true) >= 0;
+  const a = f1()[0];
+  if(!a) return r;
+  // Her crossing is started here instead of waiting for the dock: whether
+  // she survives the fighters and reaches a container is luck, and a check
+  // that depends on luck says nothing. These are the two lines the game
+  // itself runs the moment she has docked (30_waves.js, 'Docked.').
+  a.dockTo = null; a.dockRes = null;
+  a.crossing = a.crossAfter || 0.38;
+  const x0 = a.x;
+  FS.step(1);
+  const moved = a.x - x0;
+  r.movedPerStep = Math.round(moved*1000)/1000;
+  r.crossingSpeed = Math.round(a.crossing*1000)/1000;
+  // The one rule: her crossing is the drive itself, nothing is added to it.
+  r.stepIsCrossingOnly = Math.abs(moved - a.crossing) < 0.05;
+  // and no lane drives her, so nothing can turn her round mid-field
+  r.laneHoldsHer = !a._lane || a._lane.stand === true;
+  return r;`);
+
 // Every written mission has to come to an end when its enemies go down,
 // with nothing thrown on the way. Enemy ships are cleared every two seconds
 // once they are out of their vortex - a player who hits everything.

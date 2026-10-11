@@ -237,7 +237,16 @@ function capHolds(o){
   // a ship someone is coming to dock with waits for them (M80, the Hecate
   // patched up by transports) - cargoStillWanted(), 30_waves.js
   if(o.uid && typeof cargoStillWanted === 'function' && cargoStillWanted(o)) return true;
-  return !!(o.still || o.capRam || o.transit || o.dockTo || o.fleeing || o.escaping || o.platform
+  // crossing: a ship driving across the field steers herself, like capRam.
+  // tickCrossGuards() moves her by o.crossing - 1.0 a step for a freighter -
+  // and takes her out past the right edge. Without her here, capLane drove
+  // her as well, at capCruise (about 18 a step for a freighter), and turned
+  // her round at her lane limit, which laneLimit pulls in front of whatever
+  // else stands in that lane - the Aten in M9. So the Bast freighters flew
+  // back and forth instead of warping out to the right, and could not be
+  // protected (Silvio, v216). A crossing is the drive itself, not something
+  // added to another drive.
+  return !!(o.still || o.capRam || o.crossing || o.transit || o.dockTo || o.fleeing || o.escaping || o.platform
             || o.colossus || (o.minY != null && o.maxY != null && o.maxY - o.minY < 1));
 }
 function capMovers(){

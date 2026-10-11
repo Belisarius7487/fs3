@@ -6,9 +6,21 @@ Diese Datei liest Claude Code am Anfang jeder Sitzung. Sie steht auf Deutsch,
 damit Silvio sie lesen und ändern kann. **Kommentare in den Quelldateien
 bleiben auf Englisch**, damit englischsprachige Kollegen sie lesen können.
 
-Den technischen Stand, die Erfahrungen aus den Bauzyklen und die offenen
-Punkte beschreibt `FS3_HANDOFF_v127.md`. Es ist von v127 und in Teilen
-veraltet — **im Zweifel gilt der Code, nicht das Handoff.**
+**Silvios Anleitung steht in `ANLEITUNG.md`** — was er wann zu tun hat. Wird
+der Ablauf geändert, wird sie mitgeändert. Er hat nur rudimentäre Code- und
+GitHub-Erfahrung: Befehle immer fertig zum Kopieren, mit erwarteter Ausgabe
+und Abbruchpunkt.
+
+**Offene Fehler stehen in `OFFENE_FEHLER.md`.** Das ist die einzige Quelle,
+die eine Cloud-Sitzung dafür hat: sie sieht nur das Repository, keinen
+Chatverlauf und kein Gedächtnis aus früheren Sitzungen. **Meldet Silvio einen
+Fehler, wird er dort eingetragen, bevor gebaut wird** — mit seinen eigenen
+Worten, nicht mit einer Deutung davon. Sonst ist er in der nächsten Sitzung
+verloren.
+
+`FS3_HANDOFF_v127.md` beschreibt Erfahrungen aus den Bauzyklen. Es ist von
+v127 und **vor der Umstellung von 2D-Sprites auf 3D-Modelle** geschrieben,
+also in Teilen überholt — **im Zweifel gilt der Code, nicht das Handoff.**
 
 ---
 
