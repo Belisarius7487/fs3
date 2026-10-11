@@ -162,9 +162,11 @@ Weil die Behebung in `capHolds()` sitzt — der einen Stelle, die entscheidet,
 welche Schiffe sich selbst steuern — wirkt sie in **allen** Missionen
 zugleich, nicht Mission für Mission.
 
-- **Status: bestätigt für M9 und M23.** Silvio auf v219: „Die Bast fliegen
-  nicht mehr hin und her" (M9), und „M23 funktioniert, Bast drehen nicht
-  mehr hin und her". M27 steht noch aus.
+- **Status: ERLEDIGT.** Silvio hat alle drei gemeldeten Missionen geprüft:
+  M9 („Die Bast fliegen nicht mehr hin und her"), M23 („funktioniert, Bast
+  drehen nicht mehr hin und her") und M27 („ebenfalls keine drehenden Isis
+  mehr"). Damit ist auch das Rückwärtsfliegen der Isis weg, das dieselbe
+  Ursache hatte.
 
   Auch in der Prüfung sichtbar: `warpsim` meldete für M23 auf v216
   `(wave did not end)` — die Welle endete nicht, weil die Frachter nie
