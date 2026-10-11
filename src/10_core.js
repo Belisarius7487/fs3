@@ -1,15 +1,29 @@
 const SPR_DATA={};
 
+// v229: the backgrounds are fetched from the server, not built into the
+// page. They used to be @@FS3_ASSET@@ tokens, which the packer replaced with
+// the file itself - nine pictures of 900x450 at about 15 KB each, which is
+// 0.038 bytes a pixel and visibly mushy before any scaling happened at all.
+// At the size they want to be (3000x1500, the most the game can ever show:
+// H x the highest ECO_RES_STEPS is 1500 px) they would be several megabytes
+// each and game.html is already 28.8 MB, so they are served as files now, as
+// the music and the 3D models already are. build.sh copies the folder.
+//
+// Nothing else changes: the loading loop below does img.src = src either
+// way, and neither cares whether that is a data URI or an address.
 const NEB_DATA={
-  'Aldebaran':'@@FS3_ASSET:nebulae/Aldebaran.jpg@@',
-  'AlphaCentauri':'@@FS3_ASSET:nebulae/AlphaCentauri.jpg@@',
-  'BeAquilae':'@@FS3_ASSET:nebulae/BeAquilae.jpg@@',
-  'DSerpentis':'@@FS3_ASSET:nebulae/DSerpentis.jpg@@',
-  'Deneb':'@@FS3_ASSET:nebulae/Deneb.jpg@@',
-  'R128':'@@FS3_ASSET:nebulae/R128.jpg@@',
-  'Sirius':'@@FS3_ASSET:nebulae/Sirius.jpg@@',
-  'Vasuda':'@@FS3_ASSET:nebulae/Vasuda.jpg@@',
-  'Vega':'@@FS3_ASSET:nebulae/Vega.jpg@@',
+  'Aldebaran':'nebulae/neb_Aldebaran.png',
+  'AlphaCentauri':'nebulae/neb_AlphaCentauri.png',
+  'Antares':'nebulae/neb_Antares.png',
+  'BeAquilae':'nebulae/neb_BeAquilae.png',
+  'darkspace':'nebulae/neb_darkspace.png',
+  'Deneb':'nebulae/neb_Deneb.png',
+  'DSerpentis':'nebulae/neb_DSerpentis.png',
+  'Fomalhaut':'nebulae/neb_Fomalhaut.png',
+  'R128':'nebulae/neb_R128.png',
+  'Sirius':'nebulae/neb_Sirius.png',
+  'Vasuda':'nebulae/neb_Vasuda.png',
+  'Vega':'nebulae/neb_Vega.png',
 };
 
 // LORE: Die SD Hades stammt aus Silent Threat: Reborn und ist kanonisch
@@ -21,7 +35,7 @@ const NEB_DATA={
 // Schiffsschluessel liest.
 const ROLES={"player_fighters": ["fiares", "fierinyes", "fiherc", "fihercmk2", "fimyrmidon", "fipegasus", "fiperseus"], "player_bombers": ["boartemis", "boartemisdh", "boboanerges", "bomedusa", "boursa"], "ntf_fighters": ["fiherc", "fihercmk2", "fimyrmidon", "filoki", "fiulysses", "fiperseus"], "ntf_bombers": ["boartemis", "boboanerges", "bomedusa", "boursa", "bozeus"], "ntf_cruisers": ["ntfcraeolus", "ntfcrleviathan", "ntfcrfenris"], "ntf_corvette": ["ntfcodeimos"], "ntf_destroyers": ["ntfdeorion", "ntfdehecate"], "ntf_super": ["sdhades"], "shivan_fighters": ["fiaeshma", "fiastaroth", "fibasilisk", "fidragon", "fimanticore", "fimara"], "shivan_bombers": ["bonahema", "bonephilim", "boseraphim", "botaurvi"], "shivan_cruisers": ["crcain", "crlilith", "crrakshasa"], "shivan_corvette": ["comoloch"], "shivan_destroyers": ["dedemon", "deravana"], "shivan_super": ["sdlucifer", "sdsathanas"], "ally_ter_fighters": ["fiares", "fierinyes", "fiherc", "fihercmk2", "fimyrmidon", "fipegasus", "fiperseus"], "ally_ter_bombers": ["boartemis", "boartemisdh", "boboanerges", "bomedusa", "boursa"], "ally_ter_cruisers": ["craeolus", "crleviathan", "crfenris"], "ally_ter_corvette": ["codeimos"], "ally_ter_destroyers": ["deorionright"], "ally_vas_fighters": ["fihorus", "fiptah", "fiserapis", "fiseth", "fitauret", "fitoth"], "ally_vas_bombers": ["bobakha", "boosiris", "bosekhmet"], "ally_vas_cruisers": ["craten", "crmentu"], "ally_vas_corvette": ["cosobek"], "ally_vas_destroyers": ["detyphon", "dehatshepsut"], "bonus_ally": ["sdcolossus"], "bonus_enemy": ["coiceni"]};
 
-const NEB_NAMES=["Aldebaran", "AlphaCentauri", "BeAquilae", "DSerpentis", "Deneb", "R128", "Sirius", "Vasuda", "Vega"];
+const NEB_NAMES=["Aldebaran", "AlphaCentauri", "Antares", "BeAquilae", "darkspace", "Deneb", "DSerpentis", "Fomalhaut", "R128", "Sirius", "Vasuda", "Vega"];
 
 
 const CVS=document.getElementById('c');

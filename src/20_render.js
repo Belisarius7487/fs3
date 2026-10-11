@@ -292,14 +292,43 @@ for(const [k,src] of Object.entries(ICON_DATA)){
   const img=new Image();img.onload=()=>{ICONS[k]=img;iconsLoaded++;};img.src=src;}
 for(const [k,src] of Object.entries(SPR_DATA)){
   const img=new Image();img.onload=()=>{IMGS[k]=img;imgsLoaded++;if(typeof buildMask==='function')buildMask(k);};img.src=src;}
-for(const [k,src] of Object.entries(NEB_DATA)){
-  const img=new Image();img.onload=()=>{NEBS[k]=img;nebsLoaded++;};img.src=src;}
+// The backgrounds are fetched when they are wanted, not all at once (v229).
+// Twelve of 3000x1500 are 33 MB over the wire, and once decoded a picture
+// that size holds about 18 MB of memory whether it is on screen or not - so
+// keeping all of them would cost a fifth of a gigabyte for eleven nobody is
+// looking at. The one showing and the one being faded to are enough.
+const NEB_WANTED={};
+function nebLoad(name){
+  const src = name && NEB_DATA[name];
+  if(!src || NEBS[name] || NEB_WANTED[name]) return;
+  NEB_WANTED[name] = true;
+  const img = new Image();
+  img.onload = function(){ NEBS[name] = img; nebsLoaded++; };
+  // Let it be asked for again - a background that never arrives leaves the
+  // field black, which is survivable, but one that failed once should not be
+  // written off for the rest of the evening.
+  img.onerror = function(){ NEB_WANTED[name] = false; };
+  img.src = src;
+}
+// Everything but the one showing and the one coming. Called when a fade is
+// done, so a long session does not end up holding all twelve.
+function nebDropOthers(keep1, keep2){
+  for(const k in NEBS){
+    if(k === keep1 || k === keep2) continue;
+    delete NEBS[k]; NEB_WANTED[k] = false;
+    if(nebsLoaded > 0) nebsLoaded--;
+  }
+}
 const BODY_IMG={};
 for(const [k,b] of Object.entries(PLANET_DATA)){
   const img=new Image();img.onload=()=>{BODY_IMG[k]=img;};img.src=b.src;}
 for(const [k,b] of Object.entries(SUN_DATA)){
   const img=new Image();img.onload=()=>{BODY_IMG[k]=img;};img.src=b.src;}
-const TOTAL=Object.keys(SPR_DATA).length+Object.keys(NEB_DATA).length;
+// The sprites alone (v229). The backgrounds come over the network now, and
+// twelve of them at the size they want to be would hold the loading screen
+// for a long time over anything but a fast line. They arrive while the title
+// screen is up and drawNebula() simply draws nothing until one is there.
+const TOTAL=Object.keys(SPR_DATA).length;
 const WARP_IMG=document.getElementById('warp_img');
 // The vortex used to be an animated WebP. Whether a browser advances the
 // frames of an image it is not showing is up to the browser, and it is
@@ -824,6 +853,7 @@ function drawShip(key,cx,cy,scale,flipX,ang){
 
 // ── NEBULA BACKGROUND ─────────────────────────────────────────
 let nebCur=NEB_NAMES[0],nebNxt=NEB_NAMES[1],nebAlpha=1.0,nebFading=false;
+nebLoad(nebCur);
 // 0.004 ergab 250 Schritte, also 2.5 s Ueberblendung bei vollem Licht.
 // Das dunkle Fenster ist nur 121 Schritte breit (die letzten 63 von
 // TRANS_OUT plus die ersten 58 von TRANS_IN), also passt die Blende
@@ -841,6 +871,7 @@ function startNebFade(){
   // Pick a different random background
   let candidates=NEB_NAMES.filter(n=>n!==nebCur);
   nebNxt=candidates[Math.floor(Math.random()*candidates.length)];
+  nebLoad(nebNxt);
   nebAlpha=1.0;nebFading=true;
 }
 
@@ -848,7 +879,8 @@ function tickNebula(){
   tickBodies();
   if(nebFading){
     nebAlpha-=NEB_FADE_SPEED;
-    if(nebAlpha<=0){nebAlpha=0;nebCur=nebNxt;nebFading=false;nebAlpha=1.0;}
+    if(nebAlpha<=0){nebAlpha=0;nebCur=nebNxt;nebFading=false;nebAlpha=1.0;
+                    nebDropOthers(nebCur, nebNxt);}
   }
 }
 

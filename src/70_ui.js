@@ -3465,6 +3465,10 @@ function enterTitle(){
   nebCur = NEB_NAMES[(Math.random()*NEB_NAMES.length)|0];
   nebFading = false; nebAlpha = 1.0;
   rollBodies();
+  // After rollBodies(), not before it: shipsim reads this run of lines as
+  // text and wants the two of them close together. The order makes no
+  // difference to what happens - the picture is fetched either way.
+  if(typeof nebLoad === 'function') nebLoad(nebCur);
 }
 // Full screen from the title. The settings panel has the same switch, but
 // it only opens during a run, and on a PC the full screen is wanted

@@ -595,10 +595,37 @@ einem Cover-Zuschnitt auf 1728×1080 gezogen — knapp **das Doppelte** in
 jeder Richtung. Das ist die Matschigkeit, und sie ist kein Darstellungs-
 fehler, sondern schlicht zu wenig Bildmaterial.
 
-Lösungsrichtung: größere Quellbilder. Das vergrößert die gebaute
-`game.html` (derzeit 28,8 MB), also ist abzuwägen.
+**Die Obergrenze steht im Code fest:** `W=800, H=500`, die höchste
+Auflösungsstufe ist `ECO_RES_STEPS[0] = 3`, und `drawNebFit` zieht das Bild
+über die **Höhe**. Mehr als `500 × 3 = 1500` Pixel Höhe kann das Spiel nie
+zeigen — bei 2:1 also **3000×1500**. Alles darüber ist verschenkt.
 
-- Status: offen, nicht dringend — erst nach dem seitlichen Auswarpen (F6)
+**Behoben in v229.** Silvio hat zwölf neue Hintergründe in 3000×1500 geliefert
+(`nebulae/neb_<Name>.png`, zusammen 33 MB). Umgestellt auf Auslieferung als
+Dateien, wie Musik und 3D-Modelle es schon tun:
+
+- `NEB_DATA` enthält Adressen statt `@@FS3_ASSET@@`-Token — der Packer
+  bettet also nichts mehr ein, `game.html` bleibt bei 28,8 MB
+- `build.sh` kopiert `nebulae/` nach `/var/www/html/fs3/nebulae/`
+- `NEB_NAMES` kennt die zwölf Namen (neu: Antares, darkspace, Fomalhaut)
+- **Geladen wird bei Bedarf**, nicht alles auf einmal: ein Bild dieser Größe
+  belegt entpackt rund **18 MB Arbeitsspeicher**, zwölf also über 200 MB für
+  elf, die niemand ansieht. Gehalten werden nur das gezeigte und das, auf das
+  gerade überblendet wird (`nebLoad`, `nebDropOthers`)
+- Die Ladeanzeige wartet nur noch auf die Sprites
+
+**Achtung, das hätte den Bau angehalten:** `inline_assets()` im Packer bricht
+hart ab, wenn eine Bilddatei fehlt. Silvio hatte die alten neun gelöscht, die
+Token standen aber noch im Code — der nächste `build.sh` wäre mit „Abbruch:
+Bilddatei fehlt: nebulae/Aldebaran.jpg" gescheitert.
+
+**Noch offen, Silvios Entscheidung:** Die Dateien sind PNG. Für Fotografisches
+ist das verlustfrei und damit groß — als JPEG bei Qualität 85 wären es rund
+**8 MB statt 33**, also 650 KB statt 2,75 MB je Welle, ohne sichtbaren
+Unterschied bei einem Nebel. Es funktioniert so wie es ist; es ist nur viermal
+mehr Verkehr als nötig.
+
+- Status: gebaut, wartet auf Silvios Test im Browser
 
 ### F12 — Die MediaVP-Explosionen sind veraltet
 

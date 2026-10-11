@@ -260,6 +260,31 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
+// The backgrounds are fetched from the server now instead of being built
+// into the page, and only the one showing and the one being faded to are
+// held. Twelve at 3000x1500 are 33 MB over the wire and about 18 MB of
+// memory each once decoded, so holding all of them would cost a fifth of a
+// gigabyte for eleven nobody is looking at (Silvio, v228: the backgrounds
+// were mushy at 900x450 and 0.038 bytes a pixel).
+scenario('The backgrounds are fetched, and at most two are held', '', `
+  const r = {};
+  r.twelveOfThem = NEB_NAMES.length === 12;
+  r.eachHasAFile = NEB_NAMES.every(n => typeof NEB_DATA[n] === 'string'
+                                        && /^nebulae\\/neb_.+\\.png$/.test(NEB_DATA[n]));
+  r.noneBuiltIn = Object.keys(NEB_DATA).every(k => String(NEB_DATA[k]).indexOf('data:') !== 0
+                                                   && String(NEB_DATA[k]).indexOf('@@') < 0);
+  // the loading screen waits for the sprites alone
+  r.loadingWaitsOnSpritesOnly = TOTAL === Object.keys(SPR_DATA).length;
+  // and nothing holds on to the rest
+  if(typeof nebDropOthers !== 'function'){ r.hasTheDropper = false; return r; }
+  r.hasTheDropper = true;
+  for(const k in NEBS) delete NEBS[k];
+  NEBS.A = 1; NEBS.B = 2; NEBS.C = 3; NEBS.D = 4;
+  nebDropOthers('A', 'B');
+  r.heldAfterwards = Object.keys(NEBS).sort().join(',');
+  r.atMostTwoHeld = Object.keys(NEBS).length <= 2;
+  return r;`, true);
+
 // The last blast of a capital ship used to be one exp20 drawn across 115 per
 // cent of her length. A cell of that sheet is 128 px, so on a destroyer it
 // was pulled far past what it holds, and that is the mush Silvio sees (v226)
