@@ -39,6 +39,17 @@ const HELPERS = `
         const g = c.getContext('2d'); g.fillStyle = '#888'; g.fillRect(0,0,c.width,c.height);
         IMGS[k] = c;
       }
+      // Stand-ins for the backgrounds too (v230). They are fetched from the
+      // server now and nothing is served here, so without these NEBS stays
+      // empty - and since v229b startNebFade() holds back rather than fade
+      // to a picture that has not arrived, no fade would ever run and every
+      // check about the sky would pass by doing nothing.
+      for(const k of NEB_NAMES){
+        const c = document.createElement('canvas');
+        c.width = 60; c.height = 30;
+        const g = c.getContext('2d'); g.fillStyle = '#122033'; g.fillRect(0, 0, 60, 30);
+        NEBS[k] = c;
+      }
       // Nothing is really loaded from disk here. Without this draw() stops
       // at its loading screen and none of the field is ever drawn.
       imgsLoaded = TOTAL; nebsLoaded = 0;
@@ -259,6 +270,32 @@ scenario('Cycle change 30 -> 31', 'm=30', `
 scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
+
+// The one after this one is chosen and fetched a whole wave ahead, and no
+// fade starts before it is there. Asking for it when the fade began meant
+// asking for 2.75 MB inside a window of 120 steps: it arrived part way
+// through and appeared while the field was still lit (Silvio, v229).
+scenario('The next background is there before the fade starts', 'm=31', `
+  const r = {};
+  FS.step(30);
+  r.oneIsChosenAhead = !!nebNxt && nebNxt !== nebCur;
+  r.andAskedFor = !!NEBS[nebNxt] || (typeof NEB_WANTED !== 'undefined' && NEB_WANTED[nebNxt] === true);
+
+  // not there yet: the sky stays as it is rather than change in the light
+  nebFading = false;
+  const keep = NEBS[nebNxt]; delete NEBS[nebNxt];
+  if(typeof NEB_WANTED !== 'undefined') NEB_WANTED[nebNxt] = false;
+  const was = nebCur;
+  startNebFade();
+  r.noFadeWithoutIt = nebFading === false && nebCur === was;
+
+  // there: it fades as it always did
+  NEBS[nebNxt] = keep || 1;
+  nebFading = false;
+  startNebFade();
+  r.fadesOnceItIsThere = nebFading === true;
+  nebFading = false;
+  return r;`);
 
 // The backgrounds are fetched from the server now instead of being built
 // into the page, and only the one showing and the one being faded to are

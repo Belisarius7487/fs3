@@ -625,6 +625,25 @@ ist das verlustfrei und damit groß — als JPEG bei Qualität 85 wären es rund
 Unterschied bei einem Nebel. Es funktioniert so wie es ist; es ist nur viermal
 mehr Verkehr als nötig.
 
+**Nachtrag v230 (Silvio auf v229):** „Die PNG-Hintergründe laden problemlos,
+nur zu schnell, denn die werden schon getauscht noch bevor der Bildschirm
+beim Sprung zur nächsten Mission komplett verdunkelt wurde."
+
+Das war mein Entwurfsfehler: `nebLoad(nebNxt)` stand **in** `startNebFade()`,
+der Download von 2,75 MB begann also genau mit der Überblendung und kam
+mitten in der Blende an — im noch hellen Bild. Jetzt wird der nächste
+Hintergrund **eine ganze Welle im Voraus** gewählt und geladen
+(`nebPickNext`), und `startNebFade()` beginnt **gar nicht**, wenn er noch
+nicht da ist: dann behält die Welle ihren Himmel und gewechselt wird eine
+Welle später. Ein Hintergrund, der mitten in der Blende im Hellen auftaucht,
+ist schlimmer als einer, der später wechselt.
+
+**Dabei beinahe eine Prüfung entwertet:** In der Prüfumgebung gibt es keine
+Nebeldateien, also hätte die neue Sperre dort **jede** Überblendung
+verhindert — und die Prüfung „Knossos scene: same sky within a run" wäre
+trivial grün geworden, ohne noch etwas zu prüfen. `fieldsim` legt jetzt
+Ersatz-Hintergründe an, so wie es das für Planeten schon tut.
+
 - Status: gebaut, wartet auf Silvios Test im Browser
 
 ### F12 — Die MediaVP-Explosionen sind veraltet

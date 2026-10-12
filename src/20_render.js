@@ -853,7 +853,16 @@ function drawShip(key,cx,cy,scale,flipX,ang){
 
 // ── NEBULA BACKGROUND ─────────────────────────────────────────
 let nebCur=NEB_NAMES[0],nebNxt=NEB_NAMES[1],nebAlpha=1.0,nebFading=false;
-nebLoad(nebCur);
+// The one after this one is chosen and fetched a whole wave ahead (v229b).
+// Asking for it at the moment the fade starts was asking for 2.75 MB inside
+// a window of 120 steps: it arrived part way through and appeared while the
+// field was still lit (Silvio, v229).
+function nebPickNext(){
+  const candidates = NEB_NAMES.filter(n => n !== nebCur);
+  nebNxt = candidates[Math.floor(Math.random()*candidates.length)];
+  nebLoad(nebNxt);
+}
+nebLoad(nebCur); nebPickNext();
 // 0.004 ergab 250 Schritte, also 2.5 s Ueberblendung bei vollem Licht.
 // Das dunkle Fenster ist nur 121 Schritte breit (die letzten 63 von
 // TRANS_OUT plus die ersten 58 von TRANS_IN), also passt die Blende
@@ -868,10 +877,12 @@ function startNebFade(){
   // vertraegt das, weil sie sich ueber 120 Schritte zieht; der Wechsel
   // der Koerper ist ein harter Sprung in einem einzigen Bild und war
   // deshalb sichtbar. Er liegt jetzt in nextWave(), im Scheitel.
-  // Pick a different random background
-  let candidates=NEB_NAMES.filter(n=>n!==nebCur);
-  nebNxt=candidates[Math.floor(Math.random()*candidates.length)];
-  nebLoad(nebNxt);
+  // The next one was chosen and fetched a wave ago, so it is here. Should it
+  // not be - a slow line, a first visit - this changeover keeps the sky it
+  // has. A background appearing half way through the fade, in the light, is
+  // worse than one that changes a wave later (Silvio, v229).
+  if(!nebNxt || nebNxt===nebCur) nebPickNext();
+  if(!NEBS[nebNxt]){ nebLoad(nebNxt); return; }
   nebAlpha=1.0;nebFading=true;
 }
 
@@ -880,6 +891,8 @@ function tickNebula(){
   if(nebFading){
     nebAlpha-=NEB_FADE_SPEED;
     if(nebAlpha<=0){nebAlpha=0;nebCur=nebNxt;nebFading=false;nebAlpha=1.0;
+                    // the one for the wave after this, in good time
+                    nebPickNext();
                     nebDropOthers(nebCur, nebNxt);}
   }
 }
