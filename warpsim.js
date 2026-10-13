@@ -117,13 +117,17 @@ const BODY = `
       // on visCut, so the picture's own edge plays no part - see look().
       // The first visible tick of a jump in is the nose coming through.
       //
-      // The allowance is her motion ALONG THE CUT, which is exactly what
-      // moves hull past it: while a jump runs that is her flight, and it
-      // was the along-the-nose speed before, which is the same thing there
-      // and nothing like it afterwards.
+      // The allowance is HER OWN motion across the cut, which is exactly
+      // what moves hull past it. Her displacement projected on the cut's
+      // normal - not the change of her distance from the cut, which was the
+      // first thing I wrote and is worthless: it moves when the CUT moves,
+      // so a cut that jumps 60px excuses itself. Put against the doctored
+      // copy that is precisely what happened, and pop went quiet on the one
+      // defect it is there for.
       const dvis = now.visCut - pr.visCut;
-      const along = (now.d0 != null && pr.d0 != null)
-        ? Math.abs(now.d0 - pr.d0) : Math.abs(v != null ? v : (vPrev||0));
+      const along = (now.p && pr.p && now.cx != null && pr.cx != null)
+        ? Math.abs((now.cx - pr.cx)*now.p.fx + (now.cy - pr.cy)*now.p.fy)
+        : Math.abs(v != null ? v : (vPrev||0));
       if(now.vis > 0 && Math.abs(dvis) > along + 3.5 && !(pr.visCut===0 && e.warp>0))
         note('pop', e, (dvis>0?'+':'')+dvis.toFixed(0)+'px of hull at once (' + pr.visCut.toFixed(0) + ' -> ' + now.visCut.toFixed(0) + ', she moved ' + along.toFixed(2) + ' along the cut)' +
              (e.warp>0?' (jump in)':(e.warpOut>0?' (jump out)':' (after jump in)')));
