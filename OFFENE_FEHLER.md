@@ -1349,6 +1349,20 @@ eine der beiden ist ein Rest und sollte weg. Nicht in dieser Version
 angefasst, weil sie an der Fehlerstelle lag und jede Änderung dort einen
 vollen Prüflauf kostet.
 
+### `warpsim` meldet bei M20 „wave did not end" — Eigenart der Prüfung
+
+Steht auf v232 wie auf v233, ist also nichts Neues, und es ist **kein
+Spielfehler**: In M20 „The Survivors" steht die Aten (K1) als **verbündetes**
+Schiff brennend im Feld, und solange sie lebt, kommt Nachschub
+(`zerstoert K1 → nachschub aus`). `warpsim` schießt aber nur **Gegner** ab —
+Verbündete lässt es in Ruhe. Also stirbt die Aten dort nie, der Nachschub
+hört nie auf, und die Welle endet nicht.
+
+Im Spiel ist genau das die Aufgabe: sie ist nicht zu retten, und je länger
+sie lebt, desto mehr Rettungskapseln kommen heraus. Das steht als Kommentar
+an der Mission. Nicht zu verwechseln mit M68 (F13), wo die Welle **im Spiel**
+kein Ende hatte.
+
 ### Weitere Bildfolgen ohne Grenze
 
 `drawFxSmoke()` zeichnet den Rauch mit `fxFrame(...)` direkt, nicht über
