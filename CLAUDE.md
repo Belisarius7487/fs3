@@ -317,7 +317,53 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
 
 ---
 
-## 10. Was nicht angefasst wird
+## 10. Werkzeuge, die nicht im Spiel stecken
+
+### `tools/pof/` — der POF-Umwandler
+
+Macht aus den FreeSpace-Modellen (POF) das Format, das das Spiel aus
+`models/<rumpf>/` lädt: `lo.bin`, `hi.bin` beziehungsweise `full.bin.gz`
+und die Texturen als `c/n/g512.webp` und `c/n/g1024.webp`. Python 3 mit
+Pillow; in der Cloud ist beides vorhanden (geprüft: Pillow 12.3, WebP ja).
+
+**Das ist der Weg, auf dem alle über hundert Rümpfe entstanden sind.** Er lag
+lange außerhalb des Repos und war damit für eine Cloud-Sitzung nicht
+vorhanden; Silvio hat ihn in v233 nachgeliefert. Die eigene Anleitung steht
+in `tools/pof/README.md`.
+
+**Ein neuer Rumpf:** eine Zeile in `HULLS` in `buildmodels.py`
+(`'schluessel': ('MV_Assets_T_1', 'PofName')`) und das Skript für diesen
+Schlüssel laufen lassen. `HULLS` ist zugleich die Liste, welcher Spielrumpf
+aus welchem MediaVP-Modell kommt — die einzige, die es gibt.
+
+```
+export FS3_MVPS=/pfad/zu/MVPS-473
+python3 -I tools/pof/buildmodels.py models fimyrmidon,codeimos
+```
+
+**Die Modelle gehören nicht ins Repo** (`models/` ist gesperrt). Sie gehen
+als ZIP mit Pfaden `models/<schluessel>/…` auf Silvios Server, wo `build.sh`
+sie ins Web-Verzeichnis kopiert.
+
+Dazu im selben Ordner: `mkwarp.py` (die Sprungtor-Scheibe), `mkfxsheets.py`
+(die Explosions- und Rauchbilder aus den MediaVP-Effekten), `mkthrusters.py`,
+`builddebtex.py`.
+
+### `missions_read.py` — die Originalmissionen lesen
+
+Liest die FreeSpace-Missionsdateien in `fs1/`, `str/`, `fs2/` samt ihren
+Kampagnendateien. **Keine 1:1-Übersetzung** — eine FreeSpace-Mission hat 35
+bis 65 Schiffe und 30 bis 54 Ereignisse, eine FS3-Mission eine Handvoll
+Einheiten. Genommen wird daraus, **was in einer Mission passiert**.
+
+`--klassen` sagt, welche Schiffsklassen vorkommen und welchen FS3-Rumpf jede
+bekommt. Die Tabelle `HULL` darin ist ausgeschrieben, nicht geraten (FS3
+kürzt Namen ab und trägt einen alten Schreibfehler), und wird gegen
+`HULL_LEN` im Spiel geprüft.
+
+---
+
+## 11. Was nicht angefasst wird
 
 - `hlp_shooter_v*_logic.html` — wird von `assemble.py` erzeugt. Änderungen
   gehören in `src/`.
