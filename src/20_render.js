@@ -852,49 +852,42 @@ function drawShip(key,cx,cy,scale,flipX,ang){
 }
 
 // ── NEBULA BACKGROUND ─────────────────────────────────────────
-let nebCur=NEB_NAMES[0],nebNxt=NEB_NAMES[1],nebAlpha=1.0,nebFading=false;
+let nebCur=NEB_NAMES[0],nebNxt=NEB_NAMES[1];
 // The one after this one is chosen and fetched a whole wave ahead (v229b).
-// Asking for it at the moment the fade starts was asking for 2.75 MB inside
-// a window of 120 steps: it arrived part way through and appeared while the
-// field was still lit (Silvio, v229).
+// Asking for it at the moment of the changeover was asking for 2.75 MB
+// inside a window of a second or two: it arrived part way through and
+// appeared while the field was still lit (Silvio, v229).
 function nebPickNext(){
   const candidates = NEB_NAMES.filter(n => n !== nebCur);
   nebNxt = candidates[Math.floor(Math.random()*candidates.length)];
   nebLoad(nebNxt);
 }
 nebLoad(nebCur); nebPickNext();
-// 0.004 ergab 250 Schritte, also 2.5 s Ueberblendung bei vollem Licht.
-// Das dunkle Fenster ist nur 121 Schritte breit (die letzten 63 von
-// TRANS_OUT plus die ersten 58 von TRANS_IN), also passt die Blende
-// jetzt hinein.
-const NEB_FADE_SPEED=0.0084; // ~120 Schritte = 1.2 s
-
-function startNebFade(){
-  if(nebFading)return;
-  // rollBodies() stand hier. startNebFade() feuert aber bei waveCd < 63,
-  // und dort ist die Blende gerade erst angesprungen: near = 0.557, k =
-  // 0.016, also 1.5 % Schwaerzung. Die Ueberblendung des Hintergrunds
-  // vertraegt das, weil sie sich ueber 120 Schritte zieht; der Wechsel
-  // der Koerper ist ein harter Sprung in einem einzigen Bild und war
-  // deshalb sichtbar. Er liegt jetzt in nextWave(), im Scheitel.
+// A cross fade of 120 steps was measured over the blackout it was supposed
+// to hide in, and it does not fit: it began at waveCd 62, where jumpDark()
+// is 0.016 - six per cent by the time the new sky is 3 of 255, and 52 per
+// cent dark with 27 per cent of the new sky over it half way through. The
+// window where the field is more than 80 per cent dark is about 25 steps
+// wide. No fade fits in that, so there is none (Silvio, v229 and v230:
+// "wechseln immer noch bevor der Bildschirm verdunkelt wurde").
+//
+// The sky is cut over in ONE frame, at the vertex of the blackout, where
+// nextWave() swaps the planets for the same reason. Nothing of it is drawn
+// there at all - see drawNebula().
+function nebSwap(){
   // The next one was chosen and fetched a wave ago, so it is here. Should it
   // not be - a slow line, a first visit - this changeover keeps the sky it
-  // has. A background appearing half way through the fade, in the light, is
+  // has and the next one gets it. A background appearing in the light is
   // worse than one that changes a wave later (Silvio, v229).
   if(!nebNxt || nebNxt===nebCur) nebPickNext();
   if(!NEBS[nebNxt]){ nebLoad(nebNxt); return; }
-  nebAlpha=1.0;nebFading=true;
+  nebCur = nebNxt;
+  nebPickNext();                    // the one for the wave after this
+  nebDropOthers(nebCur, nebNxt);
 }
 
 function tickNebula(){
   tickBodies();
-  if(nebFading){
-    nebAlpha-=NEB_FADE_SPEED;
-    if(nebAlpha<=0){nebAlpha=0;nebCur=nebNxt;nebFading=false;nebAlpha=1.0;
-                    // the one for the wave after this, in good time
-                    nebPickNext();
-                    nebDropOthers(nebCur, nebNxt);}
-  }
 }
 
 // Die Bilder liegen in 900x450, das Feld ist 800x500. Ein
@@ -967,12 +960,17 @@ function drawSubspace(){
   ctx.fillStyle = g; ctx.fillRect(0, top, W, h);
 }
 function drawNebula(){
+  // With the blackout at its deepest the veil still leaves 8 per cent
+  // through, and the cut would flash in it - exactly what drawBodies()
+  // found for the planets. So the sky goes away with the veil and comes
+  // back out of it, and the frame the cut falls on draws no sky at all.
+  // Only in a run: the blackout belongs to the jump between two waves, and
+  // arriveT keeps counting down into the title screen, which would have
+  // turned up there with no sky at all for two seconds.
+  const a = (GS === 'playing' && typeof jumpDark === 'function') ? 1-jumpDark() : 1;
+  if(a<=0.01) return;
   const imgA=NEBS[nebCur];
-  if(imgA) drawNebFit(imgA, nebFading?nebAlpha:1.0);
-  if(nebFading){
-    const imgB=NEBS[nebNxt];
-    if(imgB) drawNebFit(imgB, 1.0-nebAlpha);
-  }
+  if(imgA) drawNebFit(imgA, a);
   ctx.globalAlpha=1.0;
 }
 
@@ -1061,16 +1059,17 @@ let SCENES = {};
 function useScene(key){
   const s = SCENES[key];
   if(!s){
-    SCENES[key] = {neb: nebFading ? nebNxt : nebCur, light: lightAng,
+    SCENES[key] = {neb: nebCur, light: lightAng,
                    bodies: bodies.map(function(b){ return Object.assign({}, b); })};
     return;
   }
   bodies = s.bodies.map(function(b){ return Object.assign({}, b); });
   lightAng = s.light; lightSun = null;
   for(const b of bodies) if(b.kind==='sun'){ lightSun = b; break; }
-  // Under the blackout the backdrop may still be fading over: then the
-  // one it fades to is the one that has to be right.
-  if(nebFading) nebNxt = s.neb; else nebCur = s.neb;
+  nebCur = s.neb;
+  // Only two are held, so the sky of a place seen before has most likely
+  // been dropped since. Without this the scene came back with no sky.
+  if(!NEBS[nebCur] && typeof nebLoad === 'function') nebLoad(nebCur);
 }
 
 function rollBodies(){

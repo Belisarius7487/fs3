@@ -105,22 +105,22 @@ Datei mit einem Skriptblock, wie alles flussabwärts sie erwartet.
 | Datei | Zeilen | Inhalt |
 |---|---|---|
 | `00_head.html` | 44 | HTML-Hülle, CSS |
-| `10_core.js` | 349 | Canvas, Kamera, Welt, Auflösung, Palette, Schriften |
+| `10_core.js` | 363 | Canvas, Kamera, Welt, Auflösung, Palette, Schriften |
 | `12_audio.js` | 576 | Klang: Dateien, Mischung, Entfernung, Stummschaltung |
-| `20_render.js` | 2499 | Formenvorrat, Sprites, Masken, Nebel, Planeten, Sterne, Partikel |
+| `20_render.js` | 2543 | Formenvorrat, Sprites, Masken, Nebel, Planeten, Sterne, Partikel |
 | `30_waves.js` | 4417 | Ären, Kampagne, Spawn, Wellenplan, geschriebene Wellen, Spielerschiffe |
-| `40_world.js` | 2656 | Gegnerfabrik, Schaden, Schilde, Tickets, Eskorten, `playerOnly` |
-| `50_combat.js` | 3360 | Asteroiden, Flug, Zielerfassung, Subsysteme, Beams, Mounts |
+| `40_world.js` | 2687 | Gegnerfabrik, Schaden, Schilde, Tickets, Eskorten, `playerOnly` |
+| `50_combat.js` | 3377 | Asteroiden, Flug, Zielerfassung, Subsysteme, Beams, Mounts |
 | `55_arms.js` | 342 | Bewaffnung |
 | `56_banks.js` | 405 | Waffenbänke, Sprengköpfe |
-| `57_turrets.js` | 326 | Geschütztürme |
+| `57_turrets.js` | 387 | Geschütztürme |
 | `58_model3d.js` | 291 | Modelldaten |
 | `59_field3d.js` | 1775 | 3D-Darstellung der Schiffe im Feld |
-| `60_effects.js` | 1571 | Treffer, Explosionen, Kollision, `update()` |
+| `60_effects.js` | 1626 | Treffer, Explosionen, Kollision, `update()` |
 | `61_glow.js` | 232 | Leuchten |
 | `62_perf.js` | 66 | Leistungsmessung |
-| `63_fxanim.js` | 161 | Effektbilder (FreeSpace-Animationen, base64) |
-| `70_ui.js` | 4339 | `draw()`, Leiste, alle Fenster, Titel, Waffentabellen |
+| `63_fxanim.js` | 222 | Effektbilder (FreeSpace-Animationen, base64) |
+| `70_ui.js` | 4450 | `draw()`, Leiste, alle Fenster, Titel, Waffentabellen |
 | `71_radar_icons.js` | 30 | Radarsymbole |
 | `72_target.js` | 439 | Zielerfassung, Zielkasten |
 | `99_tail.html` | 2 | Abschluss der Hülle |

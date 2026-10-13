@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-Stand: v216 ist die spielbare Fassung; v218 liegt zum Test bereit.
+Stand: Silvio hat v230 im Browser getestet; v231 liegt zum Test bereit.
 
 ---
 
@@ -420,6 +420,35 @@ jumps out") mit beiden Hälften: kurz vor der Mitte behält das Schiff seine
 Richtung, kurz dahinter vollendet es die Drehung und die Bahn dreht mit.
 Gegen v226: vier von fünf fallen durch. Auf v227: alle grün.
 
+**Nachtrag v231 (Silvio auf v230):** „Das Schiff snapt auf der Stelle in die
+Warp-Richtung ohne langsame Bewegung."
+
+Das ist richtig und war mein Fehler: `capTurnSettle()` loeste die Kehre in
+**einem einzigen Bild** auf. Die Richtung stimmte danach, das Tor stand
+richtig — aber der Weg dorthin fehlte.
+
+**Behoben in v231.** Die Kehre wird jetzt **ueber die Schritte des Sprungs
+abgefahren**, nicht in einem Bild aufgelöst:
+
+- Die **Richtung** wird weiterhin sofort entschieden (ein einziges Mal, im
+  ersten Bild des Sprungs). Das muss so sein: `fsWarp()` legt Ort und
+  Richtung des Tors im **ersten** Tick fest (`_fsG`), und ein Tor, das einer
+  Richtung nachläuft, die das Schiff noch nicht hat, ist genau der
+  ursprüngliche Fehler.
+- Ist sie über die Hälfte, wird sie wie bisher gewendet (`flip`), und die
+  **restliche Kehre wird mit ihr gespiegelt**: `T.p` wird zu `1 - T.p`. Das
+  ergibt dasselbe Bild — ein gewendeter Rumpf mit `+|c|` sieht aus wie ein
+  ungewendeter mit `-|c|` —, nur liegt die Kehre danach in ihrer ersten
+  Hälfte und läuft von dort auf Null aus.
+- Diese Restkehre wird über die **halbe Sprungdauer** abgefahren
+  (`warpOut/2`, beim Zerstörer 80 Schritte, 1,3 s). Sie dreht damit schneller
+  als im Flug, aber **sichtbar und zusammenhängend**, und steht lange vor dem
+  Verschwinden ganz.
+
+Die Prüfung misst jetzt die **größte Änderung von `turnSq` je Schritt**.
+Gegen v230 (Sprung von der Stauchung direkt auf den ganzen Rumpf): fällt
+durch. Auf v231: unter 0,05 je Schritt.
+
 - Status: gebaut, wartet auf Silvios Test im Browser
 
 ### F7 — Sentryguns haben keine Markierung
@@ -502,7 +531,15 @@ Verlust. Die Mission zeigt jetzt „PARTIAL SUCCESS — 1 OF 3 GOT THROUGH"
 statt „OBJECTIVE FAILED". Wenn Silvio etwas anderes erwartet, ist das eine
 Spielentscheidung und keine Fehlerbehebung.
 
-- Status: gebaut, wartet auf Silvios Test im Browser
+**Nachtrag v231 (Silvio auf v230):** „Gilt weiterhin als Fehlschlag, aber ist
+irrelevant."
+
+Also **offen und zurückgestellt**, auf Silvios eigene Einordnung. Die Zählung
+ist behoben; was M9 am Ende anzeigt, ist eine Missionsfrage, und die
+Missionen werden neu gebaut (siehe „Wichtig für die Reihenfolge" oben).
+Nicht weiter untersucht, bis die Missionen dran sind.
+
+- Status: zurückgestellt (Silvio: irrelevant)
 
 ### F9 — Bildschirm flackert auch ohne Treffer
 
@@ -644,6 +681,39 @@ verhindert — und die Prüfung „Knossos scene: same sky within a run" wäre
 trivial grün geworden, ohne noch etwas zu prüfen. `fieldsim` legt jetzt
 Ersatz-Hintergründe an, so wie es das für Planeten schon tut.
 
+**Nachtrag v231 (Silvio auf v230):** „Wechseln immer noch bevor der
+Bildschirm verdunkelt wurde."
+
+**Damit war meine Ursache falsch.** Das Vorladen war richtig, aber nicht das
+Problem. Nachgemessen am Code, nicht vermutet:
+
+- Die Überblendung startet bei `waveCd < TRANS_OUT*0.45`, also bei
+  `waveCd = 62`. Die Schwärzung dort: `jumpDark()` gibt
+  `(0.557-0.55)/0.45 = 0.016` — **1,6 %**. Der Bildschirm ist also praktisch
+  **voll hell**, wenn die Blende anspringt.
+- Die Überblendung dauert `1/0.0084 = 120` Schritte. In der Mitte davon
+  (`waveCd ≈ 30`) ist der Bildschirm zu **52 %** verdunkelt und der neue
+  Himmel bereits mit **27 %** darüber. Genau das sieht Silvio.
+- Der Kommentar in der Quelle („das dunkle Fenster ist 121 Schritte breit")
+  zählte das Fenster, in dem die Schwärzung **größer als Null** ist. Das ist
+  nicht dasselbe wie dunkel. Über **80 %** verdunkelt ist nur ein Fenster von
+  rund **25 Schritten** (0,4 s) um den Scheitel.
+
+**Behoben in v231 — mit dem Verfahren, das für die Planeten längst dasteht.**
+`drawBodies()` hat genau dieses Problem schon gelöst: „Die verbleibenden 8 %,
+die die Blende offen lässt, würden den Wechsel immer noch durchblitzen
+lassen. Also gehen die Körper mit der Blende ganz weg und kommen dahinter
+neu wieder." Der Hintergrund macht es jetzt ebenso:
+
+- `drawNebula()` zeichnet den Himmel mit `1 - jumpDark()`. Im Scheitel ist er
+  damit **ganz weg** — der Bildschirm wird wirklich schwarz, wie Silvio es
+  erwartet, und nicht nur zu 92 %.
+- Der Wechsel ist **ein harter Schnitt im Scheitel**, in `nextWave()`, direkt
+  neben `rollBodies()`, das dort aus demselben Grund steht. Keine
+  Überblendung mehr: `NEB_FADE_SPEED`, `nebAlpha` und `nebFading` fallen weg.
+- Das Vorladen aus v230 bleibt. Ist der nächste Himmel noch nicht da, behält
+  die Welle ihren.
+
 - Status: gebaut, wartet auf Silvios Test im Browser
 
 ### F12 — Die MediaVP-Explosionen sind veraltet
@@ -688,7 +758,96 @@ gezogen, skalieren also verlustfrei und tragen den „großen" Eindruck.
 Neue Prüfung in `fieldsim.js`. Gegen v227: eine Explosion, 1,15 der
 Rumpflänge — fällt durch. Auf v228: fünf, größte 0,40.
 
+**Nachtrag v231 (Silvio auf v230):** „Bei der Explosion von Zerstörern kommt
+am Schluss immer noch eine große Explosionsflamme, die leider sehr verwaschen
+aussieht aufgrund der Größe." Auf die Frage, ob es eine weiche Leuchtkugel
+oder vergrößerte Bildstruktur sei: **„vergrößerte Bildstruktur."**
+
+**Damit ist es das Bildmaterial, und die Prüfung maß das Falsche.** Sie
+rechnete in **Anteilen der Rumpflänge** („keine über 0,5") — aber ob eine
+Zelle verwaschen aussieht, hängt nicht am Rumpf, sondern daran, auf wie viele
+**Bildschirmpunkte** ihre 128 px gezogen werden. Nachgerechnet mit Silvios
+eigenen Zahlen (`canvas 1728x1080`, also `RES 2.16`, `CAM.z 0.35`):
+
+| | Weltbreite | Bildschirm | Zelle 128 px |
+|---|---|---|---|
+| Rumpf eines Orion | 1643 | 1242 px | — |
+| Nachzünder (Radius 0,07 · 2,6) | 299 | 226 px | 1,8× |
+| Feuerball des Abschlusses | 512 | 387 px | 3,0× |
+| Abschluss v228 (0,35 der Länge) | 575 | 435 px | **3,4× — vergrößert** |
+| Abschluss v216 (1,15 der Länge) | 1889 | 1428 px | 11,2× |
+
+(Die Nachzünder bekommen ihren Radius mit `FX_FB_K = 2,6` auf einen
+Durchmesser gebracht, deshalb stehen sie höher, als ihr Anteil an der Länge
+vermuten lässt.)
+
+v228 hat also von 11× auf 3,4× verbessert und damit einen guten Teil des
+Weges gemacht, aber nicht genug: scharf ist erst **1,0×**, und das sind beim
+Orion **10 %** seiner Länge.
+
+**Behoben in v231.** Die Größe einer Zelle wird nicht mehr am Rumpf
+bemessen, sondern am Bildschirm. Neu `fxCellWorld(sheet)` in
+`63_fxanim.js`: wie breit eine Zelle in Welteinheiten sein darf, damit sie
+nicht vergrößert wird — `Zelle / (CAM.z · RES_X)`. Auf Silvios Bildschirm
+sind das **169** Welteinheiten.
+
+Zwei Dinge daraus:
+
+1. **Die Grenze gilt an einer Stelle für alles.** `fxFire()` begrenzt jede
+   Bildfolge auf ihre eigene Zelle. Dort und nicht bei jedem Aufrufer, damit
+   keiner vergessen werden kann. Blitz und Ring kommen aus keiner Bildfolge
+   und bleiben unverändert groß — sie werden gezeichnet und tragen den
+   „großen" Eindruck.
+2. **Der Abschluss braucht entsprechend mehr Stücke.** Nicht mehr fünf zu je
+   einem Drittel, sondern so viele, wie ihre Länge bei einer Zelle Breite
+   braucht: beim Orion **neun**, beim Kreuzer weiterhin fünf (dort war die
+   Zelle nie die Grenze, höchstens ein Drittel der Länge).
+
+**Was sich dadurch noch ändert, und das soll Silvio wissen:** Die Grenze in
+`fxFire()` fasst auch die **Nachzünder** und den **Feuerball** des
+Abschlusses an. Nachgemessen auf seinem Bildschirm: Nachzünder lagen bei
+**1,3 bis 2,3** Zellen (ihr Radius wird mit `FX_FB_K = 2,6` auf einen
+Durchmesser gebracht — das hatte ich oben in der Tabelle noch zu klein
+gerechnet), der Feuerball des Abschlusses bei **2,0**. Sie werden jetzt auf
+eine Zelle begrenzt, sind also **schärfer und kleiner als vorher**. Wenn
+Silvio sie lieber groß hätte, auch wenn sie dann weich aussehen, ist das eine
+Zeile zurück.
+
+Die Prüfung misst jetzt in **Bildschirmpunkten je Zelle** statt in Anteilen
+der Rumpflänge, an einem **echten** Zerstörerrumpf (1643 Einheiten) statt am
+Notwert 340 — und sie liest die Größen **aus der Zeichenliste**, nicht aus
+den Aufrufen. Was ein Aufrufer verlangt und was gezeichnet wird, sind seit
+der Grenze zwei verschiedene Zahlen. Gegen v230: 2,56 Zellen — fällt durch.
+Auf v231: 1,00.
+
 - Status: gebaut, wartet auf Silvios Test im Browser
+
+---
+
+## Von mir bemerkt, nicht von Silvio gemeldet
+
+Damit es nicht verloren geht. Nichts davon ist dringend.
+
+### Die Sterne gehen beim Wellenwechsel nicht mit der Blende weg (v231)
+
+Seit v231 sind im Scheitel der Dunkelheit Hintergrund **und** Planeten ganz
+weg (`drawNebula`, `drawBodies`). Die **Sterne** nicht — sie stehen dort als
+einziges noch mit den 8 %, die die Blende offen lässt. Und weil `camSnap()`
+die Kamera in `nextWave()` auf den neuen Spielerplatz setzt, verschiebt sich
+ihre Ebene in diesem Bild.
+
+Nachgerechnet, wie groß das ist: die Parallaxe der Sterne ist
+`CAM_BASE_Z · par · STAR_PAR` = höchstens `0.35 · 1 · 0.05` = **1,75 %** des
+Kamerawegs. Ein Sprung von 1000 Welteinheiten verschiebt sie also um 17
+Bildpunkte, bei 8 % Helligkeit. Vermutlich nicht zu sehen, deshalb nicht
+angefasst — eine Zeile wäre es (dieselbe wie in `drawBodies`).
+
+### Weitere Bildfolgen ohne Grenze
+
+`drawFxSmoke()` zeichnet den Rauch mit `fxFrame(...)` direkt, nicht über
+`fxFire()`, und ist damit von der Zellengrenze aus F12 **nicht** erfasst.
+Rauch ist eine weiche Struktur, bei der Vergrößerung weniger auffällt. Falls
+Silvio bei großen Schiffen matschigen Rauch sieht, liegt es daran.
 
 ---
 

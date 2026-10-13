@@ -297,7 +297,12 @@ function laneLimit(o, L, d){
 }
 function capLane(o, mul){
   if(!subOK(o, 'engines')){ o.vy = 0; return; }       // dead in the water
-  if(o._lane && o._lane.t){ capTurnStep(o, mul); return; }  // a turn once begun is finished
+  if(o._lane && o._lane.t){
+    // a turn once begun is finished - and one that is already opening out
+    // for a jump is not turned back into a turn
+    if(o._lane.t.settle != null) capTurnSettle(o); else capTurnStep(o, mul);
+    return;
+  }
   if(capHolds(o)){ o.vy = 0; return; }
   if(!o._lane) laneInit(o);
   if(o._lane.stand){ o.vy = 0; return; }
@@ -337,11 +342,35 @@ function capLane(o, mul){
 // half way she is flipped as capTurnStep would have flipped her; before it
 // she keeps the heading she had. Either way she is drawn whole, facing
 // somewhere real, and her vortex is placed by that.
+//
+// v227 did all of that in ONE frame, and that is what Silvio then saw: "das
+// Schiff snapt auf der Stelle in die Warp-Richtung ohne langsame Bewegung"
+// (v230). The heading cannot be eased into - fsWarp() fixes where the
+// vortex stands and which way it faces at the FIRST tick of the jump
+// (_fsG), and a gate chasing a heading she has not reached yet is the very
+// fault this function exists for. The SWEEP can: it is mirrored along with
+// her, so that after the first tick she is in the first half of a turn that
+// simply opens back out, and that is run off over half the jump.
 function capTurnSettle(o){
   const L = o && o._lane;
   if(!L || !L.t) return;
-  if(o.turnC < 0){ o.flip = !o.flip; L.dir = -L.dir; }
-  L.t = null; o.turnP = null; o.turnSq = null; o.turnC = null;
+  const T = L.t;
+  if(T.settle == null){
+    // Flipped as capTurnStep would have flipped her, and the sweep that is
+    // left mirrored with her: p becomes 1 - p. The picture is the same -
+    // a flipped hull at +|c| looks exactly like an unflipped one at -|c| -
+    // but the heading is now final and the sweep is back in its first half.
+    if(o.turnC < 0){ o.flip = !o.flip; L.dir = -L.dir; T.p = 1 - T.p; }
+    // Half the jump to open out: she is whole and steady well before she is
+    // inside the vortex, and a destroyer's 80 steps are a swing, not a snap.
+    T.settle = Math.max(1, Math.round((o.warpOut > 0 ? o.warpOut : 60)*0.5));
+    T.sstep = T.p/T.settle;
+  }
+  T.p = Math.max(0, T.p - T.sstep);
+  const c = Math.cos(Math.PI*T.p);
+  o.turnP = T.p; o.turnSq = (c < 0 ? -1 : 1)*Math.max(LANE_SQ_MIN, Math.abs(c));
+  o.turnC = c;
+  if(T.p <= 0){ L.t = null; o.turnP = null; o.turnSq = null; o.turnC = null; }
 }
 function capTurnStep(o, mul){
   const L = o._lane, T = L.t, v = capCruise(o)*(mul || 1);

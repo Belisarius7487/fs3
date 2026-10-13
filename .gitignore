@@ -20,3 +20,4 @@ models_v*.zip
 checks.log
 checks.fieldsim.log
 checks.warpsim.log
+checks.full.*.log

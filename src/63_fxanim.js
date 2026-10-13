@@ -80,6 +80,12 @@ let FX_ANIMS = [];
 const FX_ANIM_CAP = 260;
 const FX_FB_K = 2.6;            // an animation frame's width per fireball radius
 function fxFire(k, x, y, d, dur, a){
+  // No sheet is ever pulled past its own pixels. Beyond that it stops being
+  // a picture and becomes a magnified texture, which is what Silvio sees on
+  // a destroyer (v226, and again on v230: "vergroesserte Bildstruktur").
+  // Here rather than at each caller, so none can be forgotten; the flash
+  // comes from no sheet and keeps its size. fxCellWorld() is further down.
+  if(FX_SHEET_META[k]) d = Math.min(d, fxCellWorld(k));
   if(FX_ANIMS.length >= FX_ANIM_CAP){
     // drop the smallest one that is furthest along, never a big blast
     let wi = -1, wv = Infinity;
@@ -135,6 +141,26 @@ function drawFxSmoke(p, a, r){
   fxFrame('smoke', tp*FX_SHEET_META.smoke.n, p.x, p.y, r*2.4, p.rot);
   ctx.restore();
   return true;
+}
+
+// How wide a cell of a sheet may be drawn in world units before it is a
+// magnified texture rather than a picture: its own pixels, measured on the
+// screen the player actually has. CAM.z takes world units to the canvas,
+// RES_X the canvas to the screen.
+//
+// Silvio, v230: a destroyer's last blast was still "vergroesserte
+// Bildstruktur". An Orion is 1642 world units, which on his 1728x1080
+// (RES 2.16, CAM.z 0.35) comes to 1242 px; a blast of a third of her was
+// drawn 435 px wide out of a 128 px cell - three and a half times what the
+// cell holds. Share of the hull is the wrong measure for this: whether a
+// cell looks washed out has nothing to do with the ship and everything to
+// do with how far its pixels are pulled.
+function fxCellWorld(k){
+  const m = FX_SHEET_META[k];
+  const cell = (m && m.cell) || 128;
+  const res = (typeof RES_X !== 'undefined') ? Math.max(1, RES_X) : 1;
+  const z = (typeof CAM !== 'undefined' && CAM.z) ? CAM.z : 1;
+  return cell/(z*res);
 }
 
 // A ship's length and axis on the field (world units), for blasts that run

@@ -630,27 +630,36 @@ function tickExplQueue() {
         if(e.L > 0 && typeof fxReady === 'function' && fxReady()){
           // One blast as wide as she was drew a 128 px cell of exp20 across
           // the whole length of a destroyer, and that is where the mush came
-          // from (Silvio, v226) - the secondaries before it, at five to nine
-          // per cent of her length, are sharp. So the final is built from
-          // several along her instead: each is a third of her length, and
-          // spread they still cover her, while no cell is pulled past about
-          // three times what it was before.
+          // from (Silvio, v226). v228 broke it into five of a third of her
+          // each, which took it from eleven times the cell to three and a
+          // half - and he still read it as magnified texture (v230).
+          //
+          // So the pieces are no longer measured against the hull but
+          // against the sheet: none is drawn wider than its own cell
+          // (fxCellWorld), and however many of them her length takes is how
+          // many there are - nine for an Orion where there were five.
           //
           // The flash and the ring stay as wide as they were. They are drawn
           // rather than pulled from a sheet, so size costs them nothing, and
           // they are what carries the size of the thing.
           const H = e.H;
           if(H){
-            const N = 5;
+            // a third of her at the most, so a cruiser keeps the look she
+            // had: on her the cell was never the limit
+            const w = Math.min(e.L*0.35, fxCellWorld('exp20'));
+            const N = Math.max(5, Math.min(24, Math.ceil(e.L*0.9/w)));
             for(let k = 0; k < N; k++){
-              const t = -0.34 + k*(0.68/(N-1));
-              const p = fxOnHull(H, e.x, e.y, t, (Math.random()-0.5)*0.3);
-              fxFire('exp20', p.x, p.y, e.L*(0.30 + Math.random()*0.10), 170 + (Math.random()*50|0));
+              const t = -0.45 + (k + 0.5)*(0.9/N);
+              const p = fxOnHull(H, e.x, e.y, t + (Math.random()-0.5)*0.04, (Math.random()-0.5)*0.35);
+              // never above w: that is the line between a picture and a
+              // magnified texture
+              fxFire('exp20', p.x, p.y, w*(0.75 + Math.random()*0.25), 170 + (Math.random()*50|0));
             }
             // a little finer texture over the seams between them
+            const w5 = Math.min(e.L*0.16, fxCellWorld('exp05'));
             for(let k = 0; k < 3; k++){
               const p = fxOnHull(H, e.x, e.y, (Math.random()-0.5)*0.6, (Math.random()-0.5)*0.4);
-              fxFire('exp05', p.x, p.y, e.L*(0.14 + Math.random()*0.08), 120);
+              fxFire('exp05', p.x, p.y, w5*(0.7 + Math.random()*0.3), 120);
             }
           } else {
             // no hull to lay them along (an older caller): as before
@@ -766,8 +775,10 @@ function nextWave(){
   // getWaveDef ihre Zahl erst dort setzt.
   window._allyWingDue = true;
   // Scheitel der Dunkelheit: near = 1, Schwaerzung 92 %. Zusammen mit der
-  // Deckkraft in drawBodies() bleibt vom Wechsel nichts uebrig.
+  // Deckkraft in drawBodies() und drawNebula() bleibt vom Wechsel nichts
+  // uebrig: beide zeichnen hier gar nichts.
   rollBodies();
+  nebSwap();
   // Second half of the jump: the ship comes out at the field edge.
   arriveT = TRANS_IN; transFog = 0;
   player.x = 80; player.y = H/2; mouseHold();
@@ -865,9 +876,9 @@ function update(){
   // dieselbe Kurve, aus der die Dunkelheit gezeichnet wird.
   if(waveOver || arriveT>0){
     transFog = Math.min(transFog+0.05, 1-jumpDark());
-    // Die Ueberblendung des Hintergrunds startet mit der Dunkelheit, nicht
-    // am Wellenende, damit der Wechsel dort liegt wo ihn niemand sieht.
-    if(waveOver && waveCd<TRANS_OUT*0.45) startNebFade();
+    // Der Hintergrund wurde hier angestossen, 62 Schritte vor dem
+    // Scheitel, und loeste sich im noch hellen Bild auf. Er wird jetzt im
+    // Scheitel geschnitten, in nextWave(), neben rollBodies().
   } else {
     transFog = Math.min(1, transFog+0.05);
   }

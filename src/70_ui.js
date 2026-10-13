@@ -311,7 +311,7 @@ function drawDiag(){
     L.push('RES        ' + n(RES_X) + ' / ' + n(RES_Y) + '   ECOres ' + n(ECO && ECO.res));
     L.push('CAM        ' + n(CAM.x) + ',' + n(CAM.y) + '  z ' + n(CAM.z));
     L.push('shake      ' + n(CAM_SHX) + ',' + n(CAM_SHY));
-    L.push('neb        fade ' + (nebFading ? 'Y' : 'n') + ' a ' + n(nebAlpha)
+    L.push('neb        dark ' + n(jumpDark())
            + '  cur ' + n(nebCur) + ' ' + sz(NEBS[nebCur])
            + '  nxt ' + n(nebNxt) + ' ' + sz(NEBS[nebNxt]));
     L.push('f3d        ok ' + (F3D.ok === null ? '?' : (F3D.ok ? 'Y' : 'n'))
@@ -3463,7 +3463,6 @@ function enterTitle(){
   GS='title'; sndAllOff();
   resumeHold=false; userPaused=false; paused=false;
   nebCur = NEB_NAMES[(Math.random()*NEB_NAMES.length)|0];
-  nebFading = false; nebAlpha = 1.0;
   rollBodies();
   // After rollBodies(), not before it: shipsim reads this run of lines as
   // text and wants the two of them close together. The order makes no

@@ -41,8 +41,8 @@ const HELPERS = `
       }
       // Stand-ins for the backgrounds too (v230). They are fetched from the
       // server now and nothing is served here, so without these NEBS stays
-      // empty - and since v229b startNebFade() holds back rather than fade
-      // to a picture that has not arrived, no fade would ever run and every
+      // empty - and since v229b nebSwap() holds back rather than swap to a
+      // picture that has not arrived, no swap would ever run and every
       // check about the sky would pass by doing nothing.
       for(const k of NEB_NAMES){
         const c = document.createElement('canvas');
@@ -271,30 +271,83 @@ scenario('M13 both transports on time', 'm=13', `
   FS.step(300);
   return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
 
-// The one after this one is chosen and fetched a whole wave ahead, and no
-// fade starts before it is there. Asking for it when the fade began meant
-// asking for 2.75 MB inside a window of 120 steps: it arrived part way
-// through and appeared while the field was still lit (Silvio, v229).
-scenario('The next background is there before the fade starts', 'm=31', `
+// The sky may only change where nobody can see it change. Fading it over
+// 120 steps from waveCd 62 did not do that: the blackout there is 1.6 per
+// cent deep, and half way through the fade the field is 52 per cent dark
+// with 27 per cent of the new sky already over it (Silvio, v229 and again
+// v230: "wechseln immer noch bevor der Bildschirm verdunkelt wurde").
+//
+// Measured on the canvas, not from the state: the sky up now is painted
+// black and every other one red, so anything red on the screen IS the new
+// sky arriving. Red over green cancels the white of the stars and the grey
+// of the hulls.
+scenario('The sky is swapped in the dark, not while the field is lit', 'm=31', `
+  const r = {};
+  // Past the arrival first: the mission opens with one, and its own
+  // blackout lifting would be read as the changeover.
+  FS.step(TRANS_IN + 20);
+  r.arrivalOver = arriveT === 0;
+  const paint = (col) => { const c = document.createElement('canvas');
+    c.width = 64; c.height = 32; const g = c.getContext('2d');
+    g.fillStyle = col; g.fillRect(0, 0, 64, 32); return c; };
+  for(const n of NEB_NAMES) NEBS[n] = paint('#ff0000');
+  const wasCur = nebCur;
+  NEBS[wasCur] = paint('#000000');
+  // the haze of a nebula mission would tint the sample
+  r.noFogHere = !nebulaOn();
+  // and nothing of the field's own: no wreck, no round, no explosion whose
+  // light would read as a new sky
+  enemies = []; eBullets = []; pBullets = []; PARTS = []; FX_ANIMS = []; debris = [];
+
+  // bottom left, well away from the vortex at the player's place
+  const sx = Math.round(60*RES_X), sy = Math.round((H-60)*RES_Y);
+  const sample = () => { const d = ctx.getImageData(sx, sy, 8, 8).data;
+    let rr = 0, gg = 0;
+    for(let i = 0; i < d.length; i += 4){ rr += d[i]; gg += d[i+1]; }
+    return Math.round((rr-gg)/(d.length/4)); };
+  draw();
+  r.blackSkyToStart = sample() <= 2;
+
+  // the changeover, as the end of a wave starts it
+  waveOver = true; waveCd = TRANS_CLEAR + TRANS_OUT;
+  let worstRed = 0, darkFirst = 1, vertex = -1;
+  for(let t = 0; t < TRANS_CLEAR + TRANS_OUT + 60 && vertex < 0; t++){
+    player.hp = player.maxHp;
+    update(); draw();
+    const red = sample();
+    if(red > 2 && worstRed <= 2) darkFirst = Math.round(jumpDark()*100)/100;
+    if(red > worstRed) worstRed = red;
+    if(arriveT > 0) vertex = t;
+  }
+  r.theJumpRan = vertex > 0;
+  r.newSkyShowedBeforeTheVertex = worstRed;
+  r.darkWhenItFirstShowed = darkFirst;
+  // Nothing of the new sky before the vertex. There the blackout is at its
+  // deepest and the sky is drawn at nothing, so the cut costs no pixel.
+  r.notWhileLit = worstRed <= 2;
+  r.swappedThere = nebCur !== wasCur;
+  return r;`);
+
+// The one after this one is chosen and fetched a whole wave ahead. Asking
+// for it at the moment of the changeover meant asking for 2.75 MB inside a
+// window of 120 steps: it arrived part way through and appeared while the
+// field was still lit (Silvio, v229).
+scenario('The next background is chosen and fetched a wave ahead', 'm=31', `
   const r = {};
   FS.step(30);
   r.oneIsChosenAhead = !!nebNxt && nebNxt !== nebCur;
   r.andAskedFor = !!NEBS[nebNxt] || (typeof NEB_WANTED !== 'undefined' && NEB_WANTED[nebNxt] === true);
-
-  // not there yet: the sky stays as it is rather than change in the light
-  nebFading = false;
+  // not there yet: the sky stays as it is rather than be swapped to nothing
+  const was = nebCur;
   const keep = NEBS[nebNxt]; delete NEBS[nebNxt];
   if(typeof NEB_WANTED !== 'undefined') NEB_WANTED[nebNxt] = false;
-  const was = nebCur;
-  startNebFade();
-  r.noFadeWithoutIt = nebFading === false && nebCur === was;
-
-  // there: it fades as it always did
+  nebSwap();
+  r.noSwapWithoutIt = nebCur === was;
+  // there: it is swapped
   NEBS[nebNxt] = keep || 1;
-  nebFading = false;
-  startNebFade();
-  r.fadesOnceItIsThere = nebFading === true;
-  nebFading = false;
+  const to = nebNxt;
+  nebSwap();
+  r.swapsOnceItIsThere = nebCur === to;
   return r;`);
 
 // The backgrounds are fetched from the server now instead of being built
@@ -323,30 +376,44 @@ scenario('The backgrounds are fetched, and at most two are held', '', `
   return r;`, true);
 
 // The last blast of a capital ship used to be one exp20 drawn across 115 per
-// cent of her length. A cell of that sheet is 128 px, so on a destroyer it
-// was pulled far past what it holds, and that is the mush Silvio sees (v226)
-// - the secondaries before it, at five to nine per cent of her, are sharp.
-// It is built from several along her now, none of them stretched far.
-scenario('A capital ship\'s last blast is several smaller ones, not one stretched over her', 'm=31', `
+// cent of her length, and in v228 five across a third of her each. Measured
+// in SHARE OF THE HULL that looked like a cure; measured where it is seen it
+// was not. A cell of the sheet is 128 px: on a destroyer of 1642 world units
+// those five came out at three and a half times the cell, and Silvio read the
+// last blast as magnified texture again (v230).
+//
+// So this is measured in screen pixels a cell, at a REAL destroyer's length -
+// not at the 340 fallback the first version of this check used, which is a
+// fifth of one and hid the whole thing.
+scenario('No part of a capital ship\'s last blast is pulled past its own cell', 'm=31', `
   const r = {};
   FS.step(60);
   r.sheetsReady = FS.until(()=>fxReady(), 6000) >= 0;
-  const H = fxHull(null, 340);            // a destroyer's length
-  const sizes = [];
-  const ff = fxFire;
-  fxFire = function(k, x, y, d){ sizes.push({k: k, d: d}); };
+  // a real Orion: hullScale puts the stand-in at her true size, 1642 units
+  const ship = {img: 'deorionright', sc: hullScale('deorionright'), ang: 0};
+  const H = fxHull(ship, 340);
+  r.hullLength = Math.round(H.L);
+  r.aRealDestroyer = H.L > 1200;
+  // Her last blast, really fired, and read back out of the list it is drawn
+  // from - not off the calls into it. What a caller asks for and what is
+  // drawn are two different numbers now.
+  FX_ANIMS.length = 0;
   EXPL_Q.length = 0;
   scheduleExpl(0, 500, 300, H.L*0.08, 'final', null, H.L, H);
   tickExplQueue();
-  fxFire = ff;
+  const sizes = FX_ANIMS.map(f => ({k: f.k, d: f.d}));
+  // world units to screen pixels, as the player sees them
+  const px = (d) => d*CAM.z*Math.max(1, RES_X);
+  // the flash is drawn, not pulled from a sheet, so it has no cell to blow up
+  const sheets = sizes.filter(s => !!FX_SHEET_META[s.k]);
+  const worst = sheets.reduce((m, s) => Math.max(m, px(s.d)/FX_SHEET_META[s.k].cell), 0);
   const big = sizes.filter(s => s.k === 'exp20');
-  r.hullLength = Math.round(H.L);
   r.bigBlasts = big.length;
-  r.largestShareOfHer = big.length
-    ? Math.round(Math.max.apply(null, big.map(s => s.d))/H.L*100)/100 : 0;
-  // several of them, and none pulled across her
-  r.severalBlasts = big.length >= 3;
-  r.noneStretchedOverHer = r.largestShareOfHer > 0 && r.largestShareOfHer <= 0.5;
+  r.widestCellDrawnTimesItsOwn = Math.round(worst*100)/100;
+  // several of them, together still covering her, and none magnified
+  r.severalBlasts = big.length >= 5;
+  r.coversHer = big.length ? Math.max.apply(null, big.map(s => s.d))*big.length >= H.L*0.8 : false;
+  r.noneMagnified = worst > 0 && worst <= 1.05;
   return r;`);
 
 // A ship caught half way round when the mission ends used to slide into her
@@ -355,38 +422,64 @@ scenario('A capital ship\'s last blast is several smaller ones, not one stretche
 // the vortex by the heading she had BEFORE the turn (Silvio, v216).
 //
 // Waiting for the turn, as he suggested, is not open to us: nine seconds for
-// a destroyer against a changeover of about 220 steps. So the turn settles to
-// whichever heading she is nearer to, and she leaves facing something real.
-scenario('A ship caught mid-turn settles before she jumps out', 'm=9', `
+// a destroyer against a changeover of about 220 steps. v227 settled it to
+// the nearer heading instead, but in a single frame, and he saw that too:
+// "das Schiff snapt auf der Stelle in die Warp-Richtung ohne langsame
+// Bewegung" (v230). So the heading is settled at once - it has to be, the
+// gate is placed from it at the first tick - and the sweep that is left runs
+// off over half the jump. Measured here as the largest change of turnSq in
+// any one step.
+scenario('A ship caught mid-turn swings out of it instead of snapping', 'm=9', `
   const r = {};
   const cap = () => allies.find(a => !a.small && !a.dead && !(a.warp > 0));
   r.aCapitalShip = FS.until(()=>!!cap(), 20000, true) >= 0;
   const ally = cap();
   if(!ally) return r;
 
-  // half way and a little past it: she is mostly round, so she should finish
-  // the flip rather than fall back
   const putMidTurn = (o, p, flip) => {
     o.flip = flip;
     o._lane = {y: o.y, dir: 1, dir0: 1, home: o.x, t: {p: p, n: 100}};
     o.turnP = p; o.turnC = Math.cos(Math.PI*p);
     o.turnSq = (o.turnC < 0 ? -1 : 1)*Math.max(0.2, Math.abs(o.turnC));
   };
+  // Put her mid-turn, send her out, and watch how she comes out of it.
+  const run = (o, p, flip) => {
+    putMidTurn(o, p, flip);
+    o.warpOut = 60; o.warpMax = 60; o.warpX = o.x; o.warpY = o.y;
+    const sq = () => (o.turnSq == null ? 1 : Math.abs(o.turnSq));
+    let prev = sq(), worst = 0, steps = 0, headAfter = null, headTurns = 0;
+    for(let t = 0; t < 70; t++){
+      FS.step(1);
+      const now = sq();
+      worst = Math.max(worst, Math.abs(now - prev));
+      prev = now;
+      if(headAfter === null) headAfter = o.flip;
+      else if(o.flip !== headAfter){ headTurns++; headAfter = o.flip; }
+      if(!o._lane || !o._lane.t) break;
+      steps++;
+    }
+    return {flip: o.flip, worst: Math.round(worst*1000)/1000, steps: steps,
+            headTurns: headTurns, cleared: !o._lane.t && o.turnSq === null};
+  };
 
-  putMidTurn(ally, 0.7, false);
-  ally.warpOut = 30; ally.warpMax = 30; ally.warpX = ally.x; ally.warpY = ally.y;
-  FS.step(1);
-  r.pastHalf_turnCleared = ally._lane.t === null && ally.turnSq === null;
-  r.pastHalf_flipped = ally.flip === true;      // round the rest of the way
+  // three quarters round: she is mostly there, so she finishes the flip
+  const a = run(ally, 0.7, false);
+  r.pastHalf_flipped = a.flip === true;
   r.pastHalf_laneTurned = ally._lane.dir === -1;
+  r.pastHalf_turnCleared = a.cleared;
+  r.pastHalf_headingSettledAtOnce = a.headTurns === 0;
+  r.pastHalf_biggestStep = a.worst;
+  r.pastHalf_stepsTaken = a.steps;
+  r.pastHalf_noSnap = a.worst <= 0.08;
+  r.pastHalf_tookTime = a.steps >= 10;
 
   // and before half way she keeps the heading she came in with
-  const ally2 = allies.find(a => !a.small && !a.dead && !(a.warp > 0) && a !== ally) || ally;
-  putMidTurn(ally2, 0.2, false);
-  ally2.warpOut = 30; ally2.warpMax = 30; ally2.warpX = ally2.x; ally2.warpY = ally2.y;
-  FS.step(1);
-  r.beforeHalf_turnCleared = ally2._lane.t === null && ally2.turnSq === null;
-  r.beforeHalf_keptHeading = ally2.flip === false;
+  const o2 = allies.find(x => !x.small && !x.dead && !(x.warp > 0) && x !== ally) || ally;
+  const b = run(o2, 0.2, false);
+  r.beforeHalf_keptHeading = b.flip === false;
+  r.beforeHalf_turnCleared = b.cleared;
+  r.beforeHalf_biggestStep = b.worst;
+  r.beforeHalf_noSnap = b.worst <= 0.08;
   return r;`);
 
 // Sentry guns get the corner brackets that fighters and bombers get. They
@@ -1215,15 +1308,14 @@ scenario('Knossos scene: same sky within a run', 'm=55', `
   delete SCENES.knossos; useScene('knossos');
   const neb = nebCur, keys = bodies.map(b=>b.key).join(','), pos = bodies.map(b=>Math.round(b.x)+'/'+Math.round(b.y)).join(','), la = lightAng;
   r.portalThere = enemies.some(e=>e.uid==='P1' && e.img==='inknossos45deg' && e.invuln && e.scenery);
-  // To 56: a different place, a fresh roll.
-  startNebFade(); for(let i=0;i<200;i++) tickNebula();
+  // To 56: a different place, a fresh roll. nextWave() cuts the sky over
+  // itself, in the dark of the jump, so there is nothing to step for it.
   waveOver = false; nextWave(); FS.step(5);
-  // On to 58 through 57, with the backdrop fading over each time.
-  startNebFade(); FS.step(5); nextWave(); FS.step(5);
-  startNebFade(); FS.step(5); nextWave();
+  // On to 58 through 57, the sky cut over each time.
+  FS.step(5); nextWave(); FS.step(5);
+  FS.step(5); nextWave();
   r.atTheGate = wave===58;
   const placesNow = bodies.map(b=>Math.round(b.x)+'/'+Math.round(b.y)).join(',');
-  for(let i=0;i<200;i++) tickNebula();
   r.sameBackdrop = nebCur===neb;
   r.sameBodies = bodies.map(b=>b.key).join(',')===keys;
   r.samePlaces = placesNow===pos;
