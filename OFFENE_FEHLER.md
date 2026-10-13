@@ -822,6 +822,100 @@ Auf v231: 1,00.
 
 - Status: gebaut, wartet auf Silvios Test im Browser
 
+### F13 — M68: nach dem Verlust der Setekh endet die Mission nie
+
+**Befund (Silvio, v231):** „Ein Hinweis zu einer der Missionen, ich glaube es
+ist M68, oder auf jeden Fall die Mission mit der Setekh, diese ist verbuggt,
+denn wenn die Setekh zerstört wird, hören die gegnerischen Wellen niemals
+auf, weil es kein Missionsende gibt."
+
+**Es ist M68 „Radio Silence"** — die zweite Setekh-Mission ist M79 „Data
+Uplink", und die ist in Ordnung (sie hat `{t:'vernichtet', a:'C1',
+w:'abzug'}`, also ein Ende für den Verlustfall).
+
+**Ursache (nachgewiesen):** Nicht die Missionsdaten allein, sondern ein
+allgemeiner Mechanikfehler, der jede Mission treffen kann.
+
+M68 hat genau **einen** Weg, den Nachschub wieder abzuschalten:
+
+```js
+{t:'alleZerstoert', a:'K1+K2+M1+E1+B1', w:'nachschub', a2:'aus', lostMax:0},
+{t:'alleZerstoert', a:'K1+K2+M1+E1+B1', w:'abzug',     a2:'',    lostMax:0},
+```
+
+`lostMax` prüft in `tickEvents()`:
+
+```js
+if(ev.lostMax!=null && protLost > ev.lostMax) continue;
+```
+
+Die Setekh trägt `guard:true`, ist also ein beschütztes Schiff. Geht sie
+verloren, steht `protLost` auf 1 — und damit sind **alle drei** Ereignisse
+mit `lostMax:0` für den Rest der Mission gesperrt. Der Nachschub bleibt
+ewig an, und `o:'clear'` wartet auf ein leeres Feld, das praktisch nie
+eintritt.
+
+**Genau genommen** endet die Welle, wenn das Feld einen einzigen Augenblick
+leer ist — abschalten muss den Nachschub dafür niemand. Nur kommt dieser
+Augenblick bei laufendem Nachschub praktisch nicht, weil die nächste Staffel
+da ist, bevor die letzte weg ist. **Deshalb hat es auch keine Prüfung
+gesehen:** die Prüfumgebung schießt alles in jedem Schritt ab und trifft
+diesen Augenblick, ein Spieler nicht. Die neue Prüfung greift deshalb den
+Nachschub selbst, nicht das Wellenende.
+
+**Der Sinn von `lostMax` ist ein anderer**, er steht als Kommentar daneben:
+„a success card must not follow a failure (M65)" — eine **Erfolgsmeldung**
+soll nicht nach einem Fehlschlag kommen. Es soll nicht das Missionsende
+blockieren. Die Sperre gilt jetzt nur noch für die Meldungen
+(`zielerfuellt`, `meldung`) und nicht mehr für die Wirkungen, die eine Welle
+beenden (`nachschub`, `abzug`, `raus`).
+
+**Behoben in v232.** Eine Stelle, und sie gilt für alle Missionen — auch für
+die, die noch gebaut werden. Nachgesehen, wer sonst betroffen war: **M63**
+(`raus`), **M65** (`abzug`), **M68** (`nachschub`, `abzug`), **M69**
+(`raus`, `abzug`), **M79** (`raus`, `abzug`), **M80** (`raus`, `nachschub`,
+`abzug`). In M79 und M80 gibt es noch einen anderen Weg zum Ende, in M68
+nicht — deshalb fällt es dort auf.
+
+**Was dadurch in M68 passiert:** Der Nachschub nach ihrem Verlust bleibt —
+das ist Absicht und wird auch geprüft („then the Shivans call for help
+again"). Aber der Weg heraus steht wieder offen: wer die Patrouille
+(K1, K2, M1) niederkämpft, schaltet den Nachschub ab und die Mission endet —
+mit verfehltem Auftrag, denn die Setekh ist verloren. Kein Erfolgskärtchen.
+
+**Offene Spielentscheidung für Silvio:** M79 macht es anders — dort ist die
+Mission in dem Moment vorbei, in dem die Setekh stirbt (`abzug`). Soll M68
+das auch so halten, statt dich herauskämpfen zu lassen? Das ist eine
+Designfrage, keine Fehlerbehebung, und deshalb nicht mitgebaut.
+
+- Status: gebaut, wartet auf Silvios Test im Browser
+
+### F14 — Das Knossos-Portal rotiert in die falsche Richtung
+
+**Befund (Silvio, v231):** „Das Knossos-Portal rotiert in die falsche
+Richtung."
+
+**Zwei Dinge drehen sich dort, und es ist noch nicht klar, welches gemeint
+ist.** Nachgelesen im Code:
+
+1. **Der Strudel** (die türkise Scheibe im Tor). Sie dreht sich starr mit
+   `WARP_SPIN = 1.6` Bogenmaß je Sekunde, positiv — auf der Leinwand also
+   im Uhrzeigersinn. Gelesen an **zwei** Stellen, die zusammenbleiben
+   müssen: `drawWarpFrame()` (`20_render.js:587`) und `f3dWarp()`
+   (`59_field3d.js:1751`). Dieselbe Konstante treibt **alle** Strudel, auch
+   die blauen der normalen Schiffssprünge.
+2. **Das Bauwerk selbst.** Die 3D-Modelle können drehende Teile haben
+   (`f3dNodeMats`, Knoten der Art `rot`): `ang = 2π·now/t`, immer positiv,
+   also immer dieselbe Richtung. Die Knotendaten liegen in den Modelldateien
+   **auf dem Server**, nicht im Repo — eine Cloud-Sitzung kann nicht
+   nachsehen, ob das Knossos-Modell solche Knoten hat.
+
+**Frage an Silvio, bevor gebaut wird:** Dreht der normale blaue Strudel bei
+jedem Schiffssprung auch falsch, oder nur das Knossos? Dreht sich das Tor
+selbst (seine Ringe), oder das Leuchten darin?
+
+- Status: Ursache noch offen, Rückfrage an Silvio
+
 ---
 
 ## Von mir bemerkt, nicht von Silvio gemeldet
@@ -841,6 +935,14 @@ Nachgerechnet, wie groß das ist: die Parallaxe der Sterne ist
 Kamerawegs. Ein Sprung von 1000 Welteinheiten verschiebt sie also um 17
 Bildpunkte, bei 8 % Helligkeit. Vermutlich nicht zu sehen, deshalb nicht
 angefasst — eine Zeile wäre es (dieselbe wie in `drawBodies`).
+
+### `queueHolds()` steht zweimal da
+
+In `30_waves.js` ist `queueHolds()` **zweimal** definiert (Zeile 665 und
+671), mit demselben Inhalt. Die zweite gewinnt, es ist also harmlos — aber
+eine der beiden ist ein Rest und sollte weg. Nicht in dieser Version
+angefasst, weil sie an der Fehlerstelle lag und jede Änderung dort einen
+vollen Prüflauf kostet.
 
 ### Weitere Bildfolgen ohne Grenze
 

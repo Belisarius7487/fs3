@@ -2379,6 +2379,43 @@ scenario('v169: M68 the Setekh jams, the bombs come from afar', 'm=68', `
   let after = 0; for(let t=0;t<4000;t+=20){ FS.step(20); for(const e of enemies) if(!seen.has(e)){ seen.add(e); if(e.type==='fighter' && !e.uid) after++; }
     for(const e of enemies) if((e.type==='fighter'||e.type==='bomber') && !(e.warp>0)) e.hp = 0; }
   r.reinfAfterLoss = after > 0;
+
+  // And the way out has to stay open. lostMax:0 sat on the only three
+  // events that switch the reinforcements off and pull the Shivans out, so
+  // losing her - she carries guard:true, protLost goes to 1 - locked all
+  // three for good: the reinforcements never stopped and the mission had no
+  // end at all (Silvio, v231). Fought out to the finish here, the way a
+  // player would: everything that can be shot down, is.
+  r.stillRunning = !waveOver;
+  const w0 = wave;
+  // The patrol is what the mission asks for, and only the patrol: the
+  // reinforcement wings carry no id and keep coming. Shot down exactly as
+  // the objective reads.
+  const PATROL = ['K1','K2','M1','E1','B1'];
+  const patrolLeft = () => enemies.some(e => PATROL.indexOf(e.uid) >= 0);
+  for(let t = 0; t < 20000 && patrolLeft(); t += 20){
+    for(const e of enemies) if(PATROL.indexOf(e.uid) >= 0 && !(e.warp > 0)) e.hp = 0;
+    FS.step(20);
+  }
+  r.patrolDown = !patrolLeft();
+  // With her lost, lostMax:0 used to lock the three events that answer the
+  // patrol being down - among them this one. The reinforcements then had
+  // nothing left to switch them off.
+  r.reinforcementsStop = !evReinf;
+  // and with them off the field can be cleared and the wave ends
+  for(let t = 0; t < 8000 && wave === w0 && !waveOver; t += 20){
+    for(const e of enemies) if(!e.scenery && !e.invuln && !(e.warp > 0)) e.hp = 0;
+    FS.step(20);
+  }
+  // Weak on purpose, and said so: the harness shoots perfectly, so a clear
+  // instant turns up for it even with the reinforcements running, and this
+  // holds on the broken version too. reinforcementsStop above is the one
+  // that fails there. For a player the field is in practice never clear,
+  // which is what "the waves never stop" means.
+  r.theWaveCanEnd = waveOver || wave > w0;
+  // ended, but not as a success: she was lost
+  r.noSuccessCard = EV.filter(e => e.w === 'zielerfuellt').every(e => !e.done);
+  r.failedObjective = objFailed === true;
   return r;`);
 
 scenario('v169: M69 the Lucifer cannot be hurt, the clock holds the wave', 'm=69', `

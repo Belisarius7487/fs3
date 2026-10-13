@@ -3935,6 +3935,12 @@ function tickReplace(){
     spawnQ.sort(function(a,b){ return a.time-b.time; });
   }
 }
+// Which effects lostMax may hold back: the ones that announce an outcome.
+// Everything else is machinery - a wave that ends, a ship that leaves,
+// reinforcements that stop - and holding that back loses the mission's end
+// (F13, M68). zielverfehlt is not in here either: a failure card after a
+// failure is the point.
+const EV_LOST_GUARDS = {zielerfuellt: true, meldung: true};
 function tickEvents(){
   // TAG marks run down (v169).
   for(const e of enemies) if(e.tagT>0) e.tagT--;
@@ -3947,7 +3953,17 @@ function tickEvents(){
     if(ev.done) continue;
     // lostMax: only while no more protected ships than this are lost - a
     // success card must not follow a failure (M65).
-    if(ev.lostMax!=null && protLost > ev.lostMax) continue;
+    //
+    // It guards the CARD, not the machinery. It used to guard every effect,
+    // and in M68 that left the mission with no end at all: the Setekh
+    // carries guard:true, so losing her put protLost at 1, and the only
+    // events that switch the reinforcements off and pull the Shivans out
+    // carry lostMax:0 - all three locked out for the rest of the mission.
+    // The wave wants a clear field, the reinforcements never stop, so the
+    // waves never stop either (Silvio, v231). Six missions carry lostMax on
+    // such an effect (M63, M65, M68, M69, M79, M80); M68 is the one with no
+    // other way out.
+    if(ev.lostMax!=null && protLost > ev.lostMax && EV_LOST_GUARDS[ev.w]) continue;
     // d: fire this many seconds after the trigger came true (v177).
     if(ev.at==null){
       if(!evTrig(ev)) continue;
