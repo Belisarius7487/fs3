@@ -1,0 +1,2933 @@
+#Mission Info
+
+$Version: 0.10
+$Name:  XSTR("Pandora's Box", 2101)
+$Author: Duncan McPherson
+$Created: 12/03/97 at 17:31:51
+$Modified: 11/12/07 at 00:40:35
+$Notes:
+This is a FRED created mission, and don't you forget it, baby!  :)
+$End Notes:
+
+$Mission Desc:
+ XSTR("The player and the player's wing are sent out to investigate what looks like a grouping of Shivan cargo containers.", 2102)
+$end_multi_text
+
++Game Type Flags: 1
+
++Flags: 0
+
++Red Alert: 0
+
++Scramble: 0
+
++Disallow Support: 0
+
++Player Entry Delay:
+1.000000
+
++Viewer pos: -268.574860, 7203.155273, 6882.875977
++Viewer orient:
+	1.000000, -0.000001, -0.000510,
+	0.000510, 0.013831, 0.999904,
+	0.000006, -0.999904, 0.013831
++SquadReassignName: Galactic Terran Alliance
++SquadReassignLogo: GTA.pcx
+
+;;FSO 3.6.0;; $Skybox Model: starfield.pof
+
+#Plot Info
+
+$Tour:  XSTR("Blah", 601)
+$Pre-Briefing Cutscene: Blah
+$Pre-Mission Cutscene: Blah
+$Next Mission Success: Blah
+$Next Mission Partial: Blah
+$Next Mission Failure: Blah
+
+#Command Briefing
+
+#Briefing
+$start_briefing
+$num_stages: 6
+$start_stage
+$multi_text
+ XSTR("Welcome to the $f GTD $f Bastion.  The Bastion is on a special ops mission to investigate and acquire Shivan technology.  This includes weaponry, shielding, and stealth technology.  Intelligence has determined that at least one point of Shivan entry into our space lies in the Ikeya system.", 2103)
+$end_multi_text
+$voice: Brief_7_a.wav
+$camera_pos: -268.574860, 7203.155273, 6882.875977
+$camera_orient:
+	1.000000, -0.000001, -0.000510,
+	0.000510, 0.013831, 0.999904,
+	0.000006, -0.999904, 0.013831
+$camera_time: 2000
+$num_lines: 0
+$num_icons: 1
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 7
+$team: Hostile
+$class: Terran NavBuoy
+$pos: 3.352554, 246.980896, 6997.623535
+$label: Ikeya System
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("At least five cargo depots of unknown origin have been located here in Ikeya.  These cargo formations are different than any Vasudan and Terran formation, and are believed to belong to the Shivans.", 2104)
+$end_multi_text
+$voice: Brief_7_b.wav
+$camera_pos: -268.574860, 7203.155273, 6882.875977
+$camera_orient:
+	1.000000, -0.000001, -0.000510,
+	0.000510, 0.013831, 0.999904,
+	0.000006, -0.999904, 0.013831
+$camera_time: 2000
+$num_lines: 0
+$num_icons: 3
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: -439.474426, 563.745361, 6608.869141
++id: 8
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: 368.879761, 775.676880, 6617.206543
++id: 9
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: 0.844071, 771.546509, 7358.657227
+$label: Cargo Depot
++id: 10
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Reconnaissance indicates that the depot is protected by six sentry guns on the outer edges.  This depot provides a prime opportunity to gather more information about the Shivans.  Their offensive activity in this system is at a minimum, and we do not believe that they will make a serious attempt to defend this depot.", 2105)
+$end_multi_text
+$voice: Brief_7_c.wav
+$camera_pos: -268.574860, 7203.155273, 6882.875977
+$camera_orient:
+	1.000000, -0.000001, -0.000510,
+	0.000510, 0.013831, 0.999904,
+	0.000006, -0.999904, 0.013831
+$camera_time: 2000
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: -439.474426, 563.745361, 6608.869141
++id: 8
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: 368.879761, 775.676880, 6617.206543
++id: 9
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: 0.844071, 771.546509, 7358.657227
+$label: Cargo Depot
++id: 10
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: -998.363647, 373.063721, 5997.646973
+$label: Sentry Gun
++id: 11
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: 992.938721, 373.063843, 6003.580078
+$label: Sentry Gun
++id: 12
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: 991.724243, 373.064056, 8010.520996
+$label: Sentry Gun
++id: 13
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: -1013.879395, 373.063934, 8021.487305
+$label: Sentry Gun
++id: 14
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Long range scanners indicate that some of these cargo containers contain unusual electronics.  They appear to be similar to those used to give the Shivans their shielding technology.  A short range scan of these containers is the primary objective in this operation.", 2106)
+$end_multi_text
+$voice: Brief_7_d.wav
+$camera_pos: -116.115463, 3713.397217, 6931.068359
+$camera_orient:
+	1.000000, -0.000001, -0.000510,
+	0.000510, 0.013831, 0.999904,
+	0.000006, -0.999904, 0.013831
+$camera_time: 2500
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: -439.474426, 563.745361, 6608.869141
+$label: Shield Technology
++id: 8
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: 368.879761, 775.676880, 6617.206543
++id: 9
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: -57.025372, 771.546509, 7361.885742
++id: 10
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: -998.363647, 373.063721, 5997.646973
+$label: Sentry Gun
++id: 11
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: 992.938721, 373.063843, 6003.580078
+$label: Sentry Gun
++id: 12
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: 991.724243, 373.064056, 8010.520996
+$label: Sentry Gun
++id: 13
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: -1013.879395, 373.063934, 8021.487305
+$label: Sentry Gun
++id: 14
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Further reconnaissance indicates another container group may contains parts for a Shivan sensor array.  A short range scan of this group should provide crucial data needed to adjust ship sensors to attain radar lock on Shivan fighters.  Scanning those containers is your secondary objective.", 2107)
+$end_multi_text
+$voice: Brief_7_e.wav
+$camera_pos: -116.115463, 3713.397217, 6931.068359
+$camera_orient:
+	1.000000, -0.000001, -0.000510,
+	0.000510, 0.013831, 0.999904,
+	0.000006, -0.999904, 0.013831
+$camera_time: 2000
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: -439.474426, 563.745361, 6608.869141
++id: 8
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: 368.879761, 775.676880, 6617.206543
++id: 9
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: -57.025372, 771.546509, 7361.885742
+$label: Stealth Technology
++id: 10
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: -998.363647, 373.063721, 5997.646973
+$label: Sentry Gun
++id: 11
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: 992.938721, 373.063843, 6003.580078
+$label: Sentry Gun
++id: 12
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: 991.724243, 373.064056, 8010.520996
+$label: Sentry Gun
++id: 13
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: -1013.879395, 373.063934, 8021.487305
+$label: Sentry Gun
++id: 14
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("You will jump in approximately six kilometers from the cargo depot.  Proceed to the cargo depot quickly, and eliminate all sentry guns.  This will enable our freighters to collect the cargo after you have scanned it.", 2108)
+$end_multi_text
+$voice: Brief_7_f.wav
+$camera_pos: -117.607559, 23687.660156, 3964.338867
+$camera_orient:
+	1.000000, -0.000001, -0.000510,
+	0.000510, 0.013831, 0.999904,
+	0.000006, -0.999904, 0.013831
+$camera_time: 3500
+$num_lines: 0
+$num_icons: 4
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 3
+$team: Hostile
+$class: SC 5
+$pos: -57.025372, 771.546509, 7361.885742
+$label: Cargo Depot
++id: 10
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Valkyrie
+$pos: -118.945190, 64.258339, 1386.007935
+$label: Alpha
++id: 15
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 32
+$team: Hostile
+$class: SSG Trident
+$pos: -160.121689, 373.065216, 4715.624023
+$label: Sentries
++id: 17
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 13
+$team: Friendly
+$class: GTFr Chronos
+$pos: 7426.284180, 72.740265, 2205.613525
+$label: Freighters
++id: 18
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$end_briefing
+
+#Debriefing_info
+
+$Num stages: 4
+
+$Formula: ( not 
+   ( is-event-true-delay "Trap alert!" 0 ) 
+)
+$Multi text
+    XSTR("Jumping out of a mission without even making an attempt to complete your objectives is gross negligence and borders on desertion.
+
+Your hearing is scheduled for 0700.", 2109)
+$end_multi_text
+$Voice: DeBrief_7_a.wav
+$Recommendation text:
+    XSTR("At least try to meet your objectives.  Sometimes that's all it takes.", 2110)
+$end_multi_text
+
+$Formula: ( and 
+   ( is-event-true-delay "Trap alert!" 0 ) 
+   ( is-goal-false-delay 
+      "Investigate Remaining Cargo" 
+      0 
+   )
+)
+$Multi text
+    XSTR("Despite the Shivan ambush, you had a mission to accomplish.  Your orders were to remain in the area, unless ordered to leave by Terran Command.
+
+Your defiance of these orders has wasted a prime opportunity.", 2111)
+$end_multi_text
+$Voice: DeBrief_7_b.wav
+$Recommendation text:
+    XSTR("Once the Shivans have sprung their trap, stealth is no longer an option.  
+
+Use your afterburners as much as possible, and attempt to scan the cargo containers.  Your wingmen will do their best to cover you.", 2112)
+$end_multi_text
+
+$Formula: ( is-goal-true-delay 
+   "Investigate Remaining Cargo" 
+   0 
+)
+$Multi text
+    XSTR("It is fortunate that you were able to escape the Shivan trap.  Your persistence in obtaining the data we needed is commendable.
+
+While you were unable to gather the shield data, another of our Ikeya task forces was successful in acquiring it.
+
+The data you did gather about Shivan sensor technology will be vital in combating the Shivan forces.  Our technicians now believe they will be able to implement a targeting solution for Shivan ships.
+  
+Good work, pilot.", 2113)
+$end_multi_text
+$Voice: DeBrief_7_c.wav
+$Recommendation text:
+    XSTR("The Shivans protected the shield technology too well.  There was nothing you could do to acquire it.", 2114)
+$end_multi_text
+
+$Formula: ( is-goal-true-delay 
+   "Investigate the Cargo" 
+   0 
+)
+$Multi text
+    XSTR("Your success in acquiring the shield technology against such overwhelming odds has indicated to us that you are, in truth, working with the Shivans.  Your interrogation is scheduled for 0930.  You will be escorted to the brig.", 2115)
+$end_multi_text
+$Voice: DeBrief_7_d.wav
+$Recommendation text:
+    XSTR("If you are going to cheat, do it a little less blatantly.", 2116)
+$end_multi_text
+
+#Players		;! 1 total
+
+$Starting Shipname: Alpha 1
+$Ship Choices: (
+	"GTF Apollo"	4
+)
+
++Weaponry Pool: (
+	"ML-16 Laser"	8
+	"Disruptor"	4
+	"MX-50"	80
+	"Fury"	480
+)
+
+#Objects		;! 54 total
+
+$Name: Alpha 1		;! Object #0
+$Class: GTF Valkyrie
+$Team: Friendly
+$Location: 0.000000, 72.740486, 0.000000
+$Orientation:
+	0.514863, 0.856739, -0.030243,
+	-0.857249, 0.514271, -0.025485,
+	-0.006281, 0.039047, 0.999218
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "Fury" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "player-start" )
++Respawn priority: 0
++Orders Accepted: 32895		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: SAC 2 1		;! Object #1
+$Class: SAC 2
+$Team: Hostile
+$Location: 397.512085, 880.340332, 7409.850098
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Shield Parts", 2117)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SAC 2 3		;! Object #2
+$Class: SAC 2
+$Team: Hostile
+$Location: 412.001678, 880.508484, 6997.623535
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Shield Parts", 2117)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SAC 2 5		;! Object #3
+$Class: SAC 2
+$Team: Hostile
+$Location: 406.756897, 880.447693, 6610.517578
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Shield Parts", 2117)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SAC 2 7		;! Object #4
+$Class: SAC 2
+$Team: Hostile
+$Location: -2.780380, 875.699768, 7404.681152
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Shield Parts", 2117)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SAC 2 9		;! Object #5
+$Class: SAC 2
+$Team: Hostile
+$Location: -407.522827, 871.007385, 7399.517578
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Shield Parts", 2117)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SAC 2 11		;! Object #6
+$Class: SAC 2
+$Team: Hostile
+$Location: -399.030914, 871.106201, 6997.623535
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SAC 2 13		;! Object #7
+$Class: SAC 2
+$Team: Hostile
+$Location: -405.718872, 871.028503, 6604.072754
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SAC 2 15		;! Object #8
+$Class: SAC 2
+$Team: Hostile
+$Location: 5.943008, 875.800903, 6597.638184
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 17		;! Object #9
+$Class: SC 5
+$Team: Hostile
+$Location: 303.028381, 670.854614, 7305.046875
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 18		;! Object #10
+$Class: SC 5
+$Team: Hostile
+$Location: 302.236420, 670.845337, 7007.058594
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 19		;! Object #11
+$Class: SC 5
+$Team: Hostile
+$Location: 305.062012, 670.878174, 6701.809570
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 20		;! Object #12
+$Class: SC 5
+$Team: Hostile
+$Location: 1.707047, 667.361389, 6699.612305
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 21		;! Object #13
+$Class: SC 5
+$Team: Hostile
+$Location: -294.931061, 663.922363, 6704.007813
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 22		;! Object #14
+$Class: SC 5
+$Team: Hostile
+$Location: -298.489655, 663.881226, 7007.058594
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 23		;! Object #15
+$Class: SC 5
+$Team: Hostile
+$Location: -296.282379, 663.906738, 7297.473145
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 24		;! Object #16
+$Class: SC 5
+$Team: Hostile
+$Location: 4.468521, 667.393311, 7312.632813
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 25		;! Object #17
+$Class: SC 5
+$Team: Hostile
+$Location: 205.223877, 520.037842, 7200.171875
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 26		;! Object #18
+$Class: SC 5
+$Team: Hostile
+$Location: 212.396484, 520.120972, 7004.697754
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 27		;! Object #19
+$Class: SC 5
+$Team: Hostile
+$Location: 205.102417, 520.036499, 6801.888672
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 28		;! Object #20
+$Class: SC 5
+$Team: Hostile
+$Location: 14.948013, 517.831604, 6799.638672
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 29		;! Object #21
+$Class: SC 5
+$Team: Hostile
+$Location: -204.925629, 515.282898, 6799.638672
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 30		;! Object #22
+$Class: SC 5
+$Team: Hostile
+$Location: -200.326263, 515.336182, 6997.623535
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 31		;! Object #23
+$Class: SC 5
+$Team: Hostile
+$Location: -197.906464, 515.364197, 7205.110352
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 32		;! Object #24
+$Class: SC 5
+$Team: Hostile
+$Location: 8.516617, 517.757324, 7205.110352
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Sensor Arrays", 2118)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 33		;! Object #25
+$Class: SC 5
+$Team: Hostile
+$Location: 106.766129, 373.651062, 7100.137207
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 34		;! Object #26
+$Class: SC 5
+$Team: Hostile
+$Location: 109.104141, 373.678101, 6911.318359
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Sensor Arrays", 2118)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 35		;! Object #27
+$Class: SC 5
+$Team: Hostile
+$Location: -87.959686, 371.393494, 6892.883789
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Sensor Arrays", 2118)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 36		;! Object #28
+$Class: SC 5
+$Team: Hostile
+$Location: -94.785858, 371.314209, 7095.314941
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: SC 5 37		;! Object #29
+$Class: SC 5
+$Team: Hostile
+$Location: 3.352554, 246.980896, 6997.623535
+$Orientation:
+	-0.999933, -0.011592, 0.000000,
+	0.011592, -0.999933, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Sensor Arrays", 2118)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
+
+$Name: Sentry 4		;! Object #30
+$Class: SSG Trident
+$Team: Hostile
+$Location: -1179.665527, 373.063904, 6181.988770
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02a
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 5
+
+$Name: Sentry 1		;! Object #31
+$Class: SSG Trident
+$Team: Hostile
+$Location: -921.834778, 373.063477, 5706.466309
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02a
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 5
+
+$Name: Sentry 2		;! Object #32
+$Class: SSG Trident
+$Team: Hostile
+$Location: 923.324707, 373.063965, 5673.234863
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02a
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 5
+
+$Name: Sentry 3		;! Object #33
+$Class: SSG Trident
+$Team: Hostile
+$Location: 1100.955566, 373.063873, 6176.562500
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02a
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "protect-ship" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 5
+
+$Name: Alpha 2		;! Object #34
+$Class: GTF Valkyrie
+$Team: Friendly
+$Location: -53.622353, -25.691063, -182.561050
+$Orientation:
+	-0.018867, 0.999365, -0.030243,
+	-0.999482, -0.019640, -0.025485,
+	-0.026063, 0.029747, 0.999218
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-guard "Alpha 1" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "Fury" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "protect-ship" "no-shields" )
++Respawn priority: 0
++Orders Accepted: 32895		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Alpha 3		;! Object #35
+$Class: GTF Valkyrie
+$Team: Friendly
+$Location: 54.737293, 154.207138, -197.276184
+$Orientation:
+	0.928361, 0.370448, -0.030243,
+	-0.371213, 0.928198, -0.025485,
+	0.018631, 0.034886, 0.999218
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-guard "Alpha 1" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "Fury" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "protect-ship" "no-shields" )
++Respawn priority: 0
++Orders Accepted: 32895		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Alpha 4		;! Object #36
+$Class: GTF Valkyrie
+$Team: Friendly
+$Location: 1.626555, 60.868271, -294.279877
+$Orientation:
+	0.514863, 0.856739, -0.030243,
+	-0.857249, 0.514271, -0.025485,
+	-0.006281, 0.039047, 0.999218
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-guard "Alpha 1" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "Fury" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "protect-ship" "no-shields" )
++Respawn priority: 0
++Orders Accepted: 32895		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Arjuna 4		;! Object #37
+$Class: SF Scorpion
+$Team: Hostile
+$Location: 1465.933350, -0.000394, 5566.905273
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Rama 1		;! Object #38
+$Class: SF Manticore
+$Team: Hostile
+$Location: -580.135132, -0.000423, 5622.829590
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Rama 2		;! Object #39
+$Class: SF Manticore
+$Team: Hostile
+$Location: -340.941437, -0.000364, 5597.729004
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Rama 3		;! Object #40
+$Class: SF Manticore
+$Team: Hostile
+$Location: 161.734787, -0.000461, 5627.454102
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Rama 4		;! Object #41
+$Class: SF Manticore
+$Team: Hostile
+$Location: 442.128235, -0.000319, 5642.331543
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Krishna 1		;! Object #42
+$Class: SF Manticore
+$Team: Hostile
+$Location: -562.122803, -0.000655, 8482.255859
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Krishna 2		;! Object #43
+$Class: SF Manticore
+$Team: Hostile
+$Location: -171.004227, -0.000498, 8488.393555
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Krishna 3		;! Object #44
+$Class: SF Manticore
+$Team: Hostile
+$Location: 226.181717, -0.000585, 8507.218750
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Arjuna 1		;! Object #45
+$Class: SF Scorpion
+$Team: Hostile
+$Location: -1516.872803, -0.000033, 8452.443359
+$Orientation:
+	-0.716801, 0.000000, -0.697278,
+	0.000000, 1.000000, 0.000000,
+	0.697278, 0.000000, -0.716801
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Colonel
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Arjuna 2		;! Object #46
+$Class: SF Scorpion
+$Team: Hostile
+$Location: 1621.231567, -0.000608, 8474.808594
+$Orientation:
+	0.751806, 0.000000, -0.659385,
+	0.000000, 1.000000, 0.000000,
+	0.659385, 0.000000, 0.751806
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Colonel
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Arjuna 3		;! Object #47
+$Class: SF Scorpion
+$Team: Hostile
+$Location: -1398.708008, 0.000053, 5581.630371
+$Orientation:
+	-0.555699, 0.000000, 0.831384,
+	0.000000, 1.000000, 0.000000,
+	-0.831384, 0.000000, -0.555699
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Colonel
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Krishna 4		;! Object #48
+$Class: SF Manticore
+$Team: Hostile
+$Location: 548.017029, -0.000396, 8532.469727
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Subsystem: Pilot
++Secondary Banks: ( "Fury#Shivan" "Fury#Shivan" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Taranis		;! Object #49
+$Class: SC Cain
+$Team: Hostile
+$Location: 1953.774902, 0.004132, 5466.014648
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Colonel
+$AI Goals: ( goals ( ai-waypoints-once "Waypoint path 4" 89 ) ( ai-chase-wing "Alpha" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01
++Subsystem: turret02
++Subsystem: turret03
++Subsystem: turret04
++Subsystem: turret05
++Subsystem: turret06
++Subsystem: turret07
++Subsystem: turret08
++Subsystem: turret09
+$Arrival Location: Hyperspace
+$Arrival Cue: ( has-arrived-delay 5 "Krishna" ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "no-shields" "invulnerable" "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 150
+
+$Name: Arjuna 5		;! Object #50
+$Class: SF Dragon
+$Team: Hostile
+$Location: -1053.700195, -0.000429, 2682.031250
+$Orientation:
+	0.426660, 0.000000, -0.904412,
+	0.000000, 1.000000, 0.000000,
+	0.904412, 0.000000, 0.426660
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints "Waypoint path 2" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( < 
+   ( distance 
+      "Alpha" 
+      "Waypoint path 1:1" 
+   )
+   5500 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( has-arrived-delay 15 "Arjuna 5" ) 
+$Determination: 10
++Flags: ( "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 25
+
+$Name: Arjuna 6		;! Object #51
+$Class: SF Dragon
+$Team: Hostile
+$Location: 851.694824, -0.000302, 3686.702881
+$Orientation:
+	0.523366, 0.000000, 0.852108,
+	0.000000, 1.000000, 0.000000,
+	-0.852108, 0.000000, 0.523366
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints "Waypoint path 3" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( < 
+   ( distance 
+      "Alpha" 
+      "Waypoint path 1:1" 
+   )
+   3700 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( has-arrived-delay 15 "Arjuna 6" ) 
+$Determination: 10
++Flags: ( "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 25
+
+$Name: Sentry 6		;! Object #52
+$Class: SSG Trident
+$Team: Hostile
+$Location: -367.195679, -0.000082, 5298.104004
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02a
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 5
+
+$Name: Sentry 5		;! Object #53
+$Class: SSG Trident
+$Team: Hostile
+$Location: 511.372833, 0.000009, 5289.381348
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02a
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 5
+
+#Wings		;! 4 total
+
+$Name: Alpha
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Alpha 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 4 total
+	"Alpha 1"
+	"Alpha 2"
+	"Alpha 3"
+	"Alpha 4"
+)
++Hotkey: 0
++Flags:( )
+
+$Name: Rama
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Rama 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-event-true-delay "Trap alert!" 3 ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 4 total
+	"Rama 1"
+	"Rama 2"
+	"Rama 3"
+	"Rama 4"
+)
+$AI Goals: ( goals ( ai-guard "Taranis" 50 ) )
++Flags:( "no-arrival-message" )
+
+$Name: Krishna
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Krishna 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-event-true-delay "Trap alert!" 3 ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 4 total
+	"Krishna 1"
+	"Krishna 2"
+	"Krishna 3"
+	"Krishna 4"
+)
+$AI Goals: ( goals ( ai-guard "Taranis" 50 ) )
++Flags:( "no-arrival-message" )
+
+$Name: Arjuna
+$Waves: 100
+$Wave Threshold: 0
+$Special Ship: 0		;! Arjuna 1
+
+$Arrival Location: In front of ship
++Arrival Distance: 1500
+$Arrival Anchor: <any friendly player>
+$Arrival Cue: ( is-event-true-delay 
+   "Cargo is blowin' up" 
+   12 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 4 total
+	"Arjuna 1"
+	"Arjuna 2"
+	"Arjuna 3"
+	"Arjuna 4"
+)
+$AI Goals: ( goals ( ai-chase "Alpha 4" 89 ) ( ai-chase "Alpha 3" 88 ) ( ai-chase "Alpha 2" 87 ) ( ai-chase "Alpha 1" 40 ) )
++Flags:( )
++Wave Delay Min: 2
++Wave Delay Max: 4
+
+#Events		;! 44 total
+
+$Formula: ( when 
+   ( < 
+      ( distance 
+         "Alpha" 
+         "Waypoint path 1:1" 
+      )
+      1700 
+   )
+   ( self-destruct "SAC 2 1" ) 
+)
++Name: Start Boom
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Start Boom" 1 ) 
+   ( self-destruct "SAC 2 3" ) 
+)
++Name: Boom 2
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 2" 1 ) 
+   ( self-destruct "SAC 2 5" ) 
+)
++Name: Boom 3
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 3" 1 ) 
+   ( self-destruct "SAC 2 7" ) 
+)
++Name: Boom 4
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 4" 1 ) 
+   ( self-destruct "SAC 2 9" ) 
+)
++Name: Boom 5
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 5" 1 ) 
+   ( self-destruct "SAC 2 9" ) 
+)
++Name: Boom 6
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 6" 1 ) 
+   ( self-destruct "SAC 2 11" ) 
+)
++Name: Boom 7
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 7" 1 ) 
+   ( self-destruct "SAC 2 13" ) 
+)
++Name: Boom 8
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 8" 1 ) 
+   ( self-destruct "SAC 2 15" ) 
+)
++Name: Boom 9
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 9" 1 ) 
+   ( self-destruct "SC 5 17" ) 
+)
++Name: Boom 10
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 10" 1 ) 
+   ( self-destruct "SC 5 18" ) 
+)
++Name: Boom 11
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 11" 1 ) 
+   ( self-destruct "SC 5 19" ) 
+)
++Name: Boom 12
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 12" 1 ) 
+   ( self-destruct "SC 5 20" ) 
+)
++Name: Boom 13
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 13" 1 ) 
+   ( self-destruct "SC 5 21" ) 
+)
++Name: Boom 14
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 14" 1 ) 
+   ( self-destruct "SC 5 22" ) 
+)
++Name: Boom 15
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 15" 1 ) 
+   ( self-destruct "SC 5 23" ) 
+)
++Name: Boom 16
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 16" 1 ) 
+   ( self-destruct "SC 5 24" ) 
+)
++Name: Boom 17
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 17" 1 ) 
+   ( self-destruct "SC 5 25" ) 
+)
++Name: Boom 18
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 18" 1 ) 
+   ( self-destruct "SC 5 26" ) 
+)
++Name: Boom 19
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 19" 1 ) 
+   ( self-destruct "SC 5 27" ) 
+)
++Name: Boom 20
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 20" 1 ) 
+   ( self-destruct "SC 5 28" ) 
+)
++Name: Boom 21
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 21" 1 ) 
+   ( self-destruct "SC 5 29" ) 
+)
++Name: Boom 22
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 22" 1 ) 
+   ( self-destruct "SC 5 30" ) 
+)
++Name: Boom 23
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 23" 1 ) 
+   ( self-destruct "SC 5 31" ) 
+)
++Name: Boom 24
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-cargo-known 
+      "SAC 2 1" 
+      "SAC 2 3" 
+      "SAC 2 5" 
+      "SAC 2 7" 
+   )
+   ( do-nothing ) 
+)
++Name: The Directive
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Inspect all Cargo", 2119)
+
+$Formula: ( when 
+   ( has-arrived-delay 1 "Arjuna 5" ) 
+   ( send-message 
+      "Alpha 2" 
+      "normal" 
+      "Shivans comin' in" 
+   )
+)
++Name: Shivans comin' in
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 1 "Arjuna 6" ) 
+   ( send-message 
+      "Alpha 3" 
+      "normal" 
+      "Another lone Shivan" 
+   )
+)
++Name: Another lone Shivan
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay "Boom 2" 1 ) 
+   ( send-message 
+      "Alpha 3" 
+      "High" 
+      "Cargo is blowin' up" 
+   )
+)
++Name: Cargo is blowin' up
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 6 "Arjuna" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Trap alert!" 
+   )
+   ( protect-ship "Alpha 1" ) 
+   ( invalidate-goal "Destroy Sentries" ) 
+)
++Name: Trap alert!
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "new orders 1" 
+   )
+)
++Name: More info on trap
++Repeat Count: 1
++Interval: 1
++Chained: 8
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "new orders 2" 
+   )
+)
++Name: new orders 2
++Repeat Count: 1
++Interval: 1
++Chained: 4
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "new orders 3" 
+   )
+   ( validate-goal 
+      "Investigate Remaining Cargo" 
+   )
+   ( unprotect-ship "Alpha 4" ) 
+)
++Name: new orders 3
++Repeat Count: 1
++Interval: 1
++Chained: 6
+
+$Formula: ( when 
+   ( is-cargo-known 
+      "SC 5 32" 
+      "SC 5 34" 
+      "SC 5 35" 
+      "SC 5 37" 
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "get out of there" 
+   )
+)
++Name: new directive
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Investigate Remaining Cargo", 2120)
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Alpha 1" ) 
+   ( do-nothing ) 
+)
++Name: player leaving
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Jump back to base", 2121)
+
+$Formula: ( when 
+   ( has-time-elapsed 4 ) 
+   ( send-message 
+      "Alpha 2" 
+      "normal" 
+      "eerie message 1" 
+   )
+)
++Name: eerie message 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 3 "Rama" ) 
+   ( send-message 
+      "Alpha 4" 
+      "normal" 
+      "Beta Shivans arrive" 
+   )
+)
++Name: Beta Shivans arrive
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Alpha 4" ) 
+   ( send-message 
+      "Alpha 2" 
+      "normal" 
+      "Dead Alpha 2" 
+   )
+)
++Name: Dead Alpha 2
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Alpha 2" ) 
+   ( unprotect-ship "Alpha 3" "Alpha 4" ) 
+)
++Name: unprotect Alpha 3 & 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 
+      10 
+      "Alpha 3" 
+      "Alpha 2" 
+   )
+   ( unprotect-ship "Alpha 1" ) 
+   ( add-goal 
+      "Arjuna" 
+      ( ai-chase "Alpha 1" 89 ) 
+   )
+)
++Name: kill player
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay 
+      "eerie message 1" 
+      6 
+   )
+   ( send-message 
+      "Alpha 3" 
+      "normal" 
+      "eerie message 2" 
+   )
+)
++Name: eerie message 2
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay 
+      "eerie message 2" 
+      5 
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "eerie message 3" 
+   )
+)
++Name: eerie message 3
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( or 
+      ( is-destroyed-delay 1 "Arjuna 5" ) 
+      ( has-departed-delay 1 "Arjuna 5" ) 
+   )
+   ( send-message 
+      "Alpha 4" 
+      "normal" 
+      "After lone shivan 1" 
+   )
+)
++Name: after lone shivan 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 
+      3 
+      "Sentry 4" 
+      "Sentry 2" 
+      "Sentry 1" 
+      "Sentry 3" 
+      "Sentry 6" 
+      "Sentry 5" 
+   )
+   ( send-message 
+      "Alpha 2" 
+      "High" 
+      "Sentries Eliminated" 
+   )
+)
++Name: Destryo Sentry Guns
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Sentries", 2122)
+
+$Formula: ( when 
+   ( true ) 
+   ( allow-weapon "Avenger" ) 
+   ( tech-add-weapons "Avenger" ) 
+   ( tech-add-ships 
+      "SF Manticore" 
+      "SF Scorpion" 
+      "SB Shaitan" 
+      "SC 5" 
+      "SAC 2" 
+      "SC Cain" 
+      "SSG Trident" 
+   )
+)
++Name: New Weapon
++Repeat Count: 1
++Interval: 1
+
+#Goals		;! 3 total
+
+$Type: Secondary
++Name: Investigate the Cargo
+$MessageNew:  XSTR("Use your sensors to scan the Shivan Cargo Containers.", 2123)
+$end_multi_text
+$Formula: ( is-cargo-known 
+   "SAC 2 1" 
+   "SAC 2 3" 
+   "SAC 2 5" 
+   "SAC 2 7" 
+   "SAC 2 9" 
+   "SAC 2 11" 
+   "SAC 2 13" 
+   "SAC 2 15" 
+   "SC 5 17" 
+   "SC 5 18" 
+   "SC 5 19" 
+   "SC 5 20" 
+   "SC 5 21" 
+   "SC 5 22" 
+   "SC 5 23" 
+   "SC 5 24" 
+   "SC 5 25" 
+   "SC 5 26" 
+   "SC 5 27" 
+   "SC 5 28" 
+   "SC 5 29" 
+   "SC 5 30" 
+   "SC 5 31" 
+   "SC 5 32" 
+   "SC 5 33" 
+   "SC 5 34" 
+   "SC 5 35" 
+   "SC 5 36" 
+   "SC 5 37" 
+)
++Score: 100
+
+$Type: Primary
++Name: Investigate Remaining Cargo
+$MessageNew:  XSTR("Investigate any remaining cargo.", 2124)
+$end_multi_text
+$Formula: ( is-cargo-known 
+   "SC 5 32" 
+   "SC 5 34" 
+   "SC 5 35" 
+   "SC 5 37" 
+)
++Invalid
++Score: 1000
+
+$Type: Primary
++Name: Destroy Sentries
+$MessageNew:  XSTR("Destroy All Sentry Guns", 2125)
+$end_multi_text
+$Formula: ( is-event-true-delay 
+   "Destryo Sentry Guns" 
+   0 
+)
++No music
++Score: 300
+
+#Waypoints		;! 4 lists total
+
+$Name: Waypoint path 1
+$List: (		;! 1 points in list
+	( -0.430332, 543.028320, 6997.546875 )
+)
+
+$Name: Waypoint path 2
+$List: (		;! 2 points in list
+	( -959.214233, 0.000094, 2714.307617 )
+	( 784.099548, 0.000110, 3251.300781 )
+)
+
+$Name: Waypoint path 3
+$List: (		;! 2 points in list
+	( 780.263306, 0.000507, 3733.562744 )
+	( -1020.732483, -0.000196, 4546.333984 )
+)
+
+$Name: Waypoint path 4
+$List: (		;! 3 points in list
+	( 1832.225952, -0.000978, 5752.812500 )
+	( 1716.833618, -0.001584, 6391.740234 )
+	( 1049.338013, -0.002000, 7077.317383 )
+)
+
+#Messages		;! 15 total
+
+
+$Name: Shivans comin' in
+$Team: -1
+$MessageNew:  XSTR("Shivan wing arriving!", 2126)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP4
++Wave Name: 5_a1m7_a.wav
+
+$Name: Another lone Shivan
+$Team: -1
+$MessageNew:  XSTR("We've got another one!", 2127)
+$end_multi_text
++Persona: Wingman 2
++AVI Name: Head-TP3
++Wave Name: 2_a1m7_b.wav
+
+$Name: Trap alert!
+$Team: -1
+$MessageNew:  XSTR("Alpha wing!  We've been set up!  It's a trap!", 2128)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m7_c.wav
+
+$Name: eerie message 1
+$Team: -1
+$MessageNew:  XSTR("It's too quiet here.", 2129)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP4
++Wave Name: 5_a1m7_d.wav
+
+$Name: Beta Shivans arrive
+$Team: -1
+$MessageNew:  XSTR("Get us out of here, Alpha 1!", 2130)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP2
++Wave Name: 4_a1m7_e.wav
+
+$Name: Dead Alpha 2
+$Team: -1
+$MessageNew:  XSTR("Damn it!  Alpha 4's gone!", 2131)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP4
++Wave Name: 5_a1m7_f.wav
+
+$Name: Cargo is blowin' up
+$Team: -1
+$MessageNew:  XSTR("What the hell is going on here?", 2132)
+$end_multi_text
++Persona: Wingman 2
++AVI Name: Head-TP3
++Wave Name: 2_a1m7_g.wav
+
+$Name: eerie message 2
+$Team: -1
+$MessageNew:  XSTR("Yeah, this doesn't feel right.", 2133)
+$end_multi_text
++Persona: Wingman 2
++AVI Name: Head-TP3
++Wave Name: 2_a1m7_h.wav
+
+$Name: eerie message 3
+$Team: -1
+$MessageNew:  XSTR("Maintain radio silence, pilots.  You have a job to do.", 2134)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m7_i.wav
+
+$Name: After lone shivan 1
+$Team: -1
+$MessageNew:  XSTR("I do not like this!", 2135)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP2
++Wave Name: 4_a1m7_l.wav
+
+$Name: new orders 1
+$Team: -1
+$MessageNew:  XSTR("Most of the cargo has been lost.", 2136)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m7_m.wav
+
+$Name: new orders 2
+$Team: -1
+$MessageNew:  XSTR("Scan the remaining cargo, we still need any data available.", 2137)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m7_n.wav
+
+$Name: new orders 3
+$Team: -1
+$MessageNew:  XSTR("Get to those containers, then get the hell out of there!", 2138)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m7_o.wav
+
+$Name: get out of there
+$Team: -1
+$MessageNew:  XSTR("That's all the data we need.  Get out of there Alpha!", 2139)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m7_p.wav
+
+$Name: Sentries Eliminated
+$Team: -1
+$MessageNew:  XSTR("All sentry guns destroyed.", 2140)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP4
++Wave Name: 5_a1m7_q.wav
+
+#Reinforcements		;! 0 total
+
+
+#Background bitmaps		;! 23 total
+
+$Num stars: 500
+$Ambient light level: 0
+
+;;FSO 3.6.9;; $Bitmap List:
+;;FSO 3.6.9;; $Sun: SunViolet
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 1.047197
+;;FSO 3.6.9;; +Scale: 1.000000
+;;FSO 3.6.9;; $Starbitmap: nebulE3-main
+;;FSO 3.6.9;; +Angles: 6.161007 0.000000 1.134463
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulE2-main
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 1.012290
+;;FSO 3.6.9;; +ScaleX: 6.000000
+;;FSO 3.6.9;; +ScaleY: 6.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulE1-main
+;;FSO 3.6.9;; +Angles: 0.314159 5.096357 0.715584
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulE8-whisp
+;;FSO 3.6.9;; +Angles: 0.157080 0.366519 1.117010
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 2
+;;FSO 3.6.9;; +DivY: 2
+;;FSO 3.6.9;; $Starbitmap: nebulE9-whisp
+;;FSO 3.6.9;; +Angles: 5.585049 6.091194 0.698131
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 2
+;;FSO 3.6.9;; +DivY: 2
+;;FSO 3.6.9;; $Starbitmap: nebulE14-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 2.234020 2.967057
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulE7-whisp
+;;FSO 3.6.9;; +Angles: 5.934115 0.942477 1.919861
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulE14-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 5.759582 2.356193
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulE6-whisp
+;;FSO 3.6.9;; +Angles: 0.349066 0.000000 1.745328
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulE9-whisp
+;;FSO 3.6.9;; +Angles: 5.585049 0.942477 2.007127
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulE12-whisp
+;;FSO 3.6.9;; +Angles: 5.148717 0.000000 2.617992
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulE12-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 4.712385
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulE11-whisp
+;;FSO 3.6.9;; +Angles: 5.532690 0.000000 4.293507
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 3
+;;FSO 3.6.9;; +DivY: 3
+;;FSO 3.6.9;; $Starbitmap: nebulE10-whisp
+;;FSO 3.6.9;; +Angles: 4.991638 4.485493 5.026544
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 3
+;;FSO 3.6.9;; +DivY: 3
+;;FSO 3.6.9;; $Starbitmap: nebulE13-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 0.436332
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 4
+;;FSO 3.6.9;; +DivY: 4
+;;FSO 3.6.9;; $Starbitmap: nebulE14-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 5.288343 6.021381
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 2
+;;FSO 3.6.9;; +DivY: 2
+;;FSO 3.6.9;; $Starbitmap: nebulE4-whisp
+;;FSO 3.6.9;; +Angles: 0.436332 5.550143 5.969021
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 3
+;;FSO 3.6.9;; +DivY: 3
+;;FSO 3.6.9;; $Starbitmap: nebulE5-whisp
+;;FSO 3.6.9;; +Angles: 6.056288 0.000000 6.021381
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 2
+;;FSO 3.6.9;; +DivY: 2
+;;FSO 3.6.9;; $Starbitmap: nebulE13-whisp
+;;FSO 3.6.9;; +Angles: 0.471239 1.012290 2.897244
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 4
+;;FSO 3.6.9;; +DivY: 4
+;;FSO 3.6.9;; $Starbitmap: nebulE6-whisp
+;;FSO 3.6.9;; +Angles: 0.977384 0.000000 2.897244
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 3
+;;FSO 3.6.9;; +DivY: 3
+
+;;FSO 3.6.9;; $Bitmap List:
+$Sun: SunGreen
++Angles: 0.000000 0.000000 1.047197
++Scale: 0.500000
+$Starbitmap: neb07
++Angles: 0.244346 0.366519 0.174533
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 0.506145 2.111847 0.471239
++ScaleX: 3.000000
++ScaleY: 5.000000
++DivX: 1
++DivY: 2
+$Starbitmap: neb13
++Angles: 0.785398 1.308996 0.052360
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: neb11
++Angles: 1.047197 3.246310 0.366519
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb07
++Angles: 1.308996 1.745328 0.558505
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 1.570795 3.700095 0.750491
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 6.021381 0.000000 0.000000
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb11
++Angles: 0.000000 1.343902 0.401425
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 6.021381 1.326449 0.628318
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb09
++Angles: 5.672316 0.000000 0.610865
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 5.235983 3.106683 0.645771
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb11
++Angles: 5.811942 0.767944 0.925024
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 5.811942 0.000000 1.169370
++ScaleX: 1.000000
++ScaleY: 1.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 5.881755 2.495819 1.308996
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 5.881755 2.146753 1.308996
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb11
++Angles: 0.645771 0.977384 1.308996
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb07
++Angles: 6.021381 6.021381 1.867501
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 6.021381 3.857175 2.007127
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb11
++Angles: 6.195914 0.855211 5.846848
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb13
++Angles: 5.602502 2.356193 5.602502
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 5.585049 0.610865 5.585049
++ScaleX: 5.000000
++ScaleY: 5.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb07
++Angles: 5.131264 5.480330 5.480330
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 4.974185 2.146753 5.427969
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+
+#Asteroid Fields
+
+#Music
+
+$Event Music: 6: Joshua
+;;FSO 3.6.9;; $Substitute Event Music: FS1-6: Haunted
+$Briefing Music: Cinema
+;;FSO 3.6.9;; $Substitute Briefing Music: FS1-Cinema
+;;FSO 3.6.9;; $Debriefing Success Music: FS1-Success
+;;FSO 3.6.9;; $Debriefing Average Music: FS1-Success
+;;FSO 3.6.9;; $Debriefing Fail Music: FS1-Failure
+
+#End
+

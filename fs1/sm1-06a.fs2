@@ -1,0 +1,1707 @@
+#Mission Info
+
+$Version: 0.10
+$Name:  XSTR("Paving the Way", 2064)
+$Author: Sandeep
+$Created: 02/16/98 at 13:40:27
+$Modified: 11/12/07 at 00:40:17
+$Notes:
+This is a FRED created mission
+$End Notes:
+
+$Mission Desc:
+ XSTR("Act 1, Mission 6.", 2065)
+$end_multi_text
+
++Game Type Flags: 1
+
++Flags: 2
+
++Red Alert: 0
+
++Scramble: 0
+
++Disallow Support: 0
+
++Player Entry Delay:
+1.000000
+
++Viewer pos: 53.387016, 11670.917969, 930.361572
++Viewer orient:
+	0.000865, -0.000001, 1.000000,
+	-0.999995, 0.003104, 0.000865,
+	-0.003104, -0.999995, 0.000002
++SquadReassignName: Galactic Terran Alliance
++SquadReassignLogo: GTA.pcx
+
+;;FSO 3.6.0;; $Skybox Model: starfield.pof
+
+#Plot Info
+
+$Tour:  XSTR("Blah", 601)
+$Pre-Briefing Cutscene: Blah
+$Pre-Mission Cutscene: Blah
+$Next Mission Success: Blah
+$Next Mission Partial: Blah
+$Next Mission Failure: Blah
+
+#Command Briefing
+
+$Stage Text:
+ XSTR("$b * $b GTD $b Galatea
+$b * $b Antares $b System
+$b * $b 1/18/35
+
+$b The $b Shivans
+
+Terran Command has confirmed the existence of a new species.  Until further contact is established, Command has designated them ''Shivans''.  
+
+The Shivans have inflicted heavy casualties to both Terran and Vasudan forces in the Beta Cygni and Vega systems, and appear to be making a rapid push into other key systems along the Terran-Vasudan front.  All contact has been lost with our forces in the Ikeya and Ross 128 systems.", 2066)
+$end_multi_text
+$Ani Filename: CB_starmap02.ani
++Wave Filename: CBrief_6_a.wav
+
+$Stage Text:
+ XSTR("$b The $b Vasudans 
+
+The Vasudan government has contacted the GTA and proposed a cease fire.  Considering the reports regarding the Vasudan and Terran losses to the Shivans, this should not come as a surprise.  
+
+Terran Command has not yet responded.
+
+Expect to hear more from Terran Command on this later today.", 2067)
+$end_multi_text
+$Ani Filename: none.ani
++Wave Filename: CBrief_6_b.wav
+
+$Stage Text:
+ XSTR("$b Hostile $b Contacts
+
+All Shivan forces should be considered a serious threat.
+
+You are authorized to engage any Shivan ship that stands in the way of your mission objectives. 
+
+Attempts to establish communication with the Shivans have failed.  Intelligence will continue its attempts to learn more about this new adversary.", 2068)
+$end_multi_text
+$Ani Filename: cb_scorpion.ani
++Wave Filename: CBrief_6_c.wav
+
+$Stage Text:
+ XSTR("$b Shivan $b Technologies
+
+What little information has been learned about Shivan technology concerns their fighter shielding system.  This shield system makes them nearly impervious to our ML-16 Laser.  
+
+R&D is currently modifying the Avenger Prototype cannon to make it more useful against the shields.  
+
+Additionally, our fighters cannot target their ships due to our lack of data regarding the Shivan electronics systems.  Plans are currently underway to remedy this situation.", 2069)
+$end_multi_text
+$Ani Filename: cb_scorpionshields.ani
++Wave Filename: CBrief_6_d.wav
+
+$Stage Text:
+ XSTR("$b Orders
+
+Terran Intelligence is working around the clock to give us more information.  
+
+Until then, we have been ordered to move into the Beta Cygni system and monitor any activity.", 2070)
+$end_multi_text
+$Ani Filename: none.ani
++Wave Filename: CBrief_6_e.wav
+
+#Briefing
+$start_briefing
+$num_stages: 7
+$start_stage
+$multi_text
+ XSTR("Due to increased encounters with Shivan forces, Terran Command has ordered the Galatea to the Beta Cygni system to monitor Shivan activity.  The Galatea has taken quite a beating since her last repair, and there isn't time to follow the safest route.", 2071)
+$end_multi_text
+$voice: Brief_6_a.wav
+$camera_pos: 53.387016, 11670.917969, 930.361572
+$camera_orient:
+	0.000865, 0.000000, 1.000000,
+	-0.999995, 0.003104, 0.000865,
+	-0.003104, -0.999995, 0.000002
+$camera_time: 500
+$num_lines: 0
+$num_icons: 2
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 6
+$team: Friendly
+$class: GTD Orion#Galatea
+$pos: -12.234884, 1845.979492, -1683.981812
+$label: Galatea
++id: 1
+$hlight: 0
+;;FSO 3.6.9;; $mirror: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 33
+$team: Friendly
+$class: Terran NavBuoy
+$pos: 343.835510, 1770.439453, 3955.740967
+$label: Beta Cygni Jump Node
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("The Antares-Beta Cygni Jump Node lies in the center of a dense asteroid field, making it one of the least used jump nodes in the galaxy.  Standard procedure would have us circumvent this node completely, requiring two jumps.  Now we have no choice.", 2072)
+$end_multi_text
+$voice: Brief_6_b.wav
+$camera_pos: 53.387016, 11670.917969, 930.361572
+$camera_orient:
+	0.000865, 0.000000, 1.000000,
+	-0.999995, 0.003104, 0.000865,
+	-0.003104, -0.999995, 0.000002
+$camera_time: 500
+$num_lines: 0
+$num_icons: 6
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1000.182617, 1845.978516, 1500.943115
++id: 14
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 33
+$team: Friendly
+$class: Terran NavBuoy
+$pos: 343.835510, 1770.439453, 3955.740967
+$label: Beta Cygni Jump Node
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: -1000.169250, 1845.980713, 1750.284180
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: GTF Ulysses
+$pos: -1112.593262, 1845.980225, 4111.179199
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1480.770752, 1845.979126, 3886.074951
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 6
+$team: Friendly
+$class: GTD Orion#Galatea
+$pos: -12.234884, 1845.979492, -1683.981812
+$label: Galatea
++id: 1
+$hlight: 0
+;;FSO 3.6.9;; $mirror: 1
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Weapons systems have taken damage from enemy bombers.  The Galatea should be able to make it through the Asteroid Field, but Alpha wing will be deployed to destroy approaching asteroids.", 2073)
+$end_multi_text
+$voice: Brief_6_c.wav
+$camera_pos: 53.387016, 11670.917969, 930.361572
+$camera_orient:
+	0.000865, 0.000000, 1.000000,
+	-0.999995, 0.003104, 0.000865,
+	-0.003104, -0.999995, 0.000002
+$camera_time: 500
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1000.182617, 1845.978516, 1500.943115
++id: 14
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 33
+$team: Friendly
+$class: Terran NavBuoy
+$pos: 343.835510, 1770.439453, 3955.740967
+$label: Beta Cygni Jump Node
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: -1000.169250, 1845.980713, 1750.284180
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: GTF Ulysses
+$pos: -1112.593262, 1845.980225, 4111.179199
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1480.770752, 1845.979126, 3886.074951
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 6
+$team: Friendly
+$class: GTD Orion#Galatea
+$pos: -12.234884, 1845.979492, -1683.981812
+$label: Galatea
++id: 1
+$hlight: 0
+;;FSO 3.6.9;; $mirror: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: -952.060730, 1965.713135, -1617.956909
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Alpha Wing will fly point for the $f Galatea and destroy any asteroids that cross its flight path.", 2074)
+$end_multi_text
+$voice: Brief_6_d.wav
+$camera_pos: 53.387016, 11670.917969, 930.361572
+$camera_orient:
+	0.000865, 0.000000, 1.000000,
+	-0.999995, 0.003104, 0.000865,
+	-0.003104, -0.999995, 0.000002
+$camera_time: 1500
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1000.182617, 1845.978516, 1500.943115
++id: 14
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 33
+$team: Friendly
+$class: Terran NavBuoy
+$pos: 343.835510, 1770.439453, 3955.740967
+$label: Beta Cygni Jump Node
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: -1000.169250, 1845.980713, 1750.284180
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: GTF Ulysses
+$pos: -1112.593262, 1845.980225, 4111.179199
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1480.770752, 1845.979126, 3886.074951
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 6
+$team: Friendly
+$class: GTD Orion#Galatea
+$pos: 10.058298, 1845.978516, -514.006165
+$label: Galatea
++id: 1
+$hlight: 0
+;;FSO 3.6.9;; $mirror: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: -858.724121, 1965.713135, 374.006775
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Asteroids that are considered a threat to the $f Galatea will be marked by white targeting brackets.  Destroy these asteroids first.", 2075)
+$end_multi_text
+$voice: Brief_6_e.wav
+$camera_pos: 53.387016, 11670.917969, 930.361572
+$camera_orient:
+	0.000865, 0.000000, 1.000000,
+	-0.999995, 0.003104, 0.000865,
+	-0.003104, -0.999995, 0.000002
+$camera_time: 750
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1663.890747, 1845.978760, 1484.809692
++id: 14
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 33
+$team: Friendly
+$class: Terran NavBuoy
+$pos: 343.835510, 1770.439453, 3955.740967
+$label: Beta Cygni Jump Node
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: -1951.151245, 1845.980347, 1728.165527
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: GTF Ulysses
+$pos: -1112.593262, 1845.980225, 4111.179199
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1480.770752, 1845.979126, 3886.074951
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 6
+$team: Friendly
+$class: GTD Orion#Galatea
+$pos: 10.058298, 1845.978516, -514.006165
+$label: Galatea
++id: 1
+$hlight: 0
+;;FSO 3.6.9;; $mirror: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: -56.547832, 1965.713013, 1281.439331
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Once the Galatea has jumped out, you are to report to the $f GTD $f Bastion, stationed in Antares.  The $f Bastion will take you to Ikeya for your next mission.  Your wing will rendezvous with the $f Galatea in Beta Cygni upon completion of that mission.", 2076)
+$end_multi_text
+$voice: Brief_6_f.wav
+$camera_pos: 53.387016, 11670.917969, 930.361572
+$camera_orient:
+	0.000865, 0.000000, 1.000000,
+	-0.999995, 0.003104, 0.000865,
+	-0.003104, -0.999995, 0.000002
+$camera_time: 1500
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1663.890747, 1845.978760, 1484.809692
++id: 14
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 33
+$team: Friendly
+$class: Terran NavBuoy
+$pos: 343.835510, 1770.439453, 3955.740967
+$label: Beta Cygni Jump Node
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: -1951.151245, 1845.980347, 1728.165527
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: GTF Ulysses
+$pos: -1112.593262, 1845.980225, 4111.179199
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1480.770752, 1845.979126, 3886.074951
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 6
+$team: Friendly
+$class: GTD Orion#Galatea
+$pos: 74.301506, 1845.978882, 2320.647461
+$label: Galatea
++id: 1
+$hlight: 0
+;;FSO 3.6.9;; $mirror: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: -895.041260, 1965.712769, 2518.668945
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("In the event of enemy attack, you are to cover the Galatea's escape from the system at any cost.", 2077)
+$end_multi_text
+$voice: Brief_6_g.wav
+$camera_pos: 53.387016, 11670.917969, 930.361572
+$camera_orient:
+	0.000865, 0.000000, 1.000000,
+	-0.999995, 0.003104, 0.000865,
+	-0.003104, -0.999995, 0.000002
+$camera_time: 750
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1771.958740, 1845.978149, 1538.736084
++id: 14
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 33
+$team: Friendly
+$class: Terran NavBuoy
+$pos: 278.286377, 1770.439453, 4035.509033
+$label: Beta Cygni Jump Node
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: -1665.263550, 1845.980225, 1457.359985
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: GTF Ulysses
+$pos: -1112.593262, 1845.980225, 4111.179199
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 8
+$team: Hostile
+$class: Asteroid
+$pos: 1835.863525, 1845.980713, 4062.988037
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: -399.297943, 1965.713013, 2037.238281
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 21
+$team: Unknown
+$class: SB Shaitan
+$pos: 263.979187, 1965.712524, 1380.307617
++id: 8
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$end_briefing
+
+#Debriefing_info
+
+$Num stages: 5
+
+$Formula: ( and 
+   ( not 
+      ( is-destroyed-delay 0 "Galatea" ) 
+   )
+   ( not 
+      ( has-departed-delay 0 "Galatea" ) 
+   )
+)
+$Multi text
+    XSTR("Abandoning the Galatea in an asteroid field was an inexplicable act of cowardice.  The Galatea has been destroyed and you are to blame.  You are hereby stripped of all rank and duties.", 2078)
+$end_multi_text
+$Voice: DeBrief_6_a.wav
+$Recommendation text:
+    XSTR("Stay in the area until the Galatea can depart.  If you are having trouble staying alive long enough, try flying slower and using thrusters to control your speed.  Asteroids are often much farther than they seem.", 2079)
+$end_multi_text
+
+$Formula: ( is-destroyed-delay 0 "Galatea" ) 
+$Multi text
+    XSTR("The destruction of the Galatea is a major loss for the Terran Alliance.  
+
+Thousands of lives were lost due to your poor execution.
+
+Perhaps this task should have been given to a more skilled pilot.  You are hereby stripped of all rank and duties in the GTA.", 2080)
+$end_multi_text
+$Voice: DeBrief_6_b.wav
+$Recommendation text:
+    XSTR("If the Galatea takes too many asteroid hits, it will not survive.  Concentrate on the asteroids with the white targeting brackets.  The Galatea's turrets will also fire on the asteroids.  Don't waste time with the ones the Galatea is firing on.
+
+Pay special attention to the area around the subspace node.  Asteroids in this area pose a greater threat to the Galatea.
+
+If the Galatea is being destroyed by the Shivans, try shooting down their bombs after they have been launched.", 2081)
+$end_multi_text
+
+$Formula: ( and 
+   ( is-goal-true-delay 
+      "Escort Galatea" 
+      0 
+   )
+   ( is-goal-false-delay 
+      "Save Galatea Hull" 
+      0 
+   )
+)
+$Multi text
+    XSTR("The Galatea made it to Beta Cygni, but our reports show it took serious damage.  It will be in repair for at least three days.
+
+It's a pity you couldn't better protect it, but what's done is done.  Report to briefing at 0800.", 2082)
+$end_multi_text
+$Voice: DeBrief_6_c.wav
+$Recommendation text:
+    XSTR("Protecting it from every asteroid may not be possible, but you should try to keep the Galatea above 70% hull.
+
+Once the bombers come in, shooting down a few of their bombs will save the Galatea from a lot of damage.", 2083)
+$end_multi_text
+
+$Formula: ( is-goal-true-delay 
+   "Save Galatea Hull" 
+   0 
+)
+$Multi text
+    XSTR("Welcome to the GTD Bastion.
+
+We just received a transmission from the Galatea.  She's doing fine and the bridge thanks you for the skillful escort through the field.
+
+You will rendezvous with her in the Beta Cygni system soon.  We are currently under way to the Ikeya system for your next mission.", 2084)
+$end_multi_text
+$Voice: DeBrief_6_d.wav
+$Recommendation text:
+    XSTR("", 606)
+$end_multi_text
+
+$Formula: ( is-event-true-delay "Grant Medal" 0 ) 
+$Multi text
+    XSTR("For your excellence in destroying the Shivan fighter while escorting the Plato, as well as your successful escort of the Galatea in the asteroid field, we are awarding you the Distinguished Flying Cross.  Wear it proudly.", 2085)
+$end_multi_text
+$Voice: DeBrief_6_e.wav
+$Recommendation text:
+    XSTR("", 606)
+$end_multi_text
+
+#Players		;! 1 total
+
+$Starting Shipname: Alpha 1
+$Ship Choices: (
+	"GTF Valkyrie"	2
+)
+
++Weaponry Pool: (
+	"ML-16 Laser"	4
+	"Disruptor"	4
+	"MX-50"	40
+	"Fury"	320
+)
+
+#Objects		;! 5 total
+
+$Name: Alpha 1		;! Object #0
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 388.607025, 1966.912354, -1549.515137
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "Fury" "Fury" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "player-start" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Galatea		;! Object #1
+$Class: GTD Orion#Galatea
+$Team: Friendly
+$Location: -12.234884, 1845.979492, -1683.981812
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Waypoint path 1" 50 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02a
++Subsystem: turret03a
++Subsystem: turret04a
++Subsystem: turret05a
++Subsystem: turret06
++Subsystem: turret07
++Subsystem: turret08
++Subsystem: turret09
++Subsystem: turret10
++Subsystem: turret11
++Subsystem: turret12
++Subsystem: turret13
++Subsystem: turret14
++Subsystem: turret15
++Subsystem: turret16
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Galatea" 
+   "Waypoint path 1" 
+   6 
+)
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )
++Respawn priority: 0
++Escort priority: 0
++Hotkey: 7
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 1750
+
+$Name: Alpha 2		;! Object #2
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 425.159790, 1964.513184, -1508.080811
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-guard "Galatea" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "Fury" "Fury" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
++Persona Index: 3
+
+$Name: Indra 1		;! Object #3
+$Class: SB Shaitan
+$Team: Hostile
+$Location: 3981.744141, -0.000216, 1021.244202
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 66
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Unknown Bomb" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 15
+
+$Name: Indra 2		;! Object #4
+$Class: SB Shaitan
+$Team: Hostile
+$Location: 3870.553223, 0.000050, 879.769165
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 66
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Unknown Bomb" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "hidden-from-sensors" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 15
+
+#Wings		;! 2 total
+
+$Name: Alpha
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Alpha 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 2 total
+	"Alpha 1"
+	"Alpha 2"
+)
++Hotkey: 0
++Flags:( )
+
+$Name: Indra
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Indra 1
+
+$Arrival Location: Near Ship
++Arrival Distance: 2500
+$Arrival Anchor: Galatea
+$Arrival Cue: ( < 
+   ( distance 
+      "Waypoint path 1:1" 
+      "Galatea" 
+   )
+   1300 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( or 
+   ( has-departed-delay 0 "Galatea" ) 
+   ( is-destroyed-delay 0 "Galatea" ) 
+)
+$Ships: (		;! 2 total
+	"Indra 1"
+	"Indra 2"
+)
+$AI Goals: ( goals ( ai-chase "Galatea" 50 ) ( ai-warp-out 40 ) )
++Flags:( "no-arrival-message" )
+
+#Events		;! 14 total
+
+$Formula: ( when 
+   ( < ( hits-left "Galatea" ) 73 ) 
+   ( send-message 
+      "Galatea" 
+      "normal" 
+      "lil pain" 
+   )
+)
++Name: Galatea hurt a little
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Galatea" ) 48 ) 
+   ( send-message 
+      "Galatea" 
+      "normal" 
+      "lots of pain" 
+   )
+)
++Name: Galatea hurt a lot
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( < ( hits-left "Galatea" ) 21 ) 
+      ( > 
+         ( distance 
+            "Galatea" 
+            "Waypoint path 1:1" 
+         )
+         600 
+      )
+      ( not 
+         ( is-event-true-delay 
+            "Galatea outta here" 
+            0 
+         )
+      )
+   )
+   ( send-message 
+      "Galatea" 
+      "normal" 
+      "almost dead" 
+   )
+)
++Name: Galatea almost dead
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 12 "Galatea" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "galatea dead" 
+   )
+)
++Name: Galatea dead
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-time-elapsed 8 ) 
+   ( send-message 
+      "Alpha 2" 
+      "normal" 
+      "this sucks" 
+   )
+)
++Name: I'm bored 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when ( true ) ( do-nothing ) ) 
++Name: cut the chatter
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-time-elapsed 89 ) 
+   ( send-message 
+      "Alpha 2" 
+      "normal" 
+      "this really sucks" 
+   )
+)
++Name: I'm bored 2
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 3 "Indra" ) 
+   ( send-message 
+      "Alpha 2" 
+      "normal" 
+      "shivans here" 
+   )
+)
++Name: Shivans arrived
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Galatea" ) 
+   ( do-nothing ) 
+)
++Name: Galatea gone, shivan chain
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Protect Galatea from Shivans", 2086)
+
+$Formula: ( when 
+   ( are-waypoints-done-delay 
+      "Galatea" 
+      "Waypoint path 1" 
+      0 
+   )
+   ( send-message 
+      "Galatea" 
+      "Normal" 
+      "audi" 
+   )
+)
++Name: Galatea outta here
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Asteroids", 2087)
+
+$Formula: ( when 
+   ( has-departed-delay 5 "Galatea" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Galatea done." 
+   )
+)
++Name: Galatea gone
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-goal-true-delay 
+         "Save Galatea Hull" 
+         0 
+      )
+      ( is-previous-goal-true 
+         "sm1-05a" 
+         "Kill Unknown" 
+         ( false ) 
+      )
+   )
+   ( grant-medal 
+      "Distinguished Flying Cross" 
+   )
+)
++Name: Grant Medal
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( or 
+      ( is-previous-goal-false 
+         "sm1-04a" 
+         "Capture the Omega" 
+         ( false ) 
+      )
+      ( and 
+         ( is-previous-goal-false 
+            "sm1-04a" 
+            "Capture the Rasputin" 
+            ( false ) 
+         )
+         ( is-previous-event-false 
+            "sm1-04a" 
+            "Rasputin dead" 
+            ( true ) 
+         )
+      )
+   )
+   ( sabotage-subsystem 
+      "Galatea" 
+      "Hull" 
+      17 
+   )
+)
++Name: Sabotage Branching
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-destroyed-delay 0 "Alpha 2" ) 
+      ( has-arrived-delay 0 "Indra" ) 
+      ( not 
+         ( is-event-true-delay 
+            "Shivans arrived" 
+            0 
+         )
+      )
+   )
+   ( send-message 
+      "Galatea" 
+      "High" 
+      "shivans here 2" 
+   )
+)
++Name: Extra thingy in case he's dead
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( not 
+      ( is-goal-incomplete 
+            "Escort Galatea" 
+      )
+   )
+   ( do-nothing ) 
+)
++Name: All objectives resolved
++Repeat Count: 1
++Interval: 1
++Team: 0
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Alpha 1" ) 
+   ( do-nothing ) 
+)
++Name: Directive RTB
++Repeat Count: 1
++Interval: 1
++Chained: 5
++Objective:  XSTR("Return to Base", 3831)
++Team: 0
+
+#Goals		;! 2 total
+
+$Type: Primary
++Name: Escort Galatea
+$MessageNew:  XSTR("Escort the Galatea to the Jump Node", 2088)
+$end_multi_text
+$Formula: ( has-departed-delay 0 "Galatea" ) 
++Score: 700
+
+$Type: Secondary
++Name: Save Galatea Hull
+$MessageNew:  XSTR("Ensure Galatea Hull Remains Above 50%", 2089)
+$end_multi_text
+$Formula: ( and 
+   ( has-departed-delay 0 "Galatea" ) 
+   ( is-event-false-delay 
+      "Galatea hurt a lot" 
+      0 
+   )
+)
++Score: 300
+
+#Waypoints		;! 1 lists total
+
+
+$Jump Node: 345.670959, 1636.078125, 4922.294434
+$Jump Node Name: Beta Cygni Jump Node
+$Name: Waypoint path 1
+$List: (		;! 1 points in list
+	( 356.282043, 1814.111816, 3915.464111 )
+)
+
+#Messages		;! 11 total
+
+
+$Name: lil pain
+$Team: -1
+$MessageNew:  XSTR("The Galatea is taking damage.  Alpha wing, assist please.", 2090)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: 1_a1m6_a.wav
+
+$Name: lots of pain
+$Team: -1
+$MessageNew:  XSTR("We are taking a major beating.  Protect the Galatea, Alpha 1!", 2091)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: 1_a1m6_b.wav
+
+$Name: almost dead
+$Team: -1
+$MessageNew:  XSTR("She's not going to make it.  Give us some cover NOW!", 2092)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: 1_a1m6_c.wav
+
+$Name: galatea dead
+$Team: -1
+$MessageNew:  XSTR("Good God, we've lost the Galatea!  All pilots jump to the Bastion immediately!", 2093)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m6_d.wav
+
+$Name: this sucks
+$Team: -1
+$MessageNew:  XSTR("Asteroids on a collision path with the Galatea will be auto-targeted with white brackets on your HUD.", 2094)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP2
++Wave Name: 4_a1m6_e.wav
+
+$Name: this really sucks
+$Team: -1
+$MessageNew:  XSTR("More rocks incoming.  Help me out, Alpha 1.", 2095)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP2
++Wave Name: 4_a1m6_f.wav
+
+$Name: audi
+$Team: -1
+$MessageNew:  XSTR("Entering subspace now.  We'll see you in Beta Cygni.", 2096)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: 1_a1m6_g.wav
+
+$Name: shivans here
+$Team: -1
+$MessageNew:  XSTR("I'm reading Shivan fighters!  Engaging now.", 2097)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP2
++Wave Name: 4_a1m6_h.wav
+
+$Name: zip it
+$Team: -1
+$MessageNew:  XSTR("Cut the chatter, Alpha 2.", 2098)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: 1_a1m6_i.wav
+
+$Name: Galatea done.
+$Team: -1
+$MessageNew:  XSTR("The Galatea is in Beta Cygni.  Return to the Bastion.", 2099)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m6_j.wav
+
+$Name: shivans here 2
+$Team: -1
+$MessageNew:  XSTR("We've detected two Shivan bombers.", 2100)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: 1_a1m6_k.wav
+
+#Reinforcements		;! 0 total
+
+
+#Background bitmaps		;! 26 total
+
+$Num stars: 500
+$Ambient light level: 0
+
+;;FSO 3.6.9;; $Bitmap List:
+;;FSO 3.6.9;; $Sun: SunAntaresA
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 1.221730
+;;FSO 3.6.9;; +Scale: 5.000000
+;;FSO 3.6.9;; $Sun: SunAntaresB
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 5.410516
+;;FSO 3.6.9;; +Scale: 0.500000
+;;FSO 3.6.9;; $Starbitmap: nebulA1-main
+;;FSO 3.6.9;; +Angles: 0.000000 3.141590 6.195914
+;;FSO 3.6.9;; +ScaleX: 7.000000
+;;FSO 3.6.9;; +ScaleY: 7.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA10-whisp
+;;FSO 3.6.9;; +Angles: 0.191986 6.021381 0.680678
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA4-whisp
+;;FSO 3.6.9;; +Angles: 0.034907 0.000000 0.436332
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA13-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 3.141590 0.925024
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA7-whisp
+;;FSO 3.6.9;; +Angles: 0.244346 0.000000 0.069813
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA6-whisp
+;;FSO 3.6.9;; +Angles: 5.934115 0.000000 0.000000
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: dneb01
+;;FSO 3.6.9;; +Angles: 5.934115 1.570795 0.000000
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA1-main
+;;FSO 3.6.9;; +Angles: 5.393063 0.000000 6.195914
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulA4-whisp
+;;FSO 3.6.9;; +Angles: 5.131264 0.000000 5.934115
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA9-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 5.759582
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA8-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 5.846848
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA5-whisp
+;;FSO 3.6.9;; +Angles: 0.506145 1.570795 0.000000
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA12-whisp
+;;FSO 3.6.9;; +Angles: 4.625119 0.000000 6.021381
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulA9-whisp
+;;FSO 3.6.9;; +Angles: 4.974185 0.000000 6.021381
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA5-whisp
+;;FSO 3.6.9;; +Angles: 4.886918 0.000000 6.021381
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA9-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 3.141590
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA7-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 2.967057
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA5-whisp
+;;FSO 3.6.9;; +Angles: 0.261799 0.000000 3.141590
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulA7-whisp
+;;FSO 3.6.9;; +Angles: 0.523598 0.000000 3.141590
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA3-whisp
+;;FSO 3.6.9;; +Angles: 0.767944 0.000000 3.141590
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA8-whisp
+;;FSO 3.6.9;; +Angles: 0.959930 4.014254 3.316123
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA13-whisp
+;;FSO 3.6.9;; +Angles: 1.117010 0.000000 3.490656
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA6-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.698131 5.585049
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA4-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 3.141590 5.619956
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA7-whisp
+;;FSO 3.6.9;; +Angles: 6.195914 0.000000 5.410516
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: planeta1
+;;FSO 3.6.9;; +Angles: 0.000000 5.934115 0.261799
+;;FSO 3.6.9;; +ScaleX: 0.400000
+;;FSO 3.6.9;; +ScaleY: 0.400000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: planetc
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 0.349066
+;;FSO 3.6.9;; +ScaleX: 0.200000
+;;FSO 3.6.9;; +ScaleY: 0.200000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+
+;;FSO 3.6.9;; $Bitmap List:
+$Sun: SunViolet
++Angles: 0.000000 0.000000 1.047197
++Scale: 1.300000
+$Starbitmap: dneb02
++Angles: 0.733038 0.733038 0.733038
++ScaleX: 3.000000
++ScaleY: 2.200000
++DivX: 1
++DivY: 1
+$Starbitmap: neb18
++Angles: 0.855211 2.146753 0.558505
++ScaleX: 2.200000
++ScaleY: 3.500000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb12
++Angles: 0.383972 0.383972 0.733038
++ScaleX: 2.400000
++ScaleY: 3.200000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb02
++Angles: 1.117010 1.117010 1.117010
++ScaleX: 2.000000
++ScaleY: 2.500000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 1.937314 2.146753 1.082103
++ScaleX: 3.200000
++ScaleY: 2.700000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb02
++Angles: 2.146753 1.937314 2.146753
++ScaleX: 3.400000
++ScaleY: 4.100000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb12
++Angles: 1.937314 3.455749 2.321286
++ScaleX: 2.000000
++ScaleY: 3.500000
++DivX: 1
++DivY: 2
+$Starbitmap: neb18
++Angles: 1.745328 0.000000 2.146753
++ScaleX: 3.000000
++ScaleY: 2.700000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 1.937314 3.874628 1.745328
++ScaleX: 2.500000
++ScaleY: 2.500000
++DivX: 1
++DivY: 1
+$Starbitmap: neb18
++Angles: 1.518435 5.811942 0.855211
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb12
++Angles: 1.256636 0.000000 0.645771
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb18
++Angles: 1.658062 1.570795 0.488692
++ScaleX: 3.200000
++ScaleY: 1.800000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb02
++Angles: 1.954767 1.850047 0.383972
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb18
++Angles: 2.146753 2.146753 0.209439
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb12
++Angles: 2.286380 4.258600 6.265727
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb18
++Angles: 2.356193 2.356193 5.951568
++ScaleX: 4.500000
++ScaleY: 3.800000
++DivX: 2
++DivY: 2
+$Starbitmap: dneb02
++Angles: 2.216566 1.343902 5.707222
++ScaleX: 3.000000
++ScaleY: 2.200000
++DivX: 1
++DivY: 1
+$Starbitmap: neb18
++Angles: 1.937314 3.298670 5.532689
++ScaleX: 2.000000
++ScaleY: 3.200000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb02
++Angles: 1.675515 1.867501 5.427969
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb12
++Angles: 1.343902 1.588248 5.480330
++ScaleX: 4.000000
++ScaleY: 2.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb18
++Angles: 0.994837 2.146753 5.654862
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb02
++Angles: 0.767944 3.961894 5.951568
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb18
++Angles: 0.575958 0.000000 6.230820
++ScaleX: 4.000000
++ScaleY: 2.200000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb12
++Angles: 0.645771 2.565632 0.191986
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: planeta1
++Angles: 0.000000 0.261799 0.261799
++ScaleX: 0.400000
++ScaleY: 0.400000
++DivX: 1
++DivY: 1
+$Starbitmap: planetc
++Angles: 0.000000 0.261799 0.349066
++ScaleX: 0.200000
++ScaleY: 0.200000
++DivX: 1
++DivY: 1
+
+#Asteroid Fields
+
+$Density: 140
++Field Type: 0
++Debris Genre: 0
++Field Debris Type: 0
+$Average Speed: 20.000000
+$Minimum: -2500.000000, -800.000000, 100.000000
+$Maximum: 2500.000000, 3200.000000, 9000.000000
++Inner Bound:
+$Minimum: -100.000000, 1200.000000, 4400.000000
+$Maximum: 700.000000, 2000.000000, 5400.000000
+
+#Music
+
+$Event Music: 5: Deuteronomy
+;;FSO 3.6.9;; $Substitute Event Music: FS1-5: Spook
+$Briefing Music: Brief5
+;;FSO 3.6.9;; $Substitute Briefing Music: FS1-BRIEF5
+;;FSO 3.6.9;; $Debriefing Success Music: FS1-Success
+;;FSO 3.6.9;; $Debriefing Average Music: FS1-Success
+;;FSO 3.6.9;; $Debriefing Fail Music: FS1-Failure
+
+#End
+

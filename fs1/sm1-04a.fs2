@@ -1,0 +1,3336 @@
+#Mission Info
+
+$Version: 0.10
+$Name:  XSTR("Avenging Angels", 1972)
+$Author: Duncan McPherson
+$Created: 02/13/98 at 14:28:22
+$Modified: 11/12/07 at 00:39:36
+$Notes:
+I am the god of beer and fire!
+
+$End Notes:
+
+$Mission Desc:
+ XSTR("A mission in which the player is sent to stop a traitor and the exchange of military technology with the enemy.", 1973)
+$end_multi_text
+
++Game Type Flags: 1
+
++Flags: 0
+
++Red Alert: 0
+
++Scramble: 0
+
++Disallow Support: 0
+
++Player Entry Delay:
+1.000000
+
++Viewer pos: -705.140930, 3333.240967, 2089.086182
++Viewer orient:
+	0.999994, 0.000000, 0.003466,
+	-0.003464, 0.029814, 0.999549,
+	-0.000103, -0.999555, 0.029814
++SquadReassignName: Galactic Terran Alliance
++SquadReassignLogo: GTA.pcx
+
+;;FSO 3.6.0;; $Skybox Model: starfield.pof
+
+#Plot Info
+
+$Tour:  XSTR("Blah", 601)
+$Pre-Briefing Cutscene: Blah
+$Pre-Mission Cutscene: Blah
+$Next Mission Success: Blah
+$Next Mission Partial: Blah
+$Next Mission Failure: Blah
+
+#Command Briefing
+
+$Stage Text:
+ XSTR("$b * $b GTD $b Galatea
+$b * $b Antares $b System
+$b * $b 1/15/35
+
+$b Lt. $b McCarthy
+
+Terran Command has informed us that Lt. Alex McCarthy, formerly stationed onboard the GTD Intrepid, has defected to the Vasudans along with an unknown number of fighters and several personnel.  
+
+He has also managed to steal the plans for the Avenger prototype cannon.  These need to be recovered immediately.
+
+Vasudan agents under Terran control have leaked information regarding McCarthy's plans to the Antares system.  Since the Galatea is already in Antares, we have been assigned to lead an attack on McCarthy's forces.", 1974)
+$end_multi_text
+$Ani Filename: cb_mccarthy.ani
++Wave Filename: CBrief_4_a.wav
+
+$Stage Text:
+ XSTR("This operation is to be carried out by the numbers.  Traitors to the Terran cause are not to be tolerated.  McCarthy will serve as an example when he is brought in.", 1975)
+$end_multi_text
+$Ani Filename: cb_mccarthy.ani
++Wave Filename: CBrief_4_b.wav
+
+$Stage Text:
+ XSTR("$b New $b Technology: $b Valkyrie $b Interceptor
+
+The Galatea has received a full complement of the new Valkyrie Interceptor Fighters.  
+
+Some of you may remember the Angel Scout Fighter.  It has been completely modified and fitted with two additional engines, making it the fastest fighter in the fleet.  It has been re-designated the Valkyrie.  It should enable you to make short work of enemy fighters.
+
+Report for mission briefing in twenty minutes.", 1976)
+$end_multi_text
+$Ani Filename: cb_valkyrie.ani
++Wave Filename: CBrief_4_c.wav
+
+#Briefing
+$start_briefing
+$num_stages: 9
+$start_stage
+$multi_text
+ XSTR("Plans for the Avenger weapon prototype have been stolen by Lt. McCarthy.  His transport has been located here in Antares.  It has been designated $h Omega.", 1977)
+$end_multi_text
+$voice: Brief_4_a.wav
+$camera_pos: -705.140930, 3333.240967, 2089.086182
+$camera_orient:
+	0.999994, 0.000000, 0.003466,
+	-0.003464, 0.029814, 0.999550,
+	-0.000103, -0.999555, 0.029814
+$camera_time: 500
+$num_lines: 0
+$num_icons: 6
+$Flags: 1
+$Formula: ( true ) 
+$start_icon
+$type: 34
+$team: Neutral
+$class: GTT Elysium
+$pos: -405.496368, 225.104584, 2068.413574
+$label: Omega
++id: 1
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -1005.427246, 135.994995, 2535.888672
+$label: Traitors
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -961.386230, 301.921906, 1828.064575
+$label: Traitors
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Neutral
+$class: PVT Isis
+$pos: 786.734375, 382.264740, 2080.482178
+$label: Rasputin
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1320.463013, 405.701660, 2270.112305
+$label: Vasudan
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1334.849365, 352.070526, 1719.109131
+$label: Vasudan
++id: 6
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("One of McCarthy's accomplices has been captured, and has revealed his intentions for the stolen plans.  Not surprisingly, McCarthy intends to sell the Avenger to the Vasudans.  His Vasudan contact has been designated $h Rasputin.", 1978)
+$end_multi_text
+$voice: Brief_4_b.wav
+$camera_pos: 283.330627, 5888.352539, 1572.144165
+$camera_orient:
+	0.999994, 0.000000, 0.003466,
+	-0.003464, 0.029814, 0.999550,
+	-0.000103, -0.999555, 0.029814
+$camera_time: 1000
+$num_lines: 0
+$num_icons: 6
+$Flags: 2
+$Formula: ( true ) 
+$start_icon
+$type: 34
+$team: Neutral
+$class: GTT Elysium
+$pos: -405.496368, 225.104584, 2068.413574
+$label: Omega
++id: 1
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -1005.427246, 135.994995, 2535.888672
+$label: Traitors
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -961.386230, 301.921906, 1828.064575
+$label: Traitors
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Neutral
+$class: PVT Isis
+$pos: 789.232666, 382.264618, 2059.915527
+$label: Rasputin
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1320.463013, 405.701660, 2270.112305
+$label: Vasudan
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1334.849365, 352.070526, 1719.109131
+$label: Vasudan
++id: 6
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Your squadron will arrive before the exchange takes place.  You are to destroy all hostile fighters, including any renegade Terrans.  However, we want McCarthy alive.  Your ships have been equipped with Disruptors suitable for disabling the engines on the Omega.", 1979)
+$end_multi_text
+$voice: Brief_4_c.wav
+$camera_pos: 283.330627, 5888.352539, 1572.144165
+$camera_orient:
+	0.999994, 0.000000, 0.003466,
+	-0.003464, 0.029814, 0.999550,
+	-0.000103, -0.999555, 0.029814
+$camera_time: 500
+$num_lines: 0
+$num_icons: 6
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 34
+$team: Neutral
+$class: GTT Elysium
+$pos: 431.502075, 225.104507, 2072.548340
+$label: Om.
++id: 1
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -1005.427246, 135.994995, 2535.888672
+$label: Traitors
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -961.386230, 301.921906, 1828.064575
+$label: Traitors
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Neutral
+$class: PVT Isis
+$pos: 789.232666, 382.264618, 2059.915527
+$label: Ras.
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1320.463013, 405.701660, 2270.112305
+$label: Vasudan
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1334.849365, 352.070526, 1719.109131
+$label: Vasudan
++id: 6
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Alpha wing and Beta wing, each consisting of four fighters, will be sent in to carry out the mission.  You will jump in approximately six kilometers away from the exchange.  Get to the Omega as soon as possible.", 1980)
+$end_multi_text
+$voice: Brief_4_d.wav
+$camera_pos: 283.330627, 5888.352539, 1572.144165
+$camera_orient:
+	0.999994, 0.000000, 0.003466,
+	-0.003465, 0.024032, 0.999705,
+	-0.000083, -0.999711, 0.024032
+$camera_time: 500
+$num_lines: 0
+$num_icons: 8
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 34
+$team: Neutral
+$class: GTT Elysium
+$pos: -147.213440, 225.104263, 2058.249512
+$label: Omega
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -1005.427246, 135.994995, 2535.888672
+$label: Traitors
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -961.386230, 301.921906, 1828.064575
+$label: Traitors
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Neutral
+$class: PVT Isis
+$pos: 789.232666, 382.264618, 2059.915527
+$label: Rasputin
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1335.319214, 405.702148, 1717.343628
+$label: Vasudan
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1320.816162, 352.070251, 2266.093506
+$label: Vasudan
++id: 6
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Valkyrie
+$pos: 1021.096497, 645.394348, 1026.421997
+$label: Alpha
++id: 7
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: 1540.719971, 1367.384644, 1103.724487
+$label: Beta
++id: 8
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Expect to encounter significant resistance.  Beta wing will focus on attacking the Vasudan forces.  Alpha wing will be expected to disable the Omega.  Request Beta wing's assistance if necessary.", 1981)
+$end_multi_text
+$voice: Brief_4_e.wav
+$camera_pos: 283.330627, 5888.352539, 1572.144165
+$camera_orient:
+	0.999994, 0.000000, 0.003466,
+	-0.003465, 0.024032, 0.999705,
+	-0.000083, -0.999711, 0.024032
+$camera_time: 600
+$num_lines: 0
+$num_icons: 8
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 34
+$team: Neutral
+$class: GTT Elysium
+$pos: -261.960999, 225.104401, 2244.342041
+$label: Omega
++id: 1
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -1005.427246, 135.994995, 2535.888672
+$label: Traitors
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -587.509949, 301.922028, 1132.651367
+$label: Traitors
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Neutral
+$class: PVT Isis
+$pos: 648.690186, 382.264465, 1896.599487
+$label: Rasputin
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1463.535889, 405.702209, 2385.687012
+$label: Vasudan
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 924.632629, 352.070343, 1077.838135
+$label: Vasudan
++id: 6
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Valkyrie
+$pos: 30.455284, 645.394592, 1544.522461
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: 1217.832886, 1367.385010, 1651.110718
+$label: Beta
++id: 8
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("After McCarthy's transport is disabled, the $f GTT $f Comet will jump into the area and dock with it.  You are to ensure the safety of the Comet, especially during the docking operation with Omega.", 1982)
+$end_multi_text
+$voice: Brief_4_f.wav
+$camera_pos: 283.330627, 5888.352539, 1572.144165
+$camera_orient:
+	0.999994, 0.000000, 0.003466,
+	-0.003465, 0.024032, 0.999705,
+	-0.000083, -0.999711, 0.024032
+$camera_time: 500
+$num_lines: 0
+$num_icons: 6
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 34
+$team: Neutral
+$class: GTT Elysium
+$pos: -488.231171, 225.104248, 2057.067383
+$label: Omega
++id: 1
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Neutral
+$class: PVT Isis
+$pos: 648.690186, 382.264465, 1896.599487
+$label: Rasputin
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Neutral
+$class: PVF Horus
+$pos: 1463.535889, 405.702209, 2385.687012
+$label: Vasudan
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Valkyrie
+$pos: 71.511520, 645.394714, 1640.664429
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: 1217.832886, 1367.385010, 1651.110718
+$label: Beta
++id: 8
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Friendly
+$class: GTT Elysium
+$pos: -1116.268066, 0.000101, 2558.435303
+$label: GTT Comet
++id: 9
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("After the Comet and the Omega have left the area, it is your responsibility to eliminate any remaining hostiles.  Once the area is clear, you are to jump back to the Galatea.", 1983)
+$end_multi_text
+$voice: Brief_4_g.wav
+$camera_pos: 283.330627, 5888.352539, 1572.144165
+$camera_orient:
+	0.999994, 0.000000, 0.003466,
+	-0.003465, 0.024032, 0.999705,
+	-0.000083, -0.999711, 0.024032
+$camera_time: 500
+$num_lines: 0
+$num_icons: 3
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 34
+$team: Neutral
+$class: GTT Elysium
+$pos: 494.839813, 225.104462, 1533.680786
++id: 1
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Valkyrie
+$pos: 1808.764526, 645.394409, 1126.694824
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Friendly
+$class: GTT Elysium
+$pos: 490.830170, 0.000123, 1987.271851
+$label: GTT Comet
++id: 9
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Note that you will be required to engage Terran pilots.  These pilots are traitors to the Alliance, and no quarter should be given.  Thousands of lives are at stake.  Do not hesitate to use deadly force on the traitors.  They are your enemy.", 1984)
+$end_multi_text
+$voice: Brief_4_h.wav
+$camera_pos: 283.330627, 5888.352539, 1572.144165
+$camera_orient:
+	0.999994, 0.000000, 0.003466,
+	-0.003465, 0.024032, 0.999705,
+	-0.000083, -0.999711, 0.024032
+$camera_time: 500
+$num_lines: 0
+$num_icons: 4
+$Flags: 1
+$Formula: ( true ) 
+$start_icon
+$type: 34
+$team: Neutral
+$class: GTT Elysium
+$pos: 494.839813, 225.104462, 1533.680786
+$label: Omega
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Valkyrie
+$pos: 1808.764526, 645.394409, 1126.694824
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -475.953491, 301.919830, 1508.741577
+$label: Traitors Beta
++id: 17
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: GTF Apollo
+$pos: -111.315247, 135.993668, 2260.504639
+$label: Traitors Alpha
++id: 18
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("If you encounter significant resistance or experience severe losses, $f Delta wing will be sent by Terran Command to assist.  If further assistance is needed, call in $f Epsilon wing, as well.  Good luck, pilot.", 1985)
+$end_multi_text
+$voice: Brief_4_i.wav
+$camera_pos: 283.330627, 5888.352539, 1572.144165
+$camera_orient:
+	0.999994, 0.000000, 0.003465,
+	-0.003461, 0.049593, 0.998764,
+	-0.000172, -0.998770, 0.049593
+$camera_time: 1000
+$num_lines: 0
+$num_icons: 7
+$Flags: 2
+$Formula: ( true ) 
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: -1908.518555, 0.000013, 1474.706543
+$label: Delta
++id: 10
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: 2240.104980, 0.000097, 2045.861938
+$label: Epsilon
++id: 11
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: PVF Anubis
+$pos: -1347.733765, 0.000223, 2167.600342
+$label: Vasudan Fighters
++id: 12
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: PVF Anubis
+$pos: 1699.307739, -0.000203, 2694.320313
+$label: Vasudan Fighters
++id: 13
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Neutral
+$class: PVF Anubis
+$pos: 455.687378, -0.000147, 2103.443848
+$label: Vasudan Fighters
++id: 14
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: 222.777969, 651.978638, 1271.762085
+$label: Alpha
++id: 15
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: 997.141235, 1408.346802, 1655.839111
+$label: Beta
++id: 16
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$end_briefing
+
+#Debriefing_info
+
+$Num stages: 7
+
+$Formula: ( is-destroyed-delay 0 "Omega" ) 
+$Multi text
+    XSTR("We wanted McCarthy taken alive, Pilot.  Your squad's lack of control is disturbing.  We are not pleased with this.", 1986)
+$end_multi_text
+$Voice: DeBrief_4_a.wav
+$Recommendation text:
+    XSTR("Make sure you use your disruptors when trying to disable McCarthy.  They do minimal damage to a ship's hull, while inflicting normal damage on its electronics and subsystems.  Once Omega is disabled, hostile ships may try to destroy him.  Make sure they do not.", 1987)
+$end_multi_text
+
+$Formula: ( is-goal-true-delay 
+   "Capture the Omega" 
+   0 
+)
+$Multi text
+    XSTR("We were able to recover the Avenger prototype.  Good job.  McCarthy has been apprehended and will go to trial soon.", 1988)
+$end_multi_text
+$Voice: DeBrief_4_b.wav
+$Recommendation text:
+    XSTR("", 606)
+$end_multi_text
+
+$Formula: ( and 
+   ( is-goal-false-delay 
+      "Capture the Omega" 
+      0 
+   )
+   ( not 
+      ( is-destroyed-delay 0 "Omega" ) 
+   )
+)
+$Multi text
+    XSTR("We were not able to recover the stolen Avenger prototype.  This was your primary objective, and you failed.  	
+	
+The Vasudans will surely use this against us in future encounters.", 1989)
+$end_multi_text
+$Voice: DeBrief_4_c.wav
+$Recommendation text:
+    XSTR("Make sure you disable the Omega as soon as possible in order to recover the prototype.  Once the Omega's engines are destroyed, the GTT Comet will arrive and capture the Omega.", 1990)
+$end_multi_text
+
+$Formula: ( false ) 
+$Multi text
+    XSTR("This section has been removed", 1991)
+$end_multi_text
+$Voice: DeBrief_4_d.wav
+$Recommendation text:
+    XSTR("This section has been removed", 1991)
+$end_multi_text
+
+$Formula: ( and 
+   ( is-goal-true-delay 
+      "Capture the Rasputin" 
+      0 
+   )
+   ( is-goal-true-delay 
+      "Capture the Omega" 
+      0 
+   )
+)
+$Multi text
+    XSTR("Intelligence has told us that you were cautious and managed to disable the Rasputin.  Key Vasudan personnel were on board, and their capture will assist our cause.  
+
+This was an intelligent decision on your part, and you are to be commended for your attention to detail.
+
+Intelligence has requested that you be awarded a Commendation Medal for your part in this capture.", 1992)
+$end_multi_text
+$Voice: DeBrief_4_f.wav
+$Recommendation text:
+    XSTR("", 606)
+$end_multi_text
+
+$Formula: ( and 
+   ( is-goal-false-delay 
+      "Capture the Rasputin" 
+      0 
+   )
+   ( is-event-false-delay 
+      "Rasputin dead" 
+      0 
+   )
+)
+$Multi text
+    XSTR("Unfortunately, the Rasputin got away from us.  This is not a major loss, but every Vasudan that escapes will cost us in the long run.", 1993)
+$end_multi_text
+$Voice: DeBrief_4_g.wav
+$Recommendation text:
+    XSTR("Taking out enemy transports is always a good idea.  But destroying them isn't your only option.", 1994)
+$end_multi_text
+
+$Formula: ( is-event-true-delay 
+   "Rasputin dead" 
+   0 
+)
+$Multi text
+    XSTR("The Rasputin and all of its contents were destroyed.  Excellent work.  It is very likely that key Vasudan personnel were on board.", 1995)
+$end_multi_text
+$Voice: DeBrief_4_h.wav
+$Recommendation text:
+    XSTR("The destruction of the Vasudan transport is not your only alternative.  Perhaps it would be beneficial to the Alliance if the transport were captured.", 1996)
+$end_multi_text
+
+#Players		;! 1 total
+
+$Starting Shipname: Alpha 1
+$Ship Choices: (
+	"GTF Valkyrie"	4
+)
+
++Weaponry Pool: (
+	"ML-16 Laser"	14
+	"Disruptor"	14
+	"MX-50"	105
+	"Fury"	320
+)
+
+#Objects		;! 34 total
+
+$Name: Alpha 1		;! Object #0
+$Class: GTF Valkyrie
+$Team: Friendly
+$Location: 1860.210449, 651.978455, -1954.638672
+$Orientation:
+	0.689540, 0.723874, -0.023271,
+	-0.723932, 0.687936, -0.051645,
+	-0.021376, 0.052458, 0.998394
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "Disruptor" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "player-start" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Alpha 2		;! Object #1
+$Class: GTF Valkyrie
+$Team: Friendly
+$Location: 1786.371338, 567.207642, -2048.780273
+$Orientation:
+	0.689540, 0.723874, -0.023271,
+	-0.723932, 0.687936, -0.051645,
+	-0.021376, 0.052458, 0.998394
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "Disruptor" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Alpha 3		;! Object #2
+$Class: GTF Valkyrie
+$Team: Friendly
+$Location: 1935.006836, 723.580750, -2049.311035
+$Orientation:
+	0.689540, 0.723874, -0.023271,
+	-0.723932, 0.687936, -0.051645,
+	-0.021376, 0.052458, 0.998394
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "Disruptor" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Beta 1		;! Object #3
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 2545.460205, 1372.031250, -1968.656372
+$Orientation:
+	0.689540, 0.723874, -0.023271,
+	-0.723932, 0.687936, -0.051645,
+	-0.021376, 0.052458, 0.998394
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "Disruptor" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Beta 2		;! Object #4
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 2474.181396, 1290.107422, -2060.776855
+$Orientation:
+	0.689540, 0.723874, -0.023271,
+	-0.723932, 0.687936, -0.051645,
+	-0.021376, 0.052458, 0.998394
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "Disruptor" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Beta 3		;! Object #5
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 2621.405518, 1444.662109, -2065.745605
+$Orientation:
+	0.689540, 0.723874, -0.023271,
+	-0.723932, 0.687936, -0.051645,
+	-0.021376, 0.052458, 0.998394
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "Disruptor" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Omega		;! Object #6
+$Class: GTT Elysium
+$Team: Neutral
+$Location: -2014.049072, 225.103134, 2530.257813
+$Orientation:
+	-0.131914, 0.544138, -0.828561,
+	-0.162502, 0.812686, 0.559585,
+	0.977851, 0.208460, -0.018781
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Freighter waypoint" 50 ) )
+$Cargo 1:  XSTR("Avenger Prototype", 1997)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: weapons
+$Damage: 100
++Subsystem: turret01
+$Damage: 100
++Primary Banks: ( "" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Omega" 
+   "Waypoint path 1" 
+   3 
+)
+$Determination: 10
++Flags: ( "cargo-known" "protect-ship" "no-shields" "escort" )
++Respawn priority: 0
++Escort priority: 0
++Hotkey: 7
++Group: 0
++Score: 10
+
+$Name: Rasputin		;! Object #7
+$Class: PVT Isis
+$Team: Neutral
+$Location: 2257.973145, 382.263336, 1974.884399
+$Orientation:
+	0.214060, 0.972413, 0.092702,
+	0.132174, 0.065195, -0.989082,
+	-0.967838, 0.223975, -0.114573
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 10
++Initial Hull: 50
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01
+$Damage: 100
++Primary Banks: ( "Vasudan Light Laser" )
++Subsystem: turret02
+$Damage: 100
++Primary Banks: ( "Vasudan Light Laser" )
++Subsystem: weapons
+$Damage: 100
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-previous-goal-true 
+   "sm1-03a" 
+   "Secure Area" 
+   ( true ) 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Rasputin" 
+   "Waypoint path 1" 
+   3 
+)
+$Determination: 10
++Flags: ( "cargo-known" "protect-ship" "no-shields" )
++Respawn priority: 0
++Hotkey: 6
++Group: 0
++Score: 15
+
+$Name: Traitors Alpha 1		;! Object #8
+$Class: GTF Apollo
+$Team: Neutral
+$Location: -2042.961060, 110.146156, 2688.814209
+$Orientation:
+	-0.065278, 0.544138, -0.836452,
+	-0.206702, 0.812686, 0.544809,
+	0.976224, 0.208460, 0.059424
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "" "" )
++Sbank Ammo: ( 0 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Traitors Alpha 2		;! Object #9
+$Class: GTF Apollo
+$Team: Neutral
+$Location: -2059.873535, 161.841125, 2608.825928
+$Orientation:
+	-0.246243, 0.544138, -0.802046,
+	-0.082826, 0.812686, 0.576786,
+	0.965663, 0.208460, -0.155049
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "" "" )
++Sbank Ammo: ( 0 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Traitors Beta 1		;! Object #10
+$Class: GTF Apollo
+$Team: Neutral
+$Location: -2079.097168, 272.448425, 2442.608154
+$Orientation:
+	-0.164942, 0.544138, -0.822623,
+	-0.139995, 0.812686, 0.565635,
+	0.976317, 0.208460, -0.057869
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "" "" )
++Sbank Ammo: ( 0 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Traitors Beta 2		;! Object #11
+$Class: GTF Apollo
+$Team: Neutral
+$Location: -2088.427734, 331.391357, 2354.295654
+$Orientation:
+	-0.246243, 0.544138, -0.802046,
+	-0.082826, 0.812686, 0.576786,
+	0.965663, 0.208460, -0.155049
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
++Secondary Banks: ( "" "" )
++Sbank Ammo: ( 0 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Aries 1		;! Object #12
+$Class: PVF Horus
+$Team: Neutral
+$Location: 2389.472656, 405.700409, 2039.652466
+$Orientation:
+	0.200235, 0.972412, 0.119669,
+	0.259277, 0.065195, -0.963600,
+	-0.944818, 0.223974, -0.239070
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$AI Goals: ( goals ( ai-guard "Rasputin" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" "" )
++Secondary Banks: ( "" "" )
++Sbank Ammo: ( 0 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Aries 2		;! Object #13
+$Class: PVF Horus
+$Team: Neutral
+$Location: 2335.457031, 352.069733, 1854.960449
+$Orientation:
+	0.202589, 0.972412, 0.115641,
+	0.239955, 0.065195, -0.968592,
+	-0.949410, 0.223974, -0.220128
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$AI Goals: ( goals ( ai-guard "Rasputin" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" "" )
++Secondary Banks: ( "" "" )
++Sbank Ammo: ( 0 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Aries 3		;! Object #14
+$Class: PVB Osiris
+$Team: Neutral
+$Location: 2456.445801, 375.636993, 1921.746704
+$Orientation:
+	0.216744, 0.972412, 0.086239,
+	0.102446, 0.065195, -0.992600,
+	-0.970838, 0.223975, -0.085489
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$AI Goals: ( goals ( ai-chase-any 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
++Secondary Banks: ( "MX-50" "" "" )
++Sbank Ammo: ( 50 0 0 )
++Subsystem: turret01
++Primary Banks: ( "Vasudan Light Laser" )
++Subsystem: turret02
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 17
+
+$Name: GTT Comet		;! Object #15
+$Class: GTT Elysium
+$Team: Friendly
+$Location: -573.732483, -0.000077, 2617.410156
+$Orientation:
+	0.588253, 0.297141, 0.752108,
+	0.684118, -0.678782, -0.266905,
+	0.431208, 0.671538, -0.602575
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-dock "Omega" "topside docking" "topside docking" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-disabled-delay 3 "Omega" ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( has-docked-delay 
+   "GTT Comet" 
+   "Omega" 
+   1 
+   20 
+)
+$Determination: 10
++Flags: ( "cargo-known" "protect-ship" "no-shields" )
++Respawn priority: 0
++Hotkey: 5
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: GT Intelligence 1		;! Object #16
+$Class: GTT Elysium
+$Team: Friendly
+$Location: 778.212952, -0.000005, 2989.579590
+$Orientation:
+	-0.268300, 0.941195, 0.205348,
+	0.963269, 0.264624, 0.045689,
+	-0.011338, 0.210063, -0.977622
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Colonel
+$AI Goals: ( goals ( ai-dock "Rasputin" "topside docking" "main dock" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01
++Primary Banks: ( "" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "invulnerable" )
++Respawn priority: 0
++Hotkey: 4
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: GT Intelligence 2		;! Object #17
+$Class: GTF Valkyrie
+$Team: Friendly
+$Location: 750.908508, 95.784180, 3010.477295
+$Orientation:
+	-0.268300, 0.941195, 0.205348,
+	0.963269, 0.264624, 0.045689,
+	-0.011338, 0.210063, -0.977622
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-guard "GT Intelligence 1" 89 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 100
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "invulnerable" )
++Respawn priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Delta 1		;! Object #18
+$Class: GTF Apollo
+$Team: Friendly
+$Location: -921.494141, 0.000048, 1141.431885
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Delta 2		;! Object #19
+$Class: GTF Apollo
+$Team: Friendly
+$Location: -1039.763916, -0.000172, 1083.960693
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Delta 3		;! Object #20
+$Class: GTF Apollo
+$Team: Friendly
+$Location: -835.203979, -0.000003, 1038.132690
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Delta 4		;! Object #21
+$Class: GTF Apollo
+$Team: Friendly
+$Location: -974.364746, -0.000060, 991.883850
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Epsilon 1		;! Object #22
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 988.133667, 0.000041, 1629.315674
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Epsilon 2		;! Object #23
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 898.672180, -0.000006, 1592.320190
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Epsilon 3		;! Object #24
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 1072.982056, -0.000086, 1525.946899
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Epsilon 4		;! Object #25
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 972.768921, 0.000049, 1460.884155
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )
++Respawn priority: 0
++Group: 0
++Score: 10
+
+$Name: Cancer 1		;! Object #26
+$Class: PVF Anubis
+$Team: Neutral
+$Location: 1646.349121, 0.000082, 2060.425781
+$Orientation:
+	-0.469688, -0.872699, -0.133381,
+	-0.881585, 0.471670, 0.018322,
+	0.046922, 0.126192, -0.990896
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
++Secondary Banks: ( "" )
++Sbank Ammo: ( 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Cancer 2		;! Object #27
+$Class: PVF Anubis
+$Team: Neutral
+$Location: 1694.762939, 0.000176, 2018.606934
+$Orientation:
+	0.054547, -0.943767, -0.326080,
+	-0.998490, -0.049426, -0.023977,
+	0.006512, 0.326895, -0.945038
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
++Secondary Banks: ( "" )
++Sbank Ammo: ( 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Cancer 3		;! Object #28
+$Class: PVF Anubis
+$Team: Neutral
+$Location: 1742.959717, 0.000036, 1935.013428
+$Orientation:
+	-0.214492, -0.956468, 0.197895,
+	-0.976657, 0.207623, -0.055082,
+	0.011597, -0.205090, -0.978674
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
++Secondary Banks: ( "" )
++Sbank Ammo: ( 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Virgo 1		;! Object #29
+$Class: PVF Anubis
+$Team: Neutral
+$Location: -402.427521, 0.000178, 3084.917725
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
++Sbank Ammo: ( 15 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Virgo 2		;! Object #30
+$Class: PVF Anubis
+$Team: Neutral
+$Location: -359.980133, -0.000120, 3141.077637
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
++Sbank Ammo: ( 15 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Virgo 3		;! Object #31
+$Class: PVF Anubis
+$Team: Neutral
+$Location: -282.512848, -0.000107, 3072.411865
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
++Sbank Ammo: ( 15 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Freighter 1		;! Object #32
+$Class: PVFr Bast
+$Team: Neutral
+$Location: 2486.265137, 496.310669, 2199.507568
+$Orientation:
+	0.531861, 0.000000, -0.846832,
+	0.000000, 1.000000, 0.000000,
+	0.846832, 0.000000, 0.531861
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints "Freighter waypoint" 50 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-previous-event-false 
+   "sm1-03a" 
+   "Freighter 1 dead" 
+   ( false ) 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( destroyed-or-departed-delay 
+   8 
+   "Rasputin" 
+)
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Orders Accepted: 257		;! note that this is a bitfield!!!
++Group: 0
++Score: 20
+
+$Name: Freighter 2		;! Object #33
+$Class: PVFr Ma'at
+$Team: Neutral
+$Location: 2192.377197, 390.816193, 2062.550049
+$Orientation:
+	0.621610, 0.000000, -0.783327,
+	0.000000, 1.000000, 0.000000,
+	0.783327, 0.000000, 0.621610
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints "Freighter waypoint" 50 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Subsystem: turret01
++Primary Banks: ( "Terran Turret Weak" )
++Subsystem: turret02
++Primary Banks: ( "Terran Turret Weak" )
++Subsystem: turret03
++Primary Banks: ( "" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-previous-event-false 
+   "sm1-03a" 
+   "Freighter 2 dead" 
+   ( false ) 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( destroyed-or-departed-delay 
+   12 
+   "Rasputin" 
+)
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Orders Accepted: 257		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+#Wings		;! 10 total
+
+$Name: Alpha
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Alpha 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Alpha 1"
+	"Alpha 2"
+	"Alpha 3"
+)
+$AI Goals: ( goals ( ai-chase-any 79 ) )
++Hotkey: 0
++Flags:( "no-arrival-message" )
+
+$Name: Beta
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Beta 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Beta 1"
+	"Beta 2"
+	"Beta 3"
+)
+$AI Goals: ( goals ( ai-chase-any 79 ) )
++Hotkey: 1
++Flags:( "no-arrival-music" "no-arrival-message" )
+
+$Name: Cancer
+;;FSO 3.5.0;; +Squad Logo: pvn.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Cancer 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( or 
+   ( < ( hits-left "Rasputin" ) 70 ) 
+   ( has-departed-delay 0 "Rasputin" ) 
+   ( is-previous-goal-false 
+      "sm1-03a" 
+      "Secure Area" 
+      ( false ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Cancer 1"
+	"Cancer 2"
+	"Cancer 3"
+)
+$AI Goals: ( goals ( ai-chase-wing "Beta" 89 ) )
++Flags:( )
+
+$Name: Aries
+;;FSO 3.5.0;; +Squad Logo: pvn.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Aries 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Aries 1"
+	"Aries 2"
+	"Aries 3"
+)
++Flags:( )
+
+$Name: Traitors Alpha
+;;FSO 3.5.0;; +Squad Logo: gta.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Traitors Alpha 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 2 total
+	"Traitors Alpha 1"
+	"Traitors Alpha 2"
+)
+$AI Goals: ( goals ( ai-guard "Omega" 89 ) )
++Flags:( )
+
+$Name: Traitors Beta
+;;FSO 3.5.0;; +Squad Logo: gta.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Traitors Beta 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 2 total
+	"Traitors Beta 1"
+	"Traitors Beta 2"
+)
+$AI Goals: ( goals ( ai-chase-wing "Alpha" 89 ) ( ai-chase-wing "Beta" 79 ) )
++Flags:( )
+
+$Name: Epsilon
+;;FSO 3.5.0;; +Squad Logo: gta.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Epsilon 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( or 
+   ( is-destroyed-delay 
+      4 
+      "Alpha 2" 
+      "Alpha 3" 
+   )
+   ( or 
+      ( is-destroyed-delay 
+         4 
+         "Alpha 2" 
+         "Alpha 3" 
+      )
+      ( is-destroyed-delay 
+         4 
+         "Alpha 3" 
+         "Beta 1" 
+      )
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 4 total
+	"Epsilon 1"
+	"Epsilon 2"
+	"Epsilon 3"
+	"Epsilon 4"
+)
+$AI Goals: ( goals ( ai-disable-ship "Omega" 89 ) ( ai-disable-ship "Rasputin" 89 ) ( ai-guard "Alpha 1" 79 ) )
++Hotkey: 3
++Flags:( "reinforcement" )
+
+$Name: Delta
+;;FSO 3.5.0;; +Squad Logo: gta.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Delta 1
+
+$Arrival Location: Hyperspace
++Arrival delay: 5
+$Arrival Cue: ( percent-ships-destroyed 
+   60 
+   "Alpha" 
+   "Beta" 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 4 total
+	"Delta 1"
+	"Delta 2"
+	"Delta 3"
+	"Delta 4"
+)
+$AI Goals: ( goals ( ai-chase-any 89 ) ( ai-guard "Alpha 1" 50 ) )
++Hotkey: 3
++Flags:( )
+
+$Name: GT Intelligence
+;;FSO 3.5.0;; +Squad Logo: gti.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! GT Intelligence 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( and 
+   ( is-disabled-delay 5 "Rasputin" ) 
+   ( not 
+      ( is-destroyed-delay 0 "Rasputin" ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( has-docked-delay 
+   "GT Intelligence 1" 
+   "Rasputin" 
+   1 
+   4 
+)
+$Ships: (		;! 2 total
+	"GT Intelligence 1"
+	"GT Intelligence 2"
+)
++Flags:( )
+
+$Name: Virgo
+;;FSO 3.5.0;; +Squad Logo: pvn.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Virgo 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-event-true-delay 
+   "Comet enters" 
+   6 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( or 
+   ( has-departed-delay 5 "Omega" ) 
+   ( is-destroyed-delay 5 "Omega" ) 
+)
+$Ships: (		;! 3 total
+	"Virgo 1"
+	"Virgo 2"
+	"Virgo 3"
+)
+$AI Goals: ( goals ( ai-chase "Omega" 89 ) )
++Flags:( )
+
+#Events		;! 39 total
+
+$Formula: ( when 
+   ( has-time-elapsed 8 ) 
+   ( add-goal 
+      "Rasputin" 
+      ( ai-waypoints-once 
+         "Freighter waypoint" 
+         89 
+      )
+   )
+)
++Name: Omega Dock Process 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( are-waypoints-done-delay 
+      "Rasputin" 
+      "Freighter waypoint" 
+      0 
+   )
+   ( add-goal 
+      "Rasputin" 
+      ( ai-waypoints-once 
+         "Waypoint path 1" 
+         89 
+      )
+   )
+)
++Name: Omega Dock Process 2
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( are-waypoints-done-delay 
+      "Omega" 
+      "Freighter waypoint" 
+      0 
+   )
+   ( add-goal 
+      "Omega" 
+      ( ai-waypoints-once 
+         "Waypoint path 1" 
+         89 
+      )
+   )
+)
++Name: Omega Dock Process 3
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( has-undocked-delay 
+         "Rasputin" 
+         "Omega" 
+         1 
+         15 
+      )
+      ( false ) 
+   )
+   ( add-goal 
+      "Omega" 
+      ( ai-waypoints-once 
+         "Waypoint path 1" 
+         89 
+      )
+   )
+   ( add-goal 
+      "Rasputin" 
+      ( ai-waypoints-once 
+         "Waypoint path 2" 
+         89 
+      )
+   )
+)
++Name: Omega Dock Process 4
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( has-docked-delay 
+         "GTT Comet" 
+         "Omega" 
+         1 
+         0 
+      )
+      ( has-departed-delay 
+         0 
+         "GTT Comet" 
+         "Omega" 
+      )
+   )
+   ( do-nothing ) 
+)
++Name: Capture Omega
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-docked-delay 
+      "GTT Comet" 
+      "Omega" 
+      1 
+      2 
+   )
+   ( change-iff "Friendly" "Omega" ) 
+   ( unprotect-ship "Omega" ) 
+)
++Name: Omega Captured
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-docked-delay 
+      "GTT Comet" 
+      "Omega" 
+      1 
+      4 
+   )
+   ( add-goal 
+      "Traitors Beta" 
+      ( ai-chase "Omega" 89 ) 
+   )
+)
++Name: Danger to Omega & Comet
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Omega" ) 60 ) 
+   ( add-goal 
+      "Omega" 
+      ( ai-waypoints-once 
+         "Waypoint path 1" 
+         89 
+      )
+   )
+)
++Name: Run Away Omega!
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay 
+      "Run Away Omega!" 
+      2 
+   )
+   ( add-goal 
+      "Rasputin" 
+      ( ai-waypoints-once 
+         "Waypoint path 2" 
+         89 
+      )
+   )
+)
++Name: Run Away Rasputin!
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-goal-false 
+      "sm1-03a" 
+      "Secure Area" 
+      ( false ) 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "rasputin gone" 
+   )
+)
++Name: Rasputin gone already
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( has-time-elapsed 0 ) 
+      ( is-previous-goal-true 
+         "sm1-03a" 
+         "Secure Area" 
+         ( true ) 
+      )
+   )
+   ( send-message 
+      "Alpha 2" 
+      "normal" 
+      "Alpha enters" 
+   )
+)
++Name: Alpha enters
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( has-time-elapsed 3 ) 
+      ( is-previous-goal-true 
+         "sm1-03a" 
+         "Secure Area" 
+         ( true ) 
+      )
+   )
+   ( send-message 
+      "Beta 2" 
+      "normal" 
+      "Beta enters" 
+   )
+)
++Name: Beta enters
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-time-elapsed 5 ) 
+   ( send-message 
+      "Alpha 2" 
+      "Normal" 
+      "Doin' it!" 
+   )
+)
++Name: Doin' it!
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "Beta 1" 
+      "High" 
+      "GTA arrest" 
+   )
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 3
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "Omega" 
+      "normal" 
+      "McCarthy response" 
+   )
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 6
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "Beta 1" 
+      "High" 
+      "Commence firing" 
+   )
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 4
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "Traitors Alpha 1" 
+      "normal" 
+      "traitor message 2" 
+   )
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 4
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "Traitors Alpha 1" 
+      "normal" 
+      "traitor message 3" 
+   )
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 4
+
+$Formula: ( when 
+   ( is-destroyed-delay 
+      0 
+      "Aries" 
+      "Cancer" 
+      "Traitors Alpha" 
+      "Traitors Beta" 
+   )
+   ( do-nothing ) 
+)
++Name: Killin' all enemies
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-disabled-delay 0 "Omega" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Call in Comet" 
+   )
+   ( add-goal 
+      "Alpha 2" 
+      ( ai-ignore "Omega" 89 ) 
+   )
+)
++Name: Callin' in Comet
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 1 "GTT Comet" ) 
+   ( send-message 
+      "GTT Comet" 
+      "normal" 
+      "Comet in area" 
+   )
+)
++Name: Comet enters
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-docked-delay 
+      "GTT Comet" 
+      "Omega" 
+      1 
+      0 
+   )
+   ( send-message 
+      "GTT Comet" 
+      "normal" 
+      "Comet docked" 
+   )
+)
++Name: Comet has docked
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-event-true-delay 
+      "Comet has docked" 
+      14 
+   )
+   ( send-message 
+      "GTT Comet" 
+      "normal" 
+      "Comet & Omega leaving" 
+   )
+)
++Name: Comet and Omega leaving
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Aries" ) 
+   ( do-nothing ) 
+)
++Name: directive 1
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Aries", 937)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Cancer" ) 
+   ( do-nothing ) 
+)
++Name: directive 2
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Cancer", 936)
+
+$Formula: ( when 
+   ( is-destroyed-delay 
+      0 
+      "Traitors Alpha" 
+      "Traitors Beta" 
+   )
+   ( do-nothing ) 
+)
++Name: directive 3
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Traitors", 1998)
+
+$Formula: ( when 
+   ( is-disabled-delay 0 "Omega" ) 
+   ( do-nothing ) 
+)
++Name: directive 4
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Disable Omega", 1999)
+
+$Formula: ( when 
+   ( and 
+      ( is-disabled-delay 0 "Rasputin" ) 
+      ( is-disarmed-delay 0 "Rasputin" ) 
+   )
+   ( add-goal 
+      "Alpha" 
+      ( ai-ignore "Rasputin" 89 ) 
+   )
+)
++Name: Protect Rasputin
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-disabled-delay 0 "Omega" ) 
+   ( add-goal 
+      "Alpha" 
+      ( ai-ignore "Omega" 89 ) 
+   )
+)
++Name: Protect Omega
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( clear-goals "Rasputin" ) 
+   ( add-goal 
+      "Rasputin" 
+      ( ai-waypoints-once 
+         "Waypoint path 1" 
+         89 
+      )
+   )
+)
++Name: Rasptutin should leave
++Repeat Count: 1
++Interval: 1
++Chained: 10
+
+$Formula: ( when 
+   ( is-destroyed-delay 3 "Omega" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Omega dead" 
+   )
+)
++Name: Omega dead
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 5 "Rasputin" ) 
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "Rasputin dead" 
+   )
+)
++Name: Rasputin dead
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 
+      5 
+      "GT Intelligence" 
+   )
+   ( clear-goals "Rasputin" ) 
+   ( send-message 
+      "GT Intelligence 1" 
+      "Normal" 
+      "Gia here" 
+   )
+)
++Name: GIA here
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-docked-delay 
+      "GT Intelligence 1" 
+      "Rasputin" 
+      1 
+      2 
+   )
+   ( send-message 
+      "GT Intelligence 1" 
+      "Normal" 
+      "gia docked" 
+   )
+)
++Name: Rasputin captured
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-disabled-delay 3 "Omega" ) 
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "disabled Omega" 
+   )
+)
++Name: Omega disabled
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-departed-delay 5 "GTT Comet" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Omega Captured" 
+   )
+)
++Name: Omega captured
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-goal-true-delay 
+         "Capture the Rasputin" 
+         0 
+      )
+      ( is-goal-true-delay 
+         "Capture the Omega" 
+         0 
+      )
+   )
+   ( grant-medal "Commendation Medal" ) 
+)
++Name: Grant Medal
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Virgo" ) 
+   ( do-nothing ) 
+)
++Name: directive 5
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Virgo", 935)
+
+$Formula: ( when 
+   ( has-arrived-delay 5 "Virgo" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "virgo here" 
+   )
+)
++Name: virgo attacking omega
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( not 
+         ( is-goal-incomplete 
+            "Capture the Omega" 
+         )
+      )
+      ( destroyed-or-departed-delay 
+            3 
+            "Rasputin" 
+      )
+   )
+   ( do-nothing ) 
+)
++Name: All objectives resolved
++Repeat Count: 1
++Interval: 1
++Team: 0
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Alpha 1" ) 
+   ( do-nothing ) 
+)
++Name: Directive RTB
++Repeat Count: 1
++Interval: 1
++Chained: 5
++Objective:  XSTR("Return to Base", 3831)
++Team: 0
+
+#Goals		;! 3 total
+
+$Type: Primary
++Name: Capture the Omega
+$MessageNew:  XSTR("Disable and capture the Omega.", 2000)
+$end_multi_text
+$Formula: ( and 
+   ( has-docked-delay 
+      "GTT Comet" 
+      "Omega" 
+      1 
+      0 
+   )
+   ( has-departed-delay 
+      0 
+      "GTT Comet" 
+      "Omega" 
+   )
+)
++Score: 1000
+
+$Type: Bonus
++Name: Capture the Rasputin
+$MessageNew:  XSTR("Disable and capture the Rasputin", 2001)
+$end_multi_text
+$Formula: ( and 
+   ( has-docked-delay 
+      "GT Intelligence 1" 
+      "Rasputin" 
+      1 
+      0 
+   )
+   ( has-departed-delay 
+      0 
+      "GT Intelligence 1" 
+      "Rasputin" 
+   )
+)
++No music
++Score: 100
+
+$Type: Secondary
++Name: Eliminate Hostiles
+$MessageNew:  XSTR("Destroy all enemy fighters", 1418)
+$end_multi_text
+$Formula: ( is-destroyed-delay 
+   0 
+   "Cancer" 
+   "Aries" 
+   "Traitors Alpha" 
+   "Traitors Beta" 
+)
++Score: 200
+
+#Waypoints		;! 3 lists total
+
+$Name: Waypoint path 1
+$List: (		;! 5 points in list
+	( 292.982422, 250.041794, 2338.913086 )
+	( 794.180054, 94.835815, 2539.814697 )
+	( 1564.435791, 0.000050, 2468.545166 )
+	( 1957.324829, -54.350357, 1909.124634 )
+	( 1924.506470, -137.692337, 1401.047852 )
+)
+
+$Name: Waypoint path 2
+$List: (		;! 5 points in list
+	( 269.144257, 292.650482, 1804.714844 )
+	( -135.832123, 182.375275, 1454.479004 )
+	( -663.272949, -0.000029, 1403.348877 )
+	( -1162.382446, -108.250786, 1668.086914 )
+	( -1391.743896, -152.051926, 2123.107910 )
+)
+
+$Name: Freighter waypoint
+$List: (		;! 4 points in list
+	( 460.553772, -0.000039, 1918.768433 )
+	( 182.715057, -0.000195, 1641.606567 )
+	( -123.478516, -0.000014, 2174.662354 )
+	( 299.593170, -0.000043, 2582.185791 )
+)
+
+#Messages		;! 21 total
+
+
+$Name: Alpha enters
+$Team: -1
+$MessageNew:  XSTR("Alpha wing here.", 2002)
+$end_multi_text
++Persona: Wingman 1
++AVI Name: Head-TP4
++Wave Name: 1_a1m4_a.wav
+
+$Name: Beta enters
+$Team: -1
+$MessageNew:  XSTR("Beta wing ready.", 2003)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m4_b.wav
+
+$Name: Doin' it!
+$Team: -1
+$MessageNew:  XSTR("Goin' in hot.  Target Omega's engines.", 2004)
+$end_multi_text
++Persona: Wingman 1
++AVI Name: Head-TP4
++Wave Name: 1_a1m4_c.wav
+
+$Name: GTA arrest
+$Team: -1
+$MessageNew:  XSTR("McCarthy, you are ordered to power down.", 2005)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP4
++Wave Name: 3_a1m4_d.wav
+
+$Name: McCarthy response
+$Team: -1
+$MessageNew:  XSTR("I answer to a higher authority!", 2006)
+$end_multi_text
++AVI Name: Head-CM4
++Wave Name: L_a1m4_e.wav
+
+$Name: Commence firing
+$Team: -1
+$MessageNew:  XSTR("Fire at will, pilots!", 2007)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m4_f.wav
+
+$Name: Omega disabled
+$Team: -1
+$MessageNew:  XSTR("Omega disabled.", 2008)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m4_g.wav
+
+$Name: Call in Comet
+$Team: -1
+$MessageNew:  XSTR("GTT Comet, Omega is disabled.  Jump in now.", 2009)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m4_h.wav
+
+$Name: Comet in area
+$Team: -1
+$MessageNew:  XSTR("GTT Comet here.  On docking approach to Omega.", 2010)
+$end_multi_text
++AVI Name: Head-CM3
++Wave Name: L_a1m4_i.wav
+
+$Name: Comet docked
+$Team: -1
+$MessageNew:  XSTR("We have docked with Omega.", 2011)
+$end_multi_text
++AVI Name: Head-CM3
++Wave Name: L_a1m4_j.wav
+
+$Name: Comet & Omega leaving
+$Team: -1
+$MessageNew:  XSTR("We are leaving system with Omega.", 2012)
+$end_multi_text
++AVI Name: Head-CM3
++Wave Name: L_a1m4_k.wav
+
+$Name: traitor message 2
+$Team: -1
+$MessageNew:  XSTR("Don't you understand what happened at Ross 128?", 2013)
+$end_multi_text
++AVI Name: Head-TP3
++Wave Name: L_a1m4_m.wav
+
+$Name: traitor message 3
+$Team: -1
+$MessageNew:  XSTR("The Vasudans are the least of our worries.", 2014)
+$end_multi_text
++AVI Name: Head-TP3
++Wave Name: L_a1m4_n.wav
+
+$Name: Omega dead
+$Team: -1
+$MessageNew:  XSTR("The Omega has been destroyed.  This mission is a failure.", 2015)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m4_o.wav
+
+$Name: Rasputin dead
+$Team: -1
+$MessageNew:  XSTR("The Vasudan transport Rasputin has been destroyed.", 2016)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m4_p.wav
+
+$Name: Omega Captured
+$Team: -1
+$MessageNew:  XSTR("The Omega has been captured.", 2017)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m4_q.wav
+
+$Name: disabled Omega
+$Team: -1
+$MessageNew:  XSTR("Omega has been disabled.", 2018)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m4_r.wav
+
+$Name: Gia here
+$Team: -1
+$MessageNew:  XSTR("Intelligence here.  We have orders to capture the Rasputin.", 2019)
+$end_multi_text
++AVI Name: Head-CM1
++Wave Name: l_a1m4_s.wav
+
+$Name: gia docked
+$Team: -1
+$MessageNew:  XSTR("Rasputin has been captured.", 2020)
+$end_multi_text
++AVI Name: Head-CM1
++Wave Name: L_a1m4_t.wav
+
+$Name: virgo here
+$Team: -1
+$MessageNew:  XSTR("Virgo is attacking the Omega!  Protect Omega!", 2021)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m4_u.wav
+
+$Name: rasputin gone
+$Team: -1
+$MessageNew:  XSTR("Damn!  The Rasputin has already left.", 2022)
+$end_multi_text
++Persona: Wingman 1
++AVI Name: Head-TP4
++Wave Name: 1_a1m4_v.wav
+
+#Reinforcements		;! 1 total
+
+$Name: Epsilon
+$Type: Attack/Protect
+$Num times: 1
++Arrival Delay: 0
++No Messages: ( "No" )
++Yes Messages: ( "On Way" )
+
+#Background bitmaps		;! 26 total
+
+$Num stars: 500
+$Ambient light level: 0
+
+;;FSO 3.6.9;; $Bitmap List:
+;;FSO 3.6.9;; $Sun: SunAntaresA
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 1.221730
+;;FSO 3.6.9;; +Scale: 5.000000
+;;FSO 3.6.9;; $Sun: SunAntaresB
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 5.410516
+;;FSO 3.6.9;; +Scale: 0.500000
+;;FSO 3.6.9;; $Starbitmap: nebulA1-main
+;;FSO 3.6.9;; +Angles: 0.000000 3.141590 6.195914
+;;FSO 3.6.9;; +ScaleX: 7.000000
+;;FSO 3.6.9;; +ScaleY: 7.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA10-whisp
+;;FSO 3.6.9;; +Angles: 0.191986 6.021381 0.680678
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA4-whisp
+;;FSO 3.6.9;; +Angles: 0.034907 0.000000 0.436332
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA13-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 3.141590 0.925024
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA7-whisp
+;;FSO 3.6.9;; +Angles: 0.244346 0.000000 0.069813
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA6-whisp
+;;FSO 3.6.9;; +Angles: 5.934115 0.000000 0.000000
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: dneb01
+;;FSO 3.6.9;; +Angles: 5.934115 1.570795 0.000000
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA1-main
+;;FSO 3.6.9;; +Angles: 5.393063 0.000000 6.195914
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulA4-whisp
+;;FSO 3.6.9;; +Angles: 5.131264 0.000000 5.934115
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA9-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 5.759582
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA8-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 5.846848
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA5-whisp
+;;FSO 3.6.9;; +Angles: 0.506145 1.570795 0.000000
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA12-whisp
+;;FSO 3.6.9;; +Angles: 4.625119 0.000000 6.021381
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulA9-whisp
+;;FSO 3.6.9;; +Angles: 4.974185 0.000000 6.021381
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA5-whisp
+;;FSO 3.6.9;; +Angles: 4.886918 0.000000 6.021381
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA9-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 3.141590
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA7-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 2.967057
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA5-whisp
+;;FSO 3.6.9;; +Angles: 0.261799 0.000000 3.141590
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulA7-whisp
+;;FSO 3.6.9;; +Angles: 0.523598 0.000000 3.141590
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA3-whisp
+;;FSO 3.6.9;; +Angles: 0.767944 0.000000 3.141590
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA8-whisp
+;;FSO 3.6.9;; +Angles: 0.959930 4.014254 3.316123
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA13-whisp
+;;FSO 3.6.9;; +Angles: 1.117010 0.000000 3.490656
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA6-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.698131 5.585049
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA4-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 3.141590 5.619956
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulA7-whisp
+;;FSO 3.6.9;; +Angles: 6.195914 0.000000 5.410516
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: planeta1
+;;FSO 3.6.9;; +Angles: 1.396262 3.665189 5.235984
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: planetc
+;;FSO 3.6.9;; +Angles: 0.000000 5.759582 0.698131
+;;FSO 3.6.9;; +ScaleX: 0.100000
+;;FSO 3.6.9;; +ScaleY: 0.100000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+
+;;FSO 3.6.9;; $Bitmap List:
+$Sun: SunViolet
++Angles: 0.000000 0.000000 1.047197
++Scale: 0.800000
+$Starbitmap: dneb03
++Angles: 0.733038 0.733038 0.733038
++ScaleX: 3.000000
++ScaleY: 2.200000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 0.855211 2.146753 0.558505
++ScaleX: 2.200000
++ScaleY: 3.500000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb18
++Angles: 0.383972 0.383972 0.733038
++ScaleX: 2.400000
++ScaleY: 3.200000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 1.117010 1.117010 1.117010
++ScaleX: 2.000000
++ScaleY: 2.500000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 1.937314 2.146753 1.082103
++ScaleX: 3.200000
++ScaleY: 2.700000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 2.146753 1.937314 2.146753
++ScaleX: 3.400000
++ScaleY: 4.100000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb18
++Angles: 1.937314 3.455749 2.321286
++ScaleX: 2.000000
++ScaleY: 3.500000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb01
++Angles: 1.745328 0.000000 2.146753
++ScaleX: 3.000000
++ScaleY: 2.700000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 1.937314 3.874628 1.745328
++ScaleX: 2.500000
++ScaleY: 2.500000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 1.518435 5.811942 0.855211
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb18
++Angles: 1.256636 0.000000 0.645771
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 1.658062 1.570795 0.488692
++ScaleX: 3.200000
++ScaleY: 1.800000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 1.954767 1.850047 0.383972
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 2.146753 2.146753 0.209439
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb18
++Angles: 2.286380 4.258600 6.265727
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 2.356193 2.356193 5.951568
++ScaleX: 4.500000
++ScaleY: 3.800000
++DivX: 2
++DivY: 2
+$Starbitmap: dneb03
++Angles: 2.216566 1.343902 5.707222
++ScaleX: 3.000000
++ScaleY: 2.200000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 1.937314 3.298670 5.532689
++ScaleX: 2.000000
++ScaleY: 3.200000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 1.675515 1.867501 5.427969
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb18
++Angles: 1.343902 1.588248 5.480330
++ScaleX: 4.000000
++ScaleY: 2.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb01
++Angles: 0.994837 2.146753 5.654862
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb03
++Angles: 0.767944 3.961894 5.951568
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 0.575958 0.000000 6.230820
++ScaleX: 4.000000
++ScaleY: 2.200000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb18
++Angles: 0.645771 2.565632 0.191986
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: planeta1
++Angles: 1.396262 3.141590 5.235984
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: planetc
++Angles: 0.000000 0.000000 0.698131
++ScaleX: 0.100000
++ScaleY: 0.100000
++DivX: 1
++DivY: 1
+
+#Asteroid Fields
+
+#Music
+
+$Event Music: 4: Numbers
+;;FSO 3.6.9;; $Substitute Event Music: FS1-4: Worlds Apart
+$Briefing Music: Brief4
+;;FSO 3.6.9;; $Substitute Briefing Music: FS1-BRIEF4
+;;FSO 3.6.9;; $Debriefing Success Music: FS1-Success
+;;FSO 3.6.9;; $Debriefing Average Music: FS1-Success
+;;FSO 3.6.9;; $Debriefing Fail Music: FS1-Failure
+
+#End
+

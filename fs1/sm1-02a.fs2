@@ -1,0 +1,2227 @@
+#Mission Info
+
+$Version: 0.10
+$Name:  XSTR("The Field of Battle", 1890)
+$Author: Jim Boone
+$Created: 02/19/98 at 09:59:32
+$Modified: 11/12/07 at 00:37:58
+$Notes:
+This is a FRED created mission
+$End Notes:
+
+$Mission Desc:
+ XSTR("Put mission description here", 600)
+$end_multi_text
+
++Game Type Flags: 1
+
++Flags: 0
+
++Red Alert: 0
+
++Scramble: 0
+
++Disallow Support: 0
+
++Player Entry Delay:
+1.000000
+
++Viewer pos: 6134.077637, 4369.062988, -316.955688
++Viewer orient:
+	0.701696, 0.000000, 0.712477,
+	-0.442195, 0.784092, 0.435504,
+	-0.558647, -0.620645, 0.550194
++SquadReassignName: Galactic Terran Alliance
++SquadReassignLogo: GTA.pcx
+
+;;FSO 3.6.0;; $Skybox Model: starfield.pof
+
+#Plot Info
+
+$Tour:  XSTR("Blah", 601)
+$Pre-Briefing Cutscene: Blah
+$Pre-Mission Cutscene: Blah
+$Next Mission Success: Blah
+$Next Mission Partial: Blah
+$Next Mission Failure: Blah
+
+#Command Briefing
+
+#Briefing
+$start_briefing
+$num_stages: 5
+$start_stage
+$multi_text
+ XSTR("There have been a number of recent attacks by the Vasudans in the Betelgeuse system.  They have been making strikes on Terran convoys en route to the Betelgeuse-Antares jump point.  The Vasudan attacks have been staged from a nearby asteroid field.", 1891)
+$end_multi_text
+$voice: Brief_2_a.wav
+$camera_pos: 6134.077637, 4369.062988, -316.955688
+$camera_orient:
+	0.701696, 0.000000, 0.712477,
+	-0.442195, 0.784092, 0.435504,
+	-0.558647, -0.620645, 0.550194
+$camera_time: 2000
+$num_lines: 0
+$num_icons: 2
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 8
+$team: Friendly
+$class: Asteroid
+$pos: 5213.711914, 3500.000000, 589.868103
+$label: Asteroid Field
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Hostile
+$class: PVF Anubis
+$pos: 4823.271484, 2859.285645, 1457.631470
+$label: Vasudan Wing
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Terran Intelligence is certain that there are four small attack wings responsible for the attacks on our convoys.  There have also been reports of a Vasudan ace piloting one of the Seth class fighters in that area.", 1892)
+$end_multi_text
+$voice: Brief_2_b.wav
+$camera_pos: 10117.860352, 8794.963867, -4240.456543
+$camera_orient:
+	0.701696, 0.000000, 0.712477,
+	-0.442195, 0.784092, 0.435504,
+	-0.558647, -0.620645, 0.550194
+$camera_time: 2000
+$num_lines: 0
+$num_icons: 6
+$Flags: 0
+$Formula: ( is-previous-event-false 
+   "sm1-01a" 
+   "Orff Hurt Bad" 
+   ( true ) 
+)
+$start_icon
+$type: 8
+$team: Friendly
+$class: Asteroid
+$pos: 5213.711914, 3500.000000, 589.868103
+$label: Asteroid Field
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Hostile
+$class: PVF Anubis
+$pos: 5619.392578, 2859.285156, 1999.530396
+$label: Vasudan Wing
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Hostile
+$class: PVF Anubis
+$pos: 4623.947754, 3038.923828, 3402.631836
+$label: Vasudan Wing
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Hostile
+$class: PVF Anubis
+$pos: 4613.925781, 3038.924072, -520.173157
+$label: Vasudan Wing
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Hostile
+$class: PVF Anubis
+$pos: 2334.488037, 3038.923828, 1131.195679
+$label: Vasudan Wing
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Hostile
+$class: PVF Seth
+$pos: 5640.785645, 957.732300, 7909.671387
+$label: Vasudan Ace
++id: 6
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Terran Intelligence is certain that there are four small attack wings responsible for the attacks on our convoys.", 1893)
+$end_multi_text
+$voice: Brief_2_b2.wav
+$camera_pos: 10117.860352, 8794.963867, -4240.456543
+$camera_orient:
+	0.701696, 0.000000, 0.712477,
+	-0.442195, 0.784092, 0.435504,
+	-0.558647, -0.620645, 0.550194
+$camera_time: 2000
+$num_lines: 0
+$num_icons: 5
+$Flags: 0
+$Formula: ( is-previous-event-true 
+   "sm1-01a" 
+   "Orff Hurt Bad" 
+   ( false ) 
+)
+$start_icon
+$type: 8
+$team: Friendly
+$class: Asteroid
+$pos: 5213.711914, 3500.000000, 589.868103
+$label: Asteroid Field
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Hostile
+$class: PVF Anubis
+$pos: 5619.392578, 2859.285156, 1999.530396
+$label: Vasudan Wing
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Hostile
+$class: PVF Anubis
+$pos: 4623.947754, 3038.923828, 3402.631836
+$label: Vasudan Wing
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Hostile
+$class: PVF Anubis
+$pos: 4613.925781, 3038.924072, -520.173157
+$label: Vasudan Wing
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Hostile
+$class: PVF Anubis
+$pos: 2334.488037, 3038.923828, 1131.195679
+$label: Vasudan Wing
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("You are to sweep the asteroid field and take out the four Vasudan attack wings.  Be aware that the asteroids will be causing interference with your sensors.  You won't be able to target the Vasudans until they are near, but they won't see you either.", 1894)
+$end_multi_text
+$voice: Brief_2_c.wav
+$camera_pos: 10117.860352, 8794.963867, -4240.456543
+$camera_orient:
+	0.701696, 0.000000, 0.712477,
+	-0.442195, 0.784092, 0.435504,
+	-0.558647, -0.620645, 0.550194
+$camera_time: 2000
+$num_lines: 0
+$num_icons: 2
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 8
+$team: Friendly
+$class: Asteroid
+$pos: 5213.711914, 3500.000000, 589.868103
+$label: Asteroid Field
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: 3309.414795, 3499.999756, -1833.420044
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("If you encounter the Vasudan ace, you may use your discretion as to whether or not to engage him.  Keep in mind that your primary objective is to take out the four attack wings.  Check your loadouts and commit when ready.", 1895)
+$end_multi_text
+$voice: Brief_2_d.wav
+$camera_pos: 10117.860352, 8794.963867, -4240.456543
+$camera_orient:
+	0.701696, 0.000000, 0.712477,
+	-0.442195, 0.784092, 0.435504,
+	-0.558647, -0.620645, 0.550194
+$camera_time: 500
+$num_lines: 0
+$num_icons: 3
+$Flags: 0
+$Formula: ( is-previous-event-false 
+   "sm1-01a" 
+   "Orff Hurt Bad" 
+   ( true ) 
+)
+$start_icon
+$type: 8
+$team: Friendly
+$class: Asteroid
+$pos: 5213.711914, 3500.000000, 589.868103
+$label: Asteroid Field
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 1
+$team: Friendly
+$class: GTF Apollo
+$pos: 3309.414795, 3499.999756, -1833.420044
+$label: Alpha
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 0
+$team: Hostile
+$class: PVF Seth
+$pos: 5617.947754, 957.733215, 7952.032715
+$label: Vasudan Ace
++id: 8
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$end_briefing
+
+#Debriefing_info
+
+$Num stages: 5
+
+$Formula: ( is-goal-true-delay 
+   "Destroy Vasudan" 
+   0 
+)
+$Multi text
+    XSTR("Nicely done, pilot.  By destroying the Vasudan attack wings you have helped to ensure that our convoys will make it through this subspace node.", 1896)
+$end_multi_text
+$Voice: DeBrief_2_a.wav
+$Recommendation text:
+    XSTR("", 606)
+$end_multi_text
+
+$Formula: ( and 
+   ( is-goal-true-delay "Destroy Ace" 0 ) 
+   ( is-goal-true-delay 
+      "Destroy Vasudan" 
+      0 
+   )
+)
+$Multi text
+    XSTR("Dispatching the Vasudan Ace showed outstanding skill, pilot.  You and your squad are to be commended.", 1897)
+$end_multi_text
+$Voice: DeBrief_2_b.wav
+$Recommendation text:
+    XSTR("", 606)
+$end_multi_text
+
+$Formula: ( and 
+   ( is-goal-true-delay "Destroy Ace" 0 ) 
+   ( is-goal-true-delay 
+      "Destroy Vasudan" 
+      0 
+   )
+   ( skill-level-at-least "Medium" ) 
+)
+$Multi text
+    XSTR("We are awarding you the Distinguished Flying Cross for this accomplishment.", 1898)
+$end_multi_text
+$Voice: DeBrief_2_c.wav
+$Recommendation text:
+    XSTR("", 606)
+$end_multi_text
+
+$Formula: ( is-goal-false-delay 
+   "Destroy Vasudan" 
+   0 
+)
+$Multi text
+    XSTR("Since you were unable to take out the Vasudan attack wings, other pilots will need to risk their lives to do your job.  We need results from pilots like you if we expect to keep a foothold in these systems.  Dismissed!", 1899)
+$end_multi_text
+$Voice: DeBrief_2_d.wav
+$Recommendation text:
+    XSTR("Don't get too far ahead of your wingmen, or they won't be able to assist you.  If you get in trouble, use the Comm menu to request cover.
+
+Using missiles on the Vasudans early on can make it easier to take them out with guns.
+
+If you are having trouble finding the Vasudans, try flying towards their general vicinity by following your radar.  If you wait long enough, they'll probably come to you.", 1900)
+$end_multi_text
+
+$Formula: ( and-in-sequence 
+   ( has-arrived-delay 0 "Ace" ) 
+   ( is-goal-false-delay "Destroy Ace" 0 ) 
+)
+$Multi text
+    XSTR("We understand that you did not engage the Vasudan Ace.  It is understandable, given the skill of your opponent.  Still, it would have been a blow to the Vasudans' morale if he had been defeated.", 1901)
+$end_multi_text
+$Voice: DeBrief_2_e.wav
+$Recommendation text:
+    XSTR("If you feel you are good enough to take out the ace, then engage him.  Confidence is important for any GTA pilot.", 1902)
+$end_multi_text
+
+#Players		;! 1 total
+
+$Starting Shipname: Alpha 1
+$Ship Choices: (
+)
+
++Weaponry Pool: (
+	"ML-16 Laser"	8
+	"Disruptor"	4
+	"MX-50"	160
+	"Fury"	160
+)
+
+#Objects		;! 17 total
+
+$Name: Alpha 1		;! Object #0
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 1957.029053, 3500.000977, -128.900711
+$Orientation:
+	0.980300, 0.000000, -0.197517,
+	0.132735, 0.740534, 0.658780,
+	0.146268, -0.672019, 0.725945
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "player-start" )
++Respawn priority: 0
++Orders Accepted: 49279		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Alpha 2		;! Object #1
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 2138.028809, 3500.000977, -122.000809
+$Orientation:
+	0.984655, 0.000000, -0.174512,
+	0.119366, 0.729482, 0.673504,
+	0.127303, -0.684000, 0.718288
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Colonel
+$AI Goals: ( goals ( ai-guard "Alpha 1" 50 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Orders Accepted: 49279		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
++Persona Index: 1
+
+$Name: Aries 1		;! Object #2
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 4482.235352, 957.732544, 2741.872803
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Aries 2		;! Object #3
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 4583.055176, 957.732605, 2672.206787
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Cancer 1		;! Object #4
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 3022.207520, 5110.227051, 4987.183594
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Cancer 2		;! Object #5
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 3057.898926, 5110.227051, 5036.937500
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Cancer 3		;! Object #6
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 2959.953125, 5110.227051, 5083.921875
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Pisces 1		;! Object #7
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 1527.212036, 3038.924072, 3025.467529
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Pisces 2		;! Object #8
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 1729.677124, 3038.924072, 3179.949463
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Pisces 3		;! Object #9
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 1466.217896, 3038.923828, 3298.571533
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Virgo 1		;! Object #10
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 5741.395020, 2282.072266, 5450.462402
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Virgo 2		;! Object #11
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 5693.312988, 2282.072021, 5448.041504
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Ace 1		;! Object #12
+$Class: PVF Seth
+$Team: Hostile
+$Location: 2673.780518, 2859.286377, 3480.200439
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Avenger" "Avenger" )
++Secondary Banks: ( "MX-50" "MX-50" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 100
+
+$Name: Alpha 3		;! Object #13
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 1918.429199, 3500.000977, -271.700684
+$Orientation:
+	0.979649, 0.000000, -0.200718,
+	0.131055, 0.757416, 0.639644,
+	0.152027, -0.652932, 0.742002
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-guard "Alpha 1" 50 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Orders Accepted: 49279		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
++Persona Index: 2
+
+$Name: Alpha 4		;! Object #14
+$Class: GTF Apollo
+$Team: Friendly
+$Location: 2072.929199, 3500.000977, -256.700684
+$Orientation:
+	0.982075, 0.000000, -0.188491,
+	0.125336, 0.746895, 0.653023,
+	0.140783, -0.664943, 0.733506
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-guard "Alpha 1" 50 ) )
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "ML-16 Laser" "ML-16 Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )
++Respawn priority: 0
++Orders Accepted: 49279		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
++Persona Index: 4
+
+$Name: Virgo 3		;! Object #15
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 5713.164063, 2282.100098, 5539.228027
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+$Name: Aries 3		;! Object #16
+$Class: PVF Anubis
+$Team: Hostile
+$Location: 4570.297363, 957.699890, 2770.244873
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 611)
++Initial Hull: 100
++Initial Shields: 0
++Subsystem: Pilot
++Primary Banks: ( "Vasudan Light Laser" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "no-arrival-warp" "hidden-from-sensors" )
++Respawn priority: 0
++Group: 0
++Score: 6
+
+#Wings		;! 6 total
+
+$Name: Alpha
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Alpha 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( and 
+   ( is-event-true-delay "We did it" 5 ) 
+   ( or 
+      ( is-destroyed-delay 0 "Ace" ) 
+      ( is-event-false-delay 
+         "Ace Arrival" 
+         0 
+      )
+   )
+)
+$Ships: (		;! 4 total
+	"Alpha 1"
+	"Alpha 2"
+	"Alpha 3"
+	"Alpha 4"
+)
++Hotkey: 0
++Flags:( )
+
+$Name: Aries
+;;FSO 3.5.0;; +Squad Logo: pvn.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Aries 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Aries 1"
+	"Aries 2"
+	"Aries 3"
+)
+$AI Goals: ( goals ( ai-play-dead 50 ) )
++Flags:( "no-arrival-music" "no-arrival-message" "no-arrival-warp" )
+
+$Name: Cancer
+;;FSO 3.5.0;; +Squad Logo: pvn.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Cancer 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Cancer 1"
+	"Cancer 2"
+	"Cancer 3"
+)
+$AI Goals: ( goals ( ai-play-dead 50 ) )
++Flags:( "no-arrival-music" "no-arrival-message" "no-arrival-warp" )
+
+$Name: Pisces
+;;FSO 3.5.0;; +Squad Logo: pvn.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Pisces 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Pisces 1"
+	"Pisces 2"
+	"Pisces 3"
+)
+$AI Goals: ( goals ( ai-play-dead 89 ) )
++Flags:( "no-arrival-music" "no-arrival-message" "no-arrival-warp" )
+
+$Name: Virgo
+;;FSO 3.5.0;; +Squad Logo: pvn.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Virgo 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Virgo 1"
+	"Virgo 2"
+	"Virgo 3"
+)
+$AI Goals: ( goals ( ai-play-dead 50 ) )
++Flags:( "no-arrival-music" "no-arrival-message" "no-arrival-warp" )
+
+$Name: Ace
+;;FSO 3.5.0;; +Squad Logo: pvn.pcx
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Ace 1
+
+$Arrival Location: Near Ship
++Arrival Distance: 2300
+$Arrival Anchor: Alpha 1
++Arrival delay: 2
+$Arrival Cue: ( and 
+   ( percent-ships-destroyed 
+      74 
+      "Virgo" 
+      "Aries" 
+      "Cancer" 
+      "Pisces" 
+   )
+   ( or 
+      ( > ( hits-left "Alpha 1" ) 50 ) 
+      ( skill-level-at-least "Hard" ) 
+   )
+   ( is-previous-event-false 
+      "sm1-01a" 
+      "Orff Hurt Bad" 
+      ( true ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 1 total
+	"Ace 1"
+)
+$AI Goals: ( goals ( ai-play-dead 50 ) )
++Flags:( "no-arrival-message" )
+
+#Events		;! 30 total
+
+$Formula: ( when 
+   ( is-destroyed-delay 
+      0 
+      "Aries" 
+      "Cancer" 
+      "Virgo" 
+      "Pisces" 
+   )
+   ( do-nothing ) 
+)
++Name: Directive 1
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Find Hostiles", 1903)
+
+$Formula: ( when 
+   ( < 
+      ( distance "Alpha 1" "Ace 1" ) 
+      1250 
+   )
+   ( ship-visible "Ace 1" ) 
+   ( add-goal 
+      "Ace" 
+      ( ai-chase "Alpha 1" 89 ) 
+   )
+)
++Name: Reveal Ace
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( has-time-elapsed 4 ) 
+      ( false ) 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "Radar scrambled" 
+   )
+)
++Name: Radar Scrambled
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "asteroid chatter 1" 
+   )
+)
++Name: Chatter 2
++Repeat Count: 1
++Interval: 1
++Chained: 5
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "asteroid chatter 2" 
+   )
+)
++Name: Chatter 3
++Repeat Count: 1
++Interval: 1
++Chained: 6
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "asteroid chatter 3" 
+   )
+)
++Name: Chatter 4
++Repeat Count: 1
++Interval: 1
++Chained: 7
+
+$Formula: ( when 
+   ( is-goal-true-delay 
+      "Destroy Vasudan" 
+      0 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "We did it" 
+   )
+)
++Name: We did it
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Alpha 1" ) 
+   ( do-nothing ) 
+)
++Name: Return to Base
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Return to Base", 3831)
+
+$Formula: ( when 
+   ( < 
+      ( distance "Alpha 1" "Cancer" ) 
+      1250 
+   )
+   ( ship-visible 
+      "Cancer 1" 
+      "Cancer 2" 
+      "Cancer 3" 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "normal" 
+      "cancer wave readable" 
+   )
+)
++Name: Reveal Cancer
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Cancer" ) 
+   ( do-nothing ) 
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Destroy Cancer", 936)
+
+$Formula: ( when 
+   ( < 
+      ( distance "Alpha 1" "Pisces" ) 
+      1250 
+   )
+   ( ship-visible 
+      "Pisces 1" 
+      "Pisces 2" 
+      "Pisces 3" 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "normal" 
+      "pisces wave readable" 
+   )
+)
++Name: Reveal Pisces
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Pisces" ) 
+   ( do-nothing ) 
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Destroy Pisces", 938)
+
+$Formula: ( when 
+   ( < 
+      ( distance "Alpha 1" "Virgo" ) 
+      1250 
+   )
+   ( ship-visible 
+      "Virgo 1" 
+      "Virgo 2" 
+      "Virgo 3" 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "normal" 
+      "virgo wave readable" 
+   )
+)
++Name: Reveal Virgo
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Virgo" ) 
+   ( do-nothing ) 
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Destroy Virgo", 935)
+
+$Formula: ( when 
+   ( < 
+      ( distance "Alpha 1" "Aries" ) 
+      1250 
+   )
+   ( ship-visible 
+      "Aries 1" 
+      "Aries 2" 
+      "Aries 3" 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "aries wave readable" 
+   )
+)
++Name: Reveal Aries
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Aries" ) 
+   ( do-nothing ) 
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Destroy Aries", 937)
+
+$Formula: ( when 
+   ( < ( distance "Ace" "Alpha 1" ) 1250 ) 
+   ( send-message 
+      "<any wingman>" 
+      "normal" 
+      "Ace is here" 
+   )
+   ( validate-goal "Destroy Ace" ) 
+)
++Name: Ace Arrival
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < 
+      ( distance 
+         "<any friendly>" 
+         "Pisces 1" 
+      )
+      1250 
+   )
+   ( add-goal 
+      "Pisces" 
+      ( ai-chase "Alpha" 89 ) 
+   )
+)
++Name: Gamma go
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < 
+      ( distance 
+         "<any friendly>" 
+         "Cancer 1" 
+      )
+      1250 
+   )
+   ( add-goal 
+      "Cancer" 
+      ( ai-chase "Alpha" 89 ) 
+   )
+)
++Name: Beta go
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < 
+      ( distance "<any friendly>" "Aries 1" ) 
+      1250 
+   )
+   ( add-goal 
+      "Aries" 
+      ( ai-chase "Alpha" 89 ) 
+   )
+)
++Name: Alpha go
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < 
+      ( distance "<any friendly>" "Virgo 1" ) 
+      1250 
+   )
+   ( add-goal 
+      "Virgo" 
+      ( ai-chase "Alpha" 89 ) 
+   )
+)
++Name: Delta go
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 0 "Ace" ) 
+   ( do-nothing ) 
+)
++Name: Kill the ace
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-goal-true-delay 
+         "Destroy Vasudan" 
+         30 
+      )
+      ( or 
+         ( is-destroyed-delay 0 "Ace" ) 
+         ( not ( has-arrived-delay 0 "Ace" ) ) 
+      )
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "get back to base" 
+   )
+)
++Name: Stop dicking around
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Alpha 1" ) 
+   ( do-nothing ) 
+)
++Name: Event name
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Warp Out", 3855)
++Objective key:  XSTR("Press $Alt-J$", 637)
+
+$Formula: ( when 
+   ( is-destroyed-delay 3 "Ace 1" ) 
+   ( send-message 
+      "<any wingman>" 
+      "normal" 
+      "ace is dead" 
+   )
+)
++Name: ace dead
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( percent-ships-destroyed 
+      24 
+      "Aries" 
+      "Cancer" 
+      "Pisces" 
+      "Virgo" 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "first batch dead" 
+   )
+)
++Name: Chatter about killing ships 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( percent-ships-destroyed 
+      49 
+      "Aries" 
+      "Cancer" 
+      "Pisces" 
+      "Virgo" 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "second batch dead" 
+   )
+)
++Name: Chatter about killing ships 2
++Repeat Count: 1
++Interval: 1
++Chained: 0
+
+$Formula: ( when 
+   ( percent-ships-destroyed 
+      74 
+      "Aries" 
+      "Cancer" 
+      "Pisces" 
+      "Virgo" 
+   )
+   ( send-message 
+      "<any wingman>" 
+      "High" 
+      "third bath dead" 
+   )
+)
++Name: Chatter about killing ships 3
++Repeat Count: 1
++Interval: 1
++Chained: 0
+
+$Formula: ( when 
+   ( and 
+      ( has-time-elapsed 54 ) 
+      ( is-event-incomplete "Reveal Cancer" ) 
+      ( is-event-incomplete "Reveal Pisces" ) 
+      ( is-event-incomplete "Reveal Virgo" ) 
+      ( is-event-incomplete "Reveal Aries" ) 
+   )
+   ( send-message 
+      "Alpha 4" 
+      "High" 
+      "this way" 
+   )
+   ( add-goal 
+      "Alpha 4" 
+      ( ai-chase "Cancer 1" 89 ) 
+   )
+)
++Name: Help player find ships
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-goal-true-delay "Destroy Ace" 0 ) 
+      ( is-goal-true-delay 
+         "Destroy Vasudan" 
+         0 
+      )
+      ( skill-level-at-least "Medium" ) 
+   )
+   ( grant-medal 
+      "Distinguished Flying Cross" 
+   )
+)
++Name: Medal
++Repeat Count: 1
++Interval: 1
+
+#Goals		;! 2 total
+
+$Type: Primary
++Name: Destroy Vasudan
+$MessageNew:  XSTR("Destroy All Vasudan Wings", 1904)
+$end_multi_text
+$Formula: ( is-destroyed-delay 
+   0 
+   "Aries" 
+   "Cancer" 
+   "Pisces" 
+   "Virgo" 
+)
++Score: 700
+
+$Type: Bonus
++Name: Destroy Ace
+$MessageNew:  XSTR("Destroy Vasudan Ace", 1905)
+$end_multi_text
+$Formula: ( is-destroyed-delay 0 "Ace" ) 
++Invalid
++Score: 300
+
+#Waypoints		;! 0 lists total
+
+
+#Messages		;! 16 total
+
+
+$Name: Radar scrambled
+$Team: -1
+$MessageNew:  XSTR("Sensors inoperative.  Target visually until you're close to the hostiles.", 1906)
+$end_multi_text
++Persona: Wingman 2
++AVI Name: Head-TP3
++Wave Name: 2_a1m2_a.wav
+
+$Name: We did it
+$Team: -1
+$MessageNew:  XSTR("All enemy wings are down.  Nice work Alpha 1.", 1907)
+$end_multi_text
++Persona: Wingman 2
++AVI Name: Head-TP3
++Wave Name: 2_a1m2_b.wav
+
+$Name: Ace is here
+$Team: -1
+$MessageNew:  XSTR("Vasudan Ace in the area!", 1908)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m2_c.wav
+
+$Name: aries wave readable
+$Team: -1
+$MessageNew:  XSTR("Sensors can now lock wing Aries.", 1909)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m2_d.wav
+
+$Name: cancer wave readable
+$Team: -1
+$MessageNew:  XSTR("Cancer wing on radar.", 1910)
+$end_multi_text
++Persona: Wingman 2
++AVI Name: Head-TP3
++Wave Name: 2_a1m2_e.wav
+
+$Name: pisces wave readable
+$Team: -1
+$MessageNew:  XSTR("Targeting Pisces wing now.", 1911)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP4
++Wave Name: 5_a1m2_f.wav
+
+$Name: virgo wave readable
+$Team: -1
+$MessageNew:  XSTR("Virgo wing on scope.", 1912)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m2_g.wav
+
+$Name: get back to base
+$Team: -1
+$MessageNew:  XSTR("The asteroid field is clear, Alpha wing.  Return to base.", 1913)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM1
++Wave Name: TC_a1m2_h.wav
+
+$Name: ace is dead
+$Team: -1
+$MessageNew:  XSTR("Vasudan Ace eliminated.", 1914)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m2_i.wav
+
+$Name: asteroid chatter 1
+$Team: -1
+$MessageNew:  XSTR("I can't target any hostiles.", 1915)
+$end_multi_text
++Persona: Wingman 2
++AVI Name: Head-TP3
++Wave Name: 2_a1m2_j.wav
+
+$Name: asteroid chatter 2
+$Team: -1
+$MessageNew:  XSTR("Asteroid field interfering with sensors.", 1916)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m2_k.wav
+
+$Name: asteroid chatter 3
+$Team: -1
+$MessageNew:  XSTR("Let's follow the blips on radar.", 1917)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP4
++Wave Name: 5_a1m2_l.wav
+
+$Name: first batch dead
+$Team: -1
+$MessageNew:  XSTR("That's one wing down.", 1918)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m2_m.wav
+
+$Name: second batch dead
+$Team: -1
+$MessageNew:  XSTR("Half of the Vasudans eliminated.", 1919)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m2_n.wav
+
+$Name: third bath dead
+$Team: -1
+$MessageNew:  XSTR("Only one more wing.", 1920)
+$end_multi_text
++Persona: Wingman 3
++AVI Name: Head-TP2
++Wave Name: 3_a1m2_o.wav
+
+$Name: this way
+$Team: -1
+$MessageNew:  XSTR("I think they're over here.", 1921)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP4
++Wave Name: 5_a1m2_p.wav
+
+#Reinforcements		;! 0 total
+
+
+#Background bitmaps		;! 36 total
+
+$Num stars: 500
+$Ambient light level: 0
+
+;;FSO 3.6.9;; $Bitmap List:
+;;FSO 3.6.9;; $Sun: SunBetelgeuse
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 3.141590
+;;FSO 3.6.9;; +Scale: 4.000000
+;;FSO 3.6.9;; $Starbitmap: nebulg6-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 0.000000
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG1-main
+;;FSO 3.6.9;; +Angles: 0.209439 0.000000 0.000000
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG1-main
+;;FSO 3.6.9;; +Angles: 6.073741 3.141590 0.000000
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG8-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 0.174533
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG6-whisp
+;;FSO 3.6.9;; +Angles: 0.174533 0.000000 0.261799
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG13-whisp
+;;FSO 3.6.9;; +Angles: 5.934115 0.000000 0.261799
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG9-whisp
+;;FSO 3.6.9;; +Angles: 6.108648 0.000000 6.108648
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG13-whisp
+;;FSO 3.6.9;; +Angles: 0.174533 0.000000 5.934115
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG10-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 6.073741
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG9-whisp
+;;FSO 3.6.9;; +Angles: 6.021381 1.570795 5.846848
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG8-whisp
+;;FSO 3.6.9;; +Angles: 5.986475 4.712385 0.000000
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG13-whisp
+;;FSO 3.6.9;; +Angles: 5.585049 0.349066 6.195914
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG14-whisp
+;;FSO 3.6.9;; +Angles: 5.846848 0.000000 0.174533
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG8-whisp
+;;FSO 3.6.9;; +Angles: 0.314159 1.221730 6.108648
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG13-whisp
+;;FSO 3.6.9;; +Angles: 0.436332 3.490656 0.000000
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG5-whisp
+;;FSO 3.6.9;; +Angles: 0.523598 0.000000 5.934115
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG14-whisp
+;;FSO 3.6.9;; +Angles: 0.139626 0.000000 6.021381
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG1-main
+;;FSO 3.6.9;; +Angles: 0.000000 5.759582 0.558505
+;;FSO 3.6.9;; +ScaleX: 6.000000
+;;FSO 3.6.9;; +ScaleY: 8.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG6-whisp
+;;FSO 3.6.9;; +Angles: 6.195914 0.000000 0.383972
+;;FSO 3.6.9;; +ScaleX: 1.500000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG8-whisp
+;;FSO 3.6.9;; +Angles: 0.087266 0.523598 0.698131
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG9-whisp
+;;FSO 3.6.9;; +Angles: 5.759582 5.934115 0.698131
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG1-main
+;;FSO 3.6.9;; +Angles: 5.323250 2.094393 0.959930
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 2.500000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG9-whisp
+;;FSO 3.6.9;; +Angles: 0.174533 3.141590 1.221730
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG13-whisp
+;;FSO 3.6.9;; +Angles: 5.759582 3.141590 1.745328
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG5-whisp
+;;FSO 3.6.9;; +Angles: 1.396262 6.108648 2.181660
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 6.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG9-whisp
+;;FSO 3.6.9;; +Angles: 0.610865 1.308996 2.059487
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG1-main
+;;FSO 3.6.9;; +Angles: 0.261799 0.000000 2.443459
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 8.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG1-main
+;;FSO 3.6.9;; +Angles: 0.087266 0.000000 3.141590
+;;FSO 3.6.9;; +ScaleX: 6.000000
+;;FSO 3.6.9;; +ScaleY: 6.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG10-whisp
+;;FSO 3.6.9;; +Angles: 0.174533 5.235984 2.740165
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG1-main
+;;FSO 3.6.9;; +Angles: 6.108648 0.523598 3.228857
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG5-whisp
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 3.665189
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG5-whisp
+;;FSO 3.6.9;; +Angles: 0.349066 0.000000 3.577922
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG9-whisp
+;;FSO 3.6.9;; +Angles: 0.174533 3.665189 4.014254
+;;FSO 3.6.9;; +ScaleX: 6.000000
+;;FSO 3.6.9;; +ScaleY: 6.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG1-main
+;;FSO 3.6.9;; +Angles: 0.523598 0.349066 4.363320
+;;FSO 3.6.9;; +ScaleX: 8.000000
+;;FSO 3.6.9;; +ScaleY: 8.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG13-whisp
+;;FSO 3.6.9;; +Angles: 5.323250 1.570795 4.363320
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: nebulG14-whisp
+;;FSO 3.6.9;; +Angles: 5.759582 0.000000 4.101521
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG5-whisp
+;;FSO 3.6.9;; +Angles: 5.672316 0.000000 5.235984
+;;FSO 3.6.9;; +ScaleX: 5.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: nebulG6-whisp
+;;FSO 3.6.9;; +Angles: 5.934115 0.000000 5.550143
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 5.000000
+;;FSO 3.6.9;; +DivX: 5
+;;FSO 3.6.9;; +DivY: 5
+;;FSO 3.6.9;; $Starbitmap: planetd
+;;FSO 3.6.9;; +Angles: 0.000000 3.141590 0.000000
+;;FSO 3.6.9;; +ScaleX: 3.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 2
+;;FSO 3.6.9;; +DivY: 2
+;;FSO 3.6.9;; $Starbitmap: SunSathanas03
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 0.000000
+;;FSO 3.6.9;; +ScaleX: 8.000000
+;;FSO 3.6.9;; +ScaleY: 4.000000
+;;FSO 3.6.9;; +DivX: 2
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: SunSathanas03
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 0.698131
+;;FSO 3.6.9;; +ScaleX: 6.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: SunSathanas03
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 5.585049
+;;FSO 3.6.9;; +ScaleX: 6.000000
+;;FSO 3.6.9;; +ScaleY: 3.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: SunSathanas03
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 1.221730
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: SunSathanas03
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 5.061451
+;;FSO 3.6.9;; +ScaleX: 4.000000
+;;FSO 3.6.9;; +ScaleY: 2.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: SunSathanas03
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 1.570795
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 1.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: SunSathanas03
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 4.712385
+;;FSO 3.6.9;; +ScaleX: 2.000000
+;;FSO 3.6.9;; +ScaleY: 1.000000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: SunSathanas03
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 1.780234
+;;FSO 3.6.9;; +ScaleX: 1.000000
+;;FSO 3.6.9;; +ScaleY: 0.500000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+;;FSO 3.6.9;; $Starbitmap: SunSathanas03
+;;FSO 3.6.9;; +Angles: 0.000000 0.000000 4.468040
+;;FSO 3.6.9;; +ScaleX: 1.000000
+;;FSO 3.6.9;; +ScaleY: 0.500000
+;;FSO 3.6.9;; +DivX: 1
+;;FSO 3.6.9;; +DivY: 1
+
+
+;;FSO 3.6.9;; $Bitmap List:
+$Sun: SunRed
++Angles: 0.000000 0.000000 1.047197
++Scale: 2.500000
+$Starbitmap: dneb10
++Angles: 0.000000 2.321286 0.000000
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb08
++Angles: 0.401425 0.663225 0.139626
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb11
++Angles: 0.820304 4.834558 0.000000
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb14
++Angles: 0.000000 1.308996 0.558505
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb10
++Angles: 6.021381 0.890117 5.794488
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb14
++Angles: 5.951568 2.740165 5.602502
++ScaleX: 1.000000
++ScaleY: 1.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb08
++Angles: 0.000000 0.000000 5.951568
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb11
++Angles: 5.881755 5.009091 5.532689
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb10
++Angles: 5.585049 0.383972 5.393063
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb14
++Angles: 0.558505 0.628318 6.126101
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb11
++Angles: 5.218530 0.000000 5.218530
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb08
++Angles: 5.009091 5.585049 5.218530
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 5.585049 5.585049 0.925024
++ScaleX: 2.000000
++ScaleY: 1.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb14
++Angles: 5.777035 2.321286 0.802851
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb11
++Angles: 6.021381 4.468040 0.628318
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb08
++Angles: 5.585049 0.575958 0.925024
++ScaleX: 3.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb10
++Angles: 5.358157 2.740165 0.628318
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb14
++Angles: 5.131264 5.951568 0.506145
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb11
++Angles: 4.991638 0.855211 0.418879
++ScaleX: 3.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: neb08
++Angles: 4.764745 1.692968 0.191986
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: dneb10
++Angles: 5.253437 3.455749 1.117010
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb14
++Angles: 5.078904 1.256636 1.308996
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb11
++Angles: 4.886918 1.867501 1.553342
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb08
++Angles: 3.508109 0.383972 1.378809
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 3.385936 1.570795 1.169370
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb14
++Angles: 4.799652 1.797688 1.815141
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb11
++Angles: 4.886918 4.276053 2.076940
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb08
++Angles: 4.345866 0.366519 2.216566
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 3.874628 1.570795 2.408552
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb14
++Angles: 4.031707 0.558505 0.959930
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb11
++Angles: 4.345866 1.797688 0.715584
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 4.520399 2.146753 0.541052
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb11
++Angles: 3.577922 0.366519 0.663225
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb11
++Angles: 3.961894 1.570795 0.506145
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+ $Starbitmap: planetd
+ +Angles: 0.000000 3.141590 0.000000
+ +ScaleX: 3.000000
+ +ScaleY: 3.000000
+ +DivX: 2
+ +DivY: 2
+  $Starbitmap: SunSathanas03
+ +Angles: 0.000000 0.000000 0.000000
+ +ScaleX: 8.000000
+ +ScaleY: 4.000000
+ +DivX: 2
+ +DivY: 1
+ $Starbitmap: SunSathanas03
+ +Angles: 0.000000 0.000000 0.698131
+ +ScaleX: 6.000000
+ +ScaleY: 3.000000
+ +DivX: 1
+ +DivY: 1
+ $Starbitmap: SunSathanas03
+ +Angles: 0.000000 0.000000 5.585049
+ +ScaleX: 6.000000
+ +ScaleY: 3.000000
+ +DivX: 1
+ +DivY: 1
+ $Starbitmap: SunSathanas03
+ +Angles: 0.000000 0.000000 1.221730
+ +ScaleX: 4.000000
+ +ScaleY: 2.000000
+ +DivX: 1
+ +DivY: 1
+ $Starbitmap: SunSathanas03
+ +Angles: 0.000000 0.000000 5.061451
+ +ScaleX: 4.000000
+ +ScaleY: 2.000000
+ +DivX: 1
+ +DivY: 1
+ $Starbitmap: SunSathanas03
+ +Angles: 0.000000 0.000000 1.570795
+ +ScaleX: 2.000000
+ +ScaleY: 1.000000
+ +DivX: 1
+ +DivY: 1
+ $Starbitmap: SunSathanas03
+ +Angles: 0.000000 0.000000 4.712385
+ +ScaleX: 2.000000
+ +ScaleY: 1.000000
+ +DivX: 1
+ +DivY: 1
+ $Starbitmap: SunSathanas03
+ +Angles: 0.000000 0.000000 1.780234
+ +ScaleX: 1.000000
+ +ScaleY: 0.500000
+ +DivX: 1
+ +DivY: 1
+ $Starbitmap: SunSathanas03
+ +Angles: 0.000000 0.000000 4.468040
+ +ScaleX: 1.000000
+ +ScaleY: 0.500000
+ +DivX: 1
+ +DivY: 1
+
+#Asteroid Fields
+
+$Density: 120
++Field Type: 0
++Debris Genre: 0
++Field Debris Type: 0
+$Average Speed: 53.999985
+$Minimum: 0.000000, 0.000000, 1000.000000
+$Maximum: 7000.000000, 7000.000000, 7000.000000
+
+#Music
+
+$Event Music: 2: Exodus
+;;FSO 3.6.9;; $Substitute Event Music: FS1-2: March
+$Briefing Music: Brief2
+;;FSO 3.6.9;; $Substitute Briefing Music: FS1-BRIEF2
+;;FSO 3.6.9;; $Debriefing Success Music: FS1-Success
+;;FSO 3.6.9;; $Debriefing Average Music: FS1-Success
+;;FSO 3.6.9;; $Debriefing Fail Music: FS1-Failure
+
+#End
+
