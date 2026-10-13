@@ -128,7 +128,20 @@ const BODY = `
       const along = (now.p && pr.p && now.cx != null && pr.cx != null)
         ? Math.abs((now.cx - pr.cx)*now.p.fx + (now.cy - pr.cy)*now.p.fy)
         : Math.abs(v != null ? v : (vPrev||0));
-      if(now.vis > 0 && Math.abs(dvis) > along + 3.5 && !(pr.visCut===0 && e.warp>0))
+      // A cut held at the world's edge hides nothing anyone can see, so it
+      // is not a pop. fsWarp() clamps the vortex into the world
+      // (px = max(WX0, min(WX1, ...))), and a long ship's vortex stands 0.6
+      // of her length behind her: the Typhon of M22 lands at x -181 with a
+      // hull of 1735, so her vortex belongs at -1222 and is pulled to WX0.
+      // The hull that stays behind the cut therefore lies at or beyond the
+      // world's edge - and the camera cannot go past it (camClamp keeps
+      // CAM.x at least WX0 + camHalfW, so the leftmost x anyone ever sees
+      // is WX0). Pulling the cut to the edge can only ever hide hull that
+      // is already out of sight. Reported in v233, when the world stopped
+      // being twice the mission area and the clamp began to bite.
+      const atEdge = (p) => !!p && (p.px <= WX0 + 0.5 || p.px >= WX1 - 0.5);
+      if(now.vis > 0 && !atEdge(now.p) && !atEdge(pr.p)
+         && Math.abs(dvis) > along + 3.5 && !(pr.visCut===0 && e.warp>0))
         note('pop', e, (dvis>0?'+':'')+dvis.toFixed(0)+'px of hull at once (' + pr.visCut.toFixed(0) + ' -> ' + now.visCut.toFixed(0) + ', she moved ' + along.toFixed(2) + ' along the cut)' +
              (e.warp>0?' (jump in)':(e.warpOut>0?' (jump out)':' (after jump in)')));
       // stop: a jump in speed, or backwards during a jump.

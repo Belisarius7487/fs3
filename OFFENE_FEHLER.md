@@ -1159,6 +1159,53 @@ brauchen dieselben Sekunden.
 Gemessen: erster Schritt 0,003 statt 0,725 (volle Marschgeschwindigkeit),
 größte Änderung je Schritt 0,003 gegen die Grenze 0,35 von `warpsim`.
 
+**Familie 4 — „pop" am Weltrand (1 Befund, v233) — geklärt, kein Spielfehler.**
+Nach der kleineren Welt aus v233 meldete `warpsim` in M22:
+
+```
+pop  detyphon/V1  +524px of hull at once (1211 -> 1735) (after jump in)
+```
+
+**Nachgemessen, nicht vermutet** (`probe_world.js`, beide Fassungen, dieselbe
+Mission):
+
+| | v232 | v233 |
+|---|---|---|
+| `WX0` (linker Weltrand) | −1797 | **−660** |
+| Typhon landet bei x | −181 | −181 |
+| ihre Länge | 1735 | 1735 |
+
+Ihr Trichter steht **0,6 ihrer Länge hinter ihr**, also bei −1222. Und
+`fsWarp()` klemmt ihn in die Welt:
+
+```js
+const px = Math.max(WX0, Math.min(WX1, at.x + sg*f.x*G));
+```
+
+Auf v232 lag −1222 noch innerhalb der Welt — **und zwar nur zufällig**, weil
+die Welt damals Platz für den Colossus freihielt. Auf v233 wird der Trichter
+auf −660 gezogen, der Schnitt liegt 562 Einheiten zu nah an ihr, und so viel
+Rumpf bleibt bis zum Ende des Sprungs dahinter liegen. Das sind die 524.
+
+**Es ist aber nichts, was ein Spieler sehen kann, und das ist beweisbar:**
+Der Schnitt wird höchstens auf den **Weltrand** gezogen. Der Rumpf, den er
+dadurch zusätzlich verdeckt, liegt damit immer **jenseits des Weltrandes** —
+und `camClamp()` hält `CAM.x` mindestens `WX0 + camHalfW`, der linkeste je
+sichtbare Punkt ist also genau `WX0`. Die Klemmung kann nur Rumpf verstecken,
+der ohnehin außer Sicht ist.
+
+**Folge für die Prüfung, nicht für das Spiel:** `warpsim` meldet keinen „pop"
+mehr, wenn der Schnitt am Weltrand hängt — mit der Begründung oben im
+Quelltext. Das ist bewusst eine **enge, begründete Ausnahme** und keine
+angehobene Schwelle. Gegengeprüft an der kaputten Kopie (Schnitt springt 60
+Punkte mitten im Feld): die fällt weiter durch.
+
+**Nebenbefund für den Missionsneubau:** Die Typhon in M22 landet **außerhalb
+des Missionsgebiets** (x = −181) und ragt mit 1735 Einheiten weit über den
+Weltrand hinaus. Das ist einer der hochskalierten Platzwerte — in einem Feld
+von 800 Breite hieß x = −40 „gleich links draußen", bei vierfachem Feld sind
+es −181. Beim Neubau gehört sie ins Feld.
+
 **Familie 2 — „stop" beim Übergang (48 Befunde, nur Jäger) — noch offen.**
 Beim Verlassen des Strudels geht der Jäger vom Bremsverlauf des Sprungs auf
 das Flugmodell über, und dabei gibt es einen Knick: erlaubt sind 0,6
