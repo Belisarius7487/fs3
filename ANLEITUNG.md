@@ -112,7 +112,49 @@ git pull
 
 ---
 
-## 4. Was du nicht mehr tun musst
+## 4. Wenn du Dateien ins Repo legen sollst
+
+Zum Beispiel die FreeSpace-Missionsdateien. Das geht im Browser, dein Server
+wird dafür nicht gebraucht.
+
+1. `https://github.com/Belisarius7487/fs3` öffnen
+2. **Oben links im Zweig-Auswahlfeld** (es steht `main` darin)
+   `claude/festive-ramanujan-dedgw3` auswählen.
+   **Das ist wichtig** — in `main` kommt nichts, bevor du eine Version
+   abgenommen hast.
+3. Rechts auf `Add file` → `Upload files`
+4. Die **Ordner** vom Rechner ins Fenster ziehen. Namen am besten so:
+
+   ```
+   fs1/         die FS1-Missionen
+   str/         Silent Threat: Reborn
+   fs2/         die FS2-Missionen
+   kampagne/    die .fc2-Dateien (Reihenfolge und Verzweigungen)
+   ```
+
+   Heißen deine Ordner anders, ist das kein Problem — ich sortiere sie
+   danach ein. Wichtig ist nur, dass man am Ordnernamen erkennt, aus
+   welchem Spiel die Dateien stammen.
+5. Unten steht **„Commit directly to the claude/festive-ramanujan-dedgw3
+   branch"**. Das muss ausgewählt sein. Dann auf `Commit changes`.
+
+**Erwartete Ausgabe:** GitHub zeigt die Dateien danach im Zweig an.
+
+**Stopp-Punkte:**
+
+| Was du siehst | Was du tust |
+|---|---|
+| „Yowza, that's a lot of files" | In zwei oder drei Portionen hochladen, etwa 100 Dateien je Portion |
+| Im Zweig-Feld steht noch `main` | Abbrechen, Zweig umstellen, neu anfangen |
+| Eine Datei fehlt hinterher | Mir sagen, welche — manche Dateiendungen werden absichtlich nicht ins Repo gelassen (Bilder, Musik, Modelle) |
+
+**Sag mir Bescheid, wenn du fertig bist.** Ich hole die Dateien dann zu mir
+herüber. Solange du hochlädst, halte ich mich mit eigenen Änderungen zurück,
+damit wir uns nicht in die Quere kommen.
+
+---
+
+## 5. Was du nicht mehr tun musst
 
 - **Keine Dateien über die GitHub-Weboberfläche hochladen.** Ich habe das
   Repo in der Cloud selbst und schiebe fertig hoch.
@@ -126,7 +168,7 @@ git pull
 
 ---
 
-## 5. Wenn etwas klemmt
+## 6. Wenn etwas klemmt
 
 | Was du siehst | Was es heißt | Was du tust |
 |---|---|---|
@@ -142,7 +184,7 @@ GitHub.
 
 ---
 
-## 6. Was ich mache, bevor ich dir etwas gebe
+## 7. Was ich mache, bevor ich dir etwas gebe
 
 Damit du weißt, worauf du dich verlassen kannst:
 
