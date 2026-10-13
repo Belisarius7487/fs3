@@ -1011,15 +1011,32 @@ Radarkasten ist etwa 74 × 44 Bildpunkte; ein Großkampfschiff-Symbol ist bei
 `RADAR_ICO_K = 0.36` rund 11 Punkte breit, das des Colossus 23. Mehrere
 geklemmte Symbole an der Kante werden damit schnell zu einem Klumpen.
 
-**Vorschlag für v233:** Das Radar zeigt das Missionsgebiet **samt seinem
-Rand** (die 150·K bzw. 100·K, in denen Missionen ihre Schiffe zum Hereinkommen
-abstellen), und das Missionsgebiet selbst wird darin als feiner Rahmen
-markiert, damit die Grenze weiter zu sehen ist. Dann muss fast nichts mehr
-geklemmt werden. Die ganze Welt zu zeigen wäre schlechter: bei einem Colossus
-würde das Radar so weit herauszoomen, dass das Missionsgebiet ein Kästchen in
-der Mitte wird.
+**Mein Vorschlag war:** Missionsgebiet samt Rand zeigen und das
+Missionsgebiet darin als feinen Rahmen markieren.
 
-- Status: Ursache nachgelesen, Vorschlag steht, noch nicht gebaut
+**Silvio hat entschieden, v232:** „Ich will keinen Rand im Radar angezeigt
+bekommen. Ich will dass das Radar das gesamte Spielfeld berücksichtigt.
+Ansonsten brauch ich kein Radar, wenn ich raten muss, an welcher Position
+sich bestimmte Schiffe befinden."
+
+**Damit gilt:** Das Radar zeigt die **ganze Welt** (`WX0..WX1`,
+`WY0..WY1`), kein Rahmen, und **nichts wird geklemmt**. Jedes Schiff steht an
+seinem wirklichen Platz. Das ist die Zusicherung, auf die die Prüfung geht.
+
+**Die eine Folge, nachgemessen, damit sie nicht überrascht:** In Missionen,
+in denen der **Colossus** gerufen werden kann, hält `worldForWave()` Platz
+für ihn frei, ob er kommt oder nicht — `need·1.5` bei 4745 Einheiten Länge
+ergibt eine Welt von **7118 × 3968** gegen ein Missionsgebiet von
+**3200 × 1946**. Die Schiffe sitzen dann in den mittleren **45 %** des
+Radars. Der Kasten selbst bleibt praktisch gleich groß (das
+Seitenverhältnis ändert sich kaum), es wird nur alles kleiner.
+
+Wenn Silvio das zu gedrängt findet, ist der nächste Schritt, den Platz für
+den Colossus erst freizuhalten, **wenn er wirklich im Feld ist** — das ist
+ein Eingriff in die Kameragrenzen und die Schiffsplatzierung, also deutlich
+mehr als eine Radaränderung. Deshalb zuerst die einfache Fassung zum Ansehen.
+
+- Status: entschieden, wird in v233 gebaut
 
 ---
 
