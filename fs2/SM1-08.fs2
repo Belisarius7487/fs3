@@ -1,0 +1,2986 @@
+#Mission Info
+
+$Version: 0.10
+$Name:  XSTR("The Sixth Wonder", 893)
+$Author: Brad Johnson
+$Created: 05/17/99 at 14:34:19
+$Modified: 10/13/99 at 15:20:08
+$Notes:
+This is a FRED created mission
+$End Notes:
+
+$Mission Desc:
+ XSTR("The 242nd Suicide Kings repel a rebel assault on Enif Station, the GTVA's base of operations in the Epsilon Pegasi system.", 894)
+$end_multi_text
+
++Game Type Flags: 1
+
++Flags: 0
+
++Red Alert: 0
+
++Scramble: 0
+
++Disallow Support: 0
+
++Player Entry Delay:
+1.000000
+
++Viewer pos: 114.462814, 27947.568359, 4444.995605
++Viewer orient:
+	0.999980, -0.000001, 0.006382,
+	-0.006259, 0.195584, 0.980667,
+	-0.001249, -0.980687, 0.195580
++SquadReassignName: 242nd Suicide Kings
++SquadReassignLogo: 242suicide.pcx
+
+#Plot Info
+
+$Tour:  XSTR("Blah", 6)
+$Pre-Briefing Cutscene: Blah
+$Pre-Mission Cutscene: Blah
+$Next Mission Success: Blah
+$Next Mission Partial: Blah
+$Next Mission Failure: Blah
+
+#Command Briefing
+
+$Stage Text:
+ XSTR("Enif Massacre
+
+36 hours ago, the NTF launched a full-scale offensive in Epsilon Pegasi, taking the GTVA 6th Fleet by surprise. Commanding his forces from the NTD Repulse, Rear Admiral Koth leads the rebel advance. With 75 percent of our forces in this system decimated, the regional death toll since the incursion now exceeds 80,000.
+ 
+Unless we act quickly, a decisive rebel victory is imminent.", 895)
+$end_multi_text
+$Ani Filename: cb_sm1-08_a.ani
++Wave Filename: SM108_CB_01.wav
+
+$Stage Text:
+ XSTR("Stalemate in Sirius
+
+The GTD Aquitaine will lead the allied counterstrike against Koth and his warships. We will resupply in Capella before shipping out to the front. 
+
+We have also learned our campaign in Sirius has failed. A two-pronged offensive launched from Alpha Centauri and Deneb encountered fierce resistance. Unless we can devise a military solution for dealing with the rebels, the GTVA will be forced to recognize the NTF's authority in Sirius, Regulus, and Polaris.", 896)
+$end_multi_text
+$Ani Filename: cb_sm1-08_b.ani
++Wave Filename: SM108_CB_02.wav
+
+$Stage Text:
+ XSTR("On the Vanguard
+
+Allied engineers in the meantime are developing and adapting technologies that will enable us to fight more effectively in the nebula. Dr. Hargrove and her research team continue to study the subspace portal. Their findings have been classified level Phi.
+
+Until the situation in Epsilon Pegasi has been normalized, the GTVA will suspend its operations in the nebula.", 897)
+$end_multi_text
+$Ani Filename: <default>
++Wave Filename: SM108_CB_03.wav
+
+#Briefing
+$start_briefing
+$num_stages: 4
+$start_stage
+$multi_text
+ XSTR("This is Lieutenant Commander Cordova, leader of the 242nd Suicide Kings. Welcome to Epsilon Pegasi, pilots. $f Enif $f Station, the Alliance's base of operations in this system, is now under attack. Though we have destroyed the $h NTC $h Outrage, the $h Cato continues to bombard the installation with heavy beam fire.", 898)
+$end_multi_text
+$voice: SM108_MB_01.wav
+$camera_pos: -163.328064, 6031.839355, -3292.212402
+$camera_orient:
+	0.999980, 0.000000, 0.006383,
+	-0.003830, 0.800016, 0.599967,
+	-0.005107, -0.599979, 0.799999
+$camera_time: 600
+$num_lines: 0
+$num_icons: 3
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 15
+$team: Friendly
+$class: GTI Arcadia
+$pos: -60.619289, -0.000019, 4717.385742
+$label: Enif Station
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 28
+$team: Neutral
+$class: GTCv Deimos
+$pos: 2997.684814, -1126.800415, 6057.371094
+$label: Hawkwood
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 18
+$team: Neutral
+$class: GTC Leviathan
+$pos: -2824.985107, 498.099365, 5117.827637
+$label: Cato
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Evacuation of civilian personnel on board $f Enif $f Station is now in progress. As you know, civilians are protected under the Beta Aquilae Convention, but the $h NTF has rejected that treaty and its provisions. Fortunately, most of the civilian convoy has jumped safely to the Capella jump node.", 899)
+$end_multi_text
+$voice: SM108_MB_02.wav
+$camera_pos: -204.162872, 9520.066406, 3104.892822
+$camera_orient:
+	0.999980, 0.000000, 0.006383,
+	-0.006260, 0.195584, 0.980667,
+	-0.001249, -0.980687, 0.195580
+$camera_time: 900
+$num_lines: 0
+$num_icons: 5
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 15
+$team: Friendly
+$class: GTI Arcadia
+$pos: -60.619289, -0.000019, 4717.385742
+$label: Enif Station
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 28
+$team: Neutral
+$class: GTCv Deimos
+$pos: 2997.684814, -1126.800415, 6057.371094
+$label: Hawkwood
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 18
+$team: Neutral
+$class: GTC Leviathan
+$pos: -2935.769775, 498.099976, 5112.047363
+$label: Cato
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 11
+$team: Friendly
+$class: GTFR Triton
+$pos: -758.383179, 245.899170, 6168.578613
+$label: Calypso
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Friendly
+$class: GTT Elysium
+$pos: 1531.720825, -86.676392, 3848.659424
+$label: Mannheim
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Your mission is to defend $f Enif $f Station. As leader of Alpha wing, you will command your squadmates to destroy the fighters and warships besieging our installation. If the rebels sortie their Zeus bombers, intercept the warheads before they impact the base. ", 900)
+$end_multi_text
+$voice: SM108_MB_03.wav
+$camera_pos: -2978.636719, 3230.123779, 2776.869873
+$camera_orient:
+	0.999980, 0.000000, 0.006383,
+	-0.006259, 0.195584, 0.980667,
+	-0.001249, -0.980687, 0.195580
+$camera_time: 800
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 15
+$team: Friendly
+$class: GTI Arcadia
+$pos: -60.619289, -0.000019, 4717.385742
+$label: Enif Station
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 28
+$team: Neutral
+$class: GTCv Deimos
+$pos: 2997.684814, -1126.800415, 6057.371094
+$label: Hawkwood
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 18
+$team: Neutral
+$class: GTC Leviathan
+$pos: -2935.769775, 498.099976, 5112.047363
+$label: Cato
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 11
+$team: Friendly
+$class: GTFR Triton
+$pos: -767.473816, 245.899841, 5670.544434
+$label: Calypso
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Friendly
+$class: GTT Elysium
+$pos: 1531.720825, -86.676392, 3848.659424
+$label: Mannheim
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 17
+$team: Neutral
+$class: GTB Zeus
+$pos: -3362.071045, -0.000053, 3771.628418
+$label: Aries
++id: 6
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 17
+$team: Neutral
+$class: GTB Zeus
+$pos: -2462.958252, 0.000090, 3145.079834
+$label: Virgo
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("Allied forces are engaging the rebels throughout the system. As resources become available, they will be deployed to assist you. Until we get these reinforcements, however, holding down the fort is all up to you. This sortie will be the first combat field test of the Perseus intercept fighter, so let's put on a good show.", 901)
+$end_multi_text
+$voice: SM108_MB_04.wav
+$camera_pos: -171.618362, 7990.074707, 2945.064209
+$camera_orient:
+	0.999980, -0.000001, 0.006382,
+	-0.006259, 0.195584, 0.980667,
+	-0.001249, -0.980687, 0.195580
+$camera_time: 500
+$num_lines: 0
+$num_icons: 7
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 15
+$team: Friendly
+$class: GTI Arcadia
+$pos: -60.619289, -0.000019, 4717.385742
+$label: Enif Station
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 28
+$team: Neutral
+$class: GTCv Deimos
+$pos: 2997.684814, -1126.800415, 6057.371094
+$label: Hawkwood
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 18
+$team: Neutral
+$class: GTC Leviathan
+$pos: -2935.769775, 498.099976, 5112.047363
+$label: Cato
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 11
+$team: Friendly
+$class: GTFR Triton
+$pos: -954.659790, 245.900223, 5814.775391
+$label: Calypso
++id: 4
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 34
+$team: Friendly
+$class: GTT Elysium
+$pos: 1531.720825, -86.676392, 3848.659424
+$label: Mannheim
++id: 5
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 17
+$team: Neutral
+$class: GTB Zeus
+$pos: -3362.071045, -0.000053, 3771.628418
+$label: Aries
++id: 6
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 17
+$team: Neutral
+$class: GTB Zeus
+$pos: -1732.345947, -0.002091, 3370.527588
+$label: Virgo
++id: 7
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$end_briefing
+
+#Debriefing_info
+
+$Num stages: 4
+
+$Formula: ( is-destroyed-delay 0 "Enif Station" ) 
+$Multi text
+    XSTR("When you were selected for the 242nd Suicide Kings, you were singled out as a promising candidate for a command position. The officers who recommended you had faith in your potential to make an outstanding leader. Unfortunately, this assessment seems premature, at the very least.
+
+I am disappointed in you, pilot. Though you probably fought well as an individual, you did not use your squadmates to the best advantage in this scenario. We lost Enif Station because you were placed in a situation you were ill-equipped to handle. That's not your fault. However, if you want to fly with a top-notch unit, you must learn the difference between doing an adequate job and going above and beyond the call of duty.", 902)
+$end_multi_text
+$Voice: SM108_DB_01.wav
+$Recommendation text:
+    XSTR("Destroy beam turrets on hostile warships, and intercept enemy bombers. Order your squadmates to attack or protect targets you cannot cover.", 903)
+$end_multi_text
+
+$Formula: ( and 
+   ( not 
+      ( is-destroyed-delay 0 "Enif Station" ) 
+   )
+   ( is-goal-true-delay 
+      "Protect Installation" 
+      0 
+   )
+)
+$Multi text
+    XSTR("In your courageous defense of Enif Station, you were eyewitness to an historic moment: the first combat deployment of the GTVA Colossus. 
+
+You and your wing also showed us what the Perseus intercept fighter can do. Against overwhelming odds, you repelled an attack against a facility of the utmost strategic importance for the Alliance. 
+
+The commander of Enif Station personally extends his gratitude, pilot. I can see you'll make a fine addition to the Suicide Kings.
+
+The Alliance has won battle after battle throughout the system, crushing the NTC Rapier, the NTC Explorer, and the NTD Normandy. These victories have stalled the rebel advance, and now with the help of the Colossus, we will push them back into the Polaris system, securing Epsilon Pegasi once and for all.", 904)
+$end_multi_text
+$Voice: SM108_DB_02.wav
+$Recommendation text:
+    XSTR("", 10)
+$end_multi_text
+
+$Formula: ( and 
+   ( not 
+      ( is-event-true-delay 
+         "Total Failure" 
+         0 
+      )
+   )
+   ( not 
+      ( is-event-true-delay 
+         "Primary Goal Complete" 
+         0 
+      )
+   )
+)
+$Multi text
+    XSTR("You did not have authorization to return to base, pilot. Your actions jeopardized the lives of those involved in this mission and the GTVA's objectives in this theatre. Desertion is grounds for a court martial, and you are confined to quarters pending your preliminary hearing. Until a military court decides otherwise, you are hereby stripped of your wings and all privileges bestowed upon you as an officer of the Galactic Terran-Vasudan Alliance.", 180)
+$end_multi_text
+$Voice: 3_JOE.wav
+$Recommendation text:
+    XSTR("", 10)
+$end_multi_text
+
+$Formula: ( is-event-true-delay 
+   "Distinguished Flying Cross" 
+   0 
+)
+$Multi text
+    XSTR("For demonstrating exceptional skill in combat, you are hereby awarded the Distinguished Flying Cross.", 905)
+$end_multi_text
+$Voice: 3_DFC.wav
+$Recommendation text:
+    XSTR("", 10)
+$end_multi_text
+
+#Players		;! 1 total
+
+$Starting Shipname: Alpha 1
+$Ship Choices: (
+)
+
++Weaponry Pool: (
+	"Subach HL-7"	19
+	"Akheton SDG"	16
+	"Prometheus R"	25
+	"Rockeye"	150
+	"Tempest"	1280
+	"Hornet"	690
+	"Harpoon"	348
+	"Stiletto II"	100
+)
+
+#Objects		;! 38 total
+
+$Name: Alpha 1		;! Object #0
+$Class: GTF Perseus
+$Team: Friendly
+$Location: -176.834778, 643.699524, 1704.721558
+$Orientation:
+	0.999917, 0.000000, 0.012859,
+	-0.001738, 0.990820, 0.135177,
+	-0.012741, -0.135188, 0.990738
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Prometheus R" "Subach HL-7" )
++Secondary Banks: ( "Tempest" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "player-start" )+Respawn priority: 0
+
++Group: 0
++Score: 12
+
+$Name: Alpha 2		;! Object #1
+$Class: GTF Perseus
+$Team: Friendly
+$Location: -280.681763, 643.699524, 1607.055908
+$Orientation:
+	0.999960, 0.000000, -0.008967,
+	0.001188, 0.991183, 0.132495,
+	0.008888, -0.132500, 0.991143
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Prometheus R" "Subach HL-7" )
++Secondary Banks: ( "Tempest" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 12
++Persona Index: 0
+
+$Name: Alpha 3		;! Object #2
+$Class: GTF Perseus
+$Team: Friendly
+$Location: -77.932739, 643.699524, 1607.055786
+$Orientation:
+	0.999451, 0.000000, 0.033121,
+	-0.004386, 0.991192, 0.132361,
+	-0.032829, -0.132434, 0.990648
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Prometheus R" "Subach HL-7" )
++Secondary Banks: ( "Tempest" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 12
++Persona Index: 0
+
+$Name: Cato		;! Object #3
+$Class: GTC Leviathan
+$Team: Neutral
+$Location: -2286.986816, 498.098938, 5042.710449
+$Orientation:
+	-0.354304, 0.000000, -0.935130,
+	0.187516, 0.979689, -0.071046,
+	0.916137, -0.200524, -0.347108
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-chase "Enif Station" 89 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Primary Banks: ( "" )
++Subsystem: turret02
++Subsystem: turret03
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret04
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret05
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret06
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret07
++Subsystem: turret08
++Subsystem: turret09a-01-main
++Sbank Ammo: ( 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( is-destroyed-delay 
+   12 
+   "Enif Station" 
+)
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 97
++Orders Accepted: 1		;! note that this is a bitfield!!!
++Group: 0
++Score: 100
+
+$Name: Colossus		;! Object #4
+$Class: GTVA Colossus
+$Team: Friendly
+$Location: 239.783188, 2972.410645, 17970.976563
+$Orientation:
+	-0.958682, 0.020619, -0.283732,
+	0.030622, 0.999054, -0.030866,
+	0.282827, -0.038279, -0.958407
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02a
++Subsystem: turret03a
++Subsystem: turret04a
++Subsystem: turret05a
++Subsystem: turret06a
++Subsystem: turret07a
++Subsystem: turret08a
++Subsystem: turret09a
++Subsystem: turret10a
++Subsystem: turret11
++Subsystem: turret12
++Subsystem: turret13
++Subsystem: turret14
++Subsystem: turret15
++Subsystem: turret16
++Subsystem: turret17
++Subsystem: turret18
++Subsystem: turret19
++Subsystem: turret20
++Subsystem: turret21
++Subsystem: turret22
++Subsystem: turret23
++Subsystem: turret24
++Subsystem: turret25
++Subsystem: turret26
++Subsystem: turret27
++Subsystem: turret28
++Subsystem: turret29
++Subsystem: turret30
++Subsystem: turret31
++Subsystem: turret32
++Subsystem: turret33
++Subsystem: turret34
++Subsystem: turret35
++Subsystem: turret36
++Subsystem: turret37
++Subsystem: turret38
++Subsystem: turret39
++Subsystem: turret40
++Subsystem: turret41
++Subsystem: turret42
++Subsystem: turret43
++Subsystem: turret44
++Subsystem: turret45
++Subsystem: turret46
++Subsystem: turret47
++Subsystem: turret48
++Subsystem: turret49
++Subsystem: turret50
++Subsystem: turret51
++Subsystem: turret52
++Subsystem: turret53
++Subsystem: turret54
++Subsystem: turret55
++Subsystem: turret56
++Subsystem: turret57
++Subsystem: turret58
++Subsystem: turret59
++Subsystem: turret60
++Subsystem: turret61
++Subsystem: turret62
++Subsystem: turret63
+$Arrival Location: Hyperspace
++Arrival Delay: 300
+$Arrival Cue: ( not 
+   ( is-destroyed-delay 0 "Enif Station" ) 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" )+Respawn priority: 0
+
++Group: 0
++Score: 10000
+
+$Name: Calypso		;! Object #5
+$Class: GTFR Triton
+$Team: Friendly
+$Location: -827.926758, 245.899719, 5217.595215
+$Orientation:
+	0.912780, 0.000000, 0.408452,
+	-0.015644, 0.999266, 0.034960,
+	-0.408153, -0.038300, 0.912110
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Medical Supplies", 148)
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Subsystem: turret02
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( and 
+   ( are-waypoints-done-delay 
+      "Calypso" 
+      "Waypoint path 1" 
+      0 
+   )
+   ( is-event-true-delay 
+      "Calypso Clear" 
+      5 
+   )
+)
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 80
++Orders Accepted: 257		;! note that this is a bitfield!!!
++Group: 0
++Score: 20
+
+$Name: Taurus 1		;! Object #6
+$Class: GTF Loki
+$Team: Neutral
+$Location: -2389.557861, 0.000432, 4914.871094
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Taurus 2		;! Object #7
+$Class: GTF Loki
+$Team: Neutral
+$Location: -2442.397949, -0.000104, 5099.397949
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Taurus 3		;! Object #8
+$Class: GTF Loki
+$Team: Neutral
+$Location: -2536.640381, -0.000251, 4980.213379
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Epsilon 1		;! Object #9
+$Class: GVF Serapis
+$Team: Friendly
+$Location: 277.764465, -0.000246, 6131.015137
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 14
+
+$Name: Hawkwood		;! Object #10
+$Class: GTCv Deimos
+$Team: Neutral
+$Location: 3224.103027, -537.099548, 7349.303711
+$Orientation:
+	-0.550460, 0.000000, 0.834861,
+	0.120921, 0.989455, 0.079728,
+	-0.826058, 0.144840, -0.544656
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 63
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Subsystem: turret02
++Primary Banks: ( "SGreen" )
++Subsystem: turret03
++Subsystem: turret04
++Subsystem: turret05
++Subsystem: turret06
++Subsystem: turret07
++Primary Banks: ( "AAAh" )
++Subsystem: turret08
++Primary Banks: ( "AAAh" )
++Subsystem: turret09
++Subsystem: turret10
++Subsystem: turret11
++Subsystem: turret12
++Subsystem: turret13
++Subsystem: turret14
++Subsystem: turret15
++Subsystem: turret16
++Primary Banks: ( "AAAh" )
++Subsystem: turret17
++Subsystem: turret18
++Subsystem: turret19
++Subsystem: turret20
++Primary Banks: ( "AAAh" )
++Subsystem: turret21
++Subsystem: turret22
++Subsystem: turret23
++Subsystem: turret24
++Primary Banks: ( "SGreen" )
++Subsystem: turret25
++Sbank Ammo: ( 0 )
++Subsystem: turret26
++Sbank Ammo: ( 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-destroyed-delay 10 "Cato" ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( is-destroyed-delay 8 "Enif Station" ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 98
++Orders Accepted: 1		;! note that this is a bitfield!!!
++Group: 0
++Score: 400
+
+$Name: Conquest		;! Object #11
+$Class: GTC Leviathan
+$Team: Neutral
+$Location: -2040.584595, 418.357910, 6125.139160
+$Orientation:
+	-0.942223, 0.000000, -0.334989,
+	0.000000, 1.000000, 0.000000,
+	0.334989, 0.000000, -0.942223
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Primary Banks: ( "" )
++Subsystem: turret02
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret03
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret04
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret05
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret06
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret07
++Subsystem: turret08
++Subsystem: turret09a-01-main
++Sbank Ammo: ( 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( and 
+   ( is-destroyed-delay 0 "Hawkwood" ) 
+   ( not 
+      ( has-arrived-delay 0 "Colossus" ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( is-destroyed-delay 
+   12 
+   "Enif Station" 
+)
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 95
++Orders Accepted: 1		;! note that this is a bitfield!!!
++Group: 0
++Score: 200
+
+$Name: Gemini 1		;! Object #12
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -994.900024, 1171.294067, 10048.500000
+$Orientation:
+	-0.984989, 0.000000, -0.172620,
+	0.000000, 1.000000, 0.000000,
+	0.172620, 0.000000, -0.984989
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Cyclops" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Gemini 2		;! Object #13
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -1233.290283, 1171.294067, 9959.710938
+$Orientation:
+	-0.975882, 0.000000, -0.218298,
+	0.000000, 1.000000, 0.000000,
+	0.218298, 0.000000, -0.975882
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Cyclops" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Gemini 3		;! Object #14
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -1168.443115, 1171.294189, 10176.549805
+$Orientation:
+	-0.980025, 0.000000, -0.198876,
+	0.000000, 1.000000, 0.000000,
+	0.198876, 0.000000, -0.980025
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Helios" "Cyclops" "Cyclops" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Beta 1		;! Object #15
+$Class: GTF Perseus
+$Team: Friendly
+$Location: -623.478516, 643.699585, 1678.258911
+$Orientation:
+	0.999917, 0.000000, 0.012859,
+	-0.001738, 0.990820, 0.135177,
+	-0.012741, -0.135188, 0.990738
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Prometheus R" "Prometheus R" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 12
+
+$Name: Beta 2		;! Object #16
+$Class: GTF Perseus
+$Team: Friendly
+$Location: -727.325562, 643.699585, 1580.593262
+$Orientation:
+	0.999960, 0.000000, -0.008967,
+	0.001188, 0.991183, 0.132495,
+	0.008888, -0.132500, 0.991143
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Prometheus R" "Prometheus R" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 12
++Persona Index: 1
+
+$Name: Beta 3		;! Object #17
+$Class: GTF Perseus
+$Team: Friendly
+$Location: -524.576538, 643.699585, 1580.593140
+$Orientation:
+	0.999451, 0.000000, 0.033121,
+	-0.004386, 0.991192, 0.132361,
+	-0.032829, -0.132434, 0.990648
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Prometheus R" "Prometheus R" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 12
+
+$Name: Leo 1		;! Object #18
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -3004.600098, 0.000000, 3002.100098
+$Orientation:
+	0.503425, 0.000000, -0.864039,
+	0.000000, 1.000000, 0.000000,
+	0.864039, 0.000000, 0.503425
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Leo 2		;! Object #19
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -2902.236572, 0.000203, 3001.393799
+$Orientation:
+	0.516935, 0.000000, -0.856025,
+	0.000000, 1.000000, 0.000000,
+	0.856025, 0.000000, 0.516935
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Leo 3		;! Object #20
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -3000.920166, 0.000176, 2902.426514
+$Orientation:
+	0.525261, 0.000000, -0.850941,
+	0.000000, 1.000000, 0.000000,
+	0.850941, 0.000000, 0.525261
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Virgo 1		;! Object #21
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -3018.795410, -0.000095, 3432.348389
+$Orientation:
+	0.503425, 0.000000, -0.864039,
+	0.000000, 1.000000, 0.000000,
+	0.864039, 0.000000, 0.503425
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Virgo 2		;! Object #22
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -2916.431885, 0.000108, 3431.642090
+$Orientation:
+	0.516935, 0.000000, -0.856025,
+	0.000000, 1.000000, 0.000000,
+	0.856025, 0.000000, 0.516935
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Virgo 3		;! Object #23
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -3015.115479, 0.000081, 3332.674805
+$Orientation:
+	0.525261, 0.000000, -0.850941,
+	0.000000, 1.000000, 0.000000,
+	0.850941, 0.000000, 0.525261
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Helios" "Cyclops" "Cyclops" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Pisces 1		;! Object #24
+$Class: GTF Hercules
+$Team: Neutral
+$Location: 865.872681, -0.000748, 5794.298828
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 56
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Pisces 2		;! Object #25
+$Class: GTF Hercules
+$Team: Neutral
+$Location: 1732.819214, -0.000357, 4401.575195
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 59
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Pisces 3		;! Object #26
+$Class: GTF Hercules
+$Team: Neutral
+$Location: -1316.836060, -0.000470, 6393.001953
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 48
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Aries 1		;! Object #27
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -3063.263672, 0.000037, 3939.687500
+$Orientation:
+	0.503425, 0.000000, -0.864039,
+	0.000000, 1.000000, 0.000000,
+	0.864039, 0.000000, 0.503425
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Aries 2		;! Object #28
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -2984.533203, -0.000122, 3935.919678
+$Orientation:
+	0.516935, 0.000000, -0.856025,
+	0.000000, 1.000000, 0.000000,
+	0.856025, 0.000000, 0.516935
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Aries 3		;! Object #29
+$Class: GTB Zeus
+$Team: Neutral
+$Location: -3059.583740, 0.000213, 3840.013916
+$Orientation:
+	0.525261, 0.000000, -0.850941,
+	0.000000, 1.000000, 0.000000,
+	0.850941, 0.000000, 0.525261
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Cyclops" "Cyclops" "Hornet" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 15
+
+$Name: Pod 01		;! Object #30
+$Class: GTEP Hermes
+$Team: Friendly
+$Location: 2010.335449, 0.000401, 2978.261230
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Waypoint path 3" 89 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Docking Bay
++Arrival Distance: 0
+$Arrival Anchor: Enif Station
+$Arrival Cue: ( is-event-true-delay "Pods" 3 ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Pod 01" 
+   "Waypoint path 3" 
+   0 
+)
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Pod 02		;! Object #31
+$Class: GTEP Hermes
+$Team: Friendly
+$Location: 2003.999512, 0.000342, 2752.083740
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Waypoint path U1" 89 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Docking Bay
++Arrival Distance: 0
+$Arrival Anchor: Enif Station
+$Arrival Cue: ( is-event-true-delay "Pods" 3 ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Pod 02" 
+   "Waypoint path U1" 
+   0 
+)
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Pod 05		;! Object #32
+$Class: GTEP Hermes
+$Team: Friendly
+$Location: 1698.654419, 0.000354, 3001.114990
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Waypoint path 5" 89 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Docking Bay
++Arrival Distance: 0
+$Arrival Anchor: Enif Station
+$Arrival Cue: ( is-event-true-delay "Pods" 3 ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Pod 05" 
+   "Waypoint path 5" 
+   0 
+)
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Pod 03		;! Object #33
+$Class: GTEP Hermes
+$Team: Friendly
+$Location: 1861.396851, 0.000638, 2968.856689
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Waypoint path 3" 89 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Docking Bay
++Arrival Distance: 0
+$Arrival Anchor: Enif Station
+$Arrival Cue: ( is-event-true-delay "Pods" 3 ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Pod 03" 
+   "Waypoint path 3" 
+   0 
+)
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Pod 04		;! Object #34
+$Class: GTEP Hermes
+$Team: Friendly
+$Location: 1837.068481, 0.000573, 2784.445557
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Waypoint path U1" 89 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Docking Bay
++Arrival Distance: 0
+$Arrival Anchor: Enif Station
+$Arrival Cue: ( is-event-true-delay "Pods" 3 ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Pod 04" 
+   "Waypoint path U1" 
+   0 
+)
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Pod 06		;! Object #35
+$Class: GTEP Hermes
+$Team: Friendly
+$Location: 1701.802856, 0.000351, 2795.982422
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Waypoint path 5" 89 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Docking Bay
++Arrival Distance: 0
+$Arrival Anchor: Enif Station
+$Arrival Cue: ( is-event-true-delay "Pods" 3 ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Pod 06" 
+   "Waypoint path 5" 
+   0 
+)
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 10
+
+$Name: Mannheim		;! Object #36
+$Class: GTT Elysium
+$Team: Friendly
+$Location: 313.522980, -86.676453, 3901.173340
+$Orientation:
+	0.378717, -0.028127, -0.925085,
+	0.139744, -0.986341, 0.087199,
+	-0.914901, -0.162298, -0.369614
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Civilians", 145)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( are-waypoints-done-delay 
+   "Mannheim" 
+   "Waypoint path 4" 
+   0 
+)
+$Determination: 10
++Flags: ( "cargo-known" "beam-protect-ship" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 70
++Orders Accepted: 257		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Enif Station		;! Object #37
+$Class: GTI Arcadia
+$Team: Friendly
+$Location: -60.619289, -0.000019, 4717.385742
+$Orientation:
+	-0.378717, 0.028127, 0.925085,
+	-0.115831, 0.990239, -0.077528,
+	-0.918235, -0.136514, -0.371763
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Colonel
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 82
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Subsystem: turret02
++Subsystem: turret03
++Subsystem: turret04
++Subsystem: turret05
++Subsystem: turret06
++Subsystem: turret07
++Primary Banks: ( "Standard Flak" )
++Subsystem: turret08
++Subsystem: turret09
++Primary Banks: ( "Standard Flak" )
++Subsystem: turret10
++Primary Banks: ( "Standard Flak" )
++Subsystem: turret11
++Primary Banks: ( "Standard Flak" )
++Subsystem: turret12
++Subsystem: turret13
++Sbank Ammo: ( 0 )
++Subsystem: turret14
++Secondary Banks: ( "MX-52" )
++Sbank Ammo: ( 0 )
++Subsystem: turret15
++Subsystem: turret16
++Subsystem: turret17
++Subsystem: turret18
++Subsystem: turret19
++Subsystem: turret20
++Subsystem: turret21
++Subsystem: turret22
++Subsystem: turret23
++Subsystem: turret24
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 99
++Docked With: Mannheim
+$Docker Point: topside docking
+$Dockee Point: topside docking
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 1000
+
+#Wings		;! 9 total
+
+$Name: Alpha
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Alpha 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Alpha 1"
+	"Alpha 2"
+	"Alpha 3"
+)
++Hotkey: 0
++Flags:( )
+
+$Name: Taurus
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Taurus 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( and 
+   ( is-destroyed-delay 8 "Aries" ) 
+   ( not 
+      ( has-arrived-delay 0 "Colossus" ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( has-arrived-delay 8 "Colossus" ) 
+$Ships: (		;! 3 total
+	"Taurus 1"
+	"Taurus 2"
+	"Taurus 3"
+)
+$AI Goals: ( goals ( ai-guard "Cato" 89 ) )
++Flags:( )
+
+$Name: Epsilon
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Epsilon 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 1 total
+	"Epsilon 1"
+)
+$AI Goals: ( goals ( ai-guard "Enif Station" 89 ) )
++Flags:( )
+
+$Name: Gemini
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Gemini 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( and 
+   ( is-destroyed-delay 10 "Taurus" ) 
+   ( not 
+      ( has-arrived-delay 0 "Colossus" ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( has-arrived-delay 8 "Colossus" ) 
+$Ships: (		;! 3 total
+	"Gemini 1"
+	"Gemini 2"
+	"Gemini 3"
+)
+$AI Goals: ( goals ( ai-chase "Enif Station" 89 ) )
++Flags:( )
+
+$Name: Beta
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Beta 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Beta 1"
+	"Beta 2"
+	"Beta 3"
+)
++Hotkey: 1
++Flags:( )
+
+$Name: Leo
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Leo 1
+
+$Arrival Location: Near Ship
++Arrival Distance: 3044
+$Arrival Anchor: Enif Station
+$Arrival Cue: ( and 
+   ( is-destroyed-delay 10 "Pisces" ) 
+   ( not 
+      ( has-arrived-delay 0 "Colossus" ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( has-arrived-delay 8 "Colossus" ) 
+$Ships: (		;! 3 total
+	"Leo 1"
+	"Leo 2"
+	"Leo 3"
+)
+$AI Goals: ( goals ( ai-chase "Enif Station" 89 ) )
++Flags:( "no-arrival-message" )
+
+$Name: Virgo
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Virgo 1
+
+$Arrival Location: Near Ship
++Arrival Distance: 3044
+$Arrival Anchor: Enif Station
+$Arrival Cue: ( and 
+   ( is-destroyed-delay 30 "Leo" ) 
+   ( not 
+      ( has-arrived-delay 0 "Colossus" ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( has-arrived-delay 8 "Colossus" ) 
+$Ships: (		;! 3 total
+	"Virgo 1"
+	"Virgo 2"
+	"Virgo 3"
+)
+$AI Goals: ( goals ( ai-chase "Enif Station" 89 ) )
++Flags:( "no-arrival-message" )
+
+$Name: Pisces
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Pisces 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Pisces 1"
+	"Pisces 2"
+	"Pisces 3"
+)
+$AI Goals: ( goals ( ai-guard "Cato" 50 ) ( ai-guard "Hawkwood" 50 ) ( ai-chase "Enif Station" 50 ) )
++Flags:( )
+
+$Name: Aries
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Aries 1
+
+$Arrival Location: Near Ship
++Arrival Distance: 3044
+$Arrival Anchor: Enif Station
+$Arrival Cue: ( and 
+   ( is-destroyed-delay 15 "Virgo" ) 
+   ( not 
+      ( has-arrived-delay 0 "Colossus" ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( has-arrived-delay 8 "Colossus" ) 
+$Ships: (		;! 3 total
+	"Aries 1"
+	"Aries 2"
+	"Aries 3"
+)
+$AI Goals: ( goals ( ai-chase "Enif Station" 89 ) )
++Flags:( "no-arrival-message" )
+
+#Events		;! 52 total
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Gemini" ) 
+   ( do-nothing ) 
+)
++Name: Destroy Gemini
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Gemini", 16)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Taurus" ) 
+   ( do-nothing ) 
+)
++Name: Destroy Taurus
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Taurus", 19)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Leo" ) 
+   ( do-nothing ) 
+)
++Name: Destroy Leo
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Leo", 15)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Virgo" ) 
+   ( do-nothing ) 
+)
++Name: Destroyed Virgo
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Virgo", 17)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Pisces" ) 
+   ( do-nothing ) 
+)
++Name: Destroy Pisces
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Pisces", 22)
+
+$Formula: ( when ( true ) ( do-nothing ) ) 
++Name: -----Destroyed-----
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( has-arrived-delay 0 "Colossus" ) 
+      ( is-event-true-delay "Clear Out" 4 ) 
+   )
+   ( beam-free-all "Colossus" ) 
+)
++Name: Beam Free Colossus
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-time-elapsed 30 ) 
+   ( add-goal 
+      "Calypso" 
+      ( ai-waypoints-once 
+         "Waypoint path 1" 
+         89 
+      )
+   )
+)
++Name: Freighter 1 leaving
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( beam-free-all "Enif Station" ) 
+   ( beam-free-all "Hawkwood" ) 
+   ( beam-free-all "Cato" ) 
+)
++Name: Beam Free Start
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( good-secondary-time 
+      "Neutral" 
+      100 
+      "Cyclops" 
+      "Enif Station" 
+   )
+   ( good-secondary-time 
+      "Neutral" 
+      100 
+      "Cyclops" 
+      "Hawkwood" 
+   )
+)
++Name: Good Secondary
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-time-elapsed 60 ) 
+   ( add-goal 
+      "Mannheim" 
+      ( ai-undock 89 ) 
+   )
+)
++Name: Elysium Undock
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( add-goal 
+      "Mannheim" 
+      ( ai-waypoints-once 
+         "Waypoint path 4" 
+         89 
+      )
+   )
+)
++Name: Elysium Warp
++Repeat Count: 1
++Interval: 1
++Chained: 0
+
+$Formula: ( when 
+   ( has-arrived-delay 1 "Leo" ) 
+   ( send-message 
+      "Enif Station" 
+      "High" 
+      "Bombers Incoming" 
+   )
+)
++Name: Bombers Incoming
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Target Bombers" 
+   )
+)
++Name: Target Bombers
++Repeat Count: 1
++Interval: 1
++Chained: 6
+
+$Formula: ( when 
+   ( has-arrived-delay 1 "Virgo" ) 
+   ( send-message 
+      "Enif Station" 
+      "High" 
+      "More Bombers" 
+   )
+)
++Name: More Bombers
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-departed-delay 
+      2 
+      "Calypso" 
+      "Mannheim" 
+   )
+   ( send-message 
+      "Enif Station" 
+      "High" 
+      "Civs Safe" 
+   )
+)
++Name: Civs Safe
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Protect Transports", 906)
+
+$Formula: ( when 
+   ( is-goal-true-delay 
+      "Protect Installation" 
+      10 
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Installation Safe" 
+   )
+   ( tech-add-ships "GTVA Colossus" ) 
+)
++Name: Primary Goal Complete
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Alpha 1" ) 
+   ( do-nothing ) 
+)
++Name: Return To Base
++Repeat Count: 1
++Interval: 1
++Chained: 2
++Objective:  XSTR("Return To Base", 24)
+
+$Formula: ( when 
+   ( is-destroyed-delay 5 "Enif Station" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Installation Destroyed" 
+   )
+)
++Name: Installation Destroyed
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Total Failure" 
+   )
+)
++Name: Total Failure
++Repeat Count: 1
++Interval: 1
++Chained: 8
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Alpha 1" ) 
+   ( do-nothing ) 
+)
++Name: Return To Base 2
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Return To Base", 24)
+
+$Formula: ( when 
+   ( < ( hits-left "Calypso" ) 95 ) 
+   ( send-message 
+      "Calypso" 
+      "High" 
+      "Break Off" 
+   )
+)
++Name: Break Off
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Calypso Cover" 
+   )
+)
++Name: Calypso Cover
++Repeat Count: 1
++Interval: 1
++Chained: 9
+
+$Formula: ( when 
+   ( and 
+      ( < 
+         ( distance 
+            "Waypoint path 1:1" 
+            "Calypso" 
+         )
+         100 
+      )
+      ( not 
+         ( is-destroyed-delay 0 "Calypso" ) 
+      )
+   )
+   ( send-message 
+      "Calypso" 
+      "Normal" 
+      "Calypso Clear" 
+   )
+)
++Name: Calypso Clear
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 2 "Calypso" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Calypso Destroyed" 
+   )
+)
++Name: Calypso Destroyed
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( < 
+         ( distance 
+            "Waypoint path 4:1" 
+            "Mannheim" 
+         )
+         100 
+      )
+      ( not 
+         ( is-destroyed-delay 0 "Mannheim" ) 
+      )
+   )
+   ( send-message 
+      "Mannheim" 
+      "Normal" 
+      "Mannheim Clear" 
+   )
+)
++Name: Mannheim Clear
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( not 
+      ( is-destroyed-delay 0 "Mannheim" ) 
+   )
+   ( do-nothing ) 
+)
++Name: Man filter
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Mannheim" ) 98 ) 
+   ( send-message 
+      "Mannheim" 
+      "High" 
+      "Mannheim Attacked" 
+   )
+)
++Name: Mannheim Attacked
++Repeat Count: 1
++Interval: 1
++Chained: 0
+
+$Formula: ( when 
+   ( not 
+      ( is-destroyed-delay 0 "Mannheim" ) 
+   )
+   ( do-nothing ) 
+)
++Name: Filter 2
++Repeat Count: 1
++Interval: 1
++Chained: 8
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Protect Mannheim" 
+   )
+)
++Name: Protect Mannheim
++Repeat Count: 1
++Interval: 1
++Chained: 0
+
+$Formula: ( when 
+   ( and 
+      ( is-destroyed-delay 2 "Mannheim" ) 
+      ( is-event-true-delay 
+         "Mannheim Attacked" 
+         8 
+      )
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Lost Mannheim" 
+   )
+)
++Name: Lost Mannheim
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 0 "Aries" ) 
+   ( send-message 
+      "Enif Station" 
+      "High" 
+      "New Bombers" 
+   )
+)
++Name: New Bombers
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Enif Station" ) 60 ) 
+   ( send-message 
+      "Enif Station" 
+      "High" 
+      "Enif Moderate" 
+   )
+)
++Name: Enif Moderate
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( < ( hits-left "Enif Station" ) 20 ) 
+      ( not 
+         ( has-arrived-delay 0 "Colossus" ) 
+      )
+   )
+   ( send-message 
+      "Enif Station" 
+      "High" 
+      "Pods" 
+   )
+)
++Name: Pods
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Enif Station" ) 6 ) 
+   ( send-message 
+      "Enif Station" 
+      "High" 
+      "Enif Critical" 
+   )
+)
++Name: Enif Critical
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 2 "Cato" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Cato Destroyed" 
+   )
+)
++Name: Cato Destroyed
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 2 "Hawkwood" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Defeated Hawkwood" 
+   )
+)
++Name: Defeated Hawkwood
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 2 "Conquest" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Conquest Obliterated" 
+   )
+)
++Name: Conquest Obliterated
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( > ( hits-left "Enif Station" ) 50 ) 
+      ( is-event-true-delay 
+         "Primary Goal Complete" 
+         6 
+      )
+   )
+   ( send-message 
+      "Enif Station" 
+      "High" 
+      "Good Job" 
+   )
+)
++Name: Good Job
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 0 "Colossus" ) 
+   ( send-message 
+      "<any wingman>" 
+      "Normal" 
+      "Incoming Jump" 
+   )
+)
++Name: Incoming Jump
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "<any wingman>" 
+      "Normal" 
+      "Massive" 
+   )
+)
++Name: Massive
++Repeat Count: 1
++Interval: 1
++Chained: 8
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "<any wingman>" 
+      "Normal" 
+      "What The Hell" 
+   )
+)
++Name: What The Hell
++Repeat Count: 1
++Interval: 1
++Chained: 6
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Colossus 1" 
+   )
+   ( tech-add-ships "GTVA Colossus" ) 
+)
++Name: Colossus
++Repeat Count: 1
++Interval: 1
++Chained: 8
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message 
+      "Colossus" 
+      "High" 
+      "Clear Out" 
+   )
+)
++Name: Clear Out
++Repeat Count: 1
++Interval: 1
++Chained: 7
+
+$Formula: ( when 
+   ( is-event-true-delay 
+      "Primary Goal Complete" 
+      12 
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Colossus Maintain" 
+   )
+)
++Name: Colossus Maintain
++Repeat Count: 1
++Interval: 1
++Chained: 10
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Cato" ) 
+   ( do-nothing ) 
+)
++Name: Destroy Cato
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Cato", 907)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Conquest" ) 
+   ( do-nothing ) 
+)
++Name: Destroy Conquest
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Conquest", 908)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Hawkwood" ) 
+   ( do-nothing ) 
+)
++Name: Destroy Hawkwood
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Hawkwood", 909)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Aries" ) 
+   ( do-nothing ) 
+)
++Name: Destroy Bandit
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Aries", 14)
+
+$Formula: ( when 
+   ( has-arrived-delay 0 "Hawkwood" ) 
+   ( beam-free-all "Hawkwood" ) 
+)
++Name: Beam Free Hawkwood
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( beam-free "Cato" "turret02" ) 
+)
++Name: Beam Free Cato
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( not 
+         ( is-destroyed-delay 0 "Enif Station" ) 
+      )
+      ( is-goal-true-delay 
+         "Protect Installation" 
+         0 
+      )
+   )
+   ( grant-medal 
+      "Distinguished Flying Cross" 
+   )
+)
++Name: Distinguished Flying Cross
++Repeat Count: 1
++Interval: 1
+
+#Goals		;! 2 total
+
+$Type: Primary
++Name: Protect Installation
+$MessageNew:  XSTR("Protect Enif Station", 910)
+$end_multi_text
+$Formula: ( or 
+   ( and 
+      ( is-destroyed-delay 
+         0 
+         "Hawkwood" 
+         "Cato" 
+      )
+      ( not 
+         ( is-destroyed-delay 0 "Enif Station" ) 
+      )
+      ( has-arrived-delay 5 "Colossus" ) 
+      ( not 
+         ( has-arrived-delay 0 "Conquest" ) 
+      )
+   )
+   ( and 
+      ( is-destroyed-delay 
+         0 
+         "Hawkwood" 
+         "Cato" 
+         "Conquest" 
+      )
+      ( not 
+         ( is-destroyed-delay 0 "Enif Station" ) 
+      )
+      ( has-arrived-delay 5 "Colossus" ) 
+      ( has-arrived-delay 0 "Conquest" ) 
+   )
+)
+
+$Type: Secondary
++Name: Protect Transports
+$MessageNew:  XSTR("Protect Transports", 906)
+$end_multi_text
+$Formula: ( has-departed-delay 
+   2 
+   "Calypso" 
+   "Mannheim" 
+)
+
+#Waypoints		;! 5 lists total
+
+$Name: Waypoint path 1
+$List: (		;! 1 points in list
+	( -1728.078735, 141.553802, 7699.070313 )
+)
+
+$Name: Waypoint path 4
+$List: (		;! 1 points in list
+	( 528.836792, 1282.506958, 3319.367188 )
+)
+
+$Name: Waypoint path 3
+$List: (		;! 1 points in list
+	( -973.711182, -0.000202, 4946.965820 )
+)
+
+$Name: Waypoint path U1
+$List: (		;! 1 points in list
+	( -973.838928, -0.000219, 4744.712891 )
+)
+
+$Name: Waypoint path 5
+$List: (		;! 1 points in list
+	( -927.989563, -0.000176, 4597.460938 )
+)
+
+#Messages		;! 237 total
+
+
+$Name: Bombers Incoming
+
+$Team: -1
+$MessageNew:  XSTR("Enif Station here. NTF bombers are closing in!", 911)
+$end_multi_text
++AVI Name: Head-CM5
++Wave Name: SM108_EN_01.wav
+
+$Name: More Bombers
+
+$Team: -1
+$MessageNew:  XSTR("More rebel bombers inbound! Seek and destroy!", 912)
+$end_multi_text
++AVI Name: Head-CM5
++Wave Name: SM108_EN_02.wav
+
+$Name: Civs Safe
+
+$Team: -1
+$MessageNew:  XSTR("All civilian transports have departed safely.", 913)
+$end_multi_text
++AVI Name: Head-CM5
++Wave Name: SM108_EN_03.wav
+
+$Name: Installation Safe
+
+$Team: -1
+$MessageNew:  XSTR("Return to base pilots. Mission accomplished.", 914)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_01.wav
+
+$Name: Installation Destroyed
+
+$Team: -1
+$MessageNew:  XSTR("We have lost Enif Station! Repeat. We have lost Enif Station!", 915)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_02.wav
+
+$Name: Calypso Clear
+
+$Team: -1
+$MessageNew:  XSTR("This is the GTFr Calypso. We have cleared Enif Station. Now engaging subspace drive.", 916)
+$end_multi_text
++AVI Name: Head-CM3
++Wave Name: SM108_CA_01.wav
+
+$Name: Break Off
+
+$Team: -1
+$MessageNew:  XSTR("NTF fighters, you are firing upon a civilian vessel! Break off your attack!", 917)
+$end_multi_text
++AVI Name: Head-CM3
++Wave Name: SM108_CA_02.wav
+
+$Name: Calypso Cover
+
+$Team: -1
+$MessageNew:  XSTR("Alpha, we need some fighter cover on the Calypso! Hold back the rebels so the civilians can escape!", 918)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_03.wav
+
+$Name: Calypso Destroyed
+
+$Team: -1
+$MessageNew:  XSTR("The Calypso has been destroyed!", 919)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_04.wav
+
+$Name: Mannheim Clear
+
+$Team: -1
+$MessageNew:  XSTR("This is the Mannheim. We have set course for the Capella jump node. Activating jump drive now.", 920)
+$end_multi_text
++AVI Name: Head-CM4
++Wave Name: SM108_MA_01.wav
+
+$Name: Mannheim Attacked
+
+$Team: -1
+$MessageNew:  XSTR("Our transport is carrying civilian passengers! Your attack is in violation of the Beta Aquilae Convention!", 921)
+$end_multi_text
++AVI Name: Head-CM4
++Wave Name: SM108_MA_02.wav
+
+$Name: Protect Mannheim
+
+$Team: -1
+$MessageNew:  XSTR("Pilots, protect the Mannheim! The transport is under attack!", 922)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_05.wav
+
+$Name: Lost Mannheim
+
+$Team: -1
+$MessageNew:  XSTR("We've lost the Mannheim! Two hundred civilians were on board that transport!", 923)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_06.wav
+
+$Name: Target Bombers
+
+$Team: -1
+$MessageNew:  XSTR("Intercept the bombs before they hit the installation! We must not lose that base!", 924)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_07.wav
+
+$Name: New Bombers
+
+$Team: -1
+$MessageNew:  XSTR("Command, this is Enif Station! A new wing of bombers has jumped in! Request immediate fighter cover!", 925)
+$end_multi_text
++AVI Name: Head-CM5
++Wave Name: SM108_EN_04.wav
+
+$Name: Enif Moderate
+
+$Team: -1
+$MessageNew:  XSTR("This is Enif Station. We have sustained moderate damage. All breached levels have been sealed off. Engineering reports the situation is under control.", 926)
+$end_multi_text
++AVI Name: Head-CM5
++Wave Name: SM108_EN_05.wav
+
+$Name: Pods
+
+$Team: -1
+$MessageNew:  XSTR("Enif Station here, Command. Hull integrity is falling, and all decks report heavy casualties. General evacuation now in progress. Deploying escape pods.", 927)
+$end_multi_text
++AVI Name: Head-CM5
++Wave Name: SM108_EN_06.wav
+
+$Name: Enif Critical
+
+$Team: -1
+$MessageNew:  XSTR("This is Enif Station! All systems going critical!", 928)
+$end_multi_text
++AVI Name: Head-CM5
++Wave Name: SM108_EN_07.wav
+
+$Name: Cato Destroyed
+
+$Team: -1
+$MessageNew:  XSTR("Well done. The NTC Cato has been destroyed!", 929)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_08.wav
+
+$Name: Defeated Hawkwood
+
+$Team: -1
+$MessageNew:  XSTR("We have defeated the Hawkwood!", 930)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_09.wav
+
+$Name: Conquest Obliterated
+
+$Team: -1
+$MessageNew:  XSTR("The Conquest has been obliterated!", 931)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_10.wav
+
+$Name: Decatur Eliminated
+
+$Team: -1
+$MessageNew:  XSTR("Our forces have eliminated the Decatur!", 932)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_11.wav
+
+$Name: Good Job
+
+$Team: -1
+$MessageNew:  XSTR("This is Enif Station. We thank you for your help, pilots. You've done a commendable job out here.", 933)
+$end_multi_text
++AVI Name: Head-CM5
++Wave Name: SM108_EN_08.wav
+
+$Name: Total Failure
+
+$Team: -1
+$MessageNew:  XSTR("All allied ships return to base. This operation is a total failure.", 934)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_12.wav
+
+$Name: Incoming Jump
+
+$Team: -1
+$MessageNew:  XSTR("I'm reading an incoming jump signature! Configuration unknown!", 935)
+$end_multi_text
++Persona: Wingman 1
++AVI Name: Head-TP1
++Wave Name: SM108_W0_01.wav
+
+$Name: Massive
+
+$Team: -1
+$MessageNew:  XSTR("Command! There's a massive warship now emerging from subspace!", 936)
+$end_multi_text
++Persona: Wingman 2
++AVI Name: Head-TP5
++Wave Name: SM108_W1_01.wav
+
+$Name: What The Hell
+
+$Team: -1
+$MessageNew:  XSTR("Verify IFF status, Command!", 937)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP8
++Wave Name: SM108_W2_01.wav
+
+$Name: Colossus 1
+
+$Team: -1
+$MessageNew:  XSTR("IFF status is friendly. Meet the Colossus, the largest space-faring warship ever constructed.", 938)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_13.wav
+
+$Name: Clear Out
+
+$Team: -1
+$MessageNew:  XSTR("This is the GTVA Colossus. Fighters stand clear of hostile warships. All batteries, fire at will.", 939)
+$end_multi_text
++AVI Name: Head-CM1
++Wave Name: SM108_COL_01.wav
+
+$Name: Colossus Maintain
+
+$Team: -1
+$MessageNew:  XSTR("Colossus, maintain your current position. You will defend Enif Station until relieved.", 940)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: SM108_AC_14.wav
+
+#Reinforcements		;! 0 total
+
+
+#Background bitmaps		;! 24 total
+
+$Num stars: 500
+$Ambient light level: 0
+$Sun: SunRed
++Angles: 0.069813 4.799652 3.665189
++Scale: 2.000000
+$Starbitmap: neb07
++Angles: 0.244346 0.366519 0.174533
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 0.506145 2.111847 0.471239
++ScaleX: 3.000000
++ScaleY: 5.000000
++DivX: 1
++DivY: 2
+$Starbitmap: neb13
++Angles: 0.785398 1.308996 0.052360
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: neb11
++Angles: 1.047197 3.246310 0.366519
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb07
++Angles: 1.308996 1.745328 0.558505
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 1.570795 3.700095 0.750491
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 6.021381 0.000000 0.000000
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb11
++Angles: 0.000000 1.343902 0.401425
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 6.021381 1.326449 0.628318
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb09
++Angles: 5.672316 0.000000 0.610865
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 5.235983 3.106683 0.645771
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb11
++Angles: 5.811942 0.767944 0.925024
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 5.811942 0.000000 1.169370
++ScaleX: 1.000000
++ScaleY: 1.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 5.881755 2.495819 1.308996
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 5.881755 2.146753 1.308996
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb11
++Angles: 0.645771 0.977384 1.308996
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb07
++Angles: 6.021381 6.021381 1.867501
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 6.021381 3.857175 2.007127
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb11
++Angles: 6.195914 0.855211 5.846848
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb13
++Angles: 5.602502 2.356193 5.602502
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb07
++Angles: 5.585049 0.610865 5.585049
++ScaleX: 5.000000
++ScaleY: 5.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb07
++Angles: 5.131264 5.480330 5.480330
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 4.974185 2.146753 5.427969
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: planete
++Angles: 1.169370 2.111847 0.000000
++ScaleX: 1.000000
++ScaleY: 1.000000
++DivX: 1
++DivY: 1
+
+#Asteroid Fields
+
+#Music
+
+$Event Music: 3: Leviticus
+$Briefing Music: Brief1
+
+#End
+

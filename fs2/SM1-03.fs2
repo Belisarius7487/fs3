@@ -1,0 +1,2476 @@
+#Mission Info
+
+$Version: 0.10
+$Name:  XSTR("The Romans Blunder", 617)
+$Author: James Agay- Volition
+$Created: 04/27/99 at 13:38:23
+$Modified: 09/15/99 at 00:39:56
+$Notes:
+This was the first mission I created for Volition.  Originally this was designed to be the recond half of a red alert pair, to follow Brad's SM1-02.  The difficulty was toned down several times to make it suitable for the beginning of the campaign.$End Notes:
+
+$Mission Desc:
+ XSTR("The 53rd pursue Admiral Aken Bosch to the Sirius jump node.", 618)
+$end_multi_text
+
++Game Type Flags: 1
+
++Flags: 0
+
++Red Alert: 0
+
++Scramble: 1
+
++Disallow Support: 0
+
++Player Entry Delay:
+2.000000
+
++Viewer pos: -2033.538330, 2782.552002, 446.658936
++Viewer orient:
+	-0.635554, -0.000001, -0.772057,
+	-0.066148, 0.996323, 0.054452,
+	0.769218, 0.085677, -0.633217
++SquadReassignName: 53rd Hammerheads
++SquadReassignLogo: hammer.pcx
+
+#Plot Info
+
+$Tour:  XSTR("Blah", 6)
+$Pre-Briefing Cutscene: Blah
+$Pre-Mission Cutscene: Blah
+$Next Mission Success: Blah
+$Next Mission Partial: Blah
+$Next Mission Failure: Blah
+
+#Sexp_variables
+
+$Variables:
+(
+		0		"Capricorn3in"		"0"		"number"
+)
+
+#Command Briefing
+
+#Briefing
+$start_briefing
+$num_stages: 1
+$start_stage
+$multi_text
+ XSTR("Intelligence has tracked Admiral Bosch's command frigate, the $h NTF $h Iceni, through subspace. We have vectored its course to the Sirius jump node. The 53rd is being scrambled to seek and destroy the $h Iceni before it escapes Deneb. We have pre-assigned your loadout, and your fighters are now standing by. Report to the flight deck pronto.", 619)
+$end_multi_text
+$voice: SM103_MB_01.wav
+$camera_pos: -2920.091309, 3621.686523, 8991.000000
+$camera_orient:
+	-0.001786, -0.000001, -0.999998,
+	0.640381, 0.768056, -0.001144,
+	0.768055, -0.640382, -0.001371
+$camera_time: 500
+$num_lines: 0
+$num_icons: 2
+$Flags: 0
+$Formula: ( true ) 
+$start_icon
+$type: 33
+$team: Friendly
+$class: SD Ravana
+$pos: 1077.864624, 0.000410, 9631.760742
+$label: Sirius
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 28
+$team: Neutral
+$class: NTF Iceni
+$pos: 940.114990, 0.001783, 8312.737305
+$label: NTF Iceni
++id: 2
+$hlight: 1
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$end_briefing
+
+#Debriefing_info
+
+$Num stages: 4
+
+$Formula: ( and 
+   ( is-destroyed-delay 
+      0 
+      "Capricorn 1" 
+      "Capricorn 2" 
+   )
+   ( is-event-true-delay 
+      "Exit Approved" 
+      0 
+   )
+)
+$Multi text
+    XSTR("Admiral Bosch's command frigate reached the Sirius jump node. I have received no explanation, neither on nor off the record, for what happened out there. I assume we'll be informed on a need-to-know basis.
+
+Good job neutralizing those fighters and freighters. You've served the 53rd Hammerheads well. Your performance in this last mission proves you have what it takes to be an ace pilot. I have recommended your transfer to the 107th Ravens. They lost many good officers in Deneb, and they could use someone with your talents. They're a top-notch unit. I know you'll make us proud.  
+
+Good luck with your new assignment, pilot. Command has ordered the Aquitaine to return to the Capella system. Admiral Petrarch will address the crew at 0630.", 620)
+$end_multi_text
+$Voice: SM103_DB_01.wav
+$Recommendation text:
+    XSTR("You have successfully completed this mission.", 621)
+$end_multi_text
+
+$Formula: ( or 
+   ( and 
+      ( is-destroyed-delay 0 "Capricorn 1" ) 
+      ( has-departed-delay 0 "Capricorn 2" ) 
+      ( is-event-true-delay 
+         "Exit Approved" 
+         0 
+      )
+   )
+   ( and 
+      ( is-destroyed-delay 0 "Capricorn 2" ) 
+      ( has-departed-delay 0 "Capricorn 1" ) 
+      ( is-event-true-delay 
+         "Exit Approved" 
+         0 
+      )
+   )
+)
+$Multi text
+    XSTR("Admiral Bosch's command frigate reached the Sirius jump node. I have received no explanation, neither on nor off the record, for what happened out there. I assume we'll be informed on a need-to-know basis.
+
+Though you performed well under difficult circumstances, we should have destroyed that rebel freighter before it departed the system. 
+
+You will no longer be flying with the 53rd Hammerheads. I have recommended your transfer to the 107th Ravens. Eighty percent of their unit was wiped out in Deneb, so they're desperate for new pilots.
+
+Command has ordered the Aquitaine to return to the Capella system. Admiral Petrarch will address the crew at 0630.", 622)
+$end_multi_text
+$Voice: SM103_DB_02.wav
+$Recommendation text:
+    XSTR("Avoid the rebel cruisers and their beam cannons.  Let the allied capital ships contend with them.", 623)
+$end_multi_text
+
+$Formula: ( and 
+   ( has-departed-delay 
+      0 
+      "Capricorn 1" 
+      "Capricorn 2" 
+   )
+   ( is-event-true-delay 
+      "Exit Approved" 
+      0 
+   )
+)
+$Multi text
+    XSTR("Admiral Bosch's command frigate reached the Sirius jump node. I have received no explanation, neither on nor off the record, for what happened out there. I assume we'll be informed on a need-to-know basis.
+
+You faced overwhelming odds, and you were lucky to survive. However, your performance fell short of our goals. We should have destroyed those rebel freighters before they departed the system. ", 624)
+$end_multi_text
+$Voice: SM103_DB_03.wav
+$Recommendation text:
+    XSTR("Avoid the rebel cruisers and their beam cannons.  Let the allied capital ships contend with them.", 623)
+$end_multi_text
+
+$Formula: ( is-event-false-delay 
+   "Exit Approved" 
+   0 
+)
+$Multi text
+    XSTR("You did not have authorization to return to base, pilot. Your actions jeopardized the lives of those involved in this mission and the GTVA's objectives in this theatre. Desertion is grounds for a court martial, and you are confined to quarters pending your preliminary hearing. Until a military court decides otherwise, you are hereby stripped of your wings and all privileges bestowed upon you as an officer of the Galactic Terran-Vasudan Alliance.", 180)
+$end_multi_text
+$Voice: 1_joe.wav
+$Recommendation text:
+    XSTR("Do not jump out until ordered to do so.", 625)
+$end_multi_text
+
+#Alternate Types:
+$Alt: NTF Vessel
+$Alt: NTF Fenris
+$Alt: NTC Fenris
+$Alt: NTF Leviathan
+$Alt: NTF Loki
+$Alt: NTFR Triton
+$Alt: NTFR Poseidon
+
+#end
+
+
+#Players		;! 1 total
+
+$Starting Shipname: Alpha 1
+$Ship Choices: (
+)
+
++Weaponry Pool: (
+	"Subach HL-7"	28
+	"Prometheus R"	16
+	"Rockeye"	960
+	"Tempest"	960
+	"Hornet"	500
+)
+
+#Objects		;! 31 total
+
+$Name: Alpha 1		;! Object #0
+$Class: GTF Myrmidon
+$Team: Friendly
+$Location: 1128.266479, 632.218628, 1650.454224
+$Orientation:
+	0.999841, 0.000000, -0.017849,
+	0.000000, 1.000000, -0.000001,
+	0.017849, 0.000001, 0.999841
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Subach HL-7" "Subach HL-7" )
++Secondary Banks: ( "Rockeye" "Rockeye" "Tempest" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "player-start" )+Respawn priority: 0
+
++Orders Accepted: 97		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Alpha 2		;! Object #1
+$Class: GTF Myrmidon
+$Team: Friendly
+$Location: 1070.165161, 622.563416, 1607.791626
+$Orientation:
+	0.999663, 0.000000, -0.025955,
+	0.000000, 1.000000, -0.000001,
+	0.025955, 0.000001, 0.999663
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$AI Goals: ( goals ( ai-chase "Iceni" 80 ) ( ai-chase "Capricorn 1" 50 ) ( ai-guard "Alpha 1" 21 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Subach HL-7" "Subach HL-7" )
++Secondary Banks: ( "Rockeye" "Rockeye" "Tempest" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "locked" )+Respawn priority: 0
+
++Orders Accepted: 97		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
++Persona Index: 3
+
+$Name: Alpha 3		;! Object #2
+$Class: GTF Myrmidon
+$Team: Friendly
+$Location: 1200.406250, 621.719543, 1600.798706
+$Orientation:
+	0.999953, 0.000000, -0.009738,
+	0.000000, 1.000000, -0.000001,
+	0.009738, 0.000001, 0.999953
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$AI Goals: ( goals ( ai-chase "Iceni" 80 ) ( ai-chase "Capricorn 1" 50 ) ( ai-guard "Alpha 1" 21 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Subach HL-7" "Subach HL-7" )
++Secondary Banks: ( "Rockeye" "Rockeye" "Tempest" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "locked" )+Respawn priority: 0
+
++Orders Accepted: 97		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
++Persona Index: 0
+
+$Name: Capricorn 1		;! Object #3
+$Class: GTFR Triton
+$Alt: NTFR Triton
+
+$Team: Neutral
+$Location: -230.352158, 1.999622, 1484.969482
+$Orientation:
+	-1.000000, -0.000018, 0.000015,
+	0.000018, -0.999296, -0.037540,
+	0.000016, -0.037540, 0.999296
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Jump Destination" 80 ) )
+$Cargo 1:  XSTR("Unscannable", 626)
++Initial Velocity: 55
++Initial Hull: 89
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Primary Banks: ( "Morning Star" )
++Subsystem: turret02
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-event-true-delay 
+   "Icini Escapes Dialogue" 
+   70 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( < 
+   ( distance 
+      "Capricorn 1" 
+      "Jump Destination:1" 
+   )
+   666 
+)
+$Determination: 10
++Flags: ( "no-shields" "escort" "scannable" )+Respawn priority: 0
+
++Escort priority: 3
++Orders Accepted: 257		;! note that this is a bitfield!!!
++Group: 0
++Score: 20
+
+$Name: Capricorn 2		;! Object #4
+$Class: GTFR Poseidon
+$Alt: NTFR Poseidon
+
+$Team: Neutral
+$Location: -38.915779, -161.227676, 633.300598
+$Orientation:
+	1.000000, 0.000000, -0.000000,
+	-0.000000, 1.000000, -0.000003,
+	-0.000000, 0.000003, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Jump Destination" 80 ) )
+$Cargo 1:  XSTR("Unscannable", 626)
++Initial Velocity: 33
++Initial Hull: 93
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Subsystem: turret02
++Subsystem: turret03
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret04
++Primary Banks: ( "Terran Turret" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-event-true-delay 
+   "Icini Escapes Dialogue" 
+   70 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( < 
+   ( distance 
+      "Capricorn 2" 
+      "Jump Destination:1" 
+   )
+   666 
+)
+$Determination: 10
++Flags: ( "cargo-known" "protect-ship" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 2
++Orders Accepted: 257		;! note that this is a bitfield!!!
++Group: 0
++Score: 20
+
+$Name: Iceni		;! Object #5
+$Class: NTF Iceni
+$Alt: NTF Vessel
+
+$Team: Neutral
+$Location: 960.831604, 0.002121, 7629.563965
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints "Jump Destination" 80 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 69
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02
++Subsystem: turret03
++Subsystem: turret04
++Subsystem: turret05
++Subsystem: turret06
++Subsystem: turret07
++Subsystem: turret08
++Subsystem: turret09
++Subsystem: turret10
++Subsystem: turret11a
++Subsystem: turret12
++Subsystem: turret13
++Subsystem: turret14
++Subsystem: turret15
++Subsystem: turret16
++Subsystem: turret17
++Subsystem: turret18
++Subsystem: turret19
++Subsystem: turret20
++Subsystem: turret21a
++Subsystem: turret22a
++Subsystem: turret23a
++Subsystem: turret24a
++Subsystem: turret25a
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( is-event-true-delay 
+   "Icini Escapes Dialogue" 
+   16 
+)
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 1
++Orders Accepted: 1		;! note that this is a bitfield!!!
++Group: 0
++Score: 400
+
+$Name: Leo 1		;! Object #6
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -912.009216, 0.002661, 1460.558594
+$Orientation:
+	0.789417, 0.000000, -0.613857,
+	-0.076602, 0.992183, -0.098510,
+	0.609059, 0.124788, 0.783247
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Leo 2		;! Object #7
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -886.492676, -6.435194, 1451.154297
+$Orientation:
+	0.792577, 0.000000, -0.609772,
+	-0.076978, 0.992000, -0.100055,
+	0.604894, 0.126240, 0.786236
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Leo 3		;! Object #8
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -859.871033, -12.620980, 1441.587891
+$Orientation:
+	0.795843, 0.000000, -0.605503,
+	-0.077297, 0.991818, -0.101596,
+	0.600549, 0.127658, 0.789332
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Glorious		;! Object #9
+$Class: GTC Fenris
+$Alt: NTC Fenris
+
+$Team: Neutral
+$Location: -2766.786621, 199.154312, -749.295471
+$Orientation:
+	0.788732, 0.000000, -0.614738,
+	-0.012074, 0.999807, -0.015491,
+	0.614619, 0.019641, 0.788580
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Rebel Path" 60 ) ( ai-waypoints-once "Jump Destination" 50 ) ( ai-chase "Psamtik" 88 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 40
++Initial Hull: 78
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Primary Banks: ( "Terran Turret Weak" )
++Subsystem: turret02
++Subsystem: turret03
++Subsystem: turret04
++Primary Banks: ( "AAAh" )
++Subsystem: turret05
++Subsystem: turret06
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret07
++Subsystem: turret08
++Subsystem: turret09a-01-main
++Sbank Ammo: ( 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( or 
+   ( is-event-true-delay 
+      "Capricorn Hurt- Rebel Trigger" 
+      32 
+   )
+   ( or 
+      ( has-departed-delay 0 "Capricorn 1" ) 
+      ( has-departed-delay 0 "Capricorn 2" ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( < 
+   ( distance 
+      "Glorious" 
+      "Jump Destination:1" 
+   )
+   660 
+)
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 0
++Orders Accepted: 1		;! note that this is a bitfield!!!
++Group: 0
++Score: 100
+
+$Name: Impervious		;! Object #10
+$Class: GTC Leviathan
+$Alt: NTF Leviathan
+
+$Team: Neutral
+$Location: -3157.318848, 0.000024, -687.480713
+$Orientation:
+	0.917816, 0.000000, -0.397005,
+	0.000000, 1.000000, 0.000000,
+	0.397005, 0.000000, 0.917816
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Jump Destination" 80 ) ( ai-waypoints-once "Jump Destination" 60 ) ( ai-chase "Psamtik" 88 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Hull: 83
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Subsystem: turret02
++Subsystem: turret03
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret04
++Primary Banks: ( "AAAh" )
++Subsystem: turret05
++Primary Banks: ( "Standard Flak" )
++Subsystem: turret06
++Primary Banks: ( "Terran Turret" )
++Subsystem: turret07
++Subsystem: turret08
++Subsystem: turret09a-01-main
++Sbank Ammo: ( 0 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( or 
+   ( has-arrived-delay 4 "Glorious" ) 
+   ( or 
+      ( has-departed-delay 0 "Capricorn 1" ) 
+      ( has-departed-delay 0 "Capricorn 2" ) 
+   )
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( < 
+   ( distance 
+      "Impervious" 
+      "Jump Destination:1" 
+   )
+   660 
+)
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 0
++Orders Accepted: 1		;! note that this is a bitfield!!!
++Group: 0
++Score: 100
+
+$Name: Psamtik		;! Object #11
+$Class: GVD Hatshepsut
+$Team: Friendly
+$Location: -2487.322021, 117.117165, -6715.838379
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Allied Path" 70 ) ( ai-waypoints-once "Jump Destination" 50 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Primary Banks: ( "" )
++Subsystem: turret02
++Primary Banks: ( "" )
++Subsystem: turret03
++Primary Banks: ( "" )
++Subsystem: turret04
++Primary Banks: ( "" )
++Subsystem: turret05
++Sbank Ammo: ( 0 )
++Subsystem: turret06
++Sbank Ammo: ( 0 )
++Subsystem: turret07
++Sbank Ammo: ( 0 )
++Subsystem: turret08
++Sbank Ammo: ( 0 )
++Subsystem: turret09
++Sbank Ammo: ( 0 )
++Subsystem: turret10
++Sbank Ammo: ( 0 )
++Subsystem: turret11
++Subsystem: turret12
++Subsystem: turret13
++Subsystem: turret14
++Subsystem: turret15
++Subsystem: turret16
++Subsystem: turret17
++Subsystem: turret18
++Subsystem: turret19
++Subsystem: turret20
++Subsystem: turret21
++Subsystem: turret22
++Subsystem: turret23
++Subsystem: turret24
++Subsystem: turret25
++Subsystem: turret26
++Subsystem: turret27
++Subsystem: turret28
++Subsystem: turret29
++Subsystem: turret30
+$Arrival Location: Hyperspace
+$Arrival Cue: ( is-event-true-delay 
+   "Fighters hurt" 
+   4 
+)
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 0
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 1000
+
+$Name: Gemini 1		;! Object #12
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -8.035614, -0.000485, 1959.409546
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Gemini 2		;! Object #13
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -295.225037, -0.000606, 1949.168335
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Gemini 3		;! Object #14
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -147.480438, -0.000449, 2022.853882
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Scorpio 1		;! Object #15
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -2694.800049, 114.400002, -578.799988
+$Orientation:
+	0.925639, 0.000000, -0.378407,
+	0.004506, 0.999929, 0.011023,
+	0.378380, -0.011908, 0.925574
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
++Sbank Ammo: ( 60 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Scorpio 2		;! Object #16
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -2660.819336, 114.400024, -615.130798
+$Orientation:
+	0.927951, 0.000000, -0.372702,
+	0.004438, 0.999929, 0.011050,
+	0.372676, -0.011908, 0.927885
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
++Sbank Ammo: ( 60 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Scorpio 3		;! Object #17
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -2738.172607, 114.400223, -609.928528
+$Orientation:
+	0.925157, 0.000000, -0.379586,
+	0.004494, 0.999930, 0.010952,
+	0.379559, -0.011838, 0.925092
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
++Sbank Ammo: ( 60 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Aquarius 1		;! Object #18
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -3026.032471, 0.004492, -425.763000
+$Orientation:
+	0.916312, 0.000000, -0.400465,
+	0.000000, 1.000000, 0.000000,
+	0.400465, 0.000000, 0.916312
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
++Sbank Ammo: ( 80 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Aquarius 2		;! Object #19
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -3083.676758, 0.004524, -446.648041
+$Orientation:
+	0.917569, 0.000000, -0.397576,
+	0.000000, 1.000000, 0.000000,
+	0.397576, 0.000000, 0.917569
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
++Sbank Ammo: ( 80 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Aquarius 3		;! Object #20
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -2999.402344, 0.004574, -487.540314
+$Orientation:
+	0.915731, 0.000000, -0.401792,
+	0.000000, 1.000000, 0.000000,
+	0.401792, 0.000000, 0.915731
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
++Sbank Ammo: ( 80 )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Beta 1		;! Object #21
+$Class: GTF Myrmidon
+$Team: Friendly
+$Location: 1245.201050, 516.500305, 1910.177124
+$Orientation:
+	0.999908, 0.000000, 0.013597,
+	-0.000775, 0.998376, 0.056959,
+	-0.013575, -0.056964, 0.998284
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Subach HL-7" "Subach HL-7" )
++Secondary Banks: ( "Rockeye" "Rockeye" "Tempest" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "locked" )+Respawn priority: 0
+
++Orders Accepted: 97		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
++Persona Index: 4
+
+$Name: Beta 2		;! Object #22
+$Class: GTF Myrmidon
+$Team: Friendly
+$Location: 1176.838867, 518.766052, 1845.566284
+$Orientation:
+	0.999776, 0.000000, 0.021172,
+	-0.001212, 0.998361, 0.057215,
+	-0.021137, -0.057228, 0.998137
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Subach HL-7" "Subach HL-7" )
++Secondary Banks: ( "Rockeye" "Rockeye" "Tempest" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "locked" )+Respawn priority: 0
+
++Orders Accepted: 97		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
++Persona Index: 4
+
+$Name: Beta 3		;! Object #23
+$Class: GTF Myrmidon
+$Team: Friendly
+$Location: 1329.729004, 552.437195, 1831.715454
+$Orientation:
+	0.999838, 0.000000, 0.017976,
+	-0.001102, 0.998120, 0.061277,
+	-0.017942, -0.061287, 0.997959
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Subach HL-7" "Subach HL-7" )
++Secondary Banks: ( "Rockeye" "Rockeye" "Tempest" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "locked" )+Respawn priority: 0
+
++Orders Accepted: 97		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Gemini 4		;! Object #24
+$Class: GTF Loki
+$Alt: NTF Loki
+
+$Team: Neutral
+$Location: -91.501518, -0.000449, 2018.568726
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: Lieutenant
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
++Secondary Banks: ( "Rockeye" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 10
+
+$Name: Delta 1		;! Object #25
+$Class: GVF Tauret
+$Team: Friendly
+$Location: -2567.007813, 0.000104, -2197.697510
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 8
+
+$Name: Delta 2		;! Object #26
+$Class: GVF Tauret
+$Team: Friendly
+$Location: -2540.693848, 0.000100, -2200.510742
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 8
+
+$Name: Delta 3		;! Object #27
+$Class: GVF Tauret
+$Team: Friendly
+$Location: -2549.562012, 0.000106, -2158.988281
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 8
+
+$Name: Delta 4		;! Object #28
+$Class: GVF Tauret
+$Team: Friendly
+$Location: -2527.885742, 0.000101, -2160.253418
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 0
++Score: 8
+
+$Name: TAC 1 47		;! Object #29
+$Class: TC-TRI
+$Team: Friendly
+$Location: -230.685471, -15.293234, 1674.695435
+$Orientation:
+	-1.000000, -0.000019, 0.000038,
+	0.000018, -0.999289, -0.037719,
+	0.000039, -0.037719, 0.999289
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Fighter Parts", 573)
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "red-alert-carry" )+Respawn priority: 0
+
++Docked With: Capricorn 1
+$Docker Point: Cargo Dock01
+$Dockee Point: Cargo Dockpoint
++Group: 0
++Score: 5
+
+$Name: TC 2 27		;! Object #30
+$Class: TC 2
+$Team: Friendly
+$Location: -38.919918, -178.609131, 628.379028
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Munitions", 572)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "red-alert-carry" )+Respawn priority: 0
+
++Docked With: Capricorn 2
+$Docker Point: cargo dock
+$Dockee Point: cargo dock
++Group: 0
+
+#Wings		;! 7 total
+
+$Name: Alpha
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Alpha 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( is-event-true-delay 
+   "Exit Approved" 
+   3 
+)
+$Ships: (		;! 3 total
+	"Alpha 1"
+	"Alpha 2"
+	"Alpha 3"
+)
++Hotkey: 0
++Flags:( )
+
+$Name: Leo
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Leo 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( percent-ships-destroyed 33 "Gemini" ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Leo 1"
+	"Leo 2"
+	"Leo 3"
+)
+$AI Goals: ( goals ( ai-guard "Capricorn 1" 70 ) ( ai-guard "Glorious" 60 ) ( ai-chase-wing "Alpha" 50 ) )
++Flags:( "no-arrival-message" )
+
+$Name: Gemini
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Gemini 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( has-arrived-delay 2 "Capricorn 1" ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 4 total
+	"Gemini 1"
+	"Gemini 2"
+	"Gemini 3"
+	"Gemini 4"
+)
+$AI Goals: ( goals ( ai-guard "Capricorn 1" 80 ) ( ai-guard "Capricorn 2" 70 ) ( ai-guard "Impervious" 50 ) )
++Flags:( "no-arrival-message" )
+
+$Name: Scorpio
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Scorpio 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( has-arrived-delay 2 "Impervious" ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Scorpio 1"
+	"Scorpio 2"
+	"Scorpio 3"
+)
+$AI Goals: ( goals ( ai-guard "Impervious" 80 ) ( ai-guard "Glorious" 50 ) ( ai-chase-any 50 ) )
++Flags:( "no-arrival-message" )
+
+$Name: Aquarius
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Aquarius 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( has-arrived-delay 2 "Glorious" ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 3 total
+	"Aquarius 1"
+	"Aquarius 2"
+	"Aquarius 3"
+)
+$AI Goals: ( goals ( ai-guard "Glorious" 70 ) ( ai-guard "Impervious" 60 ) ( ai-chase-wing "Alpha" 50 ) )
++Flags:( "no-arrival-message" )
+
+$Name: Beta
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Beta 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( is-event-true-delay 
+   "Exit Approved" 
+   5 
+)
+$Ships: (		;! 3 total
+	"Beta 1"
+	"Beta 2"
+	"Beta 3"
+)
+$AI Goals: ( goals ( ai-chase "Iceni" 88 ) ( ai-chase "Capricorn 1" 50 ) ( ai-guard "Alpha 1" 44 ) )
++Hotkey: 1
++Flags:( )
+
+$Name: Delta
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Delta 1
+
+$Arrival Location: Docking Bay
++Arrival Distance: 0
+$Arrival Anchor: Psamtik
+$Arrival Cue: ( is-event-true-delay 
+   "Delta Launch" 
+   0 
+)
+$Departure Location: Docking Bay
+$Departure Anchor: Psamtik
+$Departure Cue: ( is-event-true-delay 
+   "Exit Approved" 
+   0 
+)
+$Ships: (		;! 4 total
+	"Delta 1"
+	"Delta 2"
+	"Delta 3"
+	"Delta 4"
+)
+$AI Goals: ( goals ( ai-guard "Alpha 1" 50 ) )
++Flags:( "no-arrival-music" "no-arrival-message" )
+
+#Events		;! 29 total
+
+$Formula: ( when 
+   ( true ) 
+   ( send-message-list 
+      "#Command" 
+      "High" 
+      "Intro Comment" 
+      1400 
+      "Alpha 2" 
+      "High" 
+      "Can't do it" 
+      6000 
+      "#Command" 
+      "High" 
+      "You have orders" 
+      6600 
+      "Alpha 2" 
+      "High" 
+      "where's the blockade" 
+      2000 
+      "#Command" 
+      "High" 
+      "deployed to higher priority" 
+      4300 
+   )
+)
++Name: Intro Dialogue
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < 
+      ( distance 
+         "Iceni" 
+         "Jump Destination:1" 
+      )
+      700 
+   )
+   ( send-message-list 
+      "Iceni" 
+      "High" 
+      "efforts to intercept failed" 
+      9000 
+      "Beta 1" 
+      "High" 
+      "Damn Bosch escaped." 
+      11000 
+      "#Command" 
+      "High" 
+      "Acknowledged, pilot" 
+      2750 
+      "Alpha 2" 
+      "High" 
+      "You let them escape" 
+      4000 
+      "#Command" 
+      "High" 
+      "You're out of line, pilot!" 
+      2000 
+      "Alpha 2" 
+      "High" 
+      "I dont think so" 
+      2200 
+      "#Command" 
+      "High" 
+      "discuss this at debriefing" 
+      4000 
+      "Alpha 2" 
+      "High" 
+      "C let him go" 
+      10500 
+      "Alpha 3" 
+      "High" 
+      "How do you know?" 
+      3000 
+      "Alpha 2" 
+      "High" 
+      "They pulled the blockade" 
+      2300 
+      "Alpha 3" 
+      "High" 
+      "I don't get it." 
+      5800 
+      "Alpha 2" 
+      "High" 
+      "Ask Command" 
+      2200 
+      "Alpha 3" 
+      "High" 
+      "Command must have a reason" 
+      4000 
+      "Alpha 2" 
+      "High" 
+      "why make us attack" 
+      3100 
+   )
+)
++Name: Icini Escapes Dialogue
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( or 
+         ( < ( hits-left "Capricorn 1" ) 65 ) 
+         ( is-destroyed-delay 0 "Capricorn 1" ) 
+      )
+      ( or 
+         ( < ( hits-left "Capricorn 2" ) 65 ) 
+         ( is-destroyed-delay 0 "Capricorn 2" ) 
+      )
+      ( percent-ships-destroyed 60 "Gemini" ) 
+   )
+   ( do-nothing ) 
+)
++Name: Capricorn Hurt- Rebel Trigger
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 2 "Impervious" ) 
+   ( send-message-list 
+      "#Command" 
+      "High" 
+      "Reb fleet arrives" 
+      0 
+      "#Command" 
+      "High" 
+      "Beam Warning" 
+      1800 
+   )
+   ( add-goal 
+      "Alpha" 
+      ( ai-chase "Aquarius" 89 ) 
+   )
+   ( add-goal 
+      "Beta" 
+      ( ai-chase "Scorpio" 89 ) 
+   )
+)
++Name: Rebel Arrival
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 
+      12 
+      "Glorious" 
+      "Impervious" 
+   )
+   ( beam-free-all "Impervious" ) 
+)
+;( beam-free-all "Glorious" ) 
+
++Name: Rebels Armed
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 
+      5 
+      "Capricorn 1" 
+      "Capricorn 2" 
+   )
+   ( send-message-list 
+      "#Command" 
+      "High" 
+      "Incoming wing of Lokis" 
+      1000 
+      "Beta 2" 
+      "High" 
+      "Beta wing here. Target acquire" 
+      8000 
+   )
+   ( validate-goal "Destroy Capricorns" ) 
+   ( validate-goal "Destroy Fighters" ) 
+)
++Name: Incoming wing of Lokis
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( has-arrived-delay 10 "Psamtik" ) 
+      ( is-destroyed-delay 4 "Beta" ) 
+   )
+   ( send-message-list 
+      "Psamtik" 
+      "High" 
+      "Delta Launch" 
+      5000 
+   )
+)
++Name: Delta Launch
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( or 
+      ( is-destroyed-delay 0 "Capricorn 1" ) 
+      ( is-destroyed-delay 0 "Capricorn 2" ) 
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "one freighter left!" 
+   )
+)
++Name: 1 down 1 to go
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 4 "Glorious" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Glorious" 
+   )
+)
++Name: Glorious Destroyed
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 4 "Impervious" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Imperious down" 
+   )
+)
++Name: Impervious Destroyed
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 3 "Psamtik" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Psamtik Arrives" 
+   )
+   ( beam-free-all "Psamtik" ) 
+)
++Name: Psamtik Arrives
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( destroyed-or-departed-delay 
+      10 
+      "Aquarius" 
+      "Leo" 
+      "Gemini" 
+      "Scorpio" 
+      "Capricorn 1" 
+      "Capricorn 2" 
+      "Glorious" 
+      "Impervious" 
+   )
+   ( tech-add-ships 
+      "GTF Hercules Mark II" 
+   )
+   ( tech-add-weapons "Hornet" ) 
+   ( allow-ship "GTF Hercules Mark II" ) 
+   ( allow-weapon "Hornet" ) 
+   ( allow-weapon "Harpoon" ) 
+   ( tech-add-weapons 
+      "Harpoon" 
+      "Prometheus R" 
+   )
+   ( allow-weapon "Prometheus R" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Mop Up Complete" 
+   )
+)
++Name: Exit Approved
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Alpha 1" ) 
+   ( do-nothing ) 
+)
++Name: RTB
++Repeat Count: 1
++Interval: 1
++Chained: 4
++Objective:  XSTR("Return to base", 66)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Gemini" ) 
+   ( do-nothing ) 
+)
++Name: Gemini Directive
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Gemini", 16)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Iceni" ) 
+   ( do-nothing ) 
+)
++Name: Iceni Directive
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy the Iceni", 627)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Aquarius" ) 
+   ( do-nothing ) 
+)
++Name: Aquarius Directive
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Aquarius", 103)
+
+$Formula: ( when 
+   ( is-destroyed-delay 
+      0 
+      "Capricorn 1" 
+      "Capricorn 2" 
+   )
+   ( do-nothing ) 
+)
++Name: Capricorn Directive
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy freighters", 628)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Leo" ) 
+   ( do-nothing ) 
+)
++Name: Leo Directive
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Leo", 15)
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Scorpio" ) 
+   ( do-nothing ) 
+)
++Name: Scorpio Directive
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Scorpio", 61)
+
+$Formula: ( when 
+   ( and 
+      ( percent-ships-destroyed 
+         60 
+         "Scorpio" 
+      )
+      ( percent-ships-destroyed 
+         60 
+         "Aquarius" 
+      )
+   )
+   ( do-nothing ) 
+)
++Name: Fighters hurt
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( beam-protect-ship "Alpha 1" ) 
+)
++Name: A1 Beam protect
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 0 "Glorious" ) 
+   ( validate-goal 
+      "Destroy the Glorious" 
+   )
+)
++Name: Validate Glorious
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 0 "Impervious" ) 
+   ( validate-goal 
+      "Destroy the Impervious" 
+   )
+)
++Name: Validate Impervious
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 5 "Capricorn 1" ) 
+   ( cap-waypoint-speed "Capricorn 1" 20 ) 
+)
++Name: CAP Speed 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 5 "Capricorn 2" ) 
+   ( cap-waypoint-speed "Capricorn 2" 20 ) 
+)
++Name: CAP Speed 2
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( subsys-set-random 
+      "Iceni" 
+      0 
+      100 
+      "engine03" 
+      "engine02" 
+      "engine01" 
+      "navigation" 
+      "sensors" 
+      "communications" 
+   )
+)
++Name: Damage Icini
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( or 
+      ( < 
+         ( distance 
+            "Capricorn 1" 
+            "Jump Destination:1" 
+         )
+         2300 
+      )
+      ( < 
+         ( distance 
+            "Capricorn 2" 
+            "Jump Destination:1" 
+         )
+         2300 
+      )
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "Don't let Capricorn escape" 
+   )
+)
++Name: Capricorn May Escape
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-event-true-delay 
+         "Exit Approved" 
+         0 
+      )
+      ( or 
+         ( is-destroyed-delay 0 "Capricorn 1" ) 
+         ( is-destroyed-delay 0 "Capricorn 2" ) 
+      )
+   )
+   ( allow-weapon "Prometheus R" ) 
+   ( allow-weapon "Hornet" ) 
+   ( allow-weapon "Harpoon" ) 
+   ( allow-ship "GTF Hercules Mark II" ) 
+   ( tech-add-ships 
+      "GTF Hercules Mark II" 
+   )
+   ( tech-add-weapons 
+      "Prometheus R" 
+      "Hornet" 
+      "Harpoon" 
+   )
+)
++Name: May Continue
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( allow-weapon "Prometheus R" ) 
+   ( allow-weapon "Hornet" ) 
+   ( allow-weapon "Harpoon" ) 
+   ( allow-ship "GTF Hercules Mark II" ) 
+   ( tech-add-ships 
+      "GTF Hercules Mark II" 
+   )
+   ( tech-add-weapons 
+      "Prometheus R" 
+      "Hornet" 
+      "Harpoon" 
+   )
+)
++Name: New Weapons
++Repeat Count: 1
++Interval: 1
+
+#Goals		;! 5 total
+
+$Type: Primary
++Name: Stop Asteroid Ship
+$MessageNew:  XSTR("Destroy the NTF Iceni", 629)
+$end_multi_text
+$Formula: ( is-destroyed-delay 0 "Iceni" ) 
+
+$Type: Secondary
++Name: Destroy the Glorious
+$MessageNew:  XSTR("Destroy the Glorious", 630)
+$end_multi_text
+$Formula: ( is-destroyed-delay 0 "Glorious" ) 
++Invalid
+
+$Type: Secondary
++Name: Destroy the Impervious
+$MessageNew:  XSTR("Destroy the Impervious", 631)
+$end_multi_text
+$Formula: ( is-destroyed-delay 0 "Impervious" ) 
++Invalid
+
+$Type: Primary
++Name: Destroy Capricorns
+$MessageNew:  XSTR("Destroy NTF freighters", 632)
+$end_multi_text
+$Formula: ( is-destroyed-delay 
+   0 
+   "Capricorn 1" 
+   "Capricorn 2" 
+)
++Invalid
+
+$Type: Secondary
++Name: Destroy Fighters
+$MessageNew:  XSTR("Destroy NTF fighters", 633)
+$end_multi_text
+$Formula: ( and 
+   ( is-destroyed-delay 0 "Leo" ) 
+   ( is-destroyed-delay 0 "Gemini" ) 
+   ( is-destroyed-delay 0 "Scorpio" ) 
+   ( is-destroyed-delay 0 "Aquarius" ) 
+)
++Invalid
+
+#Waypoints		;! 4 lists total
+
+
+$Jump Node: 1077.864624, 0.000410, 9631.760742
+$Jump Node Name: Sirius
+$Name: Jump Destination
+$List: (		;! 1 points in list
+	( 994.394409, 0.000176, 9663.798828 )
+)
+
+$Name: Rebel Path
+$List: (		;! 3 points in list
+	( -2793.281494, 0.000447, -534.741577 )
+	( -2552.806641, -0.000005, 256.484436 )
+	( -422.119080, -0.000107, 8109.993164 )
+)
+
+$Name: Allied Path
+$List: (		;! 3 points in list
+	( -2327.175293, -0.000196, 52.705708 )
+	( -2065.463135, 0.000061, 1420.069092 )
+	( -896.454224, 0.000359, 5305.755371 )
+)
+
+$Name: Allied Path #2
+$List: (		;! 3 points in list
+	( -1485.441650, -767.851929, -715.037598 )
+	( -1313.073486, -767.851807, 481.069580 )
+	( -200.817627, -767.852539, 4459.674805 )
+)
+
+#Messages		;! 238 total
+
+
+$Name: Intro Comment
+
+$Team: -1
+$MessageNew:  XSTR("Engage full burners and intercept the Iceni. They are two kilometers from the Sirius jump node.", 634)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_01.wav
+
+$Name: Don't let Capricorn escape
+
+$Team: -1
+$MessageNew:  XSTR("Do not let those freighters escape!", 635)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_02.wav
+
+$Name: Reb fleet arrives
+
+$Team: -1
+$MessageNew:  XSTR("Two NTF cruisers have jumped in. The NTC Glorious and the NTC Impervious. They are heading for the node. Eliminate the fighter escort, pilots. We'll deploy the Psamtik to handle the cruisers.", 636)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_03.wav
+
+$Name: Mop Up Complete
+
+$Team: -1
+$MessageNew:  XSTR("Return to base, pilots. The Aquitaine is shipping out.", 637)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_04.wav
+
+$Name: Delta Launch
+
+$Team: -1
+$MessageNew:  XSTR("Delta wing has been sortied.", 638)
+$end_multi_text
++Persona: Large Ship Vasudan
++AVI Name: Head-VC
++Wave Name: SM103_PS_01.wav
+
+$Name: Can't do it
+
+$Team: -1
+$MessageNew:  XSTR("Command, we're five clicks from that corvette! Those coordinates you gave us were bogus! We don't stand a chance of catching that ship!", 639)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP7
++Wave Name: SM103_W0_01.wav
+
+$Name: You have orders
+
+$Team: -1
+$MessageNew:  XSTR("You have your orders, pilot.", 640)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_06.wav
+
+$Name: where's the blockade
+
+$Team: -1
+$MessageNew:  XSTR("Command, where's the blockade? Why isn't the Alliance guarding this node?", 641)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP7
++Wave Name: SM103_W0_02.wav
+
+$Name: deployed to higher priority
+
+$Team: -1
+$MessageNew:  XSTR("Our line of defense has been reprioritized for engagements elsewhere in the system.", 642)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_07.wav
+
+$Name: efforts to intercept failed
+
+$Team: -1
+$MessageNew:  XSTR("I regret your efforts to intercept us have failed, pilots. You would be well advised to question the wisdom of your leaders. Helm, engage subspace drive.", 643)
+$end_multi_text
++AVI Name: Head-BSH
++Wave Name: SM103_BH_01.wav
+
+$Name: Damn Bosch escaped.
+
+$Team: -1
+$MessageNew:  XSTR("The Iceni has jumped! I repeat. The Iceni has jumped!", 644)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP8
++Wave Name: SM103_W2_01.wav
+
+$Name: Acknowledged, pilot
+
+$Team: -1
+$MessageNew:  XSTR("Acknowledged, pilot. ", 645)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_08.wav
+
+$Name: You let them escape
+
+$Team: -1
+$MessageNew:  XSTR("Request a status brief, Command! What the hell is going on here?", 646)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP7
++Wave Name: SM103_W1_01.wav
+
+$Name: You're out of line, pilot!
+
+$Team: -1
+$MessageNew:  XSTR("You're out of line, pilot!", 647)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_09.wav
+
+$Name: I dont think so
+
+$Team: -1
+$MessageNew:  XSTR("Out of line? I don't think so. We're risking our lives out here! We deserve a straight answer!", 648)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP7
++Wave Name: SM103_W1_02.wav
+
+$Name: discuss this at debriefing
+
+$Team: -1
+$MessageNew:  XSTR("You can discuss this at your debriefing. We now have reports that rebel vessels are heading for the jump node. Stand by for mission update. Command out.", 649)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_10.wav
+
+$Name: C let him go
+
+$Team: -1
+$MessageNew:  XSTR("Damn it! Command let Bosch escape!", 650)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP7
++Wave Name: SM103_W1_03.wav
+
+$Name: How do you know?
+
+$Team: -1
+$MessageNew:  XSTR("What are you talking about?", 651)
+$end_multi_text
++Persona: Wingman 1
++AVI Name: Head-TP1
++Wave Name: SM103_W3_01.wav
+
+$Name: They pulled the blockade
+
+$Team: -1
+$MessageNew:  XSTR("They pulled the blockade. They gave us the wrong coordinates. There's no other explanation.", 652)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP7
++Wave Name: SM103_W1_04.wav
+
+$Name: I don't get it.
+
+$Team: -1
+$MessageNew:  XSTR("Why? Why would they let him go?", 653)
+$end_multi_text
++Persona: Wingman 1
++AVI Name: Head-TP1
++Wave Name: SM103_W3_02.wav
+
+$Name: Ask Command
+
+$Team: -1
+$MessageNew:  XSTR("You tell me, pilot. I'm informed on a need-to-know basis.", 654)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP7
++Wave Name: SM103_W1_05.wav
+
+$Name: Command must have a reason
+
+$Team: -1
+$MessageNew:  XSTR("Stand down. We're on your side here.", 655)
+$end_multi_text
++Persona: Wingman 1
++AVI Name: Head-TP1
++Wave Name: SM103_W0_04.wav
+
+$Name: why make us attack
+
+$Team: -1
+$MessageNew:  XSTR("Why did we attack the Iceni? Why did we destroy that cargo? I can live with being a pawn if the game makes sense.", 656)
+$end_multi_text
++Persona: Wingman 4
++AVI Name: Head-TP7
++Wave Name: SM103_W1_06.wav
+
+$Name: Incoming wing of Lokis
+
+$Team: -1
+$MessageNew:  XSTR("Inbound freighters with Loki escort. These targets escaped the asteroid depot. Destroy those ships before they reach the node.", 657)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_11.wav
+
+$Name: Beta wing here. Target acquire
+
+$Team: -1
+$MessageNew:  XSTR("Beta wing here. Target acquired and closing in.", 658)
+$end_multi_text
++Persona: Wingman 5
++AVI Name: Head-TP8
++Wave Name: SM103_W3_04.wav
+
+$Name: Capricorn 2 is down!
+
+$Team: -1
+$MessageNew:  XSTR("Capricorn 2 is down!", 659)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_12.wav
+
+$Name: one freighter left!
+
+$Team: -1
+$MessageNew:  XSTR("There's one freighter left! Let's finish the job!", 660)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_15.wav
+
+$Name: Glorious
+
+$Team: -1
+$MessageNew:  XSTR("We have pulverized the Glorious!", 661)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_17.wav
+
+$Name: Imperious down
+
+$Team: -1
+$MessageNew:  XSTR("Impervious objective has been neutralized.", 662)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: SM103_AC_18.wav
+
+$Name: Psamtik Arrives
+
+$Team: -1
+$MessageNew:  XSTR("The Psamtik is now on station.", 663)
+$end_multi_text
++Persona: Large Ship Vasudan
++AVI Name: Head-CM2
++Wave Name: SM103_AC_20.wav
+
+$Name: Beam Warning
+
+$Team: -1
+$MessageNew:  XSTR("Those cruisers have anti-fighter beams with an effective range of 1500 meters.  Lure the escort away from the cruisers before you engage.", 664)
+$end_multi_text
++Persona: Terran Command
++AVI Name: Head-CM2
++Wave Name: sm103_ac_21.wav
+
+#Reinforcements		;! 0 total
+
+
+#Background bitmaps		;! 35 total
+
+$Num stars: 1260
+$Ambient light level: 0
+$Sun: SunGold
++Angles: 0.000000 0.000000 2.076940
++Scale: 2.000000
+$Starbitmap: dneb01
++Angles: 0.000000 2.321286 0.000000
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 0.401425 0.663225 0.139626
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 0.820304 4.834558 0.000000
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb18
++Angles: 0.000000 1.308996 0.558505
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb01
++Angles: 6.021381 0.890117 5.794488
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb18
++Angles: 5.951568 2.740165 5.602502
++ScaleX: 1.000000
++ScaleY: 1.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 0.000000 0.000000 5.951568
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 5.881755 5.009091 5.532689
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb01
++Angles: 5.585049 0.383972 5.393063
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb18
++Angles: 0.558505 0.628318 6.126101
++ScaleX: 3.000000
++ScaleY: 5.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb09
++Angles: 5.218530 0.000000 5.218530
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 5.009091 5.585049 5.218530
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 5.585049 5.585049 0.925024
++ScaleX: 2.000000
++ScaleY: 1.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb18
++Angles: 5.777035 2.321286 0.802851
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 6.021381 4.468040 0.628318
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 5.585049 0.575958 0.925024
++ScaleX: 3.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb01
++Angles: 5.358157 2.740165 0.628318
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb18
++Angles: 5.131264 5.951568 0.506145
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 4.991638 0.855211 0.418879
++ScaleX: 3.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb03
++Angles: 4.764745 1.692968 0.191986
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: dneb01
++Angles: 5.253437 3.455749 1.117010
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb18
++Angles: 5.078904 1.256636 1.308996
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 4.886918 1.867501 1.553342
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 3.508109 0.383972 1.378809
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 3.385936 1.570795 1.169370
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb18
++Angles: 4.799652 1.797688 1.815141
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 4.886918 4.276053 2.076940
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 4.345866 0.366519 2.216566
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 3.874628 1.570795 2.408552
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb18
++Angles: 4.031707 0.558505 0.959930
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb09
++Angles: 4.345866 1.797688 0.715584
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb01
++Angles: 4.520399 2.146753 0.541052
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb02
++Angles: 3.577922 0.366519 0.663225
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb09
++Angles: 3.961894 1.570795 0.506145
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: planeta1
++Angles: 0.000000 3.054324 4.014254
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+
+#Asteroid Fields
+
+#Music
+
+$Event Music: 3: Leviticus
+$Briefing Music: Brief3
+
+#End
+

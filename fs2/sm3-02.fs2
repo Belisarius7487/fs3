@@ -1,0 +1,1895 @@
+#Mission Info
+
+$Version: 0.10
+$Name:  XSTR("High Noon", 1558)
+$Author: James Agay @ V
+$Created: 06/14/99 at 14:59:27
+$Modified: 10/08/99 at 11:57:48
+$Notes:
+This is a FRED created mission
+$End Notes:
+
+$Mission Desc:
+ XSTR("The Colossus and the Sathanas face off in the Capella system.
+", 1559)
+$end_multi_text
+
++Game Type Flags: 1
+
++Flags: 0
+
++Red Alert: 0
+
++Scramble: 1
+
++Disallow Support: 0
+
++Player Entry Delay:
+2.000000
+
++Viewer pos: 28751.802734, 6563.433594, 13932.421875
++Viewer orient:
+	0.000596, 0.000000, 1.000000,
+	-0.184846, 0.982768, 0.000110,
+	-0.982767, -0.184846, 0.000586
++SquadReassignName: 203rd Scorpions
++SquadReassignLogo: vasudan1.pcx
+
+#Plot Info
+
+$Tour:  XSTR("Blah", 6)
+$Pre-Briefing Cutscene: Blah
+$Pre-Mission Cutscene: Blah
+$Next Mission Success: Blah
+$Next Mission Partial: Blah
+$Next Mission Failure: Blah
+
+#Sexp_variables
+
+$Variables:
+(
+		94		"SJD Sathanas 19"		"10000"		"block"
+		95		"SJD Sathanas 19"		"10000"		"block"
+		96		"SJD Sathanas 19"		"10000"		"block"
+		97		"SJD Sathanas 19"		"8500"		"block"
+		98		"SJD Sathanas 19"		"1"		"block"
+		99		"SJD Sathanas 19"		"5000"		"block"
+)
+
+#Command Briefing
+
+#Briefing
+$start_briefing
+$num_stages: 2
+$start_stage
+$multi_text
+ XSTR("The $h Satahanas entered the Capella system and obliterated the line of defense we had established to intercept it. We now have no choice but to send in the $f Colossus. With its beam cannons still operational, the $h Sathanas has sufficient firepower to win this engagement.
+
+Your wing will be scrambled immediately. There is no time to select your ship or armaments. Your mission is to neutralize these remaining beam cannons as quickly as possible. If you fail, we risk losing the $f Colossus and the Capella system. ", 1560)
+$end_multi_text
+$voice: sm302_mb_01.wav
+$camera_pos: 36143.382813, 8628.259766, 14244.781250
+$camera_orient:
+	-0.007269, 0.000000, 0.999974,
+	-0.049678, 0.998765, -0.000361,
+	-0.998739, -0.049679, -0.007260
+$camera_time: 500
+$num_lines: 0
+$num_icons: 2
+$Flags: 0
+$Formula: ( is-previous-event-false 
+   "sm3-01" 
+   "All beams dead" 
+   ( true ) 
+)
+$start_icon
+$type: 31
+$team: Hostile
+$class: SJ Sathanas
+$pos: -526068.937500, 1354.967407, 101978.710938
+$label: Sathanas
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 25
+$team: Friendly
+$class: GVB Bakha
+$pos: -307123.156250, 381.901611, -83092.250000
+$label: Alpha 4
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$start_stage
+$multi_text
+ XSTR("The $h Satahanas has entered the Capella system and engaged the $f Colossus. Your exceptional performance in Gamma Draconis has significantly improved the odds for the Alliance. We are deploying your wing to provide bomber support for the $f Colossus. Eliminate any target of opportunity, but do not take unnecessary risks.", 1561)
+$end_multi_text
+$voice: sm302_mb_02.wav
+$camera_pos: 36016.648438, 8628.259766, 21203.224609
+$camera_orient:
+	-0.012841, 0.000000, 0.999918,
+	-0.049675, 0.998765, -0.000638,
+	-0.998683, -0.049679, -0.012825
+$camera_time: 500
+$num_lines: 0
+$num_icons: 3
+$Flags: 0
+$Formula: ( is-previous-event-true 
+   "sm3-01" 
+   "All beams dead" 
+   ( false ) 
+)
+$start_icon
+$type: 31
+$team: Hostile
+$class: SJ Sathanas
+$pos: -271010.343750, 1354.967163, 96657.890625
+$label: Sathanas
++id: 1
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 25
+$team: Friendly
+$class: GVB Bakha
+$pos: -30004.244141, 381.900970, 20146.687500
+$label: Alpha 4
++id: 2
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$start_icon
+$type: 31
+$team: Friendly
+$class: GTVA Colossus
+$pos: -188032.171875, 3992.035156, -39814.222656
+$label: Colossus
++id: 3
+$hlight: 0
+$multi_text
+$end_multi_text
+$end_icon
+$end_stage
+$end_briefing
+
+#Debriefing_info
+
+$Num stages: 5
+
+$Formula: ( and 
+   ( is-event-true-delay 
+      "May Continue" 
+      0 
+   )
+   ( or 
+      ( is-event-true-delay 
+         "All 4 down C in it" 
+         0 
+      )
+      ( is-event-true-delay "Easy INTRO" 0 ) 
+   )
+)
+$Multi text
+    XSTR("With the destruction of the SJ Sathanas, Allied Command has declared a decisive victory. In the months ahead, we will isolate and eradicate the remnants of the Shivan fleet. This operation could not have succeeded without your intervention, pilot. By neutralizing the forward beam cannons of the Sathanas, you gave the Colossus the advantage it required to win the battle.
+
+For your outstanding record of service, you are hereby awarded the Nebula Campaign Victory Star. This medal recognizes your contributions to our mission of exploration and containment, from your first engagement in Gamma Draconis to our victory in the Capella system. Most notably, we commend you for three successful sorties against the Shivan Juggernaut Sathanas. Congratulations, Terran.", 1562)
+$end_multi_text
+$Voice: sm302_db_01.wav
+$Recommendation text:
+    XSTR("", 10)
+$end_multi_text
+
+$Formula: ( and 
+   ( is-event-true-delay 
+      "May Continue" 
+      0 
+   )
+   ( is-event-false-delay 
+      "All 4 down C in it" 
+      0 
+   )
+   ( is-event-false-delay "Easy INTRO" 0 ) 
+)
+$Multi text
+    XSTR("With the destruction of the SJ Sathanas, Allied Command has declared a decisive victory. In the months ahead, we will isolate and eradicate the remnants of the Shivan fleet. The outcome of this operation would have been more favorable had you completed your objectives. Though the Colossus won the engagement, neutralizing the Juggernaut's forward beam cannons would have reduced the damage it sustained. ", 1563)
+$end_multi_text
+$Voice: sm302_db_02.wav
+$Recommendation text:
+    XSTR("", 10)
+$end_multi_text
+
+$Formula: ( is-event-true-delay 
+   "All 4 down C out" 
+   0 
+)
+$Multi text
+    XSTR("The GTVA Colossus, the largest Terran-Vasudan warship ever constructed, over twenty years in the making, has been destroyed. Thirty thousand perished in the Juggernaut's attack, and millions more are in jeopardy. Though you neutralized the four beam cannons, you completed your objectives too late. ", 1564)
+$end_multi_text
+$Voice: sm302_db_03.wav
+$Recommendation text:
+    XSTR("", 10)
+$end_multi_text
+
+$Formula: ( and 
+   ( is-destroyed-delay 0 "Colossus" ) 
+   ( not 
+      ( is-destroyed-delay 0 "Sathanas" ) 
+   )
+   ( is-event-true-delay "RTB 1" 0 ) 
+)
+$Multi text
+    XSTR("The GTVA Colossus, the largest Terran-Vasudan warship ever constructed, over twenty years in the making, has been destroyed. Thirty thousand perished in the Juggernaut's attack, and millions more are in jeopardy. You failed to neutralize the forward beam cannons, pilot, and now we will all pay the price of that failure.", 1565)
+$end_multi_text
+$Voice: sm302_db_04.wav
+$Recommendation text:
+    XSTR("", 10)
+$end_multi_text
+
+$Formula: ( not 
+   ( is-event-true-delay "RTB 1" 0 ) 
+)
+$Multi text
+    XSTR("A Vasudan never leaves the field of battle without authorization from a superior officer. Your cowardice jeopardized the lives of our brothers and sisters. You are hereby stripped of your wings and all privileges bestowed upon you as an officer of the Galactic Terran-Vasudan Alliance. You will be taken into custody and handed over to the Terran 3rd Battle Group authority, where you will face a court martial. You are a disgrace to your species, Terran.", 1318)
+$end_multi_text
+$Voice: 8_vjoe.wav
+$Recommendation text:
+    XSTR("", 10)
+$end_multi_text
+
+#Players		;! 1 total
+
+$Starting Shipname: Alpha 1
+$Ship Choices: (
+)
+
++Weaponry Pool: (
+	"Mekhu HL-7"	4
+	"Akheton SDG"	4
+	"Trebuchet"	92
+	"TAG-B"	100
+	"Stiletto II"	8
+	"Helios"	16
+)
+
+#Objects		;! 10 total
+
+$Name: Alpha 1		;! Object #0
+$Class: GVB Bakha
+$Team: Friendly
+$Location: 5330.712891, 381.899872, 25443.349609
+$Orientation:
+	-0.989534, 0.000000, -0.144303,
+	-0.011077, 0.997049, 0.075959,
+	0.143877, 0.076762, -0.986614
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Mekhu HL-7" "Akheton SDG" )
++Secondary Banks: ( "Trebuchet" "Helios" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "player-start" )+Respawn priority: 0
+
++Group: 0
++Score: 12
+
+$Name: Alpha 2		;! Object #1
+$Class: GVB Bakha
+$Team: Friendly
+$Location: 5360.211914, 381.901978, 25655.841797
+$Orientation:
+	-0.990004, 0.000000, -0.141041,
+	-0.010759, 0.997086, 0.075522,
+	0.140630, 0.076285, -0.987119
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$AI Goals: ( goals ( ai-destroy-subsystem "Sathanas" "turret01" 50 ) ( ai-destroy-subsystem "Sathanas" "turret02" 33 ) ( ai-destroy-subsystem "Sathanas" "turret03" 22 ) ( ai-destroy-subsystem "Sathanas" "turret04" 11 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Mekhu HL-7" "Akheton SDG" )
++Secondary Banks: ( "Trebuchet" "Helios" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 1
++Score: 10
+
+$Name: Alpha 3		;! Object #2
+$Class: GVB Bakha
+$Team: Friendly
+$Location: 5213.750000, 381.901947, 25589.123047
+$Orientation:
+	-0.988212, 0.000000, -0.153092,
+	-0.011719, 0.997066, 0.075649,
+	0.152643, 0.076551, -0.985312
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$AI Goals: ( goals ( ai-destroy-subsystem "Sathanas" "turret01" 50 ) ( ai-destroy-subsystem "Sathanas" "turret02" 33 ) ( ai-destroy-subsystem "Sathanas" "turret03" 22 ) ( ai-destroy-subsystem "Sathanas" "turret04" 11 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Mekhu HL-7" "Akheton SDG" )
++Secondary Banks: ( "Trebuchet" "Helios" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 1
++Score: 10
+
+$Name: Alpha 4		;! Object #3
+$Class: GVB Bakha
+$Team: Friendly
+$Location: 5435.906738, 381.901978, 25534.189453
+$Orientation:
+	-0.990641, 0.000000, -0.136495,
+	-0.010520, 0.997025, 0.076353,
+	0.136089, 0.077074, -0.987694
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$AI Goals: ( goals ( ai-destroy-subsystem "Sathanas" "turret01" 50 ) ( ai-destroy-subsystem "Sathanas" "turret02" 33 ) ( ai-destroy-subsystem "Sathanas" "turret03" 22 ) ( ai-destroy-subsystem "Sathanas" "turret04" 11 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Subsystem: Pilot
++Primary Banks: ( "Mekhu HL-7" "Akheton SDG" )
++Secondary Banks: ( "Trebuchet" "Helios" )
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" )+Respawn priority: 0
+
++Group: 1
++Score: 10
+
+$Name: Sathanas		;! Object #4
+$Class: SJ Sathanas
+$Team: Hostile
+$Location: 7498.005371, 1355.000000, 12968.264648
+$Orientation:
+	0.984596, 0.000000, 0.174847,
+	0.024569, 0.990078, -0.138353,
+	-0.173112, 0.140518, 0.974827
+$IFF: IFF 1
+$AI Behavior: None
+$AI Goals: ( goals ( ai-waypoints-once "Waypoint path 1" 50 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 100
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01
++Subsystem: turret02
++Subsystem: turret03
++Subsystem: turret04
++Subsystem: turret05
++Subsystem: turret06
++Subsystem: turret07
++Subsystem: turret08
++Subsystem: turret09
++Subsystem: turret10
++Subsystem: turret11
++Subsystem: turret12
++Subsystem: turret13
++Subsystem: turret14
++Subsystem: turret15
++Subsystem: turret16
++Subsystem: turret17
++Subsystem: turret18
++Subsystem: turret19
++Subsystem: turret20
++Subsystem: turret21
++Subsystem: turret22
++Subsystem: turret23
++Subsystem: turret24
++Subsystem: turret25
++Subsystem: turret26
++Subsystem: turret27
++Subsystem: turret28
++Subsystem: turret29
++Subsystem: turret30
++Subsystem: turret31
++Subsystem: turret32
++Subsystem: turret33
++Subsystem: turret34
++Subsystem: turret35
++Subsystem: turret36
++Subsystem: turret37
++Subsystem: turret38
++Subsystem: turret39
++Subsystem: turret40
++Subsystem: turret41
++Subsystem: turret42
++Subsystem: turret43
++Subsystem: turret44
++Subsystem: turret45
++Subsystem: turret46
++Subsystem: turret47
++Subsystem: turret48
++Subsystem: turret49
++Subsystem: turret50
++Subsystem: turret51
++Subsystem: turret52
++Subsystem: turret53
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "no-shields" "escort" "red-alert-carry" )+Respawn priority: 0
+
++Escort priority: 3
++Group: 0
++Score: 10000
+
+$Name: Colossus		;! Object #5
+$Class: GTVA Colossus
+$Team: Friendly
+$Location: 3905.276855, 3992.035400, 31358.669922
+$Orientation:
+	-0.998462, -0.034167, -0.043676,
+	-0.029340, 0.993853, -0.106756,
+	0.047055, -0.105310, -0.993326
+$IFF: IFF 1
+$AI Behavior: None
++AI Class: General
+$AI Goals: ( goals ( ai-chase "Sathanas" 50 ) )
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Initial Hull: 100
++Initial Shields: 100
++Subsystem: Pilot
++Subsystem: turret01a
++Subsystem: turret02a
++Subsystem: turret03a
++Subsystem: turret04a
++Subsystem: turret05a
++Subsystem: turret06a
++Subsystem: turret07a
++Subsystem: turret08a
++Subsystem: turret09a
++Subsystem: turret10a
++Subsystem: turret11
++Subsystem: turret12
++Subsystem: turret13
++Subsystem: turret14
++Subsystem: turret15
++Subsystem: turret16
++Subsystem: turret17
++Subsystem: turret18
++Subsystem: turret19
++Subsystem: turret20
++Subsystem: turret21
++Subsystem: turret22
++Subsystem: turret23
++Subsystem: turret24
++Subsystem: turret25
++Subsystem: turret26
++Subsystem: turret27
++Subsystem: turret28
++Subsystem: turret29
++Subsystem: turret30
++Subsystem: turret31
++Subsystem: turret32
++Subsystem: turret33
++Subsystem: turret34
++Subsystem: turret35
++Subsystem: turret36
++Subsystem: turret37
++Subsystem: turret38
++Primary Banks: ( "AAAf" )
++Subsystem: turret39
++Primary Banks: ( "AAAf" )
++Subsystem: turret40
++Subsystem: turret41
++Subsystem: turret42
++Primary Banks: ( "AAAf" )
++Subsystem: turret43
++Primary Banks: ( "ULTRA Anti-Fighter Beam" )
++Subsystem: turret44
++Primary Banks: ( "ULTRA Anti-Fighter Beam" )
++Subsystem: turret45
++Primary Banks: ( "ULTRA Anti-Fighter Beam" )
++Subsystem: turret46
++Primary Banks: ( "ULTRA Anti-Fighter Beam" )
++Subsystem: turret47
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret48
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret49
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret50
++Primary Banks: ( "TerSlash" )
++Subsystem: turret51
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret52
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret53
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret54
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret55
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret56
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret57
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret58
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret59
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret60
++Primary Banks: ( "LRBGreen" )
++Subsystem: turret61
++Subsystem: turret62
++Subsystem: turret63
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( "cargo-known" "no-shields" "escort" )+Respawn priority: 0
+
++Escort priority: 5
++Group: 0
++Score: 10000
+
+$Name: Cancer 1		;! Object #6
+$Class: SF Basilisk
+$Team: Hostile
+$Location: 13689.147461, 0.000528, 14477.152344
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Cancer 2		;! Object #7
+$Class: SF Basilisk
+$Team: Hostile
+$Location: 13848.122070, 0.000432, 14799.845703
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Cancer 3		;! Object #8
+$Class: SF Basilisk
+$Team: Hostile
+$Location: 14448.145508, 0.001558, 14184.900391
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+$Name: Cancer 4		;! Object #9
+$Class: SF Basilisk
+$Team: Hostile
+$Location: 14499.143555, 0.000916, 14580.364258
+$Orientation:
+	1.000000, 0.000000, 0.000000,
+	0.000000, 1.000000, 0.000000,
+	0.000000, 0.000000, 1.000000
+$IFF: IFF 1
+$AI Behavior: None
+$Cargo 1:  XSTR("Nothing", 13)
++Initial Velocity: 33
++Subsystem: Pilot
+$Arrival Location: Hyperspace
+$Arrival Cue: ( false ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Determination: 10
++Flags: ( )+Respawn priority: 0
+
++Orders Accepted: 0		;! note that this is a bitfield!!!
++Group: 0
++Score: 12
+
+#Wings		;! 2 total
+
+$Name: Alpha
+$Waves: 1
+$Wave Threshold: 0
+$Special Ship: 0		;! Alpha 1
+
+$Arrival Location: Hyperspace
+$Arrival Cue: ( true ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 4 total
+	"Alpha 1"
+	"Alpha 2"
+	"Alpha 3"
+	"Alpha 4"
+)
+$AI Goals: ( goals ( ai-guard "Alpha 1" 50 ) )
++Hotkey: 0
++Flags:( )
+
+$Name: Cancer
+$Waves: 2
+$Wave Threshold: 0
+$Special Ship: 0		;! Cancer 1
+
+$Arrival Location: Docking Bay
++Arrival Distance: 0
+$Arrival Anchor: Sathanas
+$Arrival Cue: ( has-time-elapsed 23 ) 
+$Departure Location: Hyperspace
+$Departure Cue: ( false ) 
+$Ships: (		;! 4 total
+	"Cancer 1"
+	"Cancer 2"
+	"Cancer 3"
+	"Cancer 4"
+)
+$AI Goals: ( goals ( ai-chase-any 50 ) )
++Flags:( )
++Wave Delay Min: 5
++Wave Delay Max: 9
+
+#Events		;! 38 total
+
+$Formula: ( when 
+   ( true ) 
+   ( beam-free-all "Sathanas" ) 
+   ( cap-waypoint-speed "Sathanas" 15 ) 
+)
++Name: Armed and Hammered
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Cancer" ) 
+   ( do-nothing ) 
+)
++Name: Destroy Cancer
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Cancer", 20)
+
+$Formula: ( when 
+   ( and 
+      ( not 
+         ( is-destroyed-delay 0 "Cancer" ) 
+      )
+      ( is-destroyed-delay 0 "Sathanas" ) 
+      ( not 
+         ( is-destroyed-delay 0 "Colossus" ) 
+      )
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "COM Mop" 
+   )
+)
++Name: Mop up
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( or 
+      ( and 
+         ( is-destroyed-delay 0 "Cancer" ) 
+         ( is-destroyed-delay 0 "Sathanas" ) 
+      )
+      ( is-event-true-delay 
+         "All 4 down C out" 
+         3 
+      )
+   )
+   ( do-nothing ) 
+)
++Name: RTB 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-departed-delay 0 "Alpha 1" ) 
+   ( do-nothing ) 
+)
++Name: RTB
++Repeat Count: 1
++Interval: 1
++Chained: 0
++Objective:  XSTR("Return To Base", 24)
+
+$Formula: ( when 
+   ( is-previous-goal-true 
+      "SM3-01" 
+      "GUN 1" 
+      ( true ) 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "turret01" 
+      0 
+   )
+)
++Name: Beam 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-goal-true 
+      "SM3-01" 
+      "GUN 2" 
+      ( false ) 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "turret02" 
+      0 
+   )
+)
++Name: Beam 2
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-goal-true 
+      "SM3-01" 
+      "GUN 3" 
+      ( true ) 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "turret03" 
+      0 
+   )
+)
++Name: Beam 3
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-goal-true 
+      "SM3-01" 
+      "GUN 4" 
+      ( false ) 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "turret04" 
+      0 
+   )
+)
++Name: Beam 4
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-event-true 
+      "sm3-01" 
+      "Flak 49" 
+      ( false ) 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "turret49" 
+      0 
+   )
+)
++Name: Flak 49
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-event-true 
+      "sm3-01" 
+      "Flak 50" 
+      ( false ) 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "turret50" 
+      0 
+   )
+)
++Name: Flak 50
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-event-true 
+      "sm3-01" 
+      "Beam 48" 
+      ( false ) 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "turret48" 
+      0 
+   )
+)
++Name: Beam 48
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-event-true 
+      "sm3-01" 
+      "4 of 4 down" 
+      ( false ) 
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "INTRO- Easy" 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "Hull" 
+      ( rand 91 95 ) 
+   )
+)
++Name: Easy INTRO
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( or 
+      ( and 
+         ( is-subsystem-destroyed-delay 
+            "Sathanas" 
+            "turret01" 
+            0 
+         )
+         ( is-subsystem-destroyed-delay 
+            "Sathanas" 
+            "turret02" 
+            0 
+         )
+         ( is-subsystem-destroyed-delay 
+            "Sathanas" 
+            "turret03" 
+            0 
+         )
+         ( is-subsystem-destroyed-delay 
+            "Sathanas" 
+            "turret04" 
+            0 
+         )
+      )
+      ( is-destroyed-delay 0 "Sathanas" ) 
+   )
+   ( do-nothing ) 
+)
++Name: Destroy beams
++Repeat Count: 1
++Interval: 1
++Objective:  XSTR("Destroy Beams", 1566)
+
+$Formula: ( when 
+   ( is-previous-goal-false 
+      "sm3-01" 
+      "GUN 1" 
+      ( true ) 
+   )
+   ( validate-goal "GUN 1b" ) 
+)
++Name: Gun goal 1
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-goal-false 
+      "sm3-01" 
+      "GUN 2" 
+      ( false ) 
+   )
+   ( validate-goal "GUN 2b" ) 
+)
++Name: Gun goal 2
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-goal-false 
+      "sm3-01" 
+      "GUN 3" 
+      ( true ) 
+   )
+   ( validate-goal "GUN 3b" ) 
+)
++Name: Gun goal 3
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-previous-goal-false 
+      "sm3-01" 
+      "GUN 4" 
+      ( true ) 
+   )
+   ( validate-goal "GUN 4b" ) 
+)
++Name: Gun goal 4
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( beam-free-all "Colossus" ) 
+)
++Name: C Armed
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Colossus" ) 80 ) 
+   ( send-message 
+      "Colossus" 
+      "High" 
+      "COL 80" 
+   )
+)
++Name: Col 80
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Colossus" ) 50 ) 
+   ( send-message 
+      "Colossus" 
+      "High" 
+      "COL 50" 
+   )
+)
++Name: Col 50
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Colossus" ) 20 ) 
+   ( send-message 
+      "Colossus" 
+      "High" 
+      "COL 20" 
+   )
+)
++Name: Col 20
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 2 "Colossus" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "COM COL Dead" 
+   )
+)
++Name: Col 0
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Sathanas" ) 70 ) 
+   ( send-message-list 
+      "#Command" 
+      "High" 
+      "SAM 70 a" 
+      0 
+      "Colossus" 
+      "High" 
+      "SAM 70 b" 
+      4544 
+   )
+)
++Name: SAM 70
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Sathanas" ) 45 ) 
+   ( send-message-list 
+      "#Command" 
+      "High" 
+      "SAM 45 a" 
+      0 
+      "Colossus" 
+      "High" 
+      "SAM 45 b" 
+      4544 
+   )
+)
++Name: SAM 45
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( < ( hits-left "Sathanas" ) 20 ) 
+   ( send-message-list 
+      "#Command" 
+      "High" 
+      "SAM 20 a" 
+      0 
+      "Colossus" 
+      "High" 
+      "SAM 20 b" 
+      4544 
+   )
+)
++Name: SAM 20
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Sathanas" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "COM SAM Dead" 
+   )
+)
++Name: SAM 0
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-previous-event-true 
+         "sm3-01" 
+         "2 of 4 down" 
+         ( true ) 
+      )
+      ( is-previous-event-false 
+         "sm3-01" 
+         "3 of 4 down" 
+         ( true ) 
+      )
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "INTRO 2 to Kill" 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "Hull" 
+      ( rand 95 97 ) 
+   )
+)
++Name: 2 Beams INTRO
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( or 
+         ( and 
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret01" 
+               0 
+            )
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret02" 
+               0 
+            )
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret03" 
+               0 
+            )
+         )
+         ( and 
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret01" 
+               0 
+            )
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret02" 
+               0 
+            )
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret04" 
+               0 
+            )
+         )
+         ( and 
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret04" 
+               0 
+            )
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret02" 
+               0 
+            )
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret03" 
+               0 
+            )
+         )
+         ( and 
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret04" 
+               0 
+            )
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret01" 
+               0 
+            )
+            ( is-subsystem-destroyed-delay 
+               "Sathanas" 
+               "turret03" 
+               0 
+            )
+         )
+      )
+      ( not 
+         ( is-destroyed-delay 0 "Colossus" ) 
+      )
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "1 to go" 
+   )
+)
++Name: 1 of 2 to go
++Repeat Count: 1
++Interval: 1
++Chained: 3
+
+$Formula: ( when 
+   ( and 
+      ( is-previous-event-true 
+         "sm3-01" 
+         "3 of 4 down" 
+         ( false ) 
+      )
+      ( is-previous-event-false 
+         "sm3-01" 
+         "4 of 4 down" 
+         ( false ) 
+      )
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "INTRO 1 To Kill" 
+   )
+   ( set-subsystem-strength 
+      "Sathanas" 
+      "Hull" 
+      ( rand 93 96 ) 
+   )
+)
++Name: 1 Beam INTRO
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-subsystem-destroyed-delay 
+         "Sathanas" 
+         "turret01" 
+         0 
+      )
+      ( is-subsystem-destroyed-delay 
+         "Sathanas" 
+         "turret02" 
+         0 
+      )
+      ( is-subsystem-destroyed-delay 
+         "Sathanas" 
+         "turret03" 
+         0 
+      )
+      ( is-subsystem-destroyed-delay 
+         "Sathanas" 
+         "turret04" 
+         0 
+      )
+      ( not 
+         ( is-destroyed-delay 0 "Colossus" ) 
+      )
+      ( and 
+         ( is-event-true-delay 
+            "1 of 2 to go" 
+            0 
+         )
+         ( is-event-true-delay 
+            "1 Beam INTRO" 
+            0 
+         )
+      )
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "All down" 
+   )
+)
++Name: All 4 down C in it
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-subsystem-destroyed-delay 
+         "Sathanas" 
+         "turret01" 
+         0 
+      )
+      ( is-subsystem-destroyed-delay 
+         "Sathanas" 
+         "turret02" 
+         0 
+      )
+      ( is-subsystem-destroyed-delay 
+         "Sathanas" 
+         "turret03" 
+         0 
+      )
+      ( is-subsystem-destroyed-delay 
+         "Sathanas" 
+         "turret04" 
+         0 
+      )
+      ( is-destroyed-delay 0 "Colossus" ) 
+      ( is-event-true-delay 
+         "1 of 2 to go" 
+         0 
+      )
+   )
+   ( send-message 
+      "#Command" 
+      "High" 
+      "All down C dead" 
+   )
+)
++Name: All 4 down C out
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-arrived-delay 0 "Cancer" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "COM Cancer" 
+   )
+)
++Name: Cancer Attacks
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 3 "Cancer" ) 
+   ( send-message 
+      "#Command" 
+      "High" 
+      "COM Cancer dead" 
+   )
+)
++Name: Cancer dead
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( is-destroyed-delay 0 "Sathanas" ) 
+   ( grant-medal 
+      "Nebula Campaign Victory Star" 
+   )
+)
++Name: Medal
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( and 
+      ( is-destroyed-delay 0 "Sathanas" ) 
+      ( not 
+         ( is-destroyed-delay 0 "Colossus" ) 
+      )
+      ( is-event-true-delay "RTB 1" 0 ) 
+   )
+   ( do-nothing ) 
+)
++Name: May Continue
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( has-time-elapsed 1 ) 
+   ( invalidate-goal 
+      "Assist in the kill" 
+   )
+)
++Name: Goal fiddle
++Repeat Count: 1
++Interval: 1
+
+$Formula: ( when 
+   ( true ) 
+   ( allow-weapon "Circe" ) 
+   ( tech-add-weapons "Circe" ) 
+)
++Name: New Stuff
++Repeat Count: 1
++Interval: 1
+
+#Goals		;! 5 total
+
+$Type: Primary
++Name: GUN 1b
+$MessageNew:  XSTR("Destroy Sathanas forward beam cannon 1", 1567)
+$end_multi_text
+$Formula: ( or 
+   ( = 
+      ( hits-left-subsystem 
+         "Sathanas" 
+         "turret01" 
+      )
+      0 
+   )
+   ( is-subsystem-destroyed-delay 
+      "Sathanas" 
+      "turret01" 
+      0 
+   )
+)
++Invalid
+
+$Type: Primary
++Name: GUN 2b
+$MessageNew:  XSTR("Destroy Sathanas forward beam cannon 2", 1568)
+$end_multi_text
+$Formula: ( or 
+   ( = 
+      ( hits-left-subsystem 
+         "Sathanas" 
+         "turret02" 
+      )
+      0 
+   )
+   ( is-subsystem-destroyed-delay 
+      "Sathanas" 
+      "turret02" 
+      0 
+   )
+)
++Invalid
+
+$Type: Primary
++Name: GUN 3b
+$MessageNew:  XSTR("Destroy Sathanas forward beam cannon 3", 1569)
+$end_multi_text
+$Formula: ( or 
+   ( = 
+      ( hits-left-subsystem 
+         "Sathanas" 
+         "turret03" 
+      )
+      0 
+   )
+   ( is-subsystem-destroyed-delay 
+      "Sathanas" 
+      "turret03" 
+      0 
+   )
+)
++Invalid
+
+$Type: Primary
++Name: GUN 4b
+$MessageNew:  XSTR("Destroy Sathanas forward beam cannon 4", 1570)
+$end_multi_text
+$Formula: ( or 
+   ( = 
+      ( hits-left-subsystem 
+         "Sathanas" 
+         "turret04" 
+      )
+      0 
+   )
+   ( is-subsystem-destroyed-delay 
+      "Sathanas" 
+      "turret04" 
+      0 
+   )
+)
++Invalid
+
+$Type: Primary
++Name: Assist in the kill
+$MessageNew:  XSTR("Help the Colossus neutralize the Sathanas", 1571)
+$end_multi_text
+$Formula: ( is-destroyed-delay 0 "Sathanas" ) 
+
+#Waypoints		;! 1 lists total
+
+
+$Jump Node: 4744.500000, 0.000000, 9450.900391
+$Jump Node Name: Gamma Draconis
+
+$Jump Node: -3137.150391, -11088.758789, -21666.789063
+$Jump Node Name: Vega
+$Name: Waypoint path 1
+$List: (		;! 1 points in list
+	( -51584.738281, 2083.418213, 100050.437500 )
+)
+
+#Messages		;! 227 total
+
+
+$Name: COM Mop
+
+$Team: -1
+$MessageNew:  XSTR("Well done, secure the area and our work here will finished.", 1572)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_01.wav
+
+$Name: COL 80
+
+$Team: -1
+$MessageNew:  XSTR("Colossus here. We have sustained moderate damage. Hull breach on forward decks 140 through 200. Damage control reports auxiliary systems compromised.", 1573)
+$end_multi_text
++AVI Name: Head-CM1
++Wave Name: sm3-02_co_01.wav
+
+$Name: Col 50
+
+$Team: -1
+$MessageNew:  XSTR("Command, this is the Colossus. Hull integrity dropping. Multiple systems approaching critical. Casualty rate escalating.", 1574)
+$end_multi_text
++AVI Name: Head-CM1
++Wave Name: sm3-02_co_02.wav
+
+$Name: COL 20
+
+$Team: -1
+$MessageNew:  XSTR("Colossus here! Our hull will not sustain another salvo! We must withdraw immediately, Command!", 1575)
+$end_multi_text
++AVI Name: Head-CM1
++Wave Name: sm3-02_co_03.wav
+
+$Name: COM COL Dead
+
+$Team: -1
+$MessageNew:  XSTR("We've lost the Colossus! Abort mission, Alpha. Return to base. ", 1576)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_02.wav
+
+$Name: INTRO 2 to Kill
+
+$Team: -1
+$MessageNew:  XSTR("You have two forward beam cannons to neutralize. Acquire your target and engage!", 1577)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_05.wav
+
+$Name: INTRO 1 To Kill
+
+$Team: -1
+$MessageNew:  XSTR("You have only one forward beam cannon to neutralize. Acquire your target and engage!", 1578)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_06.wav
+
+$Name: INTRO- Easy
+
+$Team: -1
+$MessageNew:  XSTR("Listen up, Alpha. Eliminate targets of opportunity, but be careful. It's all up to the Colossus now.", 1579)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_07.wav
+
+$Name: COM SAM Dead
+
+$Team: -1
+$MessageNew:  XSTR("The Sathanas is going down! All units, stand clear!", 1580)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_08.wav
+
+$Name: SAM 70 a
+
+$Team: -1
+$MessageNew:  XSTR("Colossus, the Juggernaut has sustained only moderate damage. You need to direct more energy through your main guns!", 1581)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_09.wav
+
+$Name: SAM 70 b
+
+$Team: -1
+$MessageNew:  XSTR("We're having difficulty stabilizing the power grid, Command. Shutting down non-essential systems.", 1582)
+$end_multi_text
++AVI Name: Head-CM1
++Wave Name: sm3-02_co_04.wav
+
+$Name: SAM 45 a
+
+$Team: -1
+$MessageNew:  XSTR("More firepower, Colossus! The hull integrity of the Sathanas has fallen below fifty percent. ", 1583)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_10.wav
+
+$Name: SAM 45 b
+
+$Team: -1
+$MessageNew:  XSTR("Heat sinks were not made for this kind of abuse, Command! We'll melt down our cannons if we push any harder.", 1584)
+$end_multi_text
++AVI Name: Head-CM1
++Wave Name: sm3-02_co_05.wav
+
+$Name: SAM 20 a
+
+$Team: -1
+$MessageNew:  XSTR("We're almost there, Colossus! Target has gone critical! The war must end here and now!", 1585)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_11.wav
+
+$Name: SAM 20 b
+
+$Team: -1
+$MessageNew:  XSTR("Secondary and Tertiary reactors are down! Fire control is on the verge of redline! We're giving it all we got!", 1586)
+$end_multi_text
++AVI Name: Head-CM1
++Wave Name: sm3-02_co_06.wav
+
+$Name: 1 to go
+
+$Team: -1
+$MessageNew:  XSTR("One cannon left! We are running out of time, Alpha! ", 1587)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_14.wav
+
+$Name: All down
+
+$Team: -1
+$MessageNew:  XSTR("All cannons are down! Repeat! All cannons are down!  Eliminate targets of opportunity, but be careful. It's all up to the Colossus now.", 1588)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_15.wav
+
+$Name: All down C dead
+
+$Team: -1
+$MessageNew:  XSTR("You completed your mission too late, pilot. The battle has been lost.  Return to base.", 1589)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_16.wav
+
+$Name: COM Cancer
+
+$Team: -1
+$MessageNew:  XSTR("The Shivans have scrambled a wing of fighters, designation Cancer. Do not let them impede your mission, Alpha.", 1590)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_17.wav
+
+$Name: COM Cancer dead
+
+$Team: -1
+$MessageNew:  XSTR("We have eliminated Cancer wing.", 1591)
+$end_multi_text
++AVI Name: Head-CM2
++Wave Name: sm3-02_ac_18.wav
+;t be good.", -1)
+
+
+
+#Reinforcements		;! 0 total
+
+
+#Background bitmaps		;! 35 total
+
+$Num stars: 399
+$Ambient light level: 0
+$Sun: SunGold
++Angles: 0.000000 0.000000 4.625119
++Scale: 2.000000
+$Starbitmap: dneb03
++Angles: 0.000000 2.321286 0.000000
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: neb11
++Angles: 0.401425 0.663225 0.139626
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 0.820304 4.834558 0.000000
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 0.000000 1.308996 0.558505
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb03
++Angles: 6.021381 0.890117 5.794488
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 5.951568 2.740165 5.602502
++ScaleX: 1.000000
++ScaleY: 1.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb11
++Angles: 0.000000 0.000000 5.951568
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 5.881755 5.009091 5.532689
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb03
++Angles: 5.585049 0.383972 5.393063
++ScaleX: 2.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 0.558505 0.628318 6.126101
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb10
++Angles: 5.218530 0.000000 5.218530
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb11
++Angles: 5.009091 5.585049 5.218530
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 5.585049 5.585049 0.925024
++ScaleX: 2.000000
++ScaleY: 1.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 5.777035 2.321286 0.802851
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 6.021381 4.468040 0.628318
++ScaleX: 2.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb11
++Angles: 5.585049 0.575958 0.925024
++ScaleX: 3.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: dneb03
++Angles: 5.358157 2.740165 0.628318
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 5.131264 5.951568 0.506145
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 4.991638 0.855211 0.418879
++ScaleX: 3.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 2
+$Starbitmap: neb11
++Angles: 4.764745 1.692968 0.191986
++ScaleX: 4.000000
++ScaleY: 4.000000
++DivX: 2
++DivY: 2
+$Starbitmap: dneb03
++Angles: 5.253437 3.455749 1.117010
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb13
++Angles: 5.078904 1.256636 1.308996
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 4.886918 1.867501 1.553342
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb11
++Angles: 3.508109 0.383972 1.378809
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 3.385936 1.570795 1.169370
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb13
++Angles: 4.799652 1.797688 1.815141
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 4.886918 4.276053 2.076940
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 1
+$Starbitmap: neb11
++Angles: 4.345866 0.366519 2.216566
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 3.874628 1.570795 2.408552
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: neb13
++Angles: 4.031707 0.558505 0.959930
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: dneb10
++Angles: 4.345866 1.797688 0.715584
++ScaleX: 3.000000
++ScaleY: 2.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb03
++Angles: 4.520399 2.146753 0.541052
++ScaleX: 2.000000
++ScaleY: 4.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 3.577922 0.366519 0.663225
++ScaleX: 3.000000
++ScaleY: 3.000000
++DivX: 1
++DivY: 1
+$Starbitmap: dneb10
++Angles: 3.961894 1.570795 0.506145
++ScaleX: 4.000000
++ScaleY: 3.000000
++DivX: 2
++DivY: 1
+$Starbitmap: planete
++Angles: 0.000000 0.000000 2.879791
++ScaleX: 2.500000
++ScaleY: 2.500000
++DivX: 1
++DivY: 1
+
+#Asteroid Fields
+
+#Music
+
+$Event Music: 2: Exodus
+$Briefing Music: Brief3
+
+#End
+

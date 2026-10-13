@@ -1,0 +1,709 @@
+$Name: FreeSpace 2
+$Type: single
++Description:
+ XSTR("The main FreeSpace 2 campaign.", 0)
+$end_multi_text
+
++Starting Ships: ( "GTF Ulysses"  "GTF Hercules"  "GTF Loki"  "GTF Myrmidon"  "GTB Medusa"  "GTB Ursa"  "GTB Zeus"  "GVF Seth"  "GVF Horus"  "GVF Thoth"  "GVB Osiris" )
+
++Starting Weapons: ( "Subach HL-7"  "Mekhu HL-7"  "Akheton SDG"  "Rockeye"  "Tempest" )
+
+
+$Mission: Training-1.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "Training-1.fs2" 
+         "Flight Training" 
+      )
+      ( next-mission "Training-2.fs2" )
+   )
+   ( ( true ) ( next-mission "Training-1.fs2" ) )
+)
+
++Level: 0
++Position: 2
+
+$Mission: Training-2.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "Training-2.fs2" 
+         "Complete Training 2" 
+      )
+      ( next-mission "Training-3.fs2" )
+   )
+   ( ( true ) ( next-mission "Training-2.fs2" ) )
+)
+
++Level: 1
++Position: 2
+
+$Mission: Training-3.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "Training-3.fs2" 
+         "Complete Training 3" 
+      )
+      ( next-mission "SM1-01.fs2" )
+   )
+   ( ( true ) ( next-mission "Training-3.fs2" ) )
+)
+
++Level: 2
++Position: 2
+
+$Mission: SM1-01.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "SM1-01.fs2" 
+         "Protect Iota" 
+      )
+      ( next-mission "SM1-02.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-01.fs2" ) )
+)
+
++Level: 3
++Position: 2
+
+$Mission: SM1-02.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM1-02.fs2" 
+         "Jump Out" 
+      )
+      ( next-mission "SM1-03.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-02.fs2" ) )
+)
+
++Level: 4
++Position: 2
+
+$Mission: SM1-03.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM1-03.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "TSM-104.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-03.fs2" ) )
+)
+
++Level: 5
++Position: 2
+
+$Mission: TSM-104.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "TSM-104.fs2" 
+         "beat training" 
+      )
+      ( next-mission "TSM-105.fs2" )
+   )
+   ( ( true ) ( next-mission "TSM-104.fs2" ) )
+)
+
++Level: 6
++Position: 2
+
+$Mission: TSM-105.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "TSM-105.fs2" 
+         "training" 
+      )
+      ( next-mission "SM1-04.fs2" )
+   )
+   ( ( true ) ( next-mission "TSM-105.fs2" ) )
+)
+
++Level: 7
++Position: 2
+
+$Mission: SM1-04.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM1-04.fs2" 
+         "Thanks" 
+      )
+      ( next-mission "SM1-05.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-04.fs2" ) )
+)
+
++Level: 8
++Position: 2
+
+$Mission: SM1-05.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM1-05.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "SM1-06.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-05.fs2" ) )
+)
+
++Level: 9
++Position: 2
+
+$Mission: SM1-06.fs2
++Briefing Cutscene: mono1.mve
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM1-06.fs2" 
+         "Return To Base" 
+      )
+      ( next-mission "SM1-07.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-06.fs2" ) )
+)
+
++Level: 10
++Position: 2
+
+$Mission: SM1-07.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "SM1-07.fs2" 
+         "Destroy Ravana" 
+      )
+      ( next-mission "TSM-106.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-07.fs2" ) )
+)
+
++Level: 11
++Position: 2
+
+$Mission: TSM-106.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "TSM-106.fs2" 
+         "beat training" 
+      )
+      ( next-mission "SM1-08.fs2" )
+   )
+   ( ( true ) ( next-mission "TSM-106.fs2" ) )
+)
+
++Level: 12
++Position: 2
+
+$Mission: SM1-08.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "SM1-08.fs2" 
+         "Protect Installation" 
+      )
+      ( next-mission "SM1-09.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-08.fs2" ) )
+)
+
++Level: 13
++Position: 2
+
+$Mission: SM1-09.fs2
++Briefing Cutscene: colossus.mve
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM1-09.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "SM1-10.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-09.fs2" ) )
+)
+
++Level: 14
++Position: 2
+
+$Mission: SM1-10.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM1-10.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "SM2-01.fs2" )
+   )
+   ( ( true ) ( next-mission "SM1-10.fs2" ) )
+)
+
++Mission Loop:
++Mission Loop Text:
+ XSTR("Special Operations Command has selected you for a dangerous covert assignment. Will you accept?", 1)
+$end_multi_text
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM1-10.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "loop1-1.fs2" )
+   )
+)
+
++Level: 15
++Position: 2
+
+$Mission: loop1-1.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "loop1-1.fs2" 
+         "Continue Loop" 
+      )
+      ( next-mission "loop1-2.fs2" )
+   )
+   ( ( true ) ( next-mission "loop1-1.fs2" ) )
+)
+
++Level: 16
++Position: 3
+
+$Mission: loop1-2.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "loop1-2.fs2" 
+         "Mission progress" 
+      )
+      ( next-mission "loop1-3.fs2" )
+   )
+   (
+      ( is-previous-event-true 
+         "loop1-2.fs2" 
+         "Goto main campaign" 
+      )
+      ( next-mission "SM2-01.fs2" )
+   )
+   ( ( true ) ( next-mission "loop1-2.fs2" ) )
+)
+
++Level: 17
++Position: 3
+
+$Mission: loop1-3.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "loop1-3.fs2" 
+         "Jump Fixed" 
+      )
+      ( next-mission "SM2-01.fs2" )
+   )
+   ( ( true ) ( next-mission "loop1-3.fs2" ) )
+)
+
++Level: 18
++Position: 3
+
+$Mission: SM2-01.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM2-01.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "SM2-02.fs2" )
+   )
+   ( ( true ) ( next-mission "SM2-01.fs2" ) )
+)
+
++Level: 19
++Position: 2
+
+$Mission: SM2-02.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM2-02.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "SM2-03.fs2" )
+   )
+   ( ( true ) ( next-mission "SM2-02.fs2" ) )
+)
+
++Level: 20
++Position: 2
+
+$Mission: SM2-03.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-goal-true 
+         "SM2-03.fs2" 
+         "Escort Orion" 
+      )
+      ( next-mission "SM2-04.fs2" )
+   )
+   ( ( true ) ( next-mission "SM2-03.fs2" ) )
+)
+
++Level: 21
++Position: 2
+
+$Mission: SM2-04.fs2
++Briefing Cutscene: mono2.mve
++Flags: 0
++Formula: ( cond
+   (
+      ( and 
+         ( is-previous-event-true 
+            "SM2-04.fs2" 
+            "Return" 
+         )
+         ( is-previous-goal-true 
+            "SM2-04.fs2" 
+            "Destroy Rebels" 
+         )
+      )
+      ( next-mission "SM2-05.fs2" )
+   )
+   ( ( true ) ( next-mission "SM2-04.fs2" ) )
+)
+
++Level: 22
++Position: 2
+
+$Mission: SM2-05.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM2-05.fs2" 
+         "Campaign Driven" 
+      )
+      ( next-mission "SM2-06.fs2" )
+   )
+   ( ( true ) ( next-mission "SM2-05.fs2" ) )
+)
+
++Level: 23
++Position: 2
+
+$Mission: SM2-06.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM2-06.fs2" 
+         "NTF Crushed" 
+      )
+      ( next-mission "SM2-07.fs2" )
+   )
+   ( ( true ) ( next-mission "SM2-06.fs2" ) )
+)
+
++Level: 24
++Position: 2
+
+$Mission: SM2-07.fs2
++Flags: 1
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM2-07.fs2" 
+         "Return To Base" 
+      )
+      ( next-mission "SM2-08.fs2" )
+   )
+   ( ( true ) ( next-mission "SM2-07.fs2" ) )
+)
+
++Level: 25
++Position: 2
+
+$Mission: SM2-08.fs2
++Briefing Cutscene: mono3.mve
++Flags: 1
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM2-08.fs2" 
+         "Mission  Accomplished" 
+      )
+      ( next-mission "SM2-09.fs2" )
+   )
+   ( ( true ) ( next-mission "SM2-08.fs2" ) )
+)
+
++Level: 26
++Position: 2
+
+$Mission: SM2-09.fs2
++Flags: 1
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM2-09.fs2" 
+         "Return To The Psamtik" 
+      )
+      ( next-mission "sm2-10.fs2" )
+   )
+   ( ( true ) ( next-mission "SM2-09.fs2" ) )
+)
+
++Level: 27
++Position: 2
+
+$Mission: sm2-10.fs2
++Flags: 1
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "sm2-10.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "SM3-01.fs2" )
+   )
+   ( ( true ) ( next-mission "sm2-10.fs2" ) )
+)
+
++Level: 28
++Position: 2
+
+$Mission: SM3-01.fs2
++Flags: 1
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM3-01.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "sm3-02.fs2" )
+   )
+   ( ( true ) ( next-mission "SM3-01.fs2" ) )
+)
+
++Level: 29
++Position: 2
+
+$Mission: sm3-02.fs2
++Flags: 1
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "sm3-02.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "SM3-03.fs2" )
+   )
+   ( ( true ) ( next-mission "sm3-02.fs2" ) )
+)
+
++Level: 30
++Position: 2
+
+$Mission: SM3-03.fs2
++Briefing Cutscene: mono4.mve
++Flags: 1
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM3-03.fs2" 
+         "Return To Base" 
+      )
+      ( next-mission "SM3-04.fs2" )
+   )
+   ( ( true ) ( next-mission "SM3-03.fs2" ) )
+)
+
++Level: 31
++Position: 2
+
+$Mission: SM3-04.fs2
++Flags: 1
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM3-04.fs2" 
+         "Jump Out" 
+      )
+      ( next-mission "SM3-05.fs2" )
+   )
+   ( ( true ) ( next-mission "SM3-04.fs2" ) )
+)
+
++Level: 32
++Position: 2
+
+$Mission: SM3-05.fs2
++Flags: 1
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM3-05.fs2" 
+         "Well Done" 
+      )
+      ( next-mission "SM3-06.fs2" )
+   )
+   ( ( true ) ( next-mission "SM3-05.fs2" ) )
+)
+
++Mission Loop:
++Mission Loop Text:
+ XSTR("Special Operations Command requests your participation in a high-risk rescue mission. Will you volunteer?", 2)
+$end_multi_text
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM3-05.fs2" 
+         "Well Done" 
+      )
+      ( next-mission "loop2-1.fs2" )
+   )
+)
+
++Level: 33
++Position: 2
+
+$Mission: loop2-1.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "loop2-1.fs2" 
+         "Teloron Depart" 
+      )
+      ( next-mission "loop2-2.fs2" )
+   )
+   ( ( true ) ( next-mission "loop2-1.fs2" ) )
+)
+
++Level: 34
++Position: 3
+
+$Mission: loop2-2.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "loop2-2.fs2" 
+         "mission progress" 
+      )
+      ( next-mission "SM3-06.fs2" )
+   )
+   ( ( true ) ( next-mission "loop2-2.fs2" ) )
+)
+
++Level: 35
++Position: 3
+
+$Mission: SM3-06.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM3-06.fs2" 
+         "May continue" 
+      )
+      ( next-mission "SM3-07.fs2" )
+   )
+   ( ( true ) ( next-mission "SM3-06.fs2" ) )
+)
+
++Level: 36
++Position: 2
+
+$Mission: SM3-07.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM3-07.fs2" 
+         "Well Done" 
+      )
+      ( next-mission "SM3-08.fs2" )
+   )
+   ( ( true ) ( next-mission "SM3-07.fs2" ) )
+)
+
++Level: 37
++Position: 2
+
+$Mission: SM3-08.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "SM3-08.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "sm3-09.fs2" )
+   )
+   ( ( true ) ( next-mission "SM3-08.fs2" ) )
+)
+
++Level: 38
++Position: 2
+
+$Mission: sm3-09.fs2
++Flags: 0
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "sm3-09.fs2" 
+         "May Continue" 
+      )
+      ( next-mission "sm3-10.fs2" )
+   )
+   ( ( true ) ( next-mission "sm3-09.fs2" ) )
+)
+
++Level: 39
++Position: 2
+
+$Mission: sm3-10.fs2
++Briefing Cutscene: bastion.mve
++Flags: 0
++Formula: ( cond
+   ( ( true ) ( end-of-campaign ) )
+)
+
++Level: 40
++Position: 2
+
+#End
+
