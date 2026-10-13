@@ -296,10 +296,14 @@ console.log('\nNothing but the ram course moves a ram course');
 // than the ram course could steer. tickEnemies is far too large to run here,
 // so what is checked is that it stands aside: the station keeping and the
 // patrol drift have to sit behind a capRam guard in both capital branches.
+// v233: the glide goes through capAcc() now, so a capital ship accelerates
+// into it instead of being at speed in one tick. The guard is what this
+// checks, not the number - but the number is pinned too, so a change to it
+// has to come past here.
 ok('the cruiser branch stands aside for a ram course',
-   /if\(!e\.capRam\)\{[\s\S]{0,240}?e\.x=Math\.max\(e\.targetX,e\.x-0\.8\)/.test(src));
+   /if\(!e\.capRam\)\{[\s\S]{0,400}?e\.x=Math\.max\(e\.targetX,e\.x-capAcc\(e,0\.8\)\)/.test(src));
 ok('and so does the corvette and destroyer branch',
-   /if\(!e\.capRam\)\{[\s\S]{0,240}?e\.x=Math\.max\(e\.targetX,e\.x-0\.6\)/.test(src));
+   /if\(!e\.capRam\)\{[\s\S]{0,400}?e\.x=Math\.max\(e\.targetX,e\.x-capAcc\(e,0\.6\)\)/.test(src));
 {
   // capRam has to be the speed itself now, so a step has to be worth it.
   const t = {uid:'A1', img:'dehatshepsut', x:400, y:250, sc:1, small:false,

@@ -1038,6 +1038,150 @@ mehr als eine Radaränderung. Deshalb zuerst die einfache Fassung zum Ansehen.
 
 - Status: entschieden, wird in v233 gebaut
 
+### F16 — Verbündete Jäger und Bomber sind viel kleiner als gegnerische
+
+**Befund (Silvio, v232):** „Etwas das mir im Test auch gerade auffällt ist,
+dass das Spiel gegnerische und verbündete Jäger/Bomber unterschiedlich groß
+darzustellen scheint. Gegnerische Osiris Bomber sind relativ groß wohingegen
+verbündete Osisris Bomber lächerlich klein zu sein scheinen."
+
+**Ursache (nachgewiesen):** Verbündete Jäger und Bomber sind die **einzigen
+Schiffe im Spiel**, die noch nach der Regel von vor v208 gezeichnet werden.
+Drei Wege, drei Maßstäbe:
+
+```js
+// Gegner (40_world.js:156 und 174)
+const _bw = smallWidth(spr,'bo');                  // = hullWidth: Laenge x 3,75
+const sc  = _bw/Math.max(img.width, img.height);
+
+// Spieler (50_combat.js:2880)
+return hullScale(k, 0.28);                         // dasselbe
+
+// Verbuendete (40_world.js:1934)
+const sc = Math.min(0.55, (kind==='bomber'?65:60)/img.width);
+```
+
+Die letzte Zeile ist der Stand von **vor** v208: feste 65 Bildpunkte für
+jeden Bomber, 60 für jeden Jäger, unabhängig von der Länge. Bei der
+Umstellung auf echte Größen wurde sie übersehen.
+
+**Für die Osiris:** 40 m → **150** Einheiten beim Gegner, **65** beim
+Verbündeten. Faktor **2,3**. Und weil die alte Regel eine feste Zahl ist,
+ist eine verbündete Osiris (40 m) genauso groß wie eine verbündete Bakha
+(18 m), während der Gegner die eine doppelt so groß zeichnet wie die andere.
+
+**Behoben in v233:** derselbe Weg wie beim Gegner und beim Spieler.
+
+### F17 — Die SF Dragon ist zu klein, um sie zu treffen
+
+**Befund (Silvio, v232):** „Ich habe festgestellt, dass die SF Dragon im
+Vergleich zu anderen Shivanischen Jägern sehr klein wirkt." Und auf die
+Frage, ob die Länge aus der Wiki falsch sei: „Die aus der Wiki gezogenen
+Daten sind schon korrekt, also ja, die Dragon ist ein relativ kleiner Jäger.
+Das Problem ist halt, dass sie im Browsergame zu klein ist. Ihr Maßstab wird
+korrekt sein, nur ist sie so halt sehr schwer zu treffen, daher sollte sie
+etwa ein Drittel größer werden."
+
+**Also kein Datenfehler, sondern eine Spielentscheidung.** Die Zahlen, die
+dazu geführt haben:
+
+| | Länge | gezeichnet |
+|---|---|---|
+| SF Dragon | 12,6 m | **47** |
+| SF Manticore | 15,5 m | 58 |
+| GTF Myrmidon | 16,0 m | 60 |
+| GTF Perseus | 17,0 m | 64 |
+| GTF Hercules | 20,0 m | 75 |
+| SF Astaroth | 21,0 m | 79 |
+| SF Aeshma | 30,0 m | 113 |
+
+Die Dragon ist damit der kleinste Jäger im Spiel. Bis v208 bekam **jeder**
+Jäger feste 60 Einheiten (`SIZE_CLASS_FIXED fi: 60`), da fiel es nicht auf.
+
+**Behoben in v233:** `SIZE_KEY_MUL` bekommt `fidragon: 1.33` — dieselbe
+Tabelle, die Silvio in v166 für die Bojen entschieden hat („Drawn smaller
+than its length gives"). Sie wird damit **63** Einheiten groß, liegt also
+zwischen Myrmidon und Perseus. Die Längentabelle bleibt richtig, die Ausnahme
+steht als Ausnahme da.
+
+**Dabei aufgefallen, noch offen:** In v208 sind zwei weitere Einträge
+derselben Art stillschweigend wirkungslos geworden, weil `hullWidth()`
+`SIZE_FIXED` nicht mehr liest: die **Manticore** war bewusst 10 % schmaler
+(`fimanticore: 50`, heute 58) und die **Sathanas** hatte 540 als Deckel
+(heute 4604). Der Kommentar über `HULL_LEN` beschreibt außerdem noch die
+alte Regel („Jäger, Bomber und Rettungskapseln sind ausgenommen"). Nicht
+angefasst, bis Silvio es entscheidet.
+
+### Die drei Familien der `warpsim`-Befunde
+
+`warpsim` war **nie** ganz sauber. Auf v232 waren es 84 Befunde über alle 60
+Missionen, und sie zerfielen in genau drei Familien. Silvio hat auf Vorlage
+hin **alle drei** zur Behebung freigegeben (v232).
+
+**Familie 1 — „pop" nach dem Sprung (23 Befunde, nur Jäger).** Ein Messfehler
+der Prüfung, nicht des Spiels. `pop` verglich die Änderung des sichtbaren
+Rumpfes mit der Geschwindigkeit **entlang der Nase** — und rechnete damit
+weder die **Drehung** noch den **Bildrand** mit. Ein Jäger dreht sofort nach
+der Ankunft, und am Bildrand ändert seitliches Ziehen sehr schnell, wie viel
+von ihm im Bild liegt.
+
+**Behoben in v233** (in `warpsim.js`, also ohne Spieländerung): gemessen wird
+jetzt nur noch, **was der Trichterschnitt verdeckt** (`visCut`), gegen die
+**eigene Bewegung des Schiffes quer zum Schnitt**. Der Bildrand spielt keine
+Rolle mehr.
+
+Dabei zwei Dinge gelernt, die festgehalten gehören:
+
+- Meine erste Fassung berechnete die Toleranz aus dem **Abstand zum
+  Schnitt** — und der springt mit, wenn der Schnitt springt. Die Prüfung
+  hätte sich selbst entschuldigt. Aufgefallen nur, weil sie gegen eine
+  absichtlich kaputte Kopie gestellt wurde (Schnitt springt 60 Punkte).
+- **Nach** dem Sprung gibt es überhaupt keinen Schnitt: `fsPostClip()`
+  existiert im Spiel nicht, `warpsim` hat nur vorsichtshalber danach
+  gefragt. Alle 23 Befunde „after jump in" waren also ausnahmslos Bildrand
+  und Drehung — nichts.
+
+**Familie 3 — „stop" aus dem Stand (13 Befunde, Großkampfschiffe).** Ein
+echter Fehler: keine Beschleunigung. Die Zahlen waren genau ihre
+Marschgeschwindigkeit (`craten` 1,81 = 25 × `SMALL_SPD_ANCHOR` × `TEMPO_K`,
+`cosobek` 2,18, `dehatshepsut` 1,09). Dazu passt, dass `fsExitSpeed()` für
+einen Verbündeten **0** zurückgibt: das Bild bringt sie stehend aus dem
+Strudel, und die Fahrt setzte sie im nächsten Bild auf voll.
+
+**Behoben in v233:** neu `capAcc(o, want)` in `57_turrets.js`, 2,5 Sekunden
+von 0 auf Marsch und ebenso zurück. **Alles**, womit ein Großkampfschiff
+fährt, geht dadurch — die Fahrt zur Station, die Bahn, das Nachlaufen in der
+Kehre —, damit nicht zwei Stellen verschiedene Geschwindigkeiten haben. Der
+Schritt ist ihre eigene Marschgeschwindigkeit geteilt durch die Zeit, also
+beschleunigt ein langsamer Rumpf sanft und ein schneller zügig, und beide
+brauchen dieselben Sekunden.
+
+Gemessen: erster Schritt 0,003 statt 0,725 (volle Marschgeschwindigkeit),
+größte Änderung je Schritt 0,003 gegen die Grenze 0,35 von `warpsim`.
+
+**Familie 2 — „stop" beim Übergang (48 Befunde, nur Jäger) — noch offen.**
+Beim Verlassen des Strudels geht der Jäger vom Bremsverlauf des Sprungs auf
+das Flugmodell über, und dabei gibt es einen Knick: erlaubt sind 0,6
+Bildpunkte je Takt Änderung, gemessen werden **0,71**.
+
+**Warum nicht in v233 mitgebaut:** Es ist ein Zehntel Bildpunkt je Takt, und
+die Ursache sitzt in einer Kurve, die sich **absichtlich in jedem Takt neu
+anpasst** — `fsWarp()` rechnet `drift` aus der bisher geflogenen Strecke und
+leitet daraus `v`, `Dk` und `c` ab, damit das Schiff am Ende des Sprungs
+„ohne Halt weiterfliegt". Daran zu drehen, ohne vorher gemessen zu haben,
+wie der Verlauf wirklich aussieht, riskiert das Aussehen jedes Einsprungs im
+Spiel für ein Zehntel Bildpunkt. **Deshalb zuerst messen, dann bauen** — und
+die Schwelle wird dabei nicht angehoben, das wäre das Anpassen einer
+Erwartung an ein kaputtes Ergebnis.
+
+**Und der eigentliche Schutz fehlt noch:** eine **Grundlinie** der
+akzeptierten Befunde, je Eintrag mit Begründung, gegen die `warpsim` selbst
+vergleicht. Solange die nicht steht, muss ein Mensch nach jedem Lauf
+entscheiden, ob ein Befund neu ist — und genau so rutscht einer durch. Sie
+wird erst angelegt, **wenn Familie 2 behoben ist**: eine Grundlinie, die
+Rauschen festschreibt, das gleich darauf verschwindet, wäre schon beim
+Anlegen veraltet.
+
 ---
 
 ## Von mir bemerkt, nicht von Silvio gemeldet

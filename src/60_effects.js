@@ -1491,7 +1491,9 @@ function update(){
       // Wie beim Kreuzer: ein Rammkurs faehrt seinen eigenen Kurs.
       if(!e.capRam){
         // v211: to her station, then on her lane (capLane)
-        if(e.x>e.targetX && !e._lane) e.x=Math.max(e.targetX,e.x-0.6);
+        // through the accelerator as well, so the step from this glide to
+        // her lane is not a jump either
+        if(e.x>e.targetX && !e._lane) e.x=Math.max(e.targetX,e.x-capAcc(e,0.6));
         else capLane(e, 1);
       }
       e.y=Math.max(WY0+18,Math.min(WY1-18,e.y));
@@ -1514,7 +1516,7 @@ function update(){
       // die Fahrt bei x = 0: der linke Bildrand, an dem er hing.
       if(!e.capRam){
         // Zu Kampfposition gleiten
-        if(e.x>e.targetX && !e._lane) e.x=Math.max(e.targetX,e.x-0.8);
+        if(e.x>e.targetX && !e._lane) e.x=Math.max(e.targetX,e.x-capAcc(e,0.8));
         else capLane(e, 1);                  // v211: on her lane
       }
       e.y=Math.max(WY0+18,Math.min(WY1-18,e.y));

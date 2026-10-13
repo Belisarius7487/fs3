@@ -482,6 +482,144 @@ scenario('A ship caught mid-turn swings out of it instead of snapping', 'm=9', `
   r.beforeHalf_noSnap = b.worst <= 0.08;
   return r;`);
 
+// Allied fighters and bombers were the last ships drawn by the rule from
+// before v208: a fixed 65 px for every bomber and 60 for every fighter,
+// whatever its length, while enemy small craft and the player had long since
+// gone to real length. An allied Osiris of 40 m came out at a fraction of
+// the enemy one beside her (Silvio, v232).
+scenario('An allied bomber is drawn the size an enemy one is', 'm=31', `
+  const r = {};
+  FS.step(30);
+  const lenOf = o => IMGS[o.img].width*o.sc;
+  const en = mkEnemy('bo_shivan', 'boosiris', 200);
+  const al = mkAllySmall('bomber', 'terran', 'boosiris', 200);
+  r.enemyLength = Math.round(lenOf(en));
+  r.allyLength = Math.round(lenOf(al));
+  r.sameSize = Math.abs(lenOf(en) - lenOf(al)) < 0.5;
+  const ef = mkEnemy('fi_shivan', 'fiastaroth', 200);
+  const af = mkAllySmall('fighter', 'terran', 'fiastaroth', 200);
+  r.sameSizeFighter = Math.abs(lenOf(ef) - lenOf(af)) < 0.5;
+  // and her length drives it now: the 40 m Osiris against the 18 m Bakha,
+  // which the old fixed number drew exactly alike
+  const bk = mkAllySmall('bomber', 'vasudan', 'bobakha', 200);
+  r.bakhaLength = Math.round(lenOf(bk));
+  r.longerIsBigger = lenOf(al) > lenOf(bk)*1.5;
+  return r;`);
+
+// The Dragon is a genuinely short fighter - Silvio checked the figure - and
+// at 12.6 m she came out the smallest fighter in the game and too hard to
+// hit. His decision: a third larger, through the table that exists for
+// exactly this (SIZE_KEY_MUL, where the buoys sit since v166).
+scenario('The Dragon is drawn a third larger than her length gives', 'm=31', `
+  const r = {};
+  const plain = HULL_LEN.fidragon*SIZE_UPM;
+  r.plainFromHerLength = Math.round(plain*10)/10;
+  r.drawn = Math.round(hullWidth('fidragon')*10)/10;
+  r.aThirdLarger = Math.abs(hullWidth('fidragon')/plain - 4/3) < 0.01;
+  // and she is not the smallest fighter in the game any more
+  const smaller = Object.keys(HULL_LEN)
+    .filter(k => k.indexOf('fi') === 0 && hullWidth(k) < hullWidth('fidragon'));
+  r.smallerThanHer = smaller.join(',') || '(none)';
+  r.notTheSmallestAnyMore = smaller.length > 0;
+  return r;`);
+
+// The radar used to show the mission area while the ships fly in the world,
+// which is wider and taller; everything out there was clamped onto the
+// border. And the world was that much bigger only because it held room for
+// a Colossus that could be called but mostly never was - she is 4745 units
+// where a double-size mission is 1600 wide (Silvio, v232). Both ends of
+// that are measured here: nothing is drawn longer than the field, so the
+// world is the mission area and its margin, and the radar shows all of it.
+scenario('The radar shows the whole world, and nothing is longer than the field', 'm=31', `
+  const r = {};
+  FS.step(30);
+  const hwIn = (k) => (typeof hullWidthIn === 'function') ? hullWidthIn(k) : hullWidth(k);
+  r.fieldK = FIELD_K;
+  r.missionArea = Math.round(MW) + 'x' + Math.round(MH - HUD_H);
+  r.world = Math.round(WX1 - WX0) + 'x' + Math.round(WY1 - WY0);
+  r.colossusPlain = Math.round(hullWidth('sdcolossus'));
+  r.colossusDrawn = Math.round(hwIn('sdcolossus'));
+  r.noneLongerThanTheField = Object.keys(HULL_LEN).every(k => hwIn(k) <= MW + 0.001);
+  // so the world is the mission area plus its margin, and no more
+  r.worldIsMissionPlusMargin = Math.abs((WX1 - WX0) - (MW + 300*FIELD_K)) < 1
+                            && Math.abs((WY1 - WY0) - (MH - HUD_H + 200*FIELD_K)) < 1;
+  r.shareOfTheRadar = Math.round(MW/(WX1 - WX0)*100) + '%x' + Math.round((MH - HUD_H)/(WY1 - WY0)*100) + '%';
+  r.mostOfTheRadar = MW/(WX1 - WX0) > 0.6 && (MH - HUD_H)/(WY1 - WY0) > 0.6;
+
+  // The icons are data URLs and decode on their own time; nothing is drawn
+  // before they are there.
+  radarImgs();
+  for(let i = 0; i < 60 && !radarIcon('radar-fighter', '#ffffff'); i++)
+    await new Promise(res => setTimeout(res, 50));
+  r.iconsReady = !!radarIcon('radar-fighter', '#ffffff');
+
+  // Where an icon really lands. One ship in the field and nothing else, so
+  // the first translate in drawBarRadar is hers.
+  const keepE = enemies, keepA = allies;
+  const one = enemies.find(x => !x.dead && x.img && !(x.warp > 0) && !x.scenery)
+           || {type:'fighter', side:'enemy', faction:'ntf', img:'fiastaroth', hp:9, maxHp:9,
+               dead:false, warp:0, warpOut:0, sc:0.3, x:0, y:0};
+  const box = {x: 100, y: 6, w: 80, h: 44};
+  const at = (sx, sy) => {
+    enemies = [one]; allies = [];
+    one.x = sx; one.y = sy;
+    const tr = ctx.translate, tp = [];
+    ctx.translate = function(tx, ty){ tp.push(tx); return tr.apply(ctx, arguments); };
+    try{ drawBarRadar(box.x, box.y, box.w, box.h); } finally { ctx.translate = tr; }
+    return tp.length ? tp[0] : null;
+  };
+  const cy = (HUD_H + MH)/2;
+  // two places in the margin, where ships warp in from and where the old
+  // radar clamped everything onto one edge
+  const p1 = at(-40*FIELD_K, cy), p2 = at(-120*FIELD_K, cy);
+  const mid = at(MW/2, cy);
+  enemies = keepE; allies = keepA;
+  r.iconsDrawn = p1 != null && p2 != null && mid != null;
+  if(p1 != null && p2 != null && mid != null){
+    r.atMinus40K = Math.round(p1*10)/10;
+    r.atMinus120K = Math.round(p2*10)/10;
+    // Two ships 80*FIELD_K apart in the margin have to land apart on the
+    // radar. Clamped to the mission area's edge they landed on the same
+    // pixel, which is the guessing Silvio refused to do.
+    r.theMarginIsSpreadOut = Math.abs(p1 - p2) > 0.8;
+    // and the middle of the mission is still the middle of the box
+    r.middleStaysInTheMiddle = Math.abs(mid - (box.x + box.w/2)) < box.w*0.12;
+  }
+  return r;`);
+
+// A capital ship had no acceleration: she came out of her vortex standing -
+// the picture brings an ally out at nothing - and drove at her full cruise
+// in the next tick. warpsim saw it thirteen times over the campaign and the
+// numbers were exactly her cruise (craten 1.81, cosobek 2.18, hatshepsut
+// 1.09). Measured here tick by tick on the real drive.
+scenario('A capital ship accelerates instead of being at her cruise at once', 'm=31', `
+  const r = {};
+  // one that really drives her lane: capMovers() is the game's own list
+  r.aShipOnHerLane = FS.until(()=>capMovers().length > 0, 20000, true) >= 0;
+  const a = capMovers()[0];
+  if(!a) return r;
+  r.ship = a.img;
+  const cruise = capCruise(a);
+  r.cruise = Math.round(cruise*1000)/1000;
+  // Standing still, and then let go. Measured as displacement, so it reads
+  // the same on a version that has no accelerator at all.
+  if('_capV' in a) a._capV = null;
+  const step = [];
+  for(let t = 0; t < 260; t++){ const x0 = a.x, y0 = a.y; capLane(a, 1);
+                                step.push(Math.hypot(a.x - x0, a.y - y0)); }
+  let worst = 0;
+  for(let i = 1; i < step.length; i++) worst = Math.max(worst, Math.abs(step[i] - step[i-1]));
+  r.firstStep = Math.round(step[0]*1000)/1000;
+  r.afterTwoSeconds = Math.round(step[200]*1000)/1000;
+  r.biggestStepChange = Math.round(worst*1000)/1000;
+  // She sets off from a standstill rather than at her cruise, no single
+  // tick changes her speed by much - warpsim's limit for a capital is 0.35
+  // px/tick - and she does get up to speed.
+  r.startsFromRest = step[0] < cruise*0.1;
+  r.noJump = worst < 0.05;
+  r.getsUpToSpeed = step[200] > cruise*0.6;
+  return r;`);
+
 // Sentry guns get the corner brackets that fighters and bombers get. They
 // had none unless they were the target, which left them to be found among
 // the effects by eye (Silvio, v216).

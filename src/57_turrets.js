@@ -231,6 +231,27 @@ function capCruise(o){
   const k = String(o.img || '').replace(/^ntf/, '');
   return (CAP_VEL[k] || CAP_VEL_TYPE[o.type] || 20)*SMALL_SPD_ANCHOR*TEMPO_K;
 }
+// Seconds from a standstill to her cruise, and the same the other way.
+// A capital ship had no acceleration at all: she came out of her vortex
+// standing - fsExitSpeed() returns 0 for an ally, so the picture brings her
+// out at nothing - and was at her full cruise in the very next tick.
+// warpsim saw it in thirteen places and the numbers are exactly her cruise:
+// "stop craten/A1 speed 0.00 -> 1.81 px/tick (after jump)" against
+// 25 x SMALL_SPD_ANCHOR x TEMPO_K = 1.81, cosobek 30 -> 2.18,
+// dehatshepsut 15 -> 1.09 (Silvio, v232: accepted as a real fault).
+//
+// EVERYTHING a capital ship drives with goes through here - her glide to
+// her station, her lane, her coast through a turn - so that no two of them
+// can disagree about how fast she is. The step is her own cruise over the
+// time, so a slow hull accelerates gently and a fast one briskly, and both
+// take the same seconds to get there.
+const CAP_ACC_S = 2.5;
+function capAcc(o, want){
+  const step = capCruise(o)/(CAP_ACC_S*TICK_HZ);
+  const v = (o._capV == null) ? 0 : o._capV;
+  o._capV = v + Math.max(-step, Math.min(step, want - v));
+  return o._capV;
+}
 function capBow(o){ return ((spriteFacing(o.img) === 'right') !== !!o.flip) ? 1 : -1; }
 // held where she is by her task in the mission
 function capHolds(o){
@@ -296,17 +317,19 @@ function laneLimit(o, L, d){
   return lim;
 }
 function capLane(o, mul){
-  if(!subOK(o, 'engines')){ o.vy = 0; return; }       // dead in the water
+  if(!subOK(o, 'engines')){ o.vy = 0; capAcc(o, 0); return; }   // dead in the water
   if(o._lane && o._lane.t){
     // a turn once begun is finished - and one that is already opening out
     // for a jump is not turned back into a turn
     if(o._lane.t.settle != null) capTurnSettle(o); else capTurnStep(o, mul);
     return;
   }
-  if(capHolds(o)){ o.vy = 0; return; }
+  // Held, standing, or no room: she runs down rather than stops dead, and
+  // sets off again from nothing when she is let go.
+  if(capHolds(o)){ o.vy = 0; capAcc(o, 0); return; }
   if(!o._lane) laneInit(o);
-  if(o._lane.stand){ o.vy = 0; return; }
-  const L = o._lane, v = capCruise(o)*(mul || 1);
+  if(o._lane.stand){ o.vy = 0; capAcc(o, 0); return; }
+  const L = o._lane, v = capAcc(o, capCruise(o)*(mul || 1));
   // back into her lane if something pushed her out of it
   const dy = L.y - o.y; o.vy = Math.max(-v*0.4, Math.min(v*0.4, dy*0.02)); o.y += o.vy;
   const lim = laneLimit(o, L, L.dir), ahead = L.dir > 0 ? lim - o.x : o.x - lim;
@@ -314,7 +337,7 @@ function capLane(o, mul){
   // there is more
   const back = laneLimit(o, L, -L.dir);
   L.hold = Math.abs(lim - back) < Math.max(LANE_MIN, hullBox(o).hw*3);
-  if(L.hold){ o.vy = 0; return; }
+  if(L.hold){ o.vy = 0; capAcc(o, 0); return; }
   if(ahead <= 0){
     L.t = {p: 0, n: Math.round((CAP_TURN_S[o.type] || 6)*60)};
     capTurnStep(o, mul); return;
@@ -373,7 +396,7 @@ function capTurnSettle(o){
   if(T.p <= 0){ L.t = null; o.turnP = null; o.turnSq = null; o.turnC = null; }
 }
 function capTurnStep(o, mul){
-  const L = o._lane, T = L.t, v = capCruise(o)*(mul || 1);
+  const L = o._lane, T = L.t, v = capAcc(o, capCruise(o)*(mul || 1));
   T.p = Math.min(1, T.p + 1/T.n);
   const c = Math.cos(Math.PI*T.p);
   o.x += L.dir*v*0.3*c;

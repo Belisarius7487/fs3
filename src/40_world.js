@@ -48,8 +48,15 @@ const SIZE_REF_L = 20, SIZE_REF_W = 60;
 // The Sathanas is as long as the Colossus and drawn as large (v178, Silvio:
 // she was capped at the Lucifer's 400).
 const SIZE_FIXED = {sdcolossus: 556, sdsathanas: 540, fimanticore: 50};
-// Drawn smaller than its length gives (Silvio, v166: the buoys by a third).
-const SIZE_KEY_MUL = {inpharos: 0.67};
+// Drawn other than its length gives, by Silvio's eye and nothing else.
+// inpharos: the buoys, smaller by a third (v166). fidragon: the Dragon is
+// a genuinely short fighter at 12.6 m - the wiki figure is right, he
+// checked - and at 47 units she came out the smallest fighter in the game
+// and too hard to hit (v232: "sie ist so halt sehr schwer zu treffen, daher
+// sollte sie etwa ein Drittel groesser werden"). At 1.33 she is 63, between
+// the Myrmidon and the Perseus. The length table stays true; the exception
+// stands here where it can be read as one.
+const SIZE_KEY_MUL = {inpharos: 0.67, fidragon: 1.33};
 const SIZE_CLASS_FIXED = {fi: 60, bo: 65, ep: 60};
 // Eigener Boden je Klasse, wo der Jaegerboden nicht passt. Ein
 // Geschuetzturm ist kein Schiff und wird nicht mit einem Jaeger verglichen.
@@ -116,10 +123,36 @@ function worldForWave(q){
     else { let pool = null; try{ pool = poolFor(s.type); }catch(e){ pool = null; }
            for(const p of (pool || [])) look(p, true); }
   }
+  // What can only be CALLED is drawn no wider than the field, so that is
+  // all the world has to hold for it - not its full length. k is final
+  // here: the loop above is the only one that sets it.
+  const mw = W*k;
   for(const id of ALLY_ORDER.concat([ALLY_SPECIAL])){
-    const d = ALLY_DEFS[id]; if(d && allyFacOn(d.fac)) look(d.spr, false);
+    const d = ALLY_DEFS[id];
+    if(d && allyFacOn(d.fac) && d.spr && HULL_LEN[d.spr])
+      need = Math.max(need, hullWidthIn(d.spr, mw));
   }
   worldSet(k, need);
+}
+// No hull is drawn longer than the mission area is wide (Silvio, v232:
+// "Warum die Colossus nicht einfach nur so gross ins Spielfeld setzen wie
+// das Spielfeld breit ist? Sie ist ein riesiges Schiff, da sie ein
+// Juggernaut ist, aber man muss sie nicht groesser als unbedingt noetig
+// darstellen"). It is also the rule the game had until v208: SIZE_FIXED
+// held 556 for her, and hullWidth() stopped reading that table.
+//
+// Only a hull that is merely ON CALL ever reaches the limit. A mission's
+// own ships set FIELD_K - k is their drawn width over their old one - so MW
+// is always at least as wide as the longest of them. The Colossus is
+// looked up with mission=false and so sets nothing, which is why the world
+// had to hold room for her through every mission she could be called into,
+// and why the radar showed an area twice the size of the mission (F15).
+//
+// mw: the mission area to measure against, for the one caller that knows a
+// new one before MW has been set (worldForWave).
+function hullWidthIn(key, mw){
+  const w = hullWidth(key), lim = (mw != null ? mw : MW);
+  return lim > 0 ? Math.min(w, lim) : w;
 }
 function hullScale(key, fallback){
   const img = IMGS[key];
@@ -128,7 +161,7 @@ function hullScale(key, fallback){
   // als breit ist, viel zu gross gezeichnet: 30 Bildpunkte Breite sind bei
   // einem hochkant stehenden Geschuetzturm 90 Bildpunkte Hoehe.
   // Bei Schiffen ist die groessere Seite die Breite, dort aendert sich nichts.
-  return hullWidth(key)/Math.max(img.width, img.height||img.width);
+  return hullWidthIn(key)/Math.max(img.width, img.height||img.width);
 }
 
 // Zaehigkeit aus derselben Laenge. Verankert an den zwei am besten
@@ -1868,7 +1901,7 @@ function mkAlly(id){
     // einer eingebetteten Breite von 1152 sind das 2,08fache
     // Hochskalierung - der Colossus war damit das weichste Objekt im
     // Spiel. 556 ist schaerfer UND kleiner.
-    colSc = hullWidth('sdcolossus')/img.width;
+    colSc = hullWidthIn('sdcolossus')/img.width;
     y = HUD_H + img.height*colSc*0.5 + 6;
     cx = MW/2;
   }
@@ -1931,7 +1964,17 @@ function hasAllyCapital(){
 // craft, only the side differs.
 function mkAllySmall(kind, fac, spr, y){
   const img = IMGS[spr];
-  const sc = img ? Math.min(0.55, (kind==='bomber'?65:60)/img.width) : 0.5;
+  // The same scale as everyone else. This line was the rule from before
+  // v208 - a fixed 65 px for every bomber and 60 for every fighter,
+  // whatever its length - and it was the last one left: enemy small craft
+  // (mkEnemy, smallWidth) and the player (playerSc, hullScale) have both
+  // been on real length since v208. So an allied Osiris of 40 m came out at
+  // 65 units against the 150 of the enemy one beside her, and an allied
+  // Osiris was the same size as an allied Bakha of 18 m (Silvio, v232:
+  // "gegnerische Osiris Bomber sind relativ gross wohingegen verbuendete
+  // Osiris Bomber laecherlich klein zu sein scheinen").
+  const _w = smallWidth(spr, kind === 'bomber' ? 'bo' : 'fi');
+  const sc = img ? _w/Math.max(img.width, img.height||img.width) : 0.5;
   const bomber = kind==='bomber';
   const st = smallStats(spr, kind);
   const a = {

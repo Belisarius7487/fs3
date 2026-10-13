@@ -167,8 +167,13 @@ function worldSet(k, need){
   FIELD_K = Math.max(1, k || 1);
   MW = W*FIELD_K; MH = H*FIELD_K;
   const cx = MW/2, cy = (HUD_H + MH)/2;
-  // room for the largest ship lying across the middle, with a margin
-  const ww = Math.max(MW, (need || 0)*1.5), wh = Math.max(MH - HUD_H, ww*(H-HUD_H)/W);
+  // Room for the largest ship lying across the middle, and the margin
+  // round the mission area is the margin it gets - it used to be half her
+  // length again, which with a Colossus on call made the world twice the
+  // mission area and left the radar showing a mission in the middle of
+  // empty space (Silvio, v232; hullWidthIn, 40_world.js). Nothing can now
+  // be longer than the field, so this is a safety net rather than the rule.
+  const ww = Math.max(MW, (need || 0) + 300*FIELD_K), wh = Math.max(MH - HUD_H, ww*(H-HUD_H)/W);
   // a margin round the mission area: missions place ships just outside
   // the old field (x -80, the far edge) to come in from there
   WX0 = Math.min(-150*FIELD_K, cx - ww/2); WX1 = Math.max(MW + 150*FIELD_K, cx + ww/2);

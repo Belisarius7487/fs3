@@ -333,8 +333,16 @@ function drawBarRadar(x, y, w, h){
   radarImgs();
   ctx.save();
   ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
-  // the mission area, edge to edge; ships outside it sit on the edge
-  const ax0 = 0, ax1 = MW, ay0 = HUD_H, ay1 = MH;
+  // The WHOLE WORLD, edge to edge - not the mission area. Ships fly in the
+  // world, which is wider and taller, and everything out there used to be
+  // pushed onto the border where it piled up (Silvio, v232: "Ich will dass
+  // das Radar das gesamte Spielfeld beruecksichtigt. Ansonsten brauch ich
+  // kein Radar, wenn ich raten muss, an welcher Position sich bestimmte
+  // Schiffe befinden"). The clamp below stays as a last resort: a crossing
+  // freighter is carried up to 60 units past the edge before she is taken
+  // out of the field, and half an icon outside the box is worse than one on
+  // its edge for a moment.
+  const ax0 = WX0, ax1 = WX1, ay0 = WY0, ay1 = WY1;
   const sx = (w-4)/(ax1-ax0), sy = (h-4)/(ay1-ay0);
   const px = v => x + 2 + (Math.max(ax0, Math.min(ax1, v)) - ax0)*sx;
   const py = v => y + 2 + (Math.max(ay0, Math.min(ay1, v)) - ay0)*sy;
@@ -403,8 +411,8 @@ function drawBarScope(x0){
   const ship = e && e.kind !== 'bomb';
   // 1  the target's model, in her real orientation, under everything
   if(ship){ ctx.globalAlpha = 0.75; barTargetModel(e, x, y, w, h); ctx.globalAlpha = 1; }
-  // 2  the radar: the whole mission area, kept in proportion, centred
-  const rw = Math.round(h*MW/(MH - HUD_H));
+  // 2  the radar: the whole world, kept in proportion, centred
+  const rw = Math.round(h*(WX1 - WX0)/Math.max(1, WY1 - WY0));
   ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1;
   ctx.strokeRect(x + (w - rw)/2 + 0.5, y + 0.5, rw - 1, h - 1);
   drawBarRadar(x + (w - rw)/2, y, rw, h);
