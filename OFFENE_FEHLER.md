@@ -1206,7 +1206,54 @@ Weltrand hinaus. Das ist einer der hochskalierten Platzwerte — in einem Feld
 von 800 Breite hieß x = −40 „gleich links draußen", bei vierfachem Feld sind
 es −181. Beim Neubau gehört sie ins Feld.
 
-**Familie 2 — „stop" beim Übergang (48 Befunde, nur Jäger) — noch offen.**
+**Familie 5 — der eine Befund, der auf v233 übrig blieb (M53) — behoben.**
+`warpsim` meldete über alle 60 Missionen genau einen:
+
+```
+stop  codeimos/A2   speed 2.18 -> 0.44 px/tick (jump out)
+      [0 0 0 0 2.18 0.44]  {lane, capV 2.18}
+```
+
+**Zwei Reproduktionsversuche von Hand waren glatt** — die Deimos auf
+Marschfahrt (2,176 → 2,177 → 2,178 → … → 2,22) und stehend (0 → 0 → 0,01 →
+0,02) —, also musste die Prüfung selbst sagen, was vorher war. Sie schreibt
+jetzt den **Anlauf** (die letzten sechs Geschwindigkeiten) und bei
+Großkampfschiffen **womit das Schiff beschäftigt war** neben den Befund. Das
+gab die Antwort in einem Lauf: vier Takte still, ein Takt mit genau ihrer
+Marschgeschwindigkeit, und dabei `{lane, capV 2.18}`.
+
+**Ursache, und sie war in dem, was ich gerade gebaut hatte:** Bei einem
+Halt rief `capLane()` `capAcc(o, 0)` — die Geschwindigkeit sollte
+auslaufen. Der Schritt des Beschleunigers ist aber ihre Marschgeschwindigkeit
+geteilt durch 2,5 Sekunden, also 0,0087 je Takt. Über einen Halt von vier
+Takten bewegt das **nichts**: `capV` stand noch bei 2,17, und in dem Moment,
+in dem die Bahn frei wurde, fuhr sie in **einem** Takt mit fast voller
+Marschgeschwindigkeit los. Danach begann ihr Sprung hinaus, und dessen
+Verlauf startet bei der **geglätteten** Geschwindigkeit (`_fvx`), die nach
+vier Takten Stillstand noch bei 0,44 lag — das ist der gemeldete Sprung.
+
+**Behoben in v233:** neu `capHalt(o)`. Steht ein Großkampfschiff, hält es
+oder hat es keine Bahn, dann ist seine Geschwindigkeit **null** — nicht „läuft
+langsam aus". Es ist die ehrliche Buchführung: Das Spiel bewegt es in diesen
+Takten gar nicht. Beim Losfahren beschleunigt es dann aus dem Stand.
+
+Gegengeprüft an einer Kopie mit dem alten Auslaufen: dort hält sie 2,167 und
+fährt mit 2,176 in einem Takt los — der Befund. Mit `capHalt`: 0 und 0,009.
+
+**Der abrupte Halt selbst bleibt**, wie das Spiel ihn immer gemacht hat: ein
+Halt setzt ein Großkampfschiff auf der Stelle still, statt es zu bremsen. Das
+ist eine eigene Sache und keine, die man beim Richtigstellen der Buchführung
+mitändert.
+
+**Familie 2 — „stop" beim Übergang (48 Befunde, nur Jäger) — offen, und auf
+v233 nicht mehr zu sehen.** Auf v233 melden alle 60 Missionen keinen einzigen
+davon mehr, **obwohl ich sie nicht angefasst habe.** Vermutlich hat die
+Beschleunigungsrampe der Großkampfschiffe auch die Jäger beruhigt, die hinter
+ihnen aus dem Strudel kommen — **sicher ist das nicht**, und deshalb bleibt
+der Punkt offen, bis er gemessen ist. Eine Zahl, die besser aussieht, ist
+keine Erklärung.
+
+Der alte Text dazu, weil er die Lage beschreibt:
 Beim Verlassen des Strudels geht der Jäger vom Bremsverlauf des Sprungs auf
 das Flugmodell über, und dabei gibt es einen Knick: erlaubt sind 0,6
 Bildpunkte je Takt Änderung, gemessen werden **0,71**.

@@ -629,6 +629,23 @@ scenario('A capital ship accelerates instead of being at her cruise at once', 'm
   const first = capAcc(e, 0.8);
   r.firstGlideStep = Math.round(first*1000)/1000;
   r.picksUpWhereTheVortexLeftHer = Math.abs(first - fsExitSpeed(e)) < 0.02;
+
+  // And a ship that was HELD sets off from nothing, not from where she left
+  // off. The accelerator's step is her cruise over 2.5 s, so easing the
+  // stored value towards zero barely moved it over a hold of a few ticks and
+  // she drove off at nearly her full cruise in one tick (warpsim, M53:
+  // [0 0 0 0 2.18 0.44] with {lane, capV 2.18}).
+  const h = {img:'codeimos', type:'corvette', x:600, y:300, vy:0, dead:false,
+             warp:0, warpOut:0, still:true, subs:[], _lane:{y:300, dir:1, dir0:1, home:600, t:null}};
+  h._capV = capCruise(h);                 // at her cruise, then held
+  capLane(h, 1);
+  r.heldSpeedAfter = Math.round((h._capV||0)*1000)/1000;
+  r.aHeldShipIsAtRest = (h._capV || 0) === 0;
+  // let go again: she accelerates from nothing
+  h.still = false;
+  const x0 = h.x; capLane(h, 1);
+  r.firstStepAfterTheHold = Math.round(Math.abs(h.x - x0)*1000)/1000;
+  r.sheSetsOffGently = Math.abs(h.x - x0) < capCruise(h)*0.1;
   return r;`);
 
 // Sentry guns get the corner brackets that fighters and bombers get. They
