@@ -644,6 +644,62 @@ scenario('M31 the vortex she leaves through faces her', 'm=31', `
   r.turnedFromHerNose = Math.round(norm(rot[0] - noseAng)*100)/100;
   r.mouthLooksBackAtHer = half(rot[0] - noseAng);
   if(model !== null) r.modelLooksBackAtHer = half(model - noseAng);
+
+  // Out through the Knossos she leaves by the TURQUOISE vortex. It is the
+  // same code path, so the direction holds for it too - read off here
+  // rather than assumed, since from the outside the two look like separate
+  // things (Silvio, v232: he could not tell whether the direction fix had
+  // reached the turquoise one).
+  e.portalOut = true; e._fsG = null; e.warpOut = e.warpMax = 160;
+  let kn = null;
+  const rot2 = [];
+  const dw = drawWarpFrame;
+  drawWarpFrame = function(seed, WS, knossos){ kn = !!knossos; };
+  if(f3) f3dWarp = function(px, py, fx, fy, WS, wS, al, seed, knossos){
+    kn = !!knossos; rot2.push(Math.atan2(fy, fx)); return false; };
+  ctx.rotate = function(a){ rot2.push(a); return rr.apply(ctx, arguments); };
+  try{ drawOwnVortex(e); } finally { ctx.rotate = rr; drawWarpFrame = dw; if(f3) f3dWarp = f3; }
+  r.turquoiseThroughThePortal = kn === true;
+  r.andTheTurquoiseLooksBackToo = rot2.length > 0 && half(rot2[0] - noseAng);
+  return r;`);
+
+// The rotating parts of a model (f3dNodeMats, nodes of kind 'rot') all
+// turned the same way round the model's own axis, and that way was the wrong
+// one: the Knossos is two rings of separate elements, the outer turning one
+// way and the inner the other, and Silvio reports both reversed (v232). The
+// per-part direction does come through - it sits in the axis, or in the sign
+// of the period - so what was wrong is the sense of a turn about it, for
+// every rotating part at once.
+//
+// There is no model to read here: the files live on the server, not in the
+// repo. So a stand-in node is turned instead and the sense of its turn is
+// measured, which is the whole of what changed. Which sense is right is
+// Silvio's word, not something this can prove - what it does is hold the
+// direction still, so it cannot quietly flip back.
+scenario('A rotating part of a model turns one way, and the other one back', 'm=31', `
+  const r = {};
+  r.theresAFunction = typeof f3dNodeMats === 'function';
+  if(!r.theresAFunction) return r;
+  const I = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
+  // Which way a point of the ring goes round, measured in ONE fixed frame
+  // (about +z) and not about the part's own axis - about its own axis every
+  // part turns the same way by construction, which says nothing.
+  const senseZ = (ax) => {
+    const e = {}, L = {head:{nodes:[null, {k:'rot', t:20, par:0, ax:ax, pv:[0,0,0]}]}};
+    const at = (t) => { const M = f3dNodeMats(e, L, I, 0, 0, t)[1];
+                        return [M[0], M[1], M[2]]; };
+    const a = at(0), b = at(2.5);
+    const cz = a[0]*b[1] - a[1]*b[0];
+    return Math.abs(cz) < 1e-6 ? 0 : (cz > 0 ? 1 : -1);
+  };
+  const outer = senseZ([0, 0, 1]), inner = senseZ([0, 0, -1]);
+  r.senseAboutZ = outer;
+  r.turnsAtAll = outer !== 0;
+  // v232 and before: the other way round.
+  r.theOtherWayRound = outer === -1;
+  // and the ring whose axis points the other way turns against it - that is
+  // how the Knossos keeps its two rings running against each other
+  r.theRingsTurnAgainstEachOther = inner === -outer && inner !== 0;
   return r;`);
 
 // The subsystem picked as the target keeps its name, wherever the player is

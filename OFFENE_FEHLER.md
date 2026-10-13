@@ -895,26 +895,80 @@ Designfrage, keine Fehlerbehebung, und deshalb nicht mitgebaut.
 **Befund (Silvio, v231):** „Das Knossos-Portal rotiert in die falsche
 Richtung."
 
-**Zwei Dinge drehen sich dort, und es ist noch nicht klar, welches gemeint
-ist.** Nachgelesen im Code:
+**Präzisierung (Silvio, v232):** „Es geht um das Modell, nicht die
+Warp-Animation darin. Das Modell besteht aus zwei Ringen, die sich aus
+einzelnen voneinander getrennten Elementen bilden. Der äußere Elemente-Ring
+rotiert in die eine Richtung, der innere in die entgegengesetzte Richtung. In
+FS3 drehen beide in die jeweils falsche Richtung, was vermutlich eine
+fehlerhafte Interpretation aus dem Lesen der Modelleigenschaften ist.
 
-1. **Der Strudel** (die türkise Scheibe im Tor). Sie dreht sich starr mit
-   `WARP_SPIN = 1.6` Bogenmaß je Sekunde, positiv — auf der Leinwand also
-   im Uhrzeigersinn. Gelesen an **zwei** Stellen, die zusammenbleiben
-   müssen: `drawWarpFrame()` (`20_render.js:587`) und `f3dWarp()`
-   (`59_field3d.js:1751`). Dieselbe Konstante treibt **alle** Strudel, auch
-   die blauen der normalen Schiffssprünge.
-2. **Das Bauwerk selbst.** Die 3D-Modelle können drehende Teile haben
-   (`f3dNodeMats`, Knoten der Art `rot`): `ang = 2π·now/t`, immer positiv,
-   also immer dieselbe Richtung. Die Knotendaten liegen in den Modelldateien
-   **auf dem Server**, nicht im Repo — eine Cloud-Sitzung kann nicht
-   nachsehen, ob das Knossos-Modell solche Knoten hat.
+**Ursache (so weit sie von hier aus nachweisbar ist):** Die drehenden Teile
+eines Modells sind Knoten der Art `rot` in `f3dNodeMats()`
+(`59_field3d.js`), und ihr Winkel lief:
 
-**Frage an Silvio, bevor gebaut wird:** Dreht der normale blaue Strudel bei
-jedem Schiffssprung auch falsch, oder nur das Knossos? Dreht sich das Tor
-selbst (seine Ringe), oder das Leuchten darin?
+```js
+ang = (2*Math.PI*now/(nd.t || 20)) % (2*Math.PI);
+```
 
-- Status: Ursache noch offen, Rückfrage an Silvio
+Immer positiv, für **jedes** drehende Teil jedes Modells. Dass die beiden
+Ringe des Knossos trotzdem gegeneinander laufen, heißt: die Richtung je Teil
+kommt sehr wohl aus den Modelldaten — sie steckt in der Achse oder im
+Vorzeichen der Umlaufzeit. Falsch ist also nicht der Unterschied zwischen
+den Ringen, sondern **der Drehsinn um die Achse, und zwar bei allen Teilen
+gleichzeitig.** Genau das sagt Silvios „beide in die jeweils falsche
+Richtung".
+
+**Nachgerechnet, dass es nicht die Darstellung ist:** `f3dMat()` ist
+`verschieben × rotZ × rotY × skalieren` mit **positivem** Faktor, die
+Determinante also `s³ > 0` — keine Spiegelung. Und ein gewendeter Rumpf wird
+um 180 Grad gedreht, nicht gespiegelt. Eine Umkehrung, die das ganze Modell
+betrifft, kann dann nur aus dem Lesen der Modelldaten kommen. Da, wo Silvio
+sie vermutet hat.
+
+**Behoben in v232:** ein Minuszeichen, mit der Begründung im Quelltext.
+**Es betrifft alle drehenden Teile**, nicht nur das Knossos — die drehenden
+Schüsseln der Gasminen (`gmrahu`, `gmanuket`) zum Beispiel. Die liefen unter
+derselben Regel und drehen jetzt ebenfalls herum. **Silvio sollte beim Test
+auch darauf schauen.**
+
+Neue Prüfung in `fieldsim.js` („A rotating part of a model turns one way, and
+the other one back"). Die Modelldateien liegen auf dem Server, nicht im Repo
+— geprüft wird deshalb an einem **Ersatzknoten**, und gemessen wird in einem
+festen Bezug (um +z), nicht um die eigene Achse des Teils: um die eigene
+Achse dreht jedes Teil per Konstruktion gleich, das sagt nichts. Gegen v232
+vor der Änderung: Drehsinn +1, fällt durch. Danach: −1. Zweite Zusicherung:
+ein Teil mit umgekehrter Achse dreht weiterhin dagegen — die Ringe laufen
+also weiter gegeneinander.
+
+**Was die Prüfung nicht kann:** beweisen, welche Richtung die richtige ist.
+Das ist Silvios Aussage. Sie hält die Richtung nur fest, damit sie nicht
+unbemerkt zurückkippt.
+
+### Dazu Silvios zweite Anmerkung: der türkise Strudel
+
+„Im Knossos-Portal ist der Warpstrudel nicht blau, sondern türkis. … Ob
+deine Änderung an der Richtung … bei herauswarpenden Schiffen auch für den
+türkisen Knossos-Warpstrudel übernommen wurde, weiß ich aber nicht."
+
+**Nachgesehen und nachgemessen: ja.** Es ist **ein** Weg, keine zwei.
+`drawOwnVortex()` (`70_ui.js:4405–4414`) berechnet die Richtung der
+Trichtermündung (`mx, my`) und gibt die Farbe als Flagge daneben mit:
+`warpTurquoise(e)` an `f3dWarp()` und an `drawWarpFrame()`. Türkis ist also
+nur ein anderes Bildblatt an derselben Geometrie — die Richtung aus F5 gilt
+für beide.
+
+`warpTurquoise()` (`20_render.js:571`) liest beim Hinausspringen
+`e.portalOut`, und das setzt `30_waves.js:1017` für jedes Schiff, das in
+einer Portalmission rechts hinausfliegt. Ein Schiff, das durchs Portal
+hereinkam und **irgendwo anders** hinausspringt, bekommt bewusst den
+normalen blauen Strudel (steht als Kommentar daneben, Silvios Befund aus
+v173 zur Rakshasa in M61).
+
+Die Prüfung „M31 the vortex she leaves through faces her" hat jetzt zwei
+Zusicherungen mehr: durchs Portal ist das Blatt das türkise, **und** die
+Mündung schaut auch dort um 180 Grad zurück auf das Schiff.
+
+- Status: gebaut, wartet auf Silvios Test im Browser
 
 ---
 

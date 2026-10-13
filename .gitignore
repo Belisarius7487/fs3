@@ -21,3 +21,4 @@ checks.log
 checks.fieldsim.log
 checks.warpsim.log
 checks.full.*.log
+v2*.log

@@ -943,7 +943,20 @@ function f3dNodeMats(e, L, M0, x, y, now){
     const par = (nd.par && out[nd.par]) ? out[nd.par] : M0;
     let ang = 0;
     if(nd.k === 'rot'){
-      ang = (2*Math.PI*now/(nd.t || 20)) % (2*Math.PI);
+      // The minus sign is the model data's handedness, not the drawing's.
+      // Silvio, v232: the Knossos is two rings of separate elements, the
+      // outer turning one way and the inner the other, and in FS3 "beide in
+      // die jeweils falsche Richtung" - each reversed, the two still against
+      // each other. So the per-part direction does come through (it sits in
+      // the axis, or in the sign of the period); what is reversed is the
+      // sense of a turn about it, for every rotating part at once.
+      //
+      // Checked that it is not the drawing: f3dMat() is translate x rotZ x
+      // rotY x scale with a positive scale, so its determinant is s^3 > 0 -
+      // no mirror, and the flip of a hull is a yaw of 180 degrees, not a
+      // reflection. A whole-model reversal can then only come from reading
+      // the model, which is where Silvio put it.
+      ang = -(2*Math.PI*now/(nd.t || 20)) % (2*Math.PI);
     } else {
       const tgt = aims[nd.ti];
       let want = 0;
