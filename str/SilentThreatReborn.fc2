@@ -1,0 +1,354 @@
+$Name: XSTR("Silent Threat: Reborn", 3794)
+$Type: single
++Description:
+ XSTR("As the Great War rages on, you've been commissioned by Galactic Terran Intelligence for special intelligence operations.  Your objectives are to contain the Shivan onslaught and preserve the fragile Terran-Vasudan alliance.  But a series of suspicious events clouds the GTI's spotless record.  Is the GTI setting you up or are the Shivans spreading their evil rage?", 2784)
+$end_multi_text
+
++Starting Ships: ( "GTF Ulysses" "GTF Apollo" "GTF Valkyrie" "GTF Hercules" "GTB Athena" "GTB Medusa" "GTB Ursa" )
+
++Starting Weapons: ( "Disruptor" "D-Advanced" "Avenger" "Flail" "Prometheus" "Banshee" "Leech Cannon" "MX-50" "Fury" "Interceptor" "Interceptor#Weak" "Hornet" "Hornet#Weak" "Phoenix V" "D-Missile" "Synaptic" "Stiletto" "Tsunami" "Harbinger" )
+
+
+$Mission: str01.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str01.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str02.fs2" )
+   )
+   ( ( true ) ( next-mission "str01.fs2" ) )
+)
+
++Level: 0
++Position: 1
+
+$Mission: str02.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str02.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str03.fs2" )
+   )
+   ( ( true ) ( next-mission "str02.fs2" ) )
+)
+
++Level: 1
++Position: 1
+
+$Mission: str03.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str03.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str04.fs2" )
+   )
+   ( ( true ) ( next-mission "str03.fs2" ) )
+)
+
++Level: 2
++Position: 1
+
+$Mission: str04.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str04.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str05.fs2" )
+   )
+   ( ( true ) ( next-mission "str04.fs2" ) )
+)
+
++Level: 3
++Position: 1
+
+$Mission: str05.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str05.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str06.fs2" )
+   )
+   ( ( true ) ( next-mission "str05.fs2" ) )
+)
+
++Level: 4
++Position: 1
+
+$Mission: str06.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str06.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str07.fs2" )
+   )
+   ( ( true ) ( next-mission "str06.fs2" ) )
+)
+
++Level: 5
++Position: 1
+
+$Mission: str07.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str07.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str08.fs2" )
+   )
+   ( ( true ) ( next-mission "str07.fs2" ) )
+)
+
++Level: 6
++Position: 1
+
+$Mission: str08.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str08.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str09.fs2" )
+   )
+   ( ( true ) ( next-mission "str08.fs2" ) )
+)
+
++Level: 7
++Position: 1
+
+$Mission: str09.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str09.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str10.fs2" )
+   )
+   ( ( true ) ( next-mission "str09.fs2" ) )
+)
+
++Level: 8
++Position: 1
+
+$Mission: str10.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 91
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str10.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str11.fs2" )
+   )
+   ( ( true ) ( next-mission "str10.fs2" ) )
+)
+
++Level: 9
++Position: 1
+
+$Mission: str11.fs2
++Flags: 0
+;;FSO 3.5.0;; +Main Hall: 6
+;;FSO 3.7.2;; +Substitute Main Hall: Krios
+;;FSO 3.6.8;; +Debriefing Persona Index: 82
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str11.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str12.fs2" )
+   )
+   ( ( true ) ( next-mission "str11.fs2" ) )
+)
+
++Level: 10
++Position: 1
+
+$Mission: str12.fs2
++Flags: 1
+;;FSO 3.5.0;; +Main Hall: 7
+;;FSO 3.7.2;; +Substitute Main Hall: Soyakaze
+;;FSO 3.6.8;; +Debriefing Persona Index: 82
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str12.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str13.fs2" )
+   )
+   ( ( true ) ( next-mission "str12.fs2" ) )
+)
+
++Level: 11
++Position: 1
+
+$Mission: str13.fs2
++Flags: 1
+;;FSO 3.5.0;; +Main Hall: 7
+;;FSO 3.7.2;; +Substitute Main Hall: Soyakaze
+;;FSO 3.6.8;; +Debriefing Persona Index: 82
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str13.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str14.fs2" )
+   )
+   ( ( true ) ( next-mission "str13.fs2" ) )
+)
+
++Level: 12
++Position: 1
+
+$Mission: str14.fs2
++Flags: 1
+;;FSO 3.5.0;; +Main Hall: 7
+;;FSO 3.7.2;; +Substitute Main Hall: Soyakaze
+;;FSO 3.6.8;; +Debriefing Persona Index: 82
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str14.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str15.fs2" )
+   )
+   ( ( true ) ( next-mission "str14.fs2" ) )
+)
+
++Level: 13
++Position: 1
+
+$Mission: str15.fs2
++Flags: 1
+;;FSO 3.5.0;; +Main Hall: 7
+;;FSO 3.7.2;; +Substitute Main Hall: Soyakaze
+;;FSO 3.6.8;; +Debriefing Persona Index: 82
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str15.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str16.fs2" )
+   )
+   ( ( true ) ( next-mission "str15.fs2" ) )
+)
+
++Level: 14
++Position: 1
+
+$Mission: str16.fs2
++Flags: 1
+;;FSO 3.5.0;; +Main Hall: 7
+;;FSO 3.7.2;; +Substitute Main Hall: Soyakaze
+;;FSO 3.6.8;; +Debriefing Persona Index: 82
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str16.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str17.fs2" )
+   )
+   ( ( true ) ( next-mission "str16.fs2" ) )
+)
+
++Level: 15
++Position: 1
+
+$Mission: str17.fs2
++Flags: 1
+;;FSO 3.5.0;; +Main Hall: 7
+;;FSO 3.7.2;; +Substitute Main Hall: Soyakaze
+;;FSO 3.6.8;; +Debriefing Persona Index: 82
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str17.fs2" 
+         "continue campaign" 
+      )
+      ( next-mission "str18.fs2" )
+   )
+   ( ( true ) ( next-mission "str17.fs2" ) )
+)
+
++Level: 16
++Position: 1
+
+$Mission: str18.fs2
++Flags: 1
+;;FSO 3.5.0;; +Main Hall: 7
+;;FSO 3.7.2;; +Substitute Main Hall: Soyakaze
+;;FSO 3.6.8;; +Debriefing Persona Index: 82
++Formula: ( cond
+   (
+      ( is-previous-event-true 
+         "str18.fs2" 
+         "continue campaign" 
+      )
+      ( end-of-campaign )
+   )
+   ( ( true ) ( next-mission "str18.fs2" ) )
+)
+
++Level: 17
++Position: 1
+
+#End
