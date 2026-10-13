@@ -1231,6 +1231,51 @@ Anlegen veraltet.
 
 ---
 
+## Rümpfe, die FS3 für die Originalmissionen noch fehlen
+
+Beim Lesen der Originalmissionen (`missions_read.py --klassen`): von den
+**3844 Schiffen** in den 83 Missionen der drei Stränge sind **99 %** von
+einer Klasse, die FS3 schon zeichnet. Silvio hat die zwölf offenen Klassen
+alle entschieden (v233). Drei brauchen gar kein Modell, eine brauchen wir
+nicht:
+
+| Klasse | Entscheidung |
+|---|---|
+| SAC 2 | die SAC 3 steht dafür ein |
+| SSG Rahu | „Das ist die SG Rahu. Volition hat hierbei einen Klassifizierungsfehler begangen und nie behoben. Das hab ich für FS3 gemacht, weil es ein Gasminer ist und keine Sentry Gun." → `gmrahu` |
+| GTDr Amazon Advanced | „Ist das gleiche Modell wie die GTFr Chronos." |
+| Karnak Reactor | liegt **innen** in der PVI Karnak, und in Stationen fliegen wir nicht hinein. **Mission str16 wird umgestaltet** statt der Rumpf gebaut. |
+
+**Acht Rümpfe fehlen wirklich.** Silvio zieht die Modelle; bis sie da sind,
+können die betroffenen Missionen nicht nachgebaut werden:
+
+| Rumpf | Schiffe | gebraucht für | Quelle |
+|---|---|---|---|
+| GTI Polaris Extension | 23 | str13, str15 | ST:R |
+| GTF Angel | 4 | str05 | ST:R |
+| GTI Polaris Pylon | 3 | str13, str15 | ST:R |
+| PVSC Imhotep | 1 | str02 | ST:R |
+| PVI Karnak | 1 | str16 | ST:R |
+| Terran Asteroid Base | 1 | str05 | ST:R |
+| Vasudan Asteroid Base | 1 | str02 | ST:R |
+| NTF Boadicea | 1 | FS2 SM1-02 | FS2 |
+
+Die Boadicea ist der **Asteroid, in dem sich die Iceni versteckt** (zweite
+FS2-Mission). Silvio: „Das Modell heißt Boadicea, wobei der Name ingame nie
+fällt."
+
+**Betroffen sind damit sechs Missionen** — str02, str05, str13, str15, str16
+und FS2 SM1-02. Alle anderen 77 können aus dem heutigen Bestand gebaut
+werden.
+
+Die Zuordnung steht in der Tabelle `HULL` in `missions_read.py`, mit Silvios
+Begründung je Zeile. Das Skript prüft **jeden** Rumpfnamen gegen `HULL_LEN`
+im Spiel und schlägt an, wenn einer fehlt — die Tabelle kann also nicht
+veralten, und ein neu dazukommender Rumpf wird dort eingetragen, nicht
+geraten.
+
+---
+
 ## Von mir bemerkt, nicht von Silvio gemeldet
 
 Damit es nicht verloren geht. Nichts davon ist dringend.

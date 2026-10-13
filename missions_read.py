@@ -45,8 +45,27 @@ def missions(arc):
 # rather than guessed at. A name may carry a FRED variant behind a '#'
 # (GTD Orion#Galatea is an Orion called Galatea); that is cut off first.
 HULL = {
+# Silvio has been through the twelve classes FS3 had no hull for (v233) and
+# settled every one. Three of them need no model at all:
+#
+#   SAC 2                a cargo container; the SAC 3 stands in for it
+#   SSG Rahu             "Das ist die SG Rahu. Volition hat hierbei einen
+#                        Klassifizierungsfehler begangen und nie behoben. Das
+#                        hab ich fuer FS3 gemacht, weil es ein Gasminer ist
+#                        und keine Sentry Gun." -> gmrahu
+#   GTDr Amazon Advanced "Ist das gleiche Modell wie die GTFr Chronos."
+#
+# One is not needed: the Karnak Reactor sits INSIDE the PVI Karnak, and the
+# game cannot fly into a station - the mission it is in (str16) gets
+# redesigned instead.
+#
+# The remaining eight are hulls FS3 does not have yet. They are marked
+# WANTED below with the mission that needs them, and the list is in
+# OFFENE_FEHLER.md. Until a hull is there, '' keeps the table honest: the
+# check counts the class as having no hull rather than guessing a stand-in.
   # fighters
-  'GTF Apollo':'fiapollo', 'GTF Ares':'fiares', 'GTF Angel':None,
+  'GTF Apollo':'fiapollo', 'GTF Ares':'fiares',
+  'GTF Angel':None,                     # WANTED, str05 (model from ST:R)
   'GTF Erinyes':'fierinyes', 'GTF Hercules':'fiherc',
   'GTF Hercules Mark II':'fihercmk2', 'GTF Loki':'filoki',
   'GTF Myrmidon':'fimyrmidon', 'GTF Pegasus':'fipegasus',
@@ -72,7 +91,10 @@ HULL = {
   'PVC Aten':'craten', 'GVC Mentu':'crmentu',
   'SC Cain':'crcain', 'SC Lilith':'crlilith', 'SC Rakshasa':'crrakshasa',
   'GTCv Deimos':'codeimos', 'GVCv Sobek':'cosobek', 'SCv Moloch':'comoloch',
-  'NTF Iceni':'coiceni', 'NTF Boadicea':None,
+  'NTF Iceni':'coiceni',
+  # WANTED, FS2 SM1-02: the asteroid the Iceni hides in. Silvio: "Das Modell
+  # heisst Boadicea, wobei der Name ingame nie faellt." Model from the FS2 files.
+  'NTF Boadicea':None,
   'GTD Orion':'deorionright', 'GTD Hecate':'dehecate', 'GTD Hades':'sdhades',
   'PVD Typhon':'detyphon', 'GVD Typhon':'detyphon', 'GVD Hatshepsut':'dehatshepsut',
   'SD Demon':'dedemon', 'SD Ravana':'deravana', 'SD Lucifer':'sdlucifer',
@@ -90,23 +112,32 @@ HULL = {
   'GTSG Alastor':'sgalastor', 'GTSG Cerberus':'sgcerberus',
   'GTSG Mjolnir':'sgmjolnir', 'GTSG Watchdog':'sgwatchdog',
   'PVSG Ankh':'sgankh', 'SSG Belial':'sgbelial', 'SSG Trident':'sgtrident',
-  'SSG Rahu':None,
+  # Volition filed the Rahu as a sentry gun and never corrected it; it is a
+  # gas miner, and FS3 has it as one (Silvio).
+  'SSG Rahu':'gmrahu',
   # support, science, medical, AWACS, gas
   'GTS Centaur':'sucentaur', 'GTS Hygeia':'suhygeia', 'PVS Scarab':'suscarab',
   'PVS Nephthys':'sunephthys', 'GTSC Faustus':'scfaustus',
   'GTM Hippocrates':'mehippocrates', 'GTA Charybdis':'cacharybdis',
   'GVA Setekh':'casetekh', 'GVG Anuket':'gmanuket', 'GTG Zephyrus':'gmzephyrus',
-  'PVSC Imhotep':None, 'GTDr Amazon Advanced':None,
+  'PVSC Imhotep':None,                  # WANTED, str02 (model from ST:R)
+  'GTDr Amazon Advanced':'frchronos',   # the same model as the Chronos
   # installations and cargo
   'GTI Arcadia':'inarcadia', 'Knossos':'inknossos45deg',
   'Shivan Comm Node':'incommnode', 'GTNB Pharos':'inpharos',
   'Terran NavBuoy':'inpharos',
-  'GTI Polaris Extension':None, 'GTI Polaris Pylon':None,
-  'PVI Karnak':None, 'Karnak Reactor':None,
-  'Terran Asteroid Base':None, 'Vasudan Asteroid Base':None,
+  'GTI Polaris Extension':None,         # WANTED, str13 + str15 (from ST:R)
+  'GTI Polaris Pylon':None,             # WANTED, str13 + str15 (from ST:R)
+  'PVI Karnak':None,                    # WANTED, str16 (from ST:R)
+  # Inside the Karnak, and the game cannot fly into a station: str16 gets
+  # redesigned rather than this hull built (Silvio).
+  'Karnak Reactor':'',
+  'Terran Asteroid Base':None,          # WANTED, str05 (from ST:R)
+  'Vasudan Asteroid Base':None,         # WANTED, str02 (from ST:R)
   'TAC 1':'fctac1', 'TC 2':'fctc2', 'TSC 2':'fctsc2', 'TTC 1':'fcttc1',
   'TC-TRI':'fctctri', 'TC-Meson Bomb':'fcmeson', 'SC 5':'fcsc5',
-  'SAC 2':None, 'SAC 3':'fcsac3', 'VC 3':'fcvc3', 'VAC 4':'fcvac4',
+  'SAC 2':'fcsac3',                     # the SAC 3 stands in (Silvio)
+  'SAC 3':'fcsac3', 'VC 3':'fcvc3', 'VAC 4':'fcvac4',
   'VAC 5':'fcvac5',
 }
 
@@ -114,13 +145,27 @@ def base(name):
     """The class without its FRED variant and without a note in brackets."""
     return name.split('#')[0].split('(')[0].strip()
 
+# The eight hulls FS3 is still missing, and what needs them. A class whose
+# entry is None is one of these: the table says "wanted", not "unknown".
+WANTED = {
+  'GTF Angel':              'str05',
+  'GTI Polaris Extension':  'str13, str15',
+  'GTI Polaris Pylon':      'str13, str15',
+  'PVSC Imhotep':           'str02',
+  'PVI Karnak':             'str16',
+  'Terran Asteroid Base':   'str05',
+  'Vasudan Asteroid Base':  'str02',
+  'NTF Boadicea':           'FS2 SM1-02',
+}
+
 def hull_of(name):
-    """The FS3 hull for a class, '' where FS3 has none, None where the class
-    is not in the table at all (then the table is incomplete)."""
+    """The FS3 hull for a class. '' where none is needed or wanted, None
+    where the hull is still missing, and the class is not in the table at all
+    only if it raises a KeyError - which report() reports."""
     b = base(name)
-    if b in HULL:
-        return HULL[b] or ''
-    return None
+    if b not in HULL:
+        raise KeyError(b)
+    return HULL[b]
 
 def ship_classes():
     """Every class in every mission, counted."""
@@ -140,11 +185,14 @@ def report_classes():
     missing_table, missing_hull = collections.Counter(), collections.Counter()
     bad = []
     for c, n in cls.items():
-        h = hull_of(c)
+        try:
+            h = hull_of(c)
+        except KeyError:
+            unknown += n; missing_table[base(c)] += n; continue
         if h is None:
-            unknown += n; missing_table[base(c)] += n
-        elif h == '':
             nohull += n; missing_hull[base(c)] += n
+        elif h == '':
+            known += n          # nothing to draw, and nothing wanted
         else:
             known += n
             if h not in keys: bad.append((c, h))
@@ -162,8 +210,9 @@ def report_classes():
         print('\nNicht in der Tabelle (die Tabelle ist unvollstaendig):')
         for c, n in missing_table.most_common(): print('  %-28s %3d' % (c, n))
     if missing_hull:
-        print('\nFS3 hat dafuer keinen Rumpf - Silvio entscheidet, was dafuer einsteht:')
-        for c, n in missing_hull.most_common(): print('  %-28s %3d' % (c, n))
+        print('\nRuempfe, die FS3 noch fehlen (Silvio zieht die Modelle, v233):')
+        for c, n in missing_hull.most_common():
+            print('  %-24s %3d Schiffe   fuer %s' % (c, n, WANTED.get(c, '?')))
     return 1 if (bad or missing_table) else 0
 
 if __name__ == '__main__':
