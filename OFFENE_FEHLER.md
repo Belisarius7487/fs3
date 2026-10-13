@@ -970,6 +970,57 @@ Mündung schaut auch dort um 180 Grad zurück auf das Schiff.
 
 - Status: gebaut, wartet auf Silvios Test im Browser
 
+### F15 — Das Radar in der Leiste zeigt nicht das ganze Spielfeld
+
+**Befund (Silvio, v232):** „Ich hab übrigens noch einen Fehler beim Radar
+oben in der Leiste entdeckt. Das Radar zeigt scheinbar nur den gerade auf dem
+Bildschirm sichtbaren Bildausschnitt und nicht das tatsächliche Spielfeld, was
+zu seltsamen Anzeigen der Radar-Icons führt."
+
+**Im Code nachgelesen — der Befund stimmt, die Erklärung nicht ganz.** Das
+Radar hängt **nicht** an der Kamera: `drawBarRadar()` (`72_target.js:332`)
+rechnet ausdrücklich
+
+```js
+const ax0 = 0, ax1 = MW, ay0 = HUD_H, ay1 = MH;
+```
+
+also das **Missionsgebiet**, nicht den Bildausschnitt. `CAM` kommt in der
+ganzen Funktion nicht vor. Was er sieht, hat eine andere Ursache — und sie
+führt zum selben Eindruck:
+
+**Die Welt ist größer als das Missionsgebiet, und alles außerhalb wird auf den
+Rand geklemmt.** `worldSet()` (`10_core.js:165`) legt beides an:
+
+| | Breite | Höhe |
+|---|---|---|
+| Missionsgebiet (was das Radar zeigt) | `MW` = 800·K | `MH − HUD_H` = 500·K − 54 |
+| Welt (wo Schiffe fliegen) | mindestens `MW + 300·K` | mindestens `MH + 200·K − HUD_H` |
+
+Bei `FIELD_K = 4` also **3200 × 1946** gezeigt gegen mindestens
+**4400 × 2746** geflogen. Rund ein Viertel der Breite und zwei Fünftel der
+Höhe liegen außerhalb des Radars — und `drawBarRadar` klemmt sie mit
+`Math.max(ax0, Math.min(ax1, v))` auf die Kante. Dort sammeln sie sich.
+
+Dazu kommt, dass die Welt noch viel weiter reicht, wenn ein sehr langes Schiff
+dazukommen kann (`need`): beim Colossus wird sie breiter als das
+Missionsgebiet mal zwei.
+
+**Zweiter Beitrag: die Symbole sind groß im Verhältnis zum Kasten.** Der
+Radarkasten ist etwa 74 × 44 Bildpunkte; ein Großkampfschiff-Symbol ist bei
+`RADAR_ICO_K = 0.36` rund 11 Punkte breit, das des Colossus 23. Mehrere
+geklemmte Symbole an der Kante werden damit schnell zu einem Klumpen.
+
+**Vorschlag für v233:** Das Radar zeigt das Missionsgebiet **samt seinem
+Rand** (die 150·K bzw. 100·K, in denen Missionen ihre Schiffe zum Hereinkommen
+abstellen), und das Missionsgebiet selbst wird darin als feiner Rahmen
+markiert, damit die Grenze weiter zu sehen ist. Dann muss fast nichts mehr
+geklemmt werden. Die ganze Welt zu zeigen wäre schlechter: bei einem Colossus
+würde das Radar so weit herauszoomen, dass das Missionsgebiet ein Kästchen in
+der Mitte wird.
+
+- Status: Ursache nachgelesen, Vorschlag steht, noch nicht gebaut
+
 ---
 
 ## Von mir bemerkt, nicht von Silvio gemeldet
