@@ -45,10 +45,26 @@ const BODY = `
   const startWave = wave;
   const T = new Map();          // ship -> track
   const found = [];
+  // What the ship was busy with when a finding fired. A capital ship is
+  // driven from several places - her lane, a crossing, a transit, a flight -
+  // and which one it was decides what a jump in her speed means.
+  function doing(e){
+    const t = [];
+    if(e.transit) t.push('transit ' + (e.transitV||0).toFixed(2));
+    if(e.crossing) t.push('crossing ' + (e.crossing||0).toFixed(2));
+    if(e.crossLeft) t.push('crossLeft ' + (e.crossLeft||0).toFixed(2));
+    if(e.escaping) t.push('escaping ' + (e.escaping||0).toFixed(2));
+    if(e.fleeing) t.push('fleeing');
+    if(e.still) t.push('still');
+    if(e.dockTo) t.push('dockTo');
+    if(e._lane) t.push(e._lane.stand ? 'lane:stand' : (e._lane.t ? 'lane:turn' : (e._lane.hold ? 'lane:hold' : 'lane')));
+    if(e._capV != null) t.push('capV ' + e._capV.toFixed(2));
+    return t.length ? '  {' + t.join(', ') + '}' : '';
+  }
   function note(kind, e, txt){
     const id = e.img + (e.uid ? '/' + e.uid : '');
     if(found.some(f => f.kind===kind && f.id===id)) return;
-    found.push({kind, id, wave, txt});
+    found.push({kind, id, wave, txt: txt + (fsSmall(e) ? '' : doing(e))});
   }
   // Hull along the nose: centre, length, and what of it can be seen.
   function look(e){
