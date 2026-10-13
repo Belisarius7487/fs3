@@ -61,17 +61,24 @@ const BODY = `
     const f = g ? {x:g.fx, y:g.fy} : fsNose(e);
     const cx = e.x + (g ? g.dx : 0), cy = e.y + (g ? g.dy : 0);
     // Hull as a segment along the nose, parameter s from -L/2 to L/2.
-    let a = -L/2, b = L/2;
+    let a = -L/2, b = L/2, d0 = null;
     if(p){
-      const d0 = (cx-p.px)*p.fx + (cy-p.py)*p.fy;      // centre past the plane
+      d0 = (cx-p.px)*p.fx + (cy-p.py)*p.fy;            // centre past the plane
       if(p.keepFront) a = Math.max(a, -d0); else b = Math.min(b, -d0);
     }
+    // How much of her the CUT leaves, before the picture's own edge is
+    // taken into account. This is what a pop is about: hull that appears or
+    // goes in one tick where the vortex holds it back. The screen edge is
+    // not that - there the picture simply ends, and a ship that turns or
+    // slides sideways at the edge changes how much of her lies inside it
+    // very fast without anything being wrong (Silvio, v232: the noise).
+    const visCut = Math.max(0, b-a);
     // On screen: x between 0 and W.
     if(Math.abs(f.x) > 1e-6){
       const s0 = (0 - cx)/f.x, s1 = (W - cx)/f.x;
       a = Math.max(a, Math.min(s0, s1)); b = Math.min(b, Math.max(s0, s1));
     }
-    return {vis: Math.max(0, b-a), g, L, cx, cy, f, p};
+    return {vis: Math.max(0, b-a), visCut, d0, g, L, cx, cy, f, p};
   }
   const MAXT = 40000;
   let t = 0, done = -1;
@@ -105,11 +112,20 @@ const BODY = `
       const vPrev = tr.v; tr.v = v;
       // The tick a hull vanishes has no speed of its own: the last one counts.
       const move = Math.abs(v!=null ? v : (vPrev||0)) + 1.5;
-      // pop: more hull turns visible (or invisible) than the motion explains.
+      // pop: more hull comes out from behind the cut (or goes back behind
+      // it) in one tick than her motion across that cut explains. Measured
+      // on visCut, so the picture's own edge plays no part - see look().
       // The first visible tick of a jump in is the nose coming through.
-      const dvis = now.vis - pr.vis;
-      if(Math.abs(dvis) > move + 2 && !(pr.vis===0 && e.warp>0))
-        note('pop', e, (dvis>0?'+':'')+dvis.toFixed(0)+'px of hull at once (' + pr.vis.toFixed(0) + ' -> ' + now.vis.toFixed(0) + ', speed ' + (v==null?'-':v.toFixed(2)) + ')' +
+      //
+      // The allowance is her motion ALONG THE CUT, which is exactly what
+      // moves hull past it: while a jump runs that is her flight, and it
+      // was the along-the-nose speed before, which is the same thing there
+      // and nothing like it afterwards.
+      const dvis = now.visCut - pr.visCut;
+      const along = (now.d0 != null && pr.d0 != null)
+        ? Math.abs(now.d0 - pr.d0) : Math.abs(v != null ? v : (vPrev||0));
+      if(now.vis > 0 && Math.abs(dvis) > along + 3.5 && !(pr.visCut===0 && e.warp>0))
+        note('pop', e, (dvis>0?'+':'')+dvis.toFixed(0)+'px of hull at once (' + pr.visCut.toFixed(0) + ' -> ' + now.visCut.toFixed(0) + ', she moved ' + along.toFixed(2) + ' along the cut)' +
              (e.warp>0?' (jump in)':(e.warpOut>0?' (jump out)':' (after jump in)')));
       // stop: a jump in speed, or backwards during a jump.
       // Fighters turn and speed up on their own right away; for them a

@@ -2322,6 +2322,16 @@ scenario('v165: M63 Charybdis lets the beams see', 'm=63', `
   r.outsideBlind = tg.indexOf(far) < 0;
   r.heavyBlind = beamTargets(c, true).length === 0;
   enemies.splice(enemies.indexOf(near),1); enemies.splice(enemies.indexOf(far),1);
+  // Her ring, read off here and not at the end of the run: once her
+  // attackers are down the mission sends her out ('raus C1'), and from
+  // v232 it does that whether or not something else was lost - lostMax no
+  // longer holds an effect back, only a card. She was then gone by the end
+  // of the run and the ring with her, which says nothing about the ring.
+  let ringDrawn = false; const arc = ctx.arc;
+  ctx.arc = function(x, y, rad){ if(rad===AWACS_R) ringDrawn = true; return arc.apply(this, arguments); };
+  try{ draw(); } finally { ctx.arc = arc; }
+  r.sheIsHere = allies.indexOf(c) >= 0 && !c.dead;
+  r.ringDrawn = ringDrawn;
   // Without her, nothing.
   c.dead = true; const n2 = {x:c.x+60, y:c.y, type:'fighter', side:'enemy', dead:false, warp:0, img:'fiastaroth', sc:0.3};
   enemies.push(n2); r.goneBlind = beamTargets(FS.ids('A1')[0], false).indexOf(n2) < 0; enemies.pop(); c.dead = false;
@@ -2329,9 +2339,6 @@ scenario('v165: M63 Charybdis lets the beams see', 'm=63', `
   let fired = 0;
   for(let i=0;i<3000*Math.max(1, FIELD_K/2);i+=20){ FS.step(20); for(const a of allies) for(const b of (a.beams||[])) if(!b.large && b.state==='firing' && b.tgt && (b.tgt.type==='fighter'||b.tgt.type==='bomber')) fired++; }
   r.beamsFire = fired > 0;
-  let ringDrawn = false; const arc = ctx.arc; ctx.arc = function(x,y,rad){ if(rad===AWACS_R) ringDrawn = true; return arc.apply(this, arguments); };
-  draw(); ctx.arc = arc;
-  r.ringDrawn = ringDrawn;
   return r;`);
 
 scenario('v165: M64 stragglers', 'm=64', `
@@ -2444,6 +2451,11 @@ scenario('v169: M68 the Setekh jams, the bombs come from afar', 'm=68', `
   // player would: everything that can be shot down, is.
   r.stillRunning = !waveOver;
   const w0 = wave;
+  // Every card the mission announces from here on. objAnnounce() is the one
+  // place a card comes from, so this is what the player would see.
+  const cards = [];
+  const oa = objAnnounce;
+  objAnnounce = function(head, txt, tone){ cards.push(head + ' / ' + txt); return oa.apply(null, arguments); };
   // The patrol is what the mission asks for, and only the patrol: the
   // reinforcement wings carry no id and keep coming. Shot down exactly as
   // the objective reads.
@@ -2469,8 +2481,13 @@ scenario('v169: M68 the Setekh jams, the bombs come from afar', 'm=68', `
   // that fails there. For a player the field is in practice never clear,
   // which is what "the waves never stop" means.
   r.theWaveCanEnd = waveOver || wave > w0;
-  // ended, but not as a success: she was lost
-  r.noSuccessCard = EV.filter(e => e.w === 'zielerfuellt').every(e => !e.done);
+  objAnnounce = oa;
+  // Ended, but not as a success: she was lost, and lostMax still holds the
+  // card back. Read off the cards that were announced, not off ev.done -
+  // 'abzug' closes the whole script by marking every event done, so a
+  // blocked event ends up marked done as well without ever firing.
+  r.cardsAnnounced = cards.join(' | ') || '(none)';
+  r.noSuccessCard = !cards.some(c => c.indexOf('COMPLETE') >= 0 || c.indexOf('SUCCESS') >= 0);
   r.failedObjective = objFailed === true;
   return r;`);
 
