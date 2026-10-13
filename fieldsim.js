@@ -618,6 +618,17 @@ scenario('A capital ship accelerates instead of being at her cruise at once', 'm
   r.startsFromRest = step[0] < cruise*0.1;
   r.noJump = worst < 0.05;
   r.getsUpToSpeed = step[200] > cruise*0.6;
+
+  // The other half of it: an ENEMY capital is brought out of her vortex AT
+  // her glide speed, not standing - fsExitSpeed() gives 0.8 for a cruiser
+  // heading for her station - so the accelerator has to pick up there. The
+  // first cut of this started everything at rest, and warpsim read the drop
+  // in 37 places: "stop craten/K1 speed 0.80 -> 0.01 px/tick (after jump)".
+  const e = {img:'crcain', type:'cruiser', x:900, targetX:300, warp:0, warpOut:0, dead:false};
+  r.herExitSpeed = fsExitSpeed(e);
+  const first = capAcc(e, 0.8);
+  r.firstGlideStep = Math.round(first*1000)/1000;
+  r.picksUpWhereTheVortexLeftHer = Math.abs(first - fsExitSpeed(e)) < 0.02;
   return r;`);
 
 // Sentry guns get the corner brackets that fighters and bombers get. They

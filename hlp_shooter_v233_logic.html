@@ -15075,7 +15075,15 @@ function capCruise(o){
 const CAP_ACC_S = 2.5;
 function capAcc(o, want){
   const step = capCruise(o)/(CAP_ACC_S*TICK_HZ);
-  const v = (o._capV == null) ? 0 : o._capV;
+  // She starts at the speed her vortex left her at, not at nothing.
+  // fsExitSpeed() is the same number the PICTURE is brought out with: zero
+  // for an ally, 0.8 or 0.6 for an enemy still heading for her station. Set
+  // to zero here instead, the glide began at a standstill and warpsim read
+  // the drop: "stop craten/K1 speed 0.80 -> 0.01 px/tick (after jump)" -
+  // 37 of them, my own doing in the first cut of this.
+  if(o._capV == null)
+    o._capV = (typeof fsExitSpeed === 'function') ? Math.max(0, fsExitSpeed(o)) : 0;
+  const v = o._capV;
   o._capV = v + Math.max(-step, Math.min(step, want - v));
   return o._capV;
 }
