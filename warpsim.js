@@ -148,9 +148,15 @@ const BODY = `
       // Fighters turn and speed up on their own right away; for them a
       // little more is let through, and after the jump their flight model
       // takes over at once, so only the jump itself is checked.
+      // The run-up to a finding, not just the one step: a transient at the
+      // end of a wave and a real kink in a profile look the same otherwise,
+      // and chasing the Deimos of M53 by hand cost an evening (v233).
+      (tr.hist || (tr.hist = [])).push(v == null ? null : +v.toFixed(2));
+      if(tr.hist.length > 6) tr.hist.shift();
       if(v!=null && vPrev!=null && Math.abs(v - vPrev) > (fsSmall(e) ? 0.6 : 0.35) &&
          (inJump || (tr.wasJump && !fsSmall(e))))
-        note('stop', e, 'speed ' + vPrev.toFixed(2) + ' -> ' + v.toFixed(2) + ' px/tick' + (e.warp>0?' (jump in)':(e.warpOut>0?' (jump out)':' (after jump)')));
+        note('stop', e, 'speed ' + vPrev.toFixed(2) + ' -> ' + v.toFixed(2) + ' px/tick' + (e.warp>0?' (jump in)':(e.warpOut>0?' (jump out)':' (after jump)'))
+             + '  [' + tr.hist.map(x => x === null ? '-' : x).join(' ') + ']');
       if(v!=null && v < -0.05 && inJump) note('stop', e, 'backwards ' + v.toFixed(2) + ' px/tick');
       // plane: the cut and the drawn vortex have to agree.
       if(e.warp>0 && now.g && now.g.vis && e._fsp &&
