@@ -1,0 +1,1149 @@
+#Primary Weapons
+
+$Name: 			UD-1 Volz
++nocreate
+@Laser Bitmap:	Citra_Bitmap
+@Laser Glow:	Alouqua_Glow
+@Laser Color:	255, 0, 0
+@Laser Color2:	128, 0, 128
+@Laser Length:	3.0
+@Laser Head Radius:	1.9
+@Laser Tail Radius:	1.9
+$Flags: ( "detonate on expiration" )
+$Trail:
+	+Start Width:	0.35
+	+End Width:		0.1
+	+Start Alpha:	0.4
+	+End Alpha:		0.0
+	+Max Life:		0.07
+	+Bitmap:		Alouqua_Trail
+$Impact Explosion:	Shivan_Impact01
+$Impact Explosion Radius: 2.5
+$Muzzleflash: 	Rmuzzle
+
+; ----------------------------------------------------------------------------------
+;; NuSSLBeam - suggested range (8000)
+;; Exact duplicate of SSLBeam; modifications happen in the +nocreate entries below
+;
+$Name: NuSSLBeam
+$Model File: none
+@Laser Bitmap: laserglow01
+@Laser Glow: 2_laserglow03
+@Laser Color: 250, 30, 30
+@Laser Length: 0.0
+@Laser Head Radius: 0.30
+@Laser Tail Radius: 0.30
+$Mass: 100.0
+$Velocity: 1000.0
+$Fire Wait: 10.0
+$Damage: 850
+$Armor Factor: 1.0
+$Shield Factor: 1.0
+$Subsystem Factor: 1.0
+$Lifetime: 30.0
+$Energy Consumed: 0.30
+$Cargo Size: 0.0
+$Homing: NO
+$LaunchSnd: 125
+$ImpactSnd: 88
++Weapon Range: 8000
+$Flags: ( "Big Ship" "Huge" "beam" )
+$Icon: iconSD4
+$Anim: SD4
+$Impact Explosion: ExpMissileHit1
+$Impact Explosion Radius: 50.0
+$BeamInfo:
+ +Type: 0
+ +Life: 3.0
+ +Warmup: 3000
+ +Warmdown: 1500
+ +Radius: 80.0
+ +PCount: 28
+ +PRadius: 1.9
+ +PAngle: 65.0
+ +PAni: particleexp01
+ +Miss Factor: 2.5 1.875 1.25 0.875 0.5
+ +BeamSound: 178
+ +WarmupSound: 184
+ +WarmdownSound: 188
+ +Muzzleglow: lucyglow
+ +Shots: 0
+ +ShrinkFactor: 0.1
+ +ShrinkPct: 1.8
+ $Section:
+  +Width: 12.0
+  +Texture: beam-white
+  +RGBA Inner: 255 255 255 255
+  +RGBA Outer: 150 150 150 10
+  +Flicker: 0.1
+  +Zadd: 4.0
+ $Section:
+  +Width: 55.0
+  +Texture: lucybeam
+  +RGBA Inner: 160 160 0 255
+  +RGBA Outer: 60 60 0 10
+  +Flicker: 0.3
+  +Zadd: 3.0
+;;FSO 3.3.0;; +Tile Factor: 5.0 0
+;;FSO 3.3.0;; +Translation: -5.0
+ $Section:
+  +Width: 65.0
+  +Texture: lucybeam
+  +RGBA Inner: 255 0 0 255
+  +RGBA Outer: 60 0 0 10
+  +Flicker: 0.1
+  +Zadd: 2.0
+;;FSO 3.3.0;; +Tile Factor: 10.0 1
+;;FSO 3.3.0;; +Translation: -3.0
+ $Section:
+  +Width: 70.0
+  +Texture: beam-orange3
+  +RGBA Inner: 255 0 0 255
+  +RGBA Outer: 60 0 0 10
+  +Flicker: 0.2
+  +Zadd: 0.0
+
+; ----------------------------------------------------------------------------------
+;; SSLBeam - full range (30000)
+;; Exact duplicate of LRSSLBeam; modifications happen in the +nocreate entries below
+;
+$Name: NuLRSSLBeam
+$Model File: none
+@Laser Bitmap: laserglow01
+@Laser Glow: 2_laserglow03
+@Laser Color: 250, 30, 30
+@Laser Length: 0.0
+@Laser Head Radius: 0.30
+@Laser Tail Radius: 0.30
+$Mass: 100.0
+$Velocity: 1000.0
+$Fire Wait: 10.0
+$Damage: 850
+$Armor Factor: 1.0
+$Shield Factor: 1.0
+$Subsystem Factor: 1.0
+$Lifetime: 30.0
+$Energy Consumed: 0.30
+$Cargo Size: 0.0
+$Homing: NO
+$LaunchSnd: 125
+$ImpactSnd: 88
++Weapon Range: 30000
+$Flags: ( "Big Ship" "Huge" "beam" )
+$Icon: iconSD4
+$Anim: SD4
+$Impact Explosion: ExpMissileHit1
+$Impact Explosion Radius: 50.0
+$BeamInfo:
+ +Type: 0
+ +Life: 3.0
+ +Warmup: 3000
+ +Warmdown: 1500
+ +Radius: 80.0
+ +PCount: 28
+ +PRadius: 1.9
+ +PAngle: 65.0
+ +PAni: particleexp01
+ +Miss Factor: 2.5 1.875 1.25 0.875 0.5
+ +BeamSound: 178
+ +WarmupSound: 184
+ +WarmdownSound: 188
+ +Muzzleglow: lucyglow
+ +Shots: 0
+ +ShrinkFactor: 0.1
+ +ShrinkPct: 1.8
+ $Section:
+  +Width: 12.0
+  +Texture: beam-white
+  +RGBA Inner: 255 255 255 255
+  +RGBA Outer: 150 150 150 10
+  +Flicker: 0.1
+  +Zadd: 4.0
+ $Section:
+  +Width: 55.0
+  +Texture: lucybeam
+  +RGBA Inner: 160 160 0 255
+  +RGBA Outer: 60 60 0 10
+  +Flicker: 0.3
+  +Zadd: 3.0
+;;FSO 3.3.0;; +Tile Factor: 5.0 0
+;;FSO 3.3.0;; +Translation: -5.0
+ $Section:
+  +Width: 65.0
+  +Texture: lucybeam
+  +RGBA Inner: 255 0 0 255
+  +RGBA Outer: 60 0 0 10
+  +Flicker: 0.1
+  +Zadd: 2.0
+;;FSO 3.3.0;; +Tile Factor: 10.0 1
+;;FSO 3.3.0;; +Translation: -3.0
+ $Section:
+  +Width: 70.0
+  +Texture: beam-orange3
+  +RGBA Inner: 255 0 0 255
+  +RGBA Outer: 60 0 0 10
+  +Flicker: 0.2
+  +Zadd: 0.0
+
+$Name:		SSLBeam
++nocreate
+$Damage Type:						HugeWeapon
+$LaunchSnd:							125
+$Impact Explosion:					exp04
+$Impact Explosion Radius:			40
+$BeamInfo:
+	+Radius:								80.0
+	+PCount:								28
+	+PRadius:								1.9
+	+PAni:									particleexp01
+	+Muzzleglow:							beamglow4
+	;+Range:									6000
+	+Beam Flash Effect:						capflash
+	+Beam Flash Radius:						20.0
+	+Beam Piercing Effect:					exp06
+	+Beam Piercing Radius:					25.0
+	+Beam Piercing Effect Velocity:			200
+	+Beam Piercing Splash Effect Velocity:	-10
+	+Beam Piercing Effect Variance:			0.01
+	$Section:
+		+Index:			0
+		+Width:			12.0
+		+Texture:		Beam-White2
+		+RGBA Inner:	255 255 255 255
+		+RGBA Outer:	150 150 150 10
+		+Flicker:		0.1
+		+Zadd:			4.0
+	$Section:
+		+Index:			1
+		+Width:			55.0
+		+Texture:		lucybeam
+		+RGBA Inner:	160 160 0 255
+		+RGBA Outer:	60 60 0 10
+		+Flicker:		0.3
+		+Zadd:			3.0
+		+Tile Factor:	5.0, 0
+		+Translation:	-5.0
+	$Section:
+		+Index:			2
+		+Width:			65.0
+		+Texture:		lucybeam
+		+RGBA Inner:	255 0 0 255
+		+RGBA Outer:	60 0 0 10
+		+Flicker:		0.1
+		+Zadd:			2.0
+		+Tile Factor:	10, 1
+		+Translation:	-3
+	$Section:
+		+Index:			3
+		+Width:			70.0
+		+Texture:		beam-orange3
+		+RGBA Inner:	255 0 0 255
+		+RGBA Outer:	60 0 0 10
+		+Flicker:		0.2
+		+Zadd:			0.0
+
+$Name:			LRSSLBeam
++nocreate
+$Damage Type:						HugeWeapon
+$LaunchSnd:							125
+$Impact Explosion:					exp04
+$Impact Explosion Radius:			40
+$BeamInfo:
+	+Radius:								80.0
+	+PCount:								28
+	+PRadius:								1.9
+	+PAni:									particleexp01
+	+Muzzleglow:							beamglow4
+	;+Range:									6000
+	+Beam Flash Effect:						capflash
+	+Beam Flash Radius:						20.0
+	+Beam Piercing Effect:					exp06
+	+Beam Piercing Radius:					25.0
+	+Beam Piercing Effect Velocity:			200
+	+Beam Piercing Splash Effect Velocity:	-10
+	+Beam Piercing Effect Variance:			0.01
+	$Section:
+		+Index:			0
+		+Width:			12.0
+		+Texture:		Beam-White2
+		+RGBA Inner:	255 255 255 255
+		+RGBA Outer:	150 150 150 10
+		+Flicker:		0.1
+		+Zadd:			4.0
+	$Section:
+		+Index:			1
+		+Width:			55.0
+		+Texture:		lucybeam
+		+RGBA Inner:	160 160 0 255
+		+RGBA Outer:	60 60 0 10
+		+Flicker:		0.3
+		+Zadd:			3.0
+		+Tile Factor:	5.0, 0
+		+Translation:	-5.0
+	$Section:
+		+Index:			2
+		+Width:			65.0
+		+Texture:		lucybeam
+		+RGBA Inner:	255 0 0 255
+		+RGBA Outer:	60 0 0 10
+		+Flicker:		0.1
+		+Zadd:			2.0
+		+Tile Factor:	10, 1
+		+Translation:	-3
+	$Section:
+		+Index:			3
+		+Width:			70.0
+		+Texture:		beam-orange3
+		+RGBA Inner:	255 0 0 255
+		+RGBA Outer:	60 0 0 10
+		+Flicker:		0.2
+		+Zadd:			0.0
+
+; Nyctaeus's new graphical effects
+$Name:		NuSSLBeam
++nocreate
+$Damage Type:						HugeWeapon
+$LaunchSnd:							125
+$Impact Explosion:					exp04
+$Impact Explosion Radius:			40
+$BeamInfo:
+	+Radius:								80.0
+	+PCount:								28
+	+PRadius:								1.9
+	+PAni:									particleexp01
+	+Muzzleglow:							beamglow4
+	;+Range:									6000
+	+Beam Flash Effect:						capflash
+	+Beam Flash Radius:						20.0
+	+Beam Piercing Effect:					exp06
+	+Beam Piercing Radius:					25.0
+	+Beam Piercing Effect Velocity:			200
+	+Beam Piercing Splash Effect Velocity:	-10
+	+Beam Piercing Effect Variance:			0.01
+	$Section: 
+		+Index:			0
+		+Width:			32.0 
+		+Texture:		SSL_A
+		+RGBA Inner:	160 160 0 255 
+		+RGBA Outer:	60 60 0 10 
+		+Flicker:		0.000 
+		+Zadd:			1.0 
+		+Tile Factor:	5, 1 
+		+Translation:	-1 
+	$Section: 
+		+Index:			1
+		+Width:			45.0 
+		+Texture:		SSL_B
+		+RGBA Inner:	160 160 0 255 
+		+RGBA Outer:	60 60 0 10 
+		+Flicker:		0.0 
+		+Zadd:			3.0 
+		+Tile Factor:	10, 1 
+		+Translation:	-3 
+	$Section: 
+		+Index:			2
+		+Width:			45.0 
+		+Texture:		SSL_C
+		+RGBA Inner:	255 0 0 255 
+		+RGBA Outer:	60 0 0 10 
+		+Flicker:		0.0 
+		+Zadd:			1.0 
+		+Tile Factor:	10, 1 
+		+Translation:	-3 
+	$Section: 
+		+Index:			3
+		+Width:			75.0 
+		+Texture:		SSL_D
+		+RGBA Inner:	160 160 0 120 
+		+RGBA Outer:	60 60 0 10 
+		+Flicker:		0.0 
+		+Zadd:			0.0 
+		+Tile Factor:	44, 1 
+		+Translation:	-4 
+	$Section: 
+		+Width:			75.0 
+		+Texture:		SSL_E
+		+RGBA Inner:	160 160 0 120 
+		+RGBA Outer:	60 60 0 10 
+		+Flicker:		0.0 
+		+Zadd:			0.0 
+		+Tile Factor:	50, 1 
+		+Translation:	-4 
+
+; Nyctaeus's new graphical effects
+$Name:			NuLRSSLBeam
++nocreate
+$Damage Type:						HugeWeapon
+$LaunchSnd:							125
+$Impact Explosion:					exp04
+$Impact Explosion Radius:			40
+$BeamInfo:
+	+Radius:								80.0
+	+PCount:								28
+	+PRadius:								1.9
+	+PAni:									particleexp01
+	+Muzzleglow:							beamglow4
+	;+Range:									6000
+	+Beam Flash Effect:						capflash
+	+Beam Flash Radius:						20.0
+	+Beam Piercing Effect:					exp06
+	+Beam Piercing Radius:					25.0
+	+Beam Piercing Effect Velocity:			200
+	+Beam Piercing Splash Effect Velocity:	-10
+	+Beam Piercing Effect Variance:			0.01
+	$Section: 
+		+Index:			0
+		+Width:			32.0 
+		+Texture:		SSL_A
+		+RGBA Inner:	160 160 0 255 
+		+RGBA Outer:	60 60 0 10 
+		+Flicker:		0.000 
+		+Zadd:			1.0 
+		+Tile Factor:	5, 1 
+		+Translation:	-1 
+	$Section: 
+		+Index:			1
+		+Width:			45.0 
+		+Texture:		SSL_B
+		+RGBA Inner:	160 160 0 255 
+		+RGBA Outer:	60 60 0 10 
+		+Flicker:		0.0 
+		+Zadd:			3.0 
+		+Tile Factor:	10, 1 
+		+Translation:	-3 
+	$Section: 
+		+Index:			2
+		+Width:			45.0 
+		+Texture:		SSL_C
+		+RGBA Inner:	255 0 0 255 
+		+RGBA Outer:	60 0 0 10 
+		+Flicker:		0.0 
+		+Zadd:			1.0 
+		+Tile Factor:	10, 1 
+		+Translation:	-3 
+	$Section: 
+		+Index:			3
+		+Width:			75.0 
+		+Texture:		SSL_D
+		+RGBA Inner:	160 160 0 120 
+		+RGBA Outer:	60 60 0 10 
+		+Flicker:		0.0 
+		+Zadd:			0.0 
+		+Tile Factor:	44, 1 
+		+Translation:	-4 
+	$Section: 
+		+Width:			75.0 
+		+Texture:		SSL_E
+		+RGBA Inner:	160 160 0 120 
+		+RGBA Outer:	60 60 0 10 
+		+Flicker:		0.0 
+		+Zadd:			0.0 
+		+Tile Factor:	50, 1 
+		+Translation:	-4 
+
+#End
+
+#Secondary Weapons
+
+;------------------
+;FS1 HORNET VARIANT
+;------------------
+
+$Name: Hornet
++nocreate
+$Trail:
+	+Start Width:			2.25
+	+End Width:				9.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				6.0
+	+Spread:				0.2
+	+Bitmap:			TrailHornet1Blu
+	+Bitmap Stretch:		75
+$Impact Effect:						FlashHitHornet1Blu
+$Dinky Impact Effect:				FlashHitHornet1Blu
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			3.44
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:				TrailHornet1Blu
+$Homed Flight Effect:			TrailHornet1Blu
+$Unhomed Flight Effect:			TrailHornet1Blu
+$Muzzleflash:					MuzMissile2Cyn
+$Thruster Flame Effect:		missilethruster05
+$Thruster Glow Effect:		FlareHornet1Blu
+$Thruster Glow Radius Factor:	4.0
+
+$Name:			Synaptic
++nocreate
+$Shockwave Speed:	90.0
+
+$Name:			Tsunami
++nocreate
+$Shockwave Speed:	100
+
+$Name:			Serkr
++nocreate
+$Shockwave Speed:	100
+
+$Name:			Serkr#short
++nocreate
+$Shockwave Speed:	100
+
+$Name:			Rebel Bomb
++nocreate
+$Shockwave Speed:	100
+
+$Name:			Harbinger
++nocreate
+$Shockwave Speed:	100
+
+$Name:			Harbinger#end
++nocreate
+$Shockwave Speed:	100
+
+$Name:			EM Pulse
++nocreate
+$Shockwave Speed:	100		;;Slower than original?
+
+$Name:	MX-50#Shivan
++nocreate
+$Trail:
+	+Start Width:			3.0
+	+End Width:				6.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.3
+	+Max Life:				0.2
+	+Spread:				0.2
+	+Bitmap:			TrailRockeye1Red
+	+Bitmap Stretch:		50
+$Impact Effect:						FlashHitRockeye1Red
+$Dinky Impact Effect:				FlashHitRockeye1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			7.63
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:			TrailRockeye1Red
+$Homed Flight Effect:		TrailRockeye1Red
+$Unhomed Flight Effect:		TrailRockeye1Red
+$Muzzleflash:				MuzMissile1Red
+$Thruster Flame Effect:		missilethruster05
+$Thruster Glow Effect:		FlareRockeye1Red
+$Thruster Glow Radius Factor:	4.5
+
+$Name:	Enemy MX-50#Shivan
++nocreate
+$Trail:
+	+Start Width:			3.0
+	+End Width:				6.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.3
+	+Max Life:				0.2
+	+Spread:				0.2
+	+Bitmap:			TrailRockeye1Red
+	+Bitmap Stretch:		50
+$Impact Effect:						FlashHitRockeye1Red
+$Dinky Impact Effect:				FlashHitRockeye1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			7.63
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:			TrailRockeye1Red
+$Homed Flight Effect:		TrailRockeye1Red
+$Unhomed Flight Effect:		TrailRockeye1Red
+$Muzzleflash:				MuzMissile1Red
+$Thruster Flame Effect:		missilethruster05
+$Thruster Glow Effect:		FlareRockeye1Red
+$Thruster Glow Radius Factor:	4.5
+
+$Name:		Fury#Shivan
++nocreate
+$Trail:
+	+Start Width:			0.6
+	+End Width:				0.6
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				3.0
+	+Spread:				0.5
+	+Bitmap:			TrailTempest1Red
+	+Bitmap Stretch:		10
+$Impact Effect:				FlashHitTempest1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			3.375
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Unhomed Flight Effect:				TrailTempest1Red
+$Muzzleflash:					MuzMissile2Red
+$Thruster Flame Effect:			missilethruster04
+$Thruster Glow Effect:			FlareTempest1Red
+$Thruster Glow Radius Factor:	6.5
+
+$Name:	Hornet#Shivan
++nocreate
+$Trail:
+	+Start Width:			2.25
+	+End Width:				9.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				6.0
+	+Spread:				0.2
+	+Bitmap:			TrailMissile1Red
+	+Bitmap Stretch:		75
+$Impact Effect:						FlashHitHornet1Red
+$Dinky Impact Effect:				FlashHitHornet1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			3.44
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:				TrailHornet1Red
+$Homed Flight Effect:			TrailHornet1Red
+$Unhomed Flight Effect:			TrailHornet1Red
+$Muzzleflash:					MuzMissile2Red
+$Thruster Flame Effect:		missilethruster05
+$Thruster Glow Effect:		FlareMissile1Red
+$Thruster Glow Radius Factor:	3.0
+
+$Name:	Hornet#Weak#Shivan
++nocreate
+$Trail:
+	+Start Width:			2.25
+	+End Width:				9.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				6.0
+	+Spread:				0.2
+	+Bitmap:			TrailMissile1Red
+	+Bitmap Stretch:		75
+$Impact Effect:						FlashHitHornet1Red
+$Dinky Impact Effect:				FlashHitHornet1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			3.44
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:				TrailHornet1Red
+$Homed Flight Effect:			TrailHornet1Red
+$Unhomed Flight Effect:			TrailHornet1Red
+$Muzzleflash:					MuzMissile2Red
+$Thruster Flame Effect:		missilethruster05
+$Thruster Glow Effect:		FlareMissile1Red
+$Thruster Glow Radius Factor:	3.0
+
+$Name:	Interceptor#Shivan
++nocreate
+$Trail:
+	+Start Width:			2.5
+	+End Width:				25
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				1.5
+	+Spread:				0.01
+	+Bitmap:			TrailHarpoon2Red
+	+Bitmap Stretch:		100
+$Impact Effect:				FlashHitHarpoon1Red
+$Dinky Impact Effect:		FlashHitHarpoon1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			4.96
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:				TrailHarpoon1Red
+$Homed Flight Effect:			TrailHarpoon1Red
+$Unhomed Flight Effect:			TrailHarpoon1Red
+$Muzzleflash:					MuzMissile1Red
+$Thruster Flame Effect:		missilethruster06
+$Thruster Glow Effect:		FlareShivan1Red
+$Thruster Glow Radius Factor:	6.0
+
+$Name:	Interceptor#Weak#Shivan
++nocreate
+$Trail:
+	+Start Width:			2.5
+	+End Width:				25
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				1.5
+	+Spread:				0.01
+	+Bitmap:			TrailHarpoon2Red
+	+Bitmap Stretch:		100
+$Impact Effect:				FlashHitHarpoon1Red
+$Dinky Impact Effect:		FlashHitHarpoon1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			4.96
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:				TrailHarpoon1Red
+$Homed Flight Effect:			TrailHarpoon1Red
+$Unhomed Flight Effect:			TrailHarpoon1Red
+$Muzzleflash:					MuzMissile1Red
+$Thruster Flame Effect:		missilethruster06
+$Thruster Glow Effect:		FlareShivan1Red
+$Thruster Glow Radius Factor:	6.0
+
+$Name:	Phoenix V#Shivan
++nocreate
+$Trail:
+	+Start Width:			5.0
+	+End Width:				5.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.1
+	+Max Life:				10.0
+	+Spread:				0.3
+	+Bitmap:			TrailTreb1Pur
+	+Bitmap Stretch:		100
+$Impact Effect:						FlashHitTreb1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			10.37
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			10
+$Homed Flight Effect:			TrailTreb1Pur
+$Muzzleflash:					MuzMissile3Red
+$Thruster Flame Effect:			missilethruster03
+$Thruster Glow Effect:			FlareTreb1Red
+$Thruster Glow Radius Factor:	2.0
+
+$Name:	Synaptic#Shivan
++nocreate
+$Shockwave name:	ShockwaveBomb1Red
+$Trail:
+	+Start Width:			4.0
+	+End Width:				25.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				1.5
+	+Spread:				0.01
+	+Bitmap:			TrailMissile1Red
+	+Bitmap Stretch:		50
+$Impact Effect:						FlashHitPiranha1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			10.93
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Muzzleflash:				MuzMissile3Red
+$Thruster Flame Effect:		missilethruster04
+$Thruster Glow Effect:		FlareMissile1Red
+$Thruster Glow Radius Factor:	2.5
+
+$Name:	Stiletto#Shivan
++nocreate
+$Trail:
+	+Start Width:	0
+	+End Width:		0
+	+Start Alpha:	0.0
+	+End Alpha:		0.0
+	+Max Life:		0.0
+	+Bitmap:		nothing_0000
+$Impact Effect:						FlashHitStilettoII1Red
+$Dinky Impact Effect:				FlashHitStilettoII1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			10.65
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Muzzleflash:					MuzMissile3Red
+$Thruster Flame Effect:		missilethruster03
+$Thruster Glow Effect:		FlareStilettoII1Red
+$Thruster Glow Radius Factor:	1.85
+
+$Name:	Cluster Bomb#Shivan
++nocreate
+$Trail:
+	+Start Width:			2.5
+	+End Width:				25.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				5.0
+	+Spread:				0.01
+	+Bitmap:			TrailMissile1Red
+	+Bitmap Stretch:		50
+$Impact Effect:						FlashHitPiranha1Red
+$Dinky Impact Effect:				FlashHitPiranha1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			10.93
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Muzzleflash:				MuzMissile1Red
+$Thruster Flame Effect:		missilethruster04
+$Thruster Glow Effect:		FlareMissile1Red
+$Thruster Glow Radius Factor:	2.5
+
+$Name:	EM Pulse#Shivan
++nocreate
+$Shockwave name:	ShockwaveBomb1Red
+$Trail:
+	+Start Width:	0.0
+	+End Width:		0.0
+	+Start Alpha:	0.0
+	+End Alpha:		0.0
+	+Max Life:		0.0
+	+Bitmap:		missiletrail04
+$Impact Effect:						FlashHitEmpAdv1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			10.65
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:				TrailEmpAdv1Red
+$Homed Flight Effect:			TrailEmpAdv1Red
+$Unhomed Flight Effect:			TrailEmpAdv1Red
+$Muzzleflash:					MuzMissile3Red
+$Thruster Flame Effect:		missilethruster03
+$Thruster Glow Effect:		FlareStilettoII1Red
+$Thruster Glow Radius Factor:	5.0
+
+$Name:	D-Missile#Shivan
++nocreate
+$Trail:
+	+Start Width:	0
+	+End Width:		0
+	+Start Alpha:	0.0
+	+End Alpha:		0.0
+	+Max Life:		0.0
+	+Bitmap:		nothing_0000
+$Impact Effect:						FlashHitStilettoII1Red
+$Dinky Impact Effect:				FlashHitStilettoII1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			10.65
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Muzzleflash:					MuzMissile3Red
+$Thruster Flame Effect:		missilethruster03
+$Thruster Glow Effect:		FlareStilettoII1Red
+$Thruster Glow Radius Factor:	1.85
+
+$Name:	Tsunami#Shivan
++nocreate
+$Shockwave name:	ShockwaveCyclops1Red
+$Dinky shockwave:
++Shockwave Name:	ShockwaveCyclops1Red
+$Flags: ( "particle spew" )
+$Trail:
+	+Start Width:			8.0
+	+End Width:				16.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.6
+	+Max Life:				2.25
+	+Spread:				0.0
+	+Bitmap:				TrailCyclops1Red
+	+Bitmap Stretch:		50
+$Impact Effect:						FlashHitCyclops1Red
+$Dinky Impact Effect:				FlashHitCyclops1Red
+$Piercing Impact Explosion:			exp04
+$Piercing Impact Radius:			11.76
+$Piercing Impact Velocity:			25
+$Piercing Impact Splash Velocity:	-25
+$Piercing Impact Variance:			20000
+$Piercing Impact Particles:			10
+$Freeflight Effect:					TrailCyclops1Red
+$Homed Flight Effect:				TrailCyclops1Red
+$Unhomed Flight Effect:				TrailCyclops1Red
+$Muzzleflash:				MuzMissile4Red
+$Pspew:
+	+Index:		0
+	+Count:		0
+$Pspew:
+	+Index:		1
+	+Count:		0
+$Pspew:
+	+Index:		2
+	+Count:		0
+$Pspew:
+	+Index:		3
+	+Count:		0
+$Thruster Flame Effect:		missilethruster04
+$Thruster Glow Effect:		FlareCyclops1Red
+$Thruster Glow Radius Factor:	7.5
+
+$Name:	Harbinger#Shivan
++nocreate
+$Shockwave name:	ShockwaveHelios1Gld
+$Dinky shockwave:
++Shockwave Name:	ShockwaveHelios1Gld
+$Flags: ( "particle spew" )
+$Trail:
+	+Start Width:			20.0
+	+End Width:				35.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.3
+	+Max Life:				2.25
+	+Spread:				0.0
+	+Bitmap:				TrailHelios1Red
+	+Bitmap Stretch:		300
+	+Faded Out Sections:	5
+$Impact Effect:						FlashHitHelios1Red
+$Dinky Impact Effect:				FlashHitHelios1Red
+$Piercing Impact Explosion:			exp04
+$Piercing Impact Radius:			19.66
+$Piercing Impact Velocity:			25
+$Piercing Impact Splash Velocity:	-25
+$Piercing Impact Variance:			20000
+$Piercing Impact Particles:			10
+$Freeflight Effect:					TrailHelios1Red
+$Homed Flight Effect:				TrailHelios1Red
+$Unhomed Flight Effect:				TrailHelios1Red
+$Muzzleflash:				MuzMissile4Red
+$Pspew:
+	+Index:		0
+	+Count:		0
+$Pspew:
+	+Index:		1
+	+Count:		0
+$Pspew:
+	+Index:		2
+	+Count:		0
+$Pspew:
+	+Index:		3
+	+Count:		0
+$Thruster Flame Effect:		missilethruster04
+$Thruster Glow Effect:		FlareHelios1Red
+$Thruster Glow Radius Factor:	3.0
+
+$Name: Shivan Cluster
++nocreate
+$Shockwave name:	ShockwaveBomb1Red
+$Trail:
+	+Start Width:			4.0
+	+End Width:				25.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				1.5
+	+Spread:				0.01
+	+Bitmap:			TrailMissile1Red
+	+Bitmap Stretch:		50
+$Impact Effect:						FlashHitPiranha1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			10.93
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Muzzleflash:				MuzMissile3Red
+$Thruster Flame Effect:		missilethruster04
+$Thruster Glow Effect:		FlareMissile1Red
+$Thruster Glow Radius Factor:	2.5
+
+$Name: Unknown Bomb
++nocreate
+$Shockwave name:	ShockwaveCyclops1Red
+$Dinky shockwave:
++Shockwave Name:	ShockwaveCyclops1Red
+$Trail:
+	+Start Width:			8.0
+	+End Width:				16.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.6
+	+Max Life:				2.25
+	+Spread:				0.0
+	+Bitmap:				TrailCyclops1Red
+	+Bitmap Stretch:		50
+$Impact Effect:						FlashHitCyclops1Red
+$Dinky Impact Effect:				FlashHitCyclops1Red
+$Piercing Impact Explosion:			exp04
+$Piercing Impact Radius:			11.76
+$Piercing Impact Velocity:			25
+$Piercing Impact Splash Velocity:	-25
+$Piercing Impact Variance:			20000
+$Piercing Impact Particles:			10
+$Freeflight Effect:					TrailCyclops1Red
+$Homed Flight Effect:				TrailCyclops1Red
+$Unhomed Flight Effect:				TrailCyclops1Red
+$Muzzleflash:				MuzMissile4Red
+$Pspew:
+	+Index:		0
+	+Count:		0
+$Pspew:
+	+Index:		1
+	+Count:		0
+$Pspew:
+	+Index:		2
+	+Count:		0
+$Pspew:
+	+Index:		3
+	+Count:		0
+$Thruster Flame Effect:		missilethruster04
+$Thruster Glow Effect:		FlareCyclops1Red
+$Thruster Glow Radius Factor:	7.5
+
+$Name: Unknown Megabomb
++nocreate
+$Shockwave name:	ShockwaveHelios1Red
+$Dinky shockwave:
++Shockwave Name:	ShockwaveHelios1Red
+$Trail:
+	+Start Width:			20.0
+	+End Width:				35.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.3
+	+Max Life:				2.25
+	+Spread:				0.0
+	+Bitmap:				TrailHelios1Red
+	+Bitmap Stretch:		300
+	+Faded Out Sections:	5
+$Impact Effect:						FlashHitHelios1Red
+$Dinky Impact Effect:				FlashHitHelios1Red
+$Piercing Impact Explosion:			exp04
+$Piercing Impact Radius:			19.66
+$Piercing Impact Velocity:			25
+$Piercing Impact Splash Velocity:	-25
+$Piercing Impact Variance:			20000
+$Piercing Impact Particles:			10
+$Freeflight Effect:					TrailHelios1Red
+$Homed Flight Effect:				TrailHelios1Red
+$Unhomed Flight Effect:				TrailHelios1Red
+$Muzzleflash:				MuzMissile4Red
+$Pspew:
+	+Index:		0
+	+Count:		0
+$Pspew:
+	+Index:		1
+	+Count:		0
+$Pspew:
+	+Index:		2
+	+Count:		0
+$Pspew:
+	+Index:		3
+	+Count:		0
+$Thruster Flame Effect:		missilethruster04
+$Thruster Glow Effect:		FlareHelios1Red
+$Thruster Glow Radius Factor:	3.0
+
+$Name: FighterKiller#Shivan 
++nocreate
+$Trail:
+	+Start Width:			2.5
+	+End Width:				25
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				1.5
+	+Spread:				0.01
+	+Bitmap:			TrailMissile1Red
+	+Bitmap Stretch:		100
+$Impact Effect:				FlashHitHarpoon1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			4.96
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:				TrailHarpoon1Red
+$Homed Flight Effect:			TrailHarpoon1Red
+$Unhomed Flight Effect:			TrailHarpoon1Red
+$Muzzleflash:					MuzMissile1Red
+$Thruster Flame Effect:		missilethruster06
+$Thruster Glow Effect:		FlareHarpoon1Red
+$Thruster Glow Radius Factor:	6.0
+
+$Name: S_Cluster Baby
++nocreate 
+$Trail:
+	+Start Width:			1.5
+	+End Width:				6.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				6.0
+	+Spread:				0.2
+	+Bitmap:			TrailMissile1Red
+	+Bitmap Stretch:		75
+$Impact Effect:						FlashHitHornet1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			3.44
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:				TrailHornet1Red
+$Homed Flight Effect:			TrailHornet1Red
+$Unhomed Flight Effect:			TrailHornet1Red
+$Thruster Flame Effect:		missilethruster05
+$Thruster Glow Effect:		FlareMissile1Red
+$Thruster Glow Radius Factor:	4.0
+
+$Name: S_Cluster Baby Weak
++nocreate
+$Trail:
+	+Start Width:			1.5
+	+End Width:				6.0
+	+Start Alpha:			1.0
+	+End Alpha:				0.0
+	+Alpha Decay Exponent:	0.15
+	+Max Life:				6.0
+	+Spread:				0.2
+	+Bitmap:			TrailMissile1Red
+	+Bitmap Stretch:		75
+$Impact Effect:						FlashHitHornet1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			3.44
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Freeflight Effect:				TrailHornet1Red
+$Homed Flight Effect:			TrailHornet1Red
+$Unhomed Flight Effect:			TrailHornet1Red
+$Thruster Flame Effect:		missilethruster05
+$Thruster Glow Effect:		FlareMissile1Red
+$Thruster Glow Radius Factor:	4.0
+
+$Name: S_Cluster Bomb Baby
++nocreate
+$Trail:
+	+Start Width:	0.0
+	+End Width:		0.0
+	+Start Alpha:	0.0
+	+End Alpha:		0.0
+	+Max Life:		0.1
+	+Bitmap:		nothing_0000
+$Impact Effect:						FlashHitCBB1Red
+$Piercing Impact Explosion:			exp06
+$Piercing Impact Radius:			3.44
+$Piercing Impact Velocity:			20
+$Piercing Impact Splash Velocity:	-5
+$Piercing Impact Variance:			0.1
+$Piercing Impact Particles:			5
+$Thruster Flame Effect:		missilethruster05
+$Thruster Glow Effect:		FlareMissile1Red
+$Thruster Glow Radius Factor:	6.0
+
+#End

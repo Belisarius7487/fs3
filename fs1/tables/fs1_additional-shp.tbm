@@ -1,0 +1,131 @@
+#Ship Classes
+
+;; The reskinnable Chronos and TAC 1 ships are exclusive to the FSPort MVPs; they do not appear in the base FSPort.  To avoid relying on TBM load order, the properties that would normally be in separate -shp.tbm files are combined into this one.
+
+
+;; BASE CLASSES
+
+$Name: GTFr Chronos#reskinnable
+$Short name: TFreight3Reskin
+$Species: Terran
+$POF file: freighter03-reskinnable.pof
+$Detail distance: (0, 400, 600, 3000)
+$Show damage: YES
+$Density: 1
+$Damp: 0.2
+$Rotdamp: 0.7
+$Max Velocity: 0.0, 0.0, 40.0
+$Rotation time: 25.0, 25.0, 25.0
+$Rear Velocity: 0.0
+$Forward accel: 5.0
+$Forward decel: 1.5
+$Slide accel: 0.0
+$Slide decel: 0.0
+$Expl inner rad: 100.0
+$Expl outer rad: 200.0
+$Expl damage: 75.0
+$Expl blast: 2500.0
+$Expl Propagates: YES
+$Shockwave Speed: 0.0
+$Default PBanks: ()
+$Default SBanks: ()
+$SBank Capacity: ()
+$Shields: 0
+$Power Output: 1.0
+$Max Oclk Speed: 50.0
+$Max Weapon Eng: 0.0
+$Hitpoints: 10000
+$Flags: ( "freighter" "ship copy" )
+$AI Class: Captain
+$Afterburner: NO
+$Countermeasures: 0
+$Scan time: 2000
+$EngineSnd: 193
+$Closeup_pos: 0.0, 0.0, -200
+$Closeup_zoom: 0.5
+$Score: 20
+$Subsystem: bridge, 10, 0.0
+$Subsystem: communication, 5, 0.0
+$Subsystem: navigation, 5, 0.0
+$Subsystem: weapons, 10, 0.0
+$Subsystem: sensors, 10, 0.0
+$Subsystem: engine 1, 10, 0.0
+$Subsystem: engine 2, 10, 0.0
+$Subsystem: engine 3, 10, 0.0
+$Subsystem: turreta, 5, 20.0
+$Default PBanks: ( "Avenger" )
+
+$Name: TAC 1#reskinnable
+$Short name: TFreight3Reskin
+$Species: Terran
+$POF file: cargo03-reskinnable.pof
+$Detail distance: (0, 350, 800, 2000)
+$Show damage: YES
+$Density: 1
+$Damp: 0.2
+$Rotdamp: 0.2
+$Max Velocity: 0.0, 0.0, 0.0
+$Rotation time: 20.0, 20.0, 20.0
+$Rear Velocity: 0.0
+$Forward accel: 0.0
+$Forward decel: 0.0
+$Slide accel: 0.0
+$Slide decel: 0.0
+$Expl inner rad: 50.0
+$Expl outer rad: 100.0
+$Expl damage: 35.0
+$Expl blast: 100.0
+$Expl Propagates: NO
+$Shockwave Speed: 0.0
+$Default PBanks: ()
+$Default SBanks: ()
+$SBank Capacity: ()
+$Shields: 0
+$Power Output: 0.0
+$Max Oclk Speed: 0.0
+$Max Weapon Eng: 0.0
+$Hitpoints: 1200
+$Flags: ( "cargo" "ship copy" )
+$AI Class: none
+$Afterburner: NO
+$Countermeasures: 0
+$Scan time: 2000
+$EngineSnd: -1
+$Closeup_pos: 0.0, 0.0, -98
+$Closeup_zoom: 0.55
+$Score: 5
+
+
+;; ASSETS
+
+$Name:		TAC 1#reskinnable
++nocreate
+$Detail distance:	( 0, 122, 270, 629 )
+
+
+;; EFFECTS
+
+$Name: 		GTFr Chronos#reskinnable
++nocreate
+$Armor Type:					MediumArmor
+$ExplosionSnd: MV_Medium
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.75
+
+$Name:	TAC 1#reskinnable
++nocreate
+$Armor Type:					MediumArmor
+$ExplosionSnd: MV_Medium
+
+
+;; RADAR
+
+$Name:         GTFr Chronos#reskinnable
++nocreate
+$Radar Image 2D:    radar-freighter
+
+$Name:         TAC 1#reskinnable
++nocreate
+$Radar Image 2D:    radar-cargo
+
+#End

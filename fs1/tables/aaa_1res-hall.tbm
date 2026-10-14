@@ -1,0 +1,51 @@
+;; This file resets the music choices for the main halls so that the music packs work properly.
+
+$Num Resolutions: 1
+
+$Main Hall
++Name: Aquitaine
++nocreate
++Music:				Aquitaine
+
+$Main Hall
++Name: Aquitaine_Neb
++nocreate
++Music:				Aquitaine
+
+$Main Hall
++Name: Bastion A
++nocreate
++Music:				Aquitaine
++Substitute Music:	FS1-Choco Mousse
+
+$Main Hall
++Name: Bastion B
++nocreate
++Music:				Aquitaine
++Substitute Music:	FS1-Choco Mousse
+
+$Main Hall
++Name: Galatea A
++nocreate
++Music:				Aquitaine
++Substitute Music:	FS1-Choco Mousse
+
+$Main Hall
++Name: Galatea B
++nocreate
++Music:				Aquitaine
++Substitute Music:	FS1-Choco Mousse
+
+$Main Hall
++Name: Krios
++nocreate
++Music:				Aquitaine
++Substitute Music:	FS1-Creme Brulee
+
+$Main Hall
++Name: Soyakaze
++nocreate
++Music:				Aquitaine
++Substitute Music:	FS1-Creme Brulee
+
+#end

@@ -1,0 +1,693 @@
+#Ship Classes
+
+$Name:			GTF Loki#stealth
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		1 (20)
+$POF File: Loki.pof
+$Detail distance:	( 0, 70, 200, 603 )
+
+$Name: 		GTF Angel
++nocreate
+	+Gun Mounts:			1 (2)
+	+Missile Banks:			1 (40)
+
+$Name: 				GTS Centaur
++nocreate
+$POF File: Centaur.pof
+
+$Name: 				GTS Centaur#Charon
++nocreate
+$POF File: Centaur.pof
+
+$Name:			GTC Fenris
++nocreate
+$POF File:			Fenris_FS1.pof
+$Briefing icon:
+	+Regular:	iconcruiser
+	+Fade:		Fadeiconcruiser
+	+Highlight:	iconhighlight07
+
+$Name:			GTC Leviathan
++nocreate
+$POF File:		Leviathan_FS1.pof
+$Briefing icon:
+	+Regular:	iconcruiser
+	+Fade:		Fadeiconcruiser
+	+Highlight:	iconhighlight07
+
+$Name:			GTSC Faustus#bigblast
++nocreate
+$POF File:		Faustus.pof
+$Detail distance:	( 0, 440, 887, 1796 )
+$Animations: ( "mv_faustus_fb" )
+$Subsystem: 	Fighterbay, 		0.0, 0.0
+	$Alt Subsystem Name: Escape Pod Bay
+	$Flags:	( "untargetable" )
+
+$Name: 		GTD Orion
++nocreate
+$Species: 					Terran
+	+Tech Description: 		XSTR("The Orion is the capital ship of the GTA.  Measuring a frightening 2.1 kilometers in length, the cost to build one of these far outweighs the cost of paying the crew of this ship for three years.  There is no more important symbol of Terran pride than a ship like the Galatea or the Intrepid cruising past a colonized planet, patrolling the system and ensuring safety.  In the course of the fourteen-year war, very few of these have ever been lost, making the destruction of an Orion a truly horrible defeat.", 20)
+$end_multi_text
+$POF File:			Orion_FS1.pof
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Amadeus
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Amadeus
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Bastion
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Bastion
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Eisenhower
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Eisenhower
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Galatea
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Galatea
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Goliath
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Goliath
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Intrepid
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Intrepid
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Krios
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Krios
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Legion
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Legion
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Minnow
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Minnow
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Myrmidon
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Myrmidon
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Orion
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Orion
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Repulse
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Repulse
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name: 		GTD Orion#Soyakaze
++nocreate
+$POF File:			Orion_FS1.pof
+$Texture Replace:
+	+old: nameplate
+	+new: GTD_Soyakaze
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name:			GTD Hades#scan
++nocreate
+$POF File:		Hades.pof
+$POF Target LOD:	1
+$Detail distance:	( 0, 8449, 12898 )
+$Shockwave Speed:	300.0
+$Thruster Bitmap 2:				thruster02-01LessHaze
+$Thruster02 Length factor:		0.5
+$Subsystem: turret01a, 1.0, 12 
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 0, 0
+$Subsystem: turret02a, 1.0, 12 
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 0, 0
+$Subsystem: turret03a, 1.0, 4 
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" )
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 0, 0
+$Subsystem: turret04a, 1.0, 4 
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" )
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 0, 0
+$Subsystem: turret05a, 1.0, 4 
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" )
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 180, 0
+$Subsystem: turret06a, 1.0, 4 
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" )
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 180, 0
+$Subsystem: turret07a, 1.0, 12 
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 180, 0
+$Subsystem: turret17, 1.0, 12
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Maximum Barrel Elevation:	40	;;The side guns can't aim higher than this
+	$Turret Base FOV:		160
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	90, 0, 0
+$Subsystem: turret18, 1.0, 12
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Maximum Barrel Elevation:	40	;;The side guns can't aim higher than this
+	$Turret Base FOV:		160
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	90, 0, 0
+$Subsystem: engine, 8.0, 0.0 
+	$Alt Subsystem Name:	Main Engine
+    $Engine Wash: Default1500 
+$Subsystem: enginesupleft, 4.0, 0.0 
+	$Alt Subsystem Name:	Engine 1
+    $Engine Wash: Default1000 
+$Subsystem: enginesupright, 4.0, 0.0 
+	$Alt Subsystem Name:	Engine 2
+    $Engine Wash: Default1000 
+$Subsystem: enginesdownleft, 4.0, 0.0 
+	$Alt Subsystem Name:	Engine 3
+    $Engine Wash: Default1000 
+$Subsystem: Enginesdownright, 4.0, 0.0 
+	$Alt Subsystem Name:	Engine 4
+    $Engine Wash: Default1000
+
+$Name:			GTD Hades#scancapital
++nocreate
+$POF File:		Hades.pof
+$POF Target LOD:	1
+$Detail distance:	( 0, 8449, 12898 )
+$Shockwave Speed:	300.0
+$Thruster Bitmap 2:				thruster02-01LessHaze
+$Thruster02 Length factor:		0.5
+$Subsystem: turret01a, 1.0, 12 
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 0, 0
+$Subsystem: turret02a, 1.0, 12 
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 0, 0
+$Subsystem: turret03a, 1.0, 4 
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" )
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 0, 0
+$Subsystem: turret04a, 1.0, 4 
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" )
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 0, 0
+$Subsystem: turret05a, 1.0, 4 
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" )
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 180, 0
+$Subsystem: turret06a, 1.0, 4 
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" )
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 180, 0
+$Subsystem: turret07a, 1.0, 12 
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	80, 180, 0
+$Subsystem: turret17, 1.0, 12
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Maximum Barrel Elevation:	40	;;The side guns can't aim higher than this
+	$Turret Base FOV:		160
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	90, 0, 0
+$Subsystem: turret18, 1.0, 12
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+	$Maximum Barrel Elevation:	40	;;The side guns can't aim higher than this
+	$Turret Base FOV:		160
+	$Turret Reset Delay:		15000
+	$Flags:				( "reset when idle" "fire on target")
+	$animation:			triggered
+	$type:				initial
+		+relative_angle: 	90, 0, 0
+$Subsystem: engine, 8.0, 0.0 
+	$Alt Subsystem Name:	Main Engine
+    $Engine Wash: Default1500 
+$Subsystem: enginesupleft, 4.0, 0.0 
+	$Alt Subsystem Name:	Engine 1
+    $Engine Wash: Default1000 
+$Subsystem: enginesupright, 4.0, 0.0 
+	$Alt Subsystem Name:	Engine 2
+    $Engine Wash: Default1000 
+$Subsystem: enginesdownleft, 4.0, 0.0 
+	$Alt Subsystem Name:	Engine 3
+    $Engine Wash: Default1000 
+$Subsystem: Enginesdownright, 4.0, 0.0 
+	$Alt Subsystem Name:	Engine 4
+    $Engine Wash: Default1000
+
+$Name: 		Terran Asteroid Base
++nocreate
+$Detail distance:	( 0, 3726, 7453, 14908 )
+
+$Name: Terran NavBuoy#destroyable
++nocreate
+$POF file: navbuoy-terran.pof
+$Detail distance: (0)
+
+$Name:		GTFr Chronos#medical
++nocreate
+$POF File: Chronos.pof
+$Texture Replace:
+	+old: ChronosUV
+	+new: ChronosMED
+$Detail distance: (0, 400, 600, 3000)
+
+$Name:		GTSC Faustus#medical
++nocreate
+$POF File: Faustus.pof
+$Texture Replace:
+	+old: FaustusUV
+	+new: FaustusMED
+$Detail distance:	( 0, 440, 887, 1796 )
+$Animations: ( "mv_faustus_fb" )
+$Subsystem: 	Fighterbay, 		0.0, 0.0
+	$Alt Subsystem Name: Escape Pod Bay
+	$Flags:	( "untargetable" )
+
+$Name:		TAC 1#medical
++nocreate
+$POF File: TAC1.pof
+$Texture Replace:
+	+old: TAC1
+	+new: TAC1MED
+$Detail distance:	( 0, 122, 270, 629 )
+
+$Name:		GTT Elysium#medical
++nocreate
+$POF File: Elysium.pof
+$Texture Replace:
+	+old: ElysiumHull
+	+new: ElysiumMED
+$Detail distance:	( 0, 112, 254, 605 )
+
+$Name:			PVF Ulysses
++nocreate
+$POF File: Ulysses.pof
+$Detail distance:	( 0, 65, 206 )
+
+$Name:		PVC Aten#Hulk1
++nocreate
+$Detail distance:	( 0, 505, 1017, 2053 )
+$Subsystem:		turret01a, 0.833, 1.0
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 0, 0
+$Subsystem:		turret02a, 0.833, 1.0
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 180, 0
+
+$Name:		PVC Aten#Hulk2
++nocreate
+$Detail distance:	( 0, 505, 1017, 2053 )
+$Subsystem:		turret01a, 0.833, 1.0
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 0, 0
+$Subsystem:		turret02a, 0.833, 1.0
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 180, 0
+
+$Name:		PVC Aten#Hulk3
++nocreate
+$Detail distance:	( 0, 505, 1017, 2053 )
+$Subsystem:		turret01a, 0.833, 1.0
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 0, 0
+$Subsystem:		turret02a, 0.833, 1.0
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 180, 0
+
+$Name:	Vasudan Probe
++nocreate
+$POF file: vprobe.pof
+$Detail distance:	( 0, 69, 200, 606 )
+
+$Name:		PVD Typhon
++nocreate
+$Briefing icon:
+	+Regular:	IconCapital
+	+Fade:		FadeIconCapital
+	+Highlight:	iconhighlight06
+
+$Name:		PVD Typhon#Hulk
++nocreate
+$POF Target LOD:	1
+$Detail distance:	( 0, 5749, 14999 )
+$Closeup_pos:			0.0, 0.0, -2500
+$Closeup_zoom:			0.5
+$Subsystem:		turret16, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret17, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret18, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret19, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret20, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret21, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret22, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret23, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret24, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret25, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret26, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret27, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+
+$Name: Karnak Reactor
++nocreate
+$Detail distance: (0, 2000, 6500, 18000)
+
+$Name: Karnak Reactor#cargo
++nocreate
+$Detail distance: (0, 2000, 6500, 18000)
+
+$Name:			SF Dragon#weakened
++nocreate
+	+Gun Mounts:		2 (2, 3)
+	+Missile Banks:		1 (20)
+$POF file:			Dragon.pof
+$POF target LOD:	0
+$Detail distance:	( 0, 63, 217 )
+
+$Name:			SF Dragon#Terrans
++nocreate
+	+Gun Mounts:		2 (2, 3)
+	+Missile Banks:		1 (20)
+$POF file:			Dragon.pof
+$POF target LOD:	0
+$Detail distance:	( 0, 63, 217 )
+
+$Name:		SF Gorgon
++nocreate
+$Detail distance: (0, 80)
+
+$Name:			SD Demon#scan
++nocreate
+$POF file:                      Demon.pof
+$Detail distance:	( 0, 4330, 8661, 17325 )
+$Animations: ( "mv_demon_fb1" "mv_demon_fb2" "mv_demon_fb3" "mv_demon_fb4" )
+$Subsystem:		turret03a-base, 3, 0.5
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	70, 0, 0
+$Subsystem:		turret06a-base, 0.6, 0.5
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	70, 180, 0
+$Subsystem:		turret07a-base, 0.6, 0.5
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	70, 0, 0
+
+$Name:			SD Demon#scancapital
++nocreate
+$POF file:                      Demon.pof
+$Detail distance:	( 0, 4330, 8661, 17325 )
+$Animations: ( "mv_demon_fb1" "mv_demon_fb2" "mv_demon_fb3" "mv_demon_fb4" )
+$Subsystem:		turret03a-base, 3, 0.5
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	70, 0, 0
+$Subsystem:		turret06a-base, 0.6, 0.5
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	70, 180, 0
+$Subsystem:		turret07a-base, 0.6, 0.5
+	$Turret Reset Delay:	15000
+	$Flags:					( "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	70, 0, 0
+
+$Name:			SD Lucifer#scan
++nocreate
+$Detail distance:	( 0, 4876, 9753, 19508 )
+$Subsystem:		turret18, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret19, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate")
+
+$Name:			SD Lucifer#scancapital
++nocreate
+$Detail distance:	( 0, 4876, 9753, 19508 )
+$Subsystem:		turret18, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate" )
+$Subsystem:		turret19, 0.5, 0.5
+	$Default SBanks:	( "" )
+	$Flags:				( "untargetable" "damage as hull" "no aggregate")
+
+$Name:			Asteroid
++nocreate
+$POF file: Asteroid-BrownLarge.pof
+$Detail distance:	(0, 500, 1500)
+
+#End

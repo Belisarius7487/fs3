@@ -1,0 +1,43 @@
+#Ship Classes
+
+$Name: SF Dragon
++nocreate
+$Default SBanks: ( "Interceptor#Shivan" )
+
+$Name: SF Basilisk
++nocreate
+$Default SBanks: ( "Phoenix V#Shivan" "Hornet#Shivan" )
+
+$Name: SF Manticore
++nocreate
+$Default SBanks: ( "Interceptor#Shivan" "MX-50#Shivan" )
+
+$Name: SB Nephilim
++nocreate
+$Default SBanks: ( "MX-50#Shivan" "Synaptic#Shivan" "Phoenix V#Shivan" "MX-50#Shivan" )
+
+$Name: SB Seraphim
++nocreate
+$Default SBanks: ( "MX-50#Shivan" "Synaptic#Shivan" "Phoenix V#Shivan" "MX-50#Shivan" )
+
+$Name: SB Nahema
++nocreate
+$Default SBanks: ( "Synaptic#Shivan" "Phoenix V#Shivan" "Synaptic#Shivan" )
+
+$Name:                  SFr Asmodeus
++nocreate
+$Subsystem:                     a-turret02,2,1.0
+	$Default PBanks:        ( "Disruptor" )
+
+$Name:			SD Demon
++nocreate
+$Subsystem:                     turret08-base,0.4,0.5
+	$Default PBanks:        ( "Shivan Turret Laser" )
+$Subsystem:                     turret09-base,0.4,0.5
+	$Default PBanks:        ( "Shivan Turret Laser" )
+$Subsystem:                     turret11-base,0.4,0.5
+	$Default PBanks:        ( "Shivan Turret Laser" )
+$Subsystem:                     turret12-base,0.4,0.5
+	$Default PBanks:        ( "Shivan Turret Laser" )
+
+#End

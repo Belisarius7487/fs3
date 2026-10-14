@@ -1,0 +1,1108 @@
+#Ship Classes
+
+$Name:		GTF Ulysses
++nocreate
+$Trails:
+	+Bitmap:	ABTrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		GTF Apollo
++nocreate
+$Trails:
+	+Bitmap:	ABTrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		GTF Valkyrie
++nocreate
+$Trails:
+	+Bitmap:	ABTrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		GTF Hercules
++nocreate
+$Trails:
+	+Bitmap:	ABTrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		GTF Loki
++nocreate
+$Trails:
+	+Bitmap:	ABTrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:			GTF Loki#stealth
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+$Armor Type:		LightArmor
+$Trails:
+	+Bitmap:	ABTrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+$ExplosionSnd: MV_Small
+
+$Name:		GTF Angel
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+$Armor Type:		LightArmor
+$Trails:
+	+Bitmap:	ABTrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+$ExplosionSnd: MV_Small
+
+$Name:		GTB Athena
++nocreate
+$Trails:
+	+Bitmap:	ABbombertrail
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:		GTB Medusa
++nocreate
+$Trails:
+	+Bitmap:	ABbombertrail
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:		GTB Ursa
++nocreate
+$Trails:
+	+Bitmap:	ABbombertrail
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:		GTB Zeus
++nocreate
+$Trails:
+	+Bitmap:	ABbombertrail
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:				GTDr Amazon
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+
+$Name: 				GTS Centaur
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+
+$Name: 				GTS Centaur#Charon
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+$Armor Type:		MediumArmor
+$ExplosionSnd: MV_Small
+
+$Name: 		GTT Hunter
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+$Armor Type:					MediumArmor
+$ExplosionSnd: MV_Small
+$Thruster02 Length factor: 		0.5
+
+$Name:				GTSC Faustus#bigblast
++nocreate
+$Shockwave Speed:	900.0
+$Armor Type:		HeavyArmor
+$ExplosionSnd: MV_Large
+$Thruster Bitmap 2:			thruster02-01LessHaze
+
+$Name:	Terran Probe
++nocreate
+$Armor Type:					LightArmor
+$ExplosionSnd: MV_Tiny
+
+$Name: 		GTD Orion#Amadeus
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Bastion
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Eisenhower
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Galatea
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Goliath
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Intrepid
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Krios
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Legion
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Minnow
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Myrmidon
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Orion
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Repulse
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		GTD Orion#Soyakaze
++nocreate
+$Shockwave Speed:	335.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.6
+$Subsystem: turret01a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05a, 1.875, 3.0
+	$Turret Base RotationSnd: 	256
+	$Turret Gun RotationSnd: 	257
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name:				GTD Hades#scan
++nocreate
+$Shockwave Speed:	300.0
+$Armor Type:		HeavyArmor
+$ExplosionSnd: MV_Massive
+$Thruster Bitmap 2:			thruster02-01LessHaze
+$Thruster02 Length factor:	0.5
+$Subsystem:		turret01a, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret02a, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret03a, 1.0, 4
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret04a, 1.0, 4
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret05a, 1.0, 4
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret06a, 1.0, 4
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret07a, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret17, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret18, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+
+$Name:				GTD Hades#scancapital
++nocreate
+$Shockwave Speed:	300.0
+$Armor Type:		HeavyArmor
+$ExplosionSnd: MV_Massive
+$Thruster Bitmap 2:			thruster02-01LessHaze
+$Thruster02 Length factor:	0.5
+$Subsystem:		turret01a, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret02a, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret03a, 1.0, 4
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret04a, 1.0, 4
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret05a, 1.0, 4
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret06a, 1.0, 4
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret07a, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret17, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret18, 1.0, 12
+	$Turret Base RotationSnd:	256
+	$Turret Gun RotationSnd:	257
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+
+$Name: 		GTI Polaris Extension
++nocreate
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+
+$Name: 		GTI Polaris Pylon
++nocreate
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+
+$Name: 		Terran Asteroid Base
++nocreate
+$Shockwave Speed: 200.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster02 Length factor: 		0.5
+
+$Name:	Terran NavBuoy#destroyable
++nocreate
+$Armor Type:					LightArmor
+$ExplosionSnd: MV_Tiny
+
+$Name: 		GTSC Faustus#medical
++nocreate
+$Shockwave Speed: 225.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Medium
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+
+$Name: 		GTFr Chronos#medical
++nocreate
+$Armor Type:					MediumArmor
+$ExplosionSnd: MV_Medium
+$Thruster Bitmap 2: 			thruster02-01LessHaze
+$Thruster02 Length factor: 		0.75
+
+$Name:	TAC 1#medical
++nocreate
+$Armor Type:					MediumArmor
+$ExplosionSnd: MV_Medium
+
+$Name: 		GTT Elysium#medical
++nocreate
+$Armor Type:					MediumArmor
+$ExplosionSnd: MV_Small
+$Thruster02 Length factor: 		0.5
+
+
+;;Vasudan ships
+
+$Name:		PVF Ulysses
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+$Shield Color: 					255 255 255
+$Armor Type:		LightArmor
+$Trails:
+	+Bitmap:	ABTrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+$ExplosionSnd: MV_Small
+
+$Name:		PVF Seth
++nocreate
+$Trails:
+	+Bitmap:	ABvastrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		PVF Horus
++nocreate
+$Trails:
+	+Bitmap:	ABvastrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		PVF Thoth
++nocreate
+$Trails:
+	+Bitmap:	ABvastrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		PVF Anubis
++nocreate
+$Trails:
+	+Bitmap:	ABvastrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		PVB Sekhmet
++nocreate
+$Trails:
+	+Bitmap:	ABvasbombertrail
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:		PVB Osiris
++nocreate
+$Trails:
+	+Bitmap:	ABvasbombertrail
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:		PVB Amun
++nocreate
+$Trails:
+	+Bitmap:	ABvasbombertrail
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name: 		PVDr Jackal
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+$Shield Color: 					255 255 255
+$Armor Type:					LightArmor
+$ExplosionSnd: MV_Small
+
+$Name:			PVS Scarab
++nocreate
+$Shield Color: 					255 255 255
+
+$Name: 		PVC Aten#Hulk1
++nocreate
+$Shockwave Speed: 235.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Large
+$Thruster02 Length factor: 		0.3
+$Subsystem: turret01a, 0.833, 1.0
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 0.833, 1.0
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		PVC Aten#Hulk2
++nocreate
+$Shockwave Speed: 235.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Large
+$Thruster02 Length factor: 		0.3
+$Subsystem: turret01a, 0.833, 1.0
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 0.833, 1.0
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		PVC Aten#Hulk3
++nocreate
+$Shockwave Speed: 235.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Large
+$Thruster02 Length factor: 		0.3
+$Subsystem: turret01a, 0.833, 1.0
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02a, 0.833, 1.0
+	$Turret Base RotationSnd: 	252
+	$Turret Gun RotationSnd: 	253
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		PVSC Imhotep
++nocreate
+$Shockwave Speed: 215.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Medium
+
+$Name: 		Vasudan Probe
++nocreate
+$Armor Type:					LightArmor
+$ExplosionSnd: MV_Tiny
+
+$Name: 		PVD Typhon#Hulk
++nocreate
+$Shockwave Speed: 380.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster02 Length factor: 		0.3
+$Subsystem: turret01, 0.125, 0.5
+	$Turret Base RotationSnd: 	254
+	$Turret Gun RotationSnd: 	255
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret02, 0.125, 0.5
+	$Turret Base RotationSnd: 	254
+	$Turret Gun RotationSnd: 	255
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret03, 0.125, 0.5
+	$Turret Base RotationSnd: 	254
+	$Turret Gun RotationSnd: 	255
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret04, 0.125, 0.5
+	$Turret Base RotationSnd: 	254
+	$Turret Gun RotationSnd: 	255
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret05, 0.125, 0.5
+	$Turret Base RotationSnd: 	254
+	$Turret Gun RotationSnd: 	255
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+$Subsystem: turret06, 0.125, 0.5
+	$Turret Base RotationSnd: 	254
+	$Turret Gun RotationSnd: 	255
+	$Turret BaseSnd Volume: 	1.0
+	$Turret GunSnd Volume: 		1.0
+
+$Name: 		PVI Karnak
++nocreate
+$Shockwave Speed: 360.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Massive
+$Thruster02 Length factor: 		0.3
+
+$Name: 		Karnak Reactor
++nocreate
+$Shockwave Speed: 1000.0
+$Armor Type:					MediumArmor
+$ExplosionSnd: MV_Medium
+
+$Name: 		Karnak Reactor#cargo
++nocreate
+$Shockwave Speed: 1000.0
+$Armor Type:					MediumArmor
+$ExplosionSnd: MV_Medium
+
+$Name: 		PVI Shah Extension
++nocreate
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+
+$Name: 		PVI Shah Pylon
++nocreate
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+
+$Name: 		Vasudan Asteroid Base
++nocreate
+$Shockwave Speed: 200.0
+$Armor Type:					HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster02 Length factor: 		0.5
+
+$Name:	Vasudan NavBuoy#destroyable
++nocreate
+$Armor Type:					LightArmor
+$ExplosionSnd: MV_Tiny
+
+$Name:	PVEP Ra
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+
+
+;;Shivan ships
+
+$Name:		SF Dragon
++nocreate
+$Trails:
+	+Bitmap:	sabtrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		SF Dragon#weakened
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+$Armor Type:		LightArmor
+$Trails:
+	+Bitmap:	sabtrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+$ExplosionSnd: MV_Small
+
+$Name:			SF Dragon#Terrans
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+$Armor Type:		LightArmor
+$Trails:
+	+Bitmap:	sabtrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+$ExplosionSnd: MV_Small
+
+$Name:		SF Basilisk
++nocreate
+$Trails:
+	+Bitmap:	sabtrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		SF Manticore
++nocreate
+$Trails:
+	+Bitmap:	sabtrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name:		SF Scorpion
++nocreate
+$Trails:
+	+Bitmap:	sabtrail
+	+Width:		2.5
+	+Alpha:		0.3
+	+Life:		1
+
+$Name: 		SF Gorgon
++nocreate
+$Warpin Start Sound: MV_Fighter_Warp
+$Warpout Start Sound: MV_Fighter_Warp
+$Armor Type:					LightArmor
+$Trails:
+	+Bitmap:	sabtrail
+	+Width:		1.0
+	+Alpha:		0.7
+	+Life:		1
+$ExplosionSnd: MV_Small
+
+$Name:		SB Nahema
++nocreate
+$Trails:
+	+Bitmap:	sabtrail 
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:		SB Shaitan
++nocreate
+$Trails:
+	+Bitmap:	sabtrail 
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:		SB Seraphim
++nocreate
+$Trails:
+	+Bitmap:	sabtrail 
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:		SB Nephilim
++nocreate
+$Trails:
+	+Bitmap:	sabtrail 
+	+Width:		2.0
+	+Alpha:		0.5
+	+Life:		1
+
+$Name:			SD Demon#scan
++nocreate
+$Shockwave Speed:	365.0
+$Armor Type:		HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster02 Length factor:	0.5
+$Subsystem:		turret03a-base, 3, 0.5
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret06a-base, 0.6, 0.5
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret07a-base, 0.6, 0.5
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+
+$Name:			SD Demon#scancapital
++nocreate
+$Shockwave Speed:	365.0
+$Armor Type:		HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster02 Length factor:	0.5
+$Subsystem:		turret03a-base, 3, 0.5
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret06a-base, 0.6, 0.5
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+$Subsystem:		turret07a-base, 0.6, 0.5
+	$Turret Base RotationSnd:	252
+	$Turret Gun RotationSnd:	253
+	$Turret BaseSnd Volume:		1.0
+	$Turret GunSnd Volume:		1.0
+
+$Name:			SD Lucifer#scan
++nocreate
+$Shockwave Speed:	900.0
+$Armor Type:		HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster02 Length factor:	0.5
+
+$Name:			SD Lucifer#scancapital
++nocreate
+$Shockwave Speed:	900.0
+$Armor Type:		HeavyArmor
+$ExplosionSnd: MV_Huge
+$Thruster02 Length factor:	0.5
+
+#End

@@ -1,0 +1,251 @@
+#Ship Exp Flashes
+
+$Name:				GTFr Chronos#medical
+$Blinding Effect Intensity:				0.45
+$Blinding Effect Duration: 				5000
+$Blinding Effect Distance Multiplier: 	2.5
+
+$Name:				GTDR Amazon Advanced
+$Blinding Effect Intensity:				0.45
+$Blinding Effect Duration: 				5000
+$Blinding Effect Distance Multiplier: 	2.5
+
+$Name:				GVFr Bast
+$Flash Radius Multiplier: 				0.0
+
+$Name:				PVFr Bast
+$Flash Radius Multiplier: 				0.0
+
+$Name:				GTS Centaur#Charon
+$Flash Radius Multiplier: 				1.0
+$Flash Effect:							6
+
+$Name:				GTSC Faustus#medical
+$Flash Radius Multiplier: 				1.0
+
+$Name:				GTSC Faustus#bigblast
+$Flash Radius Multiplier: 				4.0
+$Blinding Effect Intensity:				0.80
+$Blinding Effect Duration: 				10000
+$Blinding Effect Distance Multiplier: 	10.0
+
+$Name:				GVSC Imhotep
+$Flash Radius Multiplier: 				1.0
+$Blinding Effect Intensity:				0.55
+$Blinding Effect Duration: 				7000
+
+$Name:				PVSC Imhotep
+$Flash Radius Multiplier: 				1.0
+$Blinding Effect Intensity:				0.55
+$Blinding Effect Duration: 				7000
+
+$Name:				GTD Hades#scan
+$Blinding Effect Intensity:				0.70
+$Blinding Effect Duration: 				10000
+
+$Name:				SD Demon#scan
+$Blinding Effect Intensity:				0.70
+$Blinding Effect Duration: 				10000
+
+$Name:				SD Lucifer#scan
+$Blinding Effect Intensity:				0.70
+$Blinding Effect Duration: 				10000
+
+$Name:				Terran Asteroid Base
+$Blinding Effect Intensity:				0.60
+$Blinding Effect Duration: 				8000
+
+$Name:				Vasudan Asteroid Base
+$Blinding Effect Intensity:				0.60
+$Blinding Effect Duration: 				8000
+
+$Name:				Karnak Reactor
+$Flash Radius Multiplier: 				4.0
+$Flash Effect:							6
+$Blinding Effect Intensity:				0.80
+$Blinding Effect Duration: 				10000
+$Blinding Effect Distance Multiplier: 	10.0
+
+$Name:				Karnak Reactor#cargo
+$Flash Radius Multiplier: 				4.0
+$Flash Effect:							6
+$Blinding Effect Intensity:				0.80
+$Blinding Effect Duration: 				10000
+$Blinding Effect Distance Multiplier: 	10.0
+
+$Name:				Terran Probe
+--	$Blinding Effect Intensity:				0.30
+--	$Blinding Effect Duration: 				2000
+
+$Name:				Vasudan Probe
+--	$Blinding Effect Intensity:				0.30
+--	$Blinding Effect Duration: 				2000
+
+
+#Weapon Exp $Flashes
+
+$Name:				SSLBeam
+$Blinding Effect Intensity:		0.2
+$Blinding Effect Duration:		600
+$Blinding Effect Distance:		1200
+
+$Name:				LRSSLBeam
+$Blinding Effect Intensity:		0.2
+$Blinding Effect Duration:		600
+$Blinding Effect Distance:		1200
+
+$Name:				NuSSLBeam
+$Blinding Effect Intensity:		0.2
+$Blinding Effect Duration:		600
+$Blinding Effect Distance:		1200
+
+$Name:				NuLRSSLBeam
+$Blinding Effect Intensity:		0.2
+$Blinding Effect Duration:		600
+$Blinding Effect Distance:		1200
+
+$Name:				Barracuda
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		400
+$Blinding Effect Distance:		200
+
+$Name:				Tsunami
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		1500
+$Blinding Effect Distance:		750
+
+$Name:				Harbinger
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		3200
+$Blinding Effect Distance:		1600
+
+$Name:				Harbinger#end
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		3200
+$Blinding Effect Distance:		1600
+
+$Name:				Cyclops
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		2000
+$Blinding Effect Distance:		1000
+
+$Name:				Cyclops#short
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		2000
+$Blinding Effect Distance:		1000
+
+$Name:				Serkr
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		2000
+$Blinding Effect Distance:		1000
+
+$Name:				Serkr#short
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		2000
+$Blinding Effect Distance:		1000
+
+$Name:				Rebel Bomb
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		400
+$Blinding Effect Distance:		200
+
+$Name:				Unknown Bomb
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		1500
+$Blinding Effect Distance:		750
+
+$Name:				Unknown Megabomb
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		3200
+$Blinding Effect Distance:		1600
+
+$Name:				Shivan Bomb
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		2000
+$Blinding Effect Distance:		1000
+
+$Name:				Shivan Bomb#Short
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		2000
+$Blinding Effect Distance:		1000
+
+$Name:				Shivan Weak Bomb
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		400
+$Blinding Effect Distance:		200
+
+$Name:				Shivan Megabomb
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		6800
+$Blinding Effect Distance:		3400
+
+$Name:				Tsunami#Shivan
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		1500
+$Blinding Effect Distance:		750
+
+$Name:				Harbinger#Shivan
+$Flash Radius:					100
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.6
+$Blinding Effect Duration:		3200
+$Blinding Effect Distance:		1600
+
+$Name:				Fusion Mortar
+$Flash Radius:					20
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.2
+$Blinding Effect Duration:		80
+$Blinding Effect Distance:		40
+
+$Name:				Vasudan Flux Cannon
+$Flash Radius:					20
+$Flash Effect:					6
+$Blinding Effect Intensity:		0.4
+$Blinding Effect Duration:		500
+$Blinding Effect Distance:		250
+
+
+#Ship Exp Overrides
+
+$Name: GTNB Pharos
+$Name: Asteroid
+$Name: Terran NavBuoy
+$Name: Terran NavBuoy#destroyable
+$Name: Vasudan NavBuoy
+$Name: Vasudan NavBuoy#destroyable
+
+
+#End

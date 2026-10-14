@@ -1,0 +1,5 @@
+;; This file prevents MediaVP modifications to medals.tbl (specifically +Callsign Position 1024 and the Ace medal positions) that are not compatible with FSPort's own modifications.
+
+#Medals
+
+#End

@@ -1,0 +1,207 @@
+#Ship Classes
+
+$Name:         GTF Loki#stealth
++nocreate
+$Radar Image 2D:    radar-fighter
+
+$Name:         GTF Angel
++nocreate
+$Radar Image 2D:    radar-fighter
+
+$Name:         GTT Hunter
++nocreate
+$Radar Image 2D:    radar-bigship
+
+$Name:         GTSC Faustus#bigblast
++nocreate
+$Radar Image 2D:    radar-science
+
+$Name:         GTS Centaur#Charon
++nocreate
+$Radar Image 2D:    radar-smallship
+
+$Name:         GTD Orion#Amadeus
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Bastion
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Eisenhower
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Galatea
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Goliath
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Intrepid
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Krios
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Legion
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Minnow
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Myrmidon
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Orion
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Repulse
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Orion#Soyakaze
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         GTD Hades#scan
++nocreate
+$Radar Image 2D:    radar-hades
+
+$Name:         GTD Hades#scancapital
++nocreate
+$Radar Image 2D:    radar-hades
+
+$Name:         GTI Polaris Extension
++nocreate
+$Radar Image 2D:    radar-drydock
+
+$Name:         GTI Polaris Pylon
++nocreate
+$Radar Image 2D:    radar-drydock
+
+$Name:         Terran Asteroid Base
++nocreate
+$Radar Image 2D:    radar-asteroid
+
+$Name:         Terran NavBuoy
++nocreate
+$Radar Image 2D:    radar-waypoint
+
+$Name:         Terran NavBuoy#destroyable
++nocreate
+$Radar Image 2D:    radar-waypoint
+
+$Name:         Terran Probe
++nocreate
+$Radar Image 2D:    radar-smallship
+
+$Name:         GTSC Faustus#medical
++nocreate
+$Radar Image 2D:    radar-science
+
+$Name:         GTFr Chronos#medical
++nocreate
+$Radar Image 2D:    radar-freighter
+
+$Name:         TAC 1#medical
++nocreate
+$Radar Image 2D:    radar-cargo
+
+$Name:         GTT Elysium#medical
++nocreate
+$Radar Image 2D:    radar-bigship
+
+$Name:         PVF Ulysses
++nocreate
+$Radar Image 2D:    radar-fighter
+
+$Name:         PVB Sekhmet
++nocreate
+$Radar Image 2D:    radar-bomber
+
+$Name:         PVSC Imhotep
++nocreate
+$Radar Image 2D:    radar-science
+
+$Name:         PVC Aten#Hulk1
++nocreate
+$Radar Image 2D:    radar-cruiser
+
+$Name:         PVC Aten#Hulk2
++nocreate
+$Radar Image 2D:    radar-cruiser
+
+$Name:         PVC Aten#Hulk3
++nocreate
+$Radar Image 2D:    radar-cruiser
+
+$Name:         PVD Typhon#Hulk
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         PVI Karnak
++nocreate
+$Radar Image 2D:    radar-installation
+
+$Name:         PVI Shah Extension
++nocreate
+$Radar Image 2D:    radar-drydock
+
+$Name:         PVI Shah Pylon
++nocreate
+$Radar Image 2D:    radar-drydock
+
+$Name:          Vasudan Asteroid Base
++nocreate
+$Radar Image 2D:    radar-asteroid
+
+$Name:         Vasudan NavBuoy
++nocreate
+$Radar Image 2D:    radar-waypoint
+
+$Name:         Vasudan NavBuoy#destroyable
++nocreate
+$Radar Image 2D:    radar-waypoint
+
+$Name:         Vasudan Probe
++nocreate
+$Radar Image 2D:    radar-smallship
+
+$Name:         SF Dragon#weakened
++nocreate
+$Radar Image 2D:    radar-fighter
+
+$Name:         SF Dragon#Terrans
++nocreate
+$Radar Image 2D:    radar-fighter
+
+$Name:         SF Gorgon
++nocreate
+$Radar Image 2D:    radar-fighter
+
+$Name:         SD Demon#scan
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         SD Demon#scancapital
++nocreate
+$Radar Image 2D:    radar-capital
+
+$Name:         SD Lucifer#scan
++nocreate
+$Radar Image 2D:    radar-lucifer
+
+$Name:         SD Lucifer#scancapital
++nocreate
+$Radar Image 2D:    radar-lucifer
+
+#End

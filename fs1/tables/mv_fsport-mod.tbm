@@ -1,0 +1,15 @@
+#GAME SETTINGS
+
+$Mod title: FreeSpace Port Upgrade
+$Mod version: 4.7.0
+
+
+#OTHER SETTINGS
+
+$Default ship select effect: FS1
+$Use 3d ship icons: false
+
+$Default weapon select effect: FS1
+$Use 3d weapon icons: false
+
+#END

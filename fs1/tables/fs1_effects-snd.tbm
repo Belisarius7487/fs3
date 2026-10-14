@@ -1,0 +1,28 @@
+;; These are the FS1 sounds in sounds.tbl, to protect against the regular MVPs overwriting them with something from FS2
+;; (this happened with sounds 46 and 110-114; other sound entries are defense-in-depth)
+
+#Game Sounds Start
+
+$Name:	+nocreate	46	l_alien3.wav,	0, 0.60, 1, 250, 1000	; SHIVAN TURRET 2 - laser alien3 is 108
+$Name:	+nocreate	61	sd_old.wav,		0, .7, 1, 750, 2000	; Shivan capital engine (3d sound)
+$Name:	+nocreate	68	l_flux.wav,			0, 0.50, 1,  50, 400	; neutron flux fired (3d sound)
+
+$Name:	+nocreate	110	l_avenge.wav,		0,	0.50,	1,	250, 1000 ; TERRAN TURRET 1 - laser avenger is 162
+$Name:	+nocreate	111	l_fusion.wav,		0,	0.50,	1,	250, 1000 ; TERRAN TURRET 2 - laser fusion is 163
+$Name:	+nocreate	112	l_vaslight.wav,		0,	0.50,	1,	250, 1000 ; VASUDAN TURRET 1 - laser vaslight is 107
+$Name:	+nocreate	113	l_vashvy.wav,		0,	0.50,	1,	250, 1000 ; VASUDAN TURRET 2
+$Name:	+nocreate	114	l_alien2.wav,		0,	0.60,	1,	250, 1000 ; SHIVAN TURRET 1 - laser alien2 is 103
+
+$Name:	+nocreate	162	l_avenge.wav,		0, 0.50, 1,  50, 400	; avenger laser fired (3d sound) - turret avenger is 110
+$Name:	+nocreate	163	l_fusion.wav,		0, 0.50, 1,  50, 400	; debug laser fired (3d sound) - turret fusion is 111
+$Name:	+nocreate	164	L_banshee.wav,		0, 0.50, 1,  50, 400	; Banshee laser fired
+$Name:	+nocreate	165	L_disrupter.wav,		0, 0.50, 1,  50, 400	; Disruptor fired
+$Name:	+nocreate	166	L_flail.wav,		0, 0.50, 1,  50, 400	; Flail fired
+$Name:	+nocreate	167	L_light.wav,		0, 0.50, 1,  50, 400	; ML16 fired
+$Name:	+nocreate	168	L_sbreaker.wav,		0, 0.50, 1,  50, 400	; Shield breaker fired
+$Name:	+nocreate	169	l_mass.wav,			0, 0.60, 1,  50, 400	; mass driver fired (3d sound)
+$Name:	+nocreate	170	sc_old.wav,			0, 0.80, 1, 400, 800	; Shivan cruiser engine (3d sound)
+$Name:	+nocreate	171	gtd_old.wav,		0, 0.70, 1, 500, 1500	; Terran capital engine (3d sound)
+$Name:	+nocreate	172	pvd_old.wav,		0, 0.70, 1, 500, 1500	; Vasudan capital engine (3d sound)
+
+#Game Sounds End

@@ -1,0 +1,208 @@
+;; text file to contain medal information.  Does not include "rank" medals (see rank.tbl for those).
+;; medal names and which bitmap(s) are used to display them.
+
+#Medals
+;;FSO 3.7.1;; +Background Bitmap: MVP_MedalsDisplayEmpty
+;;FSO 3.7.1;; +Mask Bitmap: MVP_Medals-M
+;;FSO 3.7.1;; +Callsign Position 1024: -1, 106
+
+$Name:		Conspicuous Gallantry
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal00
+;;FSO 3.7.1;; +Position 1024: 122, 0
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal00
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal00.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Vasudan Alliance
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal01
+;;FSO 3.7.1;; +Position 1024: 720, 0
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal01
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal01.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Distinguished Flying Cross
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal02
+;;FSO 3.7.1;; +Position 1024: 232, 225
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal02
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal02.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Commendation Medal
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal03
+;;FSO 3.7.1;; +Position 1024: 357, 225
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal03
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal03.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Galatea Survivor
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal04
+;;FSO 3.7.1;; +Position 1024: 574, 224
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal04
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal04.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Legion of Merit
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal05
+;;FSO 3.7.1;; +Position 1024: 693, 224
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal05
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal05.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Meritorious Unit
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal06
+;;FSO 3.7.1;; +Position 1024: 146, 400
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal06
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal06.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Medal of Honor
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal07
+;;FSO 3.7.1;; +Position 1024: 263, 399
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal07
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal07.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Galactic Service
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal08
+;;FSO 3.7.1;; +Position 1024: 395, 400
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal08
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal08.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Military Defense
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal09
+;;FSO 3.7.1;; +Position 1024: 532, 399
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal09
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal09.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Good Conduct
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal10
+;;FSO 3.7.1;; +Position 1024: 662, 400
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal10
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal10.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Distinguished Service Cross
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal11
+;;FSO 3.7.1;; +Position 1024: 777, 401
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefMedal11
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal11.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	4
+
+$Name:		Rank
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal12
+;;FSO 3.7.1;; +Position 1024: 330, 133
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefRank##
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal12.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	10
+
+$Name:		Wings
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal13
+;;FSO 3.7.1;; +Position 1024: 454, 295
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefWings##
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal13.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	2
+
+
+$Name:		Ace
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal14
+;;FSO 3.7.1;; +Position 1024: 556, 134
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefBadge01
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal14.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	1
++Num Kills:	60
+$Wavefile Base: badge_a.wav
+
+$Promotion Text:
+XSTR("For having attained an outstanding number of confirmed kills, you are hereby awarded the Ace.", 144)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("For your excellent record of confirmed kills, you have achieved the status of Ace.", 3772)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:		Double Ace
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal15
+;;FSO 3.7.1;; +Position 1024: 601, 134
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefBadge02
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal15.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	1
++Num Kills:	150
+$Wavefile Base: badge_b.wav
+
+$Promotion Text:
+XSTR("For your fine accomplishments as a skilled pilot and for your considerable number of enemy kills, it is an honor to present you the Double Ace.", 145)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("For your outstanding record of confirmed kills, you have achieved the status of Double Ace.", 3773)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:		Triple Ace
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal16
+;;FSO 3.7.1;; +Position 1024: 646, 134
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefBadge03
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal16.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	1
++Num Kills:	350
+$Wavefile Base: badge_c.wav
+
+$Promotion Text:
+XSTR("For your truly impressive ability as a pilot and for the exceptional number of confirmed enemy kills, it is a rare honor to present you the Triple Ace.  Few pilots are so distinguished.", 146)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("For your extraordinary record of confirmed kills, you have achieved the status of Triple Ace.", 3774)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:		GTI Unit Crest
+;;FSO 3.7.1;; $Bitmap:				MVP_Medal17
+;;FSO 3.7.1;; +Position 1024: 460, 157
+;;FSO 3.7.1;; +Debriefing Bitmap:	MVP_DebriefCrest
+;;FSO 3.7.1;; !*
+$Bitmap:		Medal17.pcx
+;;FSO 3.7.1;; *!
+$Num mods:	1
+
+#End
