@@ -62,3 +62,25 @@ Vorlage `fs1/sm1-02a.fs2`.
 - Ende: alle Staffeln und das Ass weg → Erfolg.
 - Weggelassen: Verstecken der Staffeln bis zur Annäherung (gibt es im
   Spiel nicht), Funk.
+
+## Mission 3 — Small Deadly Space (abgesegnet)
+
+Vorlage `fs1/sm1-03a.fs2`.
+
+- Start: Spieler und drei Apollo (verbündet), fünf vasudanische Container,
+  3 + 2 Anubis.
+- Zwei Vasudaner-Frachter (Bast, Ma'at) docken an je einen Container und
+  fliehen damit. Auftrag: abfangen.
+- Sobald ein Frachter weg oder zerstört ist: 2 weitere Anubis.
+- Sind alle Gegner weg: Transporter McCarthy (Elysium, verbündet,
+  Rumpfbalken) springt ein, dockt an den vereinbarten Container, bleibt
+  20 s, fliegt ab. Während er angedockt ist: zwei Wellen mit je 3 Anubis.
+- Bonus: ein Container trägt den Waffenprototyp, Scannen erfüllt das Ziel.
+- Ende: McCarthy springt ab → Erfolg. McCarthy zerstört → Fehlschlag.
+  Frachter entkommen → Teilerfolg. Vereinbarter Container vorher zerstört
+  → McCarthy fliegt leer ab.
+- Schutz des Containers (Silvios Sorge, 14.10.2026): Gegner dürfen ihn nicht
+  gezielt beschießen. Im Code v239 gilt das schon: Container stehen bei den
+  Gegnern (`playerOnly()`), gegnerisches Feuer gilt nur dem Spieler und den
+  Verbündeten, verbündetes geht hindurch. Nur der Spieler kann ihn treffen.
+  Beim Bau im Spiel prüfen.
