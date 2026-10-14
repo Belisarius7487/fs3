@@ -198,3 +198,22 @@ verhindert.
 
 **Beide:** Ein Frachter mit Container entkommt → Erfolg. Alle drei →
 Bonus. Alle verloren → Fehlschlag. Je etwa 2,5 Minuten.
+
+## Mission 9 — The Darkness and the Light (abgesegnet, „schwer, aber probieren wir")
+
+Vorlage `fs1/sm1-09a.fs2`.
+
+- Start: Spieler und drei Flügelmänner, 6 Container des Hammer of Light
+  (statt 16), Kreuzer Ramses (Aten, HoL), 2 Frachter Satis (statt 4),
+  3 Seth als Wache.
+- Nach 30 s oder sobald die Seth weg sind: 2 Anubis.
+- Antrieb und Waffen der Ramses zerstört → terranischer Transporter springt
+  ein, dockt an, kapert sie.
+- Kurz nach Beginn: Shivaner-Kreuzer Taranis (Cain) mit 2 Scorpion springt
+  ein und greift die Ramses an. Die Kaperung ist **schwer, aber möglich**
+  (im Original per Drehbuch unmöglich).
+- Depot zerstört → 2 Shaitan, kurz darauf 2 weitere.
+- Frachter fliehen. Bonus: einen zerstören.
+- Ende: Depot zerstört, Ramses gekapert oder verloren, Shivaner-Jäger weg →
+  Taranis springt ab (`abzug`). Depot + Ramses gekapert → Erfolg. Ramses
+  verloren → Teilerfolg.
