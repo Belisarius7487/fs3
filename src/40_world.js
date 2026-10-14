@@ -2152,6 +2152,13 @@ function callAlly(id){
   // caller come through this function too.
   const cdef = ALLY_DEFS[id];
   if(!cdef || !allyFacOn(cdef.fac)) return false;
+  // v239: and not a ship the era does not have. v238 filtered the menu
+  // columns and the world's reservation but not this gate, and the Colossus
+  // is drawn outside the columns on her own key - so she stood in an FS1
+  // menu and answered the G key (Silvio: "Das Rufmenü zeigt ... die GTVA
+  // Colossus"). The comment above says why the gate belongs here; I put the
+  // filter everywhere except here.
+  if(!eraAllows(cdef)) return false;
   // A fleet whose tab is shut does not answer, and with tabs only the tab
   // on show takes a key.
   if(cycleTabs() && cdef.fac!=='gtva' && (!callTabOpen(cdef.fac) || cdef.fac!==callTab)) return false;

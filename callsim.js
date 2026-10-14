@@ -382,10 +382,19 @@ console.log('Support per era (v237)');
   ok('FS1 still offers its own', always.every(n => one.indexOf(n) >= 0));
   ok('and the menu really got shorter', one.length < two.length && one.length > 0);
   console.log('      FS2 ' + two.length + ', FS1 ' + one.length + ', ST:R ' + st.length + ' entries');
-  // the Colossus is her own key, outside the columns
-  ok('no Colossus in FS1', !W.run("eraAllows(ALLY_DEFS[ALLY_SPECIAL])"));
+  // The Colossus is drawn outside the columns on her own key. v238 asked
+  // eraAllows() here - the predicate - and passed, while the drawn menu
+  // still showed her and the G key still called her in FS1. So this reads
+  // the MENU and the gate every caller goes through, not the predicate.
+  const drawnIds = (e) => { W.run("currentEra = '" + e + "'");
+    W.run('drawCallMenu()'); return rects().filter(r => r.id).map(r => r.id); };
+  const d1 = drawnIds('fs1'), d2 = drawnIds('fs2');
+  ok('the drawn FS1 menu has no Colossus row', d1.indexOf('colossus') < 0);
+  ok('the drawn FS2 menu has one', d2.indexOf('colossus') >= 0);
+  W.run("currentEra = 'fs1'");
+  ok('and calling her in FS1 is refused', W.run("callAlly('colossus')") === false);
+  ok('as is calling a Hecate', W.run("callAlly('ter_hecate')") === false);
   W.run("currentEra = 'fs2'");
-  ok('but one in FS2', W.run("eraAllows(ALLY_DEFS[ALLY_SPECIAL])"));
 }
 
 console.log('\n' + (fails ? fails + ' FAILED' : 'all passed'));

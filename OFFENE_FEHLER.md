@@ -1471,6 +1471,87 @@ Filter drei rote Zusicherungen. Dabei kam heraus, dass `callsim` in einem
 zurückschrieb (`PVC Aten` statt `GVC Aten`) — behoben, und die neue Prüfung
 hängt an den Kennungen, nicht an Etiketten.
 
+### F20 — Colossus stand im FS1-Rufmenü (von mir verursacht, behoben in v239)
+
+**Befund (Silvio, v238):** „Das Rufmenü zeigt die PVC Aten, die PVD Typhon
+und die GTVA Colossus."
+
+Aten und Typhon sind richtig — beide gibt es in FS1, und die Namen stehen
+korrekt als PV. **Die Colossus war mein Fehler.** Sie wird **außerhalb** der
+Spalten auf ihrer eigenen Taste G gezeichnet, und mein Filter in v238 saß nur
+in `callCols()` und bei der Platzreservierung.
+
+**Schlimmer ist, wie die Prüfung das durchgelassen hat.** Ich hatte in
+`callsim` geschrieben:
+
+```js
+ok('no Colossus in FS1', !W.run("eraAllows(ALLY_DEFS[ALLY_SPECIAL])"));
+```
+
+Das prüft die **Aussage**, nicht die **Stelle, die sie benutzt** — genau der
+Fehler, der in `CLAUDE.md` unter „Was Simulationen können und was nicht"
+steht: `shipsim` öffnete das Rearm-Fenster über die Funktion statt über den
+Knopf, und der Knopf war nie angeschlossen. Ich habe denselben Fehler
+wiederholt, zwei Tage nachdem ich ihn dort gelesen habe.
+
+**Behoben in v239:** `callAlly()` prüft die Ära — dort, wo schon im Kommentar
+stand „Gated here rather than in the menu: the key handler and any future
+caller come through this function too" — und `showCol` in `70_ui.js` prüft
+sie für ihre eigene Zeile. Die Prüfung liest jetzt das **gezeichnete Menü**
+(die Rechtecke mit Kennung) und ruft `callAlly()` wirklich auf. Gegen den
+Stand v238 drei rote Zusicherungen.
+
+- Status: behoben in v239
+
+### F21 — Die Spielerbewaffnung kennt keine Ära
+
+**Befund (Silvio, v238):** „Mein Apollo-Jäger trägt Prometheus R, Subach und
+Harpoon."
+
+**Stimmt, und es ist alles FS2.** Die Arsenale in `56_banks.js` haben **kein**
+Ära-Feld: `ARSENAL_P` hat 9 Primärwaffen (Prometheus R, Subach HL-7, Mekhu
+HL-7, Akheton SDG, Morning Star, Prometheus S, UD-8 Kayser, Circe, Maxim) und
+`ARSENAL_S` 10 Sekundärwaffen (Harpoon, Rockeye, Tempest, Tornado, EMP Adv.,
+Infyrno, Trebuchet, Stiletto II, TAG-C, Cyclops). Davon gibt es in FS1 nur die
+**Akheton SDG**; die Prometheus existiert in FS1, aber nicht als R- oder
+S-Variante.
+
+`BANKS` gibt je Rumpf die Startbänke und die erlaubten — für die Apollo
+`p:['promr','subach'], s:['harpoon','harpoon']`. Auch ohne Ära.
+
+**Die FS1-Werte sind belegt, nicht zu erfinden:** FSPorts `ships.tbl` hat
+`$Default PBanks` und `$Default SBanks` für **704 Einträge**. Die GTF Apollo
+steht dort mit `( "Avenger" "ML-16 Laser" )` und `( "MX-50" "MX-50" )`.
+FS1s Primärwaffen aus `weapons.tbl`: ML-16 Laser, Vasudan Light Laser, VLL-9,
+Disruptor, D-Advanced, Akheton SDG, Avenger, Flail, Prometheus, Banshee,
+Railgun, S-Breaker, Leech Cannon, UD-1 Volz. Sekundär: MX-50, Fury,
+Interceptor, Hornet, Phoenix V, D-Missile, Havoc, Synaptic, Cluster Bomb,
+Stiletto, EM Pulse, Barracuda, Tsunami, Serkr, Harbinger.
+
+Das ist genau der Punkt, den Silvio vorausgesagt hat: „Für die neuen Waffen
+braucht es zudem neue Einträge für unsere bisherigen Waffen."
+
+- Status: eingetragen, nichts gebaut. Umfang bei Silvio.
+
+### F22 — Das Rearm-Fenster hängt an einer Korvette, und FS1 hat keine
+
+**Befund (Silvio, v238):** „gibt es in FS1 keine Korvetten. Das Rearm-Menü
+hängt aber daran ob Korvetten im Feld sind. Lösungsvorschläge?"
+
+**Stimmt.** `rearmReady()` in `70_ui.js` ist genau eine Zeile:
+`return corvetteOnField();` — und `corvetteOnField()` sucht einen
+Verbündeten mit `type==='corvette'`. In FS1 und ST:R kommt keine Korvette vor
+(gemessen: GTCv Deimos und GVCv Sobek nur in FS2-Missionen), das Rearm-Fenster
+wäre dort also **nie** erreichbar.
+
+Vorschläge liegen Silvio vor, Entscheidung offen. Dabei der Hinweis, dass
+FreeSpace dafür eigentlich das **Versorgungsschiff** hat (GTS Hygeia, PVS
+Isis) und FS3 die Rümpfe schon kennt (`suhygeia`, `sunephthys`, `suscarab`,
+`sucentaur` stehen in `HULL_LEN` und in der Radarkarte), aber **nichts im
+Spiel sie heute erzeugt**.
+
+- Status: eingetragen, Entscheidung offen
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes

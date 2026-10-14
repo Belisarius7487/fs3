@@ -3209,7 +3209,9 @@ function callMenuLayout(){
   const colw = ((CM_LIST_W - CM_PAD*(n-1))/n)|0;
   let rows = 1;
   for(const c of COLS) rows = Math.max(rows, c.length);
-  const showCol = allyFacOn(ALLY_DEFS[ALLY_SPECIAL].fac);
+  // v239: her row is drawn outside the columns, so it needs the era test of
+  // its own - the column filter never saw her.
+  const showCol = allyFacOn(ALLY_DEFS[ALLY_SPECIAL].fac) && eraAllows(ALLY_DEFS[ALLY_SPECIAL]);
   let y = CM_TITLE;
   // Room for the fleet tabs under the header.
   const tabs = cycleTabs(), tabY = y;
