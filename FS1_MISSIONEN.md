@@ -166,3 +166,35 @@ Vorlage `fs1/sm1-07a.fs2`.
 - Uhr abgelaufen → Nachschub aus, Uhr gestoppt, Shivaner ziehen ab →
   Erfolg.
 - Verlorene Leben: wie überall, Mission läuft weiter bis Game Over.
+
+## Mission 8 — The Hammer and the Anvil, geteilt in 8A und 8B (abgesegnet)
+
+Vorlage `fs1/sm1-08a.fs2`. Drei langsame Poseidon-Frachter (Theta) bringen
+Schildtechnik aus der Station Cygni. **Jeder Frachter trägt einen
+Frachtcontainer** (Silvio, 14.10.2026; im Original Cargo Alpha/Beta/Gamma,
+TSC 2). Frachter zerstört → Container mit zerstört (bestehende Regel).
+Gegner zielen auf Frachter und Container — anders als in M3 sind diese
+Container **verbündet und angreifbar**; beim Bau prüfen, dass
+`playerOnly()` (Container sonst nur vom Spieler treffbar) das nicht
+verhindert.
+
+**8A — Der Ausbruch**
+
+- Start: Spieler und zwei Flügelmänner, Station Cygni (Arcadia) als Kulisse
+  am Rand, drei Frachter mit Containern (Rumpfbalken) fliegen los.
+- Sofort 2 Basilisk, danach 4 feindliche Vasudaner (2 Anubis, 2 Seth),
+  dann 4 Basilisk, die gezielt auf die Frachter gehen. Jeweils spätestens
+  nach 30 s.
+- Alle Gegner weg → Frachter springen ab.
+
+**8B — Der Verrat**
+
+- Start: Spieler, zwei Flügelmänner, drei Frachter mit Containern,
+  verbündete Vasudaner-Begleitung (3 Anubis, 2 Seth).
+- Nach 15 s wechselt die Begleitung die Seite (`seite`): Hammer of Light,
+  Angriff auf die Frachter.
+- Danach Shivaner: 3 Scorpion, 2 Basilisk, 4 Basilisk (je spätestens 30 s).
+- Alle Gegner weg → Frachter springen ab.
+
+**Beide:** Ein Frachter mit Container entkommt → Erfolg. Alle drei →
+Bonus. Alle verloren → Fehlschlag. Je etwa 2,5 Minuten.
