@@ -1,0 +1,140 @@
+; Cutscene.tbl 
+; Will contain data for :
+; 1.) cutscene names
+; 2.) cutscene descriptions
+; 3.) cutscene location on CD
+;
+; Do not change the ordering of the sections in this table.  Also do not add items to the list
+
+
+#Cutscenes
+
+;;
+;; INTRO
+;;
+$Filename: intro.mve
+$Name: XSTR("Introduction", 0)
+$Description:
+XSTR("Deep in the Ross 128 system, the GTA Installation Riviera picks up a
+distress call from a Terran pilot.  A disbelieving communications
+officer listens as the pilot frantically requests cover from
+phantom attackers.", 1)
+$end_multi_text
+$cd: 2
+
+;;
+;; ANCIENTS 1
+;;
+$Filename: ancients1.mve
+$Name: XSTR("Ancients 1", 2)
+$Description:
+XSTR("The Ancients discover subspace and begin their empire.", 3)
+$end_multi_text
+$cd: 2
+
+;;
+;; LAB
+;;
+$Filename: lab.mve
+$Name: XSTR("Lab Experiment", 4)
+$Description:
+XSTR("A joint Terran-Vasudan science team conducts experiments
+utilizing captured Shivan technology.", 5)
+$end_multi_text
+$cd: 2
+
+;;
+;; COMMAND BRIEF
+;;
+$Filename: CommandBrief.mve
+$Name: XSTR("Command Briefing", 6)
+$Description:
+XSTR("GTA Intelligence briefs pilots on a daring and important plan
+to counter Shivan advancement.", 7)
+$end_multi_text
+$cd: 2
+
+;;
+;; ANCIENTS 2
+;;
+$Filename: ancients2.mve
+$Name: XSTR("Ancients 2", 8)
+$Description:
+XSTR("Strange and powerful forces attack the Ancients.", 9)
+$end_multi_text
+$cd: 2
+
+;;
+;; HALLFIGHT
+;;
+$Filename: hallfight.mve
+$Name: XSTR("Hall Fight", 10)
+$Description:
+XSTR("A GTA boarding party attempts to neutralize forces in a captured Shivan
+freighter.", 11)
+$end_multi_text
+$cd: 2
+
+;;
+;;  ANCIENTS 3
+;;
+$Filename: ancients3.mve
+$Name: XSTR("Ancients 3", 12)
+$Description:
+XSTR("The Ancients begin their final struggle.", 13)
+$end_multi_text
+$cd: 2
+
+;;
+;; ANCIENTS 4
+;;
+$Filename: ancients4.mve
+$Name: XSTR("Ancients 4", 14)
+$Description:
+XSTR("The Ancients understand their destruction.", 15)
+$end_multi_text
+$cd: 2
+
+;;
+;; ANCIENTS 5
+;;
+$Filename: ancients5.mve
+$Name: XSTR("Ancients 5", 16)
+$Description:
+XSTR("The Ancients discover a weakness in their dark enemies, but not in time
+to save themselves.", 17)
+$end_multi_text
+$cd: 2
+
+;;
+;; END GAME
+;;
+$Filename: endgame.mve
+$Name: XSTR("End Game", 18)
+$Description:
+XSTR("The Shivan superdestroyer almost makes it to the Sol system, but the Terran-Vasudan
+forces emerge victorious.", 19)
+$end_multi_text
+$cd: 2
+
+;;
+;; STR INTRO
+;;
+;;FSO 3.6.12;; $Filename: str_intro.ogg
+;;FSO 3.6.12;; $Name: XSTR("ST:R - Introduction", 3941)
+;;FSO 3.6.12;; $Description:
+;;FSO 3.6.12;; XSTR("The commander of Galactic Terran Intelligence contemplates the events of the Great War.", 3942)
+;;FSO 3.6.12;; $end_multi_text
+;;FSO 3.6.12;; $cd: 2
+
+;;
+;; STR END GAME
+;;
+;;FSO 3.6.12;; $Filename: str_endgame.ogg
+;;FSO 3.6.12;; $Name: XSTR("ST:R - End Game", 3943)
+;;FSO 3.6.12;; $Description:
+;;FSO 3.6.12;; XSTR("The GTD Soyakaze and her accompanying wings successfully defeat the GTI superdestroyer Hades.", 3944)
+;;FSO 3.6.12;; $end_multi_text
+;;FSO 3.6.12;; $cd: 2
+
+#End

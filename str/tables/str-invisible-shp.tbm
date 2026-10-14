@@ -1,0 +1,43 @@
+#Ship Classes
+
+$Name: Invisible Target
+$Short name: JTarget
+$Species: Terran
+$POF file: blip-invisible.pof
+$Detail distance: (0, 100, 200, 300)
+$Show damage: YES
+$Density: 1
+$Damp: 0.2
+$Rotdamp: 0.2
+$Max Velocity: 0.0, 0.0, 0.0
+$Rotation time: 20.0, 20.0, 20.0
+$Rear Velocity: 0.0
+$Forward accel: 0.0
+$Forward decel: 0.0
+$Slide accel: 0.0
+$Slide decel: 0.0
+$Expl inner rad: 0.0
+$Expl outer rad: 0.0
+$Expl damage: 0.0
+$Expl blast: 0.0
+$Expl Propagates: NO ;; If set to Yes, then when the ship dies, the explosion propagates through it.
+$Shockwave Speed: 0.0 ;; speed shockwave expands at, 0 means no shockwave
+$Default PBanks: ()
+$Default SBanks: ()
+$SBank Capacity: ()
+$Shields: 0
+$Power Output: 0.0
+$Max Oclk Speed: 0.0
+$Max Weapon Eng: 0.0
+$Hitpoints: 100
+$Flags: ( "no_collide" "navbuoy" )
+$AI Class: Captain
+$Afterburner: NO
+$Countermeasures: 0
+$Scan time: 2000
+$EngineSnd: -1
+$Closeup_pos: 0.0, 1.0, -28
+$Closeup_zoom: 0.5
+$Stealth:
+
+#End

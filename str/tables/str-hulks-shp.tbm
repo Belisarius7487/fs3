@@ -1,0 +1,341 @@
+#Ship Classes
+
+$Name: GTD Orion#Legion#Hulk
+$Short name: TCap-1
+$Species: Terran
+$POF file: capital01-Legion_Hulk.pof
+$Detail distance: (0, 3500)
+$Show damage: NO
+$Density: 1
+$Damp: 0.2
+$Rotdamp: 1.5
+$Max Velocity: 0.0, 0.0, 15.0
+$Rotation time: 150.0, 150.0, 150.0
+$Rear Velocity: 0.0
+$Forward accel: 20.0
+$Forward decel: 10.0
+$Slide accel: 0.0
+$Slide decel: 0.0
+$Expl inner rad: 100.0
+$Expl outer rad: 2400.0
+$Expl damage: 400.0
+$Expl blast: 6500.0
+$Expl Propagates: YES
+$Shockwave Speed: 600.0
+$Shockwave Count: 4
+$Default PBanks: ()
+$Default SBanks: ()
+$SBank Capacity: ()
+$Shields: 0
+$Power Output: 0.0
+$Max Oclk Speed: 0.0
+$Max Weapon Eng: 0.0
+$Hitpoints: 100000
+$Flags: ( "capital" "big damage" "ship copy" )
+$AI Class: Captain
+$Afterburner: NO
+$Countermeasures: 0
+$Scan time: 2000
+$EngineSnd: -1
+$Closeup_pos: 0.0, 0.0, -2000
+$Closeup_zoom: 0.5
+$Score: 1750
+$Subsystem: entrance, 0, 0.0
+$Subsystem: exit, 0, 0.0
+
+$Name: PVC Aten#Hulk1
+$Short name: VCruise2-1
+$Species: Vasudan
+$POF file: cruiser02_Hulk1.pof
+$Detail distance: (0, 800, 1600, 6000)
+$Show damage: YES
+$Density: 1
+$Damp: 0.2
+$Rotdamp: 1.0
+$Max Velocity: 0.0, 0.0, 25.0
+$Rotation time: 110.0, 110.0, 75.0
+$Rear Velocity: 0.0
+$Forward accel: 10.0
+$Forward decel: 5.0
+$Slide accel: 0.0
+$Slide decel: 0.0
+$Expl inner rad: 150.0
+$Expl outer rad: 650.0
+$Expl damage: 200.0
+$Expl blast: 10000.0
+$Expl Propagates: YES
+$Shockwave Speed: 500.0
+$Shockwave Count: 2
+$Default PBanks: ()
+$Default SBanks: ()
+$SBank Capacity: ()
+$Shields: 0
+$Power Output: 90.0
+$Max Oclk Speed: 55.0
+$Max Weapon Eng: 100.0
+$Hitpoints: 18000
+$Flags: ( "cruiser" "ship copy" )
+$AI Class: Captain
+$Afterburner: NO
+$Countermeasures: 0
+$Scan time: 2000
+$EngineSnd: 197
+$Closeup_pos: 0.0, 0.0, -317
+$Closeup_zoom: 0.5
+$Score: 150
+$Subsystem: turret01a,0.833,1.0
+$Default PBanks: ( "Avenger" )
+$Subsystem: turret02a,0.833,1.0
+$Default PBanks: ( "Avenger" )
+$Subsystem: turret03,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: turret04,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: turret05,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: turret06,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: engine, 15,0.0
+ $Engine Wash: Default100
+$Subsystem: communications, 5,0.0
+$Subsystem: sensors, 5,0.0
+$Subsystem: navigation, 5,0.0
+$Subsystem: weapons, 5,0.0
+
+$Name: PVC Aten#Hulk2
+$Short name: VCruise2-2
+$Species: Vasudan
+$POF file: cruiser02_Hulk2.pof
+$Detail distance: (0, 800, 1600, 6000)
+$Show damage: YES
+$Density: 1
+$Damp: 0.2
+$Rotdamp: 1.0
+$Max Velocity: 0.0, 0.0, 25.0
+$Rotation time: 110.0, 110.0, 75.0
+$Rear Velocity: 0.0
+$Forward accel: 10.0
+$Forward decel: 5.0
+$Slide accel: 0.0
+$Slide decel: 0.0
+$Expl inner rad: 150.0
+$Expl outer rad: 650.0
+$Expl damage: 200.0
+$Expl blast: 10000.0
+$Expl Propagates: YES
+$Shockwave Speed: 500.0
+$Shockwave Count: 2
+$Default PBanks: ()
+$Default SBanks: ()
+$SBank Capacity: ()
+$Shields: 0
+$Power Output: 90.0
+$Max Oclk Speed: 55.0
+$Max Weapon Eng: 100.0
+$Hitpoints: 18000
+$Flags: ( "cruiser" "ship copy" )
+$AI Class: Captain
+$Afterburner: NO
+$Countermeasures: 0
+$Scan time: 2000
+$EngineSnd: 197
+$Closeup_pos: 0.0, 0.0, -317
+$Closeup_zoom: 0.5
+$Score: 150
+$Subsystem: turret01a,0.833,1.0
+$Default PBanks: ( "Avenger" )
+$Subsystem: turret02a,0.833,1.0
+$Default PBanks: ( "Avenger" )
+$Subsystem: turret03,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: turret04,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: turret05,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: turret06,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: engine, 15,0.0
+ $Engine Wash: Default100
+$Subsystem: communications, 5,0.0
+$Subsystem: sensors, 5,0.0
+$Subsystem: navigation, 5,0.0
+$Subsystem: weapons, 5,0.0
+
+$Name: PVC Aten#Hulk3
+$Short name: VCruise2-3
+$Species: Vasudan
+$POF file: cruiser02_Hulk3.pof
+$Detail distance: (0, 800, 1600, 6000)
+$Show damage: YES
+$Density: 1
+$Damp: 0.2
+$Rotdamp: 1.0
+$Max Velocity: 0.0, 0.0, 25.0
+$Rotation time: 110.0, 110.0, 75.0
+$Rear Velocity: 0.0
+$Forward accel: 10.0
+$Forward decel: 5.0
+$Slide accel: 0.0
+$Slide decel: 0.0
+$Expl inner rad: 150.0
+$Expl outer rad: 650.0
+$Expl damage: 200.0
+$Expl blast: 10000.0
+$Expl Propagates: YES
+$Shockwave Speed: 500.0
+$Shockwave Count: 2
+$Default PBanks: ()
+$Default SBanks: ()
+$SBank Capacity: ()
+$Shields: 0
+$Power Output: 90.0
+$Max Oclk Speed: 55.0
+$Max Weapon Eng: 100.0
+$Hitpoints: 18000
+$Flags: ( "cruiser" "ship copy" )
+$AI Class: Captain
+$Afterburner: NO
+$Countermeasures: 0
+$Scan time: 2000
+$EngineSnd: 197
+$Closeup_pos: 0.0, 0.0, -317
+$Closeup_zoom: 0.5
+$Score: 150
+$Subsystem: turret01a,0.833,1.0
+$Default PBanks: ( "Avenger" )
+$Subsystem: turret02a,0.833,1.0
+$Default PBanks: ( "Avenger" )
+$Subsystem: turret03,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: turret04,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: turret05,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: turret06,0.833,1.0
+$Default PBanks: ( "Vasudan Turret" )
+$Subsystem: engine, 15,0.0
+ $Engine Wash: Default100
+$Subsystem: communications, 5,0.0
+$Subsystem: sensors, 5,0.0
+$Subsystem: navigation, 5,0.0
+$Subsystem: weapons, 5,0.0
+
+$Name: PVD Typhon#Hulk
+$Short name: VDestroy-1
+$Species: Vasudan
+$POF file: capital03_Hulk.pof
+$Detail distance: (0, 4500, 9000, 25000 )
+$Show damage: NO
+$Density: 1
+$Damp: 0.2
+$Rotdamp: 1.5
+$Max Velocity: 0.0, 0.0, 15.0
+$Rotation time: 150.0, 150.0, 150.0
+$Rear Velocity: 0.0
+$Forward accel: 20.0
+$Forward decel: 10.0
+$Slide accel: 0.0
+$Slide decel: 0.0
+$Expl inner rad: 150.0
+$Expl outer rad: 2400.0
+$Expl damage: 400.0
+$Expl blast: 3000.0
+$Expl Propagates: YES
+$Shockwave Speed: 600.0
+$Shockwave Count: 4
+$Default PBanks: ()
+$Default SBanks: ()
+$SBank Capacity: ()
+$Shields: 0
+$Power Output: 100.0
+$Max Oclk Speed: 45.0
+$Max Weapon Eng: 100.0
+$Hitpoints: 120000
+$Flags: ( "capital" "big damage" "ship copy" )
+$AI Class: Captain
+$Afterburner: NO
+$Countermeasures: 0
+$Scan time: 2000
+$EngineSnd: 172
+$Closeup_pos: 0.0, 0.0, -2500
+$Closeup_zoom: 0.5
+$Score: 2000
+$Subsystem: turret01,0.125,0.5
+$Default PBanks: ( "Vasudan Huge Turret" )
+	$Turret Reset Delay:	15000
+	$Flags:					( "check hull" "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 0, 0
+$Subsystem: turret02,0.125,0.5
+$Default PBanks: ( "Vasudan Huge Turret" )
+	$Turret Reset Delay:	15000
+	$Flags:					( "check hull" "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 0, 0
+$Subsystem: turret03,0.125,0.5
+$Default PBanks: ( "Vasudan Huge Turret" ) ;flak
+	$Turret Reset Delay:	15000
+	$Flags:					( "check hull" "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 180, 0
+$Subsystem: turret04,0.125,0.5
+$Default PBanks: ( "Vasudan Huge Turret" ) ;flak
+	$Turret Reset Delay:	15000
+	$Flags:					( "check hull" "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 180, 0
+$Subsystem: turret05,0.125,0.5
+$Default PBanks: ( "Vasudan Huge Turret" ) ;flak
+	$Turret Reset Delay:	15000
+	$Flags:					( "check hull" "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 0, 0
+$Subsystem: turret06,0.125,0.5
+$Default PBanks: ( "Vasudan Turret" ) ;flak
+	$Turret Reset Delay:	15000
+	$Flags:					( "check hull" "reset when idle" )
+	$animation:				triggered
+	$type:					initial
+		+relative_angle:	80, 0, 0
+$Subsystem: turret07,0.125,0.5
+$Default SBanks: ( "FighterKiller" )
+	$Flags:					( "check hull" )
+$Subsystem: turret08,0.125,0.5
+$Default SBanks: ( "FighterKiller" )
+	$Flags:					( "check hull" )
+$Subsystem: turret09,0.125,0.5
+$Default SBanks: ( "FighterKiller" )
+	$Flags:					( "check hull" )
+$Subsystem: turret10,0.375,0.5
+$Default PBanks: ( "Vasudan Turret" )
+	$Flags:					( "check hull" )
+$Subsystem: turret11,0.375,0.5
+$Default PBanks: ( "Vasudan Turret" ) ;flak
+	$Flags:					( "check hull" )
+$Subsystem: turret12,0.375,0.5
+$Default PBanks: ( "Vasudan Turret" )
+	$Flags:					( "check hull" )
+$Subsystem: turret13,0.375,0.5
+$Default SBanks: ( "FighterKiller" )
+	$Flags:					( "check hull" )
+$Subsystem: turret14,0.375,0.5
+$Default SBanks: ( "FighterKiller" )
+	$Flags:					( "check hull" )
+$Subsystem: turret15,0.375,0.5
+$Default SBanks: ( "FighterKiller" )
+	$Flags:					( "check hull" )
+$Subsystem: navigation, 5,0.0
+$Subsystem: weapons, 5,0.0
+$Subsystem: sensors, 5,0.0
+$Subsystem: engine, 15,0.0
+ $Engine Wash: Default800
+$Subsystem: communication, 5,0.0
+$Subsystem: fighterbay 1, 0,0.0
+$Subsystem: fighterbay 2, 0,0.0
+
+#End

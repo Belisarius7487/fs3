@@ -1,0 +1,49 @@
+#Secondary Weapons
+
+$Name: Shivan Live
+$Model File: shivanlive.pof
+$Mass: 0.1
+$Velocity: 300.0
+$Fire Wait: 1.0
+$Damage: 0
+$Blast Force: 0.0
+$Inner Radius: 0.0
+$Outer Radius: 0.0
+$Shockwave Speed: 0
+$Armor Factor: 0.0
+$Shield Factor: 0.0
+$Subsystem Factor: 0.0
+$Lifetime: 10.0
+$Energy Consumed: 0.0
+$Cargo Size: 0.1
+$Homing: NO
+$LaunchSnd: -1
+$ImpactSnd: -1
+$FlyBySnd: -1
+$Rearm Rate: 1.0
+$Flags: ( )
+
+$Name: Shivan Dead
+$Model File: shivandead.pof
+$Mass: 0.1
+$Velocity: 30.0
+$Fire Wait: 1.0
+$Damage: 0
+$Blast Force: 0.0
+$Inner Radius: 0.0
+$Outer Radius: 0.0
+$Shockwave Speed: 0
+$Armor Factor: 0.0
+$Shield Factor: 0.0
+$Subsystem Factor: 0.0
+$Lifetime: 10.0
+$Energy Consumed: 0.0
+$Cargo Size: 0.1
+$Homing: NO
+$LaunchSnd: -1
+$ImpactSnd: -1
+$FlyBySnd: -1
+$Rearm Rate: 1.0
+$Flags: ( )
+
+#End

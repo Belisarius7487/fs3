@@ -1,0 +1,2268 @@
+;;FSO 3.7.1;; #Supported Languages
+;;FSO 3.7.1;;
+;;FSO 3.7.1;; $Language: Spanish
+;;FSO 3.7.1;; +Extension: sp
+;;FSO 3.7.1;; +Special Character Index: 176
+;;FSO 3.7.1;;
+;;FSO 3.7.1;; #End
+
+#Spanish
+;-------------------------------------------------
+; File: KeyControl.cpp
+;-------------------------------------------------
+
+0, "Nave del jugador cambiada por %s"
+1, "Cambiado objetivo del jugador por %s"
+2, "Banda sonora cambiada por: %s"
+3, "Musica de evento no reproduciendose"
+4, "Retardo del ritmo de frames incrementado a %i milisegundos por frame."
+5, "Retardo del ritmo de frames disminuido a %i milisegundos por frame."
+6, "Lanzando contramedidas: %s"
+7, "ACTIVADA"
+8, "DESACTIVADA"
+9, "Te has destrozado el casco hasta el %7.3f porciento.\n"
+10, "Estas %s"
+11, "eres INVULNERABLE!"
+12, "ya no eres invulnerable..."
+13, "Objetivo del jugador [%s] es %s"
+14, "Arrojar debug info acerca del objeto #%d"
+15, "Energia de armas y numero de misiles estaran siempre al maximo para TODAS LAS NAVES!"
+16, "Energia de armas y numero de misiles estaran siempre al maximo para jugador"
+17, "Sistema de energia de armas normal / numero de misiles restaurados"
+18, "Arma secundaria forzada a %s"
+19, "Arma primaria forzada a %s"
+20, "Musica de evento desactivada"
+21, "Musica de evento activada"
+22, "Nivel de detalles configurado a %+d\n"
+23, "Comenzado test de ritmo de frames"
+24, "Especie del objetivo cambiada a: %s"
+25, "Nivel de habilidad configurado a %s."
+26, "Sin objetivo que anadir/quitar de la config %d."
+27, "%s anadido a config %d. (F%d)"
+28, "&Si, Salir"
+29, "Si, &Reempezar"
+30, "Seguro que quieres finalizar la mision?"
+31, "Trucos activados."
+32, "Todas las peliculas disponibles en Departamento Tecnologico"
+33, "Esta nave no tiene armas secundarias"
+34, "Arma secundaria configurada para modo de disparo normal"
+35, "Arma secundaria configurada para modo de disparo dual"
+36, "Camara externa bloqueada, los controles moveran la nave"
+37, "Camara externa libre, los controles moveran la camara, no la nave"
+38, "Alcance de radar configurado a %s"
+39, "** ATENCION ** Peligro de colision.  Secuencia de salto no activada."
+40, "Fallo del motor.  No pudo activarse el dispositivo de salto."
+
+;-------------------------------------------------
+; File: ManagePilot.cpp
+;-------------------------------------------------
+
+41, "&Reintentar"
+42, "&Ignorar"
+43, "&Salir del Juego"
+44, "Atencion\nFallo para salvar archivo de piloto.  Quizas no hay suficiente espacio en el disco duro.  En ese caso, deberia apretar Alt-Tab, liberar algo de espacio en el disco duro, y entonces volver y seleccionar reintentar.\n"
+45, "\'"
+46, "\'s"
+47, "&No"
+48, "&Si"
+49, "Atencion\nA piloto duplicado existe\nSobreescribir?"
+50, "*Estadisticas Totales"
+51, "Disparos con arma primaria:"
+52, "Golpes con arma primaria:"
+53, "Fuego aliado con primaria:"
+54, "Golpes con primaria %:"
+55, "%.1f%%"
+56, "Fuego aliado con primaria %:"
+57, "Disparos con arma secundaria:"
+58, "Golpes con arma secundaria:"
+59, "Fuego aliado con secundaria:"
+60, "Golpes con secundaria %:"
+61, "Fuego aliado con secundaria %:"
+62, "Derribos totales:"
+63, "Asistencias:"
+64, "*Derribos por tipo de nave"
+65, "Atencion!\n\nEstas seguro/a de que quieres borrar este piloto?"
+66, "Debes crear un piloto de un jugador."
+67, "Debes crear un piloto multijugador."
+68, "multijugador"
+69, "un jugador"
+70, "Esto sobreescribira tu %s piloto.  Continuar?"
+71, "%d de %d"
+
+;-------------------------------------------------
+; File: NavMap.cpp
+;-------------------------------------------------
+
+72, "mdls"
+73, "pausa"
+74, "armas"
+75, "vista dios"
+76, "vista jugador"
+77, "vista anterior"
+78, "zoom dentro"
+79, "zoom fuera"
+80, "dale a ESC para salir"
+
+;-------------------------------------------------
+; File: PlayerControl.cpp
+;-------------------------------------------------
+
+81, "No puedes saltar en este momento."
+82, "Imposible activar salto... la nave debe ser capaz de llegar a los %.1f km/s"
+83, "pasajeros:\n   %s"
+84, "carga: %s"
+85, "Escaneado"
+86, "carga: <desconocido>"
+87, "no escaneado"
+88, "carga: inspeccionando"
+89, "escaneando"
+90, "misil"
+91, "disparo laser"
+92, "%s ha muerto por la onda expansiva de un misil"
+93, "%s ha muerto por la onda expansiva resultante de la explosion de %s"
+94, "%s ha sido destruido por %s"
+95, "%s ha muerto por la explosion de %s"
+96, "%s ha muerto por colisionar con %s"
+97, "%s ha muerto por colisionar con un escombro"
+98, "%s ha muerto por colisionar con un asteroide"
+99, "%s ha muerto por causas desconocidas"
+100, "Te has matado tu solo"
+101, "vista arriba"
+102, "vista atras"
+103, "vista izquierda"
+104, "vista derecha"
+
+;-------------------------------------------------
+; File: PopupDead.cpp
+;-------------------------------------------------
+
+105, "Comienzo Rapido de la Mision"
+106, "Volver a la Cubierta de Vuelo"
+107, "Volver a la Reunion Informativa"
+108, "Modo Observador"
+109, "Reaparecer"
+
+;-------------------------------------------------
+; File: ReadyRoom.cpp
+;-------------------------------------------------
+
+110, "Atencion\nEsto probocara que todo el progreso en tu\ncampana actual se pierda"
+111, "Campana Demo terminada.  Quieres volver a jugar la campana?"
+112, "Campana terminada.  Para repetir la campana, puedes crear un piloto nuevo o reiniciar la campana en la sala de campanas."
+113, "Atencion\nEsto provocara que todo el progreso en la campana \"
+
+;-------------------------------------------------
+; File: Stats.cpp
+;-------------------------------------------------
+
+114, "Estadisticas de la Mision"
+115, "Derribos Totales"
+116, "Disparos con arma primaria"
+117, "Golpes con arma primaria"
+118, "Golpes de fuego aliado"
+119, "Golpes con primaria %%"
+120, "Golpes de fuego aliado con primaria %%"
+121, "Disparos con arma secundaria"
+122, "Golpes con arma secundaria"
+123, "Golpes de fuego aliado con secundaria"
+124, "Golpes con secundaria %%"
+125, "Golpes de fuego aliado con secundaria %%"
+126, "Asistencias"
+127, "Muertes del jugador"
+128, "Estadisticas Totales"
+
+;-------------------------------------------------
+; File: GameplayHelp.cpp
+;-------------------------------------------------
+
+129, ", "
+130, "no vinculacion"
+131, " - "
+132, "Pagina %d de %d"
+133, "Teclas Basicas"
+134, "Teclas de Funcion"
+135, "F1"
+136, "ayuda contexto-sensitiva"
+137, "F2"
+138, "pantalla de opciones (disponible desde cualquier parte del juego)"
+139, "F3"
+140, "asignaciones de tecla rapida"
+141, "F4"
+142, "HUD message scroll-back"
+143, "F5...F12"
+144, "teclas rapidas"
+145, "Mayus-Esc"
+146, "salir de FreeSpace 2 inmediatamente"
+147, "Teclas de Movimiento"
+148, "Teclas Basicas de Objetivos"
+149, "Teclas Avanzadas de Objetivos"
+150, "Selecccionar objetivo asignado a esa tecla rapida"
+151, "Mayus-F5...F12"
+152, "Anadir/quitar objetivo de esa tecla rapida"
+153, "Alt-Mayus-F5...F12"
+154, "Limpiar esa tecla rapida"
+155, "Teclas de Mensajes"
+156, "enviar orden concreta a estos objetivo(s)"
+157, "Teclas de Armamento"
+158, "Teclas de Manejo de Energia"
+159, "Teclas Miscelanea"
+160, "ESC"
+161, "invocar mensaje de abortar mision"
+162, "Pausa"
+163, "pausar juego"
+164, "Imp Pant"
+165, "sacar una imagen de la pantalla"
+166, "Teclas de Vista"
+167, "Teclas de Multijugador"
+168, "Teclas de mensajes en el juego (teclear para texto, mantener tecla para voz)"
+
+;-------------------------------------------------
+; File: FreeSpace.cpp
+;-------------------------------------------------
+
+169, "Intento de cargar la mision fallido"
+170, "Demo Freespace"
+171, "FreeSpace"
+172, "Esta version de Freespace ha sido copilada por\n\n"
+173, "\n\nClick ok para continuar.\n"
+174, "NO DISTRIBUYAS!"
+175, "Esta version de Freespace ha sido copilada por"
+176, "Presiona cualquier tecla para continuar."
+177, "Tu caza se queda sin combustible.  Por favor, observe por debajo de\nhood y anada mas si es necesario"
+178, "Freespace es muy cansado.  Se esta apagando para tomar un descanso."
+179, "Tiempo restante de la mision: %d segundos"
+180, "Net bytes leidos: %d"
+181, "Net bytes escritos: %d"
+182, "Vista externa de la nave del jugador."
+183, "Vista interior de la nave del jugador."
+184, "nodo de salto"
+185, "Viendo %s%s\n"
+186, "desde "
+187, "Viendo desde observador\n"
+188, "Viendo desde si\n"
+189, "Comienzo Rapido de la Mision"
+190, "Volver a Cubierta de Vuelo"
+191, "Volver a Reunion Informativa"
+192, "Has muerto"
+193, "FreeSpace ha detectado que solo tienes %dMB de memoria libre.\n\nFreeSpace requiere al menos 32MB de memoria para funcionar.  Si crees que tienes mas de %dMB de memoria fisica, asegurate de que no estas usando SmartDrive (SMARTDRV.EXE).  La memoria destinada a SmartDrive no es utilizable por aplicaciones\n\nPresiona 'OK' para continuar funcionando con menos memoria de la que es requerida\n"
+194, "RAM insuficiente"
+195, "FreeSpace ha detectado que solo tienes %dMB de memoria libre.\n\nFreeSpace requiere al menos 32MB de memoria para funcionar.  Si crees que tienes mas de %dMB de memoria fisica, asegurate de que no estas usando SmartDrive (SMARTDRV.EXE).  La memoria destinada a SmartDrive no es utilizable por aplicaciones\n"
+196, "FreeSpace requiere memoria virtual para funcionar.\r\n"
+197, "Memoria Virtual insuficiente"
+198, "No hay memoria suficiente para hacer funcionar Freespace.\r\nIntenta cerrando otras aplicaciones.\r\n"
+199, "Memoria insuficiente"
+200, "Lo siento, esta funcion esta disponible solo en la version final del juego"
+201, "%d:"
+202, "CD de FreeSpace 2 no encontrado\n\nInserta un CD de FreeSpace 2 para continuar"
+
+;-------------------------------------------------
+; File: Cutscenes.cpp
+;-------------------------------------------------
+
+203, "Pelicula no encontrada\n\nInserta FreeSpace CD #%d para continuar"
+204, "Incapaz de reproducir pelicula %s."
+
+;-------------------------------------------------
+; File: ControlsConfig.cpp
+;-------------------------------------------------
+
+205, "Conflicto!"
+206, "Cancelado"
+207, "Esta es una tecla no vinculable.  Intentalo otra vez."
+208, "?"
+209, "Conflicto de controles con:"
+210, "Mas..."
+211, "Ninguno"
+212, ", "
+
+;-------------------------------------------------
+; File: EventMusic.cpp
+;-------------------------------------------------
+
+213, "Musica de evento no reproduciendose"
+214, "Banda sonora: %s [%s]"
+
+;-------------------------------------------------
+; File: HUD.cpp
+;-------------------------------------------------
+
+215, "x%.1f"
+216, "x%.0f"
+217, "mensaje"
+218, "danos"
+219, "%d%%"
+220, "Integ. Casco"
+221, "<ninguno>"
+222, "muerto"
+223, "derrib:"
+224, "apoyo"
+225, "abortado"
+226, "completado"
+227, "reparando"
+228, "rearmando"
+229, "obstruido"
+230, "entrada de salto"
+231, "ocupado"
+232, "acoplar:"
+233, "dispositivo de salto"
+234, "activado"
+235, "descargando"
+236, "nuevas ordenes..."
+237, "objetivo primario"
+238, "objetivo secundario"
+239, "objetivo adicional"
+240, "fallido (%d/%d)"
+241, "completado (%d/%d)"
+242, "fallido"
+243, "[voice denied]"
+244, "[recording voice]"
+245, "[playing voice]"
+
+;-------------------------------------------------
+; File: HUDConfig.cpp
+;-------------------------------------------------
+
+246, "2000 M"
+247, "10.000 M"
+248, "infinito"
+249, "indicador de direccion"
+250, "orientacion del objetivo"
+251, "atacante hostil mas cercano"
+252, "direccion del objetivo actual"
+253, "tiempo de mision"
+254, "reticula"
+255, "acelerador"
+256, "radar"
+257, "vista del objetivo"
+258, "centro reticula"
+259, "info extra objetivo"
+260, "escudo objetivo"
+261, "escudo jugador"
+262, "control de energia"
+263, "icono autoseleccion objetivos"
+264, "icono autoigualar velocidad"
+265, "visualizador de armas"
+266, "vista de control"
+267, "vista de directivas"
+268, "indicador de nivel de amenaza"
+269, "energia de poscombustion"
+270, "energia de armas"
+271, "coordinacion de armas"
+272, "icono del casco/escudo del objetivo"
+273, "indicador de fuera de pantalla"
+274, "video de comunicaciones"
+275, "muestreo de danos"
+276, "salida de mensajes"
+277, "direccion de misiles hostiles"
+278, "contramedidas"
+279, "notificar objetivo"
+280, "estado de grupos"
+281, "rango de fuera de pantalla"
+282, "indicador de derribos"
+283, "indicador de objetivo atacante"
+
+;-------------------------------------------------
+; File: HUDEscort.cpp
+;-------------------------------------------------
+
+284, "D"
+285, "monitorizando"
+286, "Vista de escolta activada"
+287, "Vista de escolta desactivada"
+288, "La lista de escolta esta al maximo de %d naves"
+
+;-------------------------------------------------
+; File: HUDMessage.cpp
+;-------------------------------------------------
+
+289, "Tiempo actual"
+
+;-------------------------------------------------
+; File: HUDReticle.cpp
+;-------------------------------------------------
+
+292, "0"
+
+;-------------------------------------------------
+; File: HUDSquadMsg.cpp
+;-------------------------------------------------
+
+293, "Naves"
+294, "Grupos"
+295, "Todas las naves"
+296, "Refuerzos"
+297, "Rearmar/Reparar Subsis"
+298, "Abortar rearme"
+299, "Destruir mi objetivo"
+300, "Incapacitar mi objetivo"
+301, "Desarmar mi objetivo"
+302, "Destruir subsistema"
+303, "Proteger mi objetivo"
+304, "Ignorar mi objetivo"
+305, "En formacion con mi ala"
+306, "Cubrirme"
+307, "Atacar al enemigo"
+308, "Capturar mi objetivo"
+309, "Rearmarme"
+310, "Abortar rearme"
+311, "Marcharse"
+312, "[repag]"
+313, "[avpag]"
+314, "No items validos"
+315, "No permitido enviar mensaje"
+316, "Que Mensaje"
+317, "Seleccionar Nave"
+318, "Seleccionar Grupo"
+319, "Seleccionar Nave/Grupo"
+320, "(*)"
+321, "Que Orden"
+
+;-------------------------------------------------
+; File: HUDTarget.cpp
+;-------------------------------------------------
+
+322, "Ningun objetivo seleccionado."
+323, "Seleccionando subsistema %s."
+324, "Desactivando subsistema de seleccion de objetivos"
+325, "Desactivando sistema de seleccion de objetivos"
+326, "%d%%"
+327, "cm."
+328, "armas"
+329, "<ninguno>"
+330, "Seleccion de objetivos desactivado debido a danos en los sensores"
+331, "Comunicaciones restringidas debido a danos en las comunicaciones"
+332, "Sin naves de apoyo en el area.  Comunicaciones para llamar a una."
+
+;-------------------------------------------------
+; File: HUDTargetBox.cpp
+;-------------------------------------------------
+
+333, "communication"
+334, "com"
+335, "navigation"
+336, "nav"
+337, "sin ordenes"
+338, "tiempo estimado: "
+339, "Acoplada: %s"
+340, "d: %.0f"
+341, "%d%%"
+342, "DESACTIVADA"
+343, "INTERRUMPIDA"
+344, "des"
+345, "ok"
+346, "dno"
+347, "crt"
+348, "escombro"
+349, "desconocido"
+350, "d: %.0f%s"
+351, "v: %.0f%s"
+
+;-------------------------------------------------
+; File: HUDWingmanStatus.cpp
+;-------------------------------------------------
+
+352, "grupos"
+
+;-------------------------------------------------
+; File: MainHallMenu.cpp
+;-------------------------------------------------
+
+353, "Salir de FreeSpace 2"
+354, "Barracas - Administra tus pilotos de FreeSpace 2"
+355, "Sala de reunion - Empieza o continua una campana"
+356, "Departamento Tecnologico - Ver especificaciones de naves y armamento de Freespace 2"
+357, "Opciones - Cambia las opciones de Freespace 2"
+358, "Sala de Campanas - Ver todas las campanas disponibles"
+359, "Multijugador - Empieza o unete a una partida multijugador"
+360, "No has definido tu clase de conexion a Internet.  Por favor, utiliza el launcher, dale al boton de setup, y ve a la pestana de Network y elige tu tipo de conexion."
+361, "Winsock no instalado.  Debes tener TCP/IP y Winsock instalados para jugar multijugador en FreeSpace."
+362, "Has seleccionado TCP/IP para Freespace multijugador, pero el protocolo TCP/IP no fue detectado por el ordenador."
+363, "Has seleccionado Dial Up Networking como tu clase de conexion a Internet.  No estas conectado en este momento.  Debes conectarte a tu ISP antes de continuar despues de este punto."
+364, "Has indicado que usas LAN para conectarte.  You also appear to be dialed into your ISP.  Please disconnect from your service provider, or choose "
+365, "Salir del juego?"
+366, "Sala de Campanas no disponible para pilotos multijugador"
+367, "No es un piloto multijugador valido!!"
+368, "Cargar Mision no disponible para pilotos multijugador"
+369, "Comienzo Rapido no disponible para pilotos multijugador"
+370, "Nivel de Habilidad puesto a %s."
+371, "Presiona F1 para ayuda"
+
+;-------------------------------------------------
+; File: OptionsMenu.cpp
+;-------------------------------------------------
+
+372, "No puedes cambiar tu nivel de habilidad durante una mision."
+373, "No puedes cambiar tu nivel de habilidad aqui para partidas multijugador.  El nivel de habilidad esta configurado por el creador de la partida en la pantalla de opciones de la partida."
+374, "Salir del juego?"
+375, "No puedes usar la configuracion de HUD mientras seas observador!"
+
+;-------------------------------------------------
+; File: PlayerMenu.cpp
+;-------------------------------------------------
+
+376, "Modo Un Jugador"
+377, "Modo Multijugador"
+378, "Primero debes seleccionar un piloto valido"
+379, "Ya tienes el # maximo de pilotos!"
+380, "Error al crear nuevo archivo de piloto!"
+381, "Teclea Nombre en Clave y Presiona Enter"
+382, "Atencion!\n\nEstas seguro/a de que quieres borrar este piloto?"
+383, "Estas seguro/a de que quieres borrar este piloto?"
+384, "Descent: FreeSpace - The Great War, Copyright %c 1998, Volition, Inc."
+385, "Copyright %c 1999, Volition, Inc.  Todos los derechos reservados."
+
+;-------------------------------------------------
+; File: OptionsMenuMulti.cpp
+;-------------------------------------------------
+
+386, "Ip string no valida!"
+387, "Cancelar" -12 -9
+388, "Verificando direccion ip"
+389, "Max # de direcciones IP alcanzado!"
+390, "Error intentando reproducir voz grabada! Comprueba tu hardware"
+391, "Imposible comprobar microfono durante la partida multijugador!"
+392, "DirectSoundCapture no pudo iniciarse. Para iniciar DirectSoundCapture your sound card must be full duplex and your sound card drivers must support DirectSoundCapture"
+393, "Exceso de Paquetes"
+
+;-------------------------------------------------
+; File: MissionBriefCommon.cpp
+;-------------------------------------------------
+
+394, "Etapa %d de %d"
+395, "Por favor, revisa tus objetivos para esta mision."
+
+;-------------------------------------------------
+; File: MissionGoals.cpp
+;-------------------------------------------------
+
+396, "Primaria"
+397, "Secundaria"
+398, "Adicional"
+399, "*Objetivos Primarios"
+400, "*Objetivos Secundarios"
+401, "*Objetivos Adicionales"
+
+;-------------------------------------------------
+; File: MissionHotKey.cpp
+;-------------------------------------------------
+
+402, "Naves Amigas"
+403, "Naves Enemigas"
+
+;-------------------------------------------------
+; File: MissionLog.cpp
+;-------------------------------------------------
+
+404, "Destruido"
+405, "  muerte: "
+406, "Llego"
+407, "Llego (oleada %d)"
+408, "Se marcho"
+409, "acoplado con "
+410, "Subsistema "
+411, " destruido"
+412, "desacoplado de "
+413, "Desactivada"
+414, "Desarmada"
+415, " solicito rearme"
+416, " rearme abortado"
+417, "Traido como refuerzos"
+418, "Cargo revelado: "
+419, "%s objetivo "
+420, "cumplido."
+421, "fallido."
+
+;-------------------------------------------------
+; File: MissionTraining.cpp
+;-------------------------------------------------
+
+422, "directivas"
+423, "Entrenamiento fallido"
+424, "&Control Ciego"
+425, "&Abortar Mision"
+426, "Atencion\nNo tienes ningun control configurado para la accion '%s'.  Debes hacerlo antes de poder continuar con tu entrenamiento."
+
+;-------------------------------------------------
+; File: Chatbox.cpp
+;-------------------------------------------------
+
+427, "<%s fue expulsado>"
+
+;-------------------------------------------------
+; File: MissionBrief.cpp
+;-------------------------------------------------
+
+428, "Cerrar"
+429, "Saltar Entrenamiento\n\n\n\nSeguro que quieres saltarte esta mision de entrenamiento?"
+430, "No existe Reunion Informativa para esta mision: %s"
+431, "asteroide"
+432, "nodo de salto"
+433, "desconocido"
+434, " clase"
+
+;-------------------------------------------------
+; File: MissionDebrief.cpp
+;-------------------------------------------------
+
+435, "Medalla"
+436, "Rango"
+437, "Galardon"
+438, "(O)"
+439, "Tu carrera a terminado, Traidor!  No puedes aceptar nuevas misiones!"
+440, "Eres un tramposo.  No puedes aceptar esta mision!"
+441, "Has fallado esta mision y no puedes aceptar.  Que deseas hacer en lugar de eso?"
+442, "Volver a &Informe"
+443, "Ir a &Cubierta de Vuelo"
+444, "&Reintentar Mision"
+445, "%d de %d"
+446, "Tiempo de Mision"
+447, "Derribos en la Mision por Tipo de Nave"
+448, "Derribos Totales por Tipo de Nave"
+449, "(Sin derribos en esta mision)"
+450, "(Sin derribos)"
+451, "&Reintentar"
+452, "Si eliges reintentar la mision, deberas completarla de nuevo antes de proceder con futuras misiones.\n\nAdemas, las estadisticas obtenidas durante esta mision se descartaran si decides reintentarla."
+453, "Tu rendimiento ha sido excelente.  No tenemos recomendaciones para ti."
+454, "&Si"
+455, "&No, reintentar mas tarde"
+456, "Aceptar el resultado de esta mision?"
+457, "Como esta mision ha sido un fracaso, debes repetirla cuando continues con esta campana.\n\nVolver a la Cubierta de Vuelo?"
+458, "No existe Informe para esta mision: %s"
+459, "Mas"
+
+;-------------------------------------------------
+; File: MissionScreenCommon.cpp
+;-------------------------------------------------
+
+460, "Al menos una nave debe ser seleccionada antes de proceder con el equipamiento de armas"
+
+;-------------------------------------------------
+; File: MissionShipChoice.cpp
+;-------------------------------------------------
+
+461, "Nave del jugador no tiene armas"
+462, "Jugador %s debe seleccionar un puesto en el grupo del jugador"
+
+;-------------------------------------------------
+; File: MissionCmdBrief.cpp
+;-------------------------------------------------
+
+464, "Paso %d de %d"
+
+;-------------------------------------------------
+; File: CollideShipShip.cpp
+;-------------------------------------------------
+
+465, "Demasiado cerca del planeta.  Recibiendo danos!"
+466, "Secuencia de salto abortada."
+
+;-------------------------------------------------
+; File: Radar.cpp
+;-------------------------------------------------
+
+467, "2k"
+468, "10k"
+
+;-------------------------------------------------
+; skill levels
+;-------------------------------------------------
+
+469, "Muy Facil"
+470, "Facil"
+471, "Medio"
+472, "Dificil"
+473, "Insano"
+
+;-------------------------------------------------
+; File: AiGoals.cpp
+;-------------------------------------------------
+
+474, "atacar "
+475, "acoplar "
+476, "puntos de navegacion"
+477, "destruir "
+478, "formar con "
+479, "desacoplar "
+480, "vigilar "
+481, "desactivar "
+482, "desarmar "
+483, "evadir "
+484, "rearmar "
+
+;-------------------------------------------------
+; File: Ship.cpp
+;-------------------------------------------------
+
+485, "No quedan contramedidas."
+486, "Detono %s!"
+487, "Demasiado lejos del objetivo para bloquearlo"
+488, "Imposible disparar %s sin bloquear un objetivo"
+489, "Imposible disparar %s debido a que el sistema de armas esta danado"
+490, "Esta nave no tiene armas primarias"
+491, "Esta nave solo tiene un arma primaria: %s"
+492, "Esta nave no tiene armas secundarias"
+493, "Esta nave solo tiene un arma secundaria: %s"
+494, "Grupo"
+495, "sin ordenes"
+496, "atk %s %s"
+497, "Desconocido"
+
+;-------------------------------------------------
+; File: ShipFX.cpp
+;-------------------------------------------------
+
+498, "Nodo de subespacio activado"
+
+;-------------------------------------------------
+; File: ShipHit.cpp
+;-------------------------------------------------
+
+499, "Tu subsistema de %s ha sido destruido"
+
+;-------------------------------------------------
+; File: PlayerMenu.cpp
+;-------------------------------------------------
+
+500, "Conflict: FreeSpace - Darkness Rising, Copyright %c 1998, Volition, Inc."
+501, "Descent: FreeSpace - Darkness Rising, Copyright %c 1998, Volition, Inc."
+502, "Conflict: FreeSpace - The Great War, Copyright %c 1998, Volition, Inc."
+
+503, "&Bien"
+504, "&Cancelar"
+505, "&Si"
+506, "&No"
+
+;
+; The control config action text goes between 507 and 619.
+;
+507, "Seleccionar Nave Siguiente"
+508, "Seleccionar Nave Anterior"
+509, "Seleccionar Siguiente Nave Hostil Mas Cercana"
+510, "Seleccionar Anterior Nave Hostil Mas Cercana"
+511, "Activar/Desactivar Autoseleccion de Objetivos"
+512, "Seleccionar Siguiente Nave Amiga Mas Cercana"
+513, "Seleccionar Anterior Nave Amiga Mas Cercana"
+514, "Seleccionar Nave en Reticula"
+515, "Seleccionar Atacante Mas Cercano del Objetivo Seleccionado"
+516, "Seleccionar Ultima Nave en Enviar Transmision"
+517, "Desactivar Auto Seleccion de Objetivos"
+518, "Seleccionar Subsistema en Reticula"
+519, "Seleccionar Siguiente Subsistema"
+520, "Seleccionar Anterior Subsistema"
+521, "Desactivar Auto Seleccion de Subsistemas"
+522, "Igualar Velocidad del Objetivo"
+523, "Activar/Desactivar Auto Igualacion de Velocidad"
+524, "Disparar Arma Primaria"
+525, "Disparar Arma Secundaria"
+526, "Rotar Siguiente Arma Primaria"
+527, "Rotar Anterior Arma Primaria"
+528, "Rotar Fila de Arma Secundaria"
+529, "Rotar Cadencia de Diparo de Arma Secundaria"
+530, "Lanzar Contramedidas"
+531, "Aumentar Propulsion"
+532, "Reducir Propulsion"
+533, "Alabeo Izquierda"
+534, "Alabeo Derecha"
+535, "Cabeceo Arriba"
+536, "Cabeceo Abajo"
+537, "Girar Izquierda"
+538, "Girar Derecha"
+539, "Poner Acelerador a Cero"
+540, "Poner Acelerador al Maximo"
+541, "Poner Acelerador a Un Tercio"
+542, "Poner Acelerador a Dos Tercios"
+543, "Aumentar Acelerador un 5 Porciento"
+544, "Disminuir Acelerador un 5 Porciento"
+545, "Atacad Mi Objetivo"
+546, "Desarmad Mi Objetivo"
+547, "Desactivad Mi Objetivo"
+548, "Atacad Mi Subsistema Objetivo"
+549, "Capturad Mi Objetivo"
+550, "Atacad al Enemigo"
+551, "Formad en Mi Ala"
+552, "Ignorad Mi Objetivo"
+553, "Proteged Mi Objetivo"
+554, "Cubridme"
+555, "Volved a la Base"
+556, "Rearmame"
+557, "Seleccionar Nave Atacante Mas Cercana"
+558, "Vista de Persecucion"
+559, "Vista Externa"
+560, "Activar/Desactivar Bloqueo de Camara Externa"
+561, "Vista Libre"
+562, "Vista del Objetivo Actual"
+563, "Incrementar Distancia de Vista"
+564, "Reducir Distancia de Vista"
+565, "Centrar Vista"
+566, "Vista Arriba"
+567, "Vista Atras"
+568, "Vista Izquierda"
+569, "Vista Derecha"
+570, "Rotar Alcances de Radar"
+571, "Menu de Comunicaciones"
+572, "Mostrar Objetivos"
+573, "Entrar en Subespacio (Fin de Mision)"
+574, "Seleccionar Objetivo del Objetivo Seleccionado"
+575, "Postcombustion"
+576, "Incrementar Energia de Armas"
+577, "Disminuir Energia de Armas"
+578, "Incrementar Energia de Escudos"
+579, "Disminuir Energia de Escudos"
+580, "Incrementar Energia del Motor"
+581, "Disminuir Energia del Motor"
+582, "Igualar Configuraciones de Energia"
+583, "Igualar Escudo"
+584, "Potenciar Escudo Frontal"
+585, "Potenciar Escudo Trasero"
+586, "Potenciar Escudo Izquierdo"
+587, "Potenciar Escudo Derecho"
+588, "Transferir Eenrgia Laser->Escudo"
+589, "Transferir Energia Escudo->Laser"
+590, "Mostrar Ventana de Danos" 
+591, "Alabeo Mientras Pulsado"
+592, "Mostrar Mapa de Navegacion"
+593, "Anadir o Quitar Escolta"
+594, "Limpiar Lista de Escolta"
+595, "Seleccionar Siguiente Nave Escolta"
+596, "Seleccionar Nave de Reparaciones Mas Cercana"
+597, "Seleccionar Siguiente Carga No Inspeccionada"
+598, "Seleccionar Anterior Carga No Inspeccionada"
+599, "Seleccionar Nave Mas Nueva en el Area"
+600, "Seleccionar Siguiente Torreta Viva"
+601, "Seleccionar Anterior Torreta Viva"
+602, "Seleccionar Siguiente Bomba o Bombardero Hostil"
+603, "Seleccionar Anterior Bomba o Bombardero Hostil"
+604, "(Multijugador) Mensaje a Todos"
+605, "(Multijugador) Mensaje a Aliados"
+606, "(Multijugador) Mensaje a Enemigos"
+607, "(Multijugador) Mensaje al Objetivo"
+608, "(Multijugador) Observador zoom al objetivo"
+609, "Incrementar compresion de tiempo"
+610, "Disminuir compresion de tiempo"
+611, "Activar/Desactivar alto contraste HUD" 
+612, "(Multijugador) Activar/Desactivar network info"
+613, "(Multijugador) Autodestruccion";
+
+;-------------------------------------------------
+; File: GrD3D.cpp
+;-------------------------------------------------
+
+620, "Texturas canal alpha"
+621, "Caracteristica Perdida"
+622, "16-bpp RGB texturas"
+623, "Tu tarjeta de video no tiene las siguientes funciones requeridas por FreeSpace:\r\n\r\n"
+624, "Texture blending mode = Modulate\r\n"
+625, "Source blending mode = SRCALPHA or BOTHSRCALPHA\r\n"
+626, "Destination blending mode = INVSRCALPHA or BOTHINVSRCALPHA\r\n"
+627, "At least 1 MB of available video memory required."
+
+;-------------------------------------------------
+; File: HUD.cpp
+;-------------------------------------------------
+
+628, "> 1 seg"
+629, "%d ms"
+
+;-------------------------------------------------
+; File: HUDObserver.cpp
+;-------------------------------------------------
+
+630, "D: "		; Kills 
+631, "A: "		; Assists 
+
+;-------------------------------------------------
+; File: JumpNode.cpp
+;-------------------------------------------------
+
+632, "Nodo de Salto %d"
+
+;-------------------------------------------------
+; File: MissionWeaponChoice.cpp
+;-------------------------------------------------
+
+633, "Un %s es incapaz de portar armamento %s"
+
+;-------------------------------------------------
+; File: chat_api.cpp
+;-------------------------------------------------
+
+634, "Orden no reconocida"
+635, "** CTCP Mensaje de %s (%s)"
+636, "** %s se ha unido %s"
+637, "*** %s ha expulsado %s del canal %s (%s)"
+638, "*** %s es conocido ahora como %s"
+639, "**Error: %s no esta conectado!"
+640, "Tu nickname contiene caracteres invalidos"
+
+;-------------------------------------------------
+; File: Multi.cpp
+;-------------------------------------------------
+
+641, "Cancelar" -25 -8
+642, "Perdido contacto con el servidor.  Parando simulacion hasta que se restablezca contacto.  Presiona cancelar para salir de la partida."
+
+;-------------------------------------------------
+; File: multi_campaign.cpp
+;-------------------------------------------------
+
+643, "Campana Completada. Gracias Por Jugar"
+644, "Campana nave/arma piscina\n"
+
+;-------------------------------------------------
+; File: multi_endgame.cpp
+;-------------------------------------------------
+
+645, "&Cancelar"
+646, "Esperando a que los clientes se desconecten"
+647, "Atencion - saliendo hara que termine el juego para todos los jugadores!"
+648, "Seguro que quieres salir?"
+649, "<Capitanes del equipo han abandonado>"
+650, "<El servidor a terminado el juego>"
+651, "Has sido expulsado"
+652, "El servidor ha dejado el juego"
+653, "Tu archivo de mision ha sido rechazado por el servidor"
+654, "La partida a terminado cuando estabas uniendote"
+655, "Has tardado demasiado en elegir una nave"
+656, "Se ha perdido el contacto con el servidor"
+657, "Fallo al conectar con server en puerto fiable"
+658, "Fallo en la carga apropiada del archivo de la mision"
+659, "No se puede crear nave del jugador que se une al juego"
+660, "Recibido bogus packet data mientras se unia al juego"
+661, "Transferencia del server fallida (obsoleto)"
+662, "Server encontro errores al intentar asignar jugadores a las naves"
+663, "Administrador ha abandonado el juego, abortando..."
+664, "Capitan(es) de equipo han abandonado el juego, abortando..."
+665, "Hubo un error al recibir el archivo de la mision!"
+
+;-------------------------------------------------
+; File: multi_fstracker.cpp
+;-------------------------------------------------
+
+666, "Warning, Parallax Online startup failed. Will not be able to play tracker games!"
+667, "&Cancelar"
+668, "Intentando validar piloto ..."
+669, "&Bien"
+670, "Piloto rechazado por Parallax Online!"
+671, "Creado y validado con exito el nuevo piloto!"
+672, "Parallax Online pilot validation exitoso!"
+673, "&Abortar"
+674, "&Reintentar"
+675, "Tiempo acabado para validacion"
+676, "Enviando peticiones de datos de jugador ..."
+677, "Parallax Online stats store succeeded!"
+678, "Parallax Online stats store failed!"
+679, "Intentando conseguir datos del piloto ..."
+680, "Recibiendo datos jugador para %s...\n"
+681, "Actualizando datos jugador para %s...\n"
+
+;-------------------------------------------------
+; File: multi_ingame.cpp
+;-------------------------------------------------
+
+682, "Tiempo restante : %d s\n"
+683, "Ships packet ack (ingame)\n"
+684, "Wings packet (ingame)\n"
+685, "Respawn points packet (ingame)\n"
+686, "Se le ha denegado la nave solicitada"
+
+;-------------------------------------------------
+; File: multi_kick.cpp
+;-------------------------------------------------
+
+687, "<%s fue expulsado>"
+
+;-------------------------------------------------
+; File: multi_observer.cpp
+;-------------------------------------------------
+
+688, "Nave observadora"
+
+;-------------------------------------------------
+; File: multi_pinfo.cpp
+;-------------------------------------------------
+
+689, "Imagen No Valida"
+690, "Esperando"
+691, "Transferencia de Imagen"
+692, "Sin Imagen"
+693, "No se han volado misiones"
+
+;-------------------------------------------------
+; File: multi_pmsg.cpp
+;-------------------------------------------------
+
+694, "TODOS : "
+695, "AMIGO : "
+696, "HOSTIL : "
+697, "OBJETIVO : "
+698, "<SERVER>"
+699, "ORDEN DE <%s> : "
+700, "Atacar %s"
+701, "Incapacitar %s"
+702, "Proteger %s"
+703, "Ignorar %s"
+704, "Desarmar %s"
+705, "Incapacitar subsistema %s de %s"
+706, "Formar en mi ala"
+707, "Cubrirme"
+708, "Atacar al enemigo!"
+
+;-------------------------------------------------
+; File: multi_strans.cpp
+;-------------------------------------------------
+
+709, "Server transfer"
+710, "\'s game"
+711, "Server Transfer Complete!"
+
+;-------------------------------------------------
+; File: multi_voice.cpp
+;-------------------------------------------------
+
+712, "<%s esta hablando>"
+
+;-------------------------------------------------
+; File: multi_xfer.cpp
+;-------------------------------------------------
+
+713, "&Bien"
+714, "Existe una copia desactualizada de este archivo, pero no puede sobreescribirse por el servidor porque esta configurado como solo lectura. Cambia los permisos de este archivo para la proxima vez."
+
+;-------------------------------------------------
+; File: MultiMsgs.cpp
+;-------------------------------------------------
+
+715, "Jugador %s ha intentado unirse, aceptar s/n ?"
+716, "%s ha entrado en el juego\n"
+717, "<%s se ha unido>"
+718, "<%s fue expulsado>"
+719, "%s ha abandonado la partida"
+720, "Recibido comienzo de mision\n"
+721, "Received player settings packet\n"
+722, "Has sido rechazado porque la partida no se encuentra en un estado apropiado para aceptar"
+723, "Has sido rechazado porque esta es una partida Parallax Online y no estas registrado como piloto de Parallax Online"
+724, "Has sido rechazado porque esta es una partida con proteccion de contrasena"
+725, "Has sido rechazado porque esta es una partida cerrada y la mision esta en progreso"
+726, "Has sido rechazado porque la partida se esta creando y el host lo ha cerrado temporalmente"
+727, "Has sido rechazado porque esta es una partida con limite de rango y tu rango es demasiado alto"
+728, "Has sido rechazado porque esta es una partida con limite de rango y tu rango es demasiado bajo"
+729, "Has sido rechazado porque ya hay un jugador identico en la partida"
+730, "Has sido rechazado porque la partida esta llena"
+731, "Has sido rechazado porque se ha prohibido tu acceso a este servidor"
+732, "Has sido rechazado porque esta partida no permite observadores"
+733, "No puedes unirte ahora mismo porque hay alguien mas uniendose.  Intentalo de nuevo dentro de poco."
+734, "No puedes unirte a esta partida porque estas jugando una version mas antigua de FreeSpace que el servidor.  Sal de FreeSpace, y elige el boton 'Actualizar FreeSpace' en el launcher de FreeSpace para bajar la ultima version de FreeSpace."
+735, "Weapon slots packet\n"
+736, "Jugador %s ha intentado unirse - permitir (s/n) ?"
+
+;-------------------------------------------------
+; File: MultiTeamSelect.cpp
+;-------------------------------------------------
+
+737, "C"		; Team captain 
+738, "IA"		; Artificial Intellegence 
+739, "Clase"
+740, "Tipo"
+741, "Largo"
+742, "Velocidad Maxima"
+743, "%d m/s"
+744, "Maniobrabilidad"
+745, "Blindaje"
+746, "Soportes para Armas"
+747, "Bancos de Misiles"
+748, "Fabricante"
+749, "Naves/Armas Bloqueadas"
+750, "Naves/Armas Ahora Liberadas"
+751, "Jugadores no asignados aun a sus naves"
+752, "No has asignado aun todas las naves necesarias"
+753, "Hay naves sin armas primarias!"
+754, "Hay naves sin armas secundarias!"
+
+;-------------------------------------------------
+; File: MultiUI.cpp
+;-------------------------------------------------
+
+755, "mas"
+756, "Error de Conexion.  Intenta saliendo y entrando de nuevo a FreeSpace para despejar el error.  Si no, por favor reinicie su maquina."
+757, "No se encontro partidas!"
+758, "No se selecciono una partida!"
+759, "Aun esperando por solicitud anterior de unirse!"
+760, "Not implemented yet!"
+761, "> 1 seg"
+762, " ms"		; Milliseconds 
+763, "<No se encontraron servidores de partidas>"
+764, "Formando"
+765, "Reunion Informativa"				; multiplayer 
+766, "Informe"
+767, "Pausado"
+768, "Jugando"
+769, "Desconocido"
+770, "Aceptado.  Esperando por info de jugador."
+771, "Solicitud de unirse fuera de tiempo!"
+772, "Unirse a una partida en curso no esta permitido actualmente en partidas de equipo vs. equipo"
+773, "Enviando solicitud para unirse..."
+774, "Servidores en Canal: %s"
+775, "Warning - You have low object updates selected. A server with low object updates will not be able to handle more than 1 client without performance problems"
+776, "Low update level caps all bandwidth at ~2000 bytes/second. It is appropriate for clients with 28.8 modems, but is not reccomended for servers. In addition, any clients connecting to this server should use low object updates as well. To change your settings go to the options menu (f2), and select the Multi button"
+777, "Warning - You have medium object updates selected. A server with medium object updates will not be able to handle more than 1 or 2 clients without performance problems"
+778, "Medium update level caps all bandwidth at ~4000 bytes/second. It is appropriate for clients with 56.6 modems, but is not reccomended for servers. In addition, any clients connecting to this server should use low object updates as well. To change your settings go to the options menu (f2), and select the Multi button"
+779, "&Cancelar"
+780, "&Continuar"
+781, "&Mas info"
+782, "Partida de %s "		; %s will be a pilot's name 
+783, "Nombre temporal"
+784, "Valor ilegal para un host de tu rango (%s)\n"
+785, "teniente"
+786, "Tte. "		; lieutenant 
+787, "(O)"		; Observer 
+788, "Por favor espera hasta que todos los clientes terminen de unirse"
+789, "Mision no seleccionada!"
+790, "Campana no seleccionada!"
+791, "Hay demasiados observadores en la partida\n\nMax : %d\nActualmente %d\n\nPor favor desecha unos pocos"
+792, "Hay demasiados jugadores en la partida\n\nMax : %d\nActualmente %d\n\nPor favor desecha unos pocos"
+793, "Equipos y/o capitanes de equipo no asignados apropiadamente"
+794, "Necesitas 1 CD por cada 4 jugadores!"
+795, "NA"		; Not applicable 
+796, "Aviso\nPuntos de Reaparicion es mayor que el maximo especificado por la mision (%d)"
+797, "Aviso\nLimite de tiempo de la mision es mayor que el maximo permitido (%d)"
+798, "Aviso\nNumero de Observadores es mayor que el maximo permitido (%d)"
+799, "Aviso\nLimite de muertes de la mision es mayor que el maximo permitido (%d)"
+800, "Aviso\nTiempo de espera de voz es mayor que el maximo permitido (%d)"
+801, "Lanzar"
+802, "Cargando Mision"
+803, "Seleccion de Nave en la Partida"
+804, "Informe"
+805, "Mision Sinc"
+806, "Uniendo"
+807, "Unido"
+808, "Slot Ack"
+809, "Seleccion de Nave"
+810, "Seleccion de Armas"
+811, "Esperando"
+812, "En la Mision"
+813, "Mision Cargada"
+814, "Cargando Datos"
+815, "Preparado Para Entrar en la Mision"
+816, "Ingame Ships Packet Ack"
+817, "Ingame Wings Packet Ack"
+818, "Ingame Respawn Points Ack"
+819, "Ingame Weapon Slots Ack"
+820, "Post Briefing Data Block Ack"
+821, "Flags Ack"
+822, "Parallax Online Stats Updating"
+823, "Weapon Slots Ack"
+824, "Host setup"
+825, "Aceptar Informe"
+826, "Volver a Reproducir Informe"
+827, "Campaign ship/weapon ack"
+828, "Mission file xfer %d%%"
+829, "Mission file xfer"
+830, "Server performing sync\n"
+831, "Send update packet\n"
+832, "Got file signatures\n"
+833, "Sending update state packet\n"
+834, "Sent filesig request\n"
+835, "Sent load packet\n"
+836, "Loaded mission locally\n"
+837, "Moving to team select\n"
+838, "Client performing sync\n"
+839, "Sending post briefing block information\n"
+840, "Sending weapon slots information\n"
+841, "Sending player settings packets\n"
+842, "Moving into game\n"
+843, "Sending mission start packet\n"
+844, "&Aceptar"
+845, "&Rechazar"
+846, "(Continuar Netgame)\nQuieres aceptar estas puntuaciones?"
+847, "(Salir de Netgame)\nQuieres aceptar estas puntuaciones?"
+848, "&Abandonar"
+849, "Seguro que quieres abandonar el netgame antes de haber guardado las puntuaciones?"
+850, "<Puntuaciones aceptadas>"
+851, "<Puntuaciones rechazadas>"
+
+;-------------------------------------------------
+; File: MultiUtil.cpp
+;-------------------------------------------------
+
+852, "no hay presentes otros jugadores conectados"
+853, "cargado"
+854, "calafateado"
+855, "muerto"
+856, "encerado"
+857, "reventado"
+858, "asesinado"
+859, "aporreado"
+860, "destruido"
+861, "congelado"
+862, "aniquilado"
+863, "tostado"
+864, "asado"
+865, "convertido en antimateria"
+866, "matado como un cerdo"
+867, "enseno una leccion"
+868, "sacrificado con impunidad"
+869, "castigado como a un nino travieso"
+870, "caneado"
+871, "abatido sin sentido"
+872, "cosido a tiros"
+873, "despedazado"
+874, "regado"
+875, "cascado"
+876, "abatido"
+877, "golpeado con ingenio da shizzo"
+878, "sableado"
+879, "barrido del mapa"
+880, "obligado a ser un bufet"
+881, "servido como un sandwich...ten piedad"
+882, "balbuceado por un cohete de Kayser Sozay"
+883, "derribado"
+884, "se le dio un retiro prematuro"
+885, "instruido"
+886, "desviscerado"
+887, "pummelled"
+888, "erradicado"
+889, "barrido"
+890, "perforado"
+891, "enlatado"
+892, "muerto por descompresion"
+893, "dice"
+894, "gimotea"
+895, "opina"
+896, "postula"
+897, "declara"
+898, "vomita"
+899, "lloriquea"
+900, "vocifera"
+901, "<%s ha abandonado>"
+902, "Echado %s por inactividad prolongada"
+903, "[direccion ipx aqui]"
+904, "Standalone Ship"
+905, "Stats collected for %7.3f seconds\n"
+906, "Callsign\tBytes read/s\tBytes written/s\n"
+907, "Couldn't find network stats for %s ... skipping\n"
+908, "-------------------------\nTotal:\t%d\t%d\n"
+909, "\n\nPer Packet Statistics\n---------------\nPacket #\tNum Packets Sent\tTotal Bytes\t%% of total\n"
+
+;-------------------------------------------------
+; File: PsNet.cpp
+;-------------------------------------------------
+
+910, "[no networking]"
+
+;-------------------------------------------------
+; File: stand_gui.cpp
+;-------------------------------------------------
+
+911, "# Connections : "
+912, "Host conectado ? Si"
+913, "Host conectado ? No"
+914, "> 1 seg"
+915, " ms"
+916, "Servidor Unico"
+917, "Objetivos Primarios"
+918, "Objetivos Secundarios"
+919, "Objetivos Adicionales"
+920, "ninguno"
+921, "Vista de Arbol"
+922, "The standalone server has failed to log in to Parallax Online!"
+923, "VMT Warning!"
+924, "<SERVER> %s"
+925, "bien"
+926, "cancelar"
+927, "&aplicar"
+928, "Ayuda" -7
+929, "Apagar"
+930, "Conecciones"
+931, "Multi-Jugador"
+932, "Jugador info"
+933, "Material Dios"
+934, "Debug"
+935, "Freespace Standalone"
+
+;-------------------------------------------------
+; File: multi_pxo.cpp
+;-------------------------------------------------
+
+936, "&Create Acct"
+937, "&Verify Acct"
+938, "PXO Login not accepted.  You may visit the Parallax Online website to create or verify your login.  Or you may click Cancel to play without using the Parallax Online service.  (You may switch back to Parallax Online from the Options Menu under the Multi tab.)"
+939, "Retrieving Public Channels"
+940, "Failed to connect to Parallax Online"
+941, "You have been kicked"
+942, "You have been disconnected from the server"
+943, "Warning\nCould not locate/launch default Internet Browser"
+944, "No channels!"
+945, "Already trying to join a channel!"
+946, "Could not get stats for %s\n(May not be a registered pilot)"
+947, "Failed to connect to Parallax Online!"
+948, "Cancel"
+949, "Logging into Parallax Online"
+950, "*** %s has left"
+951, "Connected to Parallax Online"
+952, "Refreshing Public Channel List"
+953, "Switching channels"
+954, "No channel (error while switching)"
+955, "%s on %s"		; <who> on <channel> 
+956, "Parallax Online - No Channel"
+957, "private message from "
+958, "private_message_from "
+959, "private message to "
+960, "private_message_to "
+961, "Type the name of the channel to join/create"
+962, "Enter user to be found"
+963, "Searching for %s"
+964, "User not found"
+965, "Player is logged in but is not on a channel"
+966, "Found %s on :"
+967, "Found %s on a private channel"
+968, "Getting player stats"
+969, "Retrieving player tracker id"
+970, "No missions flown"
+
+;-------------------------------------------------
+; File: Sound.cpp
+;-------------------------------------------------
+
+971, "DirectSound no pudo ser inicializado.  Si tienes funcionando otras aplicaciones reproduciendo sonido de fondo, deberias apagarlas antes de continuar."
+972, "No se pudo iniciar apropiadamente el Microsoft ADPCM codec.\n\nPor favor, mira el archivo readme.txt para recibir instrucciones detalladas para la instalacion del Microsoft ADPCM codec."
+
+;-------------------------------------------------
+; File: multi_update.cpp
+;-------------------------------------------------
+
+973, "No pudo conectarse al sitio web"
+974, "No pudo encontrar el sitio web"
+975, "No pudo enviar informacion al sitio web"
+976, "Could not create version file"
+977, "No pudo recibir informacion del sitio web"
+978, "Hubo un error verificando su version de Freespace. Si continua, no estara puesto al dia"
+979, "Error opening version info file"
+980, "Hay disponible una nueva version de Freespace. You must update to the new version to play on PXO\n\nAuto update now?"
+981, "Verificando Version de Freespace"
+
+;-------------------------------------------------
+; File: multi_pxo.cpp
+;-------------------------------------------------
+
+982, "Joining last channel ("
+983, "Unable to join last channel"
+984, "Autojoining public channel"
+985, "Unable to autojoin public channel"
+
+;-------------------------------------------------
+; File: main_
+;-------------------------------------------------
+986, "Debes definir tu velocidad de conexion.  Por favor, inicia el launcher, dale al boton setup, y ve a la pestana Network y elige tu velocidad de conexion."
+
+;-------------------------------------------------
+; File: multi_endgame.cpp
+;-------------------------------------------------
+
+987, "Hubo un error al analizar el archivo de la mision. Este archivo contiene datos ilegales"
+
+
+; ------------------------------------------------
+; NEW MISSION DISK TEXT
+; ------------------------------------------------
+
+; freespace.cpp
+988, "Unable to copy freespace.exe from update directory to installed directory.  You should copy freespace.exe from the update directory (located in your FreeSpace install directory) to your install directory"
+
+; readyroom.cpp
+989, "Misiones Un Jugador\n\n%s"
+990, "Misiones de Campana\n\n%s"
+991, "Cargando misiones"
+992, "Cargando misiones de campana"
+
+; multimsgs.cpp
+993, "You cannot join this game because you are not running the Freespace Mission Disk"
+
+; multiui.cpp
+994, "You have selected a mission or campaign with Mission Disk content, but there are non-Mission Disk players present"
+995, "&Atras"
+996, "You have selected a mission which is either invalid or unknown to PXO. Your stats will not be saved if you continue"
+997, "Warning\n\nIf you start a PXO mission by yourself, your stats will not be updated"
+
+; multi_endgame.cpp
+998, "You were kicked because mission file xfer failed"
+999, "You were kicked because you do not have the builtin mission"
+1000, "You were kicked because you were ingame joining a game that has ended"
+
+; multi_fstracker.cpp
+1001, "<PXO stats store process complete>"
+1002, "<PXO stats store failed for player %s>"
+
+; multi_kick.cpp
+1003, "<%s was kicked because of mission file xfer failure>"
+1004, "<%s was kicked for not having builtin mission %s>"
+1005, "<%s was kicked for ingame joining an ended game>"
+
+; multiui.cpp
+1006, "Warning\n\nThis pilot has played PXO games. If you continue and play a non-PXO game, your stats will not be updated"
+
+; multi_pinfo.cpp
+1007, "Rango"
+1008, "Misiones Voladas"
+1009, "Tiempo de Vuelo"
+1010, "Ultima Volada"
+1011, "Cazas Derribados"
+1012, "Disparos Primarios"
+1013, "Golpes Primario %"
+1014, "Disparos Secundarios"
+1015, "Golpes Secundario %"
+
+; control_config.cpp
+1016, "Turn (Yaw) Axis"
+1017, "Pitch Axis"
+1018, "Bank Axis"
+1019, "Absolute Throttle Axis"
+1020, "Relative Throttle Axis"
+1021, "Joystick/Mouse X Axis"
+1022, "Joystick/Mouse Y Axis"
+1023, "Joystick Z Axis"
+1024, "Joystick rX Axis"
+1025, "Joystick rY Axis"
+1026, "Joystick rZ Axis"
+1027, "Left Button"
+1028, "Right Button"
+1029, "Mid Button"
+1030, "L/R"
+1031, "U/B"
+1032, "N"
+1033, "Y"
+
+; new stuff  12/2/98 - barracks screen
+1034, "Crear" 5
+1035, "Aceptar"
+1036, "Opciones" -8
+1037, "Medallas"
+1038, "Eliminar" -1
+1039, "Seleccionar" -18
+1040, "Clonar" -5
+1041, "Single"
+1042, "Multi"
+1043, "Convertir"
+
+; new stuff 12/3/98 - multi_fstracker.cpp and multiui.cpp
+1044, "<Server detected a hacked ships.tbl. Stats will not be saved>"
+1045, "You are playing with a hacked ships.tbl, your stats will not be saved"
+1046, "<Server detected a hacked weapons.tbl. Stats will not be saved>"
+1047, "You are playing with a hacked weapons.tbl, your stats will not be saved"
+1048, "<Not enough players were present at game start or end, stats will not be saved>"
+1049, "<Server detected a non PXO validated mission. Stats will not be saved>"
+1050, "This is not a PXO validated mission, your stats will not be saved"
+1051, "You or the server you are playing on has a hacked ships.tbl. Your stats will not be updated on PXO"
+1052, "You or the server you are playing on has a hacked weapons.tbl. Your stats will not be updated on PXO"
+
+; new stuff 12/14/98
+1053, "No/Invalida Imagen"
+1054, "No tenemos recomendaciones para ti."
+
+; new stuff 1/28/99
+1055, "Base de Datos Tecnica"
+1056, "Simulador de Misiones"
+1057, "Peliculas"
+1058, "Creditos"
+1059, "Salir"
+1060, "Misiones Un Jugador"
+1061, "Misiones Campana"
+1062, "Empezar"
+1063, "Mision"
+1064, "Archivo"
+1065, "Armamento"
+1066, "Inteligencia"
+1067, "Seleccion de Naves"
+1068, "Seleccion de Armas"
+
+;-------------------------------------------------
+; New stuff for MissionLog interface screen 1/29/99 File: HUDConfig.cpp
+;-------------------------------------------------
+
+1069, "Continuar" -12
+1070, "Eventos" -7
+1071, "Objetivos"
+1072, "Mensajes" -12
+
+;-------------------------------------------------
+; New stuff for Squad War
+;-------------------------------------------------
+1073, "You need to have at least %d players per squad for Squad War"
+
+; new stuff 2/15/99
+1074, "Validating mission %s"
+1075, "Validating squad war"
+1076, "Please enter the match code"
+1077, "SquadWar match does not check out. Please make sure the code you entered was correct and all players are valid members of their respective squads"
+1078, "Storing SquadWar results"
+1079, "<SquadWar results stored on PXO>"
+1080, "<SquadWar results rejected by PXO>"
+
+; new stuff 2/21/99 for beam weapons
+1081, "%s fue derribado por un haz de origen desconocido"
+1082, "%s fue destruido por un haz procedente de %s"
+
+; ----------------------------------------------------------
+; File: 3d_detect.cpp
+; ----------------------------------------------------------
+1083, "Sin aceleracion 3D"
+
+; ----------------------------------------------------------
+; File: Video_tab.cpp
+; ----------------------------------------------------------
+1084, "Video"
+1085, "Modo de Video Actual:"
+1086, "Debes seleccionar una tarjeta de video de aceleracion 3D para hacer funcionar Freespace 2.  Selecciona la que desees de la lista de abajo."
+1087, "Detectar Tarjetas Disponibles"
+1088, "Opciones:"
+1089, "Interlaced cutscenes"
+1090, "Fast clear for cutscenes"
+1091, "Texturas 3D rapidas (baja calidad visual)"
+1092, "Freespace 2 requiere hardware de aceleracion Glide o Direct3D. No podras jugar a Freespace 2 sin uno."
+1093, "Atencion"
+
+; ----------------------------------------------------------
+; File: DirectXTab.cpp
+; ----------------------------------------------------------
+1094, "Puesto al Dia"
+1095, "Requiere Puesta al Dia"
+1096, "Need to Install"
+1097, "Windows NT has DirectX built in.  If you are running NT 4.0 you should have Service Pack 3 (SP3) or later installed.  For detailed information on NT Service Packs (including download links), go to:\n%s.\n\nDo you want to go to this link?"
+1098, "Your version of DirectX is less than 5.0.  It is recommended that you install DirectX 5.0 on your system.\n\nDo you want to install DirectX 5.0?\n\n"
+1099, "Your version of DirectX is up to date.\nFor detailed information on the latest version of DirectX (including download links), go to:\n%s.\n\nDo you want to go to this link?"
+1100, "DirectX Version Info"
+1101, "Your DirectX Version"
+1102, "Your Version Status"
+1103, "Freespace 2 requires DirectX 3.0 (or greater).  DirectX 6.0 is required for Direct3D, Force Feedback, and Direct Sound 3D."
+1104, "Install/Update DirectX"
+
+; ----------------------------------------------------------
+; File: FSLaunch.cpp
+; ----------------------------------------------------------
+1105, "FreeSpace 2 Launcher"
+1106, "FreeSpace 2 Demo Launcher"
+1107, "The operating system is out of memory or resources."
+1108, "The .EXE file is invalid (non-Win32 .EXE or error in .EXE image)."
+1109, "The operating system denied access to the specified file."
+1110, "The filename association is incomplete or invalid.\r\n(You need to have a default Internet browser installed)"
+1111, "The DDE transaction could not be completed because other DDE transactions were being processed."
+1112, "The DDE transaction failed."
+1113, "The DDE transaction could not be completed because the request timed out."
+1114, "The specified dynamic-link library was not found."
+1115, "There was not enough memory to complete the operation."
+1116, "A sharing violation occurred."
+1117, "\r\nNo web browser found.  There isn't one installed or if \r\none is installed, it isn't set to be the default browser.\r\n\r\n"
+1118, "Unknown error occurred."
+
+; ----------------------------------------------------------
+; File: FSLaunchDlg.cpp
+; ----------------------------------------------------------
+1119, "Warning!"
+1120, "You must allow Setup to configure your default settings before playing Freespace 2 for the first time.\n\nTo do this, press the 'Setup' button from the main menu and examine each tab.  Then, press the 'OK' button at the bottom."
+1121, "No Rendering Device Selected!"
+1122, "You must allow Setup to configure your Video Card setting before playing Freespace 2.\n\nTo do this, press the 'Setup' button from the main menu and click on the Video Tab.  Then, press the 'Detect Available Cards' button and choose your video mode.  Finally, press the 'OK' button at the bottom."
+1123, "DirectX 3.0 or higher Required!"
+1124, "You must install DirectX 3.0 or higher to run Freespace 2.\n\nTo do this, press the 'Setup' button from the main menu and click on the 'DirectX' tab and follow the direction on it."
+1125, "Error Launching FreeSpace"
+1126, "Setup"
+1127, "Error Loading README.TXT"
+1128, "No uninstall information found."
+1129, "Are you sure you want to delete '%s' and all of its components?"
+1130, "Confirm File Deletion"
+1131, "Error Launching Uninstaller"
+1132, "Welcome to FreeSpace 2!"
+1133, "Since this is your first time running FreeSpace 2, you will now be automatically taken to the Setup window.  \n\nNOTE TO USER:\nIt is important that you view each section of the Setup window and configure it to your liking.  Press the Help button if you have questions about a particular section.  Once you are satisfied with your settings, select the OK button at the bottom of the Setup window to save them."
+
+; ----------------------------------------------------------
+; File: JoystickTab.cpp
+; ----------------------------------------------------------
+1134, "Joystick"
+1135, "<None>"
+1136, "Joystick Actual"
+1137, "Activar Force Feedback"
+1138, "Activar Golpe Direccional (Force Feedback)"
+1139, "Calibrar"
+1140, "Detectar Joysticks Disponibles"
+
+; ----------------------------------------------------------
+; File: Launch_utils.cpp
+; ----------------------------------------------------------
+1141, "FreeSpace CD no localizado.  Por favor, inserte FreeSpace CD #1 y seleccione OK para continuar."
+
+; ----------------------------------------------------------
+; File: MiscTab.cpp
+; ----------------------------------------------------------
+1142, "Misc"
+1143, "Select Language"
+1144, "Optional Command Line"
+1145, "Couldn't Uninstall"
+
+; ----------------------------------------------------------
+; File: NetWorkTab.cpp
+; ----------------------------------------------------------
+1146, "Network"
+1147, "Internet Connection"
+1148, "Connection Speed"
+1149, "None"
+1150, "Dialup Networking"
+1151, "LAN/Direct Connection (and AOL)"
+1152, "None Specified"
+1153, "Slower than 56K Modem"
+1154, "56K Modem"
+1155, "Single Channel ISDN"
+1156, "Dual Channel ISDN, Cable Modems"
+1157, "T1, ADSL, T3, etc."
+1158, "Error reading CD."
+
+; ----------------------------------------------------------
+; File: SpeedTab.cpp
+; ----------------------------------------------------------
+1159, "Velocidad"
+1160, "Baja" -4
+1161, "Media" 11
+1162, "Alta"
+1163, "Muy Alta" 4
+1164, "Nivel de Detalle por Defecto:"
+1165, "Propiedades"
+1166, "CPU Type:"
+1167, "CPU Speed:"
+1168, "Total RAM:"
+1169, "RAM Transfer Rate:"
+1170, "VRAM Transfer Rate:"
+1171, "3D Graphics Accelerator*:"
+1172, "*Configured in the 'Video' tab."
+1173, "Detect"
+
+; ----------------------------------------------------------
+; File: AudioTab.cpp
+; ----------------------------------------------------------
+1174, "Audio"
+1175, "Aureal sound card detected, but you need updated drivers.  Download them from www.a3d.com"
+1176, "This is non-Aureal-certified A3D!\nPlease upgrade your drivers at www.a3d.com"
+1177, "No Sound"
+1178, "Currently Selected Sound Card"
+1179, "Detect Available Sound Cards"
+1180, "Enable Launcher Sounds"
+
+; ----------------------------------------------------------
+; File: UpdateDlg.cpp
+; ----------------------------------------------------------
+1181, "The Freespace 2 Launcher needs to be updated to a newer version.\nHowever, the replacement executable or patch file could not be accessed.\n\nTherefore, the Launcher cannot be updated at this time."
+1182, "The Freespace 2 Launcher needs to be updated to a newer version.\nHowever, the Update Launcher executable could not be found (or could not be accessed).\n\nTherefore, the Launcher cannot be updated at this time."
+1183, "The Freespace 2 Launcher needs to be updated to a newer version.\nIt will now be shutdown, modified, and then restarted.\n\nThis may take several seconds..."
+1184, "Launcher Update"
+1185, "Error!"
+1186, "Up to date"
+1187, "Waiting for User"
+1188, "Select Patch Download Site"
+1189, "Patching Failed!!"
+1190, "Connecting"
+1191, "Downloading File"
+1192, "URL redirected"
+1193, "Download Cancelled"
+1194, "Sorry, there is no message of the day."
+1195, "Unable to continue!!  Press Cancel."
+1196, "Unable to continue"
+1197, "File not Found Error"
+1198, "File Download HTTP error.  Status code: %d"
+1199, "Downloading MOTD File"
+1200, "Downloading Version Info File"
+1201, "Downloading Sites File"
+1202, "Unable to read sites from version.nfo"
+1203, "Downloading Patch File"
+1204, "Download %d bytes of %d  (%d%%)"
+1205, "Couldn't parse Version file!"
+1206, "The Freespace 2 Auto-Update program could not find your current game Version in the system registry.\n\nThis should be corrected by starting up the game, exiting the game, and then running the Auto-Update program."
+1207, "Unable to Determine User's Version"
+1208, "Press OK to download the new version of Freespace 2!!"
+1209, "A new version of Freespace 2 is available!!!  Press the OK button to download it."
+1210, "Determination: No Update Necessary"
+1211, "Your Freespace 2 version %d.%02d is currently up to date."
+1212, "Patching Error"
+1213, "Processing %s"
+1214, "File Complete!"
+1215, "Searching for systems to update..."
+1216, "Patching Failed!"
+1217, "Patch Library not found."
+1218, "Patch Library not found.  Cannot Patch Freespace 2."
+1219, "Beginning Patching..."
+1220, "Patching Complete!"
+
+; ----------------------------------------------------------
+; File: DownloadThread.cpp
+; ----------------------------------------------------------
+1221, "Error: URL could not be parsed"
+1222, "Error: Site redirects with no new location"
+1223, "Insufficient disk space to download file: "
+1224, "Error trying to download file"
+1225, "Error trying to write file"
+
+; ----------------------------------------------------------
+; File: SiteSelectionDlg.cpp
+; ----------------------------------------------------------
+1226, "You must select a download site."
+1227, "Site Selection"
+1228, "You must select a download site."
+1229, "Site Name"
+1230, "URL"
+1231, "Location"
+1232, "The site info file could not be opened and parsed."
+
+; ----------------------------------------------------------
+; Localize launcher dialog box text
+; ----------------------------------------------------------
+
+1233, "Freespace 2 Auto-Update"
+1234, "Message of the Day:"
+1235, "Your Version:"
+1236, "Latest Version:"
+1237, "Progress:"
+1238, "Status:"
+1239, "Patch Download Site Selection"
+1240, "Select the site you wish to download from:"
+
+; ----------------------------------------------------------
+; Localize Launcher Updater
+; ----------------------------------------------------------
+
+1241, "Updating the Freespace 2 Launcher..."
+1242, "Please Wait"
+1243, "ERROR: This program was executed outside of the Freespace 2 Launcher!"
+1244, "ERROR: Could not find file:  %s"
+1245, "ERROR: Could not access file:  %s"
+1246, "ERROR: Could not delete file:  %s"
+1247, "ERROR: Could not rename file:  %s"
+1248, "ERROR: The patch application function could not be obtained from the DLL."
+1249, "ERROR: The patch could not be completed successfully."
+1250, "Starting up the old Freespace 2 Launcher..."
+1251, "Starting up the new Freespace 2 Launcher..."
+1252, "ERROR: The Launcher could not be restarted."
+1253, "Freespace 2 Launcher Update Error"
+1254, "The launcher has not been updated."
+
+; ----------------------------------------------------------
+; New pilot, unassigned squadron
+;
+
+1255, "Sin asignacion"
+
+; ----------------------------------------------------------
+; Multi create interface
+;
+
+1256, "Todos" -13
+1257, "Coop"
+1258, "Equipo" -8 -3
+1259, "Refriega" -4 -6
+1260, "Recargar Misiones"
+1261, "Info de Piloto" -16 -30
+1262, "Misiones"
+1263, "Campanas"
+1264, "1"
+1265, "2"
+1266, "Echar" -11 -3
+1267, "Opciones de Creacion" 0 -55
+1268, "Crear Partida"
+1269, "Jugadores"
+
+; ----------------------------------------------------------
+; Multi player screens
+;
+
+1270, "Cerrado" -20 0
+
+; ----------------------------------------------------------
+; multiplayer hacked data warnings
+;
+
+1271, "ha hackeado tables/data"
+1272, "One or more players has hacked data files. You cannot play a SquadWar match unless all clients have legal data"
+1273, "One or more players has hacked data files. If you continue, stats will not be stored at the end of the mission"
+1274, "One or more players has hacked data files"
+
+; ----------------------------------------------------------
+; TvT reporting
+;
+
+1275, "<Team 1 had %d points>"
+1276, "<Team 2 had %d points>"
+1277, "<Match was a tie>"
+1278, "<Team 1 (green) is the winner>"
+1279, "<Team 2 (red) is the winner>"
+
+; ----------------------------------------------------------
+; Host options screen
+;
+1280, "Highest rank"
+1281, "Team / wing-leader"
+1282, "Any"
+1283, "Host"
+1284, "Skill level"
+1285, "On"
+1286, "Off"
+1287, "Host modifies ships"
+1288, "Respawn Limit"
+1289, "AI Orders"
+1290, "End Mission"
+1291, "Time Limit"
+1292, "Min"
+1293, "Kill Limit"
+1294, "Observers"
+1295, "Voice Transmission"
+1296, "Voice Quality"
+1297, "Message Duration"
+1298, "Voice Wait"
+
+; ----------------------------------------------------------
+; Multi join screen
+;
+1299, "Refresh"
+1300, "Join as"
+1301, "Observer"
+1302, "Game"
+1303, "Join"
+1304, "Status"
+1305, "Server"
+1306, "Players"
+1307, "Ping"
+
+; ----------------------------------------------------------
+; Multi join-wait screen
+;
+1308, "Team 1"
+1309, "Team 2"
+1310, "Pilot"
+1311, "Info"
+1312, "Choose Team"
+
+; ----------------------------------------------------------
+; PXO screen
+;
+1313, "Web"
+1314, "Ranking"
+1315, "Find"
+1316, "Motd"
+1317, "Channel"
+1318, "Private"
+1319, "Games"
+1320, "Squad"
+1321, "Channels"
+
+; ----------------------------------------------------------
+; Multi start game screen
+;
+1322, "Open"
+1323, "Closed"
+1324, "Restricted"
+1325, "Password Protected"
+1326, "Allow Rank"
+1327, "Above"
+1328, "Below"
+1329, "Start Game"
+1330, "Title"
+1331, "Game Type"
+
+; ----------------------------------------------------------
+; Multi password popup
+;
+1332, "Enter Password"
+
+; ----------------------------------------------------------
+; Debrief screen
+;
+1333, "Estadisticas"
+1334, "Recomendaciones"
+
+; ----------------------------------------------------------
+; View Footage screen
+;
+1335, "Reproducir" -24
+
+; ----------------------------------------------------------
+; Loading bar
+;
+1336, "Cargando"
+
+; ----------------------------------------------------------
+; Ship select screen
+;
+1337, "Por defecto" -38 -19
+
+; ----------------------------------------------------------
+; New death messages
+;
+1338, "%s fue derribado por fuego amigo de %s"
+1339, "%s fue destruido por haz aliado por %s"
+
+; ----------------------------------------------------------
+; Control config screen
+;
+1340, "Objetivos"
+1341, "Nave"
+1342, "Invertir" -8
+1343, "Deshacer" -10 -4
+1344, "Por defecto" -15 -11
+1345, "Buscar" -14 -2
+1346, "Vincular" -28 -17
+1347, "Limpiar" -5
+1348, "Conflicto" 2
+1349, "Todos" -3
+1350, "Seleccionados" 11 -21
+
+; ----------------------------------------------------------
+; Options screen
+;
+1351, "Detalles" -7
+1352, "Controles"
+1353, "Config"
+1354, "HUD"
+1355, "Niveles de Detalle Por Defecto" -51 -24
+1356, "Personalizado" -46
+1357, "Planetas/fondos" 41 0
+1358, "Rederizado Vista Objetivo" 2 0
+1359, "Extras de Armas"
+1360, "Detalle de Modelo"
+1361, "Detalle de Nebulosa"
+1362, "Texturas 3D Hardware"
+1363, "Particulas"
+1364, "Efectos de Impactos"
+1365, "Efectos de Escudos"
+1366, "Estrellas"
+1367, "Luces"
+1368, "Voz Reunion Informativa"
+1369, "Volumen"
+1370, "Efectos"
+1371, "Musica"
+1372, "Voces"
+1373, "Raton"
+1374, "Sensibilidad"
+1375, "Brillo"
+1376, "Joystick"
+1377, "Zona Muerta"
+
+; ------------------------------------------------
+; Multi options screen
+;
+1378, "TCP"
+1379, "IPX"
+1380, "Codigo IP"
+1381, "anadir"
+1382, "rem."
+1383, "PXO"
+1384, "Login"
+1385, "Contrasena"
+1386, "Escuadron"
+1387, "Broadcast Locally"
+1388, "General"
+1389, "Mic test"
+1390, "Mutis"
+1391, "Object Update"
+1392, "Lan"
+1393, "Piloto / Imagen Escuadra" -5 0
+1394, "Si"
+1395, "No"
+1396, "Transferir Misiones"
+1397, "/multidata"
+1398, "/missions"
+1399, "Flush Cache"
+1400, "Nunca" -1
+1401, "Antes de Jugar" -24
+
+; ------------------------------------------------
+; New multiplayer warnings
+;
+1402, "You have selected IPX for multiplayer Freespace, but the IPX protocol was not detected on your machine."
+
+; ------------------------------------------------
+; campaign screen
+;
+1403, "Reiniciar"
+1404, "Campana"
+
+; ------------------------------------------------
+; red alert screen
+;
+1405, "Volver a reproducir"
+1406, "Transmision Entrante"
+
+; ------------------------------------------------
+; new stuff 7/18/99
+;
+1407, "completado"						; support ship complete
+1408, "Crear"							; multiplayer server list
+1409, "Seleccionar" -18					; campaign room
+1410, "Mision"							; incoming transmission / red-alert
+1411, "Misc"							; control config
+1412, "Juego"							; options screen
+1413, "Limpiar" 0 8						; control config - delete/clear all
+1414, "Limpiar" 0 -14						; control config - delete/clear selected
+1415, "Config"							; options - HUD config					
+1416, "Salir"							; PXO 
+1417, "Salir"							; multiplayer host options
+1418, "Salir"							; tech database
+1419, "Salir"							; tech cutscenes
+1420, "Salir"							; tech credits
+
+; ------------------------------------------------
+; new death messages
+;
+1421, "Te has matado con la onda expansiva de tu propia arma"
+1422, "Te has matado con tus propios misiles"
+
+; ------------------------------------------------
+; new stuff for multi ingame join
+;
+1423, "nombre"
+1424, "clase"
+1425, "estadisticas"
+1426, "primario"
+1427, "secundario"
+
+; ------------------------------------------------
+; new hud text (replaces old hardcoded gauges)
+;
+1428, "Impacto"
+1429, "Drenaje de Motor"
+1430, "Esquivado"
+1431, "Colision"
+
+; ------------------------------------------------
+; new dead popup text (when dead during a red-alert mission)
+;
+1432, "Volver a jugar la mision anterior"
+
+; ------------------------------------------------
+; ingame join deny text
+;
+1433, "No puedes unirte a un juego que ya ha empezado a menos que sea una mision de refriega."
+
+; ------------------------------------------------
+; some recently discovered interface text
+;
+1434, "Barracas"				; title for barracks screen
+1435, "Estadisticas de Piloto"			; area heading in barracks screen
+1436, "Elegir Piloto"			; heading for initial player choice screen
+
+; ------------------------------------------------
+; in-game objectives screen text
+;
+1437, "Completo"				; title for barracks screen
+1438, "Incompleto"			; area heading in barracks screen
+1439, "Fallado"					; heading for initial player choice screen
+
+; ------------------------------------------------
+; multiplayer paused chatbox
+;
+1440, "Mision Pausada"
+
+; ------------------------------------------------
+; F1 help screen text
+;
+1441, "Presiona ESC para volver al juego"
+
+; ------------------------------------------------
+; Skip Training button on mission briefing
+;
+1442, "Saltar Instruccion" -37
+
+; ------------------------------------------------
+; Demo tips popup dialog
+;
+1443, "No muestres esto mas"
+1444, "&Siguiente"
+
+; ------------------------------------------------
+; Squadron change popup dialog (in Barracks during single player)
+;
+1445, "No puedes cambiar de escuadron en modo de Un Jugador."
+
+; ------------------------------------------------
+; Some miscellaneous error text from Freespace.cpp
+;
+1446, "Please configure your system in the Launcher before running FS2.\n\n The Launcher will now be started!"
+1447, "Attention!"
+1448, "Warning, Freespace 2 requires Glide or Direct3D hardware accleration. You will not be able to run Freespace 2 without it."
+1449, "Warning"
+1450, "The Launcher could not be restarted."
+1451, "Error"
+
+; ------------------------------------------------
+; Red Alert Briefing
+;
+1452, "Mision Anterior"
+
+; ------------------------------------------------
+; HUD config screen
+;
+1453,	"Popup"
+1454, "Guardar"
+1455, "Ambar"
+1456, "Azul"
+1457, "Verde"
+1458, "Brillo"
+1459, "flash de aviso"
+1460, "com menu"
+1461, "indicador del apoyo"
+1462, "indicador lag"
+
+; ------------------------------------------------
+; HUD auto-target & auto-speed indicators
+;
+1463, "auto"
+1464, "veloc."
+1465, "selector"
+
+; ------------------------------------------------
+; HUD auto-target & auto-speed indicators
+;
+1466, "Salir"
+
+; ------------------------------------------------
+; Loop brief screen
+;
+1467, "Rechazar" -10
+
+; ------------------------------------------------
+; CD prompt
+;
+1468, "Por favor, inserta el CD %d"
+
+; ------------------------------------------------
+; Briefing / Tech room "more" indicator
+;
+1469, "mas"
+
+; ------------------------------------------------
+; Mission skip stuff
+;
+1470, "Has fallado esta mision cinco veces."
+1471, "Si quieres, puedes avanzar a la siguiente mision."
+1472, "Has fallado esta mision cinco veces.  Si quieres, puedes avanzar a la siguiente mision."
+1473, "No saltarse esta mision"
+1474, "Ir a la siguiente mision"
+1475, "No vuelvas a preguntarmelo"
+
+; ------------------------------------------------
+; self destruct log
+;
+1476, "Autodestruido"
+
+; ------------------------------------------------
+; loop exit button
+;
+1477, "Salir del Bucle" -42
+
+; ------------------------------------------------
+; squad war
+;
+1478, "SquadWar results invalidated"
+
+
+; ------------------------------------------------
+; Miscellaneous
+;
+1479, "\r\nUnable to locate Fred Help file: \\data\\freddocs\\index.html\r\n"			; FRED error
+1480, "DirectDraw could not be initialized on your system.  DirectDraw v6.0 or higher\nis required in order to play FreeSpace 2."	; error msg
+1481, "Atencion!"																		; window title on error message
+1482, "Need to run FreeSpace 2 first to set version info."								; update dialog stuff (launcher)
+1483, "Original '%s' contents do not match, update aborted.  Re-installing may be necessary.  \n\n"
+1484, "If problem persists, please contact Volition Support, support@pxo.net."
+1485, "Detect Direct3D"																	; launcher stuff
+1486, "Detect Glide"
+1487, "Torreta"								; mission log
+1488, " carga de subsistema revelada: "		; mission log
+1489, "Salir del Bucle\n\n\n\nSeguro que quieres abandonar esta mision alternativa?"	; mission brief
+1490, "<No Mission Loop Description Available>"											; mission debrief
+1491, "\n\n\nQuieres jugar la mision opcional?"
+1492, "OK"							; multi_pxo
+1493, "Nada"										; playercontrol -- cargo contents
+1494, "%s fue derribado por drenaje de motor de %s"		; playercontrol
+1495, "Hay un limite de %d naves en la mision.  Por favor, asegurate de que no hay mas de %d naves presentes en la mision al mismo tiempo."			; ships
+1496, "An error occured while patching the Launcher, 'FreeSpace2.exe'.\nThe remaining files were updated successfully, but your Launcher is still out-of-date.\nWe recommend that you manually download the latest Launcher from our website:\n\n"		; updatelauncher
+1497, "\n\nDo you want to want to visit the site now?"
+1498, "Error Patching the Launcher"
+1499, "Vertex fog or Table fog\r\n"						; grd3d
+1500, "Joining netgame"									; multiui
+1501, "<kicking %s ...>"								; multi_kick
+1502, "Force WFOG (not recommended)"					; launcher
+1503, "Disable Direct3D Zbuffer bias"
+
+1504, "Reunion Informativa"			; briefing screens
+1505, "Unirse"						; pxo screen - before channel
+1506, "Unirse"						; pxo screen - before private
+1507, "Lanzamiento"					; flashing missile launch icon on HUD
+1508, "Cerrar"						; on Multi Create screen
+1509, "Nivel de Dificultad" -35 0	; on Options screen
+
+; more misc, added 10/14
+1510, "Alt"							; control config
+1511, "Mayus"						; control config
+1512, "R"							; hud config, short for "red" (from RGB)
+1513, "V"							; hud config, short for "green" (from RGB)
+1514, "A"							; hud config, short for "blue" (from RGB)
+1515, "I"							; hud config, short for "intensity"
+1516, "Cancelar" -3					; mission hotkey screen
+1517, "Limpiar" -1					; mission hotkey screen
+1518, "Reset"						; mission hotkey screen
+1519, "Ayuda" -7					; mission hotkey screen
+1520, "Opciones" -8					; mission hotkey screen
+1521, "Aceptar"						; mission hotkey screen
+1522, "seg"							; multi host options
+1523, "seg"							; multi host options
+1524, "&Volver"						; error verifying version of fs popup buttons
+1525, "&Continuar"
+1526, "Puntuacion de Mision"		; multi debrief stats (mission)
+1527, "Puntuacion"					; multi debrief stats (alltime)
+
+; yet more misc, added 10/19
+1528, "Voz" 13						; OptionsMenuMulti
+1529, "Sensibilidad"				; Mouse sensitivity slider, in options
+1530, "Transmision por Voz"			; OptionsMenuMulti
+1531, "Calidad de Voz"				; OptionsMenuMulti
+1532, "Nombre"						; PXO player info labels
+1533, "Rango"
+1534, "derribos"
+1535, "Asistencias"
+1536, "Derribo de Amigos"
+1537, "Misiones Voladas"
+1538, "Tiempo de Vuelo"
+1539, "Ultima Volada"
+1540, "Disparos Primarios"
+1541, "Golpes de Primarios"
+1542, "Golpes Primario %"
+1543, "Disparos Secundarios"
+1544, "Golpes de Secundarios"
+1545, "Golpes Secundario %"
+1546, "Golpes Primario Fuego Amigo"
+1547, "Golpes Primario Fuego Amigo %"
+1548, "Golpes Secundario Fuego Amigo"
+1549, "Golpes Secundario Fuego Amigo %"
+
+; even more misc, added 10/21
+1550, "Seleccionar" -56 -22						; used in Hud config
+1551, "Todos"									; used in Hud config
+1552, "Seleccionar" -18							; used in Barracks (used to be 1039, which is also in player select at startup)
+1553, "Armamento"								; Tech room
+
+; perhaps the final misc?  added 10/25
+1554, "Detectar 32 bit"						; launcher stuff
+1555, "Detectar hi-res"
+1556, "Cuenta PXO"
+1557, "Entrar"
+1558, "Contrasena"
+1559, "Saltar comprobacion de version en PXO"
+1560, "PXO Banners"
+1561, "Misc"
+1562, "Forzar puerto local"
+1563, "German"								; language choices in Misc tab
+1564, "English"
+
+; nope, there is more.  added 10/26
+1565, "CONSEJO DEL NUEVO USUARIO\n\n%s"					; heading on tip popup
+1566, "Torreta de Flak"
+1567, "Arma de Haces"
+1568, "Torreta Laser"
+1569, "Lanzamisiles"
+
+
+#end
+

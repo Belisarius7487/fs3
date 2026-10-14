@@ -1,0 +1,19 @@
+;; AI Profiles table.  Incorporates stuff from the old difficulty.tbl plus
+;; additional flags previously covered under the blanket New AI flag.
+;;
+
+#AI Profiles
+
+; don't override the default profile, which is probably FS1 RETAIL
+
+$Profile Name: SILENT THREAT REBORN
+
+;; if set, shockwaves will cause damage to small ship subsystems (like in FS1)
+$shockwaves damage small ship subsystems: YES
+
+;; if set, will not use a minimum speed limit for docked ships (like in FS1)
+$ignore lower bound for minimum speed of docked ship: YES
+
+; don't disable weapon damage scaling because ST:R was balanced with it
+
+#End

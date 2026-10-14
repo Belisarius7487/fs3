@@ -1,0 +1,21 @@
+#GAME SETTINGS
+
+;;FSO 3.8.2;; $Window title: Silent Threat: Reborn
+
+
+#CAMPAIGN SETTINGS
+
+$Default Campaign File Name: SilentThreatReborn
+
+#Ignored Campaign File Names
+$Campaign File Name: freespace
+$Campaign File Name: FS1Templar
+$Campaign File Name: m-altair
+$Campaign File Name: m-hope
+$Campaign File Name: SilentThreat
+$Campaign File Name: ST-Part1
+$Campaign File Name: ST-Part2
+$Campaign File Name: ST-Part3
+$Campaign File Name: ST-Part4
+
+#END
