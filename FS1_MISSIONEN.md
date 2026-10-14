@@ -126,3 +126,24 @@ Vorlage `fs1/sm1-05a.fs2`. Erste Begegnung mit den Shivanern.
   versucht, das Feld zu verlassen.
 - Ende: Plato überlebt → Erfolg. Plato verloren, Kapsel entkommt →
   Teilerfolg (gelb). Beide verloren → Fehlschlag.
+
+## Mission 6 — Paving the Way (abgesegnet)
+
+Vorlage `fs1/sm1-06a.fs2`.
+
+- Start: Spieler und Alpha 2 (Apollo), Galatea (Orion, verbündet,
+  Rumpfbalken, ihre Geschütze feuern mit) nahe am Feldrand Richtung
+  Sprungpunkt.
+- Abwechselnd, jede Staffel sobald die vorige weg ist, spätestens nach
+  30 s: Bomber 1 (2 Shaitan), Jäger 1 (3 Scorpion), Bomber 2 (2 Shaitan),
+  Jäger 2 (3 Scorpion), Bomber 3 (2 Shaitan). Erste Staffel nach 5 s.
+- Alle Staffeln weg → Galatea springt ab.
+- Auftrag: Galatea beschützen. Bonus: Galatea behält mehr als die Hälfte
+  ihres Rumpfs.
+- **Galatea ist das Trägerschiff** → erste Mission mit Nachladen.
+- Ende: Galatea springt ab → Erfolg. Galatea zerstört → Fehlschlag.
+- Schwierigkeit (Silvio, 14.10.2026): soll schwer sein. Gewählt wurde die
+  mittlere Fassung; Silvios volle Fassung (je 4 Bomber, 3 Jägerstaffeln zu
+  4) wurde wegen der schwachen FS1-Waffen gegen Shivaner-Schilde
+  zurückgestellt. Nach dem ersten Test im Spiel ggf. hochschrauben.
+- Weggelassen: der lange, leere Anflug.
