@@ -1,0 +1,77 @@
+#Medals
++Callsign Position 1024: -1, 102
+
+$Name:		Epsilon Pegasi Liberation
++nocreate
++Position 1024: 81, 0
+
+$Name:		Imperial Order of Vasuda
++nocreate
++Position 1024: 703, 0
+
+$Name:		Distinguished Flying Cross
++nocreate
++Position 1024: 244, 219
+
+$Name:		SOC Service Medallion
++nocreate
++Position 1024: 360, 219
+
+$Name:		Intelligence Cross
++nocreate
+$Alt Name:	Distinguished Intelligence Cross ;;For an old bug fix.
++Position 1024: 569, 219
+
+$Name:		Order of Galatea
++nocreate
++Position 1024: 686, 219
+
+$Name:		Meritorious Unit Commendation
++nocreate
++Position 1024: 155, 386
+
+$Name:		Medal of Valor
++nocreate
++Position 1024: 268, 386
+
+$Name:		GTVA Legion of Honor
++nocreate
++Position 1024: 395, 386
+
+$Name:		Allied Defense Citation
++nocreate
++Position 1024: 528, 386
+
+$Name:		Nebula Campaign Victory Star
++nocreate
++Position 1024: 654, 386
+
+$Name:		NTF Campaign Victory Star
++nocreate
++Position 1024: 766, 386
+
+$Name:		Rank
++nocreate
++Position 1024: 332, 131
+
+$Name:		Wings
++nocreate
++Position 1024: 452, 172
+
+$Name:		Ace
++nocreate
++Position 1024: 553, 131
+
+$Name:		Double Ace
++nocreate
++Position 1024: 596, 131
+
+$Name:		Triple Ace
++nocreate
++Position 1024: 639, 131
+
+$Name:		SOC Unit Crest
++nocreate
++Position 1024: 484, 271
+
+#End

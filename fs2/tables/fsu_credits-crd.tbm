@@ -1,0 +1,300 @@
+--------------------------------------------------------------------
+XSTR("Freespace Upgrade Project", 1998254)
+--------------------------------------------------------------------
+
+XSTR("The SCP writes the code, we make it pretty.", 999000)
+
+----------------------------------
+XSTR("Staff", 999001)
+----------------------------------
+
+Zacam
+BrotherBryon
+Hades
+Herra Tohtori
+Mjn.Mixael
+Nyctaeus
+Oddgrim
+QuantumDelta
+RgaNoris
+Sab0o
+The_E
+Vasudan Admiral
+ARSPR
+Blowfish
+DaBrain
+Fury
+Galemp
+Peterv
+Wanderer
+
+----------------------------------
+XSTR("Testers", 999002)
+----------------------------------
+
+Axem
+Backslash
+FUBAR-BDHR
+General Battuta
+mura
+QuantumDelta
+sigtau
+Spoon
+Swifty
+
+----------------------------------
+XSTR("Massive Mention", 999003)
+----------------------------------
+
+Admiral Nelson
+Axem
+Ragingloli
+Grizzly
+
+---------------------------------------------------------------
+XSTR("The rest of the contributors are split up by VP content.", 999004)
+---------------------------------------------------------------
+
+----------------------------------
+XSTR("MV_Root", 999005)
+----------------------------------
+
+XSTR("Ballistic-primary HUD ~ Goober5000", 999006)
+XSTR("Command briefing scrollbars ~ Goober5000", 999007)
+XSTR("FS2NetD Config file ~ MatthewPapa", 999008)
+XSTR("'Apply Loadout to Wing' Weapon Select screen art ~ Galemp///Goober5000", 999009)
+XSTR("Detailed loadout stats ~ Fury", 999010)
+XSTR("Turret alignment fix ~ Admiral Nelson", 999011)
+XSTR("Additional escort list entry ~ WMCoolmon", 999012)
+XSTR("Shield icon ~ CP5670", 999013)
+XSTR("Dragon target LOD fix ~ Taylor", 999014)
+XSTR("Environment mapping default cubemap ~ Taylor", 999015)
+XSTR("New Squad Logos ~ Zacam", 999016)
+XSTR("Freighter & Cargo Brief Icons fix ~ Galemp", 999017)
+XSTR("Fiction viewer interface ~ The E", 999018)
+XSTR("New medals interface ~ MjnMixael", 999019)
+XSTR("FS2Net Anim ~ MjnMixae", 999020)
+XSTR("Additional briefing icons ~ MjnMixael", 999021)
+XSTR("2_HUD ~ Axem", 999022)
+
+----------------------------------
+XSTR("MV_Music", 999023)
+----------------------------------
+
+XSTR("High-Fi music for 'Genesis' ~ Daniel Wentz", 999024)
+XSTR("High-Fi music for 'Exodus' ~ Daniel Wentz", 999025)
+XSTR("High-Fi music for 'Leviticus' ~ Daniel Wentz", 999026)
+XSTR("High-Fi music for 'Numbers' ~ Daniel Wentz", 999027)
+XSTR("High-Fi music for 'Deuteronomy'  ~ Daniel Wentz", 999028)
+XSTR("High-Fi music for 'Joshua' ~ Daniel Wentz", 999029)
+XSTR("High-Fi music for 'Revelation' ~ Daniel Wentz", 999030)
+XSTR("High-Fi music for Briefs 1-5 ~ Daniel Wentz", 999031)
+XSTR("High-Fi Failure music ~ Daniel Wentz", 999032)
+XSTR("High-Fi Aquitaine & Cinema music ~ Daniel Wentz", 999033)
+
+----------------------------------
+XSTR("MV_Assets", 999034)
+----------------------------------
+
+XSTR("High-poly Aeolus ~ Nyctaeus", 999035)
+XSTR("High-poly Alastor ~ redsniper///MjnMixael", 999036)
+XSTR("High-poly Amazon ~ VA", 999037)
+XSTR("High-poly Amazon Advanced ~ Hades///Nyctaeus", 999038)
+XSTR("High-poly Ankh ~ pecenipicek", 999039)
+XSTR("High-poly Anuket model ~ Oddgrim", 999040)
+XSTR("High-poly Apollo ~ Hades///Fightermedic", 999041)
+XSTR("High-poly Arcadia ~ ragingloli///RgaNoris///MjnMixael///Vasudan Admiral///Esarai", 999042)
+XSTR("High-poly Ares ~ Axem", 999043)
+XSTR("High-poly Artemis ~ Sab0o", 999044)
+XSTR("High-poly Artemis DH ~ Sab0o", 999045)
+XSTR("High-poly Asmodeus ~ Astaroth", 999046)
+XSTR("High-poly Astaroth ~ BrotherBryon///Rampage", 999047)
+XSTR("High-poly Asteroids ~ Axem", 999048)
+XSTR("High-poly Aten ~ Oddgrim", 999049)
+XSTR("High-poly Azrael ~ Astaroth", 999050)
+XSTR("High-poly Basilisk ~ BrotheryBryon///MjnMixael", 999051)
+XSTR("High-poly Bast ~ Oddgrim", 999052)
+XSTR("High-poly Belial ~ BrotherBryon///MjnMixael", 999053)
+XSTR("High-poly Bes ~ Oddgrim", 999054)
+XSTR("High-poly Boanerges ~ Sab0o", 999055)
+XSTR("High-poly Cain ~ c914///Rga_Noris///Zacam", 999056)
+XSTR("High-poly Centaur ~ MjnMixael", 999057)
+XSTR("High-poly Cerberus & Watchdog ~ MjnMixael", 999058)
+XSTR("High-poly Charybdis ~ Axem///Sab0o", 999059)
+XSTR("High-poly Chronos ~ Hades///Nyctaeus", 999060)
+XSTR("High-poly Colossus ~ ragingloli///Galemp", 999061)
+XSTR("High-poly Countermeasure ~ Axem", 999062)
+XSTR("High-poly Cyclops, Infryno, Rockeye, & Trebuchet ~ MjnMixael", 999063)
+XSTR("High-poly Deimos ~ Hades///Nyctaeus", 999064)
+XSTR("High-poly Demon ~ Oddgrim", 999065)
+XSTR("High-poly Dis ~ Galemp", 999066)
+XSTR("High-poly Dragon ~ Esarai///MjnMixael///Pecenipicek", 999067)
+XSTR("High-poly Edjo ~ Oddgrim", 999068)
+XSTR("High-poly Elysium ~ Axem", 999069)
+XSTR("High-poly Erinyes ~ Nyctaeus", 999070)
+XSTR("High-poly Faustus ~ Hades///Nyctaeus", 999071)
+XSTR("High-poly Fenris & Leviathan model ~ VA///Karma///Hades///Nyctaeus", 999072)
+XSTR("High-poly Ganymede ~ Axem", 999073)
+XSTR("High-poly Hades ~ Vasudan Admiral", 999074)
+XSTR("High-poly Hatshepshut ~ ragingloli///Rga_Noris///Galemp///Zacam", 999075)
+XSTR("High-poly Hecate ~ Hades///Nyctaeus", 999076)
+XSTR("High-poly Hercules ~ MjnMixael", 999077)
+XSTR("High-poly Hercules II ~ Devils_hitman///StratComm///Axem", 999078)
+XSTR("High-poly Hermes ~ Hades///MjnMixael", 999079)
+XSTR("High-poly Hippocrates ~ fightermedic", 999080)
+XSTR("High-poly Hornet, Interceptor ~ Galemp", 999081)
+XSTR("High-poly Horus ~ Taristin///VA///MjnMixael", 999082)
+XSTR("High-poly Hygeia ~ Nyctaeus", 999083)
+XSTR("High-poly Iceni ~ Nx///VA", 999084)
+XSTR("High-poly Isis ~ Oddgrim", 999085)
+XSTR("High-poly Knossos ~ FreespaceFreak", 999086)
+XSTR("High-poly Leviathan ~ Hades", 999087)
+XSTR("High-poly Lilith ~ c914///Rga_Noris///Zacam", 999088)
+XSTR("High-poly Loki ~ Mjnmixael///VA", 999089)
+XSTR("High-poly Lucifer ~ VA", 999090)
+XSTR("High-poly Ma'at ~ Oddgrim///Hellstryker", 999091)
+XSTR("High-poly Manticore ~ BrotherBryon///Nighteyes", 999092)
+XSTR("High-poly Mara ~ Nico///MjnMixael", 999093)
+XSTR("High-poly Medusa ~ Hades", 999094)
+XSTR("High-poly Mentu ~ Oddgrim", 999095)
+XSTR("High-poly Mephisto ~ Axem///Nyctaeus", 999096)
+XSTR("High-poly Meson Bomb ~ Oddgrim", 999097)
+XSTR("High-poly Mjolnir ~ StratComm///Mikhael///Galemp", 999098)
+XSTR("High-poly Moloch ~ RgaNoris///Nyctaeus", 999099)
+XSTR("High-poly Myrmidon ~ Nyctaeus", 999100)
+XSTR("High-poly NavBuoy ~ Firecrack", 999101)
+XSTR("High-poly Nahema ~ Rampage", 999102)
+XSTR("High-poly Nephilim ~ BrotherBryon///MjnMixael", 999103)
+XSTR("High-poly Nepthys ~ Oddgrim", 999104)
+XSTR("High-poly Orion ~ Hades///Nyctaeus", 999105)
+XSTR("High-poly Osiris ~ Oddgrim", 999106)
+XSTR("High-poly Pegasus ~ Oddgrim///Nyctaeus", 999107)
+XSTR("High-poly Perseus ~ Nyctaeus", 999108)
+XSTR("High-poly Poseidon ~ BrotherBryon///MjnMixael", 999109)
+XSTR("High-poly Ptah ~ The Dagger", 999110)
+XSTR("High-poly Ra ~ Oddgrim", 999111)
+XSTR("High-poly Rahu ~ Axem", 999112)
+XSTR("High-poly Rakshasa ~ RgaNoris///MjnMixael///Nyctaeus", 999113)
+XSTR("High-poly Ravana ~ Nyctaeus", 999114)
+XSTR("High-poly SAC 3 ~ GalEmp", 999115)
+XSTR("High-poly SC2 ~ Astaroth", 999116)
+XSTR("High-poly SC5 ~ Axem///Nyctaeus", 999117)
+XSTR("High-poly Sathanas ~ RgaNoris", 999118)
+XSTR("High-poly Satis ~ Oddgrim", 999119)
+XSTR("High-poly Scarab ~ Oddgrim", 999120)
+XSTR("High-poly Scorpion ~ BrotherBryon///MjnMixael", 999121)
+XSTR("High-poly Sekhmet ~ The Dagger///Oddgrim", 999122)
+XSTR("High-poly Seraphim ~ peterv///MjnMixael", 999123)
+XSTR("High-poly Serapis ~ The Dagger", 999124)
+XSTR("High-poly Setekh ~ Oddgrim", 999125)
+XSTR("High-poly Seth ~ The Dagger", 999126)
+XSTR("High-poly Shaitan ~ BrotherBryon///Rampage///MjnMixael", 999127)
+XSTR("High-poly Shivan Comm Node ~ BrotherBryon///MjnMixael", 999128)
+XSTR("High-poly Shivan missiles ~ VA", 999129)
+XSTR("High-poly Sobek ~ RgaNoris", 999130)
+XSTR("High-poly Stilleto II, Harpoon & Helios ~ FireCrack", 999131)
+XSTR("High-poly Tag-A, Tag-B, Tag-C, & Tornado ~ MjnMixael", 999132)
+XSTR("High-poly Tauret ~ Oddgrim", 999133)
+XSTR("High-poly Taurvi ~ BrotherBryon///Ramge", 999134)
+XSTR("High-poly Tempest ~ blowfish///Zacam", 999135)
+XSTR("High-poly Thoth ~ The Dagger", 999136)
+XSTR("High-poly Trident ~ BrotherBryon///MjnMixael", 999137)
+XSTR("High-poly TAC 1 ~ Hades///Nyctaeus", 999138)
+XSTR("High-poly TC2 & TSC2 ~ MjnMixael", 999139)
+XSTR("High-poly TC-Tri ~ Oddgrim", 999140)
+XSTR("High-poly Terran & Vasudan debris chunks ~ VA", 999141)
+XSTR("High-poly Triton ~ Oddgrim", 999142)
+XSTR("High-poly Tsunami, & Harbinger bombs ~ Galemp", 999143)
+XSTR("High-poly TTC1 ~ Hades///MjnMixael", 999144)
+XSTR("High-poly Typhon ~ ragingloli///Galemp", 999145)
+XSTR("High-poly Ulysses ~ peterv///VA", 999146)
+XSTR("High-poly Ursa ~ Firecrack", 999147)
+XSTR("High-poly VAC4 ~ MjnMixael", 999148)
+XSTR("High-poly VAC5 ~ Oddgrim///Hades", 999149)
+XSTR("High-poly Valkyrie ~ MjnMixael///VA", 999150)
+XSTR("High-poly VC3 ~ BrotherBryon///MjnMixael", 999151)
+XSTR("High-poly Zephyrus ~ DahBlount///Nyctaeus", 999152)
+XSTR("High-poly Zeus ~ MjnMixael///VA", 999153)
+XSTR("High-res starfield skybox ~ Lt.Cannonfodder///Herra Tohtori", 999154)
+XSTR("Nameplates for all Terran capital ships in main campaign ~ Admiral Nelson///Zacam", 999155)
+XSTR("Fixed & upgraded FS2 missions ~ Admiral Nelson///Zacam///VA///The_E///Goober5000", 999156)
+XSTR("Four-player version of the main campaign ~ AceRimmer///Zacam", 999157)
+XSTR("Fixed Eyepoints for models with cockpits ~ voidSkipper///Zacam", 999158)
+XSTR("Modelled primary weapons for weapon select ~ MjnMixael", 999159)
+
+----------------------------------
+XSTR("MV_Effects", 999160)
+----------------------------------
+
+XSTR("3D Warp model ~ Gamma39er", 999161)
+XSTR("Asteroids ~ Axem", 999162)
+XSTR("High-res planet and nebulae images ~ Lightspeed///Herra Tohtori", 999163)
+XSTR("High-res weapon and weapon impact effects ~ Lightspeed///DaBrain", 999164)
+XSTR("High-res and animated beam effects ~ DaBrain///Firecrack///Bobboau///VA", 999165)
+XSTR("High-res engine glows and flares ~ Lightspeed///Bobboau///VA", 999166)
+XSTR("High-res and astronomically correct suns ~ Admiral Nelson///m2258734a", 999167)
+XSTR("High-res shield hit effect ~ DaBrain", 999168)
+XSTR("High-res motion debris ~ Sandwich", 999169)
+XSTR("Ship trails and afterburner trails ~ Nighteyes", 999170)
+XSTR("High-res subspace effects ~ Gamma39er", 999171)
+XSTR("Swirling subspace effects ~ ASW", 999172)
+XSTR("Glowpoints for Terran ships ~ Stratcomm///Hades", 999173)
+XSTR("High-res nebula textures ~ DaBrain", 999174)
+XSTR("2D Shockwave ~ Jessnec", 999175)
+XSTR("3D Shockwave ~ DaBrain", 999176)
+XSTR("Fixed retail sun images ~ CP5670", 999177)
+XSTR("New flak projectile effect ~ Wanderer", 999178)
+XSTR("New ParticleSmoke02 ~ VA", 999179)
+XSTR("Shivan and Vasudan shield effects ~ DaBrain", 999180)
+XSTR("Muzzleflashes ~ DaBrain", 999181)
+XSTR("Asteroid explosion ~ DaBrain", 999182)
+XSTR("Explosion effects ~ Nighteyes", 999183)
+XSTR("Red detonation flash ~ Nighteyes", 999184)
+XSTR("Missile trails ~ Nighteyes", 999185)
+XSTR("Particlesmoke01 ~ Nighteyes", 999186)
+XSTR("Planet Bitmaps ~ The Daggar", 999187)
+XSTR("Turret elevation and rotation sounds ~ Pacific Digital Video///Darius", 999188)
+XSTR("Explosion, thunder and warp sound effects, ~ sigtau", 999189)
+XSTR("Flaming debris script and flashy explosions script ~ Wanderer", 999190)
+XSTR("Flashy explosion config files ~ Fury", 999191)
+XSTR("Nebula fog ~ Durandal", 999192)
+XSTR("Shivan countermeasure ~ Aardwolf", 999193)
+XSTR("Vasudan countermeasure ~ Durandal", 999194)
+XSTR("Shivan Flak Effect ~ Jessnec///Kestrelius", 999195)
+XSTR("Flashy turret and primary effects ~ Kestrelius", 999196)
+XSTR("Better sound environment and sound effects ~ morGy", 999197)
+XSTR("Updated Sunsathanas effects ~ MjnMixael", 999198)
+
+----------------------------------
+XSTR("MV_Advanced", 999199)
+----------------------------------
+
+XSTR("High-quality explosion textures ~ Lightspeed", 999200)
+XSTR("High-quality 2D Shockwave ~ HerraTohtori", 999201)
+XSTR("High-quality 3D Shockwave ~ DaBrain", 999202)
+XSTR("High-res explosion effects ~ Nighteyes", 999203)
+XSTR("High-quality Shivan and Vasudan shield effects ~ DaBrain", 999204)
+XSTR("High-quality Muzzleflashes ~ DaBrain", 999205)
+XSTR("Hig-quality Asteroid explosion ~ DaBrain", 999206)
+
+----------------------------------
+XSTR("MV_AnimGlows", 999207)
+----------------------------------
+
+XSTR("Animated glowmaps ~ Lightspeed///Flaming_Sword", 999208)
+
+----------------------------------
+XSTR("MV_CB_ANI", 999209)
+----------------------------------
+
+XSTR("All hi-re anims ~ MjnMixael", 999210)
+
+----------------------------------
+XSTR("MV_Cutscenes", 999211)
+----------------------------------
+
+XSTR("All HD Cutscenes ~ MjnMixael", 999212)
+XSTR("NOTE: These are released under the Creative Commons BY-NC-ND 4.0 License", 999213)
+XSTR("https://creativecommons.org/licenses/by-nc-nd/4.0/", 999214)
+
+#end

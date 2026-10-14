@@ -1,0 +1,55 @@
+#English
+
+;
+; The control config action text goes between 507 and 619.
+;
+303, "Protect My Target"
+304, "Ignore My Target"
+305, "Form on My Wing"
+306, "Cover Me"
+309, "Rearm Me"
+517, "Turn Off Targeting"
+521, "Turn Off Targeting of Subsystems"
+548, "Attack The Targeted Subsystem"
+555, "Return to Base"
+583, "Equalize Shields"
+592, "Show Nav Map"
+599, "Target Newest Ship in Area"
+608, "(Multiplayer) Observer Zoom to Target"
+609, "Increase Time Compression"
+610, "Decrease Time Compression"
+611, "Toggle High HUD Contrast"
+612, "(Multiplayer) Toggle Network Info"
+613, "(Multiplayer) Self Destruct";
+
+#end
+
+#German
+303, "Beschütze mein Ziel"
+304, "Ignoriere mein Ziel"
+305, "Bei mir formieren"
+306, "gebt mir Deckung"
+309, "Brauche Wiederbewaffnung"
+517, "Zielcomputer ausschalten"
+521, "Keine Subsysteme anvisieren"
+548, "anvisiertes Subsystem angreifen"
+555, "Zurück zur Basis"
+583, "Schutzschild ausgleichen"
+592, "Zeige Navigations Karte"
+599, "Das neueste Schiff in der Umgebung anvisieren"
+608, "(Mehrspieler) Beobachter Zoom zum Ziel"
+609, "erhöhe Zeitraffer"
+610, "reduziere Zeitraffer"
+611, "HUD Kontrast umschalten"
+612, "(Mehrspieler) Netzwerk Info an/ aus"
+613, "(Mehrspieler) Selbstzerstörung"
+
+#end
+
+#French
+
+#end
+
+#Polish
+
+#end

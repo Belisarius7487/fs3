@@ -1,0 +1,880 @@
+#Ship Classes
+
+;======>======>======>======>>TERRANS<<=======<=======<=======<=======
+
+$Name:			GTF Ulysses
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		1 (40)
+$Detail distance:	( 0, 65, 206, 669 )
+
+$Name:			PVF Ulysses
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		1 (40)
+$Detail distance:	( 0, 65, 206, 669 )
+
+$Name:			GVF Ulysses
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		1 (40)
+$Detail distance:	( 0, 65, 206, 669 )
+
+
+$Name:			GTF Hercules
++nocreate
+	+Gun Mounts:		2 (4, 2)
+	+Missile Banks:		2 (60, 60)
+$Detail distance:	( 0, 76, 203, 574 )
+
+
+$Name:			GTF Hercules Mark II
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (80, 100)
+$Detail distance:	( 0, 70, 200, 602 )
+
+
+$Name:			GTF Ares
++nocreate
+	+Gun Mounts:		2 (2, 4)
+	+Missile Banks:		2 (90, 100)
+$Detail distance:	( 0, 75, 202, 578 )
+
+
+$Name:			GTF Erinyes
++nocreate
+	+Gun Mounts:		2 (4, 4)
+	+Missile Banks:		2 (40, 50)
+$Detail distance:	( 0, 70, 200, 602 )
+
+
+$Name:			GTF Loki
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		1 (20)
+$Detail distance:	( 0, 70, 200, 603 )
+
+
+$Name:			GTF Pegasus
++nocreate
+	+Gun Mounts:		1 (2)
+	+Missile Banks:		2 (20, 20)
+$Detail distance:	( 0, 73, 201, 584 )
+
+
+$Name:			GTF Perseus
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (40, 40)
+	$Detail distance:	( 0, 68, 201, 616 )
+
+
+$Name:			GTF Myrmidon
++nocreate
+	+Gun Mounts:		2 (2, 4)
+	+Missile Banks:		3 (20, 20, 40)
+$Detail distance:	( 0, 71, 200, 594 )
+
+
+$Name:			SF Mara (terrans)
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (105, 105)
+$Detail distance:	( 0, 70, 200, 600 )
+
+
+$Name:			GTB Artemis
++nocreate
+	+Gun Mounts:		1 (4)
+	+Missile Banks:		3 (40, 60, 60)
+$Detail distance:	( 0, 93, 224, 571 )
+
+
+$Name:			GTB Artemis D.H.
++nocreate
+	+Gun Mounts:		1 (4)
+	+Missile Banks:		3 (40, 60, 60)
+$Detail distance:	( 0, 94, 224, 571 )
+
+
+$Name:			GTB Medusa
++nocreate
+	+Gun Mounts:		1 (2)
+	+Missile Banks:		3 (40, 80, 80)
+$Detail distance:	( 0, 100, 233, 580 )
+
+
+$Name:			GTB Ursa
++nocreate
+	+Gun Mounts:		2 (3, 2)
+	+Missile Banks:		3 (80, 80, 80)
+$Detail distance:	( 0, 121, 268, 626 )
+
+
+$Name:			GTB Zeus
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		3 (40, 40, 40)
+$Detail distance:	( 0, 88, 216, 567 )
+
+
+$Name:			GTB Boanerges
++nocreate
+	+Gun Mounts:		1 (2)
+	+Missile Banks:		3 (40, 100, 100)
+$Detail distance:	( 0, 90, 219, 568 )
+
+
+$Name:			@GTDR Amazon
++nocreate
+$Detail distance:	( 0, 109, 249, 598 )
+$Flags:				( "intrinsic no shields" "fighter" "in tech database" )
+
+$Name:			GTDR Amazon Advanced
++nocreate
+$Detail distance:	( 0, 262, 536, 1110 )
+
+
+$Name:			@GTS Hygeia
++nocreate
+$Detail distance:	( 0, 84, 211, 566 )
+$Flags:				( "repair_rearm" "in tech database" )
+
+
+$Name:			GTFR Triton
++nocreate
+$Detail distance:	( 0, 749, 1502, 3018 )
+
+
+$Name:			TC-TRI
++nocreate
+$Detail distance:	( 0, 475, 955, 2000 )
+
+
+$Name:			GTFR Poseidon
++nocreate
+$Detail distance:	( 0, 165, 349, 762 )
+
+
+$Name:			@TC 2
++nocreate
+$Detail distance:	( 0, 92, 222, 570 )
+$Flags:				( "intrinsic no shields" "cargo" "in tech database")
+
+
+$Name:			TSC 2
++nocreate
+$Detail distance:	( 0, 92, 222, 570 )
+$Flags:				( "intrinsic no shields" "cargo" "in tech database")
+
+
+$Name:			@TAC 1
++nocreate
+$Detail distance:	( 0, 122, 270, 629 )
+$Flags:				( "intrinsic no shields" "cargo" "in tech database")
+
+
+$Name:			TTC 1
++nocreate
+$Detail distance:	( 0, 71, 200, 596 )
+$Flags:				( "intrinsic no shields" "cargo" "in tech database")
+
+
+$Name:			@GTC Fenris
++nocreate
+$Detail distance:	( 0, 574, 1153, 2324 )
+$Briefing icon:
+	+Regular:	fenrisicon
+	+Fade:		fenrisfade
+	+Highlight:	iconhighlight07
+$Briefing wing icon:
+	+Regular:	fenrisiconW
+	+Fade:		fenrisfadeW
+	+Highlight:	iconhighlight05
+
+
+$Name:			GTM Hippocrates
++nocreate
+$Detail distance:	( 0, 1619, 3239, 6485 )
+
+
+$Name:			GTC Leviathan
++nocreate
+$Detail distance:	( 0, 574, 1153, 2324 )
+$Briefing icon:
+	+Regular:	fenrisicon
+	+Fade:		fenrisfade
+	+Highlight:	iconhighlight07
+$Briefing wing icon:
+	+Regular:	fenrisiconW
+	+Fade:		fenrisfadeW
+	+Highlight:	iconhighlight05
+
+
+$Name:			GTSC Faustus
++nocreate
+$Detail distance:	( 0, 440, 887, 1796 )
+
+
+$Name:			GTG Zephyrus
++nocreate
+$Detail distance:	( 0, 527, 1060, 2139 )
+
+
+$Name:			GTA Charybdis
++nocreate
+$Detail distance:	( 0, 457, 920, 1863 )
+
+
+$Name:			GTD Orion
++nocreate
+$Detail distance:	( 0, 3481, 6963, 13928 )
+$Briefing icon:
+	+Regular:	orionicon
+	+Fade:		orionfade
+	+Highlight:	iconhighlight06
+
+
+$Name:			GTD Hecate
++nocreate
+$Detail distance:	( 0, 4929, 9859, 19721 )
+
+
+$Name:			GTD Orion#2 (Bastion)
++nocreate
+$Detail distance:	( 0, 3481, 6963, 13928 )
+$Briefing icon:
+	+Regular:	orionicon
+	+Fade:		orionfade
+	+Highlight:	iconhighlight06
+
+
+$Name:			GTD Hades
++nocreate
+$Detail distance:	( 0, 8449, 12898, 30000 )
+
+
+$Name:			GTI Arcadia
++nocreate
+$Detail distance:	( 0, 8652, 17305, 34611 )
+
+
+$Name:			GTVA Colossus
++nocreate
+$Detail distance:	( 0, 9649, 19299, 38598 )
+$Subsystem:			Turret38, 0.3, 2.0
+	$Default SBanks:	( "Piranha" )
+$Subsystem:			Turret39, 0.3, 2.0
+	$Default SBanks:	( "MX-52" )
+$Subsystem:			Turret42, 0.3, 2.0
+	$Default SBanks:	( "MX-52" )
+$Subsystem:			Turret44, 0.3, 2.0
+	$Default SBanks:	( "MX-52" )
+$Subsystem:			Turret45, 0.3, 2.0
+	$Default SBanks:	( "MX-52" )
+$Subsystem:			Turret46, 0.3, 2.0
+	$Default SBanks:	( "MX-52" )
+$Subsystem:			Turret47, 0.3, 2.0
+	$Default SBanks:	( "Piranha" )
+$Subsystem:			Turret48, 0.3, 2.0
+	$Default SBanks:	( "MX-52" )
+$Subsystem:			Turret49, 0.3, 2.0
+	$Default SBanks:	( "MX-52" )
+$Subsystem:			Turret50, 0.3, 2.0
+	$Default SBanks:	( "MX-52" )
+
+
+$Name:			GTCv Deimos
++nocreate
+$Detail distance:	( 0, 1790, 3582, 7170 )
+
+
+$Name:			GTC Aeolus
++nocreate
+$Detail distance:	( 0, 426, 859, 1742 )
+
+
+$Name:			NTF Iceni
++nocreate
+$Detail distance:	( 0, 2317, 4636, 9276 )
+$Briefing icon:
+	+Regular:	iceniicon
+	+Fade:		icenifade
+	+Highlight:	iconhighlight06
+
+
+$Name:			NTF Boadicea
++nocreate
+$Detail distance:	( 0, 3726, 7453, 14908 )
+
+
+$Name:			@GTT Elysium
++nocreate
+$Detail distance:	( 0, 112, 254, 605 )
+
+
+$Name:			@GTT Argo
++nocreate
+$Detail distance:	( 0, 348, 704, 1437 )
+
+
+$Name:			GTNB Pharos
++nocreate
+$Flags:				( "intrinsic no shields" "no_collide" "navbuoy" )
+
+
+$Name:			GTI Ganymede
++nocreate
+$Detail distance:	( 0, 3388, 6777, 13556 )
+
+
+$Name:			Knossos
++nocreate
+$Detail distance:	( 0, 13440, 26880, 53762 )
+$Flags:				( "intrinsic no shields" "dont collide invisible" "big damage" "knossos" )
+
+
+$Name:			Asteroid
++nocreate
+$Detail distance:	( 0, 463, 933 )
+$Closeup_pos:		0.0, 1.0, -200
+
+
+$Name:			GTSG Watchdog
++nocreate
+$Detail distance:	( 0, 64, 244 )
+$Flags:				( "intrinsic no shields" "sentrygun" "in tech database" )
+
+
+$Name:			GTSG Cerberus
++nocreate
+$Detail distance:	( 0, 64, 244 )
+$Flags:				( "intrinsic no shields" "sentrygun" "in tech database" )
+
+
+$Name:			GTSG Alastor
++nocreate
+$Detail distance:	( 0, 63, 215, 724 )
+$Flags:				( "intrinsic no shields" "sentrygun" "in tech database" )
+
+
+$Name:			GTEP Hermes
++nocreate
+$Detail distance:	( 0, 222, 762, 2000 )
+$Flags:				( "intrinsic no shields" "escapepod" "in tech database" )
+
+
+$Name:			TC-Meson Bomb
++nocreate
+$Detail distance:	( 0, 696, 1396, 2806 )
+
+$Name:			GTSG Mjolnir
++nocreate
+$Detail distance:	( 0, 296, 602, 1238 )
+$Flags: 			( "intrinsic no shields" "cruiser" )
+
+
+$Name:			GTSG Mjolnir#home
++nocreate
+$Detail distance:	( 0, 296, 602, 1238 )
+$Flags: 			( "intrinsic no shields" "cruiser" )
+
+$Name:			@Volition Bravos
++nocreate
+$Detail distance:	( 0, 600, 800, 1200 )
+
+
+;-------------------------------------------FS1 Assets Go Here----------------------------
+
+$Name: 		GTF Apollo
++nocreate
+	+Gun Mounts:			2 (2, 2)
+	+Missile Banks:			2 (40, 40)
+
+$Name: 		GTF Valkyrie
++nocreate
+	+Gun Mounts:			2 (2, 2)
+	+Missile Banks:			1 (60)
+
+$Name: 		GTB Athena
++nocreate
+	+Gun Mounts:			2 (2, 2)
+	+Missile Banks:			2 (80, 80)
+
+
+;=====>=====>=====>=====>>VASUDANS<<=======<=======<=======<=======
+
+$Name:			GVF Seth
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (40, 80)
+$Detail distance:	( 0, 64, 208, 683 )
+
+$Name: 		PVF Seth
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (40, 80)
+$Detail distance:	( 0, 64, 208, 683 )
+
+
+$Name:			GVF Horus
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (40, 40)
+$Detail distance:	( 0, 72, 200, 590 )
+
+$Name:			PVF Horus
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (40, 40)
+$Detail distance:	( 0, 72, 200, 590 )
+
+
+$Name:			GVF Thoth
++nocreate
+	+Gun Mounts:		1 (4)
+	+Missile Banks:		1 (80)
+
+$Name:			PVF Thoth
++nocreate
+	+Gun Mounts:		1 (4)
+	+Missile Banks:		1 (80)
+
+
+$Name:			GVF Serapis
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (60, 30)
+$Detail distance:	( 0, 68, 201, 617 )
+
+$Name:			PVF Serapis
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (60, 30)
+$Detail distance:	( 0, 68, 201, 617 )
+
+
+$Name:			GVF Tauret
++nocreate
+	+Gun Mounts:		2 (2, 4)
+	+Missile Banks:		2 (100, 100)
+
+$Name:			PVF Tauret
++nocreate
+	+Gun Mounts:		2 (2, 4)
+	+Missile Banks:		2 (100, 100)
+
+
+$Name:			GVB Sekhmet
++nocreate
+	+Gun Mounts:		1 (4)
+	+Missile Banks:		3 (80, 80, 80)
+$Detail distance:	( 0, 89, 218, 567 )
+
+$Name:			PVB Sekhmet
++nocreate
+	+Gun Mounts:		1 (4)
+	+Missile Banks:		3 (80, 80, 80)
+$Detail distance:	( 0, 89, 218, 567 )
+
+
+$Name:			GVB Osiris
++nocreate
+	+Gun Mounts:		1 (2)
+	+Missile Banks:		3 (40, 40, 20)
+$Detail distance:	( 0, 119, 266, 622 )
+
+$Name:			PVB Osiris
++nocreate
+	+Gun Mounts:		1 (2)
+	+Missile Banks:		3 (40, 40, 20)
+$Detail distance:	( 0, 119, 266, 622 )
+
+
+$Name:			GVB Bakha
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (80, 100)
+$Detail distance:	( 0, 71, 200, 594 )
+
+$Name:			PVB Bakha
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (80, 100)
+$Detail distance:	( 0, 71, 200, 594 )
+
+
+$Name:			GVF Ptah
++nocreate
+	+Gun Mounts:		1 (2)
+	+Missile Banks:		2 (20, 10)
+$Detail distance:	( 0, 69, 200, 610 )
+
+$Name:			PVF Ptah
++nocreate
+	+Gun Mounts:		1 (2)
+	+Missile Banks:		2 (20, 10)
+$Detail distance:	( 0, 69, 200, 610 )
+
+
+$Name:			GVS Nephthys
++nocreate
+$Detail distance:	( 0, 81, 208, 567 )
+$Flags:				( "repair_rearm" "in tech database")
+
+$Name:			PVS Nephthys
++nocreate
+$Detail distance:	( 0, 81, 208, 567 )
+$Flags:				( "repair_rearm" "in tech database")
+
+
+$Name:			GVT Isis
++nocreate
+$Detail distance:	( 0, 74, 201, 580 )
+$Density:			1
+
+$Name:			PVT Isis
++nocreate
+$Detail distance:	( 0, 74, 201, 580 )
+$Density:			1
+
+
+$Name:			GVFr Bes
++nocreate
+$Detail distance:	( 0, 119, 265, 621 )
+
+$Name:			PVFr Bes
++nocreate
+$Detail distance:	( 0, 119, 265, 621 )
+
+
+$Name:			VAC 5
++nocreate
+$Detail distance:	( 0, 104, 240, 587 )
+
+
+$Name:			@VAC 4
++nocreate
+$Detail distance:	( 0, 72, 200, 590 )
+
+
+$Name:			GVFr Satis
++nocreate
+$Detail distance:	( 0, 213, 441, 931 )
+
+$Name:			PVFr Satis
++nocreate
+$Detail distance:	( 0, 213, 441, 931 )
+
+
+$Name:			GVG Anuket
++nocreate
+$Detail distance:	( 0, 625, 1255, 2526 )
+
+$Name:			PVG Anuket
++nocreate
+$Detail distance:	( 0, 625, 1255, 2526 )
+
+
+$Name:			GVC Aten
++nocreate
+$Detail distance:	( 0, 505, 1017, 2053 )
+
+$Name:			PVC Aten
++nocreate
+$Detail distance:	( 0, 505, 1017, 2053 )
+
+
+$Name:			GVC Mentu
++nocreate
+$Detail distance:	( 0, 871, 1745, 5500 )
+
+$Name:			PVC Mentu
++nocreate
+$Detail distance:	( 0, 871, 1745, 5500 )
+
+
+$Name:			GVCv Sobek
++nocreate
+$Detail distance:	( 0, 1348, 2698, 5404 )
+
+$Name:			PVCv Sobek
++nocreate
+$Detail distance:	( 0, 1348, 2698, 5404 )
+
+
+$Name:			GVD Typhon
++nocreate
+$Briefing icon:
+	+Regular:	typhonicon
+	+Fade:		typhonfade
+	+Highlight:	iconhighlight06
+
+$Name:			PVD Typhon
++nocreate
+$Briefing icon:
+	+Regular:	typhonicon
+	+Fade:		typhonfade
+	+Highlight:	iconhighlight06
+
+
+$Name:			GVSG Ankh
++nocreate
+$Flags:				( "intrinsic no shields" "sentrygun" "in tech database" )
+
+$Name:			PVSG Ankh
++nocreate
+$Flags:				( "intrinsic no shields" "sentrygun" "in tech database" )
+
+
+$Name:			GVSG Edjo
++nocreate
+$Detail distance:	( 0, 63, 216, 700 )
+$Flags:				( "intrinsic no shields" "sentrygun" "in tech database" )
+
+$Name:			PVSG Edjo
++nocreate
+$Detail distance:	( 0, 63, 216, 700 )
+$Flags:				( "intrinsic no shields" "sentrygun" "in tech database" )
+
+
+$Name:			GVEP Ra
++nocreate
+$Detail distance:	( 0, 69, 200, 606 )
+$Flags:				( "intrinsic no shields" "escapepod" "in tech database")
+
+$Name:			PVEP Ra
++nocreate
+$Detail distance:	( 0, 69, 200, 606 )
+$Flags:				( "intrinsic no shields" "escapepod" "in tech database")
+
+
+$Name:			GVA Setekh
++nocreate
+$Detail distance:	( 0, 468, 942, 1906 )
+
+$Name:			PVA Setekh
++nocreate
+$Detail distance:	( 0, 468, 942, 1906 )
+
+
+$Name:			GVD Hatshepsut
++nocreate
+$Detail distance:	( 0, 4104, 8208, 16419 )
+
+$Name:			PVD Hatshepsut
++nocreate
+$Detail distance:	( 0, 4104, 8208, 16419 )
+
+
+;-------------------------------------------FS1 Assets Go Here----------------------------
+
+$Name: 		PVF Anubis
++nocreate
+	+Gun Mounts:			1 (2)
+	+Missile Banks:			1 (60)
+
+$Name: 		GVF Anubis
++nocreate
+	+Gun Mounts:			1 (2)
+	+Missile Banks:			1 (60)
+
+
+;=====>=====>=====>=====>>SHIVANS<<=======<=======<=======<=======
+
+$Name:			SF Dragon
++nocreate
+	+Gun Mounts:		2 (2, 3)
+	+Missile Banks:		1 (20)
+$POF target LOD:	0
+$Detail distance:	( 0, 63, 217, 600 )
+
+
+$Name:			SF Basilisk
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (80. 80)
+$POF target LOD:	0
+$Detail distance:	( 0, 93, 224, 571 )
+
+
+$Name:			SF Manticore
++nocreate
+	+Gun Mounts:		1 (2)
+	+Missile Banks:		2 (40. 40)
+$Detail distance:	( 0, 72, 200, 600 )
+
+
+$Name:			SF Aeshma
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		1 (80)
+$Detail distance:	( 0, 85, 213, 566 )
+
+
+$Name:			SF Mara
++nocreate
+	+Gun Mounts:		2 (2, 2)
+	+Missile Banks:		2 (80, 80)
+$Detail distance:	( 0, 70, 200, 600 )
+
+
+$Name:			SF Astaroth
++nocreate
+	+Gun Mounts:		1 (2)
+	+Missile Banks:		2 (40, 40)
+$Detail distance:	( 0, 70, 200, 599 )
+
+
+$Name:			SB Nephilim
++nocreate
+	+Gun Mounts:		1 (7)
+	+Missile Banks:		4 (40, 40, 40, 40)
+$Detail distance:	( 0, 128, 282, 600 )
+
+
+$Name:			SB Taurvi
++nocreate
+	+Gun Mounts:		2 (1, 3)
+	+Missile Banks:		2 (40, 40)
+$Detail distance:	( 0, 81, 208, 567 )
+
+
+$Name:			SB Nahema
++nocreate
+	+Gun Mounts:		2 (6, 2, 3)
+	+Missile Banks:		3 (40, 40, 20)
+$Detail distance:	( 0, 99, 233, 579 )
+
+
+$Name:			SB Seraphim
++nocreate
+	+Gun Mounts:		3 (7)
+	+Missile Banks:		4 (40, 40, 80, 80)
+$Detail distance:	( 0, 187, 390, 700 )
+
+
+$Name:			ST Azrael
++nocreate
+$Detail distance:	( 0, 115, 259, 612 )
+
+
+$Name:			SFr Dis
++nocreate
+$Detail distance:	( 0, 676, 1357, 2729 )
+
+
+$Name:			SAC 3
++nocreate
+$Detail distance:	( 0, 695, 1394, 2803 )
+
+
+$Name:			SFr Mephisto
++nocreate
+$Detail distance:	( 0, 139, 300, 677 )
+
+
+$Name:			SC 5
++nocreate
+$Detail distance:	( 0, 67, 201, 628 )
+
+
+$Name:			SFr Asmodeus
++nocreate
+$Detail distance:	( 0, 304, 618, 1269 )
+
+
+$Name:			SAC 2
++nocreate
+$Detail distance:	( 0, 98, 230, 577 )
+
+
+$Name:			SC Lilith
++nocreate
+$Detail distance:	( 0, 467, 941, 1903 )
+$Closeup_pos:		0.0, 0.0, -200
+
+
+$Name:			SC Rakshasa
++nocreate
+$Detail distance:	( 0, 840, 1685, 3381 )
+$Briefing icon:
+	+Regular:	rakshasaicon
+	+Fade:		rakshasafade
+	+Highlight:	iconhighlight07
+$Briefing wing icon:
+	+Regular:	rakshasaiconW
+	+Fade:		rakshasafadeW
+	+Highlight:	iconhighlight05
+
+
+$Name:			SC Cain
++nocreate
+$Detail distance:	( 0, 467, 941, 1903 )
+$Closeup_pos:		0.0, 0.0, -200
+
+
+$Name:			SD Demon
++nocreate
+$Detail distance:	( 0, 4330, 8661, 17325 )
+
+
+$Name:			SD Ravana
++nocreate
+$Detail distance:	( 0, 5257, 10514, 21030 )
+$Briefing icon:
+	+Regular:	ravanaicon
+	+Fade:		ravanafade
+	+Highlight:	iconhighlight06
+
+
+$Name:			SD Lucifer
++nocreate
+$Detail distance:	( 0, 4876, 9753, 19508 )
+
+
+$Name:			SSG Trident
++nocreate
+$Detail distance:	( 0, 63, 225 )
+$Flags:				( "intrinsic no shields" "sentrygun" )
+
+
+$Name:			SSG Belial
++nocreate
+$Detail distance:	( 0, 75, 202 )
+$Flags:				( "intrinsic no shields" "sentrygun" )
+
+
+$Name:			SSG Rahu
++nocreate
+$Detail distance:	( 0, 489, 985, 1990 )
+
+
+$Name:			SCv Moloch
++nocreate
+$Detail distance:	( 0, 1467, 2936, 5878 )
+
+
+$Name:			SJ Sathanas
++nocreate
+$Detail distance:	( 0, 11461, 22922 )
+
+
+$Name:			SJD Sathanas
++nocreate
+$Detail distance:	( 0, 67, 266, 975 )
+
+
+$Name:			SpaceHunk
++nocreate
+$Detail distance:	( 0 )
+
+
+$Name:			Shivan Comm Node
++nocreate
+$Detail distance:	( 0, 1686, 3374, 6753 )
+$Flags:				( "intrinsic no shields" "dont collide invisible" "knossos")
+
+
+#End
