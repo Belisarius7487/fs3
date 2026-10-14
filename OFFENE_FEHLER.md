@@ -1533,6 +1533,46 @@ braucht es zudem neue Einträge für unsere bisherigen Waffen."
 
 - Status: eingetragen, nichts gebaut. Umfang bei Silvio.
 
+**Entschieden (Silvio, 14.10.2026) — FS1-Waffen:**
+
+- Grundstock sind die **echten FS1-Waffen** (Namen und Rolle wie im
+  Original, Werte an FS3 angepasst). Eigene Erfindungen höchstens später
+  als Ergänzung.
+- **Spielerauswahl:** Primär ML-16, D-Advanced, Avenger, Prometheus,
+  Banshee. Raketen (nur Jäger) MX-50, Fury, Interceptor, Phoenix V, Hornet,
+  D-Missile. Bomben (nur Bomber) Synaptic, Stiletto, Tsunami, Harbinger.
+- **Disruptor und Flail entfallen ganz**, auch bei Computerschiffen
+  („waren in FS1 einfach scheiße"). Ersetzt durch D-Advanced bzw. Avenger;
+  vor dem Zeitpunkt des D-Advanced (Mission 17) durch den Avenger.
+- **Shivaner:** behalten ihre Laser (Light, Heavy, Mega). Ihre Raketen sind
+  die terranischen in Shivaner-Optik. Unknown Bomb/Megabomb werden ersetzt
+  durch **Tsunami und Harbinger in Shivaner-Rot**.
+- Waffen, die in FS1 nur in einer einzigen Mission angeboten werden (Leech
+  Cannon, EM Pulse, Cluster Bomb, S-Breaker, Fang, Barracuda), gibt es
+  nicht für den Spieler.
+- **Ab wann** (Nummer der Original-FS1-Mission in Kampagnenreihenfolge,
+  gezählt mit `+Weaponry Pool` für den Spieler und den Schiffseinträgen für
+  Computerschiffe; die FS3-Mission übernimmt den Zeitpunkt ihrer Vorlage):
+
+  | Waffe | Spieler | Computer |
+  |---|---|---|
+  | ML-16, Fury | 1 | 1 |
+  | MX-50 | 1 | 2 |
+  | Avenger | 8 | 2 |
+  | Stiletto | 10 | 10 |
+  | Interceptor | 11 | 8 |
+  | Phoenix V | 13 | 5 |
+  | Tsunami | 13 | 13 |
+  | Synaptic | 15 | 13 |
+  | Prometheus | 16 | 17 |
+  | D-Advanced | 17 | 17 |
+  | Hornet | 18 | 21 |
+  | Banshee | 21 | 21 |
+  | D-Missile | 24 | 29 |
+  | Harbinger | 26 | 26 |
+
+- Status: **entschieden, noch nicht gebaut.** Offen: die Werte je Waffe.
+
 ### F22 — Das Rearm-Fenster hängt an einer Korvette, und FS1 hat keine
 
 **Befund (Silvio, v238):** „gibt es in FS1 keine Korvetten. Das Rearm-Menü
