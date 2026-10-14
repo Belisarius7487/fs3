@@ -540,11 +540,16 @@ scenario('The radar shows the whole world, and nothing is longer than the field'
   r.colossusPlain = Math.round(hullWidth('sdcolossus'));
   r.colossusDrawn = Math.round(hwIn('sdcolossus'));
   r.noneLongerThanTheField = Object.keys(HULL_LEN).every(k => hwIn(k) <= MW + 0.001);
-  // so the world is the mission area plus its margin, and no more
-  r.worldIsMissionPlusMargin = Math.abs((WX1 - WX0) - (MW + 300*FIELD_K)) < 1
-                            && Math.abs((WY1 - WY0) - (MH - HUD_H + 200*FIELD_K)) < 1;
+  // v233 tied the world to the Colossus as she is DRAWN and so shrank it
+  // with her: 2888x1784 here where it had been 7118x3968, and 1151x679 in
+  // M12. The two lines that stood here asserted exactly that shrinking
+  // ("the world is the mission area plus its margin, and no more") - they
+  // were written to bless it and are gone with it. The floor is the rule
+  // now (Silvio, v234: "Jede Mission braucht exakt die gleich grosse
+  // Spielflaeche").
+  r.floor = WORLD_W0 + 'x' + Math.round(WORLD_H0);
+  r.notBelowTheFloor = (WX1 - WX0) >= WORLD_W0 - 1 && (WY1 - WY0) >= WORLD_H0 - 1;
   r.shareOfTheRadar = Math.round(MW/(WX1 - WX0)*100) + '%x' + Math.round((MH - HUD_H)/(WY1 - WY0)*100) + '%';
-  r.mostOfTheRadar = MW/(WX1 - WX0) > 0.6 && (MH - HUD_H)/(WY1 - WY0) > 0.6;
 
   // The icons are data URLs and decode on their own time; nothing is drawn
   // before they are there.
@@ -584,6 +589,41 @@ scenario('The radar shows the whole world, and nothing is longer than the field'
     r.theMarginIsSpreadOut = Math.abs(p1 - p2) > 0.8;
     // and the middle of the mission is still the middle of the box
     r.middleStaysInTheMiddle = Math.abs(mid - (box.x + box.w/2)) < box.w*0.12;
+  }
+  return r;`);
+
+// The one thing Silvio asked for in so many words: the same play field in
+// every mission. The sweep calls the game's own worldForWave() on every
+// written mission's spawn queue and reads the world it sets. On v233 this
+// ran from 1151x679 (M12) to 10090x6367 (M55) - 76 of 80 missions below the
+// floor - and a mission's play field depended on which hull happened to be
+// the longest in it.
+scenario('Every mission gets a play field of the same size', 'm=31', `
+  const r = {};
+  const ms = Object.keys(SCRIPT_WAVES).map(Number).sort((a,b)=>a-b);
+  r.missions = ms.length;
+  const seen = {}, small = [];
+  for(const n of ms){
+    worldForWave(getWaveDef(n));
+    const key = Math.round(WX1 - WX0) + 'x' + Math.round(WY1 - WY0);
+    (seen[key] = seen[key] || []).push(n);
+    if((WX1 - WX0) < WORLD_W0 - 1 || (WY1 - WY0) < WORLD_H0 - 1) small.push(n + ':' + key);
+  }
+  const sizes = Object.keys(seen).sort((a,b)=>seen[b].length - seen[a].length);
+  r.theFieldEveryoneGets = sizes[0] + ' in ' + seen[sizes[0]].length + ' of ' + ms.length;
+  r.noneBelowTheFloor = small.length === 0;
+  if(small.length) r.belowTheFloor = small.slice(0, 8).join(' ') + (small.length > 8 ? ' ...' : '');
+  // A mission may need MORE than the floor - its own area plus the margin
+  // is larger - but never less, and nothing else may make it differ.
+  const bigger = sizes.filter(k => k !== sizes[0])
+    .map(k => k + ' in ' + seen[k].length + ' (M' + seen[k].slice(0,4).join(',M') + ')');
+  r.largerThanTheFloor = bigger.length ? bigger.join('; ') : '(none)';
+  r.everyOneOfThoseIsItsOwnAreaPlusMargin = true;
+  for(const n of ms){
+    worldForWave(getWaveDef(n));
+    const need = Math.max(WORLD_W0, MW + 300*FIELD_K);
+    if(Math.abs((WX1 - WX0) - need) > 1.5){ r.everyOneOfThoseIsItsOwnAreaPlusMargin = false;
+                                            r.offender = n + ' ' + Math.round(WX1-WX0) + ' vs ' + Math.round(need); break; }
   }
   return r;`);
 
@@ -3586,9 +3626,15 @@ scenario('v190: a bomb goes off over an area, a missile does not', 'm=31', `
   r.onlyBombs = ARSENAL_S.filter(w=>w.blast).map(w=>w.key).join() === 'cyclops';
   r.empHalved = EMP_R === 60;                                    // 150 m (Silvio)
   const cr = mkEnemy('cr_ntf', 'ntfcrfenris', 250); cr.x = 500; cr.y = 250; cr.warp = 0;
-  const mkF = (dx)=>{ const f = mkEnemy('fi_ntf', null, 250); f.x = 500+dx; f.y = 250; f.warp = 0; f.dead = false;
+  // One NAMED hull for all three, not a rolled one. mkEnemy('fi_ntf', null)
+  // rolls one of six, and since v208 drew them at their real size two of
+  // those six (Myrmidon, Ulysses) have their hitbox end exactly on the outer
+  // radius of 80 at this distance: k came out 0, mid took no damage and this
+  // scenario failed in roughly one run of three. Measured identical on v233
+  // and v234, so the world's size has nothing to do with it. A Hercules
+  // reaches to 73 and takes her share.
+  const mkF = (dx)=>{ const f = mkEnemy('fi_ntf', 'fiherc', 250); f.x = 500+dx; f.y = 250; f.warp = 0; f.dead = false;
                       f.hp = f.maxHp = 1000; f.sh = f.maxSh = 0; return f; };
-  // v208: fighters at real size - their hitboxes reach further
   const near = mkF(-20), mid = mkF(-110), far = mkF(-260);
   for(const e of [cr, near, mid, far]) if(enemies.indexOf(e) < 0) enemies.push(e);
   const crHp = cr.hp;

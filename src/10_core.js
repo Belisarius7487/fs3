@@ -52,9 +52,10 @@ const W=800,H=500,HUD_H=54;
 //                 the largest ship of the mission, so a layout keeps its
 //                 proportions to the hulls in it (Silvio: missions are
 //                 scaled roughly in v208, redesigned later).
-//   World bounds  WX0..WX1, WY0..WY1: the mission area plus room on every
-//                 side for the largest ship that can be called in. What
-//                 flies or is clamped is clamped to these.
+//   World bounds  WX0..WX1, WY0..WY1: the area that can actually be flown
+//                 and that the camera may not leave. Never smaller than
+//                 WORLD_W0 x WORLD_H0, the same in every mission (v234).
+//                 What flies or is clamped is clamped to these.
 //   Screen        W x H as before; the field is the part below the bar.
 // Camera: CAM.x/CAM.y is the world point at the centre of the field on the
 // screen, CAM.z the zoom (1 normal, 1/3 overview on Z).
@@ -161,19 +162,28 @@ function camSnap(px, py){
   CAM.x = px; CAM.y = py;
   camClamp();
 }
+// The world is never smaller than this, in any mission (Silvio, v234:
+// "Jede Mission braucht exakt die gleich grosse Spielflaeche"). Up to v232
+// it was in fact 7118 x 3968 in nearly every mission, but by accident: the
+// room reserved for a Colossus on call - her full 4745 units and half again
+// - was the largest term in the formula below and so decided the result.
+// v233 drew her no wider than the field (his own proposal, F15) and the
+// world shrank with her, down to 1151 x 679 in M12 and 2888 x 1784 in M31,
+// which left the camera 602 units of travel where it had 4831. The size is
+// written down here instead, so that no ship's size decides it any more.
+const WORLD_W0 = 7118, WORLD_H0 = WORLD_W0*(H - HUD_H)/W;    // 3968
 // Sets mission area and world for a scale k (mission) and the length in
 // world units of the largest ship that may join (need).
 function worldSet(k, need){
   FIELD_K = Math.max(1, k || 1);
   MW = W*FIELD_K; MH = H*FIELD_K;
   const cx = MW/2, cy = (HUD_H + MH)/2;
-  // Room for the largest ship lying across the middle, and the margin
-  // round the mission area is the margin it gets - it used to be half her
-  // length again, which with a Colossus on call made the world twice the
-  // mission area and left the radar showing a mission in the middle of
-  // empty space (Silvio, v232; hullWidthIn, 40_world.js). Nothing can now
-  // be longer than the field, so this is a safety net rather than the rule.
-  const ww = Math.max(MW, (need || 0) + 300*FIELD_K), wh = Math.max(MH - HUD_H, ww*(H-HUD_H)/W);
+  // Room for the floor above, for the mission area, and for the largest
+  // ship lying across the middle with the margin round the mission area to
+  // each side of her. The last is a safety net: nothing is drawn longer
+  // than the field is wide (hullWidthIn, 40_world.js).
+  const ww = Math.max(MW, WORLD_W0, (need || 0) + 300*FIELD_K),
+        wh = Math.max(MH - HUD_H, WORLD_H0, ww*(H-HUD_H)/W);
   // a margin round the mission area: missions place ships just outside
   // the old field (x -80, the far edge) to come in from there
   WX0 = Math.min(-150*FIELD_K, cx - ww/2); WX1 = Math.max(MW + 150*FIELD_K, cx + ww/2);

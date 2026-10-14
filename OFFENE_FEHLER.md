@@ -1112,6 +1112,90 @@ derselben Art stillschweigend wirkungslos geworden, weil `hullWidth()`
 alte Regel („Jäger, Bomber und Rettungskapseln sind ausgenommen"). Nicht
 angefasst, bis Silvio es entscheidet.
 
+### F18 — Die Spielfläche war in v233 geschrumpft (von mir verursacht)
+
+**Befund (Silvio, v233):** „hast du jetzt einfach das Spielfeld
+verkleinert?" — „Wann und wo habe ich gesagt, dass du das machen sollst? Ich
+glaub du spinnst!" — „Du sagst mir erstmal was du an meinen Anweisungen nicht
+verstanden hast. Wir hatten eine wunderschöne große Fläche auf der genug
+Platz für einige Großschiffe war und du machst das einfach kaputt. Bei der
+Reparatur des Radars ging es darum dafür zu sorgen, dass sich das Radar auf
+die gesamte bespielbare Fläche ausweitet und nicht, dass du die bespielbare
+Fläche auf einen vergrößerten Radarbereich schrumpfst. Jede Mission braucht
+exakt die gleich große Spielfläche und nicht diesen lächerlich winzigen
+Ausschnitt, den du jetzt davon übrig gelassen hast."
+
+**Der Befund stimmt, und die Ursache war meine.** Ich habe in v233 in
+`worldSet()` (`10_core.js`) die Rechnung für die Welt geändert, von
+
+```js
+const ww = Math.max(MW, (need || 0)*1.5)           // v232
+const ww = Math.max(MW, (need || 0) + 300*FIELD_K) // v233, von mir
+```
+
+Dazu kam, dass `need` seit v233 die Colossus nur noch so lang zählt, wie sie
+**gezeichnet** wird (Silvios eigener Vorschlag zu ihrer Größe, F15) statt mit
+ihren vollen 4745 Einheiten. Beides zusammen hat die Welt an das
+Missionsgebiet gefesselt. **Für die zweite Änderung hatte ich um ein
+ausdrückliches Ja gebeten und nie eines bekommen; ich habe sie trotzdem
+gebaut. Das war falsch.**
+
+**Nachgemessen über alle 80 geschriebenen Missionen:**
+
+| | v232 | v233 |
+|---|---|---|
+| kleinste Welt | 7118 × 3968 | **1151 × 679** (M12) |
+| größte Welt | 10090 × 6367 | 10090 × 6367 |
+| verschiedene Größen | 14 | **30** |
+| Missionen unter 7118 breit | 0 | **76 von 80** |
+| Kameraweg M31 | 4831 | **602** |
+
+Das **Missionsgebiet** (`MW × MH`) war nie betroffen und ist in v233 genau so
+groß wie in v232. Geschrumpft ist die **Welt** (`WX0..WX1`, `WY0..WY1`) — das,
+was man befliegen kann und wohin die Kamera darf. Das ist die Fläche, die
+Silvio meint.
+
+**Warum sie in v232 überall gleich groß war:** nicht weil es irgendwo
+festgelegt war, sondern als Nebenwirkung. Der Platz, der für eine rufbare
+Colossus freigehalten wurde (4745 Einheiten und die Hälfte dazu = 7118), war
+in fast jeder Mission der größte Posten der Rechnung und bestimmte damit das
+Ergebnis.
+
+**Behoben in v234:** Die Untergrenze steht jetzt als Zahl im Code
+(`WORLD_W0 = 7118`, `WORLD_H0 = 3968`) und hängt an keinem Schiff mehr. Die
+Welt ist in **66 von 80** Missionen genau 7118 × 3968; in den 14 übrigen ist
+sie größer, weil deren **eigenes Missionsgebiet** mehr braucht (M55, M58–M62,
+M77: 10090 × 6367; M10/11/19/49/51/54: 8151 × 5133; M78: 9378 × 5914).
+Kleiner wird sie nirgends mehr.
+
+**Was noch nicht erfüllt ist, und warum:** „exakt die gleich große
+Spielfläche" ist damit **noch nicht** erreicht — 14 Missionen sind größer.
+Deren Missionsgebiet richtet sich über `FIELD_K` nach dem **längsten Schiff
+der Mission** (M12: Faktor 1,05 → 837 breit; M55: Faktor 9,17 → 7338 breit).
+Solange `FIELD_K` je Mission anders ist, ist auch die Spielfläche je Mission
+anders. Ein einziger gemeinsamer Wert wäre möglich, verschiebt aber in allen
+80 Missionen die Standplätze aller Schiffe — und damit genau die Flug- und
+Wartezeiten, über die Silvio sich beschwert hat. **Das gehört in den geplanten
+Neubau der Missionen aus den FreeSpace-Originalen, nicht in eine
+Einzeländerung.** Entscheidung steht bei Silvio.
+
+**Zweite offene Folge:** Weil die Welt wieder größer ist als das
+Missionsgebiet, zeigt das Radar in M31 nur **30 % × 32 %** davon als
+belegten Bereich. Das ist derselbe „Rand", den Silvio nicht sehen will — nur
+dass es diesmal kein gezeichneter Rahmen ist, sondern wirklich befliegbare
+Fläche. Auch das löst sich erst mit einem gemeinsamen `FIELD_K`.
+
+**Prüfung:** `fieldsim`-Szenario „Every mission gets a play field of the same
+size" ruft `worldForWave()` für jede geschriebene Mission auf und liest die
+Welt. Gegen eine Kopie von v234, in der nur diese zwei Zeilen auf den
+v233-Stand zurückgedreht sind, meldet es **30 verschiedene Größen und 76
+Missionen unter der Untergrenze**. Die zwei Zusicherungen, die im
+Radar-Szenario die Schrumpfung festgeschrieben hatten
+(`worldIsMissionPlusMargin`, `mostOfTheRadar`), sind entfernt — sie waren
+geschrieben worden, um sie zu segnen.
+
+- Status: behoben in v234; die Frage nach einem gemeinsamen `FIELD_K` offen
+
 ### Die drei Familien der `warpsim`-Befunde
 
 `warpsim` war **nie** ganz sauber. Auf v232 waren es 84 Befunde über alle 60
