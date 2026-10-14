@@ -1305,7 +1305,7 @@ nichts strangabhängiges im Spiel.
   Flotte in FS1 erst ab Welle 9 Schilde hat — „Im FS1-Arc gibt es anfangs
   keine Schilde für Jäger und Bomber."
 
-  **Drei echte Lücken bleiben:**
+  **Behoben in v237** (siehe unten). **Drei Lücken, Stand v236:**
 
   1. **`keepBeams` wird nirgends gesetzt** — nur gelesen. Die Ausnahme für die
      Lucifer steht im Kommentar und in der Bedingung, aber **kein Schiff
@@ -1328,6 +1328,93 @@ Strang vorkommt, lässt sich aber auch direkt aus den Missionsdateien ablesen
 geflogen wird.
 
 - Status: eingetragen, nichts gebaut. Gehört zum Nachbau der Missionen.
+
+### FS1-Bewaffnung: Railguns statt Beams (gebaut in v237)
+
+**Silvio, v237:** „Was wir jetzt erstmal brauchen sind die Waffendaten für die
+Schiffe, die alle in FS1 und STR vorkommen, denn diese sollen, mit kleineren
+Ausnahmen, auch die FS1 Waffen bekommen. Strahlenwaffen waren in FS1 bei den
+Terranern und Vasudanern meistens nur Terran (Huge) Turrets, bei den
+Vasudanern halt nur gelb eingefärbt. Viele Mods für FS1 machen es aber so,
+dass sie diese Mounts stattdessen mit Railguns ersetzen, damit die großen
+Schiffe ihren Punch nicht verlieren und immer noch ordentlich austeilen
+können." — „Antijägerbeams brauchen einen Ersatz, der gut gegen Jäger/Bomber
+geeignet ist."
+
+**Was schon da war:** `CAP_GUNS` ist aus den FS1-Zahlen gebaut, die Takte
+stimmen genau (Terran Turret 1,0 s, Huge Turret 3,0 s, Shivan Turret Laser
+1,2 s, Megafunk 3,4 s). Dazu gibt es in `59_field3d.js` eine Tabelle
+(`F3D_WPN`, 41 Einträge), die **FreeSpace-Waffennamen** auf FS3-Werte
+abbildet, und die Mount-Daten jedes Rumpfes nennen pro Geschütz den
+Waffennamen. „Terran Huge Turret" und „Vasudan Huge Turret" haben identische
+Werte — nur die Farbe trennt sie (`RACE_COL`, Vasudaner gelb), genau wie
+Silvio sagt.
+
+**Nachgemessen, was ein Mount austeilt** (Schaden je Sekunde):
+
+| | |
+|---|---|
+| großer Beam BGreen | 9,9 |
+| Terran Huge Turret | 5,9 |
+| Terran Turret | 6,2 |
+| Antijägerbeam AAAf | 2,8 |
+| Standard Flak | ~15, als Wand aus 8 Splittern |
+
+Ein Huge Turret statt eines Beams verliert also **40 %** der Wirkung dieses
+Mounts — Silvios „Punch"-Einwand ist damit belegt.
+
+**Seine Entscheidungen:** Railgun-Schaden **26**, Geschoss sichtbar und eher
+etwas langsamer („wenn es etwas langsamer fliegt, wird der Nachteil gegenüber
+späteren Beams auch deutlich, weshalb diese später dann auf Großkampfschiffe
+gemountet wurden"), Streuung **1,5** als Mitte zwischen Huge Turret (3) und
+der Präzision einer Railgun.
+
+**Was ich dabei gefunden habe und was es geändert hat:** Die Beams sind nicht
+**eine** Waffe. Über die Tabelle gemessen reichen sie von **1,0** Schaden je
+Sekunde (LTerSlash) bis **35,8** (BFred) — Faktor 36. Eine einzige Railgun für
+alle hätte ein schwaches Streichbeam-Mount auf das Vierfache gehoben und ein
+schweres auf ein Viertel gesenkt. Silvios 26 sind deshalb der **Anker** (sie
+waren am BGreen gemessen), und jedes Mount behält seinen **eigenen** Wert: der
+Schaden skaliert mit dem Schaden je Sekunde des Beams, den die Railgun
+ersetzt. Grösste Abweichung über alle Mounts: **1,2 %**.
+
+**Gebaut:**
+
+- `F3D_WPN.Railgun`: Takt 2,0 s (der Fire Wait der FS1-Railgun), Schaden 26
+  am Anker, Geschosstempo **5,5** (schneller als jeder FS1-Turm mit 4,5,
+  deutlich langsamer als das Bordgeschütz des Spielers mit 8, mit sichtbarer
+  Flugzeit), Streuung 1,5, schweres Geschoss.
+- In einer Ära ohne Beams wird jedes **große** Beam-Mount zu einer Railgun und
+  jedes **Antijäger**-Beam-Mount zu Standard Flak — der FS1-Antwort auf Jäger.
+- `ERA_BEAM_KEEP = {fs1: ['sdlucifer'], str: ['sdhades']}` und
+  `eraKeepsBeams()`. Damit greift die Ausnahme wirklich: `keepBeams` wurde in
+  `initBeams()` gelesen und **nirgends gesetzt**.
+- Der Mount-Zwischenspeicher trägt jetzt die Ära im Schlüssel, sonst würden
+  die Listen der ersten Mission für alle späteren ausgegeben.
+
+**Prüfung:** `fieldsim`-Szenario „Without beams a ship gets railguns and flak,
+not silent mounts". Gegen eine Kopie ohne die Ersetzung vier rote
+Zusicherungen, gegen eine Kopie mit der alten toten Flag-Prüfung meldet es,
+dass die Lucifer in FS1 ohne Beams dastünde.
+
+**Offen, bewusst nicht entschieden:** Standard Flak teilt etwa **fünfmal** so
+viel aus wie der Antijägerbeam, den sie ersetzt — aber als Splitterwand, die
+treffen muss, nicht als sicher treffender Strahl. Ob das sich richtig
+anfühlt, ist eine Frage für den Browser, nicht für eine Zahl. Silvio sieht es
+sich an.
+
+### Jumpnodes — Silvio erinnern, wenn es soweit ist
+
+**Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
+(runde Gittergrafik im HUD) einfügen sollen? Das sind keine physischen
+Objekte, sondern wurden in Freespace immer nur angezeigt, um zu signalisieren
+wo die System-Ein- und -aussprungpunkte sind." — **„Einverstanden. Erinnere
+mich später bitte nochmal dran, wenn es dann soweit ist."**
+
+Also: **entschieden ja, zurückgestellt.** Reine Anzeige, ein Gitterring im
+Feld an den Ein- und Aussprungstellen, kein Modell und kein physisches
+Objekt. Dran denken, wenn die ersten Missionen stehen — Silvio hat
+ausdrücklich darum gebeten, erinnert zu werden.
 
 ### Missionen müssen auf jedem Weg enden können
 

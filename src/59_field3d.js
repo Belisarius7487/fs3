@@ -102,6 +102,20 @@ const F3D_WPN = {
   "MX-52": {"k":"missile","rate":6.0,"dmg":0.25},
   "Mekhu HL-7": {"k":"gun","rate":0.15,"spd":7.94,"dmg":2.74,"aspd":13.23,"admg":6.17,"w":7,"h":3,"scat":1,"shiv":0},
   "MjolnirBeam": {"k":"beam","large":true,"type":"static","dmg":0.875,"chargeT":800,"fireT":120,"coolT":140},
+  // v237: the FS1 era has no beams, and a ship that simply loses those
+  // mounts loses its punch - which is why the FS1 mods put railguns there
+  // instead (Silvio). Measured against what it replaces: a large beam
+  // (BGreen) does 1.4 a tick for 120 ticks every ~17 s, about 9.9 a second,
+  // where a Terran Huge Turret does 5.9. At a 2.0 s beat - the Fire Wait of
+  // the FS1 Railgun - 26 damage a shot comes to the same 9.9, so the mount
+  // keeps exactly the output it had.
+  // Speed 5.5 is faster than any FS1 turret (4.5) and clearly slower than
+  // the player's own bolt (8), with a visible time of flight: Silvio wants
+  // the disadvantage against a beam's instant hit to be plain, since that
+  // is why beams later went onto the capital ships. Scatter 1.5 is his
+  // middle between the Huge Turret's 3 and a railgun's precision.
+  // aspd/admg follow the Huge Turret's ratios (x1.65 and x2.26).
+  "Railgun": {"k":"gun","rate":2.0,"spd":5.5,"dmg":26,"aspd":9.1,"admg":59,"w":12,"h":6,"scat":1.5,"big":true,"shiv":0},
   "Piranha": {"k":"missile","rate":1.0,"dmg":1.0},
   "SAAA": {"k":"afbeam","large":false,"type":"slash","dmg":0.257,"chargeT":533,"fireT":168,"coolT":545},
   "SGreen": {"k":"beam","large":true,"type":"static","dmg":0.245,"chargeT":343,"fireT":75,"coolT":900},
@@ -187,11 +201,42 @@ const F3D_MNT = {};
 // has loaded the old lists are given. The old ones stay on .raw (the
 // Lucifer's reactors sit on her old gun mounts).
 const F3D_GUN_SND = {'Shivan Light Laser': 'wpn_shivan_light', 'Shivan Heavy Laser': 'wpn_shivan_heavy',
-                     'Subach HL-7': 'wpn_subach', 'Terran Huge Turret': 'wpn_tht', 'Vasudan Huge Turret': 'wpn_tht'};
+                     'Subach HL-7': 'wpn_subach', 'Terran Huge Turret': 'wpn_tht', 'Vasudan Huge Turret': 'wpn_tht',
+                     'Railgun': 'wpn_tht'};
+// A railgun sized to the beam it stands in for. Silvio set 26 damage, and
+// that was measured against a BGreen - 1.4 a tick for 120 ticks every ~17 s,
+// 9.9 a second. But the beams are not one weapon: measured across the table
+// they run from 1.0 a second (LTerSlash) to 35.8 (BFred), a spread of 36.
+// One flat railgun would lift a weak slash mount to four times its output
+// and cut a heavy one to a quarter. So the 26 is the anchor and every mount
+// keeps its OWN output: damage scales with the beam's damage per second.
+// BEAM_IDLE_AVG is the pause before a beam charges again, 50 + rand*260 in
+// tickBeams, so 180 on average - it belongs in the cycle or every beam
+// comes out stronger than it is.
+const BEAM_IDLE_AVG = 180;
+const RAIL_ANCHOR_DMG = 26;      // Silvio, v237
+const RAIL_ANCHOR_DPS = 0.0988;  // per tick, the BGreen he set it against
+function beamDpsTick(w){
+  const cyc = (w.chargeT || 0) + (w.fireT || 0) + (w.coolT || 0) + BEAM_IDLE_AVG;
+  return cyc > 0 ? (w.dmg * (w.fireT || 0)) / cyc : 0;
+}
+function railFor(w){
+  const base = F3D_WPN.Railgun;
+  const dmg = Math.round(RAIL_ANCHOR_DMG * (beamDpsTick(w) / RAIL_ANCHOR_DPS) * 10) / 10;
+  return {rate: base.rate, spd: base.spd, dmg: dmg,
+          aspd: base.aspd, admg: Math.round(dmg * (base.admg / base.dmg) * 10) / 10,
+          w: base.w, h: base.h, scat: base.scat, big: !!base.big,
+          snd: F3D_GUN_SND.Railgun || 'wpn_tht'};
+}
 function f3dMounts(key, m){
   if(!m || !key) return m;
   const t = F3D_GUNS[key]; if(!t) return m;
-  const c0 = F3D_MNT[key]; if(c0) return c0;
+  // The lists depend on the era (the beam substitution below), so the era
+  // belongs in the cache key - otherwise the first mission's lists would be
+  // handed out for every later one.
+  const era = (typeof currentEra !== 'undefined') ? currentEra : 'fs2';
+  const ck = key + '|' + era;
+  const c0 = F3D_MNT[ck]; if(c0) return c0;
   const img = (typeof IMGS !== 'undefined') ? IMGS[key] : null;
   if(!img || !img.width || !img.height) return m;
   const asp = img.width/img.height, sg = m.facing === 'left' ? -1 : 1;
@@ -210,8 +255,21 @@ function f3dMounts(key, m){
         return {dx: sg*(z0*cv + x0*sv)*kv, dy: y0*kv*asp, mx: (x0*cv - z0*sv)*kv,
                 n3: [n0*cv - n2*sv, n1, n2*cv + n0*sv], wpn: q[6], ti: q[7]}; };
   const c = Object.assign({}, m, {beams: [], primary: [], flak: [], secondary: [], raw: m});
+  // v237: in an era without beams the beam mounts are not left silent - the
+  // ship would lose its punch. A large beam mount becomes a Railgun turret,
+  // an anti fighter beam mount becomes Standard Flak, which was FS1's answer
+  // to fighters. Hulls on the era's keep list (the Lucifer in FS1, the Hades
+  // in ST:R) are untouched.
+  const noB = (typeof eraRule === 'function') && eraRule('noBeams') &&
+              !(typeof eraKeepsBeams === 'function' && eraKeepsBeams(key));
   for(const q of (t.beams || [])){
     const w = F3D_WPN[q[6]];
+    if(noB){
+      if(w.large) c.primary.push(Object.assign(pos(q), {g: railFor(w), wasBeam: q[6]}));
+      else { const f = F3D_WPN['Standard Flak'];
+             c.flak.push(Object.assign(pos(q), {fk: {rate: f.rate, dmg: f.dmg}, wasBeam: q[6]})); }
+      continue;
+    }
     c.beams.push(Object.assign(pos(q), {large: w.large, type: w.type, dmg: w.dmg,
       chargeT: w.chargeT, fireT: w.fireT, coolT: w.coolT}));
   }
@@ -228,7 +286,7 @@ function f3dMounts(key, m){
   if(t.thr && t.thr.length) c.thrusters = t.thr.map(function(q){
     return {dx: sg*q[0], dy: q[1]*asp, w: Math.min(0.6, 2*q[2]*asp), len: Math.max(0.12, Math.min(0.5, 10*q[2])), dir: -sg};
   });
-  return (F3D_MNT[key] = c);
+  return (F3D_MNT[ck] = c);
 }
 // Is the ship drawn from her model right now?
 // v216 (Silvio: beams beside their orb, brackets on the Ravana jumping):

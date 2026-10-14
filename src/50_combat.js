@@ -3025,7 +3025,10 @@ function initBeams(e){
   // Nothing in FS1 carries a beam except the Lucifer, and she asks for it
   // with keepBeams. The ship is not left toothless: capitalFire() works
   // off the gun mounts and is untouched by this.
-  if(eraRule('noBeams') && !e.keepBeams) return;
+  // v237: keepBeams was read here and set nowhere, so the Lucifer would
+  // have flown an FS1 wave without her beams. The rule for a whole era is
+  // ERA_BEAM_KEEP (30_waves.js); the flag stays for a single ship.
+  if(eraRule('noBeams') && !e.keepBeams && !eraKeepsBeams(e.img)) return;
   const m = mountsFor(e.img);
   const def = (m && m.beams && m.beams.length) ? m.beams : null;
   if(!def) return;

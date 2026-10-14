@@ -665,6 +665,67 @@ scenario('The clear pocket in a nebula sits on the player, not beside him', 'm=3
   r.centreOnTheField = c.x0 >= 0 && c.x0 <= W && c.y0 >= HUD_H && c.y0 <= H;
   return r;`);
 
+// FS1 and ST:R have no beams, and a ship that just loses those mounts loses
+// its punch (Silvio, v237). A large beam mount becomes a railgun sized to
+// the beam it replaces, an anti fighter beam mount becomes Standard Flak.
+// The Lucifer keeps her beams in FS1, the Hades hers in ST:R - that
+// exception asked for a flag (keepBeams) that nothing ever set, so until
+// v237 the Lucifer would have flown an FS1 wave disarmed of her beams.
+scenario('Without beams a ship gets railguns and flak, not silent mounts', 'm=31', `
+  const r = {};
+  const era0 = currentEra;
+  const look = (key, era) => { currentEra = era; const m = mountsFor(key);
+    return {beams: (m.beams||[]).length, primary: (m.primary||[]).length,
+            flak: (m.flak||[]).length, m: m}; };
+  const K = 'deorionright';
+  const raw = F3D_GUNS[K];
+  const bigBeams = raw.beams.filter(q => F3D_WPN[q[6]].large).length;
+  const afBeams  = raw.beams.filter(q => !F3D_WPN[q[6]].large).length;
+  r.theHullHasBeams = bigBeams > 0 && afBeams > 0;
+
+  const two = look(K, 'fs2');
+  const one = look(K, 'fs1');
+  r.beamsInFS2 = two.beams;
+  r.beamsInFS1 = one.beams;
+  r.noBeamsLeftInFS1 = one.beams === 0 && two.beams > 0;
+  // every large beam became a gun mount, every anti fighter beam a flak one
+  r.gunsGrewByTheBigBeams = one.primary === two.primary + bigBeams;
+  r.flakGrewByTheAfBeams  = one.flak === two.flak + afBeams;
+
+  // and each railgun keeps the output of the beam it stands in for
+  const dpsOfBeam = (w) => w.dmg*w.fireT/(w.chargeT+w.fireT+w.coolT+BEAM_IDLE_AVG);
+  const subbed = (one.m.primary||[]).filter(p => p.wasBeam);
+  r.railgunsPlaced = subbed.length === bigBeams;
+  let worst = 0, sample = null;
+  for(const p of subbed){
+    const b = F3D_WPN[p.wasBeam];
+    // a gun's output per tick: its damage over its interval. The interval is
+    // the class beat (destroyer, 130 ticks on average) times the gun's rate.
+    const gun = p.g.dmg/(130*p.g.rate);
+    const d = Math.abs(gun - dpsOfBeam(b))/Math.max(1e-9, dpsOfBeam(b));
+    if(d > worst){ worst = d; sample = p.wasBeam + ' beam ' + (dpsOfBeam(b)*100).toFixed(1) +
+                              '/s vs railgun ' + (gun*100).toFixed(1) + '/s'; }
+  }
+  r.biggestDeviation = Math.round(worst*1000)/10 + ' %';
+  if(sample) r.worstCase = sample;
+  r.everyRailgunKeepsItsMountsOutput = worst < 0.05;
+  // Silvio set 26 for the beam it was measured against
+  const anchored = subbed.find(p => p.wasBeam === 'BGreen' || p.wasBeam === 'Bgreen');
+  if(anchored) r.theAnchorIs26 = Math.abs(anchored.g.dmg - 26) < 0.05;
+
+  // the two exceptions
+  r.luciferKeepsHerBeamsInFS1 = look('sdlucifer', 'fs1').beams > 0;
+  r.hadesKeepsHersInSTR       = look('sdhades', 'str').beams > 0;
+  // and the era rule reaches initBeams too, not only the mount lists
+  currentEra = 'fs1';
+  const luci = {img:'sdlucifer', type:'boss', faction:'shivan'};
+  const orion = {img:'deorionright', type:'destroyer', faction:'terran'};
+  initBeams(luci); initBeams(orion);
+  r.initBeamsArmsTheLucifer = (luci.beams||[]).length > 0;
+  r.initBeamsLeavesTheOrion = !orion.beams || orion.beams.length === 0;
+  currentEra = era0;
+  return r;`);
+
 // A capital ship had no acceleration: she came out of her vortex standing -
 // the picture brings an ally out at nothing - and drove at her full cruise
 // in the next tick. warpsim saw it thirteen times over the campaign and the

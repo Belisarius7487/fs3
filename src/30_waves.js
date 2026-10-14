@@ -38,6 +38,17 @@ const ERA_RULES = {
   fs2: {noBeams:false, shieldWave:0}
 };
 
+// Which hulls keep their beams in an era that otherwise has none (Silvio,
+// v237: "Beams existieren in FS1 nur auf der Lucifer. In STR nur auf der
+// Hades."). Until v236 initBeams() asked for a per-ship flag keepBeams that
+// NOTHING ever set, so the Lucifer would have flown an FS1 wave without her
+// beams. The flag stays as an escape hatch for a single ship in a mission;
+// the rule for a whole era is this list.
+const ERA_BEAM_KEEP = {fs1: ['sdlucifer'], str: ['sdhades']};
+function eraKeepsBeams(key){
+  const l = ERA_BEAM_KEEP[currentEra];
+  return !!(l && key && l.indexOf(key) >= 0);
+}
 let currentEra = 'fs2';        // the endless mode is FS2 and stays so
 let waveFeud = false;          // hostile factions fighting each other
 
