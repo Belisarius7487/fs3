@@ -1544,13 +1544,39 @@ Verbündeten mit `type==='corvette'`. In FS1 und ST:R kommt keine Korvette vor
 (gemessen: GTCv Deimos und GVCv Sobek nur in FS2-Missionen), das Rearm-Fenster
 wäre dort also **nie** erreichbar.
 
-Vorschläge liegen Silvio vor, Entscheidung offen. Dabei der Hinweis, dass
-FreeSpace dafür eigentlich das **Versorgungsschiff** hat (GTS Hygeia, PVS
-Isis) und FS3 die Rümpfe schon kennt (`suhygeia`, `sunephthys`, `suscarab`,
-`sucentaur` stehen in `HULL_LEN` und in der Radarkarte), aber **nichts im
-Spiel sie heute erzeugt**.
+#### Vier Wege, die Silvio ABGELEHNT hat — nicht wieder vorschlagen
 
-- Status: eingetragen, Entscheidung offen
+Ich hatte sie ihm vorgelegt, er hat alle vier mit Begründung verworfen. Seine
+Worte, v239, wörtlich:
+
+> **Versorgungsschiff: Nein** und das habe ich schon ein mal begründet. Mir
+> geht es wirklich auf den Sack, dass ich alles 10 mal erklären muss und es
+> trotzdem später wieder zur Debatte wird. Versorgungsschiff geht nicht, weil
+> es in unserem Spiel kaum möglich ist ruhig stehen zu bleiben und eine
+> Wieder-/Neubewaffnung vorzunehmen.
+>
+> **Kreuzer:** Es in der FS1-Ära an einen Kreuzer zu hängen und später dann an
+> eine Korvette macht auch keinen Sinn, weil es das Rearm später verteuert und
+> den Spieler nur verwirrt.
+>
+> **Jedes GKS:** Macht es zu einfach.
+
+Und zum vierten (Rearm immer verfügbar) hatte ich selbst geschrieben, dass es
+die taktische Bedeutung verliert — das war damit auch abgelehnt.
+
+**Daraus die Anforderungen an jede weitere Lösung:**
+
+1. **Kein Stillstehen.** Im Spiel ist es kaum möglich, ruhig zu stehen; ein
+   Andockvorgang fällt damit weg. **Das hatte Silvio schon vor v239 einmal
+   begründet** — es stand nur nirgends geschrieben, deshalb kam es wieder.
+2. **Dieselbe Bedingung in jeder Ära.** Eine andere Klasse je Ära ändert den
+   Preis des Rearms und verwirrt den Spieler.
+3. **Nicht beliebig leicht zu erfüllen.** „Irgendein Großkampfschiff" reicht
+   nicht.
+4. **Nicht immer verfügbar.** Sonst verliert es seine taktische Bedeutung.
+
+- Status: eingetragen, Entscheidung offen — aber die vier Wege oben sind
+  **erledigt und abgelehnt**
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
