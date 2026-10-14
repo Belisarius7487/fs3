@@ -84,3 +84,24 @@ Vorlage `fs1/sm1-03a.fs2`.
   Gegnern (`playerOnly()`), gegnerisches Feuer gilt nur dem Spieler und den
   Verbündeten, verbündetes geht hindurch. Nur der Spieler kann ihn treffen.
   Beim Bau im Spiel prüfen.
+
+## Mission 4 — Avenging Angels (abgesegnet)
+
+Vorlage `fs1/sm1-04a.fs2`.
+
+- Start: Spieler und drei Apollo (verbündet). In Feldmitte Omega (Elysium,
+  terranische Verräter) und Rasputin (Isis, Vasudaner), begleitet von
+  4 Verräter-Apollos, 2 Horus, 1 Osiris.
+- Beide Transporter fliehen, sobald sie beschossen werden.
+- Antrieb und Waffen der Omega zerstört → Comet (Elysium, verbündet,
+  Rumpfbalken) springt ein, dockt an, kapert sie (Muster wie die
+  Deimos-Kaperung: `subsystem` engines+weapons → `einwarpen`, `angedockt`
+  → `kapern`). Gleichzeitig 2 Anubis.
+- Bonus: Antrieb und Waffen der Rasputin zerstört → zweiter Transporter
+  (Geheimdienst, Elysium) springt ein und kapert sie.
+- Rasputin wird beschossen → 2 weitere Anubis.
+- Lahmgelegte Transporter werden von Verbündeten nicht beschossen.
+- Ende: Omega gekapert → Erfolg. Omega entkommen oder zerstört →
+  Fehlschlag. Comet zerstört → Omega frei (`freigeben`), flieht →
+  Fehlschlag. Rasputin nur Bonus.
+- Weggelassen: die terranischen Verstärkungsstaffeln Delta und Epsilon.
