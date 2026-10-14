@@ -65,7 +65,7 @@ HULL = {
 # check counts the class as having no hull rather than guessing a stand-in.
   # fighters
   'GTF Apollo':'fiapollo', 'GTF Ares':'fiares',
-  'GTF Angel':None,                     # WANTED, str05 (model from ST:R)
+  'GTF Angel':'fiangel',                # v235: Angel.pof, FSPort MediaVPs
   'GTF Erinyes':'fierinyes', 'GTF Hercules':'fiherc',
   'GTF Hercules Mark II':'fihercmk2', 'GTF Loki':'filoki',
   'GTF Myrmidon':'fimyrmidon', 'GTF Pegasus':'fipegasus',
@@ -94,7 +94,8 @@ HULL = {
   'NTF Iceni':'coiceni',
   # WANTED, FS2 SM1-02: the asteroid the Iceni hides in. Silvio: "Das Modell
   # heisst Boadicea, wobei der Name ingame nie faellt." Model from the FS2 files.
-  'NTF Boadicea':None,
+  'NTF Boadicea':'inastbase',   # v235: Base2r-01.pof - the SAME model as the
+                                # Terran asteroid base, so no key of her own
   'GTD Orion':'deorionright', 'GTD Hecate':'dehecate', 'GTD Hades':'sdhades',
   'PVD Typhon':'detyphon', 'GVD Typhon':'detyphon', 'GVD Hatshepsut':'dehatshepsut',
   'SD Demon':'dedemon', 'SD Ravana':'deravana', 'SD Lucifer':'sdlucifer',
@@ -120,20 +121,20 @@ HULL = {
   'PVS Nephthys':'sunephthys', 'GTSC Faustus':'scfaustus',
   'GTM Hippocrates':'mehippocrates', 'GTA Charybdis':'cacharybdis',
   'GVA Setekh':'casetekh', 'GVG Anuket':'gmanuket', 'GTG Zephyrus':'gmzephyrus',
-  'PVSC Imhotep':None,                  # WANTED, str02 (model from ST:R)
+  'PVSC Imhotep':'scimhotep',           # v235: imhotep.pof, FSPort MediaVPs
   'GTDr Amazon Advanced':'frchronos',   # the same model as the Chronos
   # installations and cargo
   'GTI Arcadia':'inarcadia', 'Knossos':'inknossos45deg',
   'Shivan Comm Node':'incommnode', 'GTNB Pharos':'inpharos',
   'Terran NavBuoy':'inpharos',
-  'GTI Polaris Extension':None,         # WANTED, str13 + str15 (from ST:R)
-  'GTI Polaris Pylon':None,             # WANTED, str13 + str15 (from ST:R)
-  'PVI Karnak':None,                    # WANTED, str16 (from ST:R)
+  'GTI Polaris Extension':'inpolaris',  # v235: dock01-terran.pof, FSPort MediaVPs
+  'GTI Polaris Pylon':'inpolarispylon', # v235: dock02-terran.pof, FSPort MediaVPs
+  'PVI Karnak':'inkarnak',              # v235: karnak.pof, FSPort MediaVPs
   # Inside the Karnak, and the game cannot fly into a station: str16 gets
   # redesigned rather than this hull built (Silvio).
   'Karnak Reactor':'',
-  'Terran Asteroid Base':None,          # WANTED, str05 (from ST:R)
-  'Vasudan Asteroid Base':None,         # WANTED, str02 (from ST:R)
+  'Terran Asteroid Base':'inastbase',   # v235: Base2R-01.pof, FS2 MediaVPs
+  'Vasudan Asteroid Base':'incheops',   # v235: cheops.pof, FSPort MediaVPs
   'TAC 1':'fctac1', 'TC 2':'fctc2', 'TSC 2':'fctsc2', 'TTC 1':'fcttc1',
   'TC-TRI':'fctctri', 'TC-Meson Bomb':'fcmeson', 'SC 5':'fcsc5',
   'SAC 2':'fcsac3',                     # the SAC 3 stands in (Silvio)
@@ -147,16 +148,11 @@ def base(name):
 
 # The eight hulls FS3 is still missing, and what needs them. A class whose
 # entry is None is one of these: the table says "wanted", not "unknown".
-WANTED = {
-  'GTF Angel':              'str05',
-  'GTI Polaris Extension':  'str13, str15',
-  'GTI Polaris Pylon':      'str13, str15',
-  'PVSC Imhotep':           'str02',
-  'PVI Karnak':             'str16',
-  'Terran Asteroid Base':   'str05',
-  'Vasudan Asteroid Base':  'str02',
-  'NTF Boadicea':           'FS2 SM1-02',
-}
+# Which mission needs a hull that is still missing. v235: empty - all eight
+# that stood here are built, and every one of the 3844 ships in the 83
+# missions now has a hull. The dict stays, because the next hull that turns
+# up belongs in it rather than in a comment.
+WANTED = {}
 
 def hull_of(name):
     """The FS3 hull for a class. '' where none is needed or wanted, None

@@ -61,6 +61,21 @@ HULLS.update({
  'sgcerberus': ('MV_Assets_T_1', 'Cerberus'), 'sgtrident': ('MV_Assets_S', 'Trident'), 'sgwatchdog': ('MV_Assets_T_1', 'Watchdog'),
  'sucentaur': ('MV_Assets_T_1', 'centaur'), 'suhygeia': ('MV_Assets_T_1', 'Hygeia'), 'sunephthys': ('MV_Assets_V', 'Nephthys'),
  'suscarab': ('MV_Assets_V', 'Scarab')})
+# v235: the hulls the original FS1/ST:R/FS2 missions need and FS3 did not
+# draw yet. Six come from the FSPort MediaVPs (mv_fsport_47x), the Terran
+# asteroid base from the FS2 ones. The POF names are read from the
+# $POF file: lines of the base ships.tbl of FSPort and of FS2 retail - not
+# guessed - and the lengths in HULL_LEN are measured from each model's own
+# bounding box. The NTF Boadicea of FS2 SM1-02 is the SAME model as the
+# Terran asteroid base (both Base2r-01), so it has no key of its own.
+HULLS.update({
+ 'fiangel': ('mv_fsport_47x', 'Angel'),
+ 'scimhotep': ('mv_fsport_47x', 'imhotep'),
+ 'inkarnak': ('mv_fsport_47x', 'karnak'),
+ 'inpolaris': ('mv_fsport_47x', 'dock01-terran'),
+ 'inpolarispylon': ('mv_fsport_47x', 'dock02-terran'),
+ 'incheops': ('mv_fsport_47x', 'cheops'),
+ 'inastbase': ('MV_Assets_T_2', 'Base2R-01')})
 SMALL_NEW = ['boamun', 'boartemisdh', 'boboanerges', 'bonahema', 'bonephilim', 'boseraphim', 'boshaitan', 'botaurvi', 'bozeus',
  'ephermes', 'epra', 'fcmeson', 'fcsac3', 'fcsc5', 'fctac1', 'fctc2', 'fctctri', 'fctsc2', 'fcttc1', 'fcvac4', 'fcvac5', 'fcvc3',
  'fiaeshma', 'fianubis', 'fiastaroth', 'fibasilisk', 'fidragon', 'filoki', 'fimanticore', 'fiscorpion',

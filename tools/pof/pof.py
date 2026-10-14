@@ -44,7 +44,16 @@ def read_bsp(d, base, size):
                 vi, ni = struct.unpack_from('<2H', d, q); u, v = struct.unpack_from('<2f', d, q + 4)
                 vs.append((vi, ni, u, v)); q += 12
             tris.append((tmap, vs)); b += osz
-        elif oid in (2, 4, 5):                         # flatpoly, sortnorm, boundbox
+        elif oid == 4:
+            # SORTNORM: a BSP node whose polygons sit in its children, right
+            # behind its 80-byte header (front/back offsets point there).
+            # Skipping it by its size threw the whole subtree away - the PVI
+            # Karnak came out with 0 of her 12 MB of polygons (v235). The
+            # scan is linear, so stepping over the header alone walks front
+            # and back in turn. SORTNORM2 (7) is the newer form of the same
+            # thing and was already handled this way.
+            b += 80
+        elif oid in (2, 5):                            # flatpoly, boundbox
             b += osz
         elif oid == 0:
             b += max(8, osz)
