@@ -1425,6 +1425,51 @@ Kamerawegs. Ein Sprung von 1000 Welteinheiten verschiebt sie also um 17
 Bildpunkte, bei 8 % Helligkeit. Vermutlich nicht zu sehen, deshalb nicht
 angefasst — eine Zeile wäre es (dieselbe wie in `drawBodies`).
 
+### Drei Prüfungen in `fieldsim` hingen am Würfel (behoben in v234)
+
+Beim Prüfen von v234 fiel `fieldsim` in drei aufeinanderfolgenden Durchläufen
+**je an einer anderen Stelle** durch. Alle drei waren Schwächen der Prüfung,
+nicht Fehler im Spiel — jeweils auf v233 **und** v234 gleich gemessen, hängen
+also nicht an der Weltgröße:
+
+**1. „v190: a bomb goes off over an area" — `midLess`.** Die Prüfung würfelte
+einen von sechs NTF-Jägern. Seit v208 werden sie in echter Größe gezeichnet,
+und bei zwei davon (Myrmidon, Ulysses) endet der Trefferkasten in 110
+Einheiten Abstand **genau** auf dem äußeren Blastradius 80 — Abschwächung 0,
+kein Schaden. Durchfallquote also etwa ein Drittel. Jetzt ein benannter Rumpf
+(Hercules, reicht bis 73) statt eines gewürfelten.
+
+**2. „v182: tears, not holes" — `inherits.`** Gelesen wurde die
+Geschwindigkeit des **ersten** freien Teils und `vx > 0.5` verlangt. Ein Teil
+verlässt den Riss aber entlang dessen Normale (`dmgEmit`:
+`vx = svx + (n.x + q.x*k)*speed`), und die kann nach hinten zeigen — der
+Wert war Glückssache, Durchfallquote etwa ein Drittel. Jetzt als
+**Differenz** der mittleren `vx` zwischen stehendem und fahrendem Schiff über
+300 Ausstöße, mit **demselben Würfel** für beide Messungen: der Ausstoßanteil
+fällt heraus, übrig bleibt genau die weitergegebene Geschwindigkeit. Ergibt in
+vier Läufen exakt 1,5. (Nur zu mitteln reichte nicht — über verschiedene
+Würfel kamen 1,5 bis 1,94 heraus, weil in beiden Messungen andere Risse
+feuerten.)
+
+**3. „v169: M68 the Setekh jams" — `reinfOnButJammed`.** Verlangt wurde, dass
+**nie** eine Nachschubstaffel kommt. Die Störung ist aber die Setekh selbst:
+`jammerAlive()` sucht ein **verbündetes** Schiff mit `.jammer` und gibt auf,
+sobald es tot ist oder auswarpt — dann kommt Nachschub völlig zu Recht. Sie
+steht mitten in einer shivanischen Patrouille und hält die 4000 Ticks nicht
+immer durch. Jetzt wird nur gezählt, **solange die Störung steht**, und der
+Zeitpunkt ihres Endes mit ausgegeben (`theJamHeld`).
+
+Alle drei sind gegen eine kaputte Kopie gestellt und fallen dort weiter durch:
+ohne Abschwächung nach außen (1), ohne Weitergabe von `svx` (2), ohne die
+Störsender-Sperre in `tickEvents` (3).
+
+**Was daraus zu lernen ist:** eine Prüfung, die einen Rumpf, einen Zeitpunkt
+oder eine Richtung **würfelt**, ist keine Prüfung, sondern eine Münze. Sie
+wird irgendwann grün, wenn man sie oft genug laufen lässt — und genau das
+untergräbt die Regel, dass bei roter Stufe nichts hochgeschoben wird. Wo
+gewürfelt werden muss, gehört der Würfel festgenagelt oder über genug
+Ausstöße herausgemittelt.
+
 ### `queueHolds()` steht zweimal da
 
 In `30_waves.js` ist `queueHolds()` **zweimal** definiert (Zeile 665 und

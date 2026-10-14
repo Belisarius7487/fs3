@@ -2635,13 +2635,22 @@ scenario('v169: M68 the Setekh jams, the bombs come from afar', 'm=68', `
   const r = {};
   FS.step(20); for(let i=0;i<3000 && inJump();i++) FS.step(1);
   const c = FS.ids('C1')[0];
-  let spawnedSmall = 0, far = true, n = 0;
+  let spawnedSmall = 0, far = true, n = 0, jamEnded = -1;
   const seen = new Set(enemies);
   for(let t=0;t<4000;t+=20){ FS.step(20);
-    for(const e of enemies) if(!seen.has(e)){ seen.add(e); if((e.type==='fighter'||e.type==='bomber') && !e.uid) spawnedSmall++; }
+    // The jam is the Setekh herself: jammerAlive() looks for an ALLY with
+    // .jammer and gives up when she is dead or warping out, and then a
+    // reinforcement wing is let through entirely correctly. She is in the
+    // middle of a Shivan patrol here, so now and then she does not last the
+    // 4000 ticks - which made this read fail in about one run of ten, on
+    // v233 as well as v234. Counting stops where the jam does.
+    if(jamEnded < 0 && !jammerAlive()) jamEnded = t;
+    for(const e of enemies) if(!seen.has(e)){ seen.add(e);
+      if(jamEnded < 0 && (e.type==='fighter'||e.type==='bomber') && !e.uid) spawnedSmall++; }
     for(const p of BOMB_PORTALS) if(p.tgt && !p._chk){ p._chk = 1; n++; if(Math.hypot(p.x-c.x, p.y-c.y) < SSB_MIN_D) far = false; }
     for(const e of enemies) if((e.type==='fighter'||e.type==='bomber') && !(e.warp>0)) e.hp = 0; }
   // Only the patrol's own wings (with an id) come; no reinforcement wing.
+  r.theJamHeld = jamEnded < 0 ? 'the whole 4000 ticks' : ('the Setekh was gone at tick ' + jamEnded);
   r.reinfOnButJammed = evReinf && spawnedSmall === 0;
   r.bombsCame = n > 0; r.allFar = far;
   c.hp = 0; FS.step(40);
@@ -3420,11 +3429,35 @@ scenario('v182: tears, not holes; what comes out flies free in space', 'm=62', `
   const p0 = fr.map(p=>({p, vx:p.vx, vy:p.vy}));
   tickParts();
   r.straight = p0.filter(q=>PARTS.indexOf(q.p)>=0).every(q=>q.p.vx===q.vx && q.p.vy===q.vy);
-  // A moving ship hands her velocity on to what she sheds.
-  PARTS.length = 0; k.dm.lx = k.x - 1.5; k.dm.ly = k.y;
-  let got = null;
-  for(let i=0;i<400 && !got;i++){ k.dm.lx = k.x - 1.5; k.dm.ly = k.y; dmgEmit(k); got = PARTS.find(p=>p.free); }
-  r.inherits = !!got && got.vx > 0.5;
+  // A moving ship hands her velocity on to what she sheds. Read as the
+  // DIFFERENCE between a standing and a moving ship, over every part that
+  // comes off. A part leaves along its gash's normal (dmgEmit: vx = svx +
+  // (n.x + q.x*k)*speed) and that normal may point backwards, so the first
+  // part's own vx is a lottery - asking for > 0.5 on it failed in about one
+  // run of three, on v233 as well as v234. Over many parts the outward
+  // term averages out and what is left is exactly what was handed on.
+  // Both measurements get the SAME dice, so the same gashes fire with the
+  // same spread in both and the difference is only the velocity handed on.
+  // Averaging over different dice left 1.5 to 1.94 and still failed.
+  const meanVx = (dx) => {
+    const real = Math.random;
+    let seed = 20604;
+    Math.random = () => { seed = (seed*1103515245 + 12345) & 0x7fffffff; return (seed % 1000000)/1000000; };
+    let sum = 0, cnt = 0;
+    try{
+      for(let i = 0; i < 300; i++){
+        PARTS.length = 0;
+        k.dm.lx = k.x - dx; k.dm.ly = k.y;
+        dmgEmit(k);
+        for(const q of PARTS) if(q.free){ sum += q.vx; cnt++; }
+      }
+    } finally { Math.random = real; PARTS.length = 0; }
+    return {mean: cnt ? sum/cnt : 0, cnt: cnt};
+  };
+  const still = meanVx(0), moving = meanVx(1.5);
+  r.enoughPartsToRead = still.cnt > 30 && moving.cnt > 30 && still.cnt === moving.cnt;
+  r.handedOn = Math.round((moving.mean - still.mean)*1000)/1000;
+  r.inherits = Math.abs((moving.mean - still.mean) - 1.5) < 0.02;
   return r;`);
 scenario('v183: a capital ship dies the long way and breaks up', 'm=62', `
   const r = {};
