@@ -1661,6 +1661,28 @@ Abgelehnt dagegen: fester Vorrat an Nachladungen je Mission.
   mit `home:true`. Die Missionen 1 bis 3 haben kein Trägerschiff, also kein
   Nachladen. Jede Mission des FS1-Strangs startet voll bewaffnet.
 
+### F23 — FS1 M1/M2: fremde Bomber, FS2-Verbündete, Anubis mit Schilden (v240)
+
+**Befund (Silvio, v240):** „Mission 1: Da kommen auch Osiris und Amun-Bomber
+drin vor. Von denen hattest du nichts gesagt, aber ich vermute, dass ist eine
+automatische Antwort des Games darauf, wenn Kreuzer, Korvetten und/oder
+Zerstörer im Feld sind. Zudem sind auf verbündeter Seite FS2-Ära Schiffe mit
+reingesprungen auf verbündeter Seite. Teile der Anubis, wenn nicht sogar
+alle, haben Schilde." — „Mission 2: Die Anubis haben Schilde was sie nicht
+haben dürften, denn zu diesem Zeitpunkt gibt es noch keine."
+
+**Stimmt, alle drei.** `updateCapResponse()` (`40_world.js`) schickt
+gegnerische Bomber, sobald irgendein verbündetes Großkampfschiff im Feld
+steht — auch die Orff der Mission —, und das Großkampfschiff schickt dann
+Abfangjäger aus dem FS2-Vorrat (`sendInterceptors()`, `ROLES`). Und die
+Ära-Regel „keine Schilde vor Mission 9" galt nur für den Spieler; Gegner und
+Flügelleute bekamen ihre Schilde aus der Rumpftabelle.
+
+- Status: behoben in v241. Im FS1-Strang lösen nur selbst gerufene
+  Großkampfschiffe die Bomberantwort aus; Abfangjäger kommen aus dem
+  Vorrat der Ära; vor Mission 9 haben Jäger und Bomber außer den
+  Shivanern keine Schilde.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes

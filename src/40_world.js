@@ -2009,6 +2009,9 @@ function mkAllySmall(kind, fac, spr, y){
     fT:(40+Math.random()*40)|0, fR:(85+Math.random()*60)|0,
     dead:false, sc:sc, flip:false, warp:90, warpMax:90
   };
+  // v241 (F23): before the fleet has shields (FS1, mission 9) our fighters
+  // and bombers fly without, like the player.
+  if(typeof eraShieldsOff === 'function' && eraShieldsOff()){ a.maxSh = 0; a.sh = 0; }
   const p = poseFor(a.head, a.flip); a.ang=p.ang; a.flip=p.flip;
   initWeapons(a);
   initSecAmmo(a);
@@ -2060,7 +2063,8 @@ const INTERCEPT_DELAY = 90;     // scramble time, so the bombers are seen first
 
 function sendInterceptors(host){
   const vas = host.faction==='vasudan';
-  const pool = ROLES[vas?'ally_vas_fighters':'ally_ter_fighters'];
+  // v241 (F23): the fighters of the era, not always the FS2 ones.
+  const pool = eraPool(vas ? 'vas_fighters' : 'ter_fighters') || ROLES[vas?'ally_vas_fighters':'ally_ter_fighters'];
   if(!pool || !pool.length) return;
   const spr = pool[(Math.random()*pool.length)|0];
   const mid = Math.max(HUD_H+60, Math.min(MH-60, host.y));
@@ -2122,10 +2126,17 @@ function updateBossCalls(){
   }
 }
 
+// v241 (F23): in the FS1 strand the mission's own capital ships are part of
+// the story the mission tells; only a ship the player called brings the
+// enemy's answer. Mission ships carry an id (uid), called ones do not.
+function capResponseHost(a){
+  if(a.small || a.dead || a.warpOut) return false;
+  return !(fs1Arms() && a.uid);
+}
 function updateCapResponse(){
   if(capBomberCd>0){ capBomberCd--; return; }
   if(capBomberLeft<=0) return;
-  if(!hasAllyCapital()) return;
+  if(!allies.some(capResponseHost)) return;
   if(jammerAlive()) return;           // the Setekh has the radio (v169)
   if(countEnemyBombers()>=2) return;
   // Somebody has to make the call. With a capital ship on the field it is
@@ -2140,7 +2151,7 @@ function updateCapResponse(){
   sendCapBombers();
   // Whoever was called is the one that scrambles the screen.
   for(const a of allies){
-    if(!a.small && !a.dead && !a.warpOut && !a.noWings && subOK(a,'communication')){ sendInterceptors(a); break; }
+    if(capResponseHost(a) && !a.noWings && subOK(a,'communication')){ sendInterceptors(a); break; }
   }
   capBomberLeft--;
   capBomberCd = CAP_BOMBER_DELAY;

@@ -1321,6 +1321,9 @@ function applySpawnOpts(e, sp){
   // Unshielded on purpose. Vasudan fighters carry none in the early part
   // of FS1, and the wave says so rather than the ship class deciding.
   if(sp.noShield){ e.maxSh = 0; e.sh = 0; }
+  // v241 (F23): before the fleets have shields (FS1, mission 9) no fighter
+  // or bomber carries one - the Shivans excepted, theirs is the point.
+  if(typeof eraShieldsOff === 'function' && eraShieldsOff() && e.faction!=='shivan' && (e.type==='fighter' || e.type==='bomber')){ e.maxSh = 0; e.sh = 0; }
   // A runner is counted, so the wave can tell how many got away.
   if(sp.runner) e.runner = true;
   // A ship that has lost its drive and is only there to be defended.

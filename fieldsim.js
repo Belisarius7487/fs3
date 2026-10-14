@@ -4179,13 +4179,23 @@ scenario('FS1 M1 Eve of Destruction: strand, arms, timed wings, the end', 'm=1',
   FS.until(()=>byId('E1').some(e=>!(e.warp>0)), 2000, false);
   const an = byId('E1')[0], lo = an ? aiLoadout(an) : null;
   r.anubisFliesFs1 = !!lo && lo.p==='ml16' && lo.s==='fury';
+  // F23: no shields before mission 9, not on them, not on our wingman
+  r.anubisNoShield = byId('E1').length>0 && byId('E1').every(e=>e.maxSh===0);
+  r.wingmanNoShield = !!a2 && a2.maxSh===0;
+  let strayBomber = false, strayAlly = false;
+  const watch = ()=>{ if(enemies.some(e=>e.type==='bomber')) strayBomber = true;
+                      if(allies.some(a=>!a.uid)) strayAlly = true; };
   // Nobody shot down: the second wing must come 30 s after the first.
   const t0 = spawnT;
-  const t = FS.until(()=>evSeen('E2'), 4500, false);
+  const t = FS.until(()=>{ watch(); return evSeen('E2'); }, 4500, false);
   r.secondWingWithin30s = t>=0 && (spawnT - t0) <= 31*TICK_HZ;
   // Now clear everything as it comes: the mission ends in success.
-  const e = FS.until(()=>waveOver || wave>1, 30000, true);
+  const e = FS.until(()=>{ watch(); return waveOver || wave>1; }, 30000, true);
   r.ends = e>=0;
+  // F23: the Orff is the mission's, not a called ship - no bombers answer
+  // her, and she scrambles no FS2 fighters
+  r.noBombersAnswerTheOrff = !strayBomber;
+  r.noShipsNobodyAskedFor = !strayAlly;
   r.orffAlive = !!orff && !orff.dead;
   return r;`);
 
@@ -4204,6 +4214,8 @@ scenario('FS1 M2 The Field of Battle: two wings at once, the ace always', 'm=2',
   r.stillRocks = enemies.filter(e=>e.type==='asteroid').length>0 || spawnQ.some(q=>q.type==='ast');
   FS.until(()=>evSeen('E1') && evSeen('E2'), 2000, false);
   r.twoWingsTogether = evSeen('E1') && evSeen('E2');
+  FS.until(()=>byId('E1').some(e=>!(e.warp>0)), 1000, false);
+  r.anubisNoShield = enemies.filter(e=>e.type==='fighter').every(e=>e.maxSh===0);
   r.bothFromTheirSides = byId('E1').length>0 && byId('E2').length>0;
   const t = FS.until(()=>evSeen('S1'), 30000, true);
   r.aceComes = t>=0;
