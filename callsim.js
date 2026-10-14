@@ -46,7 +46,7 @@ const names = [
   'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
-  'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
+  'weaponName','weaponOpen','waveReached','secRounds','homeShipOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
   'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','rmWrap','hgName','drawDoneButton','closeKeys','drawInfoCard','hangarCard','allyCard','allyLabel','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell',

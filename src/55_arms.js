@@ -67,7 +67,9 @@ const AI_PRIMARIES = {
 };
 function aiLoadout(e){
   if(!e) return null;
-  if(e._lo === undefined) e._lo = LOADOUT[e.img] || null;
+  // v240 (F21): in the FS1 strand the FS1 weapons, by the computer's dates.
+  if(e._lo === undefined) e._lo = fs1Arms() ? fs1AiLoadout(e.img, LOADOUT[e.img] || null)
+                                            : (LOADOUT[e.img] || null);
   return e._lo;
 }
 // The old secondaries, flown by the AI until its own step (v186). The
@@ -216,12 +218,14 @@ function aiSmallTarget(e, x, y){
 function aiSecondary(e, x, y, lo, sec){
   const key = lo.s, w = secDef(key), ally = (e.side === 'ally');
   let tgt;
-  if(key==='stiletto') tgt = aiCapTarget(e, x, y);
-  else if(key==='cyclops') tgt = aiCapTarget(e, x, y) || aiSmallTarget(e, x, y);
+  if(key==='stiletto' || key==='stiletto1') tgt = aiCapTarget(e, x, y);
+  else if(key==='cyclops' || w.cls==='bomb') tgt = aiCapTarget(e, x, y) || aiSmallTarget(e, x, y);
   else tgt = aiSmallTarget(e, x, y);
   if(!tgt) return false;
   const bomb = (w.cls === 'bomb');
-  sndStart('sec_'+key, x, 1, false, 'ai_sec', y);
+  // The FS1 rounds have no sound of their own for the AI (v240): the MX-64's
+  // and the Cyclops' stand in.
+  sndStart((typeof SND_BUF === 'undefined' || SND_BUF['sec_'+key]) ? 'sec_'+key : (w.cls==='bomb' ? 'sec_cyclops' : 'sec_mx64'), x, 1, false, 'ai_sec', y);
   const n = w.swarm || (lo.pair && bomb ? 2 : 1);
   const base = Math.atan2(tgt.y-y, tgt.x-x);
   const salvo = w.swarm ? ++swarmSalvo : 0;   // a swarm shares its targets out

@@ -2797,7 +2797,10 @@ const ATTACK_QUOTA = 3;      // how many may run in at the same time
 // Both the contact test and the double chevron over the ship read this, so
 // the warning and the behaviour cannot drift apart.
 function ramsOnContact(e){
-  return !!e.rammer || (e.type==='bomber' && e.faction==='hol');
+  // v240: the Vasudans of the FS1 strand are no Hammer of Light; their
+  // bombers carry the faction tag 'hol' only for their hulls and colours.
+  const holDoctrine = !(typeof missionOrig !== 'undefined' && missionOrig && currentEra === 'fs1');
+  return !!e.rammer || (e.type==='bomber' && e.faction==='hol' && holDoctrine);
 }
 const RAM_PCT_CAPITAL = 0.34;
 const RAM_PCT_BOMBER  = 0.04;

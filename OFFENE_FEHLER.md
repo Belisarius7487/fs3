@@ -1599,7 +1599,10 @@ braucht es zudem neue Einträge für unsere bisherigen Waffen."
   Shivan Mega   30 400 0.75 1.5 0.9  1 0.6 1
   ```
 
-- Status: **entschieden, noch nicht gebaut.**
+- Status: **gebaut in v240.** Die FS1-Waffen stehen in `56_banks.js`
+  (`era:'fs1'`, `fs1:{p,c}`), die Standardbänke je Rumpf aus FSPorts
+  `ships.tbl` in `FS1_FITS`. Noch nicht drin, weil die Werte fehlen: die
+  15 Splitter der Synaptic und der Schwarm der Hornet.
 
 ### F22 — Das Rearm-Fenster hängt an einer Korvette, und FS1 hat keine
 
@@ -1654,8 +1657,9 @@ Es steht nur in den Missionen im Feld, in denen es auch im Original beim
 Gefecht dabei ist; in allen anderen Missionen gibt es **kein Nachladen**.
 Abgelehnt dagegen: fester Vorrat an Nachladungen je Mission.
 
-- Status: **entschieden, noch nicht gebaut** — wird mit den neuen Missionen
-  umgesetzt, weil erst dort feststeht, wo welches Trägerschiff steht
+- Status: **gebaut in v240.** Nachladen nur bei einer verbündeten Einheit
+  mit `home:true`. Die Missionen 1 bis 3 haben kein Trägerschiff, also kein
+  Nachladen. Jede Mission des FS1-Strangs startet voll bewaffnet.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

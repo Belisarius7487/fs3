@@ -2350,6 +2350,11 @@ function weaponName(w){
 }
 // Unlocks follow the score within a run, the same way the hulls do.
 function weaponOpen(w){
+  // v240 (F21): each strand its own arsenal. In the FS1 strand an FS1
+  // weapon is out from the mission its original first offered it in;
+  // everywhere else the FS1 weapons do not exist.
+  if(fs1Arms()) return w.era==='fs1' && (UI_WEAPONS || fs1Out(w.key, 'p'));
+  if(w.era==='fs1') return false;
   if(FS1_MODE || UI_WEAPONS) return true;
   // fromWave: a weapon handed out with a mission rather than earned with
   // points - the Dante opens with the Shivan cycle (Silvio), and not before
@@ -2384,21 +2389,27 @@ const WPN_SEEN = {};
 function tickWeaponUnlocks(){
   if(GS!=='playing' || FS1_MODE) return;
   for(const w of ARSENAL_P.concat(PRIMARIES, ARSENAL_S)){
-    if((!w.unlock && !w.fromWave) || WPN_SEEN[w.key] || !weaponOpen(w)) continue;
+    // v240: an FS1 weapon from a later mission is announced when it is out.
+    const gated = w.unlock || w.fromWave || (w.fs1 && w.fs1.p > 1);
+    if(!gated || WPN_SEEN[w.key] || !weaponOpen(w)) continue;
     WPN_SEEN[w.key] = true;
     notice(weaponName(w).toUpperCase()+' AVAILABLE', 'unlock');
   }
 }
-// A rearm comes off an allied corvette, the way a hull comes out of a
-// destroyer's hangar. One has to be on the field and finished warping in.
-function corvetteOnField(){
+// v240 (F22, Silvio 14.10.2026): a rearm comes only off the mission's own
+// home ship - the ship the player launched from in the original mission
+// (Galatea, Bastion, Aquitaine). She stands in the field only in missions
+// where she is at the fight in the original too; everywhere else there is
+// no rearm. Until v239 any allied corvette did it, and FS1 has none.
+// She has to be on the field and finished warping in.
+function homeShipOnField(){
   for(const a of allies)
-    if(a.type==='corvette' && !a.dead && !a.warpOut && !(a.warp>0)) return true;
+    if(a.home && !a.dead && !a.warpOut && !(a.warp>0)) return true;
   return false;
 }
 function rearmReady(){
   if(GS!=='playing' || inJump()) return false;
-  return corvetteOnField();
+  return homeShipOnField();
 }
 let rearmMenu = false;
 function setRearmMenu(open){
@@ -2435,7 +2446,7 @@ function fitWeapon(slot, key){
   const same = (nk === list[i]);
   if(same && key === undefined) return;
   list[i] = nk;
-  FITS[player.ship] = fit;
+  FITS[fitKey(player.ship)] = fit;
   rearmFull();
   plogRearm();
   notice(same ? 'REARMED'
@@ -2842,7 +2853,6 @@ function allyCard(id, keyLabel){
   const lines = [];
   if(d.colossus) lines.push(COLOSSUS_TIME+' s on station, then she jumps out');
   if(d.cls === 'destroyer') lines.push('Launches wings  -  her hangar lets you switch ship (V)');
-  if(d.cls === 'corvette') lines.push('Rearms you while she is on the field (R)');
   // v202: paid in points, what she has left comes back
   lines.push('Costs '+allyCost(id)+' points, her hull left is refunded');
   // v195: no hull bar. It repeated the HULL figure of the facts, and every

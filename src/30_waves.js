@@ -81,6 +81,20 @@ function eraKeepsBeams(key){
 }
 let currentEra = 'fs2';        // the endless mode is FS2 and stays so
 let waveFeud = false;          // hostile factions fighting each other
+// v240: a written mission names its strand (era:'fs1') and, for FS1, the
+// number of its original in the FS1 campaign (orig). The era rules and the
+// FS1 weapon unlocks (F21) count in original missions, not in waves: the
+// FS3 numbering shifts wherever an original is split in two. 0 = not an
+// FS1 mission of the strand (endless mode, practice, tests).
+let missionOrig = 0;
+function eraWave(){ return missionOrig || wave; }
+// v240: the race the player's own wingmen and charges belong to. In the
+// FS1 strand the Vasudans are the enemy and the player flies with the
+// Terrans; elsewhere a Hammer of Light mission puts him among Vasudans.
+function allyRace(){
+  if(currentEra === 'fs1' && missionOrig) return 'terran';
+  return (currentFaction === 'hol') ? 'vasudan' : 'terran';
+}
 
 function eraRule(k){
   const r = ERA_RULES[currentEra];
@@ -93,7 +107,7 @@ function eraPool(name){
 // True while the fleet has not been given shields yet.
 function eraShieldsOff(){
   const w = eraRule('shieldWave');
-  return !!w && wave < w;
+  return !!w && eraWave() < w;
 }
 // How much of a hit a shield really loses. One everywhere except against
 // Shivan hulls in the early part of FS1, where a primary bolt mostly comes
@@ -103,7 +117,7 @@ function shieldPen(e, kind){
   const p = eraRule('shivanShieldPen');
   if(!p) return 1;
   const aw = eraRule('avengerWave');
-  if(aw && wave >= aw) return 1;          // the Avenger cannon arrives
+  if(aw && eraWave() >= aw) return 1;     // the Avenger cannon arrives
   if(e.faction !== 'shivan') return 1;
   if(kind==='sec' || kind==='bomb' || kind==='beam') return 1;
   return p;
@@ -246,6 +260,7 @@ const FS1_PLAN = [
 function buildFS1Wave(n){
   const plan = FS1_PLAN[(n-1) % FS1_PLAN.length];
   currentEra = 'fs1';
+  missionOrig = 0;
   currentFaction = plan.fac==='shivan' ? 'shivan' : 'ntf';
   waveLive = 10;
   fleeTotal = 0; fleeEscaped = 0;
@@ -574,6 +589,9 @@ function spawnProtected(sp){
   a.warp = 0; a.warpMax = 1;
   a.flip = needsFlip(a.img, false);
   if(sp.x != null) a.x = sp.x;
+  // v240: jumps in where she is put instead of flying in from the edge
+  // (the McCarthy, FS1 M3).
+  if(sp.warpIn){ a.warp = a.warpMax = 160; a.warpX = a.x; a.warpY = a.y; }
   if(sp.cross && !sp.dockTo){
     a.crossing = sp.cross;         // Bildpunkte je Schritt
     // Below zero she flies out to the left and faces that way.
@@ -1043,6 +1061,9 @@ function tickEscapers(){
     // (Silvio, v183: one counted as escaped though she broke up first).
     if(e.rollT!=null) continue;
     if(e.escHold>0){ e.escHold--; continue; }
+    // v240: a runner that is to take a container along loads first and
+    // runs after (the Bast and the Ma'at, FS1 M3); tickDocking drives her.
+    if(e.dockTo) continue;
     // Kein Antrieb, keine Fahrt. Das war der Sinn des Subsystems.
     if(hasSubsystems(e) && !subOK(e,'engines')) continue;
     e.x += e.escaping;
@@ -1417,6 +1438,7 @@ function buildTestWave(n){
   // Everything getWaveDef normally sets has to be set here too, or the
   // previous wave leaves its state behind.
   currentEra = 'fs2';
+  missionOrig = 0;
   waveFeud = false;
   currentFaction = 'ntf';
   waveLive = 8;
@@ -1653,15 +1675,26 @@ const ROSTER_NTF = [
   {key:'boursa',     name:'GTB Ursa',          fac:'terran', unlock:43000, spd:2.3, turn:0.10, hp:190, sh:218, sec:14},
   {key:'fiares',     name:'GTF Ares',          fac:'terran', unlock:58000, spd:3.3, turn:0.15, hp:147, sh:167, sec:32}
 ];
+// v240: the FS1 strand. Missions 1-3 of the original fly the Apollo and
+// nothing else; further hulls join this list with the missions that bring
+// them. hp/sh from SMALL_TBL, sec after the FS1 banks (40+40, Hercules
+// 120 = 20), turn between the Perseus and the Myrmidon (rotation 3.2 s).
+const ROSTER_FS1 = [
+  {key:'fiapollo', name:'GTF Apollo', fac:'terran', unlock:0, spd:2.7, turn:0.17, hp:83, sh:90, sec:13}
+];
 // v211: the rosters show and fly the FS speed (SMALL_VEL, without TEMPO_K)
-if(typeof SMALL_VEL !== 'undefined') for(const r of [ROSTER_HOL, ROSTER_NTF]) for(const s of r)
+if(typeof SMALL_VEL !== 'undefined') for(const r of [ROSTER_HOL, ROSTER_NTF, ROSTER_FS1]) for(const s of r)
   if(SMALL_VEL[s.key]) s.spd = Math.round(SMALL_VEL[s.key]*SMALL_SPD_ANCHOR*100)/100;
 // first: the first wave of the cycle. call: which support columns answer.
 // tabs: both fleets at once, each on its own tab in the hangar and in the
 // support menu (the Shivan cycle, v163). roster then holds the Terran hulls
 // first and the Vasudan ones after them; each half unlocks on its own.
+// v240: the FS1 strand opens the run. Its first three missions replace the
+// old Hammer of Light missions 1-3, so the Hammer of Light cycle now starts
+// at 4 - until the strand has replaced it altogether.
 const CYCLES = [
-  {first:1,  roster:ROSTER_HOL, call:{terran:false, vasudan:true}},
+  {first:1,  roster:ROSTER_FS1, call:{terran:true,  vasudan:false}},
+  {first:4,  roster:ROSTER_HOL, call:{terran:false, vasudan:true}},
   {first:31, roster:ROSTER_NTF, call:{terran:true,  vasudan:false}},
   {first:61, roster:ROSTER_NTF.concat(ROSTER_HOL), call:{terran:true, vasudan:true}, tabs:true}
 ];
@@ -1982,30 +2015,114 @@ function rollWave(n){
 //           side:'ally', t:Sekunde, x, y, hp:Faktor, wait:true}
 // wait heisst: kommt nur, wenn ein Ereignis es einwarpen laesst.
 const SCRIPT_WAVES = {
-  1: {name:'First Contact', fac:'hol', o:'clear', live:4, u:[
-       // v202: three Thoth fly with the player (Silvio, practice log v201)
-       {id:'W1', c:'fi', n:1, size:3, spr:'fitoth', side:'ally'},
-       {id:'E1', c:'fi', n:3}
-     ]},
+  // ── FS1 STRAND (v240) ──────────────────────────────────────
+  // The FS1 campaign, as drafted with Silvio (FS1_MISSIONEN.md). era: the
+  // strand, orig: the number of the original in the FS1 campaign - the
+  // FS1 rules and weapon dates count in it (F21). Wings come when the one
+  // before is down, at the latest 30 s after it arrived ('da' with d).
+  // Their enemy are the Vasudans of the war, tagged 'hol' for their hulls
+  // and colours; ramsOnContact() keeps the Hammer of Light's doctrine off
+  // them. No home ship in these three: no rearm (F22).
 
-  2: {name:'The Gun Emplacement', fac:'hol', o:'clear', live:4, u:[
-       {id:'G1', c:'sg', n:6, spr:'sgankh'},
-       {id:'E1', c:'fi', n:2, wait:true}
+  // Eve of Destruction (fs1/sm1-01a). Four wings of Anubis against the
+  // Orff; she is lost, the mission is lost.
+  1: {name:'Eve of Destruction', era:'fs1', orig:1, fac:'hol', o:'clear', live:6,
+      ziel:'Protect the GTC Orff - destroy all attackers', u:[
+       {id:'A1', c:'cr', n:1, spr:'crfenris', side:'ally', guard:true, still:true,
+        x:400, y:280, label:'GTC Orff'},
+       {id:'W1', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', label:'Alpha 2'},
+       {id:'E1', c:'fi', n:1, size:2, spr:'fianubis', t:5},
+       {id:'E2', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
+       {id:'E3', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
+       {id:'E4', c:'fi', n:1, size:3, spr:'fianubis', wait:true}
      ], ev:[
-       {t:'alleZerstoert', a:'G1', w:'einwarpen', a2:'E1'}
-     ]},
-
-  3: {name:'Reinforcements', fac:'hol', o:'clear', live:4, u:[
-       // v202: two wings of three Thoth on our side (Silvio)
-       {id:'W1', c:'fi', n:2, size:3, spr:'fitoth', side:'ally'},
-       {id:'E1', c:'fi', n:2},
-       {id:'K1', c:'cr', n:1, spr:'craten', wait:true},
-       {id:'E2', c:'fi', n:1, wait:true}
-     ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'K1'},
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
-       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
-       {t:'alleZerstoert', a:'K1', w:'nachschub', a2:'aus'}
+       {t:'da', a:'E1', d:30, w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'E2', w:'einwarpen', a2:'E3'},
+       {t:'da', a:'E2', d:30, w:'einwarpen', a2:'E3'},
+       {t:'alleZerstoert', a:'E3', d:3, w:'einwarpen', a2:'E4'},
+       {t:'da', a:'E3', d:30, w:'einwarpen', a2:'E4'},
+       {t:'alleZerstoert', a:'E1+E2+E3+E4', w:'zielerfuellt', a2:'All attackers destroyed'},
+       {t:'vernichtet', a:'A1', w:'zielverfehlt', a2:'GTC Orff destroyed'},
+       {t:'vernichtet', a:'A1', w:'abzug', a2:''}
+     ]},
+
+  // The Field of Battle (fs1/sm1-02a). Four wings in a still asteroid
+  // field, two of them at once from two sides; with three Vasudans left
+  // their ace comes for the player - always, not only for a healthy one.
+  2: {name:'The Field of Battle', era:'fs1', orig:2, fac:'hol', o:'clear', live:8, stillRocks:true,
+      ziel:'Destroy all Vasudan fighters', u:[
+       {id:'R1', c:'ast', n:26},
+       {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
+       {id:'E1', c:'fi', n:1, size:3, spr:'fianubis', t:5, x:620, y:110},
+       {id:'E2', c:'fi', n:1, size:3, spr:'fianubis', t:5, x:620, y:420},
+       {id:'E3', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
+       {id:'E4', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
+       {id:'S1', c:'fi', n:1, size:1, spr:'fiseth', wait:true, label:'Vasudan ace'}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E3'},
+       {t:'alleZerstoert', a:'E2', w:'einwarpen', a2:'E3'},
+       {t:'da', a:'E1+E2', d:30, w:'einwarpen', a2:'E3'},
+       {t:'alleZerstoert', a:'E1+E2', w:'einwarpen', a2:'E4'},
+       {t:'alleZerstoert', a:'E3', w:'einwarpen', a2:'E4'},
+       {t:'da', a:'E3', d:30, w:'einwarpen', a2:'E4'},
+       {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'einwarpen', a2:'S1'},
+       {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'meldung', a2:'A Vasudan ace is coming for you'},
+       {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'ziel', a2:'Destroy all Vasudans - bonus: the ace'},
+       {t:'vernichtet', a:'S1', w:'meldung', a2:'Bonus: the ace is down'},
+       {t:'vernichtet', a:'S1', w:'ziel', a2:'Destroy all Vasudan fighters'},
+       {t:'alleZerstoert', a:'E1+E2+E3+E4+S1', w:'zielerfuellt', a2:'All Vasudans destroyed'}
+     ]},
+
+  // Small Deadly Space (fs1/sm1-03a). Two freighters make off with a
+  // container each; once the field is clear the McCarthy comes for the
+  // agreed one and is covered while she loads. One container holds the
+  // weapon prototype (bonus: scan it). Containers stand with the enemy
+  // (playerOnly): Vasudan fire is for us, ours goes through - only the
+  // player can hit one.
+  3: {name:'Small Deadly Space', era:'fs1', orig:3, fac:'hol', o:'clear', live:6,
+      ziel:'Intercept the Bast and the Ma\'at', u:[
+       {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
+       {id:'K1', c:'fc', n:1, spr:'fcvc3', x:330, y:250},
+       {id:'C1', c:'fc', n:1, spr:'fcvc3', x:470, y:140},
+       {id:'C2', c:'fc', n:1, spr:'fcvc3', x:470, y:370},
+       {id:'P1', c:'fc', n:1, spr:'fcvc3', scan:true, x:580, y:250},
+       {id:'X1', c:'fc', n:1, spr:'fcvc3', x:640, y:430},
+       {id:'F1', c:'fr', n:1, spr:'frbast', t:2, x:720, y:110, dockTo:'C1', escape:0.25, label:'PVFr Bast'},
+       {id:'F2', c:'fr', n:1, spr:'frmaat', t:2, x:720, y:400, dockTo:'C2', escape:0.25, label:'PVFr Ma\'at'},
+       {id:'E1', c:'fi', n:1, size:3, spr:'fianubis', t:4},
+       {id:'E2', c:'fi', n:1, size:2, spr:'fianubis', t:4},
+       {id:'E3', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:250, warpIn:true,
+        dockTo:'K1', dockHold:20, dockLabel:'LOADING', wait:true, label:'GTT McCarthy'},
+       {id:'E4', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
+       {id:'E5', c:'fi', n:1, size:3, spr:'fianubis', wait:true}
+     ], ev:[
+       {t:'sek', a:4, w:'meldung', a2:'Bonus: one container holds a weapon prototype - scan it'},
+       {t:'gescannt', a:'P1', w:'meldung', a2:'Bonus: weapon prototype found'},
+       // a freighter gone, whichever way: two more Anubis
+       {t:'zerstoert', a:'F1', w:'einwarpen', a2:'E3'},
+       {t:'zerstoert', a:'F2', w:'einwarpen', a2:'E3'},
+       {t:'verlaesst', a:'F1', w:'einwarpen', a2:'E3'},
+       {t:'verlaesst', a:'F2', w:'einwarpen', a2:'E3'},
+       // got away with her container: a partial success
+       {t:'verlaesst', a:'F1', w:'meldung', a2:'The Bast got away with her container'},
+       {t:'verlaesst', a:'F2', w:'meldung', a2:'The Ma\'at got away with her container'},
+       {t:'vernichtet', a:'F1+F2', w:'zielerfuellt', a2:'Both freighters stopped'},
+       {t:'alleZerstoert', a:'F1+F2', w:'ziel', a2:'Destroy the Vasudan fighters'},
+       // the field clear: the McCarthy comes for the agreed container
+       {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'einwarpen', a2:'T1'},
+       {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'ziel', a2:'Cover the McCarthy'},
+       {t:'da', a:'T1', d:5,  w:'einwarpen', a2:'E4'},
+       {t:'da', a:'T1', d:15, w:'einwarpen', a2:'E5'},
+       {t:'verlaesst', a:'T1', w:'zielerfuellt', a2:'The McCarthy is away'},
+       {t:'verlaesst', a:'T1', w:'kulisse', a2:'P1'},
+       {t:'verlaesst', a:'T1', w:'kulisse', a2:'X1'},
+       {t:'verlaesst', a:'T1', w:'abzug', a2:''},
+       {t:'vernichtet', a:'T1', w:'zielverfehlt', a2:'GTT McCarthy destroyed'},
+       {t:'vernichtet', a:'T1', w:'kulisse', a2:'P1'},
+       {t:'vernichtet', a:'T1', w:'kulisse', a2:'X1'},
+       {t:'vernichtet', a:'T1', w:'abzug', a2:''}
      ]},
 
   6: {name:'Encounter', fac:'hol', o:'guard', live:5, u:[
@@ -3591,6 +3708,9 @@ let EV_TAKEN = {}, EV_FLED = {};
 // Letzter bekannter Ort je Kennung. Wer nach dem Tod eines Schiffs
 // eingewarpt wird, soll dort erscheinen und nicht am Bildrand.
 let EV_POS = {};
+// v240: a name the mission gives a ship ('GTC Orff'), shown wherever the
+// game names her. Set on the ship the first time the event tick sees her.
+let EV_LABEL = {};
 let evReinf = false, evReinfCd = 0;
 // The mission's clock (v169): 'timer' starts it ("seconds|LABEL"),
 // 'zeit' fires when it runs out, 'timerStopp' takes it down.
@@ -3611,7 +3731,7 @@ const EV_REINF_GAP_MIN = 240;
 
 function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_POS = {};
-  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {};
+  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_LABEL = {};
   missionTimer = {end:0, label:''}; missedJumps = 0;
   evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP;
 }
@@ -3655,13 +3775,25 @@ function evTrig(ev){
     case 'verloren':     return protLost  >= (ev.a||1);
     case 'verlaesst':    return !!EV_LEFT[ev.a] || !!EV_FLED[ev.a];
     case 'angedockt':    return !!EV_DOCK[ev.a];
-    case 'anzahlUnter':
+    // v240: on the field, or was. With d: "at the latest N seconds after
+    // she arrived" - the FS1 wings that come when the last one is down,
+    // or after 30 s if it is not (Silvio, FS1_MISSIONEN.md).
+    case 'da':           return evIds(ev.a).every(function(id){ return evSeen(id); });
+    case 'anzahlUnter': {
       // Erst wenn nichts mehr fuer diese Kennung in der Warteschlange
       // steht. Sonst feuert der Ausloeser, waehrend noch eingesetzt wird:
       // der erste Container ist einer, und einer ist weniger als drei.
-      if(!evSeen(ev.a)) return false;
-      for(const q of spawnQ) if(q.uid===ev.a) return false;
-      return byId(ev.a).length < (ev.b||1);
+      // v240: several ids joined with '+' count together, once every one
+      // of them has been on the field.
+      const ids = evIds(ev.a);
+      let left = 0;
+      for(const id of ids){
+        if(!evSeen(id)) return false;
+        for(const q of spawnQ) if(q.uid===id) return false;
+        left += byId(id).length;
+      }
+      return left < (ev.b||1);
+    }
     case 'rumpfUnter': {
       const u = byId(ev.a)[0];
       return !!u && u.maxHp && (u.hp/u.maxHp)*100 < (ev.b||50);
@@ -3988,10 +4120,16 @@ function tickEvents(){
   // Ort mitschreiben, solange die Schiffe noch da sind.
   for(const e of enemies) if(e.uid) EV_POS[e.uid] = [e.x, e.y];
   for(const a of allies)  if(a.uid) EV_POS[a.uid] = [a.x, a.y];
+  for(const list of [enemies, allies]) for(const e of list)
+    if(e.uid && !e._lbl && EV_LABEL[e.uid]){ e.label = EV_LABEL[e.uid]; e._lbl = true; }
   tickReplace();
   if(!EV.length && !evReinf) return;
   for(const ev of EV){
     if(ev.done) continue;
+    // v240: a ship already sent in by another event is not sent in twice.
+    // Without this the 'at the latest after 30 s' of a wing that came early
+    // kept the mission open on an empty field until the 30 s were up.
+    if(ev.w==='einwarpen' && !EV_HELD[(ev.wa!=null) ? ev.wa : ev.a]){ ev.done = true; continue; }
     // lostMax: only while no more protected ships than this are lost - a
     // success card must not follow a failure (M65).
     //
@@ -4065,7 +4203,7 @@ function scriptUnit(u, fac, q){
         // nicht in mkEnemy, sonst bekommt jedes Schiff einen eigenen.
         const pool = ally
           ? (u.c==='bo' ? ROLES.ally_ter_bombers
-                        : (fac==='hol' ? ROLES.ally_vas_fighters : ROLES.ally_ter_fighters))
+                        : (allyRace()==='vasudan' ? ROLES.ally_vas_fighters : ROLES.ally_ter_fighters))
           : poolFor(ty);
         const hull = u.spr || (pool ? rnd(pool) : '');
         if(!ally) sz += wingExtra(hull);
@@ -4089,7 +4227,7 @@ function scriptUnit(u, fac, q){
              crossSecs:u.crossSecs, still:u.still,
              crossDir:u.crossDir, defectRun:u.defectRun, noWings:u.noWings,
              x:u.x, y:u.y, callsOk:u.callsOk, beamDelay:u.beamDelay, guard:u.guard,
-             noKill:u.noKill, noWarp:u.noWarp}
+             noKill:u.noKill, noWarp:u.noWarp, home:u.home}
           : {time:t0+i*140, type:ty, spr:u.spr||'', y:(u.c==='in'?(u.y!=null?u.y:H*0.5):yy),
              x:u.x, escape:u.escape, invuln:u.invuln, edge:u.edge, capRam:u.capRam,
              escWarp:u.escWarp, capture:u.capture, flee:u.flee, scanSubs:u.scanSubs,
@@ -4143,7 +4281,7 @@ function scriptUnit(u, fac, q){
     const stagger = 0;   // alles steht ab dem ersten Bild da
     if(ally && fix!=='ast')
       put({time:t0+i*70, type:'protect', spr:u.spr,
-           fac:(fac==='hol') ? 'vasudan' : 'terran', noWarp:1,
+           fac:allyRace(), noWarp:1, warpIn:u.warpIn,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
            dockLabel:u.dockLabel,
            pickup:u.pickup?1:0});
@@ -4173,6 +4311,11 @@ function scriptUnitsResolved(def){
 function buildScripted(def){
   const q = [];
   evReset();
+  // v240: the strand of the mission. Without one it is FS2, as every
+  // written mission was until now.
+  currentEra  = def.era || 'fs2';
+  missionOrig = (currentEra === 'fs1') ? (def.orig || 0) : 0;
+  for(const u of (def.u||[])) if(u.label) EV_LABEL[u.id] = String(u.label).toUpperCase();
   currentFaction = def.fac;
   waveLive  = def.live || 4;
   waveObj   = def.o || 'clear';
@@ -4181,7 +4324,9 @@ function buildScripted(def){
   // Schleuse an: die naechste Staffel wartet auf ein freies Feld statt auf
   // die Uhr. Auf einer Querung muss sie aus sein, sonst blockiert die
   // erste Staffel sich selbst - dort gibt es kein freies Feld.
-  astAim=false; transitSecs=0; gateWings=!def.crossEnds && !def.feud;   // two sides arrive together in a feud gateWing=0;
+  // v240: the FS1 strand times its wings itself ("at the latest after
+  // 30 s", two wings at once), so nothing may hold them back here.
+  astAim=false; transitSecs=0; gateWings=!def.crossEnds && !def.feud && currentEra!=='fs1';   // two sides arrive together in a feud gateWing=0;
   disableTarget=null; waveFeud=!!def.feud;
   astStreamCd = AST_STREAM_MEAN;
   waveMod = def.mod || MOD_NONE;
@@ -4247,6 +4392,8 @@ function getWaveDef(n){
     const def = SCRIPT_WAVES[n];
     if(def) return buildScripted(def);
   }
+  // The dice are FS2, whatever the written mission before them was.
+  currentEra = 'fs2'; missionOrig = 0;
 
   // The generator is set up on the first wave the run actually plays,
   // which is not wave 1 when ?m= starts it further in.

@@ -222,7 +222,8 @@ scenario('M35 Der Ueberlaeufer', 'm=35', `
   FS.step(20);
   r.reinforcementsOn = evReinf===true;
   r.followUpsScreen = waveHunt==='';
-  r.rearm = corvetteOnField();
+  // v240 (F22): a passing corvette is no home ship - no rearm from her.
+  r.noRearmFromAPassingCorvette = homeShipOnField()===false;
   r.notOnCallMenu = ALLY_ORDER.indexOf('ntf_deimos')<0;
   // What is checked here is the crossing, not the balance - Silvio plays
   // that. So she is made too tough to lose on the way.
@@ -1417,14 +1418,21 @@ scenario('Mission reward: points (v202, was a ticket)', 'm=35', `
   if(!r.rewarded) r.dbg = {t, gl:guardLost, gw:guardWanted, gs:guardSpawned, keys:Object.keys(BAR_PULSE), wave, fc};
   return r;`);
 
-scenario('A corvette arrives: REARM calls', 'm=35', `
+// v240 (F22): only the mission's home ship rearms. No written mission has
+// one yet (the FS1 strand starts without), so the Deimos of M35 is made the
+// home ship here - what is checked is the button, not the mission.
+scenario('The home ship arrives: REARM calls', 'm=35', `
   BAR_PULSE = {};
+  FS.until(()=>allies.some(a=>a.uid==='A1'), 3000, true);
+  FS.step(300);
+  const noCall = !BAR_PULSE.rearm;
+  for(const a of allies) if(a.uid==='A1') a.home = true;
   // The button becomes usable once she is there and the jump in is over.
   const t = FS.until(()=>!!BAR_PULSE.rearm, 3000, true);
   const called = rearmReady();
   const t0 = BAR_PULSE.rearm ? BAR_PULSE.rearm.t0 : -1;
   FS.step(100);
-  return {rearmCalls: t>=0 && called, onlyOnceNotEveryStep: !BAR_PULSE.rearm || BAR_PULSE.rearm.t0===t0};`);
+  return {notWhileShesNoHomeShip: noCall, rearmCalls: t>=0 && called, onlyOnceNotEveryStep: !BAR_PULSE.rearm || BAR_PULSE.rearm.t0===t0};`);
 
 scenario('A destroyer arrives: SHIP SWITCH calls', 'm=34&ships=8', `
   BAR_PULSE = {};
@@ -4150,6 +4158,110 @@ scenario('v204: hit on the model as drawn, damage on the model, debris in its la
   // the Pharos is drawn from her model
   r.pharos3d = f3dKey({img:'inpharos'}) === 'inpharos' && !f3dSmall('inpharos');
   try{ draw(); r.draws = true; }catch(ex){ r.draws = String(ex); }
+  return r;`);
+
+// ── v240: the FS1 strand, missions 1-3 ────────────────────────────────
+scenario('FS1 M1 Eve of Destruction: strand, arms, timed wings, the end', 'm=1', `
+  const r = {};
+  r.strandIsFs1 = currentEra==='fs1' && missionOrig===1;
+  r.fliesTheApollo = player.ship==='fiapollo';
+  r.fs1BanksMl16Mx50 = player.pb.map(b=>b.key).join()==='ml16,ml16' && player.sb.map(b=>b.key).join()==='mx50,mx50';
+  r.noShieldInFs1 = player.sh===0;
+  r.furyOnOffer = bankChoices('fiapollo', false).map(w=>w.key).indexOf('fury')>=0
+               && weaponOpenFor(secDefP('fury'), 'fiapollo') && !weaponOpenFor(secDefP('interceptor'), 'fiapollo');
+  r.noFs2Gun = bankChoices('fiapollo', true).every(w=>w.era==='fs1');
+  FS.step(300);
+  const orff = allies.find(a=>a.uid==='A1');
+  r.orffNamed = !!orff && orff.label==='GTC ORFF';
+  const a2 = allies.find(a=>a.uid==='W1');
+  r.wingmanTerran = !!a2 && a2.faction==='terran' && a2.img==='fiapollo';
+  r.noRearmWithoutHomeShip = rearmReady()===false;
+  FS.until(()=>byId('E1').some(e=>!(e.warp>0)), 2000, false);
+  const an = byId('E1')[0], lo = an ? aiLoadout(an) : null;
+  r.anubisFliesFs1 = !!lo && lo.p==='ml16' && lo.s==='fury';
+  // Nobody shot down: the second wing must come 30 s after the first.
+  const t0 = spawnT;
+  const t = FS.until(()=>evSeen('E2'), 4500, false);
+  r.secondWingWithin30s = t>=0 && (spawnT - t0) <= 31*TICK_HZ;
+  // Now clear everything as it comes: the mission ends in success.
+  const e = FS.until(()=>waveOver || wave>1, 30000, true);
+  r.ends = e>=0;
+  r.orffAlive = !!orff && !orff.dead;
+  return r;`);
+
+scenario('FS1 M1: the Orff lost ends the mission', 'm=1', `
+  const r = {};
+  FS.until(()=>allies.some(a=>a.uid==='A1' && !(a.warp>0)), 2000, false);
+  for(const a of allies) if(a.uid==='A1') a.hp = 0;
+  const t = FS.until(()=>waveOver || wave>1, 6000, false);
+  r.endsAtOnce = t>=0;
+  r.noWingLeftBehind = !Object.keys(EV_HELD).length;
+  return r;`);
+
+scenario('FS1 M2 The Field of Battle: two wings at once, the ace always', 'm=2', `
+  const r = {};
+  r.strandIsFs1 = currentEra==='fs1' && missionOrig===2;
+  r.stillRocks = enemies.filter(e=>e.type==='asteroid').length>0 || spawnQ.some(q=>q.type==='ast');
+  FS.until(()=>evSeen('E1') && evSeen('E2'), 2000, false);
+  r.twoWingsTogether = evSeen('E1') && evSeen('E2');
+  r.bothFromTheirSides = byId('E1').length>0 && byId('E2').length>0;
+  const t = FS.until(()=>evSeen('S1'), 30000, true);
+  r.aceComes = t>=0;
+  const e = FS.until(()=>waveOver || wave>2, 30000, true);
+  r.ends = e>=0;
+  return r;`);
+
+scenario('FS1 M3 Small Deadly Space: runners, the McCarthy, then FS2 again', 'm=3', `
+  const r = {};
+  r.strandIsFs1 = currentEra==='fs1' && missionOrig===3;
+  FS.step(400);
+  r.fiveContainers = enemies.filter(e=>e.type==='container').length===5;
+  const f1 = byId('F1')[0];
+  r.bastNamed = !!f1 && f1.label==='PVFR BAST';
+  // the runners load first, then run
+  const d = FS.until(()=>!!EV_DOCK.F1 && !!EV_DOCK.F2, 12000, true);
+  r.freightersDock = d>=0;
+  r.containerTaken = enemies.some(e=>e.uid==='C1' && e.carried);
+  // Our wingmen may stop one; either way both are gone in the end.
+  const g = FS.until(()=>!byId('F1').length && !byId('F2').length, 30000, true);
+  r.freightersGone = g>=0;
+  r.twoMoreAnubis = evSeen('E3');
+  const m = FS.until(()=>evSeen('T1'), 20000, true);
+  r.mccarthyComes = m>=0;
+  const mc = byId('T1')[0];
+  r.mccarthyJumpsIn = !!mc && mc.warp>0;
+  FS.step(2);       // the name is put on at the next event tick
+  r.mccarthyNamed = !!mc && mc.label==='GTT MCCARTHY';
+  const k = FS.until(()=>!!EV_DOCK.T1, 20000, true);
+  r.mccarthyLoads = k>=0;
+  r.coverWings = evSeen('E4') && evSeen('E5');
+  const o = FS.until(()=>!!EV_LEFT.T1, 3000, true);
+  r.mccarthyAway = o>=0;
+  const e = FS.until(()=>wave>3, 6000, true);
+  r.ends = e>=0;
+  // Mission 4 is the old Hammer of Light again: FS2 rules and arms.
+  r.backToFs2 = currentEra==='fs2' && missionOrig===0 && player.ship==='fitoth'
+             && player.pb.every(b=>!priDefP(b.key).era);
+  return r;`);
+
+scenario('FS1 M3: agreed container lost, the McCarthy leaves empty', 'm=3', `
+  const r = {};
+  FS.step(400);
+  for(const e of enemies) if(e.uid==='K1') e.hp = 0;
+  FS.until(()=>!byId('F1').length && !byId('F2').length, 30000, true);
+  FS.until(()=>evSeen('T1'), 20000, true);
+  const t = FS.until(()=>wave>3, 12000, true);
+  r.endsWithoutTheContainer = t>=0;
+  return r;`);
+
+scenario('FS1 M3: the McCarthy lost ends the mission', 'm=3', `
+  const r = {};
+  FS.step(400);
+  FS.until(()=>!byId('F1').length && !byId('F2').length, 30000, true);
+  FS.until(()=>byId('T1').some(a=>!(a.warp>0)), 20000, true);
+  for(const a of allies) if(a.uid==='T1') a.hp = 0;
+  const t = FS.until(()=>wave>3, 6000, false);
+  r.endsAtOnce = t>=0;
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

@@ -15,6 +15,10 @@ alle Entwürfe (Silvio, 14.10.2026):
   die Ramses zerstören können, sonst fehlt die Gefahr.
 - Waffenzeitpunkte: siehe `OFFENE_FEHLER.md`, F21. Nachladen nur beim
   eigenen Trägerschiff (F22).
+- **Gebaut (v240):** Missionen 1 bis 3 ersetzen die alten Missionen 1 bis 3
+  (Silvio, 15.10.2026). Die Hammer-of-Light-Flotte beginnt seitdem bei 4.
+  Im FS1-Strang fliegt der Spieler nur die Apollo, bis eine Mission einen
+  weiteren Rumpf bringt.
 
 ## Übersicht der ersten zehn Originale (abgesegnet)
 
@@ -33,7 +37,7 @@ alle Entwürfe (Silvio, 14.10.2026):
 
 Zehn Originale ergeben zwölf FS3-Missionen.
 
-## Mission 1 — Eve of Destruction (abgesegnet)
+## Mission 1 — Eve of Destruction (abgesegnet, gebaut v240)
 
 Vorlage `fs1/sm1-01a.fs2`.
 
@@ -51,7 +55,7 @@ Vorlage `fs1/sm1-01a.fs2`.
 - Weggelassen: Funk, Zusatzstaffel auf „schwer", terranische Verstärkung
   am Schluss.
 
-## Mission 2 — The Field of Battle (abgesegnet)
+## Mission 2 — The Field of Battle (abgesegnet, gebaut v240)
 
 Vorlage `fs1/sm1-02a.fs2`.
 
@@ -69,7 +73,7 @@ Vorlage `fs1/sm1-02a.fs2`.
 - Weggelassen: Verstecken der Staffeln bis zur Annäherung (gibt es im
   Spiel nicht), Funk.
 
-## Mission 3 — Small Deadly Space (abgesegnet)
+## Mission 3 — Small Deadly Space (abgesegnet, gebaut v240)
 
 Vorlage `fs1/sm1-03a.fs2`.
 

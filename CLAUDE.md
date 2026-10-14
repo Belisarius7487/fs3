@@ -151,6 +151,13 @@ Index, den `codemap.py` aus der neuesten Logikdatei erzeugt. Der Index wird
 ./checks.sh --fast       ohne die zwei Browserstufen (beim Zwischenstand)
 ```
 
+**Nur prüfen, was geändert wurde (Silvio, 15.10.2026).** Die langen
+Browserläufe über alle 80 alten Missionen laufen nicht mehr bei jeder
+Lieferung. Gebaut und geprüft wird: `./checks.sh --fast` und dazu nur die
+`fieldsim`-Szenarien der geänderten Missionen oder Mechaniken
+(`node fieldsim.js <logik.html> hlp_mounts_final.json "<Name>"`). Die alten
+Missionen werden ohnehin ersetzt.
+
 `checks.sh` hält von selbst an, wenn die Logikdatei **nicht** das ist, was
 `src/` ergibt — sonst prüft man eine Fassung von vorher. Die ausführliche
 Ausgabe jeder Stufe steht danach in `checks.log` (nicht im Repo).
@@ -294,8 +301,9 @@ An die URL anhängen. Geprüft gegen den Code in v216:
 Übliche Testadresse:
 `http://dev.hard-light.org/fs3/?v=217&ui=1&ships=9&wpn=1`
 
-**Das Rearm-Fenster braucht eine verbündete KORVETTE** im Feld, nicht
-irgendein Großkampfschiff. Der Hangar braucht einen **Zerstörer**.
+**Das Rearm-Fenster braucht das Trägerschiff der Mission** im Feld
+(Einheit mit `home:true`, F22, seit v240) — keine Korvette, nicht irgendein
+Großkampfschiff. Der Hangar braucht einen **Zerstörer**.
 
 ---
 
@@ -349,6 +357,14 @@ Geschriebene Missionen stehen als Daten in `SCRIPT_WAVES` (`30_waves.js`),
 mit Einheiten (`u`) und Ereignissen (`ev`). `swtest` prüft sie gegen die
 bekannten Auslöser und Wirkungen und nennt beide Listen am Ende seiner
 Ausgabe.
+
+**Strang (seit v240):** `era:'fs1'` und `orig:N` (Nummer des Originals in
+der FS1-Kampagne) machen eine Mission zur FS1-Mission: FS1-Regeln,
+FS1-Waffen nach ihren Freischaltzeitpunkten (F21), die Staffeln ohne
+Schleuse. Ohne `era` ist eine Mission FS2. Dazu seit v240: Auslöser `da`
+(Einheit ist im Feld oder war es; mit `d:30` „spätestens 30 s nach ihrer
+Ankunft"), `anzahlUnter` mit mehreren Kennungen (`E1+E2`), `label` (Name
+eines Schiffs), `warpIn` (ein Schützling springt ein), `home` (Trägerschiff).
 
 Eine **Kennung steht für eine Gruppe**, nicht für ein Schiff: `byId()` gibt
 jede Einheit zurück, die sie trägt, und ein Auslöser darf mehrere mit `+`

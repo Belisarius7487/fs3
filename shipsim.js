@@ -60,7 +60,7 @@ const names = [
   'syncCursor','hovering',
   'panelOpen','holdResume','clearResumeHold','drawResumeHint',
   'applyLoadout','rearmFull','curPri','curSec','priDef','secDef','hullSecCls',
-  'weaponName','weaponOpen','waveReached','secRounds','corvetteOnField',
+  'weaponName','weaponOpen','waveReached','secRounds','homeShipOnField',
   'rearmReady','setRearmMenu','toggleRearmMenu','fitWeapon','rearmLayout',
   'drawRearmMenu','drawRearmIcon','rmPri','rmDef','rmBankKey','rmDps','rmBankDmg','rmValueOf','rmReach','rmFacts','rmBars','rmShipLines','rmSelectBank','rmStep','drawRearmShip','rmWrap','hgName','drawDoneButton','closeKeys','drawInfoCard','hangarCard','allyCard','allyLabel','tickWeaponUnlocks',
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell','hullClass','isBomberHull','shipStats','applyShip','tickShipUnlocks','shipSwapReady',
@@ -402,8 +402,11 @@ W.run("toggleShipMenu(); swapShip('fihorus')"); ok('and it is a full hull', P().
 
 console.log('Cycles: each brings its own fleet');
 {
-  const hol = W.run('cycleAt(1)'), ntf = W.run('cycleAt(31)');
-  ok('waves 1 to 30 are the Hammer of Light cycle', W.run('cycleAt(30)')===hol && hol.first===1);
+  // v240: the FS1 strand opens the run (its missions 1-3 replace the old
+  // Hammer of Light ones), so the Hammer of Light cycle starts at 4.
+  const fs1 = W.run('cycleAt(1)'), hol = W.run('cycleAt(4)'), ntf = W.run('cycleAt(31)');
+  ok('waves 1 to 3 are the FS1 cycle', fs1.first===1 && W.run('cycleAt(3)')===fs1);
+  ok('waves 4 to 30 are the Hammer of Light cycle', W.run('cycleAt(30)')===hol && hol.first===4);
   ok('wave 31 opens the NTF cycle, and it holds to 60', ntf.first===31 && W.run('cycleAt(59)')===ntf && W.run('cycleAt(60)')===ntf);
   ok('wave 61 opens the Shivan cycle, and it holds after that',
      W.run('cycleAt(61)').first===61 && W.run('cycleAt(140)')===W.run('cycleAt(61)'));
@@ -429,6 +432,9 @@ console.log('Cycles: each brings its own fleet');
   W.set('allies',[destroyer()]);
   ok('a Vasudan one does not', W.run("shipOffered('fiherc')")===false && W.run('shipSwapReady()')===false);
   W.run("enterCycle(cycleAt(1))");
+  ok('the FS1 cycle flies the Apollo, Terran column only', P().ship==='fiapollo' &&
+     W.run('PLAYER_SHIPS.length')===1 && W.run('ALLY_FAC_ON.terran')===true && W.run('ALLY_FAC_ON.vasudan')===false);
+  W.run("enterCycle(cycleAt(4))");
   ok('and back: the Vasudan roster and column', P().ship==='fitoth' &&
      W.run('ALLY_FAC_ON.terran')===false && W.run('ALLY_FAC_ON.vasudan')===true);
 }
@@ -499,7 +505,7 @@ console.log('A mission can lend a hull');
   ok('and the hangar opens again', W.run('shipSwapReady()')===true);
   W.run("releaseShip()");
   ok('releasing twice changes nothing', P().ship==='fimyrmidon');
-  W.run("enterCycle(cycleAt(1))");   // the tests below expect the first fleet
+  W.run("enterCycle(cycleAt(4))");   // the tests below expect the Hammer of Light fleet (v240: from 4)
 }
 ok('the next wave releases a lent hull before anything else',
    /releaseShip\(\);[\s\S]{0,200}enterCycle/.test(fn('nextWave')));
@@ -662,15 +668,21 @@ console.log('The panel grows with what is open');
      W.run('window._shipRects').filter(r=>r.ship).every(r=>r.y>=0 && r.y+r.h<=500));
 }
 
-console.log('Rearm needs a corvette, not any ship at all');
+// v240 (F22, Silvio 14.10.2026): only the mission's own home ship rearms.
+// Until v239 any allied corvette did; FS1 has none.
+console.log('Rearm needs the home ship, not any ship at all');
 {
-  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
+  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0, home:true});
   reset(); W.set('allies', []);
   ok('nothing on the field, no rearm', W.run('rearmReady()')===false);
   W.set('allies', [destroyer()]);
   ok('a destroyer is a hangar, not an armoury', W.run('rearmReady()')===false);
+  W.set('allies', [{type:'corvette', side:'ally', dead:false, warpOut:0, warp:0}]);
+  ok('a corvette that is not the home ship does not', W.run('rearmReady()')===false);
+  W.set('allies', [{type:'cruiser', side:'ally', dead:false, warpOut:0, warp:0, home:true}]);
+  ok('a home ship of any class does (a cruiser here)', W.run('rearmReady()')===true);
   W.set('allies', [corvette()]);
-  ok('a corvette opens it', W.run('rearmReady()')===true);
+  ok('the home ship opens it', W.run('rearmReady()')===true);
   const warping = corvette(); warping.warp = 40;
   W.set('allies', [warping]);
   ok('one still coming out of the vortex does not', W.run('rearmReady()')===false);
@@ -738,7 +750,7 @@ console.log('Modes: bank 1, bank 2, linked');
 
 console.log('A refit fills every rack - that is what makes it a rearm');
 {
-  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
+  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0, home:true});
   reset(); W.run("FITS={}; applyShip('fitoth'); score=0"); W.set('allies', [corvette()]);
   W.run('player.sb[0].ammo=3; syncLegacyWeapons()');
   W.run('toggleRearmMenu()');
@@ -758,7 +770,7 @@ console.log('A refit fills every rack - that is what makes it a rearm');
 
 console.log('The rearm panel');
 {
-  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0});
+  const corvette = ()=>({type:'corvette', side:'ally', dead:false, warpOut:0, warp:0, home:true});
   reset(); W.run("applyShip('fimyrmidon'); score=9000"); W.set('allies', [corvette()]);
   W.run('toggleRearmMenu()');
   CLR(); W.run('drawRearmMenu()');

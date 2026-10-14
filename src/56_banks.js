@@ -67,7 +67,26 @@ const ARSENAL_P = [
    col:'#7affd8', glow:'rgba(100,255,210,0.32)', note:'shields only - nothing gets through to the hull'},
   {key:'maxim', name:'Maxim', unlock:32000, snd:'L_Newton',
    fs:{d:20, v:1800, w:0.15, l:2.0, e:1.0, a:1.3, s:0.2, u:1.0},
-   col:'#ff6a3a', glow:'rgba(255,100,50,0.34)', note:'hull and subsystems, useless against shields'}
+   col:'#ff6a3a', glow:'rgba(255,100,50,0.34)', note:'hull and subsystems, useless against shields'},
+  // v240 (F21, Silvio 14.10.2026): the FS1 guns, for the FS1 strand only.
+  // Values straight from FSPort's weapons.tbl, on the same anchor as the
+  // FS2 guns above. era: the strand they belong to. fs1: the original FS1
+  // mission from which the player (p) and the computer (c) carry it.
+  {key:'ml16', name:'ML-16 Laser', era:'fs1', fs1:{p:1, c:1}, snd:'L_Sidearm',
+   fs:{d:5, v:450, w:0.2, l:2.0, e:0.2, a:1, s:0.1, u:0.3},
+   col:'#ff8f8f', glow:'rgba(255,110,110,0.30)', note:'the old standard laser, quick and light'},
+  {key:'dadv', name:'D-Advanced', era:'fs1', fs1:{p:17, c:17}, snd:'L_Scalpel',
+   fs:{d:25, v:575, w:0.6, l:1.5, e:0.75, a:0, s:1, u:1},
+   col:'#d6a2ff', glow:'rgba(200,140,255,0.32)', note:'shields and subsystems only - no hull damage'},
+  {key:'avenger', name:'Avenger', era:'fs1', fs1:{p:8, c:2}, snd:'L_Prom_R',
+   fs:{d:16, v:525, w:0.25, l:1.9, e:0.3, a:1.25, s:0.85, u:0.35},
+   col:'#a6dcff', glow:'rgba(120,200,255,0.32)', note:'the fleet gun, good against everything'},
+  {key:'prom1', name:'Prometheus', era:'fs1', fs1:{p:16, c:17}, snd:'L_Prom_S',
+   fs:{d:20, v:450, w:0.3, l:2.0, e:0.4, a:1.3, s:0.7, u:0.35},
+   col:'#ccff88', glow:'rgba(180,255,80,0.30)', note:'hard on hulls'},
+  {key:'banshee', name:'Banshee', era:'fs1', fs1:{p:21, c:21}, snd:'L_Kayser',
+   fs:{d:26, v:650, w:0.4, l:1.5, e:1.6, a:0.7, s:1.2, u:0.35},
+   col:'#ffb466', glow:'rgba(255,160,80,0.34)', note:'tears shields, empties the store'}
 ];
 // Secondaries. bigFirst (v189, Silvio): slow to turn, so the seeker goes
 // for a capital ship when there is one and only takes a fighter otherwise.
@@ -108,7 +127,45 @@ const ARSENAL_S = [
   {key:'cyclops', name:'Cyclops', cls:'bomb', unlock:0, snd:'m_tsunami', homing:'aspect', bigFirst:true,
    fs:{d:2000, v:95, w:20.0, l:25.0, a:1.0, s:0.02, u:0.5, cargo:15, turn:1.0, lock:5.0,
        blast:{i:100, o:200}},             // FS2 inner / outer radius (v190)
-   note:'slow and heavy, for hulls that cannot dodge'}
+   note:'slow and heavy, for hulls that cannot dodge'},
+  // v240 (F21): the FS1 missiles (fighters) and bombs (bombers), for the
+  // FS1 strand only. d v w l a s u cargo from FSPort's weapons.tbl as
+  // approved. Not in the approved values, so taken as in FS: turn 1 s,
+  // a heat seeker's view cone 90 degrees (the FS default), an aspect
+  // seeker's lock as the FS2 Harpoon (missiles) or Cyclops (bombs). Blast
+  // radii only on bombs: missiles only hit what they hit (v190). The
+  // Stiletto is scaled like its FS2 successor, the Stiletto II, on the
+  // missile anchor; on the bomb anchor it would do a tenth of that.
+  {key:'mx50', name:'MX-50', cls:'missile', era:'fs1', fs1:{p:1, c:2}, snd:'m_shrike', homing:'heat',
+   fs:{d:25, v:150, w:0.75, l:10.0, a:1, s:0.4, u:1, cargo:4, turn:1, cone:90},
+   note:'the standard heat seeker'},
+  {key:'fury', name:'Fury', cls:'missile', era:'fs1', fs1:{p:1, c:1}, snd:'m_fury', homing:null,
+   fs:{d:30, v:300, w:0.3, l:3.0, a:1, s:0.5, u:0.6, cargo:0.5, turn:1},
+   note:'dumbfire, a deep rack, short reach'},
+  {key:'interceptor', name:'Interceptor', cls:'missile', era:'fs1', fs1:{p:11, c:8}, snd:'m_wasp', homing:'aspect',
+   fs:{d:150, v:250, w:2.0, l:5.0, a:1, s:0.8, u:0.5, cargo:4, turn:1, lock:2.0},
+   note:'a heavy aspect seeker against fighters'},
+  {key:'phoenix', name:'Phoenix V', cls:'missile', era:'fs1', fs1:{p:13, c:5}, snd:'m_shrike', homing:'aspect', bigFirst:true,
+   fs:{d:350, v:175, w:5.0, l:10.0, a:1, s:0.5, u:0.8, cargo:8, turn:1, lock:2.0},
+   note:'long range, heavy, slow to reload'},
+  {key:'hornet1', name:'Hornet', cls:'missile', era:'fs1', fs1:{p:18, c:21}, snd:'m_swarm', homing:'aspect',
+   fs:{d:25, v:190, w:2.0, l:7.0, a:2, s:1, u:0.3, cargo:1, turn:1, lock:2.0},
+   note:'a light aspect seeker, a deep rack'},
+  {key:'dmissile', name:'D-Missile', cls:'bomb', era:'fs1', fs1:{p:24, c:29}, snd:'m_emp', homing:'aspect', bigFirst:true,
+   fs:{d:1, v:80, w:5.0, l:15.0, a:0, s:0, u:1, cargo:8, turn:1, lock:5.0, blast:{i:10, o:400}},
+   note:'a bomb for the systems of a big ship'},
+  {key:'synaptic', name:'Synaptic', cls:'bomb', era:'fs1', fs1:{p:15, c:13}, snd:'m_cluster', homing:'aspect', bigFirst:true,
+   fs:{d:60, v:90, w:5.0, l:2.5, a:1, s:0.75, u:1, cargo:15, turn:1, lock:5.0, blast:{i:50, o:100}},
+   note:'a cluster bomb'},
+  {key:'stiletto1', name:'Stiletto', cls:'bomb', anchor:'missile', era:'fs1', fs1:{p:10, c:10}, snd:'m_stiletto', homing:'heat', subs:true, bigFirst:true,
+   fs:{d:775, v:150, w:2.0, l:15.0, a:0.01, s:0, u:1, cargo:8, turn:1, cone:90},
+   note:'into the subsystems, not the hull'},
+  {key:'tsunami', name:'Tsunami', cls:'bomb', era:'fs1', fs1:{p:13, c:13}, snd:'m_tsunami', homing:'aspect', bigFirst:true,
+   fs:{d:1500, v:60, w:20.0, l:25.0, a:1, s:0.02, u:2, cargo:15, turn:1, lock:5.0, blast:{i:50, o:150}},
+   note:'the heavy bomb'},
+  {key:'harbinger', name:'Harbinger', cls:'bomb', era:'fs1', fs1:{p:26, c:26}, snd:'m_tsunami', homing:'aspect', bigFirst:true,
+   fs:{d:3200, v:50, w:30.0, l:30.0, a:1, s:0.01, u:16, cargo:40, turn:1, lock:5.0, blast:{i:100, o:250}},
+   note:'the heaviest bomb there is'}
 ];
 
 // Banks of every hull the player can fly, from ships.tbl (genbanks.py).
@@ -147,7 +204,102 @@ const SHIP_BANKS = {
 };
 // A hull without an entry (should not happen) flies this.
 const BANKS_FALLBACK = {p:['promr'], pa:['promr'], s:['harpoon'], sa:['harpoon'], cap:[40], eng:150, pow:2.4};
-function shipBanks(key){ return SHIP_BANKS[key] || BANKS_FALLBACK; }
+function shipBanks(key){
+  if(fs1Arms()) return fs1Banks(key);
+  return SHIP_BANKS[key] || BANKS_FALLBACK;
+}
+
+// ── FS1 BANKS (v240, F21) ────────────────────────────────────
+// The FS1 strand flies the FS1 arsenal. Default banks and rack capacity per
+// hull from FSPort's ships.tbl ($Default PBanks, $Default SBanks, $SBank
+// Capacity). Silvio: Disruptor and Flail are out, also for the computer -
+// the Disruptor becomes the D-Advanced (before that is available, the
+// Avenger), the Flail the Avenger. The Shivans keep their lasers; their
+// missiles are the Terran ones.
+const FS1_FITS = {
+  fiapollo:{p:['avenger','ml16'], s:['mx50','mx50'], cap:[40,40]},
+  fivalyrie:{p:['ml16','prom1'], s:['mx50'], cap:[60]},
+  fiherc:{p:['avenger','dadv'], s:['interceptor','fury'], cap:[60,60]},
+  filoki:{p:['avenger','dadv'], s:['interceptor'], cap:[20]},
+  boathena:{p:['avenger','avenger'], s:['phoenix','stiletto1'], cap:[80,80]},
+  bomedusa:{p:['avenger'], s:['hornet1','mx50','tsunami'], cap:[40,80,80]},
+  boursa:{p:['avenger','avenger'], s:['mx50','synaptic','tsunami'], cap:[80,80,80]},
+  fianubis:{p:['ml16'], s:['fury'], cap:[60]},
+  fihorus:{p:['avenger','avenger'], s:['mx50','phoenix'], cap:[40,40]},
+  fiseth:{p:['ml16','avenger'], s:['mx50','stiletto1'], cap:[40,80]},
+  fitoth:{p:['prom1'], s:['interceptor'], cap:[80]},
+  boamun:{p:['banshee','avenger'], s:['tsunami','synaptic','synaptic'], cap:[60,60,80]},
+  boosiris:{p:['avenger'], s:['synaptic','stiletto1','phoenix'], cap:[40,40,20]},
+  fibasilisk:{p:['shm','shh'], s:['phoenix','hornet1'], cap:[80,80]},
+  fidragon:{p:['shh','shh'], s:['interceptor'], cap:[20]},
+  fimanticore:{p:['shm'], s:['interceptor','mx50'], cap:[40,40]},
+  fiscorpion:{p:['shl','shh'], s:['mx50'], cap:[40]},
+  boshaitan:{p:['shl','shh'], s:['mx50'], cap:[40]},
+  bonephilim:{p:['shl'], s:['mx50','synaptic','phoenix'], cap:[40,40,40]}
+};
+// What stands in for a weapon that is not out yet, in the order of the
+// FS1 campaign. The ML-16, the Fury and the Shivan lasers are there from
+// the first mission; a bomb with nothing before it leaves the bank empty.
+const FS1_STANDIN = {
+  dadv:'avenger', avenger:'ml16', prom1:'avenger', banshee:'avenger',
+  interceptor:'mx50', phoenix:'mx50', hornet1:'mx50', mx50:'fury',
+  harbinger:'tsunami', tsunami:'stiletto1', synaptic:'stiletto1', dmissile:'stiletto1'
+};
+// Only the written missions of the FS1 strand fly it. The practice mode
+// (?fs1=) and the tests keep the arsenal they always had.
+function fs1Arms(){
+  return typeof currentEra !== 'undefined' && currentEra === 'fs1'
+      && typeof missionOrig !== 'undefined' && missionOrig > 0;
+}
+function fs1Def(key){
+  for(const w of ARSENAL_P) if(w.key===key) return w;
+  for(const w of ARSENAL_S) if(w.key===key) return w;
+  return null;
+}
+// Is this FS1 weapon out yet, for the player (who 'p') or the computer
+// ('c')? Weapons that are not FS1 ones (the Shivan lasers) always are.
+function fs1Out(key, who){
+  const w = fs1Def(key);
+  if(!w || !w.fs1) return true;
+  return missionOrig >= (w.fs1[who] || 1);
+}
+// The weapon actually carried for a table entry: the entry, or what stands
+// in for it until it is out. '' when nothing does (a bomb before mission 10).
+function fs1Carried(key, who){
+  let k = key, n = 0;
+  while(k && !fs1Out(k, who) && n++ < 8) k = FS1_STANDIN[k] || '';
+  return k || '';
+}
+// The banks of a hull in the FS1 strand, for the player. Its default fit as
+// FS1 had it, every weapon replaced by its stand-in until it is out. It may
+// carry every FS1 gun, and the FS1 missiles (fighters) or bombs (bombers).
+function fs1Banks(key){
+  const b = SHIP_BANKS[key] || BANKS_FALLBACK, d = FS1_FITS[key];
+  const bomber = (typeof isBomberHull === 'function') && isBomberHull(key);
+  const p = (d ? d.p : b.p.map(function(){ return 'avenger'; }))
+              .map(function(k){ return fs1Carried(k, 'p') || 'ml16'; }).slice(0, 2);
+  const s = (d ? d.s : b.s.map(function(){ return bomber ? 'stiletto1' : 'mx50'; }))
+              .map(function(k){ return fs1Carried(k, 'p'); })
+              .filter(function(k){ return !!k; }).slice(0, 3);
+  const pa = [], sa = [];
+  for(const w of ARSENAL_P) if(w.era==='fs1') pa.push(w.key);
+  for(const w of ARSENAL_S) if(w.era==='fs1' && (w.cls==='bomb')===bomber) sa.push(w.key);
+  return {p:p, pa:pa, s:s, sa:sa, cap:(d && d.cap) || b.cap, eng:b.eng, pow:b.pow};
+}
+// The computer's loadout in the FS1 strand (aiLoadout, 55_arms.js): the
+// same table with the computer's dates. A fighter fires its first missile
+// bank, a bomber its first bomb.
+function fs1AiLoadout(key, old){
+  const d = FS1_FITS[key];
+  if(!d) return old;
+  const p = d.p.map(function(k){ return fs1Carried(k, 'c') || 'ml16'; });
+  const sec = d.s.map(function(k){ return fs1Carried(k, 'c'); }).filter(function(k){ return !!k; });
+  const bomb = sec.find(function(k){ const w = fs1Def(k); return w && w.cls==='bomb'; });
+  const mis  = sec.find(function(k){ const w = fs1Def(k); return w && w.cls!=='bomb'; });
+  const bomber = /^bo/.test(key);
+  return {p:p.length > 1 ? p : p[0], s:(bomber ? (bomb || mis) : (mis || bomb)) || 'fury',
+          pair:!!(old && old.pair)};
+}
 
 // Game values from the table values, once at load.
 (function finishArsenal(){
@@ -163,7 +315,8 @@ function shipBanks(key){ return SHIP_BANKS[key] || BANKS_FALLBACK; }
     w.range = 0;
   }
   for(const w of ARSENAL_S){
-    const f = w.fs, anc = (w.cls==='bomb') ? BOMB_ANCHOR : MIS_ANCHOR;
+    // anchor: a bomb scaled like a missile (the FS1 Stiletto, v240)
+    const f = w.fs, anc = ((w.anchor || w.cls)==='bomb') ? BOMB_ANCHOR : MIS_ANCHOR;
     w.dmg  = f.d * anc.game / anc.d;
     w.f    = {a:f.a/anc.a, s:f.s/anc.s, u:f.u/anc.u};
     w.cd   = Math.max(6, Math.round(f.w*60));
@@ -201,6 +354,11 @@ function shipBanks(key){ return SHIP_BANKS[key] || BANKS_FALLBACK; }
 // The fit of every hull the player has set up in this run, so going back
 // to a hull gives back its banks.
 let FITS = {};
+// Which arsenal the fitted banks came from: 'fs1' or 'std' (v240).
+let armsNow = 'std';
+// The fit a hull was given in one strand is not the fit of another (v240):
+// FS1 weapons do not go into an FS2 rack and the other way round.
+function fitKey(key){ return fs1Arms() ? 'fs1:' + key : key; }
 function bankAmmoMax(shipKey, i, wkey){
   const b = shipBanks(shipKey), w = secDefP(wkey);
   const cap = (b.cap && b.cap[i] != null) ? b.cap[i] : (b.cap && b.cap.length ? b.cap[b.cap.length-1] : 40);
@@ -211,7 +369,7 @@ function secDefP(key){ for(const w of ARSENAL_S) if(w.key===key) return w; retur
 // The default fit of a hull, or what the player made of it this run.
 function fitFor(key){
   const b = shipBanks(key);
-  const f = FITS[key];
+  const f = FITS[fitKey(key)];
   return {p:(f && f.p) ? f.p.slice() : b.p.slice(0,2), s:(f && f.s) ? f.s.slice() : b.s.slice(0,3)};
 }
 // Puts a fit onto the player. keepSec: fractions of each rack to keep.
@@ -338,7 +496,9 @@ function bankChoices(shipKey, pri){
   const b = shipBanks(shipKey), out = [];
   if(pri){
     for(const w of ARSENAL_P) if(b.pa.indexOf(w.key) >= 0 || b.p.indexOf(w.key) >= 0) out.push(w);
-    for(const k of ['scatter','dante']){ const w = priDef(k); if(w && w.key===k) out.push(w); }
+    // The game's own guns belong to the random arc, not to the FS1 strand.
+    if(!fs1Arms())
+      for(const k of ['scatter','dante']){ const w = priDef(k); if(w && w.key===k) out.push(w); }
   } else {
     for(const w of ARSENAL_S) if(b.sa.indexOf(w.key) >= 0 || b.s.indexOf(w.key) >= 0) out.push(w);
   }

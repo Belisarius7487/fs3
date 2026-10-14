@@ -735,7 +735,7 @@ function launchGame(){
   // the hangar needs a destroyer, the rearm panel a corvette)
   if(UI_TICKETS) score += UI_START_PTS;
   SCORE_FRAC = 0;
-  ITEMS=[];ticketFlash=0;TICKET_MSGS=[];SUB_MSGS=[];BAR_PULSE={};forcedPrev='';
+  ITEMS=[];ticketFlash=0;TICKET_MSGS=[];SUB_MSGS=[];BAR_PULSE={};forcedPrev='';armsNow='std';
   player={x:80,y:H/2,ang:0,head:0,aimAng:0,flip:false,vx:0,vy:0,
           hp:100,maxHp:100,sh:100,maxSh:100,
           shRecharge:0.22,shDelay:0,
@@ -792,6 +792,15 @@ function nextWave(){
   protSaved=0; protLost=0;
   crossDone=0; crossTotal=0; commsCut=false; commsSeen=false;
   enemies=[];eBullets=[];allies=[];debris=[];HULKS=[];if(typeof F3D_HULKS!=='undefined')F3D_HULKS=[];empOut=0;allyCd=0;callMenu=false;shipMenu=false;userPaused=false;paused=false;spawnQ=getWaveDef(wave);spawnT=0;
+  // v240 (F21): the strand of the mission decides the arsenal, and that is
+  // only known once the mission is built. A mission of the FS1 strand sets
+  // off fully armed with the weapons of its original, as every FS1 sortie
+  // did; crossing from one strand into another refits the hull too.
+  {
+    const _arms = fs1Arms() ? 'fs1' : 'std';
+    if(!forcedPrev && (_arms === 'fs1' || _arms !== armsNow) && player.ship) applyLoadout();
+    armsNow = _arms;
+  }
   // v208: the world of this mission, the player at its left edge as before,
   // the camera on her
   worldForWave(spawnQ);
@@ -1057,6 +1066,9 @@ function update(){
                                if(_a.platform){ _a.minY=_sp.y; _a.maxY=_sp.y; } }
         if(_a && _a.platform) _a.subs = null;
         if(_a && _sp.callsOk) _a.callsOk = true;
+        // home: the ship the player launched from in the original mission.
+        // Only she rearms him (F22, Silvio 14.10.2026).
+        if(_a && _sp.home) _a.home = true;
         // noKill: held above a sliver of hull until the mission lets go
         // ('freigeben') - the Iceni until her crew is off (v169).
         if(_a && _sp.noKill) _a.keepAlive = true;
@@ -1102,7 +1114,7 @@ function update(){
       // Verbuendeter Jaeger.
       if(_sp.type==='allyfi' || _sp.type==='allybo'){
         const _bo = (_sp.type==='allybo');
-        const _a = mkAllySmall(_bo ? 'bomber' : 'fighter', currentFaction==='hol'?'vasudan':'terran',
+        const _a = mkAllySmall(_bo ? 'bomber' : 'fighter', allyRace(),
                                _sp.spr || rnd(_bo ? ROLES.ally_ter_bombers : ROLES.ally_vas_fighters), _sp.y);
         // Nobody carries a shield in subspace, ours neither (v171).
         if(_a && waveMod==='subspace'){ _a.maxSh = 0; _a.sh = 0; }
