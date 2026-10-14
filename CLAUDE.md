@@ -169,6 +169,7 @@ Ausgabe jeder Stufe steht danach in `checks.log` (nicht im Repo).
 | `ramsim` | Rammmechanik | Sekunden |
 | `wpnsim` | Waffen, Splitter, Subsystemtreffer, Flak | Sekunden |
 | `nctest` | Nichtkämpfer: verbündetes Feuer geht durch Fracht hindurch | Sekunden |
+| `endsim` | **kann jede Mission überhaupt enden?** — siehe unten | Sekunden |
 | `fieldsim` | **spielt echte Missionen** in einem Browser ohne Fenster | Minuten |
 | `warpsim` | jeden Ein- und Aussprung in jeder Mission | Minuten |
 
@@ -181,6 +182,61 @@ geprüfte Funktion eine neue auf, muss die neue in die Namensliste der
 betroffenen Stufe** — sonst bricht die Stufe mit „x is not defined" ab. Genau
 das war bei `nctest` passiert: `playerOnly()` rief seit v203 `freighterArmed()`
 auf, und die Stufe lief seitdem nicht mehr durch.
+
+### `endsim` — kann eine Mission überhaupt enden?
+
+Bei 100 Missionen ist von Hand nicht mehr zu überblicken, ob eine Mission auf
+**jedem** Weg ein Ende hat. F13 war genau das: in M68 saß eine Verlustschranke
+auf allen drei Ereignissen, die den Nachschub abstellen, und die Mission hatte
+überhaupt kein Ende mehr.
+
+`endsim` liest `SCRIPT_WAVES` als Daten und braucht **keinen Browser** — 80
+Missionen in einer Sekunde. Es prüft die drei Fälle, in denen die **Daten**
+einer Mission das Ende zunageln:
+
+1. Ein Ereignis, das die Welle offenhält (`einwarpen`, `seite`), wartet auf
+   eine Kennung, die in keiner Einheit der Mission steht. `evPending()` lässt
+   so ein Ereignis nur los, wenn die Einheit **da war** und weg ist — eine
+   Einheit, die es nie gab, war nie da. **Ein Tippfehler in einer Kennung
+   reicht für eine Mission ohne Ende.**
+2. Nachschub angeschaltet und nie abgeschaltet. Der Nachschub ist kein
+   Ereignis, er hängt an `evReinf`, also wird `liveThreatCount()` nie null.
+3. Eine Uhr gestartet und nie gestoppt. `missionTimerLeft()` gibt nach Ablauf
+   **0** zurück, und das Wellenende verlangt kleiner null — eine abgelaufene
+   Uhr hält die Welle genauso wie eine laufende.
+
+Dazu eine Prüfung am Quelltext: in `EV_LOST_GUARDS` darf **keine** Wirkung
+stehen, die die Welle freigibt. Das ist die F13-Zusicherung.
+
+**Alle Listen liest `endsim` aus dem Code**, nicht aus einer eigenen Kopie:
+welche Auslöser auf eine Kennung gehen (die Fälle in `evTrig`, die `byId()`
+oder `evSeen()` fragen), was die Welle offenhält (aus `evPending()`), was den
+Nachschub abschaltet und was die Uhr stoppt (die Fälle in `evFire`, in deren
+Rumpf `evReinf = false` beziehungsweise `missionTimer = {end:0` steht). Die
+erste Fassung hatte diese Listen von Hand geschrieben, dabei `ende`
+übersehen — das `evReinf = false` setzt wie `abzug` — und meldete M35, M45
+und M50 als endlos, obwohl alle drei auf `ende` enden. **Eine von Hand
+geschriebene Liste veraltet.**
+
+### `warpsim`: Umfang, Tempo und derselbe Würfel
+
+- **Umfang:** stand fest auf `1-60`, während das Spiel 80 geschriebene
+  Missionen hatte — 20 davon wurden nie geprüft, ohne dass es auffiel. Die
+  letzte Mission wird jetzt aus `SCRIPT_WAVES` gelesen.
+- **Tempo:** die Missionen sind voneinander unabhängig und laufen zu mehreren
+  gleichzeitig (`WARPSIM_JOBS`, Standard 6, begrenzt auf die Zahl der Kerne).
+- **Derselbe Würfel:** `warpsim` war nicht wiederholbar. Auf v232, Missionen
+  1–8, meldeten zwei Läufe 4, 7 und 7 Befunde und verschiedene Schiffe —
+  seriell gegen seriell genauso wie seriell gegen parallel. Flugbahnen, die
+  Streuung beim Einsprung und die Größe einer Nachschubstaffel kommen aus
+  `Math.random()`, also sah jeder Lauf eine andere Schlacht, und „all clean"
+  hieß „diesmal sauber". **Das ist auch die Erklärung dafür, dass zwischen
+  v232 und v233 eine Familie von 48 Befunden verschwand, ohne dass etwas
+  angefasst wurde.** Der Würfel wird jetzt je Mission festgenagelt; drei
+  Läufe (zweimal parallel, einmal seriell) kommen byteweise gleich heraus.
+  Ein Nachteil, der benannt sein muss: **ein Startwert sieht je Mission
+  einen** Flugverlauf, nicht alle. Für ein Tor ist Wiederholbarkeit richtig;
+  `WARPSIM_SEED=n` sieht absichtlich einen anderen.
 
 ### Warnung zu `mechsim`
 

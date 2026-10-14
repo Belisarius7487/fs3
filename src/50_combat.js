@@ -725,8 +725,17 @@ function drawNebulaFog(){
   ctx.beginPath(); ctx.rect(0,HUD_H,W,H-HUD_H); ctx.clip();
   // The clear pocket is deliberately tight: it is a hole you fly inside,
   // not a room you sit in.
-  const g = ctx.createRadialGradient(player.x,player.y,r*0.25,
-                                     player.x,player.y,r*1.45);
+  //
+  // It is drawn on the SCREEN (the fillRect below is 0..W), so its centre
+  // has to be the player's screen position and its radius the world range
+  // through the camera's zoom. Until v235 it used player.x/player.y
+  // straight, which was the same thing while the field was the screen; with
+  // the world of v208 the player stands at world x of a few thousand and
+  // the pocket slid off the picture (Silvio, F19: "Seit der Hochskalierung
+  // verschiebt sich dieser Radius").
+  const px = w2sX(player.x), py = w2sY(player.y), rs = r*CAM.z;
+  const g = ctx.createRadialGradient(px,py,rs*0.25,
+                                     px,py,rs*1.45);
   g.addColorStop(0,   'rgba('+T.core+',0)');
   g.addColorStop(0.50,'rgba('+T.core+',0.54)');
   g.addColorStop(1,   'rgba('+T.edge+',0.90)');

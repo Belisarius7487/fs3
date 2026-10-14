@@ -627,6 +627,44 @@ scenario('Every mission gets a play field of the same size', 'm=31', `
   }
   return r;`);
 
+// The clear pocket in a nebula is drawn on the screen but was centred on
+// the player's WORLD position, so with the world of v208 it slid off the
+// picture (Silvio, F19). Read off the gradient the drawing actually asks
+// for: on the broken version its centre is player.x, which in this mission
+// is over a thousand units to the right of the 800 wide screen.
+scenario('The clear pocket in a nebula sits on the player, not beside him', 'm=39', `
+  const r = {};
+  FS.until(()=>!inJump(), 3000, true);
+  r.nebulaMission = nebulaOn() === true;
+  // Somewhere off the middle, so a centre taken from world coordinates and
+  // one taken from screen coordinates cannot come out the same by luck.
+  player.x = MW*0.62; player.y = (HUD_H + MH)/2 + 40;
+  camSnap(player.x, player.y);
+  transFog = 1;
+  const calls = [];
+  const real = ctx.createRadialGradient.bind(ctx);
+  ctx.createRadialGradient = function(x0,y0,r0,x1,y1,r1){
+    calls.push({x0,y0,r0,x1,y1,r1}); return real(x0,y0,r0,x1,y1,r1);
+  };
+  try{ drawNebulaFog(); } finally { delete ctx.createRadialGradient; }
+  r.aPocketWasDrawn = calls.length > 0;
+  if(!calls.length) return r;
+  const c = calls[0];
+  const sx = w2sX(player.x), sy = w2sY(player.y);
+  r.playerWorldX = Math.round(player.x);
+  r.playerScreenX = Math.round(sx);
+  r.pocketCentreX = Math.round(c.x0);
+  // On the screen, over the player, and sized by the gun range through the
+  // zoom - what you cannot see is what cannot see you.
+  r.centredOnThePlayerOnScreen = Math.abs(c.x0 - sx) < 1 && Math.abs(c.y0 - sy) < 1;
+  r.notOnTheWorldPosition = Math.abs(c.x0 - player.x) > 100;
+  r.radiusIsTheGunRangeThroughTheZoom =
+      Math.abs(c.r1 - fireRange()*CAM.z*1.45) < 1 &&
+      Math.abs(c.r0 - fireRange()*CAM.z*0.25) < 1;
+  // and the centre is inside the field it is drawn on
+  r.centreOnTheField = c.x0 >= 0 && c.x0 <= W && c.y0 >= HUD_H && c.y0 <= H;
+  return r;`);
+
 // A capital ship had no acceleration: she came out of her vortex standing -
 // the picture brings an ally out at nothing - and drove at her full cruise
 // in the next tick. warpsim saw it thirteen times over the campaign and the

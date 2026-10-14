@@ -102,6 +102,7 @@ run "hudsim"   node hudsim.js   "$LOGIC"
 run "ramsim"   node ramsim.js   "$LOGIC"
 run "wpnsim"   node wpnsim.js   "$LOGIC"
 run "nctest"   node nctest.js   "$LOGIC"
+run "endsim"   node endsim.js   "$LOGIC"
 
 # These two load the whole game into a headless browser and play real
 # missions. They are the slow ones - around ten minutes each - and they are

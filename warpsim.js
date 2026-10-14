@@ -17,7 +17,13 @@ const {chromium} = require(path.join(execSync('npm root -g').toString().trim(), 
 
 const logic = process.argv[2];
 const mounts = process.argv[3] || 'hlp_mounts_final.json';
-const range = (process.argv[4] || '1-60').split('-').map(Number);
+// How many written missions are there? Read out of SCRIPT_WAVES, so the
+// range grows with the game. It stood at a hard '1-60' while the game had
+// 80 written missions, which left 20 of them unchecked without saying so
+// (v235).
+const _sw = fs.readFileSync(logic, 'utf8').match(/const SCRIPT_WAVES = \{([\s\S]*?)\n *\};/);
+const LAST = _sw ? Math.max.apply(null, [..._sw[1].matchAll(/^ {2}(\d+):\{name:/gm)].map(m => +m[1])) : 60;
+const range = (process.argv[4] || ('1-' + LAST)).split('-').map(Number);
 const M0 = range[0], M1 = range[1] || range[0];
 
 // A 1x1 picture stands in for the vortex and glow sheets: the vortex is
@@ -31,8 +37,33 @@ html = html.replace(/<script([^>]*)>/, '<script$1>\nconst MOUNTS=' +
 const tmp = path.join(os.tmpdir(), 'warpsim_' + process.pid + '.html');
 fs.writeFileSync(tmp, html);
 
+// The same dice in every run. Measured on v232, missions 1-8: two runs of
+// the stage disagreed on how many ships jumped and reported 4, 7 and 7
+// findings - serial against serial as much as serial against parallel, so
+// it was never the parallelism. Flight paths, the scatter of a jump-in and
+// the size of a reinforcement wing all come from Math.random(), so every
+// run sampled a different battle and "all clean" meant "clean this once".
+// That is also what made a family of 48 findings vanish between v232 and
+// v233 with nothing touched (OFFENE_FEHLER.md).
+//
+// The price is that one seed samples ONE flight pattern per mission, not
+// all of them. That is the right trade for a gate - a gate has to be
+// repeatable - and WARPSIM_SEED=n deliberately samples another one.
+const SEED = parseInt(process.env.WARPSIM_SEED, 10) || 1;
 // Runs inside the page, one mission.
 const BODY = `
+  {
+    // mulberry32, seeded from the mission number so missions do not share a
+    // stream and the order they run in cannot matter.
+    let _s = (${SEED} * 1000003 + MISSION_NO) >>> 0;
+    Math.random = function(){
+      _s = (_s + 0x6D2B79F5) >>> 0;
+      let t = _s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
   if(typeof fsNose !== 'function') window.fsNose = e => { const s = (e.flip?-1:1)*(spriteFacing(e.img)==='left'?-1:1), a = e.ang||0; return {x:Math.cos(a)*s, y:Math.sin(a)*s}; };
   for(const k of Object.keys(HULL_LEN)){
     const small = /^(fi|bo|sg|fc|ep)/.test(k) && HULL_LEN[k] < 80;
@@ -202,18 +233,49 @@ const BODY = `
   return {found, ticks: t, ended: done >= 0, jumps: T.size};
 `;
 
-(async()=>{
-  const browser = await chromium.launch();
-  let bad = 0;
-  for(let m=M0; m<=M1; m++){
-    const page = await browser.newPage();
-    const errs = [];
-    page.on('pageerror', e=>errs.push(String(e.message||e)));
+// One mission is one page and knows nothing of the others, so they run side
+// by side. Serially the 60 missions took an hour and a half, which is why
+// the stage was reached for last and sometimes not at all (Silvio, v235:
+// "es kann nicht sein, dass Simulationen Stunden brauchen"). Jobs are
+// capped at the number of cores and can be set with WARPSIM_JOBS=n.
+// Results are collected and printed in mission order, so the output reads
+// exactly as it did before.
+const JOBS = Math.max(1, Math.min(parseInt(process.env.WARPSIM_JOBS, 10) || 6,
+                                  require('os').cpus().length, M1 - M0 + 1));
+async function playOne(browser, m){
+  const page = await browser.newPage();
+  const errs = [];
+  page.on('pageerror', e=>errs.push(String(e.message||e)));
+  let r = null;
+  try{
     await page.goto('file://' + tmp + '?m=' + m + '&warp=oval&practice=1');
     await page.waitForTimeout(300);
-    let r = null;
-    try{ r = await page.evaluate('(function(){' + BODY + '})()'); }
-    catch(e){ errs.push(String(e.message||e)); }
+    r = await page.evaluate('(function(){const MISSION_NO=' + m + ';' + BODY + '})()');
+  }catch(e){ errs.push(String(e.message||e)); }
+  finally { await page.close().catch(()=>{}); }
+  return {m, r, errs};
+}
+(async()=>{
+  const browser = await chromium.launch();
+  const todo = [];
+  for(let m=M0; m<=M1; m++) todo.push(m);
+  const out = new Map();
+  let next = 0;
+  const worker = async () => {
+    while(true){
+      const i = next++;
+      if(i >= todo.length) return;
+      const res = await playOne(browser, todo[i]);
+      out.set(res.m, res);
+    }
+  };
+  console.log('warpsim: ' + todo.length + ' missions, ' + JOBS + ' at a time, seed ' + SEED);
+  await Promise.all(Array.from({length: JOBS}, worker));
+  await browser.close();
+  fs.unlinkSync(tmp);
+  let bad = 0;
+  for(const m of todo){
+    const {r, errs} = out.get(m) || {errs: ['no result']};
     const head = 'M' + String(m).padStart(2,'0');
     if(r){
       console.log(head + '  ' + r.jumps + ' ships jumped' + (r.ended ? '' : '  (wave did not end)') +
@@ -222,10 +284,7 @@ const BODY = `
       bad += r.found.length;
     }
     if(errs.length){ bad++; console.log(head + '  page errors: ' + errs.slice(0,3).join(' | ')); }
-    await page.close();
   }
-  await browser.close();
-  fs.unlinkSync(tmp);
   console.log(bad ? '\n' + bad + ' findings' : '\nall clean');
   process.exit(bad ? 1 : 0);
 })();

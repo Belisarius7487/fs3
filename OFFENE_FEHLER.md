@@ -1204,10 +1204,38 @@ hat der Spieler um sein Schiff herum einen kleinen Radius mit freier Sicht.
 Seit der Hochskalierung verschiebt sich dieser Radius. Das muss bis zur
 Erstellung der ersten Nebelmission noch gefixt werden."
 
-Noch nicht im Code nachgelesen. **Muss vor der ersten Nebelmission behoben
-sein**, nicht vorher nötig.
+**Im Code nachgelesen — der Befund stimmt, und die Ursache ist eine Zeile.**
+`drawNebulaFog()` (`50_combat.js`) zeichnet die freie Tasche als Farbverlauf
+um `player.x` / `player.y`:
 
-- Status: eingetragen, noch nicht untersucht
+```js
+const g = ctx.createRadialGradient(player.x,player.y,r*0.25,
+                                   player.x,player.y,r*1.45);
+ctx.fillRect(0,HUD_H,W,H-HUD_H);
+```
+
+Gefüllt wird in **Bildschirmkoordinaten** (0 bis W), zentriert wurde auf
+**Weltkoordinaten**. Solange das Spielfeld der Bildschirm war, war beides
+dasselbe. Seit v208 steht der Spieler bei Welt-x von einigen Tausend —
+nachgemessen in M39: Welt-x **1534**, Bildschirm-x **400**. Die Tasche lag
+also mehr als eine Bildschirmbreite rechts neben dem Bild.
+
+**Behoben in v236:** Mittelpunkt `w2sX(player.x)` / `w2sY(player.y)`, Radius
+`fireRange()*CAM.z`. Damit sitzt die Tasche auf dem Spieler und ist so groß
+wie die Waffenreichweite durch den Kamerazoom — was man nicht sieht, sieht
+auch einen nicht, und das war die Absicht hinter dem Maß.
+
+**Silvio hat entschieden, v235, gegen meinen Vorschlag es aufzuschieben:**
+„Hintergrund ist der, dass wir ja eh Zusatzmissionen, vielleicht auch pro
+Ark, planen müssen und vielleicht spielt eine davon mal in einem Nebel."
+
+**Prüfung:** `fieldsim`-Szenario „The clear pocket in a nebula sits on the
+player, not beside him" fängt den Aufruf von `createRadialGradient` ab und
+liest den Mittelpunkt, den das Zeichnen wirklich verlangt. Gegen die Fassung
+vor der Behebung meldet es Mittelpunkt 1534 statt 400 und vier rote
+Zusicherungen.
+
+- Status: behoben in v236
 
 ## Eigenheiten der Missionsstränge (Silvio, v234)
 
@@ -1243,6 +1271,38 @@ Funk.
 **Das Modell der Boadicea** ist einer der acht noch fehlenden Rümpfe.
 
 - Status: eingetragen, noch nicht umgesetzt
+
+### Waffen und Beams je Strang — noch nichts gebaut
+
+**Silvio, v235:** „Wir brauchen für jeden Arc vermutlich eigene Waffen. Für
+den Random Arc kommen weitere hinzu wie jetzt schon die Dante und die Sidhe."
+— „Für die neuen Waffen braucht es zudem neue Einträge für unsere bisherigen
+Waffen." — „Beams existieren in FS1 nur auf der Lucifer. In STR nur auf der
+Hades. Hast du das mit berücksichtigt bei den Waffenmounts für die FS1 und
+STR-Arks?"
+
+**Antwort: nein, nichts davon ist berücksichtigt.** Es gibt bisher überhaupt
+nichts strangabhängiges im Spiel.
+
+- **Waffen** stehen in `PRIMARIES` und der Sekundärliste (`70_ui.js`) als
+  **eine** Liste, ohne ein Feld dafür, in welchem Strang eine Waffe
+  verfügbar ist. Die bisherigen Einträge brauchen also ein solches Feld, bevor
+  strangeigene Waffen dazukommen können — genau Silvios Punkt.
+- **Beams** kommen **pro Rumpf** aus den Mount-Daten (`MOUNTS`, `m.beams`,
+  gelesen in `50_combat.js` und `59_field3d.js`), und die sind FS2-Stand. In
+  einer FS1-Mission würde eine Orion heute Beams feuern. Für „Beams nur auf
+  der Lucifer" (FS1) und „nur auf der Hades" (ST:R) braucht es eine Regel,
+  die die Beams eines Rumpfes je Strang unterdrückt. Die gibt es nicht.
+
+**Die Waffentabellen liegen jetzt im Repo:** FSPort in
+`fs1/tables/tables/weapons.tbl`, FS2-Retail in
+`fs2/tables/weapons_retail.tbl`, dazu die Änderungstabellen von ST:R
+(`str/tables/str-shivan-wep.tbm`) und der MediaVPs. Welche Waffe in welchem
+Strang vorkommt, lässt sich aber auch direkt aus den Missionsdateien ablesen
+(`+Primary Banks:`), was genauer ist als die Tabelle: es sagt, was wirklich
+geflogen wird.
+
+- Status: eingetragen, nichts gebaut. Gehört zum Nachbau der Missionen.
 
 ### Missionen müssen auf jedem Weg enden können
 
@@ -1582,6 +1642,36 @@ wird irgendwann grün, wenn man sie oft genug laufen lässt — und genau das
 untergräbt die Regel, dass bei roter Stufe nichts hochgeschoben wird. Wo
 gewürfelt werden muss, gehört der Würfel festgenagelt oder über genug
 Ausstöße herausgemittelt.
+
+### `warpsim` war nicht wiederholbar — und das erklärt die verschwundene Familie 2
+
+Beim Parallelisieren von `warpsim` (v236) nachgemessen, v232, Missionen 1–8:
+
+| Lauf | Befunde |
+|---|---|
+| seriell | 4 |
+| parallel | 7 |
+| parallel, zweiter Lauf | 7, aber andere Schiffe |
+
+Auch **zwei Läufe im selben Modus** unterscheiden sich. Es lag also nie an der
+Parallelisierung: Flugbahnen, die Streuung beim Einsprung und die Größe einer
+Nachschubstaffel kommen aus `Math.random()`, und jeder Lauf sah eine andere
+Schlacht.
+
+**Damit ist die „unerklärt verschwundene" Familie 2 erklärt** — die 48
+Knicke bei der Übergabe von Jägern, die zwischen v232 und v233 weg waren,
+obwohl nichts daran geändert wurde. Es war Streuung, kein Erfolg. Das war
+hier als offen und ausdrücklich nicht als Erfolg eingetragen; die Vorsicht
+war berechtigt.
+
+**Behoben in v236:** der Würfel wird je Mission festgenagelt
+(`WARPSIM_SEED`, Standard 1). Drei Läufe — zweimal parallel, einmal
+seriell — kommen byteweise gleich heraus.
+
+**Was dabei nicht gelöst ist:** ein Startwert sieht je Mission **einen**
+Flugverlauf. Die Befunde, die nur bei anderen Zufallszahlen auftreten, sieht
+`warpsim` jetzt nicht mehr — vorher sah es sie zufällig und unzuverlässig.
+Wer breiter prüfen will, lässt es mit mehreren Startwerten laufen.
 
 ### `queueHolds()` steht zweimal da
 
