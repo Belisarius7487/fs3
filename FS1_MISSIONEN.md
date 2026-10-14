@@ -7,6 +7,12 @@ alle Entwürfe (Silvio, 14.10.2026):
 - **Höchste Wartezeit 30 Sekunden.** Jede Staffel, die auf den Abschuss
   einer anderen wartet, kommt spätestens nach 30 Sekunden.
 - Kein Funkgeplauder, keine Schwierigkeitsstufen-Varianten.
+- **Kaperziele** (Silvio, 15.10.2026): Ein feindliches Schiff, das gekapert
+  werden soll, wird von Verbündeten nicht beschossen. Im Code v239 schon so:
+  `escortSpares()` (`40_world.js`) schont `captureLock` und `disableTgt`,
+  und `captureLock`/`keepAlive` verhindern den Tod bei 0 Rumpf. Beim Bau
+  für M4, M9 und M10 im Spiel prüfen. Ausnahme M9: die **Shivaner** sollen
+  die Ramses zerstören können, sonst fehlt die Gefahr.
 - Waffenzeitpunkte: siehe `OFFENE_FEHLER.md`, F21. Nachladen nur beim
   eigenen Trägerschiff (F22).
 
@@ -217,3 +223,29 @@ Vorlage `fs1/sm1-09a.fs2`.
 - Ende: Depot zerstört, Ramses gekapert oder verloren, Shivaner-Jäger weg →
   Taranis springt ab (`abzug`). Depot + Ramses gekapert → Erfolg. Ramses
   verloren → Teilerfolg.
+
+## Mission 10 — First Strike, geteilt in 10A und 10B (abgesegnet)
+
+Vorlage `fs1/sm1-10a.fs2`. Spieler fliegt einen **Athena-Bomber mit
+Stiletto** (vorgegebenes Schiff).
+
+**10A — Lahmlegen**
+
+- Start: Spieler (Athena), drei Athena, vier Valkyrie als Begleitschutz.
+  Taranis (Cain) mit 3 Shaitan und 2 Scorpion.
+- Auftrag: Antrieb und Waffen der Taranis zerstören, nicht den Kreuzer.
+- Nach 30 s oder sobald die erste Gruppe weg ist: 4 Scorpion.
+- Lahmgelegt und entwaffnet → Erfolg, Verbündete stellen das Feuer ein.
+  Taranis zerstört → Fehlschlag.
+
+**10B — Die Bergung**
+
+- Start: dieselbe Aufstellung, Taranis bereits lahm und entwaffnet.
+- Frachter Halkins (Chronos, Rumpfbalken) springt ein, dockt an, 25 s,
+  dann `kapern`, beide springen ab. Die zwei gescheiterten Transporter des
+  Originals fallen weg.
+- Während des Andockens: 4 Basilisk, 2 Scorpion, 4 Basilisk.
+- Ende: Taranis gekapert → Erfolg. Halkins zerstört → Fehlschlag,
+  Shivaner ziehen ab. Taranis vom Spieler zerstört → Fehlschlag.
+
+Je etwa 2 bis 2,5 Minuten.
