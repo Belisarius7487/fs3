@@ -105,3 +105,24 @@ Vorlage `fs1/sm1-04a.fs2`.
   Fehlschlag. Comet zerstört → Omega frei (`freigeben`), flieht →
   Fehlschlag. Rasputin nur Bonus.
 - Weggelassen: die terranischen Verstärkungsstaffeln Delta und Epsilon.
+
+## Mission 5 — Out of the Dark, Into the Night (abgesegnet)
+
+Vorlage `fs1/sm1-05a.fs2`. Erste Begegnung mit den Shivanern.
+
+- Start: Spieler und drei Apollo, Plato (Faustus, verbündet, Rumpfbalken)
+  quert langsam das Feld.
+- Sofort 3 Anubis + 1 Osiris. Danach (spätestens 30 s) noch einmal
+  3 Anubis + 1 Osiris zusammen mit dem Kreuzer Taurus (Aten, Vasudaner).
+- Zweite Staffel weg → 3 Scorpion + 1 Shaitan springen ein, zerstören
+  zuerst die Taurus, dann Angriff auf die Plato. Kurz darauf
+  2 Scorpion + 2 Shaitan.
+- Auftrag: die Unbekannten scannen. Bonus: einen abschießen (FS1-Regel:
+  Primärwaffen gegen Shivaner-Schilde anfangs fast wirkungslos).
+- **Die Plato ist zu retten** (Silvio, 14.10.2026: „Es muss schwer sein,
+  aber möglich"). Im Original stirbt sie per Drehbuch immer — das gibt es
+  bei uns nicht.
+- Plato unter 20 % Rumpf → Rettungskapsel (Hermes, Rumpfbalken) startet und
+  versucht, das Feld zu verlassen.
+- Ende: Plato überlebt → Erfolg. Plato verloren, Kapsel entkommt →
+  Teilerfolg (gelb). Beide verloren → Fehlschlag.
