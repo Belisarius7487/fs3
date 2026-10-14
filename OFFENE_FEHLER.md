@@ -1539,8 +1539,9 @@ braucht es zudem neue Einträge für unsere bisherigen Waffen."
   Original, Werte an FS3 angepasst). Eigene Erfindungen höchstens später
   als Ergänzung.
 - **Spielerauswahl:** Primär ML-16, D-Advanced, Avenger, Prometheus,
-  Banshee. Raketen (nur Jäger) MX-50, Fury, Interceptor, Phoenix V, Hornet,
-  D-Missile. Bomben (nur Bomber) Synaptic, Stiletto, Tsunami, Harbinger.
+  Banshee. Raketen (nur Jäger) MX-50, Fury, Interceptor, Phoenix V, Hornet.
+  Bomben (nur Bomber) D-Missile, Synaptic, Stiletto, Tsunami, Harbinger
+  (D-Missile wie in FS1 als Bombe, Silvio 14.10.2026).
 - **Disruptor und Flail entfallen ganz**, auch bei Computerschiffen
   („waren in FS1 einfach scheiße"). Ersetzt durch D-Advanced bzw. Avenger;
   vor dem Zeitpunkt des D-Advanced (Mission 17) durch den Avenger.
