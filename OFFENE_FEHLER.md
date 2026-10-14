@@ -1288,11 +1288,36 @@ nichts strangabhängiges im Spiel.
   **eine** Liste, ohne ein Feld dafür, in welchem Strang eine Waffe
   verfügbar ist. Die bisherigen Einträge brauchen also ein solches Feld, bevor
   strangeigene Waffen dazukommen können — genau Silvios Punkt.
-- **Beams** kommen **pro Rumpf** aus den Mount-Daten (`MOUNTS`, `m.beams`,
-  gelesen in `50_combat.js` und `59_field3d.js`), und die sind FS2-Stand. In
-  einer FS1-Mission würde eine Orion heute Beams feuern. Für „Beams nur auf
-  der Lucifer" (FS1) und „nur auf der Hades" (ST:R) braucht es eine Regel,
-  die die Beams eines Rumpfes je Strang unterdrückt. Die gibt es nicht.
+- **Beams — hier hatte ich mich geirrt, und die Berichtigung ist wichtig.**
+  Ich hatte Silvio gesagt, eine Regel pro Strang gebe es nicht. **Es gibt
+  sie.** `ERA_RULES` (`30_waves.js`) kennt genau das:
+
+  ```js
+  fs1: {noBeams:true, shieldWave:9, avengerWave:8, shivanShieldPen:0.25},
+  str: {noBeams:true, shieldWave:0},
+  fs2: {noBeams:false, shieldWave:0}
+  ```
+
+  und `initBeams()` (`50_combat.js:3028`) liest sie:
+  `if(eraRule('noBeams') && !e.keepBeams) return;`
+
+  Auch Silvios zweiter Punkt steht schon da: `shieldWave:9` heißt, dass die
+  Flotte in FS1 erst ab Welle 9 Schilde hat — „Im FS1-Arc gibt es anfangs
+  keine Schilde für Jäger und Bomber."
+
+  **Drei echte Lücken bleiben:**
+
+  1. **`keepBeams` wird nirgends gesetzt** — nur gelesen. Die Ausnahme für die
+     Lucifer steht im Kommentar und in der Bedingung, aber **kein Schiff
+     bekommt sie je.** In einer FS1-Welle hätte die Lucifer also keine Beams.
+     `grep -rn "keepBeams" src/` gibt genau zwei Treffer, beide in derselben
+     Funktion.
+  2. **Für ST:R fehlt die Hades-Ausnahme.** `str` hat `noBeams:true` ohne
+     jede Ausnahme; Silvio: „In STR nur auf der Hades."
+  3. **Die geschriebenen Missionen setzen keine Ära.** `currentEra` steht auf
+     `'fs2'` und wird nur im Übungsmodus (`?fs1=`) auf `'fs1'` gesetzt. Alle
+     80 Missionen laufen damit als FS2 — die ganze Maschinerie liegt brach.
+     Eine Mission braucht also ein Feld für ihren Strang.
 
 **Die Waffentabellen liegen jetzt im Repo:** FSPort in
 `fs1/tables/tables/weapons.tbl`, FS2-Retail in
