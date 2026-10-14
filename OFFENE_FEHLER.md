@@ -1571,7 +1571,34 @@ braucht es zudem neue Einträge für unsere bisherigen Waffen."
   | D-Missile | 24 | 29 |
   | Harbinger | 26 | 26 |
 
-- Status: **entschieden, noch nicht gebaut.** Offen: die Werte je Waffe.
+- **Werte (abgesegnet 14.10.2026):** die FS1-Rohwerte aus FSPorts
+  `weapons.tbl`, umgerechnet wie die FS2-Waffen in `56_banks.js`
+  (`PRI_ANCHOR`, `MIS_ANCHOR`, `BOMB_ANCHOR`) — also im FS1-Verhältnis
+  zueinander, gemessen an Prometheus R / Harpoon / Cyclops. Rohwerte
+  (d, v, w, l, e, a, s, u, cargo, Explosionsradius innen/außen):
+
+  ```
+  ML-16 Laser   5  450 0.2  2   0.2  1    0.1  0.3
+  D-Advanced    25 575 0.6  1.5 0.75 0    1    1     puncture
+  Avenger       16 525 0.25 1.9 0.3  1.25 0.85 0.35
+  Prometheus    20 450 0.3  2   0.4  1.3  0.7  0.35
+  Banshee       26 650 0.4  1.5 1.6  0.7  1.2  0.35
+  MX-50         25   150 0.75 10 a1 s0.4  u1   cargo4  r20/40   heat
+  Fury          30   300 0.3  3  a1 s0.5  u0.6 cargo0.5          dumbfire
+  Interceptor   150  250 2    5  a1 s0.8  u0.5 cargo4            aspect
+  Phoenix V     350  175 5    10 a1 s0.5  u0.8 cargo8  r10/30   aspect
+  Hornet        25   190 2    7  a2 s1    u0.3 cargo1  r10/20   aspect
+  D-Missile     1    80  5    15 a0 s0    u1   cargo8  r10/400  aspect, Electronics
+  Synaptic      60   90  5    2.5 a1 s0.75 u1  cargo15 r50/100  15 cluster babies
+  Stiletto      775  150 2    15 a0.01 s0 u1   cargo8            heat, puncture
+  Tsunami       1500 60  20   25 a1 s0.02 u2   cargo15 r50/150  aspect
+  Harbinger     3200 50  30   30 a1 s0.01 u16  cargo40 r100/250 aspect
+  Shivan Light  8  450 0.3  2   0.3  1 1   1
+  Shivan Heavy  15 475 0.5  2   0.4  1 1   1
+  Shivan Mega   30 400 0.75 1.5 0.9  1 0.6 1
+  ```
+
+- Status: **entschieden, noch nicht gebaut.**
 
 ### F22 — Das Rearm-Fenster hängt an einer Korvette, und FS1 hat keine
 
