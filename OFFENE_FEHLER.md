@@ -1578,6 +1578,17 @@ die taktische Bedeutung verliert — das war damit auch abgelehnt.
 - Status: eingetragen, Entscheidung offen — aber die vier Wege oben sind
   **erledigt und abgelehnt**
 
+**Entschieden (Silvio, 14.10.2026):** Nachladen gibt es **nur beim eigenen
+Trägerschiff** der Mission. Trägerschiff ist **das Schiff, von dem der
+Spieler in der Originalmission startet** (z. B. Galatea oder Bastion in FS1,
+Aquitaine in FS2) — immer genau ein Schiff, in jeder Ära dieselbe Bedingung.
+Es steht nur in den Missionen im Feld, in denen es auch im Original beim
+Gefecht dabei ist; in allen anderen Missionen gibt es **kein Nachladen**.
+Abgelehnt dagegen: fester Vorrat an Nachladungen je Mission.
+
+- Status: **entschieden, noch nicht gebaut** — wird mit den neuen Missionen
+  umgesetzt, weil erst dort feststeht, wo welches Trägerschiff steht
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
