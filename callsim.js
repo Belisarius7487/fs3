@@ -36,6 +36,9 @@ const terN   = decl(/const ALLY_TER_N = \d+;/);
 const spec   = decl(/const ALLY_SPECIAL = '[a-z]+';/);
 const specK  = decl(/const ALLY_SPECIAL_KEY = '[A-Z]';/);
 const facOn  = decl(/const ALLY_FAC_ON = \{[^}]*\};/);
+// v237: eraAllows() asks currentEra, so the stage needs it. The endless
+// mode is FS2 and that is what the call menu is measured against here.
+const era    = "let currentEra = 'fs2';";
 const colT   = decl(/const COLOSSUS_TIME = \d+;/);
 const refine = decl(/const REFINE_COST = \d+;/);
 
@@ -49,7 +52,7 @@ const names = [
   'thFit','callMenuLayout','drawAllyRow','drawKeyChip','drawHullCell',
   
   'insidePanel',
-  'thChamferPath','thPlate','thGlowPath','thButton','btnState','btnText','thBevel','thGlow','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','allyFacOn', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
+  'thChamferPath','thPlate','thGlowPath','thButton','btnState','btnText','thBevel','thGlow','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','allyFacOn', 'eraAllows', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
   'mountsFor', 'spriteFacing', 'drawHullBg',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const menuBgDecl = decl(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/);
@@ -144,6 +147,7 @@ const world = `
   ${spec}
   ${specK}
   ${facOn}
+  ${era}
   ${colT}
   ${refine}
   ${themesDecl}
@@ -239,7 +243,9 @@ const spans = ()=>{
   ok('an over long name is cut, not allowed to run',
      spans().every(t => t.r <= pr.x+pr.w+1));
   ok('and it is marked as cut', spans().some(t => t.s.indexOf('\u2026') >= 0));
-  W.run("ALLY_DEFS.vas_aten.label='PVC Aten'");
+  // v237: restores the label the game really carries. It used to put back
+  // 'PVC Aten', which is what the FS1 era renames her to, not her own entry.
+  W.run("ALLY_DEFS.vas_aten.label='GVC Aten'");
 }
 {
   // thFit on its own, so the guarantee is checked and not just its effect
@@ -350,6 +356,36 @@ console.log('DONE (v194)');
   ok('inside the panel and on the field',
      d.x >= pr.x && d.x+d.w <= pr.x+pr.w && d.y+d.h <= pr.y+pr.h && pr.y >= 0 && pr.y+pr.h <= 500);
   ok('below every entry, the Colossus row too', rows.every(r => r.y+r.h <= d.y-4));
+}
+
+// v237, Silvio: "Im FS1-Block kommen auch nur FS1-Aera Schiffe vor. Die
+// Sathanas und Hecate zum Beispiel existieren da noch gar nicht. Das ist
+// auch wichtig fuer den rufbaren Support dann." Which arc each entry belongs
+// to was read off the original mission files: the Aeolus, Deimos, Hecate,
+// Mentu, Sobek, Hatshepsut and the Colossus appear in FS2's missions only,
+// the Fenris, Leviathan, Orion, Aten and Typhon in all three.
+console.log('Support per era (v237)');
+{
+  W.run('ALLY_FAC_ON.terran = true; ALLY_FAC_ON.vasudan = true');
+  // By id, not by label: a label is display text and one of the tests above
+  // deliberately overwrites it.
+  const offered = (e) => { W.run("currentEra = '" + e + "'");
+    return [].concat.apply([], W.run('callCols()')).map(x => x.id); };
+  const two = offered('fs2'), one = offered('fs1'), st = offered('str');
+  console.log('      FS2: ' + two.join(' | '));
+  console.log('      FS1: ' + one.join(' | '));
+  const onlyFS2 = ['ter_aeolus','ter_deimos','ter_hecate','vas_mentu','vas_sobek','vas_hatshepsut'];
+  const always  = ['ter_fenris','ter_leviathan','ter_orion','vas_aten','vas_typhon'];
+  ok('FS2 offers every ship', onlyFS2.concat(always).every(n => two.indexOf(n) >= 0));
+  ok('FS1 offers none of the FS2 ships', onlyFS2.every(n => one.indexOf(n) < 0));
+  ok('ST:R offers none of them either', onlyFS2.every(n => st.indexOf(n) < 0));
+  ok('FS1 still offers its own', always.every(n => one.indexOf(n) >= 0));
+  ok('and the menu really got shorter', one.length < two.length && one.length > 0);
+  console.log('      FS2 ' + two.length + ', FS1 ' + one.length + ', ST:R ' + st.length + ' entries');
+  // the Colossus is her own key, outside the columns
+  ok('no Colossus in FS1', !W.run("eraAllows(ALLY_DEFS[ALLY_SPECIAL])"));
+  W.run("currentEra = 'fs2'");
+  ok('but one in FS2', W.run("eraAllows(ALLY_DEFS[ALLY_SPECIAL])"));
 }
 
 console.log('\n' + (fails ? fails + ' FAILED' : 'all passed'));

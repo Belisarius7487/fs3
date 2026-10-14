@@ -3,19 +3,49 @@
 // set. Kept out of ROLES on purpose: the packer reads that block and takes
 // everything in quotes for a ship key, so it tolerates no structure of its
 // own. These are plain arrays and the packer never looks at them.
+// v237 (Silvio: "Im FS1-Block kommen auch nur FS1-Aera Schiffe vor. Die
+// Sathanas und Hecate zum Beispiel existieren da noch gar nicht."). Checked
+// against the original mission files: every hull listed here really does fly
+// in that arc's missions, and the GTF Loki was the only one missing. ST:R
+// adds the Seraphim, the Zeus and the GTF Angel, and has no Lucifer - she is
+// destroyed at the end of FS1, so the str lists are NOT the fs1 ones plus
+// extras.
 const ERA_POOLS = {
   fs1: {
-    ter_fighters:   ['fiapollo','fivalyrie','fiulysses','fiherc'],
+    ter_fighters:   ['fiapollo','fivalyrie','fiulysses','fiherc','filoki'],
     ter_bombers:    ['boathena','bomedusa','boursa'],
     ter_cruisers:   ['crfenris','crleviathan'],
+    ter_destroyers: ['deorionright'],
     vas_fighters:   ['fianubis','fihorus','fiseth','fitoth'],
     vas_bombers:    ['boamun','boosiris'],
     vas_cruisers:   ['craten'],
+    vas_destroyers: ['detyphon'],
     sh_fighters:    ['fibasilisk','fidragon','fimanticore','fiscorpion'],
     sh_bombers:     ['boshaitan','bonephilim'],
+    sh_cruisers:    ['crcain','crlilith'],
+    sh_super:       ['sdlucifer']
+  },
+  str: {
+    ter_fighters:   ['fiapollo','fivalyrie','fiulysses','fiherc','filoki','fiangel'],
+    ter_bombers:    ['boathena','bomedusa','boursa','bozeus'],
+    ter_cruisers:   ['crfenris','crleviathan'],
+    ter_destroyers: ['deorionright'],
+    vas_fighters:   ['fianubis','fihorus','fiseth','fitoth'],
+    vas_bombers:    ['boamun','boosiris'],
+    vas_cruisers:   ['craten'],
+    vas_destroyers: ['detyphon'],
+    sh_fighters:    ['fibasilisk','fidragon','fimanticore','fiscorpion'],
+    sh_bombers:     ['boshaitan','bonephilim','boseraphim'],
     sh_cruisers:    ['crcain','crlilith']
   }
 };
+// ROLES is keyed by faction and role (ntf_fighters, shivan_fighters,
+// ally_ter_fighters, ...), ERA_POOLS by race and role. The two namings never
+// met, which is why eraPool() sat unused since it was written. In FS1 and
+// ST:R the Terran-marked enemy is the GTI rebellion flying Terran hulls, so
+// the NTF pool maps onto the Terran one.
+const ERA_POOL_FAC = {ntf: 'ter', shivan: 'sh', ally_ter: 'ter', ally_vas: 'vas',
+                      player: 'ter', hol: 'vas'};
 
 // noBeams: FS1 has no beam weapons at all, the Lucifer excepted. That
 // needs no replacement weapon - capitalFire() already fires conventional
@@ -4417,6 +4447,11 @@ function blowCover(){
 }
 function poolFor(type){
   const k = ROLE_KEY[typeRole(type)];
+  // v237: the era comes first. Without it an FS1 mission's reinforcement
+  // wings would be drawn from the FS2 pool - Hecates and Sathanas in a war
+  // that has not met either.
+  const ep = k ? eraPool((ERA_POOL_FAC[typeFac(type)] || '') + '_' + k) : null;
+  if(ep && ep.length) return ep;
   if(k==='fighters' && waveNoMara && typeFac(type)==='shivan'){
     const p = (ROLES[typeFac(type)+'_'+k] || []).filter(function(x){ return x!=='fimara'; });
     return p.length ? p : null;

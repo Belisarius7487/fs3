@@ -137,7 +137,7 @@ function worldForWave(q){
   const mw = W*k;
   for(const id of ALLY_ORDER.concat([ALLY_SPECIAL])){
     const d = ALLY_DEFS[id];
-    if(d && allyFacOn(d.fac) && d.spr && HULL_LEN[d.spr])
+    if(d && allyFacOn(d.fac) && eraAllows(d) && d.spr && HULL_LEN[d.spr])
       need = Math.max(need, hullWidthIn(d.spr, mw));
   }
   worldSet(k, need);
@@ -1743,23 +1743,23 @@ function allyLabel(d){
   return (typeof currentEra !== 'undefined' && currentEra === 'fs1') ? String(d.label).replace(/^GV/, 'PV') : d.label;
 }
 const ALLY_DEFS = {
-  ter_fenris:     {cls:'cruiser',   fac:'terran',  spr:'crfenris',     label:'GTC Fenris'},
-  ter_leviathan:  {cls:'cruiser',   fac:'terran',  spr:'crleviathan',  label:'GTC Leviathan'},
-  ter_aeolus:     {cls:'cruiser',   fac:'terran',  spr:'craeolus',     label:'GTC Aeolus'},
-  ter_deimos:     {cls:'corvette',  fac:'terran',  spr:'codeimos',     label:'GTCv Deimos'},
-  ter_orion:      {cls:'destroyer', fac:'terran',  spr:'deorionright', label:'GTD Orion'},
-  ter_hecate:     {cls:'destroyer', fac:'terran',  spr:'dehecate',     label:'GTD Hecate'},
-  vas_aten:       {cls:'cruiser',   fac:'vasudan', spr:'craten',       label:'GVC Aten'},
-  vas_mentu:      {cls:'cruiser',   fac:'vasudan', spr:'crmentu',      label:'GVC Mentu'},
-  vas_sobek:      {cls:'corvette',  fac:'vasudan', spr:'cosobek',      label:'GVCv Sobek'},
-  vas_typhon:     {cls:'destroyer', fac:'vasudan', spr:'detyphon',     label:'GVD Typhon'},
-  vas_hatshepsut: {cls:'destroyer', fac:'vasudan', spr:'dehatshepsut', label:'GVD Hatshepsut'},
+  ter_fenris:     {cls:'cruiser',   fac:'terran',  spr:'crfenris',     label:'GTC Fenris', era:['fs1','str','fs2']},
+  ter_leviathan:  {cls:'cruiser',   fac:'terran',  spr:'crleviathan',  label:'GTC Leviathan', era:['fs1','str','fs2']},
+  ter_aeolus:     {cls:'cruiser',   fac:'terran',  spr:'craeolus',     label:'GTC Aeolus', era:['fs2']},
+  ter_deimos:     {cls:'corvette',  fac:'terran',  spr:'codeimos',     label:'GTCv Deimos', era:['fs2']},
+  ter_orion:      {cls:'destroyer', fac:'terran',  spr:'deorionright', label:'GTD Orion', era:['fs1','str','fs2']},
+  ter_hecate:     {cls:'destroyer', fac:'terran',  spr:'dehecate',     label:'GTD Hecate', era:['fs2']},
+  vas_aten:       {cls:'cruiser',   fac:'vasudan', spr:'craten',       label:'GVC Aten', era:['fs1','str','fs2']},
+  vas_mentu:      {cls:'cruiser',   fac:'vasudan', spr:'crmentu',      label:'GVC Mentu', era:['fs2']},
+  vas_sobek:      {cls:'corvette',  fac:'vasudan', spr:'cosobek',      label:'GVCv Sobek', era:['fs2']},
+  vas_typhon:     {cls:'destroyer', fac:'vasudan', spr:'detyphon',     label:'GVD Typhon', era:['fs1','str','fs2']},
+  vas_hatshepsut: {cls:'destroyer', fac:'vasudan', spr:'dehatshepsut', label:'GVD Hatshepsut', era:['fs2']},
   // Kept as class destroyer on purpose: hull, weapons, targeting and
   // explosions all key off the class, and she needs none of that changed.
   // Only her placement and her deadline are special.
   // Joint Terran and Vasudan project, so she belongs to neither column.
   colossus:       {cls:'destroyer', fac:'gtva',    spr:'sdcolossus',   label:'GTVA Colossus',
-                   ticket:'colossus', colossus:true},
+                   ticket:'colossus', colossus:true, era:['fs2']},
   // Mission use only, never on the call menu (not in ALLY_ORDER): an NTF
   // Deimos coming over, still in NTF markings.
   ntf_deimos:     {cls:'corvette',  fac:'terran',  spr:'ntfcodeimos',  label:'NTF Deimos'},
@@ -1797,6 +1797,16 @@ const ALLY_SPECIAL_KEY = 'G';
 // later cycle switches its own factions back on by setting these.
 const ALLY_FAC_ON = {terran:false, vasudan:true, gtva:true};
 function allyFacOn(fac){ return ALLY_FAC_ON[fac] !== false; }
+// v237, Silvio: "Im FS1-Block kommen auch nur FS1-Aera Schiffe vor. Die
+// Sathanas und Hecate zum Beispiel existieren da noch gar nicht. Das ist
+// auch wichtig fuer den rufbaren Support dann." Which arc an entry belongs
+// to is the era field on ALLY_DEFS; it was read off the original mission
+// files, not guessed. No field means every era.
+function eraAllows(d){
+  if(!d || !d.era) return true;
+  const e = (typeof currentEra !== 'undefined') ? currentEra : 'fs2';
+  return d.era.indexOf(e) >= 0;
+}
 // One column per active faction, in ALLY_ORDER order. With a single
 // faction on call the menu is one column wide instead of leaving a gap.
 function callCols(){
@@ -1808,7 +1818,7 @@ function callCols(){
     const col=[];
     for(let i=0;i<ALLY_ORDER.length;i++){
       const d=ALLY_DEFS[ALLY_ORDER[i]];
-      if(d && d.fac===fac) col.push({id:ALLY_ORDER[i], d:d, key:ALLY_KEYS[i]});
+      if(d && d.fac===fac && eraAllows(d)) col.push({id:ALLY_ORDER[i], d:d, key:ALLY_KEYS[i]});
     }
     if(col.length) cols.push(col);
   }

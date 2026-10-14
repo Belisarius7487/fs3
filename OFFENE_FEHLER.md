@@ -1403,6 +1403,74 @@ treffen muss, nicht als sicher treffender Strahl. Ob das sich richtig
 anfühlt, ist eine Frage für den Browser, nicht für eine Zahl. Silvio sieht es
 sich an.
 
+### Nur Schiffe der Ära — auch im rufbaren Support (gebaut in v238)
+
+**Silvio, v238:** „Im FS1-Block kommen auch nur FS1-Ära Schiffe vor. Die
+Sathanas und Hecate zum Beispiel existieren da noch gar nicht. Das ist auch
+wichtig für den rufbaren Support dann."
+
+**Nachgelesen, Stand v237:** `ALLY_DEFS` hatte **kein** Ära-Feld. In einer
+FS1-Mission hätte das Rufmenü Hecate, Aeolus, Deimos, Sobek, Hatshepsut und
+die Colossus angeboten — alle FS2. Dazu: `eraPool()` war definiert und wurde
+**nirgends aufgerufen**; `ERA_POOLS.fs1` lag seit seiner Entstehung brach,
+weil `ROLES` nach Fraktion benannt ist (`ntf_fighters`) und `ERA_POOLS` nach
+Rasse (`ter_fighters`) — die zwei Benennungen trafen nie aufeinander. Dasselbe
+Muster wie bei `keepBeams`.
+
+**Aus den Originalmissionen gemessen**, Zahl der Schiffe in den Missionen des
+Strangs (Klassennamen ohne `#Name`-Zusatz, PV- und GV-Schreibweise
+zusammengeführt):
+
+| rufbar | FS1 | ST:R | FS2 |
+|---|---|---|---|
+| GTC Fenris | 4 | 15 | 7 |
+| GTC Leviathan | 1 | 17 | 8 |
+| GTD Orion | 7 | 13 | 6 |
+| PVC/GVC Aten | 8 | 11 | – |
+| PVD/GVD Typhon | 6 | 3 | 1 |
+| GTC Aeolus | – | – | 16 |
+| GTCv Deimos | – | – | 18 |
+| GTD Hecate | – | – | 4 |
+| GVC Mentu | – | – | 5 |
+| GVCv Sobek | – | – | 11 |
+| GVD Hatshepsut | – | – | 3 |
+| GTVA Colossus | – | – | 6 |
+
+Silvios Beispiele bestätigt: **Sathanas 44 Schiffe in FS2, keines in FS1 oder
+ST:R. Hecate 4 in FS2, keines davor. Die Hades nur in ST:R** (6 Schiffe).
+
+**Zwei Vorbehalte, die benannt sein müssen:**
+
+1. Die Liste sagt, **was die Missionen eines Strangs benutzen**, nicht was in
+   der Ära existiert. Für FS1 ist das dasselbe — was es nicht gibt, kann nicht
+   vorkommen. Für FS2 nicht: die **Aten** kommt in FS2-Missionen **gar nicht**
+   vor, existiert dort aber. Deshalb filtert FS2 nichts.
+2. Die **GVC Mentu** ist ein Entwurf der FS1-Zeit, kommt aber nur in
+   FS2-Missionen vor. Sie steht daher auf `fs2`. Wenn sie in FS1 rufbar sein
+   soll, ist das eine Entscheidung für Silvio, keine Messung.
+
+**Gebaut:**
+
+- `ALLY_DEFS` trägt je Eintrag ein `era`-Feld, `eraAllows()` prüft es. Kein
+  Feld heißt jede Ära. Der Filter greift im Rufmenü (`callCols`) **und** bei
+  der Platzreservierung der Welt — sonst hielte eine FS1-Mission Platz für
+  eine Colossus frei, die es nicht gibt.
+- `eraPool()` ist angeschlossen: `poolFor()` fragt zuerst die Ära.
+  `ERA_POOL_FAC` bildet die Fraktionsnamen auf die Rassennamen ab. In FS1 und
+  ST:R ist der terranisch markierte Gegner die GTI-Rebellion in terranischen
+  Rümpfen, also zeigt der NTF-Pool auf den terranischen.
+- `ERA_POOLS.fs1` um die **GTF Loki** ergänzt (sie kommt in FS1 vor und
+  fehlte), Zerstörer- und Super-Listen dazu, und ein **neuer `str`-Pool**:
+  Seraphim, Zeus und die GTF Angel kommen dort dazu. **Die str-Listen sind
+  nicht die fs1-Listen plus Zusätze** — die Lucifer ist am Ende von FS1
+  zerstört und steht deshalb nicht darin.
+
+**Prüfung:** `callsim`, Abschnitt „Support per era". Gegen eine Kopie ohne den
+Filter drei rote Zusicherungen. Dabei kam heraus, dass `callsim` in einem
+Überlauftest das Etikett der Aten überschrieb und danach den **falschen** Wert
+zurückschrieb (`PVC Aten` statt `GVC Aten`) — behoben, und die neue Prüfung
+hängt an den Kennungen, nicht an Etiketten.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
