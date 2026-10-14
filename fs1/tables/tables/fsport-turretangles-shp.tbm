@@ -1,0 +1,441 @@
+#Ship Classes
+
+$Name:			GTB Medusa
++nocreate
+$Subsystem:			turret01a, 5.0, 1.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		90, 180, 0
+
+$Name:			GTB Ursa
++nocreate
+$Subsystem:			b05-turreta, 1.0, 1.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		90, 180, 0
+
+$Name:			GTC Fenris
++nocreate
+$Subsystem:			turret09a-01-main, 8.0, 10.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		90, 180, 0
+
+$Name:			GTC Leviathan
++nocreate
+$Subsystem:			turret09a-01-main, 3.0, 9.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		90, 180, 0
+
+$Name:			GTD Orion
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Amadeus
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Bastion
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Eisenhower
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Galatea
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Goliath
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Intrepid
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Krios
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Legion
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Minnow
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Myrmidon
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Orion
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Repulse
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			GTD Orion#Soyakaze
++nocreate
+$Subsystem:			turret01a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret02a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret03a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret04a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+$Subsystem:			turret05a, 1.875, 3.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+
+$Name:			PVFr Satis
++nocreate
+$Subsystem:			turret01-main, 3.0, 2.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		85, 180, 0
+
+$Name:			PVC Aten
++nocreate
+$Subsystem:			turret01a, 0.833, 1.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 0, 0
+$Subsystem:			turret02a, 0.833, 1.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		80, 180, 0
+
+$Name:			SC Cain
++nocreate
+$Subsystem:			turret07, 2.0, 1.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		90, 180, 0
+
+$Name:			SC Lilith
++nocreate
+$Subsystem:			turret07, 3.0, 1.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		90, 180, 0
+
+$Name:			SFr Mephisto
++nocreate
+$Subsystem:			turret01, 2.0, 1.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 0, 0
+$Subsystem:			turret03, 2.0, 1.0
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 180, 0
+
+$Name:			SD Demon
++nocreate
+$Subsystem:			turret03a-base, 3.0, 0.5
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 0, 0
+$Subsystem:			turret06a-base, 0.6, 0.5
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 180, 0
+$Subsystem:			turret07a-base, 0.6, 0.5
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 0, 0
+
+$Name:			SD Demon#scancapital
++nocreate
+$Subsystem:			turret03a-base, 3.0, 0.5
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 0, 0
+$Subsystem:			turret06a-base, 0.6, 0.5
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 180, 0
+$Subsystem:			turret07a-base, 0.6, 0.5
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 0, 0
+
+$Name:			SD Demon#scan
++nocreate
+$Subsystem:			turret03a-base, 3.0, 0.5
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 0, 0
+$Subsystem:			turret06a-base, 0.6, 0.5
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 180, 0
+$Subsystem:			turret07a-base, 0.6, 0.5
+	$animation:			triggered
+	$type:			initial
+	+relative_angle:		70, 0, 0
+
+#End

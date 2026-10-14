@@ -1,0 +1,7 @@
+#Primary Weapons
+
+$Name: Railgun
++nocreate
+$Flags: ( "player allowed" "cycle" )
+
+#End

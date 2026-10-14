@@ -1,0 +1,474 @@
+; icons.tbl
+;
+; Table file for specifying which filenames are to be used for the breifing
+; icons.  
+;
+; Anim Contents:
+;
+; regular (2 frames):	0: normal icon
+;								1: selected icon
+;
+; fade: animation for fading from near-transparent to regular color
+;
+; highlight: animation for emphasizing an icon
+;
+
+#Start
+
+; ICON_FIGHTER
+$Name:	iconfighter							; regular
+$Name:	Fadeiconfighter									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconfighter							; regular
+$Name:	Fadeiconfighter									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconfighter							; regular
+$Name:	Fadeiconfighter									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+; ICON_FIGHTER_WING
+$Name:	iconfighterw						; regular
+$Name:	Fadeiconfighterw						; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+$Name:	iconfighterw						; regular
+$Name:	Fadeiconfighterw						; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+$Name:	iconfighterw						; regular
+$Name:	Fadeiconfighterw						; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+; ICON_CARGO
+$Name:	iconcargo							; regular
+$Name:	FadeiconCargo									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconcargo							; regular
+$Name:	FadeiconCargo									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconcargo							; regular
+$Name:	FadeiconCargo									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+; ICON_CARGO_WING
+$Name:	iconcargow							; regular
+$Name:	FadeiconCargow									; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+$Name:	iconcargow							; regular
+$Name:	FadeiconCargow									; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+$Name:	iconcargow							; regular
+$Name:	FadeiconCargow									; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+; ICON_LARGESHIP
+$Name:	iconscience							; regular
+$Name:	Fadeiconscience							; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconscience							; regular
+$Name:	Fadeiconscience							; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconscience							; regular
+$Name:	Fadeiconscience							; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+; ICON_LARGESHIP_WING
+$Name:	iconscienceW							; regular
+$Name:	FadeiconscienceW							; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	iconscienceW							; regular
+$Name:	FadeiconscienceW							; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	iconscienceW							; regular
+$Name:	FadeiconscienceW							; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+; ICON_CAPITAL
+$Name:	IconCapital							; regular
+$Name:	FadeIconCapital							; fade anim
+$Name:	iconhighlight06					; highlight anim
+
+$Name:	IconCapital							; regular
+$Name:	FadeIconCapital							; fade anim
+$Name:	iconhighlight06					; highlight anim
+
+$Name:	IconCapital							; regular
+$Name:	FadeIconCapital							; fade anim
+$Name:	iconhighlight06					; highlight anim
+
+; ICON_PLANET
+$Name:	iconplanet							; regular
+$Name:	FadeiconPlanet							; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	iconplanet							; regular
+$Name:	FadeiconPlanet							; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	iconplanet							; regular
+$Name:	FadeiconPlanet							; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+; ICON_ASTEROID_FIELD
+$Name:	iconasteroid						; regular
+$Name:	FadeiconAsteroid						; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	iconasteroid						; regular
+$Name:	FadeiconAsteroid						; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	iconasteroid						; regular
+$Name:	FadeiconAsteroid						; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+; ICON_WAYPOINT
+$Name:	IconWaypoint						; regular
+$Name:	FadeIconWaypoint						; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	IconWaypoint						; regular
+$Name:	FadeIconWaypoint						; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	IconWaypoint						; regular
+$Name:	FadeIconWaypoint						; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+; ICON_SUPPORT_SHIP
+$Name:	iconsupport							; regular
+$Name:	FadeiconSupport							; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconsupport							; regular
+$Name:	FadeiconSupport							; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconsupport							; regular
+$Name:	FadeIconSupport							; fade anim
+$Name:	iconhighlight06					; highlight anim
+
+; ICON_FREIGHTER_NO_CARGO
+$Name:	IconFreighter							; regular
+$Name:	FadeIconFreighter									; fade anim
+$Name:	iconhighlight01					; highlight anim
+
+$Name:	IconFreighter							; regular
+$Name:	FadeIconFreighter									; fade anim
+$Name:	iconhighlight01					; highlight anim
+
+$Name:	IconFreighter							; regular
+$Name:	FadeIconFreighter									; fade anim
+$Name:	iconhighlight01					; highlight anim
+
+; ICON_FREIGHTER_WITH_CARGO
+$Name:	IconFreighterC							; regular
+$Name:	FadeIconFreighterC									; fade anim
+$Name:	iconhighlight01					; highlight anim
+
+$Name:	IconFreighterC							; regular
+$Name:	FadeIconFreighterC									; fade 
+$Name:	iconhighlight01					; highlight anim
+
+$Name:	IconFreighterC							; regular
+$Name:	FadeIconFreighterC									; fade 
+$Name:	iconhighlight01					; highlight anim
+
+; ICON_FREIGHTER_WING_NO_CARGO
+$Name:	IconFreighterWing					; regular
+$Name:	FadeIconFreighterW				; fade
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	IconFreighterWing					; regular
+$Name:	FadeIconFreighterW				; fade
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	IconFreighterWing					; regular
+$Name:	FadeIconFreighterW				; fade
+$Name:	iconhighlight05					; highlight anim
+
+; ICON_FREIGHTER_WING_WITH_CARGO
+$Name:	IconFreighterCWing					; regular
+$Name:	FadeIconFreighterCW				; fade
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	IconFreighterCWing					; regular
+$Name:	FadeIconFreighterCW				; fade
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	IconFreighterCWing					; regular
+$Name:	FadeIconFreighterCW				; fade
+$Name:	iconhighlight05					; highlight anim
+
+; ICON_INSTALLATION
+$Name:	iconInstallation						; regular
+$Name:	FadeiconInstallation					; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	iconInstallation						; regular
+$Name:	FadeiconInstallation					; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	iconInstallation						; regular
+$Name:	FadeiconInstallation					; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+; ICON_BOMBER
+$Name:	iconbomber							; regular
+$Name:	Fadeiconbomber									; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconbomber							; regular
+$Name:	Fadeiconbomber									; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconbomber							; regular
+$Name:	Fadeiconbomber									; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+; ICON_BOMBER_WING
+$Name:	iconbomberw							; regular
+$Name:	Fadeiconbomberw									; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	iconbomberw							; regular
+$Name:	Fadeiconbomberw									; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	iconbomberw							; regular
+$Name:	Fadeiconbomberw									; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+; ICON_CRUISER
+$Name:	iconcruiser							; regular
+$Name:	Fadeiconcruiser							; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconcruiser							; regular
+$Name:	Fadeiconcruiser							; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconcruiser							; regular
+$Name:	Fadeiconcruiser							; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+; ICON_CRUISER_WING
+$Name:	iconcruiserW						; regular
+$Name:	FadeiconcruiserW						; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	iconcruiserW						; regular
+$Name:	FadeiconcruiserW						; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	iconcruiserW						; regular
+$Name:	FadeiconcruiserW						; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+; ICON_UNKNOWN
+$Name:	icontarget							; regular
+$Name:	FadeIconTarget							; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	icontarget							; regular
+$Name:	FadeIconTarget							; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	icontarget							; regular
+$Name:	FadeIconTarget							; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+; ICON_UNKNOWN_WING
+$Name:	iconunknownw						; regular
+$Name:	FadeIconUnknownw						; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+$Name:	iconunknownw						; regular
+$Name:	FadeIconUnknownw						; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+$Name:	iconunknownw						; regular
+$Name:	FadeIconUnknownw						; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+; ICON_FIGHTER_PLAYER
+$Name:	iconfighterp							; regular
+$Name:	Fadeiconfighterp									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconfighterp							; regular
+$Name:	Fadeiconfighterp									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconfighterp							; regular
+$Name:	Fadeiconfighterp									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+; ICON_FIGHTERW_PLAYER
+$Name:	iconfighterwp							; regular
+$Name:	Fadeiconfighterwp									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconfighterwp							; regular
+$Name:	Fadeiconfighterwp									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconfighterwp							; regular
+$Name:	Fadeiconfighterwp									; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+; ICON_BOMBER_PLAYER
+$Name:	iconbomberp							; regular
+$Name:	Fadeiconbomberp									; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconbomberp							; regular
+$Name:	Fadeiconbomberp									; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconbomberp							; regular
+$Name:	Fadeiconbomberp									; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+; ICON_BOMBERW_PLAYER
+$Name:	iconbomberwp							; regular
+$Name:	Fadeiconbomberwp									; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	iconbomberwp							; regular
+$Name:	Fadeiconbomberwp									; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	iconbomberwp							; regular
+$Name:	Fadeiconbomberwp									; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+; ICON_KNOSSOS_DEVICE
+$Name:	iconminiplanet					; regular
+$Name:	fadeiconminiplanet					; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconminiplanet					; regular
+$Name:	fadeiconminiplanet					; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	iconminiplanet					; regular
+$Name:	fadeiconminiplanet					; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+; ICON_TRANSPORT_WING
+$Name:	IconBigShipW						; regular
+$Name:	FadeIconBigShipW						; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	IconBigShipW						; regular
+$Name:	FadeIconBigShipW						; fade anim
+$Name:	iconhighlight02					; highlight anim
+
+$Name:	IconBigShipW						; regular
+$Name:	FadeIconBigShipW						; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+; ICON_CORVETTE
+$Name:	iconcruiser						; regular
+$Name:	fadeiconcruiser						; fade anim
+$Name:	iconhighlight06					; highlight anim
+
+$Name:	iconcruiser						; regular
+$Name:	fadeiconcruiser						; fade anim
+$Name:	iconhighlight06					; highlight anim
+
+$Name:	iconcruiser						; regular
+$Name:	fadeiconcruiser						; fade anim
+$Name:	iconhighlight06					; highlight anim
+
+; ICON_GAS_MINER
+$Name:	IconBigShip						; regular
+$Name:	FadeIconBigShip						; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	IconBigShip						; regular
+$Name:	FadeIconBigShip						; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+$Name:	IconBigShip						; regular
+$Name:	FadeIconBigShip						; fade anim
+$Name:	iconhighlight05					; highlight anim
+
+; ICON_AWACS
+$Name:	iconscience							; regular
+$Name:	Fadeiconscience							; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconscience							; regular
+$Name:	Fadeiconscience							; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+$Name:	iconscience							; regular
+$Name:	Fadeiconscience							; fade anim
+$Name:	iconhighlight07					; highlight anim
+
+; ICON_SUPERCAP
+$Name:	iconHades						; regular
+$Name:	fadeiconHades					; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	iconHades						; regular
+$Name:	fadeiconHades					; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+$Name:	iconLucifer						; regular
+$Name:	fadeiconLucifer					; fade anim
+$Name:	iconhighlight03					; highlight anim
+
+; ICON_SENTRYGUN
+$Name:	icongun						; regular
+$Name:	fadeicongun					; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	icongun						; regular
+$Name:	fadeicongun					; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	icongun						; regular
+$Name:	fadeicongun					; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+; ICON_JUMP_NODE
+$Name:	IconWaypoint						; regular
+$Name:	FadeIconWaypoint						; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	IconWaypoint						; regular
+$Name:	FadeIconWaypoint						; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+$Name:	IconWaypoint						; regular
+$Name:	FadeIconWaypoint						; fade anim
+$Name:	iconhighlight04					; highlight anim
+
+; ICON_TRANSPORT
+$Name:	IconBigShip						; regular
+$Name:	FadeIconBigShip						; fade anim
+$Name:	iconhighlight07				; highlight anim
+
+$Name:	IconBigShip						; regular
+$Name:	FadeIconBigShip						; fade anim
+$Name:	iconhighlight04				; highlight anim
+
+$Name:	IconBigShip						; regular
+$Name:	FadeIconBigShip						; fade anim
+$Name:	iconhighlight07				; highlight anim
+
+
+#End

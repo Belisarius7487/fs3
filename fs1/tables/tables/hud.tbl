@@ -1,0 +1,41 @@
+
+; MAX of 40 currently.  Get Dave if you need more.
+#Shield Icons Begin
+
+;; FS1 fighters (13 total)
+$Shield:	shield-f01
+$Shield:	shield-f02
+$Shield:	shield-f03
+$Shield:	shield-f04
+$Shield:	shield-f05
+$Shield:	shield-f06
+$Shield:	shield-f07
+$Shield:	shield-f08
+$Shield:	shield-f09
+$Shield:	shield-f10
+$Shield:	shield-f11
+$Shield:	shield-f12
+$Shield:	shield-f13
+
+;; FS1 bombers (9 total)
+$Shield:	shield-b01
+$Shield:	shield-b03
+$Shield:	shield-b04
+$Shield:	shield-b05
+$Shield:	shield-b06
+$Shield:	shield-b07
+$Shield:	shield-b08
+$Shield:	shield-b09
+$Shield:	shield-b10
+
+;; FS2 ships used in FSPort (3 total)
+$Shield:	shieldft-01
+$Shield:	shieldbv-02
+$Shield:	shieldbs-02
+
+;; Additional shield entries
+$Shield:	shield-angel
+$Shield:	shield-capital02
+$Shield:	shield-gorgon
+
+#End

@@ -1,0 +1,192 @@
+;;FSO 3.7.4;; #GAME SETTINGS
+
+;;FSO 3.8.2;; $Window title: The FreeSpace Port
+;;FSO 23.0.0;; $Mod title: FreeSpace Port
+;;FSO 23.0.0;; $Mod version: 3.7.3
+
+
+;;FSO 3.6.14;; #CAMPAIGN SETTINGS
+
+;;FSO 3.6.14;; $Default Campaign File Name: freespace
+
+;;FSO 3.6.14;; #Ignored Campaign File Names
+;;FSO 3.6.14;; $Campaign File Name: FreeSpace2
+;;FSO 3.6.14;; $Campaign File Name: STemplar
+;;FSO 3.6.14;; $Campaign File Name: CoOpFreeSpace2-1
+;;FSO 3.6.14;; $Campaign File Name: CoOpFreeSpace2-2
+;;FSO 3.6.14;; $Campaign File Name: Templar
+
+;; These are all the standalone missions (both single- and multi-player)
+;; that are meant for standard FS2 and won't work with the Port
+;;FSO 3.8.2;; #Ignored Mission File Names
+;;FSO 3.8.2;; $Mission File Name: bdhr
+;;FSO 3.8.2;; $Mission File Name: CapMis-M01
+;;FSO 3.8.2;; $Mission File Name: CapMis-M02
+;;FSO 3.8.2;; $Mission File Name: CapMis-M03
+;;FSO 3.8.2;; $Mission File Name: CapMis-M04
+;;FSO 3.8.2;; $Mission File Name: cet_m01
+;;FSO 3.8.2;; $Mission File Name: cet_m02
+;;FSO 3.8.2;; $Mission File Name: cet_m02_a
+;;FSO 3.8.2;; $Mission File Name: cet_m03
+;;FSO 3.8.2;; $Mission File Name: cet_m04
+;;FSO 3.8.2;; $Mission File Name: cet_m05
+;;FSO 3.8.2;; $Mission File Name: cet_m06
+;;FSO 3.8.2;; $Mission File Name: cet_m07
+;;FSO 3.8.2;; $Mission File Name: cet_m08
+;;FSO 3.8.2;; $Mission File Name: cet_m09
+;;FSO 3.8.2;; $Mission File Name: cet_mt01
+;;FSO 3.8.2;; $Mission File Name: cet_mt01_a
+;;FSO 3.8.2;; $Mission File Name: cet_mt02
+;;FSO 3.8.2;; $Mission File Name: cet_mt03
+;;FSO 3.8.2;; $Mission File Name: cet_mt04
+;;FSO 3.8.2;; $Mission File Name: cet_mt05
+;;FSO 3.8.2;; $Mission File Name: dfall2
+;;FSO 3.8.2;; $Mission File Name: dfall3b
+;;FSO 3.8.2;; $Mission File Name: fighteer-m01
+;;FSO 3.8.2;; $Mission File Name: fs2mc1
+;;FSO 3.8.2;; $Mission File Name: fw2a-01a
+;;FSO 3.8.2;; $Mission File Name: G-Shi
+;;FSO 3.8.2;; $Mission File Name: G-Ter
+;;FSO 3.8.2;; $Mission File Name: G-Vas
+;;FSO 3.8.2;; $Mission File Name: gldm-HnS
+;;FSO 3.8.2;; $Mission File Name: Gs-Shi
+;;FSO 3.8.2;; $Mission File Name: Gs-Ter
+;;FSO 3.8.2;; $Mission File Name: Gs-Vas
+;;FSO 3.8.2;; $Mission File Name: Guard_M01
+;;FSO 3.8.2;; $Mission File Name: haftraning_m01_a
+;;FSO 3.8.2;; $Mission File Name: inv-MT01
+;;FSO 3.8.2;; $Mission File Name: inv-MT02
+;;FSO 3.8.2;; $Mission File Name: inv-MT03
+;;FSO 3.8.2;; $Mission File Name: inv-TEAM01
+;;FSO 3.8.2;; $Mission File Name: inv-team05
+;;FSO 3.8.2;; $Mission File Name: LevDuel2_M01
+;;FSO 3.8.2;; $Mission File Name: Lone_M01
+;;FSO 3.8.2;; $Mission File Name: Lone_M02
+;;FSO 3.8.2;; $Mission File Name: longroad
+;;FSO 3.8.2;; $Mission File Name: lucifer
+;;FSO 3.8.2;; $Mission File Name: M-01
+;;FSO 3.8.2;; $Mission File Name: M-01b
+;;FSO 3.8.2;; $Mission File Name: M-02
+;;FSO 3.8.2;; $Mission File Name: M-02b
+;;FSO 3.8.2;; $Mission File Name: M-03
+;;FSO 3.8.2;; $Mission File Name: M-04
+;;FSO 3.8.2;; $Mission File Name: M-04b
+;;FSO 3.8.2;; $Mission File Name: M-05
+;;FSO 3.8.2;; $Mission File Name: M-06
+;;FSO 3.8.2;; $Mission File Name: M-07
+;;FSO 3.8.2;; $Mission File Name: M-FE
+;;FSO 3.8.2;; $Mission File Name: m-itld
+;;FSO 3.8.2;; $Mission File Name: m-sb
+;;FSO 3.8.2;; $Mission File Name: MAL-SD
+;;FSO 3.8.2;; $Mission File Name: MAL-SDd
+;;FSO 3.8.2;; $Mission File Name: MAL-ST
+;;FSO 3.8.2;; $Mission File Name: Mara_Run
+;;FSO 3.8.2;; $Mission File Name: massive battle
+;;FSO 3.8.2;; $Mission File Name: massive battle2
+;;FSO 3.8.2;; $Mission File Name: mdH-08
+;;FSO 3.8.2;; $Mission File Name: mdH-09
+;;FSO 3.8.2;; $Mission File Name: mdL-08
+;;FSO 3.8.2;; $Mission File Name: mdL-09
+;;FSO 3.8.2;; $Mission File Name: MDM-01
+;;FSO 3.8.2;; $Mission File Name: MDM-02
+;;FSO 3.8.2;; $Mission File Name: MDM-03
+;;FSO 3.8.2;; $Mission File Name: MDM-04
+;;FSO 3.8.2;; $Mission File Name: MDM-05
+;;FSO 3.8.2;; $Mission File Name: MDM-06
+;;FSO 3.8.2;; $Mission File Name: MDM-07
+;;FSO 3.8.2;; $Mission File Name: mdM-08
+;;FSO 3.8.2;; $Mission File Name: mdM-09
+;;FSO 3.8.2;; $Mission File Name: MT-01
+;;FSO 3.8.2;; $Mission File Name: MT-02
+;;FSO 3.8.2;; $Mission File Name: MT-02c
+;;FSO 3.8.2;; $Mission File Name: MT-03
+;;FSO 3.8.2;; $Mission File Name: MT-03c
+;;FSO 3.8.2;; $Mission File Name: MT-04
+;;FSO 3.8.2;; $Mission File Name: MT-05
+;;FSO 3.8.2;; $Mission File Name: MT-05a
+;;FSO 3.8.2;; $Mission File Name: MT-06
+;;FSO 3.8.2;; $Mission File Name: MT-07
+;;FSO 3.8.2;; $Mission File Name: MT-08
+;;FSO 3.8.2;; $Mission File Name: MT-09
+;;FSO 3.8.2;; $Mission File Name: MT-10
+;;FSO 3.8.2;; $Mission File Name: MT-11
+;;FSO 3.8.2;; $Mission File Name: MT-12
+;;FSO 3.8.2;; $Mission File Name: MT-12a
+;;FSO 3.8.2;; $Mission File Name: MT-13
+;;FSO 3.8.2;; $Mission File Name: MT-14
+;;FSO 3.8.2;; $Mission File Name: MT-15
+;;FSO 3.8.2;; $Mission File Name: MT-16
+;;FSO 3.8.2;; $Mission File Name: Odd_M01
+;;FSO 3.8.2;; $Mission File Name: Odd_M02
+;;FSO 3.8.2;; $Mission File Name: Odd_M03
+;;FSO 3.8.2;; $Mission File Name: OSDog
+;;FSO 3.8.2;; $Mission File Name: rd_m03
+;;FSO 3.8.2;; $Mission File Name: RNRaptor_M01
+;;FSO 3.8.2;; $Mission File Name: Rogue_M01
+;;FSO 3.8.2;; $Mission File Name: SPDemo-01
+;;FSO 3.8.2;; $Mission File Name: SPDemo-02
+;;FSO 3.8.2;; $Mission File Name: su-tehp_m01
+;;FSO 3.8.2;; $Mission File Name: su-tehp_m04
+;;FSO 3.8.2;; $Mission File Name: Suicide-M01
+;;FSO 3.8.2;; $Mission File Name: Suicide-M02
+;;FSO 3.8.2;; $Mission File Name: SWR-01
+;;FSO 3.8.2;; $Mission File Name: SWR-02
+;;FSO 3.8.2;; $Mission File Name: SWR-03
+;;FSO 3.8.2;; $Mission File Name: SWR-04
+;;FSO 3.8.2;; $Mission File Name: SWR-05
+;;FSO 3.8.2;; $Mission File Name: SWR-06
+;;FSO 3.8.2;; $Mission File Name: SWR-07
+;;FSO 3.8.2;; $Mission File Name: SWR-08
+;;FSO 3.8.2;; $Mission File Name: SWR-09
+;;FSO 3.8.2;; $Mission File Name: SWR-10
+;;FSO 3.8.2;; $Mission File Name: SWR-11
+;;FSO 3.8.2;; $Mission File Name: SWR-12
+;;FSO 3.8.2;; $Mission File Name: SWR-13
+;;FSO 3.8.2;; $Mission File Name: SWR-14
+;;FSO 3.8.2;; $Mission File Name: SWR-15
+;;FSO 3.8.2;; $Mission File Name: SWR-16
+;;FSO 3.8.2;; $Mission File Name: SWR-17
+;;FSO 3.8.2;; $Mission File Name: SWR-18
+;;FSO 3.8.2;; $Mission File Name: SWR-19
+;;FSO 3.8.2;; $Mission File Name: SWR-20
+;;FSO 3.8.2;; $Mission File Name: SWR-21
+;;FSO 3.8.2;; $Mission File Name: Talon_M01
+;;FSO 3.8.2;; $Mission File Name: Talon_MT21
+;;FSO 3.8.2;; $Mission File Name: TCADis_MT22
+;;FSO 3.8.2;; $Mission File Name: Tep_MT-23
+;;FSO 3.8.2;; $Mission File Name: Tep_MT-24
+;;FSO 3.8.2;; $Mission File Name: Tep_MT-25
+;;FSO 3.8.2;; $Mission File Name: Tep_MT-26
+;;FSO 3.8.2;; $Mission File Name: Tep_MT-27
+;;FSO 3.8.2;; $Mission File Name: Tep_MT-28
+;;FSO 3.8.2;; $Mission File Name: TS-Bandit_M01
+;;FSO 3.8.2;; $Mission File Name: TSRipper_MT-29
+;;FSO 3.8.2;; $Mission File Name: Vortex_MT30
+;;FSO 3.8.2;; $Mission File Name: Vortex_MT31
+;;FSO 3.8.2;; $Mission File Name: X_Calm_b4
+;;FSO 3.8.2;; $Mission File Name: x_cold_sword
+;;FSO 3.8.2;; $Mission File Name: X_Excellence
+;;FSO 3.8.2;; $Mission File Name: X_Greyface
+;;FSO 3.8.2;; $Mission File Name: X_Nekhbet
+;;FSO 3.8.2;; $Mission File Name: X_One_Step_Too_Far
+;;FSO 3.8.2;; $Mission File Name: X_Rites_of_Passage
+;;FSO 3.8.2;; $Mission File Name: X_Shivan_Incursion
+;;FSO 3.8.2;; $Mission File Name: X_The_Queen
+;;FSO 3.8.2;; $Mission File Name: X_The_Trap
+;;FSO 3.8.2;; $Mission File Name: X_Third_Coming2
+;;FSO 3.8.2;; $Mission File Name: X_Third_Watch
+;;FSO 3.8.2;; $Mission File Name: X_To_Destroy
+
+
+;;FSO 22.0.0;; #HUD SETTINGS
+
+;;FSO 22.0.0;; $Don't automatically select a turret when targeting a ship: TRUE
+
+
+;;FSO 3.6.14;; #OTHER SETTINGS
+
+;;FSO 3.6.14;; $Default ship select effect: FS1
+;;FSO 3.6.14;; $Default weapon select effect: FS1
+
+
+#END

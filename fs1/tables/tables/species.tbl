@@ -1,0 +1,43 @@
+; new format:
+; $Entry:				// begins entry
+; $Anim:				// anim filename, no extension
+; $AlwaysInTechRoom:			// 1 for yes, 0 for no.  if 0, must use a SEXP to make it show up in the TR
+; $Description:				// obvious
+; $end_multi_text			// end of description (and entry)
+
+
+$Entry:
+$Name: XSTR("Terrans", 462)
+$Anim: tech_tpilot
+$AlwaysInTechRoom: 1
+$Description:
+XSTR("Terrans originated on the third planet in the Sol system, known alternately as Terra or Earth.  Terrans are relatively physically weak, but are highly intelligent and versatile.  This combination of intelligence and versatility have allowed Terrans to evolve from tribal, nomadic primates (not entirely unlike their progenitors) to a spacefaring race.
+
+Terran civilization developed to the point of relatively stable nation-states.  With space travel, the nation-state evolved into the global-state and the Terran species furthered its growth, both in material ways and in immaterial, philosophical ways.  In time, the global-state led to the intersystem-state, which in turn led to the Galactic Terran Alliance, a galactic-state.
+
+To date, Terrans have successfully colonized twelve worlds outside of the Sol system.  Outposts have been established on fifteen other planets and moons throughout the known galaxy.  If the past is any indicator of future trends, unified expansionism will only continue to benefit the Alliance, both politically and economically.", 463)
+$end_multi_text
+
+$Entry:
+$Name: XSTR("Vasudans", 3193)
+$Anim: tech_vasudan
+$AlwaysInTechRoom: 1
+$Description:
+XSTR("Vasudans originate on the fourth planet of the Vasuda system, the only planet in that system that is capable of supporting life.  Their home planet, also known as Vasuda Prime, is a relatively hostile world.  Both of the twin continents of Vasuda Prime are almost entirely desert, and most of the above-ground water is, even by Vasudan standards, undrinkable.  In order to adapt to these surroundings, Vasudans developed quite rapidly.
+
+Vasudan society is complex and filled with peril for the outsider ignorant of their culture.  Vasudans have a range of social tests and protocols, such as The Conversation.  A Terran mishandling of The Conversation is presumed to be one of the major causes of the V-T War.  The Vasudan government is parliamentary in nature, but is presided over by the Imperial family and the Ambassadors, who are quasi-royal go-betweens for the Parliament and the Imperium.
+
+Vasudan space exploration has been driven primarily by the need to find planets capable of sustaining their species.  As resources on Vasuda Prime have diminished, the drive to colonize has intensified among Vasudans in recent decades.", 464)
+$end_multi_text
+
+$Entry:
+$Name: XSTR("Shivans", 3197)
+$Anim: tech_shivan
+$AlwaysInTechRoom: 0
+$Description:
+XSTR("Despite what information we've been able to obtain, Shivans still remain, on many levels, an enigma to both the Terrans and the Vasudans.  Their origin and their destination remain unknown.  While many have offered up possible explanations as to why the Shivans seem focused on the destruction of all other sentient species, we still do not know why they seem bent on total xenocide.
+
+Shivans have multiple eyes, some of which seem to have the function of compound eyes, not unlike some varieties of insects.  Shivans also have five legs, and can run equally well over a floor or over a ceiling.  It has been hypothesized that Shivans may have spent their evolutionary process in a zero-gravity environment.  Each Shivan leg ends in a very strong claw, capable of crushing even the sturdiest of known alloys.  Parts of their thorax seem to act as compartments, such as ones that might be found on a space suit.  It has been suggested that what we have actually seen have been either robots or organic creatures in some sort of exo-skeleton.  However, we have, at present, no reason to support either hypothesis.
+
+Most likely, we will not learn anything more about the Shivan species until we have actually captured and studied a Shivan.", 465)
+$end_multi_text

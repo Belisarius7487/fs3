@@ -1,0 +1,397 @@
+;
+; music.tbl
+;
+; Specifies which .wav files to use for the different sections of event-driven sound-tracks
+;
+; format:  $Name:  filename.wav  num_measures (samples_per_measure)
+;
+#SoundTrack Start
+$Soundtrack Name: 1: Genesis
+$Name:	FS2_Amb_A01.wav		25.0		105840	; * Ambience 
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Normal
+$Name:	FS2_Arv_B01.wav		3.8		81415		; * Enemy Arrival during Normal
+$Name:	FS2_Btl_A01.wav		25.8		66150		; * Battle 1
+$Name:	FS2_Btl_A02.wav		27.8		81415		; * Battle 2
+$Name:	FS2_Btl_A03.wav		39.8		81415		; * Battle 3
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Battle
+$Name:	FS2_Arv_B02.wav		3.8		81415		; * Enemy Arrival during Battle
+$Name:	FS2_Vict_A01.wav		2.8		52920		; * Victory 1 ( goal completed )
+$Name:	FS2_Vict_A02.wav		30.8		52920		; * Victory 2	( all enemies dead, goals completed )
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Goal Failed
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Player dies
+#SoundTrack End
+;
+#SoundTrack Start
+$Soundtrack Name: 2: Exodus
+$Name:	FS2_Amb_B01.wav		17.0		132300	; * Ambience 
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Normal
+$Name:	FS2_Arv_B01.wav		4.8		81415		; * Enemy Arrival during Normal
+$Name:	FS2_Btl_B01.wav		39.8		132300	; * Battle 1
+$Name:	FS2_Btl_B02.wav		23.8		75600		; * Battle 2
+$Name:	FS2_Btl_B03.wav		31.8		75600		; * Battle 3
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Battle
+$Name:	FS2_Arv_B04.wav		4.8		75600		; * Enemy Arrival during Battle
+$Name:	FS2_Vict_A01.wav		2.8		52920		; * Victory 1 ( goal completed )
+$Name:	FS2_Vict_B02.wav		40.8		88200		; * Victory 2	( all enemies dead, goals completed )
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Goal Failed
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Player dies
+#SoundTrack End
+;
+#SoundTrack Start
+$Soundtrack Name: 3: Leviticus
+$Name:	FS2_Amb_C01.wav		16.0		98916		; * Ambience 
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Normal
+$Name:	FS2_Arv_C01.wav		3.8		99225		; * Enemy Arrival during Normal
+$Name:	FS2_Btl_C01.wav		11.8		216491	; * Battle 1
+$Name:	FS2_Btl_C02.wav		7.8		192437	; * Battle 2
+$Name:	FS2_Btl_C03.wav		28.8		99225		; * Battle 3
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Battle
+$Name:	FS2_Arv_C01.wav		3.8		99225		; * Enemy Arrival during Battle
+$Name:	FS2_Vict_A01.wav		2.8		52920		; * Victory 1 ( goal completed )
+$Name:	FS2_Vict_A02.wav		30.8		52920		; * Victory 2	( all enemies dead, goals completed )
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Goal Failed
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Player dies
+#SoundTrack End
+;
+#SoundTrack Start
+$Soundtrack Name: 4: Numbers
+$Name:	FS2_Amb_A01.wav		25.0		105840	; * Ambience 
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Normal
+$Name:	FS2_Arv_D01.wav		3.8		99362		; * Enemy Arrival during Normal
+$Name:	FS2_Btl_D01.wav		15.8		115764	; * Battle 1
+$Name:	FS2_Btl_D02.wav		23.8		115764	; * Battle 2
+$Name:	FS2_Btl_D03.wav		23.8		115764	; * Battle 3
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Battle
+$Name:	FS2_Arv_D01.wav		3.8		99362		; * Enemy Arrival during Battle
+$Name:	FS2_Vict_A01.wav		2.8		52920		; * Victory 1 ( goal completed )
+$Name:	FS2_Vict_B02.wav		40.8		88200		; * Victory 2	( all enemies dead, goals completed )
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Goal Failed
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Player dies
+#SoundTrack End
+;
+#SoundTrack Start
+$Soundtrack Name: 5: Deuteronomy
+$Name:	FS2_Amb_B01.wav		16.0		132300	; * Ambience 
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Normal
+$Name:	FS2_Arv_D01.wav		3.8		99362		; * Enemy Arrival during Normal
+$Name:	FS2_Btl_F01.wav		23.8		117600	; * Battle 1
+$Name:	FS2_Btl_F02.wav		15.8		117600	; * Battle 2
+$Name:	FS2_Btl_F03.wav		20.0		117600	; * Battle 3
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Battle
+$Name:	FS2_Arv_D01.wav		3.8		99362		; * Enemy Arrival during Battle
+$Name:	FS2_Vict_A01.wav		2.8		52920		; * Victory 1 ( goal completed )
+$Name:	FS2_Vict_B02.wav		40.8		88200		; * Victory 2	( all enemies dead, goals completed )
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Goal Failed
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Player dies
+#SoundTrack End
+;
+#SoundTrack Start
+$Soundtrack Name: 6: Joshua
+$Name:	FS2_Amb_C01.wav		16.0		98916		; * Ambience 
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Normal
+$Name:	FS2_Arv_E02.wav		1.8		147000	; * Enemy Arrival during Normal
+$Name:	FS2_Btl_G01.wav		25.8		88200		; * Battle 1
+$Name:	FS2_Btl_G02.wav		19.8		88200		; * Battle 2
+$Name:	FS2_Btl_G03.wav		31.8		88200		; * Battle 3
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Battle
+$Name:	FS2_Arv_G02.wav		3.8		88200		; * Enemy Arrival during Battle
+$Name:	FS2_Vict_A01.wav		2.8		52920		; * Victory 1 ( goal completed )
+$Name:	FS2_Vict_A02.wav		30.8		52920		; * Victory 2	( all enemies dead, goals completed )
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Goal Failed
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Player dies
+#SoundTrack End
+;
+#SoundTrack Start
+$Soundtrack Name: 7: Revelation
+$Name:	FS2_Amb_E01.wav		14.0		73500		; * Ambience 
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Normal
+$Name:	FS2_Arv_E02.wav		1.8		147000	; * Enemy Arrival during Normal
+$Name:	FS2_Btl_E01.wav		27.8		147000	; * Battle 1
+$Name:	FS2_Btl_E02.wav		23.8		88200		; * Battle 2
+$Name:	FS2_Btl_E03.wav		22.8		88200		; * Battle 3
+$Name:	FS2_AArv_A01.wav		1.8		105840	; * Allied Arrival during Battle
+$Name:	FS2_Arv_E02.wav		1.8		147000	; * Enemy Arrival during Battle
+$Name:	FS2_Vict_A01.wav		2.8		52920		; * Victory 1 ( goal completed )
+$Name:	FS2_Vict_A02.wav		30.8		52920		; * Victory 2	( all enemies dead, goals completed )
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Goal Failed
+$Name:	FS2_Dth_A01.wav		23.8		132300	; * Player dies
+#SoundTrack End
+;
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-1: Fortress
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m1_NRML1.wav		31.9		73144		; Normal 1
+;;FSO 3.6.0;; $Name:	m1_AARV1.wav		3.8		72300		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m1_EARV1.wav		3.8		72300		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m1_BTTL1.wav		31.8		72300		; Battle 1
+;;FSO 3.6.0;; $Name:	m1_BTTL2.wav		15.8		72300		; Battle 2
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Battle 3
+;;FSO 3.6.0;; $Name:	m1_AARV2.wav		3.8		72300		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m1_EARV2.wav		3.8		72300		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m1_VICT1.wav		1.8		72300		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m1_VICT2.wav		33.8		71600		; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m1_DEAD.wav			19.8		71600		; Player dies
+;;FSO 3.6.0;; $Name:	m1_NRML2.wav		15.9		72300		; Normal 2
+;;FSO 3.6.0;; $Name:	m1_NRML3.wav		15.8		72300		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-2: March
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m2_NRML1.wav		27.8		105840		; Normal 1
+;;FSO 3.6.0;; $Name:	m2_AARV1.wav		3.8		105840		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m2_EARV1.wav		3.84		105840		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m2_BTTL1.wav		15.8		105840		; Battle 1
+;;FSO 3.6.0;; $Name:	m2_BTTL2.wav		15.8		105840		; Battle 2
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Battle 3
+;;FSO 3.6.0;; $Name:	m2_AARV2.wav		1.8		105840		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m2_EARV2.wav		1.8		105840		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m2_VICT1.wav		1.8		105840		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m2_VICT2.wav		26.8		105840 	; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m2_DEAD.wav			9.8		105840		; Player dies
+;;FSO 3.6.0;; $Name:	m2_NRML2.wav		28.8		105840		; Normal 2
+;;FSO 3.6.0;; $Name:	m2_NRML3.wav		19.8		105840		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-3: Chaser
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m3_NRML1.wav		31.8		82688		; Normal 1
+;;FSO 3.6.0;; $Name:	m3_AARV1.wav		3.8		82688		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m3_EARV1.wav		3.8		82688		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m3_BTTL1.wav		31.8		82688		; Battle 1
+;;FSO 3.6.0;; $Name:	m3_BTTL2.wav		25.8		82688		; Battle 2
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Battle 3
+;;FSO 3.6.0;; $Name:	m3_AARV2.wav		1.8		82688		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m3_EARV2.wav		1.8		82688		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m3_VICT1.wav		1.8		82688		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m3_VICT2.wav		31.8		82688		; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m1_DEAD.wav			19.8		71600		; Player dies
+;;FSO 3.6.0;; $Name:	m3_NRML2.wav		11.8		82688		; Normal 2
+;;FSO 3.6.0;; $Name:	m3_NRML3.wav		7.8		82688		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;										
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-4: Worlds Apart
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m4_NRML1.wav		23.8		123070		; Normal 1
+;;FSO 3.6.0;; $Name:	m4_AARV1.wav		1.8		123070		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m4_EARV1.wav		1.8		123070		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m4_BTTL1.wav		19.8		109490		; Battle 1
+;;FSO 3.6.0;; $Name:	m4_BTTL2.wav		15.8		109490		; Battle 2
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Battle 3
+;;FSO 3.6.0;; $Name:	m4_AARV2.wav		1.8		151200		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m4_EARV2.wav		1.8		151200		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m4_VICT1.wav		2.8		132300		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m4_VICT2.wav		19.8		132300		; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m2_DEAD.wav			9.8		95000		; Player dies
+;;FSO 3.6.0;; $Name:	m4_NRML2.wav		15.8		123070		; Normal 2
+;;FSO 3.6.0;; $Name:	m4_NRML3.wav		27.8		88200		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-5: Spook
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m5_NRML1.wav		27.8		96218		; Normal 1
+;;FSO 3.6.0;; $Name:	m5_AARV1.wav		3.8		96218		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m5_EARV1.wav		3.8		96218		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m5_BTTL1.wav		21.8		96218		; Battle 1
+;;FSO 3.6.0;; $Name:	m5_BTTL2.wav		19.8		96218		; Battle 2
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Battle 3
+;;FSO 3.6.0;; $Name:	m5_AARV2.wav		3.8		96218		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m5_EARV2.wav		3.8		96218		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m5_VICT1.wav		1.8		96218		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m5_VICT2.wav		21.8		96218 	; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m5_DEAD.wav			12.8		96218 	; Player dies
+;;FSO 3.6.0;; $Name:	m5_NRML2.wav		11.8		96218		; Normal 2
+;;FSO 3.6.0;; $Name:	m5_NRML3.wav		29.8		96218		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-6: Haunted
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m6_NRML1.wav		32.8		88200		; Normal 1
+;;FSO 3.6.0;; $Name:	m6_AARV1.wav		3.8		88200		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m6_EARV1.wav		3.8		88200		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m6_BTTL1.wav		23.8		88200		; Battle 1
+;;FSO 3.6.0;; $Name:	m6_BTTL2.wav		19.8		88200		; Battle 2
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Battle 3
+;;FSO 3.6.0;; $Name:	m6_AARV2.wav		3.8		88200		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m6_EARV2.wav		3.8		88200		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m6_VICT1.wav		1.8		88200		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m1_VICT2.wav		33.8		72300		; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m2_DEAD.wav			9.8		105840		; Player dies
+;;FSO 3.6.0;; $Name:	m6_NRML2.wav		45.8		88200		; Normal 2
+;;FSO 3.6.0;; $Name:	m6_NRML3.wav		39.8		88200		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-7: Marauder
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m7_NRML1.wav		39.8		105840		; Normal 1
+;;FSO 3.6.0;; $Name:	m7_AARV1.wav		1.8		117600		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m7_EARV1.wav		1.8		117600		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m7_BTTL1.wav		23.8		117600		; Battle 1
+;;FSO 3.6.0;; $Name:	m7_BTTL2.wav		15.8		117600		; Battle 2
+;;FSO 3.6.0;; $Name:	m7_BTTL3.wav		19.8		117600		; Battle 3
+;;FSO 3.6.0;; $Name:	m7_AARV2.wav		1.8		117600		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m7_EARV2.wav		1.8		117600		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m1_VICT1.wav		1.8		72300		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m2_VICT2.wav		26.8		105840 	; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m7_DEAD.wav			9.8		117600		; Player dies
+;;FSO 3.6.0;; $Name:	m7_NRML2.wav		23.8		105840		; Normal 2
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-8: Strike
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m8_NRML1.wav		15.8		132300		; Normal 1
+;;FSO 3.6.0;; $Name:	m8_AARV1.wav		1.8		132300		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m8_EARV1.wav		1.8		132300		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m8_BTTL1.wav		7.8		132300		; Battle 1
+;;FSO 3.6.0;; $Name:	m8_BTTL2.wav		11.8		132300		; Battle 2
+;;FSO 3.6.0;; $Name:	m8_BTTL3.wav		9.8		132300		; Battle 3
+;;FSO 3.6.0;; $Name:	m8_AARV2.wav		1.8		132300		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m8_EARV2.wav		1.8		132300		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m1_VICT1.wav		1.8		72300		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m8_VICT2.wav		31.8		105840 	; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m7_DEAD.wav			9.8		117600		; Player dies
+;;FSO 3.6.0;; $Name:	m8_NRML2.wav		15.8		132300		; Normal 2
+;;FSO 3.6.0;; $Name:	m8_NRML3.wav		15.8		132300		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-9: Monolith
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m9_NRML1.wav		15.8		147000		; Normal 1
+;;FSO 3.6.0;; $Name:	m9_AARV1.wav		1.8		132300		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m9_EARV1.wav		1.8		132300		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m9_BTTL1.wav		23.8		75600		; Battle 1
+;;FSO 3.6.0;; $Name:	m9_BTTL2.wav		23.8		75600		; Battle 2
+;;FSO 3.6.0;; $Name:	m9_BTTL1.wav		23.8		75600		; Battle 3
+;;FSO 3.6.0;; $Name:	m9_AARV2.wav		1.8		105840		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m9_EARV2.wav		1.8		105840		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m1_VICT1.wav		1.8		72300		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m8_VICT2.wav		31.8		105840 	; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m7_DEAD.wav			9.8		117600		; Player dies
+;;FSO 3.6.0;; $Name:	m9_NRML2.wav		15.8		147000		; Normal 2
+;;FSO 3.6.0;; $Name:	m8_NRML3.wav		15.8		132300		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;
+;;FSO 3.6.0;; #SoundTrack Start
+;;FSO 3.6.0;; $Soundtrack Name: FS1-10: Darkside
+;;FSO 3.6.9;; +Cycle: FS1
+;;FSO 3.6.8;; +Allied Arrival Overlay: NO
+;;FSO 3.6.0;; $Name:	m10_NRML1.wav		39.8		105840		; Normal 1
+;;FSO 3.6.0;; $Name:	m10_AARV1.wav		3.8		88200		; Allied Arrival during Normal
+;;FSO 3.6.0;; $Name:	m10_EARV1.wav		1.8		88200		; Enemy Arrival during Normal
+;;FSO 3.6.0;; $Name:	m10_BTTL1.wav		15.8		132300		; Battle 1
+;;FSO 3.6.0;; $Name:	m10_BTTL2.wav		11.8		132300		; Battle 2
+;;FSO 3.6.0;; $Name:	m10_BTTL3.wav		9.8		132300		; Battle 3
+;;FSO 3.6.0;; $Name:	m10_AARV1.wav		3.8		88200		; Allied Arrival during Battle
+;;FSO 3.6.0;; $Name:	m10_EARV2.wav		3.8		88200		; Enemy Arrival during Battle
+;;FSO 3.6.0;; $Name:	m2_VICT1.wav		1.8		105840		; Victory 1 ( goal completed )
+;;FSO 3.6.0;; $Name:	m2_VICT2.wav		26.8		105840		; Victory 2	( all enemies dead, goals completed )
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Goal Failed
+;;FSO 3.6.0;; $Name:	m1_DEAD.wav			19.8		71600		; Player dies
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Normal 2
+;;FSO 3.6.0;; $Name:	none.wav			0		0		; Normal 3
+;;FSO 3.6.0;; #SoundTrack End
+;
+;
+#Menu Music Start
+$Name:		Brief1
+$Filename:	FS2_Brief_01.wav			; briefing music 1
+
+$Name:		Brief2
+$Filename:	FS2_Brief_02.wav			; briefing music 2
+
+$Name:		Brief3
+$Filename:	FS2_Brief_03.wav			; briefing music 3
+
+$Name:		Brief4
+$Filename:	FS2_Brief_04.wav			; briefing music 4
+
+$Name:		Brief5
+$Filename:	FS2_Brief_05.wav			; briefing music 5
+
+$Name:		Brief6
+$Filename:	FS2_Btl_A01.wav			; briefing music 6
+
+$Name:		Brief7
+$Filename:	FS2_Cinema2.wav			; briefing music 7
+
+$Name:		Success
+$Filename:	FS2_DB_01.wav			; debriefing success music
+
+$Name:		Average
+$Filename:	FS2_DB_02.wav			; debriefing average music
+
+$Name:		Failure
+$Filename:	FS2_DB_03.wav			; debriefing failure music
+
+$Name:		Aquitaine
+$Filename:	Aquitaine.wav			; Main menu music
+
+$Name:		Psampik
+$Filename:	Psampik.wav				; Vasudan menu music
+
+$Name:		Cinema
+$Filename:	FS2_Cinema2.wav			; credits music
+
+;;FSO 3.6.0;; $Name:		FS1-BRIEF1
+;;FSO 3.6.0;; $Filename:	Brief1.wav				; briefing music 1
+
+;;FSO 3.6.0;; $Name:		FS1-BRIEF2
+;;FSO 3.6.0;; $Filename:	Brief2.wav				; briefing music 2
+
+;;FSO 3.6.0;; $Name:		FS1-BRIEF3
+;;FSO 3.6.0;; $Filename:	m5_nrml3.wav			; briefing music 3
+
+;;FSO 3.6.0;; $Name:		FS1-BRIEF4
+;;FSO 3.6.0;; $Filename:	m8_nrml3.wav			; briefing music 4
+
+;;FSO 3.6.0;; $Name:		FS1-BRIEF5
+;;FSO 3.6.0;; $Filename:	m2_nrml3.wav			; briefing music 5
+
+;;FSO 3.6.0;; $Name:		FS1-BRIEF6
+;;FSO 3.6.0;; $Filename:	m4_nrml3.wav			; briefing music 6
+
+;;FSO 3.6.0;; $Name:		FS1-BRIEF7
+;;FSO 3.6.0;; $Filename:	m10_nrml1.wav			; briefing music 7
+
+;;FSO 3.6.0;; $Name:		FS1-Success
+;;FSO 3.6.0;; $Filename:	Debrief01.wav			; debriefing success music
+
+;;FSO 3.6.0;; $Name:		FS1-Failure
+;;FSO 3.6.0;; $Filename:	Fail1.wav				; debriefing failure music
+
+;;FSO 3.6.0;; $Name:		FS1-Choco Mousse
+;;FSO 3.6.0;; $Filename:	Title.wav				; Main menu music
+
+;;FSO 3.6.0;; $Name:		FS1-Creme Brulee
+;;FSO 3.6.0;; $Filename:	fs2betamainhall.wav		; Main menu music for ST:R
+
+;;FSO 3.6.0;; $Name:		FS1-Cinema
+;;FSO 3.6.0;; $Filename:	Cinema.wav				; credits music
+
+#Menu Music End

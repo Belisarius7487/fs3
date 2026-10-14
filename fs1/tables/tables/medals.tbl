@@ -1,0 +1,115 @@
+;; text file to contain medal information.  Does not include "rank" medals (see rank.tbl for those).
+;; medal names and which bitmap(s) are used to display them.
+
+#Medals
+
+$Name:		Conspicuous Gallantry
+$Bitmap:		Medal00.pcx
+$Num mods:	4
+
+$Name:		Vasudan Alliance
+$Bitmap:		Medal01.pcx
+$Num mods:	4
+
+$Name:		Distinguished Flying Cross
+$Bitmap:		Medal02.pcx
+$Num mods:	4
+
+$Name:		Commendation Medal
+$Bitmap:		Medal03.pcx
+$Num mods:	4
+
+$Name:		Galatea Survivor
+$Bitmap:		Medal04.pcx
+$Num mods:	4
+
+$Name:		Legion of Merit
+$Bitmap:		Medal05.pcx
+$Num mods:	4
+
+$Name:		Meritorious Unit
+$Bitmap:		Medal06.pcx
+$Num mods:	4
+
+$Name:		Medal of Honor
+$Bitmap:		Medal07.pcx
+$Num mods:	4
+
+$Name:		Galactic Service
+$Bitmap:		Medal08.pcx
+$Num mods:	4
+
+$Name:		Military Defense
+$Bitmap:		Medal09.pcx
+$Num mods:	4
+
+$Name:		Good Conduct
+$Bitmap:		Medal10.pcx
+$Num mods:	4
+
+$Name:		Distinguished Service Cross
+$Bitmap:		Medal11.pcx
+$Num mods:	4
+
+$Name:		Rank
+$Bitmap:		Medal12.pcx
+$Num mods:	10
+
+$Name:		Wings
+$Bitmap:		Medal13.pcx
+$Num mods:	2
+
+
+$Name:		Ace
+$Bitmap:		Medal14.pcx
+$Num mods:	1
++Num Kills:	60
+$Wavefile Base: badge_a.wav
+
+$Promotion Text:
+XSTR("For having attained an outstanding number of confirmed kills, you are hereby awarded the Ace.", 144)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("For your excellent record of confirmed kills, you have achieved the status of Ace.", 3772)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:		Double Ace
+$Bitmap:		Medal15.pcx
+$Num mods:	1
++Num Kills:	150
+$Wavefile Base: badge_b.wav
+
+$Promotion Text:
+XSTR("For your fine accomplishments as a skilled pilot and for your considerable number of enemy kills, it is an honor to present you the Double Ace.", 145)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("For your outstanding record of confirmed kills, you have achieved the status of Double Ace.", 3773)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:		Triple Ace
+$Bitmap:		Medal16.pcx
+$Num mods:	1
++Num Kills:	350
+$Wavefile Base: badge_c.wav
+
+$Promotion Text:
+XSTR("For your truly impressive ability as a pilot and for the exceptional number of confirmed enemy kills, it is a rare honor to present you the Triple Ace.  Few pilots are so distinguished.", 146)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("For your extraordinary record of confirmed kills, you have achieved the status of Triple Ace.", 3774)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:		GTI Unit Crest
+$Bitmap:		Medal17.pcx
+$Num mods:	1
+
+#End

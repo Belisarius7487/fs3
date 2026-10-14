@@ -1,0 +1,20 @@
+;; AI Profiles table.  Incorporates stuff from the old difficulty.tbl plus
+;; additional flags previously covered under the blanket New AI flag.
+;;
+
+#AI Profiles
+
+$Default Profile: FS1 RETAIL
+
+$Profile Name: FS1 RETAIL
+
+;; if set, shockwaves will cause damage to small ship subsystems (like in FS1)
+$shockwaves damage small ship subsystems: YES
+
+;; if set, will not use a minimum speed limit for docked ships (like in FS1)
+$ignore lower bound for minimum speed of docked ship: YES
+
+;;FSO 3.6.10;; ;; if set, will not scale weapon damage according to capital/supercap (like in FS1)
+;;FSO 3.6.10;; $disable weapon damage scaling: YES
+
+#End

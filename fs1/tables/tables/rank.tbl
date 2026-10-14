@@ -1,0 +1,167 @@
+; Ranks.tbl 
+; Will contain data for :
+; 1.) player rank names
+; 2.) player rank scores
+;
+; Do not change the ordering of the sections in this table.  Also do not add items to the list
+;
+;
+;
+; Casting Notes:
+;	Terran Captain 1(M) - ES  = 1_*
+;	Terran Captain 2(F) - SH  = 3_*
+
+
+[RANK NAMES]
+$Name:	XSTR("Ensign", 309)
+$Points:	0
+$Bitmap:	medal12.pcx
+$Promotion Voice Base: rank_0.wav
+
+$Promotion Text:
+XSTR("Dang, you're still an Ensign!  You must have gotten busted!", 310)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("You have received your commission in the PVN.  Congratulations, Ensign.", 3775)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name: XSTR("Lieutenant Junior Grade", 311)
+$Points:	4000
+$Bitmap:	medal12a.pcx
+$Promotion Voice Base: rank_a.wav
+
+$Promotion Text:
+XSTR("Congratulations.  Your achievements have been noted and you are duly awarded the rank Lieutenant Junior Grade.", 312)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("Because of your achievements, character, and potential, you are duly awarded the rank of Lieutenant Junior Grade.", 3776)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:	XSTR("Lieutenant", 313)
+$Points:	10000
+$Bitmap:	medal12b.pcx
+$Promotion Voice Base: rank_b.wav
+
+$Promotion Text:
+XSTR("Per GTAR 64-2a you are hereby promoted to the rank of Lieutenant.  Congratulations.", 314)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("After reviewing your service record and the recommendations of your superior officers, the Military Directorate has authorized your promotion.  Congratulations, Lieutenant.", 3777)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:	XSTR("Lieutenant Commander", 315)
+$Points:	22000
+$Bitmap:	medal12c.pcx
+$Promotion Voice Base: rank_c.wav
+
+$Promotion Text:
+XSTR("Congratulations.  Your achievements have been noted and you are duly awarded the rank of Lieutenant Commander.", 316)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("For your excellent record of service, leadership, and conduct under fire, you have attained the rank of Lieutenant Commander.", 3778)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:	XSTR("Commander", 317)
+$Points:	50000
+$Bitmap:	medal12d.pcx
+$Promotion Voice Base: rank_d.wav
+
+$Promotion Text:
+XSTR("Because of your consistent sense of duty and obvious skill as a leader, you have been promoted to the rank of Commander.", 318)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("Because your achievements distinguish you as an officer of the highest caliber, you have been promoted to the rank of Commander.", 3779)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:	XSTR("Captain", 319)
+$Points:	150000
+$Bitmap:	medal12e.pcx
+$Promotion Voice Base: rank_e.wav
+
+$Promotion Text:
+XSTR("For displaying a commanding nature and the ability to lead others you are hereby promoted to Captain.  Congratulations!", 320)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("For your brilliance as a pilot, tactician, and leader, the Military Directorate confers upon you the rank of Captain.", 3780)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+;; the Brass
+$Name:	XSTR("Commodore", 321)
+$Points:	400000
+$Bitmap:	medal12f.pcx
+$Promotion Voice Base: rank_f.wav
+
+$Promotion Text:
+XSTR("For outstanding service through the war, leading many successful missions, and promoting a sense of honor and pride in the Alliance you have been promoted to the rank of Commodore.", 322)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("Captain, your long and illustrious record distinguishes you as a leader of integrity, courage, and wisdom.  You are duly promoted to the rank of Commodore.", 3781)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:	XSTR("Rear Admiral", 323)
+$Points:	2000000
+$Bitmap:	medal12g.pcx
+$Promotion Voice Base: rank_g.wav
+
+$Promotion Text:
+XSTR("We aren't sure how you've done it, but you are hereby promoted to the prestigious rank of Rear Admiral.  (We think you cheated.)", 324)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("On behalf of the PVE Military Directorate and the Parliament of Vasuda, it is my honor to confer upon you the prestigious rank of Rear Admiral.  Congratulations.", 3782)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:	XSTR("Vice Admiral", 325)
+$Points:	5000000
+$Bitmap:	medal12h.pcx
+$Promotion Voice Base: rank_h.wav
+
+$Promotion Text:
+XSTR("You really must have cheated to get this rank!  Do you want to sit behind a desk or something?  That is what Vice Admirals do.", 326)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("Your career stands as a shining example of our ideals and values, and few officers have rendered greater service to the Empire.  On behalf of the PVE Military Directorate and the Parliament of Vasuda, I hereby confer upon you the prestigious rank of Vice Admiral.", 3783)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+$Name:	XSTR("Admiral", 327)
+$Points:	9000000
+$Bitmap:	medal12i.pcx
+$Promotion Voice Base: rank_i.wav
+
+$Promotion Text:
+XSTR("You really have got to stop cheating.  This could become a natural thing for you... and that would be bad.  Go on Admiral Cheater, I think you have to perform some ceremony or inspection or something.", 328)
+$end_multi_text
+
+;;FSO 3.7.1;; $Promotion Text:
+;;FSO 3.7.1;; XSTR("Congratulations.  You have earned your place in the highest echelon of allied leadership.  Your character, courage, and genius are an inspiration to us all.  On behalf of the PVE Military Directorate and the Parliament of Vasuda, I hereby confer upon you the prestigious rank of Admiral.  Now go read a book.", 3784)
+;;FSO 3.7.1;; $end_multi_text
+;;FSO 3.7.1;; +Persona: 8
+
+
+#End

@@ -1,0 +1,21 @@
+#Debriefing_info
+
+$Num stages: 1
+
+$Formula: ( true ) 
+
+$Multi text
+   XSTR("Willfully firing on allied ships is a capital offense, punishable by death.  You are hereby stripped of your rank and your citizenship in the GTA.  You will appear at 0700 hours at the League of Defense Justice Ministry for your court martial.", 503)
+$end_multi_text
+
+;;FSO 21.0.0;; $Multi text
+;;FSO 21.0.0;;    XSTR("Willfully firing on allied ships is a capital offense, punishable by death.  You are hereby stripped of your rank and your citizenship in the PVE.  You will appear at 0700 hours at the Military Directorate Justice Ministry for your court martial.", 3947)
+;;FSO 21.0.0;; $end_multi_text
+;;FSO 21.0.0;; +Persona: 8
+
+$Voice: traitor_debrief.wav
+
+$Recommendation text:
+   XSTR("Don't fire upon friendly ships.", 504)
+
+$end_multi_text
