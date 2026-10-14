@@ -14,9 +14,8 @@ musst du nicht mehr anfassen.
 **Repository (kurz Repo)** — der Ablageort auf GitHub, in dem das ganze
 Spiel liegt. Davon gibt es eine Kopie auf deinem Server.
 
-**Zweig (englisch „branch")** — eine Nebenspur im Repo. Ich arbeite immer auf
-einer Nebenspur, nicht auf der Hauptspur. So kann nichts Ungetestetes in die
-Hauptspur geraten. Die Hauptspur heißt `main`.
+**Zweig (englisch „branch")** — eine Spur im Repo. Es gibt nur eine, die
+Hauptspur `main`. Dort liegt immer der neueste Stand.
 
 **Version** — eine durchnummerierte Fassung des Spiels, z. B. v217. Jede
 neue Änderung bekommt die nächste Nummer.
@@ -25,24 +24,25 @@ neue Änderung bekommt die nächste Nummer.
 
 ## 1. Wenn ich sage „v218 liegt bereit"
 
-### Einmalig, beim allerersten Mal
+### Einmalig: zurück auf die Hauptspur
 
-Die Nebenspur muss auf deinem Server einmal bekannt gemacht werden. Melde
-dich auf `hlp-dev-01` an und gib ein:
+Seit dem 14.10.2026 gibt es nur noch **eine** Spur: `main`. Dein Server steht
+vermutlich noch auf der alten Nebenspur. Melde dich auf `hlp-dev-01` an und
+gib einmal ein:
 
 ```
 cd /home/belisarius/fs3-build
 git fetch origin
-git checkout claude/festive-ramanujan-dedgw3
+git checkout main
+git pull
 ```
 
-**Erwartete Ausgabe:** zuletzt eine Zeile wie
-`Switched to a new branch 'claude/festive-ramanujan-dedgw3'`.
+**Erwartete Ausgabe:** eine Zeile mit `Switched to branch 'main'` (oder
+`Already on 'main'`), danach nennt `git pull` die geänderten Dateien.
 
-**Stopp-Punkt:** Steht dort stattdessen irgendwo das Wort `error` oder
-`conflict`, **brich ab und schick mir die ganze Ausgabe.** Dann hat dein
-Server noch eigene Änderungen liegen, die ich erst einsortieren muss.
-Nichts weiter tun, nichts löschen.
+**Stopp-Punkt:** Steht dort irgendwo das Wort `error` oder `conflict`,
+**brich ab und schick mir die ganze Ausgabe.** Nichts weiter tun, nichts
+löschen.
 
 ### Jedes Mal
 
@@ -97,18 +97,8 @@ harmlos, vergessen nicht.
 
 ## 3. Wenn eine Version gut ist
 
-Sag mir einfach: **„v218 ist gut."**
-
-Dann bringe ich sie in die Hauptspur `main`. Du musst dafür nichts auf GitHub
-klicken. Danach steht sie dauerhaft und ist der neue Ausgangspunkt.
-
-Wenn du danach wieder auf die Hauptspur willst, auf dem Server:
-
-```
-cd /home/belisarius/fs3-build
-git checkout main
-git pull
-```
+Nichts zu tun. Jede Version liegt sofort auf `main`. Ist eine schlecht, sag
+es mir, dann baue ich die nächste.
 
 ---
 
@@ -118,10 +108,8 @@ Zum Beispiel die FreeSpace-Missionsdateien. Das geht im Browser, dein Server
 wird dafür nicht gebraucht.
 
 1. `https://github.com/Belisarius7487/fs3` öffnen
-2. **Oben links im Zweig-Auswahlfeld** (es steht `main` darin)
-   `claude/festive-ramanujan-dedgw3` auswählen.
-   **Das ist wichtig** — in `main` kommt nichts, bevor du eine Version
-   abgenommen hast.
+2. Oben links im Zweig-Auswahlfeld muss `main` stehen (das ist die
+   Voreinstellung).
 3. Rechts auf `Add file` → `Upload files`
 4. Die **Ordner** vom Rechner ins Fenster ziehen. Namen am besten so:
 
@@ -135,8 +123,8 @@ wird dafür nicht gebraucht.
    Heißen deine Ordner anders, ist das kein Problem — ich sortiere sie
    danach ein. Wichtig ist nur, dass man am Ordnernamen erkennt, aus
    welchem Spiel die Dateien stammen.
-5. Unten steht **„Commit directly to the claude/festive-ramanujan-dedgw3
-   branch"**. Das muss ausgewählt sein. Dann auf `Commit changes`.
+5. Unten steht **„Commit directly to the main branch"**. Das muss
+   ausgewählt sein. Dann auf `Commit changes`.
 
 **Erwartete Ausgabe:** GitHub zeigt die Dateien danach im Zweig an.
 

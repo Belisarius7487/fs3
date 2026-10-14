@@ -77,9 +77,9 @@ Dann die Test-URL nennen, und Silvio sieht es sich im Browser an.
 ist und warum. Nie eine Prüfung abschalten, überspringen oder ihre Erwartung
 dem kaputten Ergebnis anpassen, damit sie grün wird.
 
-Gearbeitet und hochgeschoben wird auf dem Zweig, der für die Sitzung genannt
-ist (`claude/...`), **nicht auf `main`**. Auf `main` kommt es erst, wenn
-Silvio die Version im Browser abgenommen hat.
+Gearbeitet und hochgeschoben wird **direkt auf `main`** (Silvio, 14.10.2026).
+Keine Nebenzweige mehr: v217 bis v239 lagen auf einem `claude/...`-Zweig, der
+nie zurückgeführt wurde, und `main` stand drei Wochen lang auf v216.
 
 ### Die alten Patch-Skripte
 
