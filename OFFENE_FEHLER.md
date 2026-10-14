@@ -1196,6 +1196,70 @@ geschrieben worden, um sie zu segnen.
 
 - Status: behoben in v234; die Frage nach einem gemeinsamen `FIELD_K` offen
 
+### F19 — Der freie Sichtradius im Nebel verschiebt sich
+
+**Befund (Silvio, v234):** „Wichtig für die Nebelmissionen später: Durch das
+Hochskalieren ist die Nebeldarstellung leicht kaputt gegangen. Normalerweise
+hat der Spieler um sein Schiff herum einen kleinen Radius mit freier Sicht.
+Seit der Hochskalierung verschiebt sich dieser Radius. Das muss bis zur
+Erstellung der ersten Nebelmission noch gefixt werden."
+
+Noch nicht im Code nachgelesen. **Muss vor der ersten Nebelmission behoben
+sein**, nicht vorher nötig.
+
+- Status: eingetragen, noch nicht untersucht
+
+## Eigenheiten der Missionsstränge (Silvio, v234)
+
+Zu beachten beim Nachbau der FS1-, ST:R- und FS2-Missionen. **Die
+Missionsdateien dienen nur zur Orientierung** — keine 1:1-Übersetzung, kein
+Funk.
+
+**Silvios Worte:**
+
+> Wir brauchen für jeden Arc vermutlich eigene Waffen. Für den Random Arc
+> kommen weitere hinzu wie jetzt schon die Dante und die Sidhe.
+>
+> Im FS1-Arc gibt es anfangs keine Schilde für Jäger und Bomber. Details dazu
+> sollten sich in den Missionsfiles finden.
+>
+> In FS2 in der zweiten Mission versteckt sich die Iceni innerhalb der
+> Boadicea. Die Boadicea fällt durch Beschuss langsam auseinander, wodurch
+> die Iceni zum Vorschein kommt und dann flieht.
+>
+> Aufgrund der Anforderung von 100 Missionen insgesamt müssen wir manche ggf.
+> aufteilen. Ich hoffe, dass du kreativ genug bist, mir dabei helfen zu
+> können ohne Missionen zu bauen, die bei Fehlschlägen oder anderen
+> Ereignissen, dann nie mehr enden können.
+
+**In den Dateien nachgelesen, Stand v234:**
+
+| Eigenheit | Befund in den Dateien |
+|---|---|
+| Waffen je Strang | Die Missionsdateien nennen die Bewaffnung jedes Schiffes selbst (`+Primary Banks:`). FS1: „ML-16 Laser", „Vasudan Light Laser". FS2: „Subach HL-7". Die Waffenliste eines Strangs ist also **aus den Missionen ablesbar** — eine `weapons.tbl` ist dafür nicht nötig. |
+| keine Schilde (FS1) | `no-shields` steht pro Schiff, nicht pro Mission, und **durchgehend** — nicht nur anfangs: SM1-01 19 Schiffe, SM1-07 40, SM2-01 13, SM3-08 2, SM3-09 23. Es nimmt ab, verschwindet aber nie. Welche Klassen betroffen sind, ist noch nicht ausgewertet. |
+| Iceni in der Boadicea | Steht in `fs2/SM1-02.fs2` — die einzige FS2-Datei, in der „Boadicea" vorkommt. |
+
+**Das Modell der Boadicea** ist einer der acht noch fehlenden Rümpfe.
+
+- Status: eingetragen, noch nicht umgesetzt
+
+### Missionen müssen auf jedem Weg enden können
+
+Silvios Sorge, und sie ist berechtigt: **F13 war genau dieser Fehler.** In M68
+saß eine Verlustschranke (`lostMax:0`) auf allen drei Ereignissen, die den
+Nachschub abstellen und die Shivaner abziehen. Der Verlust der Setekh sperrte
+damit alle drei dauerhaft — der Nachschub hörte nie auf und die Mission hatte
+überhaupt kein Ende mehr.
+
+Bei 100 Missionen ist das von Hand nicht mehr zu überblicken. Es braucht eine
+Prüfung, die für **jede** Mission nachweist, dass von jedem erreichbaren
+Zustand aus ein Ende erreichbar bleibt — auch nach einem Fehlschlag, auch nach
+dem Verlust eines Schützlings. Die Prüfung liest `SCRIPT_WAVES` als Daten und
+braucht **keinen Browser**, läuft also in Sekunden statt in Stunden.
+
+- Status: vorgeschlagen, Silvios Entscheidung
+
 ### Die drei Familien der `warpsim`-Befunde
 
 `warpsim` war **nie** ganz sauber. Auf v232 waren es 84 Befunde über alle 60
