@@ -1463,6 +1463,55 @@ fällt."
 und FS2 SM1-02. Alle anderen 77 können aus dem heutigen Bestand gebaut
 werden.
 
+### Die Modelldateien der acht Rümpfe — aufgelöst (v234)
+
+Silvio hat die FSPort-Grundtabelle nachgeliefert (`fs1/tables/tables/ships.tbl`,
+128 Einträge). Damit sind **sieben der acht** Rümpfe auf eine Modelldatei
+zurückgeführt — nicht geraten, sondern aus der Zeile `$POF file:` des
+jeweiligen Eintrags gelesen:
+
+| Rumpf | Modelldatei | Paket |
+|---|---|---|
+| GTF Angel | `Angel.pof` | `fsport-mediavps-4.7.2/mv_fsport_47x/data/models` |
+| PVSC Imhotep | `imhotep.pof` | dasselbe |
+| PVI Karnak | `karnak.pof` | dasselbe |
+| GTI Polaris Extension | `dock01-terran.pof` | dasselbe |
+| GTI Polaris Pylon | `dock02-terran.pof` | dasselbe |
+| Vasudan Asteroid Base | `cheops.pof` | dasselbe |
+| Terran Asteroid Base | `Base2R-01.pof` | **`MVPS-473/MV_Assets_T_2/data/models`** |
+| NTF Boadicea | noch offen | braucht die FS2-Grundtabelle |
+
+**Zwei Berichtigungen meiner früheren Aussagen:**
+
+- Die fünf FS1-Rümpfe kommen **nicht aus ST:R**, wie oben in der Quellenspalte
+  steht, sondern aus **FSPort**. Der entpackte ST:R-Ordner enthält nur Wracks,
+  die Shivaner-Leiche und einen unsichtbaren Marker — keine Stationen. ST:R
+  benutzt FSPorts Modelle mit.
+- Die Terran Asteroid Base ist ein **FS2**-Modell (`Base2R-01`), nicht ein
+  FS1-Modell. Ich hatte sie vorher fälschlich `navbuoy-terran.pof` zugeordnet;
+  das war ein Lesefehler — jene Zeile gehört zum Terran NavBuoy.
+
+**Ein Widerspruch, der Silvios Entscheidung braucht:** Die Tabelle gibt der
+**GTDr Amazon Advanced** das Modell `Drone02.pof`. Silvio hatte gesagt, sie
+sei „das gleiche Modell wie die GTFr Chronos" (das wäre `Chronos.pof`
+beziehungsweise `freighter03`). Da sie eine *Drohne* ist (GTDr), passt
+`Drone02.pof` zur Tabelle. Ein Modell wird für sie so oder so nicht neu
+gebaut — es geht nur darum, welches Aussehen sie bekommt.
+
+**Mechanismus, der vorher nicht festgehalten war:** MediaVPs ersetzen
+Modelle **unter demselben Dateinamen**. Die Grundtabelle liefert also nur den
+Namen; welche Fassung man bekommt, entscheidet der Ordner, in dem gesucht
+wird. Belegt an den 118 vorhandenen Rümpfen: `HULLS` in `buildmodels.py`
+nennt Retail-Namen (`Capital2V-01`, `Capital02`, `Corvette2R-01`,
+`Fighter2V-03`) und holt sie aus `MV_Assets_V` beziehungsweise
+`MV_Assets_S`. Silvios Sorge, über die Retail-Tabelle Retail-Modelle zu
+bekommen, trifft daher nicht zu.
+
+**Für neue Rümpfe bleibt es bei MVPS 4.7.3.** Silvio hat inzwischen auch
+MVPS 5.0.2, davon ist aber nur `MV_Effects_1` entpackt — und die 118
+vorhandenen Rümpfe stammen aus 4.7.3. Mischen würde heißen, dass die neuen
+anders aussehen als die alten.
+
 Die Zuordnung steht in der Tabelle `HULL` in `missions_read.py`, mit Silvios
 Begründung je Zeile. Das Skript prüft **jeden** Rumpfnamen gegen `HULL_LEN`
 im Spiel und schlägt an, wenn einer fehlt — die Tabelle kann also nicht
