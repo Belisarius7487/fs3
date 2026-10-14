@@ -147,3 +147,22 @@ Vorlage `fs1/sm1-06a.fs2`.
   4) wurde wegen der schwachen FS1-Waffen gegen Shivaner-Schilde
   zurückgestellt. Nach dem ersten Test im Spiel ggf. hochschrauben.
 - Weggelassen: der lange, leere Anflug.
+
+## Mission 7 — Pandora's Box (abgesegnet)
+
+Vorlage `fs1/sm1-07a.fs2`.
+
+- Start: Spieler und drei Flügelmänner, 6 Shivaner-Container (statt 29),
+  3 Wachgeschütze Trident (statt 6).
+- Auftrag: 3 Container scannen. Bonus: die Wachgeschütze zerstören.
+- Nach dem dritten Scan: Container explodieren nacheinander (Falle),
+  2 Staffeln zu je 3 Manticore und Kreuzer Taranis (Cain) springen ein,
+  dazu laufend Scorpion-Nachschub.
+- Neuer Auftrag: **60 s durchhalten** statt Entkommen (der Spieler wird nie
+  aus dem Feld gesetzt). Nach 30 s zusätzlich 2 Dragons.
+- **Ohne angezeigte Uhr** (Silvio, 14.10.2026). Die heutige Missionsuhr
+  (`timer`/`zeit`) wird immer in der Leiste gezeigt — beim Bau braucht es
+  eine unsichtbare Variante.
+- Uhr abgelaufen → Nachschub aus, Uhr gestoppt, Shivaner ziehen ab →
+  Erfolg.
+- Verlorene Leben: wie überall, Mission läuft weiter bis Game Over.
