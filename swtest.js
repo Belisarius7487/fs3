@@ -33,6 +33,8 @@ const casesOf = txt => new Set([...txt.matchAll(/case\s+'(\w+)'/g)].map(m => m[1
 
 const TRIGGERS = casesOf(body('function evTrig('));
 const EFFECTS  = casesOf(body('function evFire('));
+// v253: the words a mission mark may carry, from the game's own table
+const MARKS = new Set(Object.keys(eval('(' + (src.match(/const MARK_WORDS = (\{[^}]*\})/)||[0,'{}'])[1] + ')')));
 const CAT_FIX  = eval('(' + body('const CAT_FIX =').replace(/^const CAT_FIX =\s*/, '') + ')');
 const CAT_FAC  = eval('(' + body('const CAT_FAC =').replace(/^const CAT_FAC =\s*/, '') + ')');
 const W = 800, H = 500, HUD_H = 44, TICK_HZ = 100;
@@ -46,7 +48,7 @@ const SCRIPT_WAVES = eval('(' + body('const SCRIPT_WAVES =').replace(/^const SCR
 // Triggers without a unit as target, and effects whose argument is a unit.
 // gerettet / verloren count protected ships, they name no unit.
 const TRIG_NO_ID  = new Set(['sek', 'zeit', 'erfuellt', 'gerettet', 'verloren', 'entkommen']);
-const EFFECT_UNIT = new Set(['einwarpen', 'seite', 'raus', 'heilen', 'kapern', 'freigeben', 'kulisse', 'ruf']);
+const EFFECT_UNIT = new Set(['einwarpen', 'seite', 'raus', 'heilen', 'kapern', 'freigeben', 'kulisse', 'ruf', 'opfer']);
 
 let errors = 0, missions = 0;
 const groups = [];
@@ -69,6 +71,8 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
     if(!CAT_FAC[u.c] && !CAT_FIX[u.c] && u.c!=='sd')
       bad.push(u.id + ': unknown category "' + u.c + '" - would never spawn');
   }
+  for(const u of units)
+    if(u.mark && !MARKS.has(u.mark)) bad.push(u.id + ': unknown mark "' + u.mark + '"');
   for(const u of units)
     if(u.spr && !HULL_KEYS.has(u.spr)) bad.push(u.id + ': unknown hull "' + u.spr + '"');
   if(m.fac !== CYCLE_FAC(+key)) bad.push('faction ' + m.fac + ', but this wave belongs to the ' + CYCLE_FAC(+key) + ' cycle');
@@ -98,6 +102,21 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
       warpedIn.add(arg);
       if(ids.has(arg) && !ids.get(arg).some(u => u.wait))
         bad.push(where + ': ' + arg + ' is not waiting - warping it in does nothing');
+    }
+    // v253: wenn, a second condition on the same event.
+    if(e.wenn){
+      if(!TRIGGERS.has(e.wenn.t)) bad.push(where + ': unknown trigger in wenn "' + e.wenn.t + '"');
+      else if(!TRIG_NO_ID.has(e.wenn.t))
+        for(const id of String(e.wenn.a).split('+')) if(!ids.has(id)) bad.push(where + ': wenn points at missing id ' + id);
+    }
+    // v253: ships told to run, several with '+'.
+    if(e.w === 'fliehen')
+      for(const id of String(arg).split('+')) if(!ids.has(id)) bad.push(where + ': fliehen points at missing id ' + id);
+    // v253: a mission mark names a ship and a word ('id:protect').
+    if(e.w === 'markieren'){
+      const mk = String(arg).split(':');
+      if(!ids.has(mk[0])) bad.push(where + ': mark points at missing id ' + mk[0]);
+      if(mk.length !== 2 || (mk[1] && !MARKS.has(mk[1]))) bad.push(where + ': mark "' + arg + '" is not id:disable|destroy|protect');
     }
     if(e.w === 'nachschub'){ if(arg === 'aus') reinfOff = true; else reinfOn = true; }
     if(e.w === 'ende' || e.w === 'abzug') reinfOff = true;

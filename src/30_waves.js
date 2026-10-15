@@ -354,6 +354,8 @@ function buildFS1Wave(n){
 //   award  (v202: no longer pays - the player is paid for his damage as it
 //          lands, damageEnemy). Kept for the death roll's bookkeeping.
 //   drop   pickups fall. Only from a kill the player earned.
+// v253 (Silvio, "spuerbar"): reach, push, share of the hull at the centre.
+const CARGO_SHOCK = [200, 3.4, 0.13];
 function killEnemy(e, idx, award, drop){
   if(!e || e.dead) return;
   // A capital ship dies the long way first and comes back here when she
@@ -367,6 +369,9 @@ function killEnemy(e, idx, award, drop){
   plogKill(e);
   if(drop) maybeDropTicket(e);
   triggerExpl(e.x, e.y, e.type, e.faction||'ntf', e);
+  // v253: a blast wave that hurts (Pandora's Box): close by about a tenth
+  // of the player's hull, and a hard push.
+  if(e.shockDeath) spawnShock(e.x, e.y, CARGO_SHOCK[0], CARGO_SHOCK[1], CARGO_SHOCK[2]);
   if(e.type==='boss'){ bossAlive=false; bossSlain=true; }
   const k = (idx!=null && enemies[idx]===e) ? idx : enemies.indexOf(e);
   if(k>=0) enemies.splice(k,1);
@@ -580,6 +585,8 @@ function spawnProtected(sp){
     // Andockpunkt hoch.
     a.minY = HUD_H+20*FIELD_K; a.maxY = MH-20*FIELD_K;
   }
+  // v253: cargo riding on a freighter of ours from the start (tickRiders)
+  if(sp.ride){ a.rideId = sp.ride; a.rideSlot = sp.slot || 0; }
   if(sp.still){ a.vy = 0; a.minY = a.y; a.maxY = a.y; }
   // An installation does not jump out at the end of the wave; it stays
   // where it is until the screen goes dark (the buoys, M65).
@@ -869,7 +876,48 @@ function tickDockWarp(){
     if(out) mem.warpOut = lead.warpOut; else mem.warp = lead.warp;
   }
 }
+// v253: a dock point of a ship by its number (dockPoint is the first).
+function dockPointN(o, n){
+  const m = mountsFor(o.img), img = IMGS[o.img];
+  if(!m || !m.docks || !m.docks[n] || !img) return dockPoint(o);
+  const d = m.docks[n];
+  const s = (o.flip ? -1 : 1)*(o.turnC != null ? o.turnC : 1);
+  return {x:o.x + (img.width*o.sc*0.5)*d.dx*s,
+          y:o.y + (img.height*o.sc*0.5)*d.dy, ang:d.ang};
+}
+// v253: cargo riding on a freighter from the start (ride/slot). It stays
+// a ship of its own - it can be scanned - but sits on her dock point. She
+// destroyed, it goes up with her; she gone, it goes with her.
+function tickRiders(){
+  for(const list of [enemies, allies]){
+    for(let i=list.length-1;i>=0;i--){
+      const c = list[i];
+      if(!c.rideId || c.dead) continue;
+      const f = byId(c.rideId).find(function(o){ return !o.dead; });
+      if(!f){
+        if(!c.rideSeen) continue;            // she has not arrived yet
+        if(EV_LEFT[c.rideId] || EV_TAKEN[c.rideId] || c.warpOut > 0){
+          // jumped out or taken: the cargo went with her - left, not lost
+          c.dead = true; c.lostCounted = true; list.splice(i,1);
+          if(c.uid) EV_LEFT[c.uid] = true;
+        } else dropCargo(c);                 // destroyed: the cargo with her
+        continue;
+      }
+      c.rideSeen = true;
+      // Sits on her dock point, on the outside of her hull: above a dock
+      // on her top, below one on her keel.
+      const p = dockPointN(f, c.rideSlot), ci = IMGS[c.img];
+      const hc = ci ? ci.height*c.sc*0.5 : 0;
+      const up = (p.ang === 270) || (p.ang !== 90 && p.y < f.y);   // the way the dock faces
+      c.x = p.x; c.y = p.y + (up ? -hc : hc);
+      c.vx = 0; c.vy = 0;
+      if(f.warpOut > 0){ c.warpMax = f.warpMax; c.warpOut = f.warpOut; }
+      c.warpX = c.x; c.warpY = c.y;
+    }
+  }
+}
 function tickCarry(){
+  tickRiders();
   for(const e of enemies.concat(allies)) if(e.dockedTo) carryCargo(e);
   for(const c of enemies.concat(allies))
     if(c.carrier && !c.dead && !unitAlive(c.carrier)) dropCargo(c);
@@ -1316,6 +1364,12 @@ function applySpawnOpts(e, sp){
     const keep = sp.subs.split('+');
     e.subs = e.subs.filter(function(s){ return keep.indexOf(s.id) >= 0; });
   }
+  // v253: systems already shot out when she arrives (the Taranis in First
+  // Strike: Salvage, the second half of a split mission).
+  if(sp.subsDown && e.subs){
+    const down = String(sp.subsDown).split('+');
+    for(const s of e.subs) if(down.indexOf(s.id) >= 0){ s.hp = 0; s.dead = true; }
+  }
   if(sp.escape){
     e.escaping = sp.escape;          // Bildpunkte je Schritt nach rechts
     e.noFlee = true;                 // sie springt nicht, sie faehrt
@@ -1379,9 +1433,18 @@ function applySpawnOpts(e, sp){
   if(sp.escWarp) e.escWarp = true;
   // To be taken, not destroyed: held above the hull floor until the
   // capture happens or is called off ('kapern', 'freigeben').
-  if(sp.capture) e.captureLock = true;
+  // v253: and she does not jump away when her guns are shot out - that is
+  // how she is taken (the Taranis, the Ramses).
+  if(sp.capture){ e.captureLock = true; e.noFlee = true; }
   // Scanned before it may die: the scan is the point of it.
   if(sp.scanFirst) e.scanLock = true;
+  // v253: cargo that rides on a freighter from the start (Shieldbreaker):
+  // ride is the freighter's id, slot which of her dock points.
+  if(sp.ride){ e.rideId = sp.ride; e.rideSlot = sp.slot || 0; }
+  // v253: goes up with a blast wave that hurts (Pandora's Box, Silvio).
+  if(sp.shock) e.shockDeath = true;
+  // v253: our wingmen leave her alone until somebody fires on her.
+  if(sp.spare) e.spare = true;
   // Scanned subsystem by subsystem, see tickSubScan().
   if(sp.scanSubs && e.subs){ e.scanSubs = true; e.noTarget = true;
     for(const s of e.subs){ s.scanT = 0; s.scanned = false; } }
@@ -2076,8 +2139,6 @@ function rollWave(n){
   return {k:'patrol', o:'clear'};      // Rueckfall, darf nie gebraucht werden
 }
 
-
-
 // ── HAMMER OF LIGHT ──────────────────────────────────────────
 // Zwoelf der dreissig geschriebenen Missionen. Die uebrigen achtzehn
 // brauchen Klassen oder Verhalten, die noch nicht gebaut sind:
@@ -2337,33 +2398,321 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'G1', w:'abzug', a2:''}
      ]},
 
-  7: {name:'The Assault', fac:'hol', o:'guard', live:5, u:[
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally'},
-       {id:'V1', c:'de', n:1, spr:'detyphon'},
-       {id:'E1', c:'fi', n:1},
-       {id:'B1', c:'bo', n:2, wait:true}
+  // Pandora's Box (fs1/sm1-07a). Six Shivan containers (29 in the
+  // original) under three Trident sentry guns. Three are marked: scanned,
+  // the trap springs - the containers go up one after another, each with a
+  // blast wave that hurts (Silvio: "spuerbar", CARGO_SHOCK), and the
+  // Shivans jump in. Not an escape as in FS1 but 60 s to hold out, on no
+  // clock that is shown (Silvio, 14.10.2026); then the Shivans pull out.
+  7: {name:"Pandora's Box", era:'fs1', orig:7, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
+      ziel:'Scan the three marked containers', u:[
+       {id:'W1', c:'fi', n:1, size:3, spr:'fivalyrie', side:'ally'},
+       {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:430, y:160},
+       {id:'K2', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:520, y:245},
+       {id:'K3', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:450, y:340},
+       {id:'K4', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:610, y:150},
+       {id:'K5', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:630, y:310},
+       {id:'K6', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:560, y:420},
+       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:540, y:110},
+       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:700, y:240},
+       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:540, y:390},
+       {id:'M1', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', wait:true},
+       {id:'M2', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', wait:true},
+       {id:'C1', c:'cr', n:1, spr:'crcain', fac:'shivan', wait:true, label:'SC Taranis'},
+       {id:'J1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'J2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'J3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'D1', c:'fi', n:1, size:2, spr:'fidragon', fac:'shivan', wait:true}
      ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
-       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
-       {t:'subsystem', a:'V1', b:'communication', w:'nachschub', a2:'aus'},
-       {t:'zerstoert', a:'V1', w:'nachschub', a2:'aus'}
+       {t:'sek', a:4, w:'meldung', a2:'Bonus: destroy the three sentry guns'},
+       {t:'alleZerstoert', a:'G1', w:'meldung', a2:'Bonus: sentry guns destroyed'},
+       // the third scan springs the trap
+       {t:'gescannt', a:'K1+K3+K5', w:'meldung', a2:'The containers are rigged - get clear!'},
+       {t:'gescannt', a:'K1+K3+K5', w:'ziel', a2:'Hold out until the Shivans give up'},
+       {t:'gescannt', a:'K1+K3+K5', d:1, w:'zerstoeren', a2:'K1'},
+       {t:'gescannt', a:'K1+K3+K5', d:2, w:'zerstoeren', a2:'K2'},
+       {t:'gescannt', a:'K1+K3+K5', d:3, w:'zerstoeren', a2:'K3'},
+       {t:'gescannt', a:'K1+K3+K5', d:4, w:'zerstoeren', a2:'K4'},
+       {t:'gescannt', a:'K1+K3+K5', d:5, w:'zerstoeren', a2:'K5'},
+       {t:'gescannt', a:'K1+K3+K5', d:6, w:'zerstoeren', a2:'K6'},
+       {t:'gescannt', a:'K1+K3+K5', d:3, w:'einwarpen', a2:'M1'},
+       {t:'gescannt', a:'K1+K3+K5', d:4, w:'einwarpen', a2:'M2'},
+       {t:'gescannt', a:'K1+K3+K5', d:5, w:'einwarpen', a2:'C1'},
+       {t:'gescannt', a:'K1+K3+K5', d:8, w:'einwarpen', a2:'J1'},
+       {t:'gescannt', a:'K1+K3+K5', d:22, w:'einwarpen', a2:'J2'},
+       {t:'gescannt', a:'K1+K3+K5', d:30, w:'einwarpen', a2:'D1'},
+       {t:'gescannt', a:'K1+K3+K5', d:40, w:'einwarpen', a2:'J3'},
+       // 60 s after the trap, unseen: they give up - order counts, an
+       // 'abzug' closes every later event
+       {t:'gescannt', a:'K1+K3+K5', d:62, w:'zielerfuellt', a2:'The Shivans are pulling out'},
+       {t:'gescannt', a:'K1+K3+K5', d:62, w:'abzug', a2:''}
      ]},
 
-  8: {name:'The Retreat', fac:'hol', o:'guard', live:4, u:[
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:0.88},
-       {id:'B1', c:'bo', n:2},
-       {id:'B2', c:'bo', n:2, wait:true}
+  // Shieldbreaker - not in FS1 (Silvio, 15.10.2026). The debriefing of
+  // Pandora's Box and the briefing of The Hammer and the Anvil say another
+  // task force took Shivan shield prototypes in Ikeya; this is that raid.
+  // Three Asmodeus freighters with two containers each. Scan for the
+  // prototypes; their freighter is to be disabled, the others may die.
+  // Fire on one and all three run. Disabled, an Elysium comes to take her
+  // and the Shivans would rather see her dead ('opfer', 'jagd'). A second
+  // Elysium if the first is lost. The player's Apollo carries the
+  // D-Advanced (Silvio).
+  8: {name:'Shieldbreaker', era:'fs1', orig:7, ship:'fiapollo', pri:'dadv', fac:'hol', o:'clear', live:6,
+      ziel:'Scan the cargo - find the shield prototypes', u:[
+       {id:'W1', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
+       {id:'F1', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:480, y:265, escape:0.15, escWarp:true,
+        escHit:true, escDelay:90, subs:'engines+weapons', capture:true, label:'SFr Asmodeus 2'},
+       {id:'F2', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:580, y:140, escape:0.15, escWarp:true,
+        escHit:true, escDelay:90, label:'SFr Asmodeus 1', spare:true},
+       {id:'F3', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:580, y:395, escape:0.15, escWarp:true,
+        escHit:true, escDelay:90, label:'SFr Asmodeus 3', spare:true},
+       {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F1', slot:0, scan:true},
+       {id:'K2', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F1', slot:1, scan:true, scanFirst:true},
+       {id:'K3', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F2', slot:0, scan:true},
+       {id:'K4', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F2', slot:1, scan:true},
+       {id:'K5', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F3', slot:0, scan:true},
+       {id:'K6', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F3', slot:1, scan:true},
+       {id:'E1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', t:3},
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:360, y:265, warpIn:true,
+        dockTo:'F1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium 1'},
+       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:360, y:265, warpIn:true,
+        dockTo:'F1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium 2'},
+       {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'S2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'S3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'S4', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true}
      ], ev:[
-       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'B2'}
+       {t:'sek', a:4, w:'meldung', a2:'Bonus: destroy the other two freighters'},
+       // fire on one, and all three run
+       {t:'beschossen', a:'F1', w:'fliehen', a2:'F1+F2+F3'},
+       {t:'beschossen', a:'F2', w:'fliehen', a2:'F1+F2+F3'},
+       {t:'beschossen', a:'F3', w:'fliehen', a2:'F1+F2+F3'},
+       // the scans
+       {t:'gescannt', a:'K2', w:'meldung', a2:'Shield prototypes found'},
+       {t:'gescannt', a:'K2', w:'ziel', a2:'Disable the Asmodeus 2 - engines and weapons'},
+       {t:'gescannt', a:'K2', w:'markieren', a2:'F1:disable'},
+       {t:'gescannt', a:'K1', w:'meldung', a2:'Container scanned - nothing'},
+       {t:'gescannt', a:'K3', w:'meldung', a2:'Container scanned - nothing'},
+       {t:'gescannt', a:'K4', w:'meldung', a2:'Container scanned - nothing'},
+       {t:'gescannt', a:'K5', w:'meldung', a2:'Container scanned - nothing'},
+       {t:'gescannt', a:'K6', w:'meldung', a2:'Container scanned - nothing'},
+       // dead in space: the Elysium, and the Shivans come for their own ship
+       {t:'subsystem', a:'F1', b:'engines+weapons', w:'einwarpen', a2:'T1'},
+       {t:'subsystem', a:'F1', b:'engines+weapons', w:'ziel', a2:'Cover the Elysium until the Asmodeus is taken'},
+       {t:'subsystem', a:'F1', b:'engines+weapons', w:'markieren', a2:'F1:protect'},
+       {t:'subsystem', a:'F1', b:'engines+weapons', w:'opfer', a2:'F1'},
+       {t:'subsystem', a:'F1', b:'engines+weapons', w:'jagd', a2:'F1'},
+       {t:'subsystem', a:'F1', b:'engines+weapons', d:3, w:'einwarpen', a2:'S1'},
+       {t:'alleZerstoert', a:'S1', w:'einwarpen', a2:'S2'},
+       {t:'da', a:'S1', d:15, w:'einwarpen', a2:'S2'},
+       {t:'alleZerstoert', a:'S2', w:'einwarpen', a2:'S3'},
+       {t:'da', a:'S2', d:15, w:'einwarpen', a2:'S3'},
+       {t:'alleZerstoert', a:'S3', w:'einwarpen', a2:'S4'},
+       {t:'da', a:'S3', d:15, w:'einwarpen', a2:'S4'},
+       // the first Elysium lost: a second one
+       {t:'vernichtet', a:'T1', w:'einwarpen', a2:'T2'},
+       {t:'vernichtet', a:'T1', w:'meldung', a2:'Elysium 1 lost - a second one is on her way'},
+       // bonus
+       {t:'vernichtet', a:'F2+F3', w:'meldung', a2:'Bonus: both other freighters destroyed'},
+       // the ends - order counts: an 'abzug' closes every later event
+       {t:'angedockt', a:'T1', w:'kapern', a2:'F1'},
+       {t:'angedockt', a:'T2', w:'kapern', a2:'F1'},
+       {t:'genommen', a:'F1', w:'zielerfuellt', a2:'Asmodeus taken - the prototypes are ours'},
+       {t:'genommen', a:'F1', w:'abzug', a2:''},
+       {t:'vernichtet', a:'T1+T2', w:'zielverfehlt', a2:'Both Elysiums lost'},
+       {t:'vernichtet', a:'T1+T2', w:'abzug', a2:''},
+       {t:'vernichtet', a:'F1', w:'zielverfehlt', a2:'The prototypes went up with the Asmodeus'},
+       {t:'vernichtet', a:'F1', w:'abzug', a2:''},
+       {t:'verlaesst', a:'F1', w:'zielverfehlt', a2:'The prototypes got away'},
+       {t:'verlaesst', a:'F1', w:'abzug', a2:''}
      ]},
 
-  13:{name:'The Transports', fac:'hol', o:'protect', live:4, hunt:'T1', stillRocks:true, u:[
-       {id:'T1', c:'tr', n:2, spr:'trisis', side:'ally', cross:0.42, x:-40},
-       {id:'R1', c:'ast', n:26},
-       {id:'E1', c:'fi', n:2},
-       {id:'E2', c:'fi', n:1, wait:true}
+  // The Hammer and the Anvil (fs1/sm1-08a), split in two. Three Poseidon
+  // freighters (Theta), each with a container of shield technology riding
+  // on her (ride). The enemy goes for freighters and containers. All
+  // enemies down: the convoy jumps. One container through is a success,
+  // all three the bonus, none a failure. Basilisks in waves of three, the
+  // second only when the first is down (Silvio, 15.10.2026).
+  9: {name:'The Hammer and the Anvil: Breakout', era:'fs1', orig:8, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
+      ziel:'Protect the Theta freighters and their cargo', u:[
+       {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
+       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:300, y:150, mark:'protect', label:'GTFr Theta 1'},
+       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:330, y:265, mark:'protect', label:'GTFr Theta 2'},
+       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:300, y:380, mark:'protect', label:'GTFr Theta 3'},
+       {id:'K1', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T1', label:'Cargo Alpha'},
+       {id:'K2', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T2', label:'Cargo Beta'},
+       {id:'K3', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T3', label:'Cargo Gamma'},
+       {id:'B1', c:'fi', n:1, size:2, spr:'fibasilisk', fac:'shivan', t:3},
+       {id:'V1', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
+       {id:'V2', c:'fi', n:1, size:2, spr:'fiseth', wait:true},
+       {id:'B2', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true},
+       {id:'B3', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true}
      ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
+       {t:'sek', a:4, w:'meldung', a2:'Bonus: bring all three containers through'},
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'V1'},
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'V2'},
+       {t:'da', a:'B1', d:30, w:'einwarpen', a2:'V1'},
+       {t:'da', a:'B1', d:30, w:'einwarpen', a2:'V2'},
+       {t:'alleZerstoert', a:'V1+V2', w:'einwarpen', a2:'B2'},
+       {t:'da', a:'V1+V2', d:30, w:'einwarpen', a2:'B2'},
+       {t:'da', a:'B2', w:'jagd', a2:'T2'},
+       {t:'alleZerstoert', a:'B2', w:'einwarpen', a2:'B3'},
+       // the ends - order counts: an 'abzug' closes every later event
+       {t:'vernichtet', a:'K1+K2+K3', w:'zielverfehlt', a2:'All shield prototypes lost'},
+       {t:'vernichtet', a:'K1+K2+K3', w:'abzug', a2:''},
+       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'meldung', a2:'Bonus: all three containers through', lostMax:0},
+       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'zielerfuellt', a2:'The convoy jumps out'},
+       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'raus', a2:'T1'},
+       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'raus', a2:'T2'},
+       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'raus', a2:'T3'}
+     ]},
+
+  10:{name:'The Hammer and the Anvil: Betrayal', era:'fs1', orig:8, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
+      ziel:'Protect the Theta freighters and their cargo', u:[
+       {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
+       {id:'A1', c:'fi', n:1, size:3, spr:'fianubis', side:'ally'},
+       {id:'A2', c:'fi', n:1, size:2, spr:'fiseth', side:'ally'},
+       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:300, y:150, mark:'protect', label:'GTFr Theta 1'},
+       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:330, y:265, mark:'protect', label:'GTFr Theta 2'},
+       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:300, y:380, mark:'protect', label:'GTFr Theta 3'},
+       {id:'K1', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T1', label:'Cargo Alpha'},
+       {id:'K2', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T2', label:'Cargo Beta'},
+       {id:'K3', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T3', label:'Cargo Gamma'},
+       {id:'S1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'B1', c:'fi', n:1, size:2, spr:'fibasilisk', fac:'shivan', wait:true},
+       {id:'B2', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true},
+       {id:'B3', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true}
+     ], ev:[
+       {t:'sek', a:4, w:'meldung', a2:'Bonus: bring all three containers through'},
+       // the escort turns on the convoy
+       {t:'sek', a:15, w:'seite', a2:'A1'},
+       {t:'sek', a:15, w:'seite', a2:'A2'},
+       {t:'sek', a:15, w:'meldung', a2:'The Vasudan escort is turning on the convoy!'},
+       {t:'sek', a:15, w:'jagd', a2:'T2'},
+       // then the Shivans
+       {t:'alleZerstoert', a:'A1+A2', w:'einwarpen', a2:'S1'},
+       {t:'sek', a:45, w:'einwarpen', a2:'S1'},
+       {t:'alleZerstoert', a:'S1', w:'einwarpen', a2:'B1'},
+       {t:'da', a:'S1', d:30, w:'einwarpen', a2:'B1'},
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'B2'},
+       {t:'da', a:'B1', d:30, w:'einwarpen', a2:'B2'},
+       {t:'alleZerstoert', a:'B2', w:'einwarpen', a2:'B3'},
+       // the ends - order counts: an 'abzug' closes every later event
+       {t:'vernichtet', a:'K1+K2+K3', w:'zielverfehlt', a2:'All shield prototypes lost'},
+       {t:'vernichtet', a:'K1+K2+K3', w:'abzug', a2:''},
+       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'meldung', a2:'Bonus: all three containers through', lostMax:0},
+       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'zielerfuellt', a2:'The convoy jumps out'},
+       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'raus', a2:'T1'},
+       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'raus', a2:'T2'},
+       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'raus', a2:'T3'}
+     ]},
+
+  // The Darkness and the Light (fs1/sm1-09a). A Hammer of Light depot of
+  // six containers (16), the cruiser Ramses, two Satis (4), Seth on guard.
+  // The Taranis comes for the Ramses (feud); her fire gets past the
+  // capture lock ('opfer'), so taking the Ramses is hard but possible -
+  // impossible in the original. Depot down: Shaitans. The end once the
+  // depot, the fighters and the Ramses are gone: taken is a success, lost a
+  // partial one (wenn).
+  11:{name:'The Darkness and the Light', era:'fs1', orig:9, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
+      feud:true, ziel:'Destroy the depot - disable the Ramses', u:[
+       {id:'W1', c:'fi', n:1, size:3, spr:'fivalyrie', side:'ally'},
+       {id:'D1', c:'fc', n:1, spr:'fcvc3', x:560, y:120},
+       {id:'D1', c:'fc', n:1, spr:'fcvac4', x:620, y:170},
+       {id:'D1', c:'fc', n:1, spr:'fcvc3', x:680, y:120},
+       {id:'D1', c:'fc', n:1, spr:'fcvc3', x:560, y:400},
+       {id:'D1', c:'fc', n:1, spr:'fcvac4', x:620, y:350},
+       {id:'D1', c:'fc', n:1, spr:'fcvc3', x:680, y:400},
+       {id:'R1', c:'cr', n:1, spr:'craten', x:470, y:265, subs:'engines+weapons', capture:true,
+        mark:'disable', label:'PVC Ramses'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', x:640, y:220, escape:0.3, escWarp:true, escHit:true, escDelay:40, label:'PVFr Satis 1'},
+       {id:'F2', c:'fr', n:1, spr:'frsatis', x:640, y:310, escape:0.3, escWarp:true, escHit:true, escDelay:50, label:'PVFr Satis 2'},
+       {id:'E1', c:'fi', n:1, size:3, spr:'fiseth', t:2},
+       {id:'E2', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
+       {id:'C1', c:'cr', n:1, spr:'crcain', fac:'shivan', wait:true, label:'SC Taranis'},
+       {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'X1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
+       {id:'X2', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:330, y:265, warpIn:true,
+        dockTo:'R1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium'}
+     ], ev:[
+       {t:'sek', a:1, w:'opfer', a2:'R1'},
+       {t:'sek', a:4, w:'meldung', a2:'Bonus: destroy a Satis'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'da', a:'E1', d:30, w:'einwarpen', a2:'E2'},
+       {t:'sek', a:20, w:'einwarpen', a2:'C1'},
+       {t:'sek', a:20, w:'einwarpen', a2:'S1'},
+       {t:'sek', a:21, w:'meldung', a2:'A Shivan cruiser - she is going for the Ramses'},
+       {t:'vernichtet', a:'F1', w:'meldung', a2:'Bonus: a Satis destroyed'},
+       {t:'vernichtet', a:'F2', w:'meldung', a2:'Bonus: a Satis destroyed'},
+       // the depot down: Shaitans
+       {t:'alleZerstoert', a:'D1', w:'einwarpen', a2:'X1'},
+       {t:'da', a:'X1', d:15, w:'einwarpen', a2:'X2'},
+       {t:'alleZerstoert', a:'X1', w:'einwarpen', a2:'X2'},
+       // the Ramses dead in space: the transport
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'einwarpen', a2:'T1'},
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'markieren', a2:'R1:protect'},
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'meldung', a2:'A transport is coming for the Ramses'},
+       {t:'angedockt', a:'T1', w:'kapern', a2:'R1'},
+       {t:'angedockt', a:'T1', w:'meldung', a2:'PVC Ramses taken'},
+       {t:'vernichtet', a:'T1', w:'freigeben', a2:'R1'},
+       {t:'vernichtet', a:'T1', w:'markieren', a2:'R1:destroy'},
+       {t:'vernichtet', a:'T1', w:'meldung', a2:'The transport is lost - destroy the Ramses'},
+       {t:'vernichtet', a:'R1', w:'meldung', a2:'The Ramses is lost'},
+       // the ends - order counts: an 'abzug' closes every later event
+       {t:'alleZerstoert', a:'D1+E1+E2+S1+X1+X2+R1', wenn:{t:'genommen', a:'R1'},
+        w:'zielerfuellt', a2:'Depot destroyed, Ramses taken'},
+       {t:'alleZerstoert', a:'D1+E1+E2+S1+X1+X2+R1', wenn:{t:'genommen', a:'R1'}, w:'abzug', a2:''},
+       {t:'alleZerstoert', a:'D1+E1+E2+S1+X1+X2+R1', wenn:{t:'vernichtet', a:'R1'},
+        w:'zielteil', a2:'Depot destroyed - the Ramses is lost'},
+       {t:'alleZerstoert', a:'D1+E1+E2+S1+X1+X2+R1', wenn:{t:'vernichtet', a:'R1'}, w:'abzug', a2:''}
+     ]},
+
+  // First Strike (fs1/sm1-10a), split in two. The player flies an Athena
+  // with Stilettos. First the Taranis is to be disabled, not destroyed;
+  // then the Halkins docks and tows her away under Shivan attack.
+  // Basilisks in waves of three (Silvio, 15.10.2026).
+  12:{name:'First Strike: Disable', era:'fs1', orig:10, ship:'boathena', fac:'hol', o:'clear', live:6,
+      ziel:'Disable the Taranis - engines and weapons', u:[
+       {id:'W1', c:'bo', n:1, size:3, spr:'boathena', side:'ally'},
+       {id:'W2', c:'fi', n:1, size:4, spr:'fivalyrie', side:'ally'},
+       {id:'R1', c:'cr', n:1, spr:'crcain', fac:'shivan', x:540, y:265, subs:'engines+weapons', capture:true,
+        mark:'disable', label:'SC Taranis'},
+       {id:'E1', c:'bo', n:1, size:3, spr:'boshaitan', fac:'shivan', t:3},
+       {id:'E2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', t:3},
+       {id:'E3', c:'fi', n:1, size:4, spr:'fiscorpion', fac:'shivan', wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'E1+E2', w:'einwarpen', a2:'E3'},
+       {t:'da', a:'E1+E2', d:30, w:'einwarpen', a2:'E3'},
+       // the ends - order counts: an 'abzug' closes every later event
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'kulisse', a2:'R1'},
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'markieren', a2:'R1:'},
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'zielerfuellt', a2:'The Taranis is dead in space'},
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'abzug', a2:''}
+     ]},
+
+  13:{name:'First Strike: Salvage', era:'fs1', orig:10, ship:'boathena', fac:'hol', o:'clear', live:6,
+      ziel:'Protect the Halkins while she takes the Taranis', u:[
+       {id:'W1', c:'bo', n:1, size:3, spr:'boathena', side:'ally'},
+       {id:'W2', c:'fi', n:1, size:4, spr:'fivalyrie', side:'ally'},
+       {id:'R1', c:'cr', n:1, spr:'crcain', fac:'shivan', x:540, y:265, subs:'engines+weapons',
+        subsDown:'engines+weapons', capture:true, label:'SC Taranis'},
+       {id:'H1', c:'fr', n:1, spr:'frchronos', side:'ally', x:380, y:300, warpIn:true,
+        dockTo:'R1', dockHold:25, dockLabel:'DOCKING', wait:true, mark:'protect', label:'GTFr Halkins'},
+       {id:'B1', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true},
+       {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'B2', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true}
+     ], ev:[
+       {t:'sek', a:3, w:'einwarpen', a2:'H1'},
+       {t:'da', a:'H1', d:5, w:'einwarpen', a2:'B1'},
+       {t:'da', a:'B1', d:15, w:'einwarpen', a2:'S1'},
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'B2'},
+       // the ends - order counts: an 'abzug' closes every later event
+       {t:'angedockt', a:'H1', w:'kapern', a2:'R1'},
+       {t:'angedockt', a:'H1', w:'zielerfuellt', a2:'The Taranis is in tow'},
+       {t:'angedockt', a:'H1', w:'abzug', a2:''},
+       {t:'vernichtet', a:'H1', w:'zielverfehlt', a2:'GTFr Halkins destroyed'},
+       {t:'vernichtet', a:'H1', w:'abzug', a2:''}
      ]},
 
   14:{name:'The Stealth', fac:'hol', o:'clear', live:5, u:[
@@ -2409,18 +2758,6 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'F1', w:'nachschub', a2:'aus'}
      ]},
 
-  12:{name:'The Cargo', fac:'hol', o:'scan', live:5, hunt:'C1', u:[
-       {id:'C1', c:'fc', n:4, spr:'fcvc3', scan:true},
-       {id:'E1', c:'fi', n:2, wait:true}
-     ], ev:[
-       // Solange Container stehen, kommt Nachschub. Wer schnell raeumt,
-       // hat weniger zu tun - wer zoegert, bekommt mehr.
-       {t:'erfuellt',     a:'',   w:'einwarpen', a2:'E1'},
-       {t:'erfuellt',     a:'',   w:'nachschub', a2:'an'},
-       {t:'erfuellt',     a:'',   w:'auftrag',   a2:'protect'},
-       {t:'alleZerstoert',a:'C1', w:'nachschub', a2:'aus'}
-     ]},
-
   17:{name:'The Tsunami', fac:'hol', o:'clear', live:6, u:[
        {id:'K1', c:'cr', n:1, spr:'craten'},
        {id:'K2', c:'cr', n:1, spr:'crmentu'},
@@ -2460,30 +2797,6 @@ const SCRIPT_WAVES = {
      ], ev:[
        {t:'sek', a:3, w:'nachschub', a2:'an'},
        {t:'verlaesst', a:'A1', w:'nachschub', a2:'aus'}
-     ]},
-
-  10:{name:'The Shipyard', fac:'hol', o:'guard', live:5, u:[
-       // Die Arcadia ist ein Ort, kein Gegner: unverwundbar und zu zwei
-       // Dritteln ausserhalb des rechten Randes.
-       {id:'S1', c:'in', n:1, spr:'inarcadia', invuln:true, edge:0.36},
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:0.80},
-       {id:'B1', c:'bo', n:2},
-       {id:'E1', c:'fi', n:2, wait:true}
-     ], ev:[
-       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'E1'},
-       {t:'alleZerstoert', a:'B1', w:'nachschub', a2:'an'},
-       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'aus'}
-     ]},
-
-  11:{name:'The Storm', fac:'hol', o:'guard', live:5, keepSky:true, u:[
-       {id:'S1', c:'in', n:1, spr:'inarcadia', invuln:true, edge:0.36},
-       {id:'V1', c:'de', n:1, spr:'detyphon'},
-       {id:'A1', c:'cr', n:1, spr:'craten', side:'ally'},
-       {id:'E1', c:'fi', n:2},
-       {id:'B1', c:'bo', n:1, wait:true}
-     ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
-       {t:'zerstoert', a:'V1', w:'ende', a2:''}
      ]},
 
   19:{name:'The Temple', fac:'hol', o:'clear', live:5, u:[
@@ -2557,21 +2870,6 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
        {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
        {t:'zerstoert', a:'V3', w:'nachschub', a2:'aus'}
-     ]},
-
-  // live 6 -> 4 (v185): with the FreeSpace values the Vasudan fighters
-  // last half again as long, and six at once took the Aten in the measurement.
-  9: {name:'The Convoy', fac:'hol', o:'protect', live:4, hunt:'F1', u:[
-       // Aten und zwei Frachter queren gemeinsam. Die Container haengen
-       // an den Frachtern, sobald sie angedockt haben.
-       {id:'A1', c:'cr', n:1, spr:'craten', side:'ally', crossSecs:75},
-       {id:'C1', c:'fc', n:2, spr:'fcvc3', side:'ally', x:120},
-       {id:'F1', c:'fr', n:2, spr:'frbast', side:'ally', cross:0.38, x:-40,
-        dockTo:'C1'},
-       {id:'E1', c:'fi', n:3}
-     ], ev:[
-       {t:'sek', a:2, w:'nachschub', a2:'an'},
-       {t:'verlaesst', a:'A1', w:'nachschub', a2:'aus'}
      ]},
 
   // live 6 -> 4 (v185), same reason as The Convoy.
@@ -3892,6 +4190,8 @@ let EV_POS = {};
 // v240: a name the mission gives a ship ('GTC Orff'), shown wherever the
 // game names her. Set on the ship the first time the event tick sees her.
 let EV_LABEL = {};
+// v253: the mission mark of each unit (drawMissionMark, 72_target.js)
+let EV_MARK = {};
 let evReinf = false, evReinfCd = 0;
 // The mission's clock (v169): 'timer' starts it ("seconds|LABEL"),
 // 'zeit' fires when it runs out, 'timerStopp' takes it down.
@@ -3912,7 +4212,7 @@ const EV_REINF_GAP_MIN = 240;
 
 function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_POS = {};
-  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {};
+  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; PREY_ON = false;
   missionTimer = {end:0, label:''}; missedJumps = 0;
   evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP;
 }
@@ -3954,8 +4254,11 @@ function evTrig(ev){
     case 'gerettet':     return protSaved >= (ev.a||1) && !crossPending()
                                 && !spawnQ.some(function(q){ return q.type==='protect'; });
     case 'verloren':     return protLost  >= (ev.a||1);
-    case 'verlaesst':    return !!EV_LEFT[ev.a] || !!EV_FLED[ev.a];
+    // v253: several ids with '+', all of them gone (the three containers).
+    case 'verlaesst':    return evIds(ev.a).every(function(id){ return !!EV_LEFT[id] || !!EV_FLED[id]; });
     case 'angedockt':    return !!EV_DOCK[ev.a];
+    // v253: taken by us (kapern), every id with '+'.
+    case 'genommen':     return evIds(ev.a).every(function(id){ return !!EV_TAKEN[id]; });
     // v249: somebody has fired on her and hit (the Rasputin, FS1 M4).
     case 'beschossen':   return !!EV_HIT[ev.a];
     // v240: on the field, or was. With d: "at the latest N seconds after
@@ -3995,10 +4298,13 @@ function evTrig(ev){
     case 'entkommen':    return escGone >= (ev.a||1);
     case 'gescannt': {
       // Every ship of this id has been scanned - by any kind of scan.
-      if(!evSeen(ev.a)) return false;
-      for(const q of spawnQ) if(q.uid===ev.a) return false;
-      const us = byId(ev.a);
-      return us.length>0 && us.every(function(u){ return u.scanned; });
+      // v253: several ids joined with '+', all of them (Pandora's Box).
+      return evIds(ev.a).every(function(id){
+        if(!evSeen(id)) return false;
+        for(const q of spawnQ) if(q.uid===id) return false;
+        const us = byId(id);
+        return us.length>0 && us.every(function(u){ return u.scanned; });
+      });
     }
     case 'erfuellt':
       // Zu Wellenbeginn ist noch nichts im Feld, und "nichts zu tun" sieht
@@ -4126,6 +4432,23 @@ function evFire(ev){
       missionObj = '';
       missionObjUsed = true;
       objAnnounce('PARTIAL SUCCESS', String(arg || '').toUpperCase(), 'part');
+      break;
+    case 'fliehen':
+      // v253: these ships run now, as if fired on (all three freighters
+      // set off when one is hit, Shieldbreaker). Several ids with '+'.
+      for(const id of String(arg||'').split('+')) for(const u of byId(id)) u.wasHit = true;
+      break;
+    case 'opfer':
+      // v253: her own side wants her dead before we take her - their fire
+      // now bites into her, past the capture lock (Shieldbreaker).
+      for(const u of byId(arg)) u.prey = true;
+      PREY_ON = true;
+      break;
+    case 'markieren':
+      // v253: the mission mark of a ship changes. a2 is 'id:word' (word
+      // disable, destroy or protect); 'id:' takes the mark off.
+      { const mk = String(arg||'').split(':');
+        if(mk[1]) EV_MARK[mk[0]] = mk[1]; else delete EV_MARK[mk[0]]; }
       break;
     case 'freigeben':
       // The capture is off - her captors are gone. Now she can die. The
@@ -4335,7 +4658,8 @@ function tickEvents(){
     if(ev.lostMax!=null && protLost > ev.lostMax && EV_LOST_GUARDS[ev.w]) continue;
     // d: fire this many seconds after the trigger came true (v177).
     if(ev.at==null){
-      if(!evTrig(ev)) continue;
+      // v253: wenn - a second condition that must hold as well.
+      if(!evTrig(ev) || (ev.wenn && !evTrig(ev.wenn))) continue;
       if(ev.d){ ev.at = spawnT + ev.d*TICK_HZ; continue; }
     } else if(spawnT < ev.at) continue;
     ev.done = true;
@@ -4425,6 +4749,7 @@ function scriptUnit(u, fac, q){
              noKill:u.noKill, noWarp:u.noWarp, viaPortal:u.viaPortal,
              scan:u.scan?1:0, scanFirst:u.scanFirst,
              still:u.still, noFlak:u.noFlak, fixY:(u.y!=null),
+             subs:u.subs, subsDown:u.subsDown, escHit:u.escHit, escDelay:u.escDelay,
              capIndex:(n>1)? i : 0});
       }
     }
@@ -4474,14 +4799,15 @@ function scriptUnit(u, fac, q){
            fac:allyRace(), noWarp:1, warpIn:u.warpIn,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
            dockLabel:u.dockLabel,
-           pickup:u.pickup?1:0});
+           pickup:u.pickup?1:0, ride:u.ride, slot:u.slot});
     else
-      put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:fac, noWarp:(fix!=='ast')?1:0,
+      put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast')?1:0,   // v253: u.fac, Shivan cargo in an HoL mission
            x:xx, y:yy, scan:u.scan?1:0, escape:u.escape, scanFirst:u.scanFirst,
            still:u.still, escWarp:u.escWarp, fleeFree:u.fleeFree, escDelay:u.escDelay,
            invuln:u.invuln, dockTo:u.dockTo, dockHold:u.dockHold, dockLabel:u.dockLabel,
            scenery:(fix==='ast')?1:0, spread:(fix==='ast')?u.spread:undefined, pickup:u.pickup?1:0,
-           capture:u.capture, noFlee:u.noFlee, subs:u.subs, escHit:u.escHit});
+           capture:u.capture, noFlee:u.noFlee, subs:u.subs, escHit:u.escHit,
+           ride:u.ride, slot:u.slot, shock:u.shock, subsDown:u.subsDown, spare:u.spare});
   }
 }
 
@@ -4507,6 +4833,7 @@ function buildScripted(def){
   currentEra  = def.era || 'fs2';
   missionOrig = (currentEra === 'fs1') ? (def.orig || 0) : 0;
   for(const u of (def.u||[])) if(u.label) EV_LABEL[u.id] = String(u.label).toUpperCase();
+  for(const u of (def.u||[])) if(u.mark) EV_MARK[u.id] = u.mark;
   currentFaction = def.fac;
   waveLive  = def.live || 4;
   waveObj   = def.o || 'clear';
@@ -4525,6 +4852,7 @@ function buildScripted(def){
   // the whole wave; the automatic result cards then stay quiet.
   missionObj = String(def.ziel || '').toUpperCase();
   if(def.ship) forceShip(def.ship, def.sec);
+  if(def.pri) missionPri(def.pri);
   missionObjUsed = !!def.ziel || (def.ev||[]).some(function(e){ return /^ziel/.test(e.w); });
   if(nebulaOn()) nebTint = NEB_TINTS[(Math.random()*NEB_TINTS.length)|0];
   empOut=0; empWarn=0; empNext = waveMod==='emp' ? 1400 : 0;
@@ -4566,7 +4894,7 @@ function buildScripted(def){
     if(u.replace) EV_REPL[u.id] = {u:u, mul:u.replace, hp:u.hp||1};
   }
   EV = (def.ev||[]).map(function(e){
-    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, d:e.d,
+    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, d:e.d, wenn:e.wenn,
             at:null, done:false}; });
   return q.sort(function(a,b){ return a.time-b.time; });
 }
@@ -4814,4 +5142,3 @@ function liveSmallCount(){
   for(const e of enemies) if((e.type==='fighter'||e.type==='bomber') && !e.dead) n++;
   return n;
 }
-

@@ -1910,6 +1910,36 @@ nämlich unter einem ähnlichen Problem zu leiden".
   Großkampfschiff-Türme haben jetzt einen eigenen, lauteren Klang, die
   schweren noch lauter; jeder Schuss der Dreiersalve klingt.
 
+
+### F43 — Die neuen FS1-Waffen haben keine eigenen Sounds (v252)
+
+**Befund (Silvio, 15.10.2026):** neue Sounds für die neu hinzugekommenen
+Waffen, welche fehlen?
+
+Im Code nachgesehen: alle FS1-Waffen liehen sich FS2-Sounds. Nach der FS1-
+Soundtabelle fehlten 8 Dateien (L_light, L_disrupter, l_avenge, l_flux,
+L_banshee, l_mass, m_mag, m_harbinger); MX-50, Interceptor und Phoenix V
+hatten ihre Sounds vertauscht; Synaptic und Harbinger schlagen in FS1 mit
+`clusterboom` ein. Silvio hat die Dateien als MP3 auf den Server gelegt.
+
+- Status: behoben in v253 (`12_audio.js`, `56_banks.js`, Railgun in
+  `59_field3d.js`; `hitSnd` am Sprengkopf).
+
+### F44 — Raketen gehen auf den Rumpf statt aufs Subsystem (v252)
+
+**Befund (Silvio, 15.10.2026):** „Wenn explizit Subsysteme als Ziel
+aufgeschaltet sind, sollten Raketen auch diese anvisieren und nicht wie
+bisher den gesamten Rumpf. Bei Raketen, die einen Aspect Lock brauchen, muss
+dieser Lock auf das Subsystem gehen, wenn dieses als Ziel anvisiert ist."
+Gilt überall bei Subsystemen.
+
+Im Code: die Aufschaltung maß den Winkel zur Schiffsmitte, und eine Rakete
+traf das Subsystem nur, wenn sie zufällig dort aufschlug.
+
+- Status: behoben in v253. Die Aufschaltung misst zum gewählten Subsystem
+  (`tgtTick`), und eine Rakete mit gewähltem Subsystem trifft dieses
+  (`60_effects.js`).
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes

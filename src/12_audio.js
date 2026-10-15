@@ -100,6 +100,16 @@ const SND_FILES = {
   m_stiletto: "@@FS3_SOUND:sounds/m_stiletto.mp3@@",
   m_emp: "@@FS3_SOUND:sounds/m_emp.mp3@@",
   m_tsunami: "@@FS3_SOUND:sounds/m_tsunami.mp3@@",
+  // The FS1 launch sounds (sounds.tbl of FSPort), v253. Files under their
+  // FS1 names; the guns that share a file with FS2 keep the FS2 key.
+  L_light: "@@FS3_SOUND:sounds/l_light.mp3@@",
+  L_disrupter: "@@FS3_SOUND:sounds/l_disrupter.mp3@@",
+  L_avenge: "@@FS3_SOUND:sounds/l_avenge.mp3@@",
+  L_flux: "@@FS3_SOUND:sounds/l_flux.mp3@@",
+  L_banshee: "@@FS3_SOUND:sounds/l_banshee.mp3@@",
+  L_mass: "@@FS3_SOUND:sounds/l_mass.mp3@@",
+  m_mag: "@@FS3_SOUND:sounds/m_mag.mp3@@",
+  m_harbinger: "@@FS3_SOUND:sounds/m_harbinger.mp3@@",
   fs_hit: "@@FS3_SOUND:sounds/hit_1.mp3@@",        // impact of every primary
   fs_boom: "@@FS3_SOUND:sounds/boom_2.mp3@@",      // impact of a missile
   clusterboom: "@@FS3_SOUND:sounds/clusterboom.mp3@@"  // Infyrno going off
@@ -133,6 +143,9 @@ const SND_MIX = {
   L_Kayser:0.20, L_Circle:0.20, L_Newton:0.20,
   m_shrike:0.30, m_wasp:0.30, m_fury:0.28, m_swarm:0.34, m_angel:0.30, m_cluster:0.34,
   m_stiletto:0.50, m_emp:0.32, m_tsunami:0.36,
+  // v253: the FS1 sounds at the level of the FS2 ones beside them
+  L_light:0.20, L_disrupter:0.20, L_avenge:0.20, L_flux:0.20, L_banshee:0.20,
+  m_mag:0.32, m_harbinger:0.36,
   fs_hit:0.16, fs_boom:0.32, clusterboom:0.42,
   // a dying capital ship and her wreckage (v183): their own voices, so
   // every blast that is seen is heard, at the moment it is seen
@@ -143,6 +156,7 @@ const SND_VOICES = {
   expl_secondary:2, expl_small:3, expl_medium:2, expl_big:2, missile_explosion:2,
   hit_shield:1, hit_player:1, warp_open:2, warp_in_big:4, warp_out_big:4,
   L_Prom_R:3, L_Prom_S:3, L_Sidearm:3, L_Scalpel:3, L_Flail:3, L_Kayser:3, L_Circle:3, L_Newton:3,
+  L_light:3, L_disrupter:3, L_avenge:3, L_flux:3, L_banshee:3,
   fs_hit:2, fs_boom:2,
   beam_charge:3, beam_down:2, ai_fire:2, ai_sec:1, sub_destroyed:2,
   cap_fire:4, cap_heavy:3,
@@ -167,6 +181,7 @@ const PRI_SND = {prometheus:'wpn_prometheus', hl7:'wpn_subach', scatter:'wpn_sid
 const SND_STEAL = {wpn_prometheus:1, wpn_subach:1, wpn_sidhe:1, wpn_dante:1,
                    L_Prom_R:1, L_Prom_S:1, L_Sidearm:1, L_Scalpel:1, L_Flail:1,
                    L_Kayser:1, L_Circle:1, L_Newton:1,
+                   L_light:1, L_disrupter:1, L_avenge:1, L_flux:1, L_banshee:1,
                    // v205 (Silvio): a capital ship's jump is always heard -
                    // with all four voices busy the oldest jump gives way
                    warp_in_big:1, warp_out_big:1};

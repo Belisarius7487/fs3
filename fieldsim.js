@@ -268,9 +268,7 @@ scenario('Cycle change 30 -> 31', 'm=30', `
   r.terran = ALLY_FAC_ON.terran===true && ALLY_FAC_ON.vasudan===false;
   return r;`);
 
-scenario('M13 both transports on time', 'm=13', `
-  FS.step(300);
-  return {bothTransports: allies.filter(a=>a.uid==='T1').length===2};`);
+// v253: 'M13 both transports on time' retired - M13 is an FS1 mission now.
 
 // The sky may only change where nobody can see it change. Fading it over
 // 120 steps from waveCd 62 did not do that: the blackout there is 1.6 per
@@ -815,11 +813,12 @@ scenario('A sentry gun is bracketed like a fighter', 'm=31', `
 // worth nothing: with both Bast lost the banner read OBJECTIVE FAILED
 // although she came through, and the "X OF Y" never had her in either
 // number (Silvio, v219).
-scenario('M09 a guard that crosses on a clock counts as one who got through', 'm=9', `
+// v253: on the Galatea of FS1 M6 - M9 is an FS1 mission now.
+scenario('M06 a guard that crosses on a clock counts as one who got through', 'm=6', `
   const r = {};
   // Out of her vortex as well: while a.warp runs, updateAllies() skips her
   // before it ever reaches the transit step.
-  const aten = () => allies.find(a => a.uid === 'A1' && !a.dead && !(a.warp > 0));
+  const aten = () => allies.find(a => a.uid === 'G1' && !a.dead && !(a.warp > 0));
   r.sheArrives = FS.until(()=>!!aten(), 20000, true) >= 0;
   const a = aten();
   if(!a) return r;
@@ -1060,10 +1059,12 @@ scenario('M31 the picked subsystem keeps its name', 'm=31', `
 // "Does she get out" is not the check: whether she does depends on which way
 // her lane happens to run, and on v216 she sometimes did. What is measured is
 // the one thing that must hold - one step moves her by her crossing, no more.
-scenario('M09 a crossing freighter is driven by her crossing alone', 'm=9', `
+// v253: on the freighters of M23 - M9 is an FS1 mission now.
+scenario('M23 a crossing freighter is driven by her crossing alone', 'm=23', `
   const r = {};
   const f1 = () => allies.filter(a=>a.uid==='F1' && !a.dead);
-  r.sheArrives = FS.until(()=>f1().length>0, 20000, true) >= 0;
+  // M23's freighters come once the containers are scanned (all: scanned)
+  r.sheArrives = FS.until(()=>f1().length>0 && !(f1()[0].warp>0), 20000, true, true) >= 0;
   const a = f1()[0];
   if(!a) return r;
   // Her crossing is started here instead of waiting for the dock: whether
@@ -1086,10 +1087,11 @@ scenario('M09 a crossing freighter is driven by her crossing alone', 'm=9', `
 // Every written mission has to come to an end when its enemies go down,
 // with nothing thrown on the way. Enemy ships are cleared every two seconds
 // once they are out of their vortex - a player who hits everything.
-// Scan missions (12, 23) need the player to fly the scan and are left out.
+// Scan missions (23) need the player to fly the scan and are left out.
 // 61 ends only when the Aeolus is lost; its own scenario covers that.
 // 71 is a scan, flown in its own scenario like 12 and 23.
-for(const m of Array.from({length:80},(_,i)=>i+1)) if(m!==12 && m!==23 && m!==61 && m!==71) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
+// v253: 12 is FS1 First Strike now, no longer a scan - it plays like the rest.
+for(const m of Array.from({length:80},(_,i)=>i+1)) if(m!==23 && m!==61 && m!==71) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
   // v208: speeds unchanged in a world FIELD_K times larger - more time
   const t = FS.until(()=>waveOver, 40000*Math.max(1, Math.min(4, FIELD_K/2)), false, true);
   ITEMS.length = 0;     // pickups hold the jump open until they expire
@@ -4678,6 +4680,267 @@ scenario('FS1 M6 v252: turret shots heard in their own mix, every round of a tri
   sndStart = keep;
   r.heard = heard.join(' ');
   r.burstHeard = heard.filter(m=>m==='cap_heavy').length >= 2;
+  return r;`);
+
+// ── v253: FS1 missions 7 to 13, and what they brought ────────────────
+
+scenario('FS1 M7 Pandora: three scans, the trap, blast waves that hurt, held out', 'm=7', `
+  const r = {};
+  r.strand = currentEra==='fs1' && missionOrig===7 && player.ship==='fivalyrie';
+  FS.step(300);
+  r.sixContainers = ['K1','K2','K3','K4','K5','K6'].every(id=>byId(id).length===1);
+  r.threeToScan = ['K1','K3','K5'].every(id=>byId(id)[0].scan) && !byId('K2')[0].scan;
+  r.noTrapYet = !evSeen('M1');
+  FS.killId('G1'); FS.step(20);
+  // the three scanned; the player sits close to K2 and takes what comes
+  const k2 = byId('K2')[0];
+  const px = k2.x - 50, py = k2.y;
+  for(const id of ['K1','K3','K5']) byId(id)[0].scanned = true;
+  let minHp = player.maxHp, cargoShocks = 0;
+  const seen = new Set();
+  for(let t=0;t<800;t++){
+    player.x = px; player.y = py; player.vx = 0; player.vy = 0;
+    update(); if(t%25===0) draw();
+    for(const sh of SHOCKS) if(sh.pct===CARGO_SHOCK[2] && !seen.has(sh)){ seen.add(sh); cargoShocks++; }
+    minHp = Math.min(minHp, player.hp);
+    if(player.hp <= 0) break;
+  }
+  r.containersGoneOneByOne = ['K1','K2','K3','K4','K5','K6'].every(id=>byId(id).length===0) && cargoShocks===6;
+  r.containersLeft = ['K1','K2','K3','K4','K5','K6'].filter(id=>byId(id).length>0).join(',') + ' / shocks ' + cargoShocks;
+  r.blastHurts = minHp < player.maxHp;
+  r.lostToTheBlasts = Math.round((1 - minHp/player.maxHp)*100) + ' %';
+  r.notDeadly = minHp > player.maxHp*0.25;
+  r.trapSprung = evSeen('M1') && evSeen('C1');
+  player.hp = player.maxHp;
+  r.noClockShown = !(missionTimer && missionTimer.end > 0);
+  r.heldOut = FS.until(()=>objCard && objCard.tone==='done', 9000, true)>=0;
+  r.ends = FS.until(()=>wave>7, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M8 Shieldbreaker: scan, all three run, disable, the Elysium takes her', 'm=8', `
+  const r = {};
+  r.strand = currentEra==='fs1' && missionOrig===7 && player.ship==='fiapollo';
+  r.dAdvancedInBankOne = !!player.pb && player.pb[0].key==='dadv';
+  FS.step(300);
+  const f1 = byId('F1')[0], f2 = byId('F2')[0], f3 = byId('F3')[0];
+  r.threeAsmodeus = !!f1 && !!f2 && !!f3 && f1.img==='frasmodeus';
+  const k1 = byId('K1')[0], k2 = byId('K2')[0];
+  r.twoContainersRideOnHer = !!k1 && !!k2 && Math.abs(k1.x-k2.x) > 5 && k1.y < f1.y && k2.y < f1.y;
+  r.noMarkBeforeTheScan = missionMark(f1)==='';
+  const x1 = f1.x, x2 = f2.x, x3 = f3.x;
+  r.sitUntilFiredOn = (FS.step(200), Math.abs(f2.x - x2) < 1);
+  damageEnemy(f3, 1, f3.x, f3.y, true);
+  FS.step(300);
+  r.oneHitAllThreeRun = f1.x > x1+5 && f2.x > x2+5 && f3.x > x3+5;
+  r.cargoGoesAlong = Math.abs(k1.x - f1.x) < 60;
+  k2.scanned = true; FS.step(30);
+  r.markedDisable = missionMark(f1)==='DISABLE';
+  FS.killId('E1'); FS.step(20);
+  for(const sb of f1.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  FS.step(40);
+  const xs = f1.x; FS.step(100);
+  r.deadInSpace = Math.abs(f1.x - xs) < 1;
+  r.markedProtect = missionMark(f1)==='PROTECT';
+  r.theShivansWantHerDead = !!f1.prey && waveHunt==='F1';
+  r.elysiumComes = FS.until(()=>evSeen('T1'), 600, false)>=0;
+  r.swarmsCome = FS.until(()=>evSeen('S1'), 800, false)>=0;
+  damageEnemy(f1, 1e6, f1.x, f1.y, true); FS.step(10);
+  r.playerCannotDestroyHer = byId('F1').length===1 && !f1.dead && f1.rollT==null;
+  f1.hp = f1.maxHp;   // as she was: what follows is not about the player's fire
+  r.taken = FS.until(()=>!!EV_TAKEN.F1, 20000, true)>=0;
+  r.cargoLeavesWithHer = FS.until(()=>byId('K1').length===0 && byId('K2').length===0, 3000, false)>=0 && !!EV_LEFT.K2;
+  r.success = FS.until(()=>objCard && objCard.tone==='done', 400, false)>=0;
+  r.ends = FS.until(()=>wave>8, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M8 Shieldbreaker: Shivan fire destroys her - failed', 'm=8', `
+  const r = {};
+  FS.step(300);
+  const f1 = byId('F1')[0];
+  for(const sb of f1.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  r.prey = FS.until(()=>!!f1.prey && PREY_ON, 400, false)>=0;
+  const hp0 = f1.hp;
+  eBullets.push({x:f1.x, y:f1.y, vx:0, vy:0, w:6, h:6, dmg:1e6, faction:'shivan', life:50});
+  FS.step(3);
+  r.theirFireBites = f1.hp < hp0;
+  r.failed = FS.until(()=>objCard && objCard.tone==='fail', 4000, false)>=0;
+  r.ends = FS.until(()=>wave>8, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M8 Shieldbreaker: the first Elysium lost, a second comes; both lost - failed', 'm=8', `
+  const r = {};
+  FS.step(300);
+  const f1 = byId('F1')[0];
+  for(const sb of f1.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  r.firstComes = FS.until(()=>byId('T1').length>0 && !(byId('T1')[0].warp>0), 2000, false)>=0;
+  byId('T1')[0].hp = 0;
+  r.secondComes = FS.until(()=>byId('T2').length>0 && !(byId('T2')[0].warp>0), 3000, false)>=0;
+  r.notFailedYet = !(objCard && objCard.tone==='fail');
+  byId('T2')[0].hp = 0;
+  r.failed = FS.until(()=>objCard && objCard.tone==='fail', 3000, false)>=0;
+  r.ends = FS.until(()=>wave>8, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M8 Shieldbreaker: nobody fires - they run at the latest, failed', 'm=8', `
+  const r = {};
+  r.away = FS.until(()=>!!EV_LEFT.F1, 30000, true)>=0;
+  r.cargoWentAlong = !!EV_LEFT.K1 && !!EV_LEFT.K2;
+  r.failed = FS.until(()=>objCard && objCard.tone==='fail', 400, false)>=0;
+  r.ends = FS.until(()=>wave>8, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M9 Hammer A: cargo rides on the Thetas, all through - the bonus', 'm=9', `
+  const r = {};
+  r.strand = currentEra==='fs1' && missionOrig===8;
+  FS.step(300);
+  const t1 = byId('T1')[0], k1 = byId('K1')[0];
+  r.cargoOnTheirs = !!t1 && !!k1 && k1.side==='ally' && Math.abs(k1.x - t1.x) < 80;
+  r.marked = missionMark(t1)==='PROTECT';
+  r.secondBasilisksWaitForTheFirst = (FS.until(()=>evSeen('B2'), 20000, true)>=0) && !evSeen('B3');
+  r.threeAtOnce = byId('B2').length===3 || enemies.filter(e=>e.uid==='B2').length<=3;
+  r.success = FS.until(()=>objCard && objCard.tone==='done', 30000, true)>=0;
+  r.nothingLost = protLost===0;
+  r.cargoJumpsOut = FS.until(()=>!!EV_LEFT.K1 && !!EV_LEFT.K2 && !!EV_LEFT.K3, 3000, false)>=0;
+  r.ends = FS.until(()=>wave>9, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M9 Hammer A: all three containers lost - failed', 'm=9', `
+  const r = {};
+  FS.step(300);
+  for(const id of ['K1','K2','K3']) for(const a of allies) if(a.uid===id) a.hp = 0;
+  r.failed = FS.until(()=>objCard && objCard.tone==='fail', 2000, false)>=0;
+  r.ends = FS.until(()=>wave>9, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M10 Hammer B: the escort turns at 15 s, then the Shivans, convoy out', 'm=10', `
+  const r = {};
+  FS.step(100);
+  r.escortOurs = allies.some(a=>a.uid==='A1') && allies.some(a=>a.uid==='A2');
+  FS.step(1500);
+  r.turnedHostile = enemies.some(e=>e.uid==='A1') && !allies.some(a=>a.uid==='A1');
+  r.success = FS.until(()=>objCard && objCard.tone==='done', 40000, true)>=0;
+  r.ends = FS.until(()=>wave>10, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M11 Darkness and Light: Ramses taken, depot down - success', 'm=11', `
+  const r = {};
+  r.strand = currentEra==='fs1' && missionOrig===9;
+  FS.step(300);
+  const ra = byId('R1')[0];
+  r.ramsesMarkedDisable = !!ra && missionMark(ra)==='DISABLE';
+  r.preyFromTheStart = !!ra && !!ra.prey;
+  for(const sb of ra.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  r.transportComes = FS.until(()=>evSeen('T1'), 800, false)>=0;
+  r.markedProtect = missionMark(ra)==='PROTECT';
+  r.taken = FS.until(()=>!!EV_TAKEN.R1, 20000, true)>=0;
+  r.success = FS.until(()=>objCard && objCard.tone==='done', 30000, true, true)>=0;
+  r.ends = FS.until(()=>wave>11, 20000, true, true)>=0;
+  return r;`);
+
+scenario('FS1 M11 Darkness and Light: the Ramses lost - partial success', 'm=11', `
+  const r = {};
+  FS.step(300);
+  const ra = byId('R1')[0];
+  eBullets.push({x:ra.x, y:ra.y, vx:0, vy:0, w:6, h:6, dmg:1e6, faction:'shivan', life:50});
+  FS.step(3);
+  r.lostToTheirFire = FS.until(()=>byId('R1').length===0, 4000, false)>=0 && !EV_TAKEN.R1;
+  r.partial = FS.until(()=>objCard && objCard.tone==='part', 30000, true, true)>=0;
+  r.ends = FS.until(()=>wave>11, 20000, true, true)>=0;
+  return r;`);
+
+scenario('FS1 M12 First Strike A: Athena, Taranis disabled - success', 'm=12', `
+  const r = {};
+  r.strand = currentEra==='fs1' && missionOrig===10 && player.ship==='boathena';
+  r.mx50ForPhoenix = !!player.sb && player.sb.some(b=>b.key==='mx50') && !player.sb.some(b=>b.key==='phoenix');
+  FS.step(300);
+  const ta = byId('R1')[0];
+  r.marked = missionMark(ta)==='DISABLE';
+  for(const sb of ta.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  r.success = FS.until(()=>objCard && objCard.tone==='done', 600, false)>=0;
+  r.markGone = missionMark(ta)==='';
+  r.ends = FS.until(()=>wave>12, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M13 First Strike B: disabled from the start, the Halkins tows her', 'm=13', `
+  const r = {};
+  FS.step(100);
+  const ta = byId('R1')[0];
+  r.disabledFromTheStart = !!ta && ta.subs.filter(s=>s.id==='engines'||s.id==='weapons').every(s=>s.dead);
+  r.halkinsComes = FS.until(()=>evSeen('H1'), 1000, false)>=0;
+  r.basilisksSecondWaveWaits = (FS.until(()=>evSeen('B1'), 3000, false)>=0) && !evSeen('B2');
+  r.taken = FS.until(()=>!!EV_TAKEN.R1, 20000, true)>=0;
+  r.success = FS.until(()=>objCard && objCard.tone==='done', 400, false)>=0;
+  r.ends = FS.until(()=>wave>13, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M13 First Strike B: the Halkins lost - failed', 'm=13', `
+  const r = {};
+  r.halkinsComes = FS.until(()=>byId('H1').length>0 && !(byId('H1')[0].warp>0), 2000, false)>=0;
+  byId('H1')[0].hp = 0;
+  r.failed = FS.until(()=>objCard && objCard.tone==='fail', 3000, false)>=0;
+  r.ends = FS.until(()=>wave>13, 20000, true)>=0;
+  return r;`);
+
+// Silvio (v253): a ship the mission wants something done to wears pulsing
+// brackets in her own colour; the word shows under them only while she is
+// the target or the pointer is on her - as with a subsystem's name.
+scenario('Mission mark: pulsing brackets, the word under them when targeted or pointed at', 'm=12', `
+  const r = {};
+  FS.step(300);
+  const ta = byId('R1')[0];
+  const words = [];
+  const mt = markText;
+  markText = function(t, x, y, col, al, bl){ words.push({t, y, col}); return mt.apply(this, arguments); };
+  TGT.e = null; MOUSE.scr = true; MOUSE.sx = 5; MOUSE.sy = H-5;
+  words.length = 0; draw();
+  r.noWordWhenNotLooked = !words.some(w=>w.t==='DISABLE');
+  TGT.e = ta; TGT.sub = null;
+  words.length = 0; draw();
+  const w1 = words.find(w=>w.t==='DISABLE');
+  r.wordWhenTargeted = !!w1;
+  r.underTheShip = !!w1 && w1.y > w2sY(ta.y);
+  r.inHerOwnColour = !!w1 && w1.col===OFF_COL.enemy;
+  TGT.e = null; MOUSE.sx = w2sX(ta.x); MOUSE.sy = w2sY(ta.y);
+  words.length = 0; draw();
+  r.wordWhenPointedAt = words.some(w=>w.t==='DISABLE');
+  markText = mt;
+  return r;`);
+
+// Silvio (v253): with a subsystem targeted, a missile's lock is taken on
+// that subsystem and the round strikes it, not the middle of the hull.
+scenario('Missiles go for the targeted subsystem: the lock and the strike', 'm=12', `
+  const r = {};
+  FS.step(300);
+  const ta = byId('R1')[0];
+  const eng = ta.subs.find(s=>s.id==='engines');
+  TGT.e = ta; TGT.sub = eng;
+  const p = tgtSubPos(ta, eng);
+  // the nose on the subsystem, the middle of her off to one side
+  player.x = p.x - 150; player.y = p.y; player.angle = 0; player.head = 0;
+  // tgtTick is too tangled to drive here: checked at the source - the lock
+  // cone is measured to the chosen subsystem's place
+  const src = String(tgtTick);
+  r.lockMeasuredOnTheSubsystem = src.indexOf('tgtSubPos(o, TGT.sub)') >= 0 && src.indexOf('tgtOff(lp.x, lp.y)') >= 0;
+  // a round sent at the engines, landing on the far end of her hull
+  const hp0 = eng.hp;
+  const sp = subPos(ta, eng);
+  const far = {x: ta.x + (sp.x > ta.x ? -1 : 1)*40, y: ta.y};
+  pBullets.push({x:far.x, y:far.y, vx:0, vy:0, w:4, h:4, dmg:30, sec:true, type:'missile', target:ta, sub:eng, ally:false, wpn:'mx50', life:20});
+  FS.step(2);
+  r.strikesTheEngines = eng.hp < hp0 || eng.dead;
+  return r;`);
+
+// v253: the FS1 launch sounds and the corrected ones (Silvio).
+scenario('FS1 sounds: every FS1 weapon its own launch sound, the right impacts', 'm=12', `
+  const r = {};
+  const want = {ml16:'L_light', dadv:'L_disrupter', avenger:'L_avenge', prom1:'L_flux', banshee:'L_banshee',
+    mx50:'m_wasp', interceptor:'m_shrike', phoenix:'m_angel', dmissile:'m_mag', harbinger:'m_harbinger'};
+  const wrong = [];
+  for(const k in want){ const w = fs1Def(k); if(!w || w.snd!==want[k]) wrong.push(k + ':' + (w && w.snd)); }
+  r.launchSounds = wrong.length===0 || wrong;
+  r.everyKeyHasAFile = Object.values(want).every(k=>k in SND_FILES);
+  r.clusterImpacts = fs1Def('synaptic').hitSnd==='clusterboom' && fs1Def('harbinger').hitSnd==='clusterboom';
+  r.railgun = F3D_GUN_SND.Railgun==='L_mass' && ('L_mass' in SND_FILES);
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

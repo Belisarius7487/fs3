@@ -34,19 +34,19 @@ function constObj(name){
   return src.slice(at, block(at)) + ';';
 }
 
-const NAMES = ['dockPoint','dockOffset','unitAlive','idPending','cargoLost','claimCargo',
+const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','idPending','cargoLost','claimCargo',
   'leaveEmpty','cargoStillWanted','carryCargo','dropCargo','tickCarry','tickDocking',
   'tickCrossGuards','killEnemy','byId','evSeen','mountsFor','hullClass',
   'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns'];
 
 const world = `
-let enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, spawnQ=[];
+let enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, EV_TAKEN={}, spawnQ=[];
 let protSaved=0, protLost=0, guardLost=false, guardGone=false, crossDone=0, crossTotal=0;
 let score=0, bossAlive=false, bossSlain=false, expl=0;
 const W=800, H=500, HUD_H=44, DOCK_SPD=0.55, DOCK_NEAR=22;
 const MW=W, MH=H, FIELD_K=1, TEMPO_K=1, CAM_BASE_Z=1, WX0=0, WX1=W, WY0=54, WY1=H, SIZE_UPM=3.75, FIELD_CX=W/2, FIELD_CY=(54+H)/2; const CAM={x:W/2, y:(54+H)/2, z:1, zt:1, over:false}; function camSees(){ return true; } function camHalfW(){ return W/2; } function camHalfH(){ return (H-54)/2; } function w2sX(x){ return x; } function w2sY(y){ return y; } function s2wX(x){ return x; } function s2wY(y){ return y; } function camFollow(){} function camSnap(){} function mouseTick(){} function worldSet(){} function worldForWave(){} function mouseAt(p){ if(typeof MOUSE!=="undefined"){ MOUSE.x=p.x; MOUSE.y=p.y; } } function mouseHold(){ if(typeof MOUSE!=='undefined' && typeof player!=='undefined'){ MOUSE.x=player.x; MOUSE.y=player.y; } }  // v208: the world is the old field in the sims; v209: tempo and zoom 1
 const MOUNTS = ${JSON.stringify(MOUNTS)};
-const IMGS = { frbast:{width:60,height:26}, fcvc3:{width:30,height:22},
+const IMGS = { frbast:{width:60,height:26}, fcvc3:{width:30,height:22}, frasmodeus:{width:80,height:30},
   trisis:{width:60,height:24}, dehatshepsut:{width:391,height:150} };
 function statKill(){} function maybeDropTicket(){} function payShieldPts(){}
 // The practice log is not what is tested here.
@@ -62,9 +62,10 @@ const api = new Function('TICK_HZ', world + `
 return { get enemies(){return enemies;}, set enemies(v){enemies=v;},
   get allies(){return allies;}, set allies(v){allies=v;},
   get protSaved(){return protSaved;}, get protLost(){return protLost;},
-  get expl(){return expl;}, SUB_MSGS, EV_SEEN, EV_HELD, spawnQ,
+  get expl(){return expl;}, SUB_MSGS, EV_SEEN, EV_HELD, EV_LEFT, EV_TAKEN, spawnQ,
   reset(){ enemies=[]; allies=[]; SUB_MSGS.length=0; for(const k in EV_DOCK) delete EV_DOCK[k];
     for(const k in EV_SEEN) delete EV_SEEN[k]; for(const k in EV_HELD) delete EV_HELD[k];
+    for(const k in EV_LEFT) delete EV_LEFT[k]; for(const k in EV_TAKEN) delete EV_TAKEN[k];
     spawnQ.length=0; protSaved=0; protLost=0; guardLost=false; expl=0; },
   tickDocking, tickCrossGuards, tickCarry, killEnemy, dockPoint, liveThreatCount,
   scriptUnitsResolved, SCRIPT_WAVES };`)(TICK_HZ);
@@ -219,11 +220,49 @@ check('nothing reported as cargo', msgs('NO CARGO') === 0 && msgs('LEFT EMPTY') 
 // ── 10. Freighter count from the mission data ─────────────────
 begin('10 freighter count follows the containers');
 const cnt = (m, id) => api.scriptUnitsResolved(api.SCRIPT_WAVES[m]).find(u => u.id === id);
-check('M009: two containers, two freighters', cnt(9, 'F1').n === 2 && cnt(9, 'C1').pickup);
+// v253: M9 is an FS1 mission now; M3's freighters each fetch one container.
+check('M003: one container, one freighter each', cnt(3, 'F1').n === 1 && cnt(3, 'C1').pickup);
 check('M023: three containers, now three freighters', cnt(23, 'F1').n === 3 && cnt(23, 'C1').pickup,
       'was ' + api.SCRIPT_WAVES[23].u.find(u => u.id === 'F1').n);
 check('M027: transports unchanged', cnt(27, 'T1').n === 1 && !cnt(27, 'A1').pickup);
 check('mission data itself untouched', api.SCRIPT_WAVES[23].u.find(u => u.id === 'F1').n === 2);
+
+// ── 11. Cargo riding on a freighter (v253, Shieldbreaker) ─────
+begin('11 cargo rides on its freighter, dies or leaves with her');
+function rider(uid, ride, slot, side){
+  const o = container(uid, 0, 0, side); o.rideId = ride; o.rideSlot = slot; o.pickup = false; return o;
+}
+{
+  const f = freighter('F1', 300, 250, null, 'enemy'); f.img = 'frasmodeus'; f.dockTo = null;
+  const a = rider('K1', 'F1', 0, 'enemy'), b = rider('K2', 'F1', 1, 'enemy');
+  run(1);
+  const p0 = api.dockPoint(f);
+  check('first rider on her first dock point, above her', Math.abs(a.x - p0.x) < 0.01 && a.y < f.y, a.x.toFixed(1) + ',' + a.y.toFixed(1));
+  check('second rider on her second dock point', Math.abs(b.x - a.x) > 20, 'gap ' + Math.abs(b.x - a.x).toFixed(1));
+  f.x += 50; run(1);
+  check('riders move with her, no lag', Math.abs(a.x - api.dockPoint(f).x) < 0.01);
+  // she is destroyed: the cargo goes up with her
+  f.dead = true; api.enemies.splice(api.enemies.indexOf(f), 1);
+  const e0 = api.expl; run(1);
+  check('destroyed: both riders go up', a.dead && b.dead && api.expl - e0 === 2, 'expl ' + (api.expl - e0));
+  check('destroyed: not counted as left', !api.EV_LEFT.K1 && !api.EV_LEFT.K2);
+}
+{
+  const f = freighter('F2', 300, 250, null, 'enemy'); f.img = 'frasmodeus'; f.dockTo = null;
+  const a = rider('K3', 'F2', 0, 'enemy');
+  run(1);
+  f.warpOut = 50; f.warpMax = 160; run(1);
+  check('her jump: the rider jumps on the same clock', a.warpOut === 50);
+  api.EV_LEFT.F2 = true; f.dead = true; api.enemies.splice(api.enemies.indexOf(f), 1);
+  const e0 = api.expl; run(1);
+  check('jumped out: rider leaves with her, no blast', a.dead && api.expl === e0 && api.EV_LEFT.K3 && api.enemies.indexOf(a) < 0);
+}
+{
+  const f = freighter('T1', 300, 250, null, 'ally'); f.img = 'frasmodeus'; f.dockTo = null;
+  const a = rider('K4', 'T1', 0, 'ally');
+  run(1);
+  check('a rider of ours sits on her too', Math.abs(a.x - api.dockPoint(f).x) < 0.01);
+}
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

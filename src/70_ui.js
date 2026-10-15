@@ -523,6 +523,7 @@ function drawShipTop(e){
   if(!_dying){
   drawHostileMark(e);
   drawTagMark(e);
+  drawMissionMark(e);   // v253: DISABLE / DESTROY / PROTECT
   drawScorch(e);
   drawShield(e);
   drawScanRing(e);

@@ -429,8 +429,11 @@ function payShieldPts(e){
   awardPts(e.shPts || 0);
 }
 // The lowest a ship's hull is held at while a lock is on (no points below it).
+// v253: a prey's own side gets past the capture lock (PREY_HIT, set
+// around their hits on her in the bolt loop).
+let PREY_HIT = false, PREY_ON = false;
 function hullLockFloor(e){
-  return (e.defectLock || e.captureLock || e.keepAlive || (e.scanLock && !e.scanned) ||
+  return (e.defectLock || (e.captureLock && !PREY_HIT) || e.keepAlive || (e.scanLock && !e.scanned) ||
           (e.disableTgt && !e.disableMet)) ? e.maxHp * DISABLE_HULL_FLOOR : 0;
 }
 function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
@@ -548,7 +551,7 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   dmgHit(e, hx, hy, _hd);          // what it leaves on the hull (v180)
   // A ship that is to be taken does not start to break up: the lock
   // below holds her hull instead.
-  if(e.hp <= 0 && !e.dead && !e.captureLock && !e.keepAlive && startDeathRoll(e)){
+  if(e.hp <= 0 && !e.dead && (!e.captureLock || PREY_HIT) && !e.keepAlive && startDeathRoll(e)){
     // Sie stirbt nicht sofort: erst der Todeskampf (v183, alle grossen Schiffe).
     return;
   }
@@ -564,7 +567,7 @@ function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   // haengt die Pointe der Welle am Zufall des Gefechts.
   // captureLock: a ship that is to be taken cannot be destroyed first.
   // scanLock: a scan target that is to be scanned before it may die.
-  if(e.defectLock || e.captureLock || e.keepAlive || (e.scanLock && !e.scanned)){
+  if(e.defectLock || (e.captureLock && !PREY_HIT) || e.keepAlive || (e.scanLock && !e.scanned)){
     const dfl = e.maxHp * DISABLE_HULL_FLOOR;
     if(e.hp < dfl) e.hp = dfl;
   }
@@ -2228,7 +2231,10 @@ function neutralLike(o){
 function escortSpares(o){
   // v202: a ship we have taken is ours - nobody of ours fires on her while
   // she jumps out (the Deimos, M38).
+  // v253: spare - left alone until somebody fires on her (Shieldbreaker:
+  // the player decides when the freighters run).
   return !!(o.noTarget || o.captureLock || o.captured || (o.disableTgt && !o.disableMet) ||
+            (o.spare && !o.wasHit) ||
             (o.scanLock && !o.scanned));
 }
 function nearestEnemy(x, y){

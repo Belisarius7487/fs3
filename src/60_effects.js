@@ -299,7 +299,13 @@ function updateSecBullets(){
         if(b.ally && (e.captureLock || e.captured)) continue;
         e.shotAt=true;
         // v210: the point of her outline under the shot (hullUnPt)
-        const _hp=hullUnPt(e,b.x,b.y), hx=_hp.x, hy=_hp.y;
+        const _hp=hullUnPt(e,b.x,b.y);
+        let hx=_hp.x, hy=_hp.y;
+        // v253 (Silvio): a round sent at a chosen subsystem strikes that
+        // subsystem, not whatever part of the hull it touched first.
+        if(b.sub && b.target===e && !b.sub.dead && e.subs && e.subs.indexOf(b.sub)>=0){
+          const _sp=subPos(e, b.sub); hx=_sp.x; hy=_sp.y;
+        }
         // A subsystem warhead spends itself inside and leaves only the
         // bleed for the hull. On a ship with nothing to wreck it behaves
         // like any other bomb rather than being wasted.
@@ -329,13 +335,13 @@ function updateSecBullets(){
         }
         const vh=hullPt(e, hx, hy);       // v209: the blast on her model (v210: = the shot)
         if(b.type==='bomb'){
-          sndPlay('sec_cyclops_hit', b.x);
+          sndPlay((sw && sw.hitSnd) || 'sec_cyclops_hit', b.x);   // v253: hitSnd, the FS1 impact (clusterboom)
           spawnFireball(vh.x,vh.y,45,40);
           spawnRing(vh.x,vh.y,(sw && sw.blast) ? sw.blast.o : 70,30,4,255,120,0);
           spawnDebris(vh.x,vh.y,25,255,180,50,200,60,0,true);
           spawnSmoke(vh.x,vh.y,8);
         } else {
-          sndPlay(b.f ? 'fs_boom' : 'missile_explosion', b.x);   // FS2 round: boom_2 (v187)
+          sndPlay((sw && sw.hitSnd) || (b.f ? 'fs_boom' : 'missile_explosion'), b.x);   // FS2 round: boom_2 (v187)
           spawnFireball(vh.x,vh.y,20,22);
           spawnDebris(vh.x,vh.y,10,255,220,100,255,100,0,true);
         }
@@ -1274,18 +1280,25 @@ function update(){
     // this loop looked at the escorts and the player. The faction on the
     // bolt decides, so a Shivan round passes through Shivan hulls and
     // bites into Vasudan ones.
-    if(waveFeud && b.faction){
+    // v253: and a ship of their own they want dead (prey, 'opfer').
+    if((waveFeud && b.faction) || PREY_ON){
       let eaten=false;
       for(let fi=enemies.length-1;fi>=0;fi--){
         const o=enemies[fi];
         if(o.dead || o.warp>0 || o.warpOut>0 || o.scenery) continue;
-        if(o.type==='asteroid' || playerOnly(o)) continue;
-        if(!o.faction || o.faction===b.faction) continue;
+        if(!o.prey){
+          if(!waveFeud || !b.faction) continue;
+          if(o.type==='asteroid' || playerOnly(o)) continue;
+          if(!o.faction || o.faction===b.faction) continue;
+        }
         const[ox,oy,ow,oh]=eBox(o);
         if(!overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ox,oy,ow,oh)) continue;
         if(!bulletOnHull(o,b)) continue;
         const _hp = hullUnPt(o, b.x, b.y);    // v210: her outline under the shot
+        PREY_HIT = !!o.prey;               // v253: past the capture lock
         damageEnemy(o, b.dmg||(b.big?20:8), _hp.x, _hp.y, false, 'bolt', eSrc(b));
+        PREY_HIT = false;
+        if(o.prey && o.hp<=0 && !o.dead) o.captureLock = false;
         hullHit(b.x, b.y);   // v210: the shot is on her drawn hull
         if(b.kind==='bomb') bombBlast(b.x,b.y); else if(b.kind==='missile') sndPlay('missile_explosion', b.x);
         // No points and no pickups: the player did not earn this one.

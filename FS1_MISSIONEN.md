@@ -22,6 +22,29 @@ alle Entwürfe (Silvio, 14.10.2026):
 - **Gebaut (v249):** Missionen 4 bis 6 ersetzen die alten Missionen 4 bis 6
   (Silvio, 15.10.2026: die alten Missionen werden durch die neuen ersetzt).
   Die Hammer-of-Light-Flotte beginnt seitdem bei 7.
+- **Gebaut (v253):** Die Originale 7 bis 10 und die neue Mission
+  Shieldbreaker ersetzen die alten Missionen 7 bis 13 (Silvio, 15.10.2026).
+  Die Hammer-of-Light-Flotte beginnt seitdem bei 14. Nummern im Spiel:
+
+  | FS3 | Mission | Original |
+  |---|---|---|
+  | 7 | Pandora's Box | 7 |
+  | 8 | Shieldbreaker (neu, nicht in FS1) | – (Waffenstand wie 7) |
+  | 9 | The Hammer and the Anvil: Breakout | 8 (8A) |
+  | 10 | The Hammer and the Anvil: Betrayal | 8 (8B) |
+  | 11 | The Darkness and the Light | 9 |
+  | 12 | First Strike: Disable | 10 (10A) |
+  | 13 | First Strike: Salvage | 10 (10B) |
+
+- **Nur Schiffe aus FS1, auf allen Seiten** (Silvio, 15.10.2026).
+- **Wellen der Basilisken** (Silvio, 15.10.2026): in 9A, 9B und 11B zwei
+  Wellen zu je 3; die zweite kommt erst, wenn die erste vernichtet ist.
+- **Markierung besonderer Ziele** (Silvio, 15.10.2026): pulsierende
+  Eckklammern um das ganze Schiff, in seiner üblichen Farbe (rot Feind, grün
+  Verbündeter; die Farbe sagt nicht, was zu tun ist). Darunter das Wort
+  DISABLE, DESTROY oder PROTECT, aber nur wie beim Namen eines Subsystems:
+  wenn das Schiff Ziel ist oder Zeiger bzw. Schiff darauf zeigt. Am unteren
+  Rand rückt das Wort hoch. Im Code: Einheit `mark:`, Wirkung `markieren`.
 
 ## Übersicht der ersten zehn Originale (abgesegnet)
 
@@ -161,7 +184,7 @@ Vorlage `fs1/sm1-06a.fs2`.
   zurückgestellt. Nach dem ersten Test im Spiel ggf. hochschrauben.
 - Weggelassen: der lange, leere Anflug.
 
-## Mission 7 — Pandora's Box (abgesegnet)
+## Mission 7 — Pandora's Box (abgesegnet, gebaut v253)
 
 Vorlage `fs1/sm1-07a.fs2`.
 
@@ -179,8 +202,35 @@ Vorlage `fs1/sm1-07a.fs2`.
 - Uhr abgelaufen → Nachschub aus, Uhr gestoppt, Shivaner ziehen ab →
   Erfolg.
 - Verlorene Leben: wie überall, Mission läuft weiter bis Game Over.
+- **Schockwellen** (Silvio, 15.10.2026, „spürbar"): jeder Container geht mit
+  einer Schockwelle hoch, die stößt und schadet — nah dran etwa ein Zehntel
+  der Hülle, alle sechs zusammen rund die Hälfte. Trifft auch Shivaner.
 
-## Mission 8 — The Hammer and the Anvil, geteilt in 8A und 8B (abgesegnet)
+## Mission 8 (neu) — Shieldbreaker (abgesegnet, gebaut v253)
+
+Nicht in FS1. Die Nachbesprechung von Pandora's Box und das Briefing von
+The Hammer and the Anvil sagen, ein Stoßtrupp der 5. Flotte habe im
+Ikeya-System Shivaner-Schildprototypen erbeutet. Das ist dieser Einsatz.
+
+- Start: Spieler in einer Apollo mit **D-Advanced** in der ersten Bank,
+  zwei Apollo-Begleiter. Drei Asmodeus-Frachter mit **je 2** Shivaner-
+  Containern (die Asmodeus hat nur zwei Andockstellen), 2 Scorpions als
+  Wache. Waffenstand wie Original 7.
+- Auftrag 1: Container scannen, bis der richtige gefunden ist (fest: der
+  zweite auf Asmodeus 2). Ab dem ersten Schuss auf einen Frachter fliehen
+  alle drei; spätestens nach 90 s ohnehin. Die Begleiter schießen nicht auf
+  die Frachter, bevor jemand anderes es tut.
+- Auftrag 2: Antrieb und Waffen dieses Frachters zerstören. Vom Spieler
+  zerstören lässt er sich nicht.
+- Danach: eine Elysium springt nah ein, dockt an (12 s) und kapert ihn.
+  Gleichzeitig Scorpion-Schwärme (4 × 2), die gezielt auf den Frachter
+  gehen; deren Feuer kann ihn zerstören.
+- Erste Elysium zerstört → zweite springt ein. Auch die zerstört →
+  Fehlschlag.
+- Frachter entkommen oder zerstört → Fehlschlag. Gekapert → Erfolg.
+- Bonus: die beiden anderen Frachter zerstören.
+
+## Mission 8 — The Hammer and the Anvil, geteilt in 8A und 8B (abgesegnet, gebaut v253 als 9 und 10)
 
 Vorlage `fs1/sm1-08a.fs2`. Drei langsame Poseidon-Frachter (Theta) bringen
 Schildtechnik aus der Station Cygni. **Jeder Frachter trägt einen
@@ -207,12 +257,19 @@ verhindert.
 - Nach 15 s wechselt die Begleitung die Seite (`seite`): Hammer of Light,
   Angriff auf die Frachter.
 - Danach Shivaner: 3 Scorpion, 2 Basilisk, 4 Basilisk (je spätestens 30 s).
+
+**Abweichungen beim Bau (v253):** Die Station Cygni fehlt — im Spiel gibt es
+keine verbündete Station als bloße Kulisse; eine Arcadia würde als Gegner
+oder als Vasudaner-Kreuzer erscheinen. Die Container reiten auf den
+Frachtern (`ride`) und sind verbündet und angreifbar.
 - Alle Gegner weg → Frachter springen ab.
 
 **Beide:** Ein Frachter mit Container entkommt → Erfolg. Alle drei →
 Bonus. Alle verloren → Fehlschlag. Je etwa 2,5 Minuten.
 
 ## Mission 9 — The Darkness and the Light (abgesegnet, „schwer, aber probieren wir")
+
+Gebaut v253 als Mission 11.
 
 Vorlage `fs1/sm1-09a.fs2`.
 
@@ -231,7 +288,7 @@ Vorlage `fs1/sm1-09a.fs2`.
   Taranis springt ab (`abzug`). Depot + Ramses gekapert → Erfolg. Ramses
   verloren → Teilerfolg.
 
-## Mission 10 — First Strike, geteilt in 10A und 10B (abgesegnet)
+## Mission 10 — First Strike, geteilt in 10A und 10B (abgesegnet, gebaut v253 als 12 und 13)
 
 Vorlage `fs1/sm1-10a.fs2`. Spieler fliegt einen **Athena-Bomber mit
 Stiletto** (vorgegebenes Schiff).

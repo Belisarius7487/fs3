@@ -166,9 +166,12 @@ function tgtTick(){
   // near the nose. Out of that the lock starts over.
   const bank = selSecBank(), w = bank ? secDefP(bank.key) : null;
   const key = w ? w.key : null;
+  // v253 (Silvio): with a subsystem chosen the lock is taken on it, not on
+  // the middle of the hull.
+  const lp = (o && TGT.sub && !TGT.sub.dead && o.subs) ? tgtSubPos(o, TGT.sub) : o;
   if(TGT.lockOf !== key){ TGT.lock = 0; TGT.lockOf = key; }
   if(w && w.homing === 'aspect' && o && o.kind !== 'bomb' && enemies.indexOf(o) >= 0 && canLockOn(o)
-     && bank.ammo > 0 && tgtDist(o) <= w.spd*w.life && tgtOff(o.x, o.y) <= TGT_LOCK_CONE){
+     && bank.ammo > 0 && tgtDist(o) <= w.spd*w.life && tgtOff(lp.x, lp.y) <= TGT_LOCK_CONE){
     TGT.lock = Math.min(TGT.lock + 1, w.lockT || 1);
   } else TGT.lock = 0;
 }
@@ -234,6 +237,53 @@ function markText(t, x, y, col, al, bl){
   ctx.font = thValue(9, true); ctx.textAlign = al; ctx.textBaseline = bl; ctx.lineJoin = 'round';
   ctx.lineWidth = 3; ctx.strokeStyle = MARK_HALO; ctx.strokeText(t, x, y);
   ctx.fillStyle = col; ctx.fillText(t, x, y);
+}
+// ── MISSION MARKS (v253, Silvio) ─────────────────────────────
+// A ship the mission wants something particular done to wears pulsing
+// corner brackets in her usual colour (red, green). What to do is spelled
+// out underneath - DISABLE, DESTROY, PROTECT - under the same rule as a
+// subsystem's name: while she is the target, or while the pointer (or,
+// without one, the player's ship) is on her. Set per unit with mark:, and
+// changed in a mission with the effect 'markieren' (a2: 'id:word', 'id:'
+// takes the mark off).
+const MARK_WORDS = {disable:'DISABLE', destroy:'DESTROY', protect:'PROTECT'};
+function missionMark(e){
+  if(typeof EV_MARK === 'undefined' || !e || e.uid == null) return '';
+  return MARK_WORDS[EV_MARK[e.uid]] || '';
+}
+function drawMissionMark(e){
+  const word = missionMark(e); if(!word) return;
+  if(e.dead || e.warp > 0 || e.captured) return;
+  const img = IMGS[e.img]; if(!img) return;
+  const ally = (e.side === 'ally') || allies.indexOf(e) >= 0;
+  const col = ally ? OFF_COL.friend : OFF_COL.enemy;
+  // On the screen, a little outside the TAG box so both can be seen.
+  const hw = img.width*e.sc*0.5*CAM.z + 12, hh = img.height*e.sc*0.5*CAM.z + 12;
+  const L = 12, k = 0.45 + 0.55*(0.5 + 0.5*Math.sin(fc*0.15));
+  const cx = w2sX(e.x), cy = w2sY(e.y);
+  const x0 = cx-hw, x1 = cx+hw, y0 = cy-hh, y1 = cy+hh;
+  ctx.save();
+  camScreen();
+  ctx.globalAlpha = k;
+  ctx.strokeStyle = col; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x0, y0+L); ctx.lineTo(x0, y0); ctx.lineTo(x0+L, y0);
+  ctx.moveTo(x1-L, y0); ctx.lineTo(x1, y0); ctx.lineTo(x1, y0+L);
+  ctx.moveTo(x1, y1-L); ctx.lineTo(x1, y1); ctx.lineTo(x1-L, y1);
+  ctx.moveTo(x0+L, y1); ctx.lineTo(x0, y1); ctx.lineTo(x0, y1-L);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  if(GS === 'playing'){
+    const scr = (typeof MOUSE !== 'undefined') && MOUSE.scr;
+    const rx = scr ? MOUSE.sx : w2sX(player.x), ry = scr ? MOUSE.sy : w2sY(player.y);
+    const on = rx >= x0 && rx <= x1 && ry >= y0 && ry <= y1;
+    if(TGT.e === e || on){
+      // Below the brackets; at the bottom edge it moves up so it is not cut.
+      const ty = Math.min(y1 + 4, H - 14);
+      markText(word, cx, ty, col, 'center', 'top');
+    }
+  }
+  ctx.restore();
 }
 function drawTargetMarks(){
   if(GS !== 'playing' || inJump()) return;

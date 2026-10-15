@@ -388,6 +388,20 @@ stehen (F28). `spread:1` an einer Asteroideneinheit verteilt die Brocken über
 die ganze Kamerasicht statt nur den Missionsbereich (F32). Jede FS1-Mission
 setzt mit `ship:` den Rumpf von Alpha 1 aus der Originaldatei (F27).
 
+Seit v253 (FS1 M7 bis M13): Einheiten `ride:'F1', slot:n` (Fracht sitzt
+von Anfang an auf Andockstelle n eines Frachters, fährt, springt und stirbt
+mit ihm), `shock` (geht mit schadender Schockwelle hoch, `CARGO_SHOCK`),
+`mark:'disable'|'destroy'|'protect'` (pulsierende Klammern, Wort darunter),
+`subsDown` (Subsysteme schon zerstört), `spare` (Begleiter schonen sie, bis
+jemand auf sie schießt), `fac` auch an Fracht und Geschützen. Kaperziele
+(`capture`) fliehen nicht mehr, wenn ihre Waffen fallen. Mission: `pri`
+(Primärwaffe in Bank 1, etwa die D-Advanced). Wirkungen: `markieren`
+(`a2:'F1:protect'`, `'F1:'` nimmt sie weg), `fliehen` (`'F1+F2'` laufen los
+wie beschossen), `opfer` (die eigene Seite will sie tot; deren Feuer kommt
+an der Kapersperre vorbei). Auslöser: `genommen` (gekapert); `gescannt` und
+`verlaesst` nehmen mehrere Kennungen mit `+`. Ereignisfeld `wenn:{t,a}`: eine
+zweite Bedingung, die zugleich gelten muss.
+
 Eine **Kennung steht für eine Gruppe**, nicht für ein Schiff: `byId()` gibt
 jede Einheit zurück, die sie trägt, und ein Auslöser darf mehrere mit `+`
 nennen. Mission 78 gibt ihren drei Geräten dieselbe Kennung, damit **ein**

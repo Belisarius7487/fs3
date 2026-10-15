@@ -72,19 +72,19 @@ const ARSENAL_P = [
   // Values straight from FSPort's weapons.tbl, on the same anchor as the
   // FS2 guns above. era: the strand they belong to. fs1: the original FS1
   // mission from which the player (p) and the computer (c) carry it.
-  {key:'ml16', name:'ML-16 Laser', era:'fs1', fs1:{p:1, c:1}, snd:'L_Sidearm',
+  {key:'ml16', name:'ML-16 Laser', era:'fs1', fs1:{p:1, c:1}, snd:'L_light',
    fs:{d:5, v:450, w:0.2, l:2.0, e:0.2, a:1, s:0.1, u:0.3},
    col:'#ff8f8f', glow:'rgba(255,110,110,0.30)', note:'the old standard laser, quick and light'},
-  {key:'dadv', name:'D-Advanced', era:'fs1', fs1:{p:17, c:17}, snd:'L_Scalpel',
+  {key:'dadv', name:'D-Advanced', era:'fs1', fs1:{p:17, c:17}, snd:'L_disrupter',
    fs:{d:25, v:575, w:0.6, l:1.5, e:0.75, a:0, s:1, u:1},
    col:'#d6a2ff', glow:'rgba(200,140,255,0.32)', note:'shields and subsystems only - no hull damage'},
-  {key:'avenger', name:'Avenger', era:'fs1', fs1:{p:8, c:2}, snd:'L_Prom_R',
+  {key:'avenger', name:'Avenger', era:'fs1', fs1:{p:8, c:2}, snd:'L_avenge',
    fs:{d:16, v:525, w:0.25, l:1.9, e:0.3, a:1.25, s:0.85, u:0.35},
    col:'#a6dcff', glow:'rgba(120,200,255,0.32)', note:'the fleet gun, good against everything'},
-  {key:'prom1', name:'Prometheus', era:'fs1', fs1:{p:16, c:17}, snd:'L_Prom_S',
+  {key:'prom1', name:'Prometheus', era:'fs1', fs1:{p:16, c:17}, snd:'L_flux',
    fs:{d:20, v:450, w:0.3, l:2.0, e:0.4, a:1.3, s:0.7, u:0.35},
    col:'#ccff88', glow:'rgba(180,255,80,0.30)', note:'hard on hulls'},
-  {key:'banshee', name:'Banshee', era:'fs1', fs1:{p:21, c:21}, snd:'L_Kayser',
+  {key:'banshee', name:'Banshee', era:'fs1', fs1:{p:21, c:21}, snd:'L_banshee',
    fs:{d:26, v:650, w:0.4, l:1.5, e:1.6, a:0.7, s:1.2, u:0.35},
    col:'#ffb466', glow:'rgba(255,160,80,0.34)', note:'tears shields, empties the store'}
 ];
@@ -136,25 +136,25 @@ const ARSENAL_S = [
   // radii only on bombs: missiles only hit what they hit (v190). The
   // Stiletto is scaled like its FS2 successor, the Stiletto II, on the
   // missile anchor; on the bomb anchor it would do a tenth of that.
-  {key:'mx50', name:'MX-50', cls:'missile', era:'fs1', fs1:{p:1, c:2}, snd:'m_shrike', homing:'heat',
+  {key:'mx50', name:'MX-50', cls:'missile', era:'fs1', fs1:{p:1, c:2}, snd:'m_wasp', homing:'heat',
    fs:{d:25, v:150, w:0.75, l:10.0, a:1, s:0.4, u:1, cargo:4, turn:1, cone:90},
    note:'the standard heat seeker'},
   {key:'fury', name:'Fury', cls:'missile', era:'fs1', fs1:{p:1, c:1}, snd:'m_fury', homing:null,
    fs:{d:30, v:300, w:0.3, l:3.0, a:1, s:0.5, u:0.6, cargo:0.5, turn:1},
    note:'dumbfire, a deep rack, short reach'},
-  {key:'interceptor', name:'Interceptor', cls:'missile', era:'fs1', fs1:{p:11, c:8}, snd:'m_wasp', homing:'aspect',
+  {key:'interceptor', name:'Interceptor', cls:'missile', era:'fs1', fs1:{p:11, c:8}, snd:'m_shrike', homing:'aspect',
    fs:{d:150, v:250, w:2.0, l:5.0, a:1, s:0.8, u:0.5, cargo:4, turn:1, lock:2.0},
    note:'a heavy aspect seeker against fighters'},
-  {key:'phoenix', name:'Phoenix V', cls:'missile', era:'fs1', fs1:{p:13, c:5}, snd:'m_shrike', homing:'aspect', bigFirst:true,
+  {key:'phoenix', name:'Phoenix V', cls:'missile', era:'fs1', fs1:{p:13, c:5}, snd:'m_angel', homing:'aspect', bigFirst:true,
    fs:{d:350, v:175, w:5.0, l:10.0, a:1, s:0.5, u:0.8, cargo:8, turn:1, lock:2.0},
    note:'long range, heavy, slow to reload'},
   {key:'hornet1', name:'Hornet', cls:'missile', era:'fs1', fs1:{p:18, c:21}, snd:'m_swarm', homing:'aspect',
    fs:{d:25, v:190, w:2.0, l:7.0, a:2, s:1, u:0.3, cargo:1, turn:1, lock:2.0},
    note:'a light aspect seeker, a deep rack'},
-  {key:'dmissile', name:'D-Missile', cls:'bomb', era:'fs1', fs1:{p:24, c:29}, snd:'m_emp', homing:'aspect', bigFirst:true,
+  {key:'dmissile', name:'D-Missile', cls:'bomb', era:'fs1', fs1:{p:24, c:29}, snd:'m_mag', homing:'aspect', bigFirst:true,
    fs:{d:1, v:80, w:5.0, l:15.0, a:0, s:0, u:1, cargo:8, turn:1, lock:5.0, blast:{i:10, o:400}},
    note:'a bomb for the systems of a big ship'},
-  {key:'synaptic', name:'Synaptic', cls:'bomb', era:'fs1', fs1:{p:15, c:13}, snd:'m_cluster', homing:'aspect', bigFirst:true,
+  {key:'synaptic', name:'Synaptic', cls:'bomb', era:'fs1', fs1:{p:15, c:13}, snd:'m_cluster', hitSnd:'clusterboom', homing:'aspect', bigFirst:true,
    fs:{d:60, v:90, w:5.0, l:2.5, a:1, s:0.75, u:1, cargo:15, turn:1, lock:5.0, blast:{i:50, o:100}},
    note:'a cluster bomb'},
   {key:'stiletto1', name:'Stiletto', cls:'bomb', anchor:'missile', era:'fs1', fs1:{p:10, c:10}, snd:'m_stiletto', homing:'heat', subs:true, bigFirst:true,
@@ -163,7 +163,7 @@ const ARSENAL_S = [
   {key:'tsunami', name:'Tsunami', cls:'bomb', era:'fs1', fs1:{p:13, c:13}, snd:'m_tsunami', homing:'aspect', bigFirst:true,
    fs:{d:1500, v:60, w:20.0, l:25.0, a:1, s:0.02, u:2, cargo:15, turn:1, lock:5.0, blast:{i:50, o:150}},
    note:'the heavy bomb'},
-  {key:'harbinger', name:'Harbinger', cls:'bomb', era:'fs1', fs1:{p:26, c:26}, snd:'m_tsunami', homing:'aspect', bigFirst:true,
+  {key:'harbinger', name:'Harbinger', cls:'bomb', era:'fs1', fs1:{p:26, c:26}, snd:'m_harbinger', hitSnd:'clusterboom', homing:'aspect', bigFirst:true,
    fs:{d:3200, v:50, w:30.0, l:30.0, a:1, s:0.01, u:16, cargo:40, turn:1, lock:5.0, blast:{i:100, o:250}},
    note:'the heaviest bomb there is'}
 ];
@@ -475,6 +475,14 @@ function missionSec(key, last){
   const mx = bankAmmoMax(player.ship, i, key);
   player.sb[i] = {key:key, max:mx, ammo:mx, t:0};
   player.sSel = i;
+  syncLegacyWeapons();
+  return true;
+}
+// v253: a gun the mission hands out goes into the first primary bank (the
+// D-Advanced in Shieldbreaker, Silvio), whether it is out yet or not.
+function missionPri(key){
+  if(!player.pb || !player.pb.length || !key) return false;
+  player.pb[0] = {key:key, t:0};
   syncLegacyWeapons();
   return true;
 }

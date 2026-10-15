@@ -217,7 +217,7 @@ function fs1Gun(key, name){
 // Lucifer's reactors sit on her old gun mounts).
 const F3D_GUN_SND = {'Shivan Light Laser': 'wpn_shivan_light', 'Shivan Heavy Laser': 'wpn_shivan_heavy',
                      'Subach HL-7': 'wpn_subach', 'Terran Huge Turret': 'wpn_tht', 'Vasudan Huge Turret': 'wpn_tht',
-                     'Railgun': 'wpn_tht'};
+                     'Railgun': 'L_mass'};   // v253: the FS1 mass driver sound (l_mass)
 // A railgun sized to the beam it stands in for. Silvio set 26 damage, and
 // that was measured against a BGreen - 1.4 a tick for 120 ticks every ~17 s,
 // 9.9 a second. But the beams are not one weapon: measured across the table
