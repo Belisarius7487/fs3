@@ -590,7 +590,7 @@ function spawnProtected(sp){
   a.flip = needsFlip(a.img, false);
   if(sp.x != null) a.x = sp.x;
   // v240: jumps in where she is put instead of flying in from the edge
-  // (the McCarthy, FS1 M3).
+  // (the Omega, FS1 M3).
   if(sp.warpIn){ a.warp = a.warpMax = 160; a.warpX = a.x; a.warpY = a.y; }
   if(sp.cross && !sp.dockTo){
     a.crossing = sp.cross;         // Bildpunkte je Schritt
@@ -2128,7 +2128,7 @@ const SCRIPT_WAVES = {
      ]},
 
   // Small Deadly Space (fs1/sm1-03a). Two freighters make off with a
-  // container each; once the field is clear the McCarthy comes for the
+  // container each; once the field is clear the transport Omega comes for the
   // agreed one and is covered while she loads. One container holds the
   // weapon prototype (bonus: scan it). Containers stand with the enemy
   // (playerOnly): Vasudan fire is for us, ours goes through - only the
@@ -2147,7 +2147,7 @@ const SCRIPT_WAVES = {
        {id:'E2', c:'fi', n:1, size:2, spr:'fianubis', t:4},
        {id:'E3', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
        {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:250, warpIn:true,
-        dockTo:'K1', dockHold:20, dockLabel:'LOADING', wait:true, label:'GTT McCarthy'},
+        dockTo:'K1', dockHold:20, dockLabel:'LOADING', wait:true, label:'GTT Omega'},
        {id:'E4', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
        {id:'E5', c:'fi', n:1, size:3, spr:'fianubis', wait:true}
      ], ev:[
@@ -2163,16 +2163,16 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'F2', w:'meldung', a2:'The Ma\'at got away with her container'},
        {t:'vernichtet', a:'F1+F2', w:'zielerfuellt', a2:'Both freighters stopped'},
        {t:'alleZerstoert', a:'F1+F2', w:'ziel', a2:'Destroy the Vasudan fighters'},
-       // the field clear: the McCarthy comes for the agreed container
+       // the field clear: the Omega comes for the agreed container
        {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'einwarpen', a2:'T1'},
-       {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'ziel', a2:'Cover the McCarthy'},
+       {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'ziel', a2:'Cover the Omega'},
        {t:'da', a:'T1', d:5,  w:'einwarpen', a2:'E4'},
        {t:'da', a:'T1', d:15, w:'einwarpen', a2:'E5'},
-       {t:'verlaesst', a:'T1', w:'zielerfuellt', a2:'The McCarthy is away'},
+       {t:'verlaesst', a:'T1', w:'zielerfuellt', a2:'The Omega is away'},
        {t:'verlaesst', a:'T1', w:'kulisse', a2:'P1'},
        {t:'verlaesst', a:'T1', w:'kulisse', a2:'X1'},
        {t:'verlaesst', a:'T1', w:'abzug', a2:''},
-       {t:'vernichtet', a:'T1', w:'zielverfehlt', a2:'GTT McCarthy destroyed'},
+       {t:'vernichtet', a:'T1', w:'zielverfehlt', a2:'GTT Omega destroyed'},
        {t:'vernichtet', a:'T1', w:'kulisse', a2:'P1'},
        {t:'vernichtet', a:'T1', w:'kulisse', a2:'X1'},
        {t:'vernichtet', a:'T1', w:'abzug', a2:''}

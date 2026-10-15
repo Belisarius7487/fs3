@@ -82,13 +82,13 @@ Vorlage `fs1/sm1-03a.fs2`.
 - Zwei Vasudaner-Frachter (Bast, Ma'at) docken an je einen Container und
   fliehen damit. Auftrag: abfangen.
 - Sobald ein Frachter weg oder zerstört ist: 2 weitere Anubis.
-- Sind alle Gegner weg: Transporter McCarthy (Elysium, verbündet,
+- Sind alle Gegner weg: Transporter Omega (GTT Elysium, verbündet,
   Rumpfbalken) springt ein, dockt an den vereinbarten Container, bleibt
   20 s, fliegt ab. Während er angedockt ist: zwei Wellen mit je 3 Anubis.
 - Bonus: ein Container trägt den Waffenprototyp, Scannen erfüllt das Ziel.
-- Ende: McCarthy springt ab → Erfolg. McCarthy zerstört → Fehlschlag.
+- Ende: Omega springt ab → Erfolg. Omega zerstört → Fehlschlag.
   Frachter entkommen → Teilerfolg. Vereinbarter Container vorher zerstört
-  → McCarthy fliegt leer ab.
+  → Omega fliegt leer ab.
 - Schutz des Containers (Silvios Sorge, 14.10.2026): Gegner dürfen ihn nicht
   gezielt beschießen. Im Code v239 gilt das schon: Container stehen bei den
   Gegnern (`playerOnly()`), gegnerisches Feuer gilt nur dem Spieler und den
@@ -253,3 +253,6 @@ Stiletto** (vorgegebenes Schiff).
   Shivaner ziehen ab. Taranis vom Spieler zerstört → Fehlschlag.
 
 Je etwa 2 bis 2,5 Minuten.
+
+Korrektur (Silvio, 15.10.2026): Der Transporter heißt im Original **Omega**
+(GTT Elysium); McCarthy ist nur der Name eines Funkspruchs. Umgesetzt in v248.

@@ -1732,6 +1732,15 @@ Transportern und Frachtern von 30 bis 60 Metern.
   dieser Sound nirgendwo auftreten." Umgesetzt in v247: den langen Sound
   haben nur Zerstörer und Superzerstörer (Rümpfe `de…`, `sd…`, auch NTF).
 
+### F26 — M3: der Transporter heißt nicht McCarthy (v247)
+
+**Befund (Silvio, v247):** „Die Elysium heißt nicht GTT McCarthy in FS1."
+
+**Stimmt.** In `fs1/sm1-03a.fs2` heißt sie **Omega** (GTT Elysium);
+„McCarthy here" ist nur der Name eines Funkspruchs. Mein Fehler im Entwurf.
+
+- Status: behoben in v248. Name und Auftragstexte sagen Omega.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes

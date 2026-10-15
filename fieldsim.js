@@ -4279,7 +4279,7 @@ scenario('FS1 M3 Small Deadly Space: runners, the McCarthy, then FS2 again', 'm=
   const mc = byId('T1')[0];
   r.mccarthyJumpsIn = !!mc && mc.warp>0;
   FS.step(2);       // the name is put on at the next event tick
-  r.mccarthyNamed = !!mc && mc.label==='GTT MCCARTHY';
+  r.transportNamedOmega = !!mc && mc.label==='GTT OMEGA';
   // F25: a transport of 32 m opens a vortex, she is no big ship
   // v247: the long sound is for destroyers and juggernauts only
   r.mccarthyJumpSoundIsTheVortex = !!mc && warpSndSmall(mc)===true
