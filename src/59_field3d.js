@@ -276,7 +276,7 @@ function f3dMounts(key, m){
   for(const q of (t.primary || [])){
     const w = F3D_WPN[q[6]];
     const g = {rate: w.rate, spd: w.spd, dmg: w.dmg, aspd: w.aspd, admg: w.admg, w: w.w, h: w.h,
-               scat: w.scat, big: !!w.big,
+               scat: w.scat, big: !!w.big, name: q[6],   // name: F34, the FS1 colours
                snd: F3D_GUN_SND[q[6]] || (w.shiv ? 'wpn_shivan_turret' : (w.big ? 'wpn_tht' : 'wpn_terran_turret'))};
     c.primary.push(Object.assign(pos(q), {g: g}));
   }

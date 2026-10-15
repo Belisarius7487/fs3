@@ -1048,7 +1048,19 @@ function update(){
       // their duration: their speed is scaled too.
       if(!_sp._k){ if(_sp.x!=null) _sp.x*=FIELD_K; if(_sp.y!=null) _sp.y*=FIELD_K;
                    if(_sp.crossLeft) _sp.crossLeft*=FIELD_K; if(_sp.cross) _sp.cross*=FIELD_K;
-                   if(_sp.escape) _sp.escape*=FIELD_K; _sp._k=1; }
+                   if(_sp.escape) _sp.escape*=FIELD_K; _sp._k=1;
+                   // F32 (v250): spread:1 - a rock field as wide as the
+                   // camera's view, not just the mission area, centred on it
+                   // and kept clear of the player's start.
+                   if(_sp.spread && _sp.type==='ast'){
+                     const _fw = Math.max(MW*0.9, W/CAM_BASE_Z*0.95),
+                           _fh = Math.max((MH-HUD_H)*0.9, (H-HUD_H)/CAM_BASE_Z*0.95);
+                     for(let _t=0; _t<8; _t++){
+                       _sp.x = MW/2 + (Math.random()-0.5)*_fw;
+                       _sp.y = (HUD_H+MH)/2 + (Math.random()-0.5)*_fh;
+                       if(Math.hypot(_sp.x-80*FIELD_K, _sp.y-MH/2) > 260) break;
+                     }
+                   } }
       if(WING_TYPES[_sp.type] && _sp.wing) gateWing=_sp.wing;
       // A defector is not an enemy yet, so it never goes through mkEnemy.
       if(_sp.type==='defector'){ spawnDefector(_sp.y, _sp.spr); continue; }

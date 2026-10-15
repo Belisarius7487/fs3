@@ -127,8 +127,9 @@ const BODY = `
     }
     return {vis: Math.max(0, b-a), visCut, d0, g, L, cx, cy, f, p};
   }
-  const MAXT = 40000;
+  const MAXT = MAXT_ENV || 40000;
   let t = 0, done = -1;
+  let lastJump = -1e9; const DRAW_TAIL = 40;
   while(t < MAXT){
     player.hp = player.maxHp; player.sh = player.maxSh; lives = 3;
     if(t % 200 === 0){
@@ -144,7 +145,18 @@ const BODY = `
       }
       ITEMS.length = 0;
     }
-    update(); draw(); t++;
+    // v250: draw only round a jump. A drawn frame costs ~40 ms in the cloud
+    // (no GPU), the game logic ~0.2 ms - drawing every one of up to 40000
+    // steps was half an hour a mission (Silvio, 15.10.2026). A jump is a
+    // ship with a warp counter running or a vortex still open (FS_PORTALS,
+    // its closing phase included), plus DRAW_TAIL steps after it.
+    // WARPSIM_DRAW=all draws every step, as before - the cross-check.
+    update(); t++;
+    let jumpNow = FS_PORTALS.length > 0 || (player.warp > 0) || (player.warpOut > 0);
+    if(!jumpNow) for(const e of enemies.concat(allies))
+      if(e.type!=='asteroid' && (e.warp>0 || e.warpOut>0)){ jumpNow = true; break; }
+    if(jumpNow) lastJump = t;
+    if(DRAW_ALL || t - lastJump <= DRAW_TAIL || t < 20) draw();
     for(const e of enemies.concat(allies)){
       if(e.type==='asteroid') continue;   // portal jumps too, since v161
       const inJump = e.warp>0 || e.warpOut>0;
@@ -240,6 +252,7 @@ const BODY = `
 // capped at the number of cores and can be set with WARPSIM_JOBS=n.
 // Results are collected and printed in mission order, so the output reads
 // exactly as it did before.
+const DRAW_ALL = process.env.WARPSIM_DRAW === 'all';
 const JOBS = Math.max(1, Math.min(parseInt(process.env.WARPSIM_JOBS, 10) || 6,
                                   require('os').cpus().length, M1 - M0 + 1));
 async function playOne(browser, m){
@@ -250,7 +263,7 @@ async function playOne(browser, m){
   try{
     await page.goto('file://' + tmp + '?m=' + m + '&warp=oval&practice=1');
     await page.waitForTimeout(300);
-    r = await page.evaluate('(function(){const MISSION_NO=' + m + ';' + BODY + '})()');
+    r = await page.evaluate('(function(){const MISSION_NO=' + m + ';const DRAW_ALL=' + DRAW_ALL + ';const MAXT_ENV=' + (parseInt(process.env.WARPSIM_MAXT,10)||0) + ';' + BODY + '})()');
   }catch(e){ errs.push(String(e.message||e)); }
   finally { await page.close().catch(()=>{}); }
   return {m, r, errs};

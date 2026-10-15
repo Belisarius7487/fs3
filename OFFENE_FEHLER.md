@@ -1741,6 +1741,86 @@ Transportern und Frachtern von 30 bis 60 Metern.
 
 - Status: behoben in v248. Name und Auftragstexte sagen Omega.
 
+### F27 — M4: der Spieler fliegt einen vasudanischen Jäger (v249)
+
+**Befund (Silvio, v249):** „Ich fliege einen vasudanischen Jäger, was falsch
+ist. In den im Repo liegenden Missionsfiles sollte stehen, welchen Jäger der
+Spieler fliegen sollte."
+
+- Status: behoben in v250. Jede FS1-Mission gibt dem Spieler den Rumpf von
+  Alpha 1 aus der Originaldatei: M1–M3, M5, M6 Apollo, M4 Valkyrie
+  (`ship:` in der Mission, ohne Einblendung). Vorher flog man den ersten
+  Rumpf der Liste, die Thoth.
+
+### F28 — Deaktivierziele: nur die Subsysteme zeigen, die lahmgelegt werden sollen (v249)
+
+**Befund (Silvio, v249):** „Bei zu deaktivierenden Schiffen wäre es am besten
+nur die Subsysteme anzeigen zu lassen, die deaktiviert werden sollen, sonst
+wird das bei Schiffen wie der Omega zu unübersichtlich. Bitte beachte, dass
+die jetzigen Missionen 7 - 80 dabei nicht beachtet werden brauchen, weil wir
+die ja gerade alle nach und nach ersetzen."
+
+- Status: behoben in v250. `subs:'engines+weapons'` an der Einheit lässt nur
+  diese Subsysteme stehen. Nur die FS1-Missionen nutzen das.
+
+### F29 — M5: die Rettungskapsel der Plato flieht zu langsam (v249)
+
+**Befund (Silvio, v249):** „Die Rettungskapsel der Plato flieht zu langsam.
+So ist es unmöglich sie zu beschützen."
+
+- Status: behoben in v250. Die Kapsel fliegt 2,9 statt 0,45 je Schritt —
+  zwei Drittel einer Apollo, wie Hermes (40 m/s) zu Apollo (60 m/s) in FS1.
+  Dabei gefunden: ein Schiff im Todestrudel rollte über den Rand und zählte
+  als gerettet. Das ist jetzt ausgeschlossen.
+
+### F30 — M6: die Galatea steht still (v249)
+
+**Befund (Silvio, v249):** „Die Galatea scheint still zu stehen statt
+vorwärts zu fliegen."
+
+- Status: behoben in v250. Die Galatea fährt in 170 s über das Feld
+  (`crossSecs`) und springt am Ende; sind vorher alle Shivaner weg,
+  springt sie sofort.
+
+### F31 — M6: das Asteroidenfeld fehlt (v249)
+
+**Befund (Silvio, v249):** „In FS1 fliegt sie zudem durch ein
+Asteroidenfeld, was in dieser Mission fehlt."
+
+- Status: behoben in v250. 60 stehende Asteroiden auf ihrem Weg.
+
+### F32 — M2: das Asteroidenfeld ist zu klein (v249)
+
+**Befund (Silvio, v249):** „Das Asteroidenfeld ist nur ein winzig kleiner
+Cluster im Spielfeld. Es sollte größer sein."
+
+- Status: behoben in v250. Die Brocken lagen nur im Missionsbereich, einem
+  Drittel der Bildbreite. Mit `spread:1` füllen sie die ganze Kamerasicht
+  (70 statt 26 Brocken), mit Abstand zum Startpunkt des Spielers.
+
+### F33 — M3: die Frachter erscheinen beim Einsprung kurz als neutral (v249)
+
+**Befund (Silvio, v249):** „Wenn man reinwarpt, sieht man am Bildrand
+kurzzeitig zwei rosane Marker als wenn die Frachter neutral wären. Eine
+Sekunde darauf werden sie erst rot."
+
+- Status: behoben in v250. Zwei Ursachen: Frachter ohne Waffen galten als
+  „nur für den Spieler" und waren rosa; und bis das 3D-Modell geladen war,
+  las die Ma'at sich als unbewaffnet. Im FS1-Strang ist ein Frachter jetzt
+  von Anfang an rot; die Waffen liest das Spiel aus dem Modell, nicht aus
+  dem, was gerade gezeichnet ist.
+
+### F34 — Die Orion feuert in den falschen Farben (v249)
+
+**Befund (Silvio, v249):** „Die Waffenfarben der Orion stimmen nicht. Ihre
+Projektilfarben müssten grün-weiß statt blau-weiß sein." Silvio bietet
+Bildmaterial aus den FreeSpace-Dateien an, wenn Farben unklar sind.
+
+- Status: behoben in v250. Laut FS1-Waffentabelle feuern die Terran-Türme
+  grün (Laser Color 20,150,20). Im FS1-Strang jetzt grün-weiß; die Railguns,
+  die dort die Beams ersetzen, bleiben blau-weiß (in FS1 150,150,250). Der
+  FS2-Strang bleibt bei Blau.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
@@ -1935,6 +2015,18 @@ Rauschen festschreibt, das gleich darauf verschwindet, wäre schon beim
 Anlegen veraltet.
 
 ---
+
+### `warpsim`-Befunde in FS1 M1 bis M4 (gefunden v250, schon in v249)
+
+Mit dem schnelleren `warpsim` erstmals gesehen, auf v249 und v250 dieselben:
+- M1, M2, M3: der Flügelmann W1 bremst im Moment des Aussprungs ab.
+- M3: die Omega steht nach dem Einsprung still, bevor sie anfährt.
+- M4: Comet und Intelligence 1 stehen nach dem Einsprung still, bevor sie
+  zum Andocken anfahren; dazu „wave did not end" (die Prüfung schießt die
+  Subsysteme anders ab als ein Spieler — noch nicht untersucht).
+
+Nicht von v250 verursacht. Silvio hat keinen davon gemeldet.
+- Status: offen, zu prüfen
 
 ## Rümpfe, die FS3 für die Originalmissionen noch fehlen
 

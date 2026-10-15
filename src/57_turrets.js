@@ -43,13 +43,23 @@ function raceOf(fac){
   return 'terran';
 }
 function raceCol(fac){ return RACE_COL[raceOf(fac)]; }
+// F34 (v250): in FS1 the Terran turrets fire green (Laser Color 20,150,20
+// in the FS1 weapons table), the Orion included; green-white like the blue
+// above. The railgun that stands in for a beam keeps the race colour.
+const FS1_GUN_COL = {core:'#a6ffa0', glow:'rgba(60,210,60,0.38)', hot:'#eaffe6'};
+const FS1_GREEN_GUNS = {'Terran Turret':1, 'Terran Huge Turret':1, 'Terran Turret Weak':1};
+function gunCol(e, g){
+  if(g && FS1_GREEN_GUNS[g.name] && typeof currentEra !== 'undefined' && currentEra === 'fs1')
+    return FS1_GUN_COL;
+  return raceCol(e.faction);
+}
 
 // One shot of a capital turret. ally: an escort's gun (player's list).
 // pd: fired at a bomb.
 // hidE (v201): fired from the far flank of ship hidE - drawn under her
 // hull until it is clear of it (drawShots, 70_ui.js)
 function capGunShot(e, x, y, ang, g, ally, pd, hidE){
-  const rc = raceCol(e.faction);
+  const rc = gunCol(e, g);
   // v210: from where her turret is drawn - shots fly in the plane and hit
   // what is drawn there (hullView), so they leave the drawn hull too
   if(typeof hullPt === 'function'){ const vp = hullPt(e, x, y); x = vp.x; y = vp.y; }

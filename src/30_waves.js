@@ -1160,6 +1160,9 @@ function tickEscapers(){
 function tickCrossGuards(){
   for(const a of allies.slice()){
     if(!a.crossing || a.dead || allies.indexOf(a)<0) continue;
+    // v250 (F29): in her death roll she is lost, not on her way - with the
+    // pod at its real speed she rolled off the edge and counted as rescued.
+    if(a.rollT != null) continue;
     a.x += a.crossing;
     if(a.crossing > 0 ? (a.x > WX1+60 || (a.x > MW+60 && !camSees(a.x, a.y, 200))) : (a.x < WX0-60 || (a.x < -60 && !camSees(a.x, a.y, 200)))){
       if(a.dockedTo){ a.dockedTo.dead = true;
@@ -1307,6 +1310,12 @@ function applySpawnOpts(e, sp){
   if(sp.escHit){ e.escHit = true; e.escHitCap = !!sp.escDelay; }
   // v249: a transport with engines and weapons to shoot out (FS1 M4).
   if(sp.subs){ e.subsOn = true; initSubsystems(e); }
+  // F28 (v250): subs:'engines+weapons' keeps only the systems the mission
+  // wants shot out, so a transport shows just those (FS1 strand).
+  if(typeof sp.subs === 'string' && e.subs){
+    const keep = sp.subs.split('+');
+    e.subs = e.subs.filter(function(s){ return keep.indexOf(s.id) >= 0; });
+  }
   if(sp.escape){
     e.escaping = sp.escape;          // Bildpunkte je Schritt nach rechts
     e.noFlee = true;                 // sie springt nicht, sie faehrt
@@ -2090,7 +2099,7 @@ const SCRIPT_WAVES = {
 
   // Eve of Destruction (fs1/sm1-01a). Four wings of Anubis against the
   // Orff; she is lost, the mission is lost.
-  1: {name:'Eve of Destruction', era:'fs1', orig:1, fac:'hol', o:'clear', live:6,
+  1: {name:'Eve of Destruction', era:'fs1', orig:1, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       ziel:'Protect the GTC Orff - destroy all attackers', u:[
        {id:'A1', c:'cr', n:1, spr:'crfenris', side:'ally', guard:true, still:true,
         x:400, y:280, label:'GTC Orff'},
@@ -2114,9 +2123,9 @@ const SCRIPT_WAVES = {
   // The Field of Battle (fs1/sm1-02a). Four wings in a still asteroid
   // field, two of them at once from two sides; with three Vasudans left
   // their ace comes for the player - always, not only for a healthy one.
-  2: {name:'The Field of Battle', era:'fs1', orig:2, fac:'hol', o:'clear', live:8, stillRocks:true,
+  2: {name:'The Field of Battle', era:'fs1', orig:2, ship:'fiapollo', fac:'hol', o:'clear', live:8, stillRocks:true,
       ziel:'Destroy all Vasudan fighters', u:[
-       {id:'R1', c:'ast', n:26},
+       {id:'R1', c:'ast', n:70, spread:1},
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
        {id:'E1', c:'fi', n:1, size:3, spr:'fianubis', t:5, x:620, y:110},
        {id:'E2', c:'fi', n:1, size:3, spr:'fianubis', t:5, x:620, y:420},
@@ -2144,7 +2153,7 @@ const SCRIPT_WAVES = {
   // weapon prototype (bonus: scan it). Containers stand with the enemy
   // (playerOnly): Vasudan fire is for us, ours goes through - only the
   // player can hit one.
-  3: {name:'Small Deadly Space', era:'fs1', orig:3, fac:'hol', o:'clear', live:6,
+  3: {name:'Small Deadly Space', era:'fs1', orig:3, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       ziel:'Intercept the Bast and the Ma\'at', u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
        {id:'K1', c:'fc', n:1, spr:'fcvc3', x:330, y:250},
@@ -2195,13 +2204,13 @@ const SCRIPT_WAVES = {
   // leave them alone, and neither can die while she is to be taken.
   // At the latest after 60/75 s they run anyway, so the mission ends
   // even if nobody ever fires on them.
-  4: {name:'Avenging Angels', era:'fs1', orig:4, fac:'hol', o:'clear', live:6,
+  4: {name:'Avenging Angels', era:'fs1', orig:4, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Disable the Omega - engines and weapons', u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
        {id:'O1', c:'tr', n:1, spr:'trelysium', x:430, y:190, escape:0.15, escWarp:true,
-        escHit:true, escDelay:60, subs:true, capture:true, label:'GTT Omega'},
+        escHit:true, escDelay:60, subs:'engines+weapons', capture:true, label:'GTT Omega'},
        {id:'R1', c:'tr', n:1, spr:'trisis', x:430, y:350, escape:0.15, escWarp:true,
-        escHit:true, escDelay:75, subs:true, capture:true, label:'PVT Rasputin'},
+        escHit:true, escDelay:75, subs:'engines+weapons', capture:true, label:'PVT Rasputin'},
        {id:'E1', c:'fi', n:1, size:4, spr:'fiapollo', fac:'ntf', t:2, x:560, y:180},
        {id:'E2', c:'fi', n:1, size:2, spr:'fihorus', t:2, x:560, y:360},
        {id:'B1', c:'bo', n:1, size:1, spr:'boosiris', t:3, x:600, y:270},
@@ -2240,7 +2249,7 @@ const SCRIPT_WAVES = {
   // field; two Vasudan wings, the second with the Taurus. Then the
   // unknowns: they go for the Vasudans first (feud), then the Plato. Unlike
   // the original she can be saved. Under 20 % hull she launches a pod.
-  5: {name:'Out of the Dark, Into the Night', era:'fs1', orig:5, fac:'hol', o:'clear', live:6,
+  5: {name:'Out of the Dark, Into the Night', era:'fs1', orig:5, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       feud:true, ziel:'Protect the Plato', u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
        {id:'P1', c:'cr', n:1, spr:'scfaustus', side:'ally', guard:true, crossSecs:120,
@@ -2256,7 +2265,10 @@ const SCRIPT_WAVES = {
        {id:'X1', c:'bo', n:1, size:1, spr:'boshaitan', fac:'shivan', wait:true},
        {id:'S2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'X2', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
-       {id:'H1', c:'ep', n:1, spr:'ephermes', side:'ally', cross:0.45, wait:true, at:'P1',
+       // F29 (v250): 2.9 a step (a pod launched at a ship is not scaled
+       // with the field), two thirds of the Apollo - the Hermes's 40 m/s
+       // against her 60. It was 0.45, a tenth of a fighter.
+       {id:'H1', c:'ep', n:1, spr:'ephermes', side:'ally', cross:2.9, wait:true, at:'P1',
         label:'Escape pod'}
      ], ev:[
        // second Vasudan wave, with the Taurus
@@ -2296,10 +2308,12 @@ const SCRIPT_WAVES = {
   // Paving the Way (fs1/sm1-06a). The Galatea near the edge, on her way to
   // the jump point; Shivan bombers and fighters in turn. All down: she
   // jumps. She is the home ship - the first mission with a rearm (F22).
-  6: {name:'Paving the Way', era:'fs1', orig:6, fac:'hol', o:'clear', live:6,
+  6: {name:'Paving the Way', era:'fs1', orig:6, ship:'fiapollo', fac:'hol', o:'clear', live:6,
+      stillRocks:true,
       ziel:'Protect the Galatea - bonus: keep her above half hull', u:[
+       {id:'R1', c:'ast', n:60, spread:1},
        {id:'G1', c:'de', n:1, spr:'deorionright', side:'ally', guard:true, home:true,
-        still:true, x:640, y:270, label:'GTD Galatea'},
+        crossSecs:170, y:270, label:'GTD Galatea'},
        {id:'W1', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', label:'Alpha 2'},
        {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', t:5, fac:'shivan'},
        {id:'J1', c:'fi', n:1, size:3, spr:'fiscorpion', wait:true, fac:'shivan'},
@@ -4466,7 +4480,7 @@ function scriptUnit(u, fac, q){
            x:xx, y:yy, scan:u.scan?1:0, escape:u.escape, scanFirst:u.scanFirst,
            still:u.still, escWarp:u.escWarp, fleeFree:u.fleeFree, escDelay:u.escDelay,
            invuln:u.invuln, dockTo:u.dockTo, dockHold:u.dockHold, dockLabel:u.dockLabel,
-           scenery:(fix==='ast')?1:0, pickup:u.pickup?1:0,
+           scenery:(fix==='ast')?1:0, spread:(fix==='ast')?u.spread:undefined, pickup:u.pickup?1:0,
            capture:u.capture, noFlee:u.noFlee, subs:u.subs, escHit:u.escHit});
   }
 }

@@ -901,6 +901,10 @@ function offShows(e, ally){
 function offColour(e, ally){
   if(e.tagT > 0) return OFF_COL.tagged;
   if(ally) return OFF_COL.friend;
+  // F33 (v250): in the FS1 strand a freighter running for it is the enemy,
+  // red from the first frame; only the cargo stays pink.
+  if(typeof currentEra !== 'undefined' && currentEra === 'fs1' && e.type === 'freighter')
+    return OFF_COL.enemy;
   if(typeof playerOnly === 'function' && playerOnly(e)) return OFF_COL.neutral;
   return OFF_COL.enemy;
 }
@@ -1978,6 +1982,11 @@ const EXTRA_SHIPS = {
   // A captured Shivan fighter, for the flight beyond the second portal
   // (M78, v177). Flown by a Terran pilot it is FreeSpace's "SF Mara
   // (terrans)": 475/700 in the table, far tougher than the AI's (v185).
+  // F27 (v250): the FS1 strand flies the original's Alpha 1 hull; the
+  // Valkyrie is not in the roster, so she is lent like these.
+  fivalyrie: {key:'fivalyrie', name:'GTF Valkyrie', fac:'terran', spd:85*3.4/75,   // FS 85 m/s
+              turn:0.17,
+              hp:69, sh:51, sec:13},
   fimara:    {key:'fimara', name:'SF Mara', fac:'shivan', spd:3.4,   // v211: FS 75 m/s (terrans)
               turn:0.18,
               hp:164, sh:179, sec:20}
@@ -1991,7 +2000,9 @@ function forceShip(key, sec){
   if(!forcedPrev){ forcedPrev = player.ship; }
   applyShip(key);
   if(sec) missionSec(arsenalKey(sec), false);
-  notice(shipStats(key).name.toUpperCase()+' ASSIGNED', 'info');
+  // F27: the FS1 strand assigns the original's hull silently (no extra
+  // overlays in that strand).
+  if(typeof currentEra === 'undefined' || currentEra !== 'fs1') notice(shipStats(key).name.toUpperCase()+' ASSIGNED', 'info');
 }
 // The next wave hands the player's own hull back, refitted with its own
 // banks.

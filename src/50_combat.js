@@ -2331,6 +2331,12 @@ const WPN = {
 // Does a freighter carry any guns at all (model turrets or mount lists)?
 // One without stays a target only the player may shoot (playerOnly).
 function freighterArmed(e){
+  // F33 (v250): until her model is drawn, mountsFor() hands back the
+  // sprite's list, which can be empty - the Ma'at read unarmed for a second
+  // after she warped in, then armed. The model's own gun table decides.
+  const g = e && typeof F3D_GUNS !== 'undefined' ? F3D_GUNS[e.img] : null;
+  if(g) return !!((g.primary && g.primary.length) || (g.beams && g.beams.length) ||
+                  (g.flak && g.flak.length) || (g.secondary && g.secondary.length));
   const m = e && mountsFor(e.img);
   return !!(m && ((m.primary && m.primary.length) || (m.beams && m.beams.length) ||
                   (m.flak && m.flak.length) || (m.secondary && m.secondary.length)));

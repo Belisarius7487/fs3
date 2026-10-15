@@ -248,6 +248,14 @@ geschriebene Liste veraltet.**
   einen** Flugverlauf, nicht alle. Für ein Tor ist Wiederholbarkeit richtig;
   `WARPSIM_SEED=n` sieht absichtlich einen anderen.
 
+- **Zeichnen nur beim Sprung (v250):** ein gezeichnetes Bild kostet in der
+  Cloud rund 40 ms (keine Grafikkarte), die Spiellogik 0,2 ms. `warpsim`
+  zeichnete jeden der bis zu 40000 Schritte — eine halbe Stunde je Mission.
+  Jetzt zeichnet es nur, solange ein Schiff springt oder ein Wirbel offen
+  ist, und 40 Schritte danach: Mission 4 in 40 s statt über 30 min.
+  Gegenprobe: `WARPSIM_DRAW=all` zeichnet wieder jedes Bild; mit
+  `WARPSIM_MAXT=4000` kamen beide Arten auf M4 byteweise gleich heraus.
+
 ### Warnung zu `mechsim`
 
 `mechsim.js` enthält eine **von Hand abgeschriebene Kopie** von `tickCapRam`.
@@ -374,6 +382,11 @@ abbekommen), Wirkung `zielteil` (Teilerfolg, gelbe Karte). Einheiten:
 `escHit` (fährt erst los, wenn beschossen; `escDelay` = spätestens dann),
 `subs` (Transporter mit Subsystemen zum Lahmlegen). Verbündetes Feuer geht
 durch Kaperziele hindurch, wie durch Fracht.
+
+Seit v250: `subs:'engines+weapons'` lässt nur die genannten Subsysteme
+stehen (F28). `spread:1` an einer Asteroideneinheit verteilt die Brocken über
+die ganze Kamerasicht statt nur den Missionsbereich (F32). Jede FS1-Mission
+setzt mit `ship:` den Rumpf von Alpha 1 aus der Originaldatei (F27).
 
 Eine **Kennung steht für eine Gruppe**, nicht für ein Schiff: `byId()` gibt
 jede Einheit zurück, die sie trägt, und ein Auslöser darf mehrere mit `+`

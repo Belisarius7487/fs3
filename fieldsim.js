@@ -4322,6 +4322,11 @@ scenario('FS1 M4 Avenging Angels: runners, the Omega taken, the bonus', 'm=4', `
   damageEnemy(ra, 1, ra.x, ra.y, true);
   FS.step(40);
   r.firedOnRasputinBringsTwoAnubis = !!EV_HIT.R1 && FS.until(()=>evSeen('E4'), 400, false)>=0;
+  // v250: the opening wing is down first, as a player would have it. Left
+  // alive, seven ships fall on the Comet; v249 passed with her at 12 hull,
+  // by the luck of the draw, and the Valkyrie's different flight tipped it.
+  for(const e of enemies) if(/^(E1|E2|B1)$/.test(e.uid||'')) e.hp = 0;
+  FS.step(20);
   // engines and weapons out: she stops, the Comet comes
   for(const sb of o.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
   FS.step(40);
@@ -4500,6 +4505,78 @@ scenario('FS1 M3: the McCarthy lost ends the mission', 'm=3', `
   for(const a of allies) if(a.uid==='T1') a.hp = 0;
   const t = FS.until(()=>wave>3, 6000, false);
   r.endsAtOnce = t>=0;
+  return r;`);
+
+
+// ── v250: Silvio's findings on M2 to M6 (F27 to F34) ────────────────────
+scenario('FS1 v250: each mission flies the original Alpha 1 hull (F27)', 'm=1', `
+  const r = {}, want = {1:'fiapollo', 2:'fiapollo', 3:'fiapollo', 4:'fivalyrie', 5:'fiapollo', 6:'fiapollo'};
+  const got = {};
+  for(const m of [1,2,3,4,5,6]){
+    wave = m-1; nextWave(); FS.step(5);
+    got[m] = player.ship;
+  }
+  r.hulls = JSON.stringify(got);
+  r.allOriginal = [1,2,3,4,5,6].every(m=>got[m]===want[m]);
+  return r;`);
+
+scenario('FS1 M4 v250: only engines and weapons to shoot out (F28)', 'm=4', `
+  const r = {};
+  FS.step(200);
+  const ids = ['O1','R1'].map(u=>{ const e = byId(u)[0]; return e && e.subs ? e.subs.map(s=>s.id).sort().join('+') : '-'; });
+  r.subs = ids.join(' ');
+  r.onlyTheTwo = ids.every(x=>x==='engines+weapons');
+  return r;`);
+
+scenario('FS1 M5 v250: the pod runs at two thirds of an Apollo (F29)', 'm=5', `
+  const r = {};
+  FS.step(400);
+  const p = byId('P1')[0];
+  p.hp = Math.round(p.maxHp*0.15);
+  FS.until(()=>byId('H1').some(a=>!(a.warp>0)), 3000, true);
+  const h = byId('H1')[0];
+  r.launched = !!h;
+  if(h){ const x0 = h.x; FS.step(100); r.perStep = +((h.x-x0)/100).toFixed(2); }
+  r.fastEnough = r.perStep >= 2.5;
+  return r;`);
+
+scenario('FS1 M6 v250: the Galatea under way through a rock field (F30, F31)', 'm=6', `
+  const r = {};
+  FS.step(300);
+  const g = byId('G1')[0];
+  const x0 = g.x; FS.step(1000);
+  r.moved = Math.round(g.x - x0);
+  r.underWay = r.moved > 100;
+  r.rocks = enemies.filter(e=>e.scenery && e.type==='asteroid').length;
+  r.hasField = r.rocks >= 40;
+  return r;`);
+
+scenario('FS1 M2 v250: the rock field fills the view, not the mission area (F32)', 'm=2', `
+  const r = {};
+  FS.step(100);
+  const xs = enemies.filter(e=>e.scenery && e.type==='asteroid').map(e=>e.x);
+  r.span = Math.round(Math.max(...xs) - Math.min(...xs));
+  r.wide = r.span > W/CAM_BASE_Z*0.7;
+  return r;`);
+
+scenario('FS1 M3 v250: the freighters are red from the first frame (F33)', 'm=3', `
+  const r = {};
+  FS.until(()=>byId('F1').length && byId('F2').length, 2000, true);
+  const cols = ['F1','F2'].map(u=>offColour(byId(u)[0], false));
+  r.cols = cols.join(' ');
+  r.red = cols.every(c=>c===OFF_COL.enemy);
+  return r;`);
+
+scenario('FS1 M6 v250: the Galatea fires green, FS2 stays blue (F34)', 'm=6', `
+  const r = {};
+  FS.step(100);
+  const g = byId('G1')[0];
+  const m = mountsFor(g.img), tt = m && m.primary.find(q=>q.g && q.g.name==='Terran Turret');
+  r.turretNamed = !!tt;
+  r.green = !!tt && gunCol(g, tt.g) === FS1_GUN_COL;
+  currentEra = 'fs2';
+  r.fs2Blue = !!tt && gunCol(g, tt.g) === RACE_COL.terran;
+  currentEra = 'fs1';
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────
