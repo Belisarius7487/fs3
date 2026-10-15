@@ -1860,6 +1860,19 @@ der Fall ist."
   500 Welteinheiten (sonst schoss die Galatea mit 29 px je Schritt hinein).
   Gilt für alle Aussprünge; der Einsprung ist unverändert.
 
+### F39 — Die Ersatzwaffen für die Beams im FS1-Strang (v251)
+
+**Befund (Silvio, v251):** „Was mich aber verwirrt sind die Waffeneffekte der
+Waffen, die im FS1Ark die Beams ersetzen. Die scheinen weder Sounds noch
+richtige Visuals zu besitzen."
+
+Im Code nachgesehen: Die Railgun (statt großer Beams) hat kein eigenes Bild
+und keinen eigenen Klang. Sie wird genau wie der Schuss des schweren Turms
+gezeichnet (runde Leuchtkugel, 13 × 13) und soll dessen Klang `wpn_tht`
+spielen. Kleine Beams werden zu Standard-Flak.
+
+- Status: offen, wartet auf Silvio (Vorlage aus den FS1-Dateien)
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
