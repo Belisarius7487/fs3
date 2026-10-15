@@ -4240,10 +4240,29 @@ scenario('FS1 M3 Small Deadly Space: runners, the McCarthy, then FS2 again', 'm=
   r.containerTaken = enemies.some(e=>e.uid==='C1' && e.carried);
   // v243: she turns round, she does not snap - half way through she is
   // still on her old heading, bow on
-  FS.step(60);
+  // v244: the container stays on the deck through the turn - it moves with
+  // the dock point step by step, it does not slide off and snap back
   const runners = byId('F1').concat(byId('F2'));
+  let slip = 0;
+  for(let i=0;i<60;i++){
+    FS.step(1);
+    for(const f of runners){
+      if(f.dead || !f.dockedTo) continue;
+      const p = dockPoint(f), o = dockOffset(f.dockedTo), c = f.dockedTo;
+      slip = Math.max(slip, Math.hypot(c.x - (p.x - o.x), c.y - (p.y - o.y)));
+    }
+  }
+  r.containerTurnsWithHer = runners.some(f=>f.dockedTo && f.dockedTo.turnP===f.turnP && f.turnP>0)
+                          && slip < 2;
   r.runnerTurnsRound = runners.some(f=>f.turnP > 0 && f.turnP < 1 && f.flip===needsFlip(f.img, true));
-  FS.step(160);
+  // no snap at the end of the turn either
+  let jump = 0;
+  for(let i=0;i<160;i++){
+    const before = runners.filter(f=>f.dockedTo && !f.dead).map(f=>[f, f.dockedTo.x - f.x]);
+    FS.step(1);
+    for(const [f, d0] of before) if(f.dockedTo) jump = Math.max(jump, Math.abs((f.dockedTo.x - f.x) - d0));
+  }
+  r.noSnapAtTheEnd = jump < 3;
   r.runnerFacesTheWayOut = runners.length>0 && runners.filter(f=>!f.dead)
                              .every(f=>f.flip===needsFlip(f.img, false) && f.turnP==null);
   // Our wingmen may stop one; either way both are gone in the end.

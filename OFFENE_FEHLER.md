@@ -1701,6 +1701,14 @@ Schiff nie um. Sie startet rechts vom Container und fuhr also rückwärts.
   sobald sie die Frachtkisten aufgenommen haben." Stimmt: v242 setzte die
   Richtung um, statt zu drehen. Behoben in v243: das Schiff dreht sich in
   1,5 s um, wie ein Großkampfschiff in seiner Bahn (`faceTurn()`).
+- **Nachtrag (Silvio, v243):** „Während der Drehung verrutscht der
+  Frachtcontainer auf beiden Schiffen und snappt bei Abschluss der Drehung
+  wieder an seine richtige Position. Richtiger wäre es, wenn der
+  Frachtcontainer auf der Ladefläche physikalisch korrekt mitdrehen würde."
+  Stimmt: der Andockpunkt kannte nur „links" oder „rechts", nicht die
+  Drehung dazwischen. Behoben in v244: der Andockpunkt dreht mit dem Rumpf
+  (`dockPoint()` liest `turnC`), und der Container dreht dieselbe Drehung
+  mit.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

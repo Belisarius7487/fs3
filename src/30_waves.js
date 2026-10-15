@@ -746,7 +746,9 @@ function dockPoint(o){
   const m = mountsFor(o.img), img = IMGS[o.img];
   if(!m || !m.docks || !m.docks.length || !img) return {x:o.x, y:o.y};
   const d = m.docks[0];
-  const s = o.flip ? -1 : 1;
+  // v244: in a turn the dock point swings round with the hull - turnC is
+  // how far her length still lies across the picture (1 to -1).
+  const s = (o.flip ? -1 : 1)*(o.turnC != null ? o.turnC : 1);
   return {x:o.x + (img.width*o.sc*0.5)*d.dx*s,
           y:o.y + (img.height*o.sc*0.5)*d.dy};
 }
@@ -893,8 +895,13 @@ function tickFaceTurns(){
     f.p = Math.min(1, f.p + 1/FACE_TURN_STEPS);
     const c = Math.cos(Math.PI*f.p);
     e.turnP = f.p; e.turnSq = (c < 0 ? -1 : 1)*Math.max(0.12, Math.abs(c)); e.turnC = c;
+    // v244 (Silvio: the container slid across the deck and snapped back):
+    // the cargo on her deck turns with her, the same turn on the same clock.
+    const cg = e.dockedTo;
+    if(cg){ cg.turnP = e.turnP; cg.turnSq = e.turnSq; cg.turnC = e.turnC; }
     if(f.p >= 1){
       e.flip = !e.flip; e.turnP = null; e.turnSq = null; e.turnC = null;
+      if(cg){ cg.flip = !cg.flip; cg.turnP = null; cg.turnSq = null; cg.turnC = null; }
       // Changed her mind while turning: she turns back from here.
       e._face = (!!e.flip === f.want) ? null : {p:0, want:f.want};
     }
