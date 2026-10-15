@@ -2029,6 +2029,16 @@ auch deren Frachtcontainergrößen beeinflusst."
 
 - Status: offen — erst besprechen, dann bauen.
 
+### F53 — Mission 13: die Chronos springt verkehrt herum ein (v254)
+
+**Befund (Silvio, 15.10.2026):** „Einziger großer Bug ist die Chronos, die
+die Taranis kapert. Sie warpt nach rechts schauend ein und snapt instantly
+nach links statt einfach umzuschwenken wie es Großkampfschiffe zum Beispiel
+schon machen."
+
+- Status: behoben in v255. Ein Schiff, das zum Andocken einspringt, kommt
+  schon mit Blick auf sein Ziel aus dem Wirbel (`spawnProtected`).
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes

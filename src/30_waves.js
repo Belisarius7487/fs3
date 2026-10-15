@@ -600,6 +600,14 @@ function spawnProtected(sp){
   // v240: jumps in where she is put instead of flying in from the edge
   // (the Omega, FS1 M3).
   if(sp.warpIn){ a.warp = a.warpMax = 160; a.warpX = a.x; a.warpY = a.y; }
+  // v254 (F53, Silvio: the Chronos jumped in facing right and snapped round
+  // to the left): a ship jumping in to dock comes out of her vortex already
+  // facing her target, so the first step of her approach has nothing to
+  // snap (tickDocking sets her heading there without a turn).
+  if(sp.warpIn && sp.dockTo){
+    const _t = byId(sp.dockTo)[0];
+    if(_t){ a.flip = needsFlip(a.img, _t.x < a.x); a._dockFaced = true; }
+  }
   if(sp.cross && !sp.dockTo){
     a.crossing = sp.cross;         // Bildpunkte je Schritt
     // Below zero she flies out to the left and faces that way.

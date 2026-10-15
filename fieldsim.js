@@ -4991,6 +4991,16 @@ scenario('FS1 M12 F50: subsystem marks turn with the hull', 'm=12', `
   t.turnC = null;
   r.swings = Math.abs(b) < Math.abs(a)*0.2;
   return r;`);
+scenario('FS1 M13 F53: the Chronos jumps in already facing the Taranis', 'm=13', `
+  const r = {};
+  FS.until(()=>byId('H1').length>0, 3000, true);
+  const h = byId('H1')[0];
+  const f0 = !!h.flip;
+  FS.until(()=>h.warp<=0, 2000, false);
+  FS.step(3);
+  r.noSnap = !!h.flip === f0 && !h._face;
+  r.facesLeft = (spriteFacing(h.img)==='right') === !!h.flip;
+  return r;`);
 scenario('FS1 M13 F51: the Halkins faces the Taranis way and rolls under her', 'm=13', `
   const r = {};
   FS.until(()=>byId('H1').length>0 && byId('H1')[0].warp<=0, 3000, true);
