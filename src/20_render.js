@@ -389,6 +389,8 @@ function fsLanding(e){
   const b = shipBound(e);
   return {x: Math.max(WX0+b, Math.min(WX1-b, e.x)), y: Math.max(WY0+b, Math.min(WY1-b, e.y))};
 }
+const FS_OUT_LEAD = 0.6;   // F38: run-up to the vortex when leaving, in her lengths
+const FS_OUT_LEAD_MAX = 500;   // ... but no more than this, in world units
 function fsWarp(e){
   // A ship going through the Knossos jumps the same way, into a vortex
   // ahead of her; only its colour is the portal's (drawFsPortals).
@@ -409,9 +411,14 @@ function fsWarp(e){
     // behind her centre along the nose, and across it (v202).
     const x = fsGroupExt(e, f, L, img.height*e.sc);
     const span = x.front - x.back;
-    // G: vortex to ship centre, a tenth of the length beyond the bow when
-    // leaving, beyond the stern when coming
-    const G = out ? x.front + 0.1*span : -x.back + 0.1*span;
+    // G: vortex to ship centre - beyond the stern by a tenth of the length
+    // when coming; when leaving FS_OUT_LEAD lengths beyond the bow, so she
+    // has a run-up into it as in FreeSpace (F38, v251 - it opened right at
+    // her nose, a tenth of a length ahead)
+    // The run-up is capped at FS_OUT_LEAD_MAX world units: on a destroyer
+    // 0.6 lengths made her shoot into it at 29 px a tick (warpsim, M6).
+    const G = out ? x.front + Math.max(0.1*span, Math.min(FS_OUT_LEAD*span, FS_OUT_LEAD_MAX))
+                  : -x.back + 0.1*span;
     const sg = out ? 1 : -1;               // ahead when leaving, behind when coming
     const at = out ? {x: e.x, y: e.y} : fsLanding(e);
     // On the screen edge at the most: what sticks out beyond it cannot be

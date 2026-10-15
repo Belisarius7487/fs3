@@ -42,40 +42,60 @@ function raceOf(fac){
   if(fac==='vasudan' || fac==='hol') return 'vasudan';
   return 'terran';
 }
-function raceCol(fac){ return RACE_COL[raceOf(fac)]; }
-// F34 (v250): in FS1 the Terran turrets fire green (Laser Color 20,150,20
-// in the FS1 weapons table), the Orion included; green-white like the blue
-// above. The railgun that stands in for a beam keeps the race colour.
-const FS1_GUN_COL = {core:'#a6ffa0', glow:'rgba(60,210,60,0.38)', hot:'#eaffe6'};
-const FS1_GREEN_GUNS = {'Terran Turret':1, 'Terran Huge Turret':1, 'Terran Turret Weak':1};
-function gunCol(e, g){
-  if(g && FS1_GREEN_GUNS[g.name] && typeof currentEra !== 'undefined' && currentEra === 'fs1')
-    return FS1_GUN_COL;
-  return raceCol(e.faction);
+// F34/F35 (v250, v251): in FS1 the Terran guns fire green (Laser Color
+// 20,150,20 in the FS1 weapons table) - every Terran shot without a colour
+// of its own, the railgun standing in for a beam included (Silvio, v250: it
+// was still blue). v251: greener, less yellow.
+const FS1_GUN_COL = {core:'#5cff5c', glow:'rgba(30,220,30,0.40)', hot:'#d8ffd8'};
+function raceCol(fac){
+  const r = raceOf(fac);
+  if(r === 'terran' && typeof currentEra !== 'undefined' && currentEra === 'fs1') return FS1_GUN_COL;
+  return RACE_COL[r];
 }
+// The colours of one turret's shot: her race's (kept as its own name for
+// the checks that read it).
+function gunCol(e, g){ return raceCol(e.faction); }
 
 // One shot of a capital turret. ally: an escort's gun (player's list).
 // pd: fired at a bomb.
 // hidE (v201): fired from the far flank of ship hidE - drawn under her
 // hull until it is clear of it (drawShots, 70_ui.js)
 function capGunShot(e, x, y, ang, g, ally, pd, hidE){
-  const rc = gunCol(e, g);
   // v210: from where her turret is drawn - shots fly in the plane and hit
   // what is drawn there (hullView), so they leave the drawn hull too
   if(typeof hullPt === 'function'){ const vp = hullPt(e, x, y); x = vp.x; y = vp.y; }
-  const n = (g.big && CAP_TRIPLE.test(e.img)) ? 3 : 1;
-  for(let k=0;k<n;k++){
-    const a = ang + (n>1 ? (k-1)*0.07 : 0);
-    const sp = pSpd(ally ? g.aspd : g.spd)*TEMPO_K;     // v212: pSpd
-    if(ally){
-      pBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
-        w:g.big?13:11, h:g.big?13:4, dmg:g.admg, ally:true, fac:e.faction, cap:true,
-        col:rc.core, glow:rc.glow, big:!!g.big, hidE:hidE||null});
-    } else {
-      eBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
-        w:g.w, h:g.h, big:!!g.big, faction:e.faction||'ntf', dmg:g.dmg,
-        col:rc.core, glow:rc.glow, pd:!!pd, hidE:hidE||null});
-    }
+  capGunBolt(e, x, y, ang, g, ally, pd, hidE);
+  // F36 (v251): a triple turret fires its three one after another, not
+  // as a fan all at once (Silvio). The other two follow CAP_BURST_GAP
+  // steps apart from the same muzzle, carried along with the ship.
+  if(g.big && CAP_TRIPLE.test(e.img))
+    for(let k=1;k<3;k++)
+      CAP_BURSTS.push({t:k*CAP_BURST_GAP, e:e, dx:x-e.x, dy:y-e.y, ang:ang, g:g,
+                       ally:ally, pd:pd, hidE:hidE});
+}
+const CAP_BURST_GAP = 12;          // steps between the rounds of a triple
+const CAP_BURSTS = [];
+function tickCapBursts(){
+  for(let i=CAP_BURSTS.length-1;i>=0;i--){
+    const b = CAP_BURSTS[i];
+    if(--b.t > 0) continue;
+    CAP_BURSTS.splice(i,1);
+    // a ship gone or in her death roll fires nothing more
+    if(b.e.dead || b.e.rollT!=null || (enemies.indexOf(b.e)<0 && allies.indexOf(b.e)<0)) continue;
+    capGunBolt(b.e, b.e.x+b.dx, b.e.y+b.dy, b.ang, b.g, b.ally, b.pd, b.hidE);
+  }
+}
+function capGunBolt(e, x, y, a, g, ally, pd, hidE){
+  const rc = gunCol(e, g);
+  const sp = pSpd(ally ? g.aspd : g.spd)*TEMPO_K;     // v212: pSpd
+  if(ally){
+    pBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+      w:g.big?13:11, h:g.big?13:4, dmg:g.admg, ally:true, fac:e.faction, cap:true,
+      col:rc.core, glow:rc.glow, big:!!g.big, hidE:hidE||null});
+  } else {
+    eBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+      w:g.w, h:g.h, big:!!g.big, faction:e.faction||'ntf', dmg:g.dmg,
+      col:rc.core, glow:rc.glow, pd:!!pd, hidE:hidE||null});
   }
 }
 

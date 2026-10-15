@@ -4579,6 +4579,59 @@ scenario('FS1 M6 v250: the Galatea fires green, FS2 stays blue (F34)', 'm=6', `
   currentEra = 'fs1';
   return r;`);
 
+
+// ── v251: Silvio's findings on v250 (F35 to F38) ────────────────────────
+scenario('FS1 M6 v251: every Galatea shot green, a greener green (F35)', 'm=6', `
+  const r = {};
+  FS.step(100);
+  const g = byId('G1')[0];
+  const m = mountsFor(g.img);
+  const rails = (m && m.primary || []).filter(q=>q.wasBeam);
+  r.rails = rails.length;
+  r.railsGreen = rails.length>0 && rails.every(q=>gunCol(g, q.g).core === FS1_GUN_COL.core);
+  const c = gunCol(g, {}).core, rr = parseInt(c.substr(1,2),16), gg = parseInt(c.substr(3,2),16);
+  r.core = c;
+  r.notYellow = gg - rr >= 120;
+  return r;`);
+
+scenario('FS1 M6 v251: a triple turret fires one round after another (F36)', 'm=6', `
+  const r = {};
+  FS.step(100);
+  const g = byId('G1')[0];
+  const big = (mountsFor(g.img).primary || []).find(q=>q.g && q.g.big);
+  r.hasBig = !!big;
+  const n0 = pBullets.length;
+  capGunShot(g, g.x, g.y, 0, big.g, true, false, null);
+  r.atOnce = pBullets.length - n0;
+  r.oneAtFirst = r.atOnce === 1;
+  FS.step(40);
+  r.threeInAll = pBullets.filter(b=>b.cap).length >= 3;
+  return r;`);
+
+scenario('FS1 M3 v251: both freighters hostile targets with red marks (F37)', 'm=3', `
+  const r = {};
+  FS.until(()=>byId('F1').some(e=>!(e.warp>0)) && byId('F2').some(e=>!(e.warp>0)), 2000, true);
+  const f1 = byId('F1')[0], f2 = byId('F2')[0];
+  r.bastHostile = tgtHostile(f1);
+  r.maatHostile = tgtHostile(f2);
+  const list = tgtShips(tgtHostile);
+  r.bothInHostileKeys = list.indexOf(f1)>=0 && list.indexOf(f2)>=0;
+  return r;`);
+
+scenario('FS1 M6 v251: the exit vortex opens ahead, with a run-up (F38)', 'm=6', `
+  const r = {};
+  FS.step(300);
+  const runUp = function(e){
+    e.warpOut = e.warpMax || 100; e.warpX = e.x; e.warpY = e.y; e._fsG = null;
+    fsWarp(e); const q = e._fsG; return q ? {lead: q.G - q.L/2, L: q.L} : null; };
+  const w = runUp(byId('W1')[0]), g = runUp(byId('G1')[0]);
+  r.wingman = w && +(w.lead/w.L).toFixed(2);
+  r.galatea = g && Math.round(g.lead) + ' of ' + Math.round(g.L);
+  // a fighter: more than half her length; a destroyer: the full cap
+  r.fighterRunUp = !!w && w.lead >= 0.5*w.L;
+  r.destroyerRunUp = !!g && g.lead >= Math.min(0.5*g.L, FS_OUT_LEAD_MAX) - 1;
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

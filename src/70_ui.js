@@ -687,7 +687,11 @@ function drawHostileMark(e){
   // small, easily lost among the effects - and being stationary they are
   // easier to miss than a fighter, not harder. The capital ships are left
   // out on purpose: they are large enough to find without help.
-  if(e.type!=='fighter' && e.type!=='bomber' && e.type!=='sentry') return;
+  // F37 (v251): the FS1 freighters too - Silvio missed the red marks on the
+  // Bast and the Ma'at that the fighters carry.
+  const fs1Fr = e.type==='freighter' && typeof currentEra !== 'undefined' && currentEra === 'fs1'
+                && !neutralLike(e);
+  if(e.type!=='fighter' && e.type!=='bomber' && e.type!=='sentry' && !fs1Fr) return;
   if(e.dead || e.warp>0 || e.warpOut>0) return;
   let a = 1;
   if(nebulaOn()){
@@ -901,11 +905,9 @@ function offShows(e, ally){
 function offColour(e, ally){
   if(e.tagT > 0) return OFF_COL.tagged;
   if(ally) return OFF_COL.friend;
-  // F33 (v250): in the FS1 strand a freighter running for it is the enemy,
-  // red from the first frame; only the cargo stays pink.
-  if(typeof currentEra !== 'undefined' && currentEra === 'fs1' && e.type === 'freighter')
-    return OFF_COL.enemy;
-  if(typeof playerOnly === 'function' && playerOnly(e)) return OFF_COL.neutral;
+  // F33/F37: in the FS1 strand a freighter is the enemy, red from the
+  // first frame; only the cargo stays pink (neutralLike, 40_world.js).
+  if(typeof neutralLike === 'function' && neutralLike(e)) return OFF_COL.neutral;
   return OFF_COL.enemy;
 }
 function drawOffscreen(){

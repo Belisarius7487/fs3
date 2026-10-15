@@ -27,7 +27,7 @@ function tgtCan(o){
   if(nebulaOn() && Math.hypot(o.x - player.x, o.y - player.y) > CHEV_FADE) return false;
   return true;
 }
-function tgtHostile(o){ return enemies.indexOf(o) >= 0 && !playerOnly(o); }
+function tgtHostile(o){ return enemies.indexOf(o) >= 0 && !neutralLike(o); }   // F37
 function tgtDist(o){ return Math.hypot(o.x - player.x, o.y - player.y); }
 function tgtSet(o, sub){
   if(o !== TGT.e){ TGT.lock = 0; TGT.lockOf = null; TGT.vx = 0; TGT.vy = 0; if(o){ TGT.px = o.x; TGT.py = o.y; } }

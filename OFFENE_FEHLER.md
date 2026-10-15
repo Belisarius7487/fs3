@@ -1821,6 +1821,45 @@ Bildmaterial aus den FreeSpace-Dateien an, wenn Farben unklar sind.
   die dort die Beams ersetzen, bleiben blau-weiß (in FS1 150,150,250). Der
   FS2-Strang bleibt bei Blau.
 
+### F35 — Die Orion feuert noch teils blau-weiß, das Grün ist zu gelb (v250)
+
+**Befund (Silvio, v250):** „Die Orion hat immer noch teilweise Projektile die
+blau-weiß statt grün-weiß sind. Zudem sollte das Grün etwas grüner sein. Das
+jetzige geht zu sehr ins Gelbe."
+
+- Status: behoben in v251. Im FS1-Strang ist jeder Terran-Schuss ohne eigene
+  Farbe grün, auch die Railguns anstelle der Beams; das Grün ist kräftiger
+  (`#5cff5c` statt `#a6ffa0`).
+
+### F36 — Die Dreifachgeschütze der Orion feuern die Salve auf einmal (v250)
+
+**Befund (Silvio, v250):** „Die Trippelgeschütze der Orion feuern ihre
+Dreiersalven auf einmal anstatt hintereinander."
+
+- Status: behoben in v251. Die drei Schüsse folgen im Abstand von 12
+  Schritten aus demselben Rohr, statt als Fächer auf einmal.
+
+### F37 — M3: nur die Ma'at ist erfassbar, keine roten Markierungen (v250)
+
+**Befund (Silvio, v250):** „In Mission 3 ist nur die Ma'at als Ziel
+erfassbar und beide Frachter haben keine rote Markierung wie andere
+Gegnerschiffe sie haben."
+
+- Status: behoben in v251. Im FS1-Strang zählen Frachter als Gegner:
+  mit der Gegner-Taste erfassbar, rote Winkel wie die Jäger (`neutralLike`).
+  Die Bast war ohne Waffen „nur für den Spieler" und fiel aus beidem heraus.
+
+### F38 — Der Wirbel beim Aussprung öffnet sich direkt vor der Nase (v250)
+
+**Befund (Silvio, v250):** „Subraumwirbel bei allen Schiffen öffnen sich
+unmittelbar vor deren Nase beim Herauswarpen (wichtig, gilt nur erstmal fürs
+Herauswarpen) anstatt ihnen etwas Anfahrtsweg zu lassen wie es in Freespace
+der Fall ist."
+
+- Status: behoben in v251. Der Wirbel öffnet 0,6 Längen vor dem Bug, höchstens
+  500 Welteinheiten (sonst schoss die Galatea mit 29 px je Schritt hinein).
+  Gilt für alle Aussprünge; der Einsprung ist unverändert.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes

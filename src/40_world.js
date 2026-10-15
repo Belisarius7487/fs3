@@ -2212,6 +2212,15 @@ function playerOnly(o){
   return o.type==='freighter' && !freighterArmed(o);
 }
 
+// F37 (v251): a ship the player may hit that still reads as neutral -
+// pink, left out of the hostile targeting keys and without the red marks.
+// In the FS1 strand a freighter is the enemy: the Bast (no guns) was pink
+// and could not be picked with the hostile key (Silvio, v250).
+function neutralLike(o){
+  if(!playerOnly(o)) return false;
+  return !(o.type === 'freighter' && typeof currentEra !== 'undefined' && currentEra === 'fs1');
+}
+
 // Ships the escorts leave alone because the mission wants them whole:
 // scanned first, disabled, or boarded (the Faustus, the Arcadia). Before
 // v162 only scan targets were spared, so escorts shot at ships that were

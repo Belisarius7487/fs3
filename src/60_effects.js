@@ -866,6 +866,7 @@ function update(){
   if(shakeT>0 && --shakeT<=0) shakeMag=0;
   tickScan();
   tickSubScan();
+  if(typeof tickCapBursts==='function') tickCapBursts();   // F36: triple rounds
   tickDefectors();
   tickDocking();
   tickCapRam();
