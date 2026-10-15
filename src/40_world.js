@@ -435,6 +435,9 @@ function hullLockFloor(e){
 }
 function damageEnemy(e, dmg, hx, hy, fromPlayer, kind, src){
   if(!e || e.dead) return;
+  // v249: fired on - a runner that waits for it sets off (escHit).
+  e.wasHit = true;
+  if(e.uid && typeof EV_HIT !== 'undefined') EV_HIT[e.uid] = true;
   if(fromPlayer) e.pDmg = (e.pDmg||0) + dmg;
   // A hit on one of theirs gives the Mara away (M78, v177).
   if(fromPlayer && !e.scenery && !e.invuln) blowCover();
@@ -1747,6 +1750,8 @@ const ALLY_DEFS = {
   ter_leviathan:  {cls:'cruiser',   fac:'terran',  spr:'crleviathan',  label:'GTC Leviathan', era:['fs1','str','fs2']},
   ter_aeolus:     {cls:'cruiser',   fac:'terran',  spr:'craeolus',     label:'GTC Aeolus', era:['fs2']},
   ter_deimos:     {cls:'corvette',  fac:'terran',  spr:'codeimos',     label:'GTCv Deimos', era:['fs2']},
+  // Mission use only: the science vessel (the Plato, FS1 M5).
+  ter_faustus:    {cls:'cruiser',   fac:'terran',  spr:'scfaustus',    label:'GTSC Faustus'},
   ter_orion:      {cls:'destroyer', fac:'terran',  spr:'deorionright', label:'GTD Orion', era:['fs1','str','fs2']},
   ter_hecate:     {cls:'destroyer', fac:'terran',  spr:'dehecate',     label:'GTD Hecate', era:['fs2']},
   vas_aten:       {cls:'cruiser',   fac:'vasudan', spr:'craten',       label:'GVC Aten', era:['fs1','str','fs2']},

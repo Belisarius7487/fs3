@@ -19,6 +19,9 @@ alle Entwürfe (Silvio, 14.10.2026):
   (Silvio, 15.10.2026). Die Hammer-of-Light-Flotte beginnt seitdem bei 4.
   Im FS1-Strang fliegt der Spieler nur die Apollo, bis eine Mission einen
   weiteren Rumpf bringt.
+- **Gebaut (v249):** Missionen 4 bis 6 ersetzen die alten Missionen 4 bis 6
+  (Silvio, 15.10.2026: die alten Missionen werden durch die neuen ersetzt).
+  Die Hammer-of-Light-Flotte beginnt seitdem bei 7.
 
 ## Übersicht der ersten zehn Originale (abgesegnet)
 
@@ -95,7 +98,7 @@ Vorlage `fs1/sm1-03a.fs2`.
   Verbündeten, verbündetes geht hindurch. Nur der Spieler kann ihn treffen.
   Beim Bau im Spiel prüfen.
 
-## Mission 4 — Avenging Angels (abgesegnet)
+## Mission 4 — Avenging Angels (abgesegnet, gebaut v249)
 
 Vorlage `fs1/sm1-04a.fs2`.
 
@@ -116,7 +119,7 @@ Vorlage `fs1/sm1-04a.fs2`.
   Fehlschlag. Rasputin nur Bonus.
 - Weggelassen: die terranischen Verstärkungsstaffeln Delta und Epsilon.
 
-## Mission 5 — Out of the Dark, Into the Night (abgesegnet)
+## Mission 5 — Out of the Dark, Into the Night (abgesegnet, gebaut v249)
 
 Vorlage `fs1/sm1-05a.fs2`. Erste Begegnung mit den Shivanern.
 
@@ -137,7 +140,7 @@ Vorlage `fs1/sm1-05a.fs2`. Erste Begegnung mit den Shivanern.
 - Ende: Plato überlebt → Erfolg. Plato verloren, Kapsel entkommt →
   Teilerfolg (gelb). Beide verloren → Fehlschlag.
 
-## Mission 6 — Paving the Way (abgesegnet)
+## Mission 6 — Paving the Way (abgesegnet, gebaut v249)
 
 Vorlage `fs1/sm1-06a.fs2`.
 

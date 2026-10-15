@@ -4292,9 +4292,194 @@ scenario('FS1 M3 Small Deadly Space: runners, the McCarthy, then FS2 again', 'm=
   r.mccarthyAway = o>=0;
   const e = FS.until(()=>wave>3, 6000, true);
   r.ends = e>=0;
-  // Mission 4 is the old Hammer of Light again: FS2 rules and arms.
+  // v249: mission 4 is FS1 Avenging Angels now - still the FS1 strand.
+  FS.until(()=>missionOrig===4, 400, false);
+  r.onToFs1M4 = (currentEra==='fs1' && missionOrig===4 && player.ship==='fiapollo') || [currentEra, missionOrig, player.ship, wave];
+  return r;`);
+
+// v249: FS1 missions 4 to 6 (FS1_MISSIONEN.md).
+scenario('FS1 M4 Avenging Angels: runners, the Omega taken, the bonus', 'm=4', `
+  const r = {};
+  r.strandIsFs1 = currentEra==='fs1' && missionOrig===4;
+  FS.step(300);
+  const o = byId('O1')[0], ra = byId('R1')[0];
+  r.bothThere = !!o && !!ra;
+  FS.step(2);
+  r.named = !!o && o.label==='GTT OMEGA' && !!ra && ra.label==='PVT RASPUTIN';
+  r.engineAndWeaponsToShoot = !!o && !!o.subs && ['engines','weapons'].every(id=>o.subs.some(s=>s.id===id));
+  // nobody has fired: both sit where they are
+  const x0 = o ? o.x : 0;
+  FS.step(400);
+  r.waitsUntilFiredOn = !!o && Math.abs(o.x - x0) < 1 && !o.wasHit;
+  // our wingmen leave the prizes alone
+  r.wingmenSpareThem = (!!o && o.hp===o.maxHp && !!ra && ra.hp===ra.maxHp) || [o&&o.hp, o&&o.maxHp, ra&&ra.hp, ra&&ra.maxHp, ra&&ra.wasHit];
+  // fired on: she runs
+  damageEnemy(o, 1, o.x, o.y, true);
+  const x1 = o.x;
+  FS.step(200);
+  r.runsWhenFiredOn = o.x > x1 + 5;
+  r.rasputinStillSits = !ra.wasHit && !evSeen('E4');
+  damageEnemy(ra, 1, ra.x, ra.y, true);
+  FS.step(40);
+  r.firedOnRasputinBringsTwoAnubis = !!EV_HIT.R1 && FS.until(()=>evSeen('E4'), 400, false)>=0;
+  // engines and weapons out: she stops, the Comet comes
+  for(const sb of o.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  FS.step(40);
+  const x2 = o.x; FS.step(100);
+  r.deadInSpace = Math.abs(o.x - x2) < 1;
+  r.cometComes = FS.until(()=>evSeen('T1'), 600, false)>=0 && evSeen('E3');
+  r.cannotDieMeanwhile = (damageEnemy(o, 1e6, o.x, o.y, true), FS.step(20), byId('O1').length===1);
+  r.captured = FS.until(()=>!!EV_TAKEN.O1, 20000, true)>=0;
+  r.notCountedAsEscaped = !EV_LEFT.O1;
+  // the bonus: the Rasputin taken too
+  const rr = byId('R1')[0];
+  if(rr) for(const sb of rr.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  r.bonusTaken = FS.until(()=>!!EV_TAKEN.R1, 20000, true)>=0;
+  r.ends = FS.until(()=>wave>4, 20000, true, true)>=0;
+  FS.until(()=>missionOrig===5, 400, false);
+  r.onToM5 = currentEra==='fs1' && missionOrig===5;
+  return r;`);
+
+scenario('FS1 M4: nobody fires - they run on their own, the mission ends', 'm=4', `
+  const r = {};
+  FS.step(300);
+  const o = byId('O1')[0];
+  const x0 = o ? o.x : 0;
+  // 60 s at the latest, then she runs anyway
+  r.runsAtTheLatest = FS.until(()=>o && o.x > x0 + 20, 9000, true)>=0;
+  r.omegaAway = FS.until(()=>!!EV_LEFT.O1, 20000, true)>=0;
+  r.failed = FS.until(()=>objCard && objCard.tone==='fail', 400, false)>=0 || !missionObj;
+  r.ends = FS.until(()=>wave>4, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M4: the Comet lost - the Omega jumps, failed', 'm=4', `
+  const r = {};
+  FS.step(300);
+  const o = byId('O1')[0];
+  damageEnemy(o, 1, o.x, o.y, true);
+  for(const sb of o.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  r.cometComes = FS.until(()=>byId('T1').length>0 && !(byId('T1')[0].warp>0), 2000, false)>=0;
+  const c = byId('T1')[0];
+  if(c) c.hp = 0;
+  r.cometLost = FS.until(()=>!byId('T1').length, 2000, false)>=0;
+  r.failed = FS.until(()=>objCard && objCard.tone==='fail', 400, false)>=0;
+  r.omegaGone = FS.until(()=>!byId('O1').length, 2000, false)>=0 && !EV_TAKEN.O1;
+  r.ends = FS.until(()=>wave>4, 20000, true)>=0;
+  return r;`);
+
+scenario('FS1 M5 Out of the Dark: Vasudans, the Taurus, the unknowns, the Plato through', 'm=5', `
+  const r = {};
+  r.strandIsFs1 = currentEra==='fs1' && missionOrig===5;
+  FS.step(300);
+  const p = byId('P1')[0];
+  FS.step(2);
+  r.platoNamed = !!p && p.label==='GTSC PLATO';
+  r.platoCrosses = (()=>{ const x0 = p.x; FS.step(200); return p.x > x0; })();
+  r.taurusComes = FS.until(()=>evSeen('K1'), 6000, true)>=0;
+  FS.step(2);
+  r.taurusNamed = byId('K1').some(k=>k.label==='PVC TAURUS');
+  // the Taurus is left standing so the unknowns can go for her
+  r.unknownsCome = FS.until(()=>evSeen('S0'), 6000, false, false, 50)>=0
+                 || FS.until(()=>evSeen('S0'), 6000, true)>=0;
+  const s0 = byId('S0')[0];
+  r.shivan = !!s0 && s0.faction==='shivan';
+  r.lockable = !!s0 && !s0.noTarget && s0.scan;
+  r.feud = waveFeud===true;
+  if(s0) FS.hold(s0.x, s0.y, 1);
+  let held = 0;
+  for(let i=0;i<400 && s0 && !s0.scanned;i++){ FS.hold(s0.x, s0.y, 1); held++; }
+  r.scanned = !!s0 && s0.scanned;
+  r.secondShivanWave = FS.until(()=>evSeen('S2') && evSeen('X2'), 4000, false)>=0;
+  // keep her alive and let her cross
+  let tone = '';
+  const t = FS.until(()=>{ const q = byId('P1')[0]; if(q) q.hp = q.maxHp;
+                            if(objCard && objCard.tone) tone = objCard.tone;
+                            return !!EV_LEFT.P1; }, 30000, true);
+  r.platoThrough = t>=0;
+  FS.step(40);
+  if(objCard && objCard.tone) tone = objCard.tone;
+  r.success = tone==='done';
+  r.noPod = !evSeen('H1');
+  r.ends = FS.until(()=>wave>5, 20000, true, true)>=0;
+  return r;`);
+
+scenario('FS1 M5: the Plato lost, her pod away - partial success', 'm=5', `
+  const r = {};
+  FS.step(600);
+  const p = byId('P1')[0];
+  p.hp = p.maxHp*0.15;
+  r.podUnder20 = FS.until(()=>evSeen('H1'), 400, false)>=0;
+  p.hp = 0;
+  r.platoLost = FS.until(()=>!byId('P1').length, 3000, false)>=0;
+  let tone = '';
+  r.podAway = FS.until(()=>{ const h = byId('H1')[0]; if(h) h.hp = h.maxHp;
+                              if(objCard && objCard.tone) tone = objCard.tone;
+                              return !!EV_LEFT.H1; }, 20000, true)>=0;
+  FS.step(40);
+  if(objCard && objCard.tone) tone = objCard.tone;
+  r.partial = tone==='part';
+  r.ends = FS.until(()=>wave>5, 20000, true, true)>=0;
+  return r;`);
+
+scenario('FS1 M5: the Plato and her pod lost - failed', 'm=5', `
+  const r = {};
+  FS.step(600);
+  const p = byId('P1')[0];
+  p.hp = 0;
+  r.podLaunched = FS.until(()=>byId('H1').length>0, 3000, false)>=0;
+  let tone = '';
+  const h = byId('H1')[0]; if(h) h.hp = 0;
+  r.podLost = FS.until(()=>{ if(objCard && objCard.tone) tone = objCard.tone;
+                              return !byId('H1').length && !byId('P1').length; }, 3000, false)>=0;
+  FS.step(40);
+  if(objCard && objCard.tone) tone = objCard.tone;
+  r.failed = tone==='fail';
+  r.ends = FS.until(()=>wave>5, 20000, true, true)>=0;
+  return r;`);
+
+scenario('FS1 M6 Paving the Way: the Galatea, five wings, the jump', 'm=6', `
+  const r = {};
+  r.strandIsFs1 = currentEra==='fs1' && missionOrig===6;
+  FS.step(300);
+  const g = byId('G1')[0];
+  FS.step(2);
+  r.galateaNamed = !!g && g.label==='GTD GALATEA';
+  r.homeShip = !!g && g.home===true && homeShipOnField()===true;
+  r.shivans = FS.until(()=>evSeen('B1'), 1500, false)>=0 && byId('B1').every(b=>b.faction==='shivan');
+  // every wing comes, none waits longer than 30 s
+  let ok = true;
+  for(const id of ['J1','B2','J2','B3']){
+    const w = FS.until(()=>evSeen(id), 3600, false);   // 30 s plus a margin
+    if(w<0) ok = false;
+  }
+  r.wingsWithinThirtySeconds = ok;
+  let tone = '';
+  const j = FS.until(()=>{ const q = byId('G1')[0]; if(q) q.hp = q.maxHp;
+                            if(objCard && objCard.tone) tone = objCard.tone;
+                            return !!EV_LEFT.G1; }, 12000, true);
+  r.galateaJumps = j>=0;
+  FS.step(40);
+  if(objCard && objCard.tone) tone = objCard.tone;
+  r.success = tone==='done';
+  r.ends = FS.until(()=>wave>6, 20000, true, true)>=0;
+  // Mission 7 is the old Hammer of Light again: FS2 rules and arms.
+  FS.until(()=>missionOrig===0, 400, false);
   r.backToFs2 = currentEra==='fs2' && missionOrig===0 && player.ship==='fitoth'
              && player.pb.every(b=>!priDefP(b.key).era);
+  return r;`);
+
+scenario('FS1 M6: the Galatea lost - failed', 'm=6', `
+  const r = {};
+  FS.step(600);
+  const g = byId('G1')[0];
+  g.hp = 0;
+  let tone = '';
+  r.lost = FS.until(()=>{ if(objCard && objCard.tone) tone = objCard.tone;
+                           return !byId('G1').length; }, 3000, false)>=0;
+  FS.step(40);
+  if(objCard && objCard.tone) tone = objCard.tone;
+  r.failed = tone==='fail';
+  r.ends = FS.until(()=>wave>6, 20000, true, true)>=0;
   return r;`);
 
 scenario('FS1 M3: agreed container lost, the McCarthy leaves empty', 'm=3', `

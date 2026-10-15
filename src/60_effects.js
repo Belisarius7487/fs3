@@ -227,6 +227,8 @@ function updateSecBullets(){
         for(var j=0;j<enemies.length;j++){
           if(!canLockOn(enemies[j])) continue;   // stealth hulls cannot be held
           if(b.ally && playerOnly(enemies[j])) continue;
+          // v249: and through a ship that is to be taken (FS1 M4)
+          if(b.ally && (enemies[j].captureLock || enemies[j].captured)) continue;
           if(pass===0 && bigOnly && !isLargeShip(enemies[j])) continue;
           var d=Math.hypot(enemies[j].x-b.x,enemies[j].y-b.y);
           if(d<minD){minD=d;nearest=enemies[j];}
@@ -293,6 +295,8 @@ function updateSecBullets(){
       if(overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,er[0],er[1],er[2],er[3])){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
+        // v249: and through a ship that is to be taken (FS1 M4)
+        if(b.ally && (e.captureLock || e.captured)) continue;
         e.shotAt=true;
         // v210: the point of her outline under the shot (hullUnPt)
         const _hp=hullUnPt(e,b.x,b.y), hx=_hp.x, hy=_hp.y;
@@ -1386,6 +1390,8 @@ function update(){
       if(overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ex,ey,ew,eh)){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
+        // v249: and through a ship that is to be taken (FS1 M4)
+        if(b.ally && (e.captureLock || e.captured)) continue;
         if(b.f && !b.ally) sndPlay('fs_hit', b.x, 1, b.y);   // FS2 impact, hit_1 (v187)
         const _hp=hullUnPt(e,b.x,b.y);    // v210: her outline under the shot
         laserHit(b.x,b.y,b.col);   // v209: on her model (v210: the shot is on it)

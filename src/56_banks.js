@@ -542,6 +542,8 @@ function warheadBlast(b, bl, struck){
     const e = enemies[j];
     if(e===struck || e.dead || e.warp>0) continue;
     if(b.ally && playerOnly(e)) continue;
+    // v249: and through a ship that is to be taken (FS1 M4)
+    if(b.ally && (e.captureLock || e.captured)) continue;
     const k = blastFall(boxDist(b.x, b.y, eBox(e)), bl);
     if(k <= 0) continue;
     DMG_F = b.f || null;

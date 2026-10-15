@@ -366,6 +366,12 @@ Schleuse. Ohne `era` ist eine Mission FS2. Dazu seit v240: Auslöser `da`
 Ankunft"), `anzahlUnter` mit mehreren Kennungen (`E1+E2`), `label` (Name
 eines Schiffs), `warpIn` (ein Schützling springt ein), `home` (Trägerschiff).
 
+Seit v249 (FS1 M4 bis M6): Auslöser `beschossen` (Schiff hat einen Treffer
+abbekommen), Wirkung `zielteil` (Teilerfolg, gelbe Karte). Einheiten:
+`escHit` (fährt erst los, wenn beschossen; `escDelay` = spätestens dann),
+`subs` (Transporter mit Subsystemen zum Lahmlegen). Verbündetes Feuer geht
+durch Kaperziele hindurch, wie durch Fracht.
+
 Eine **Kennung steht für eine Gruppe**, nicht für ein Schiff: `byId()` gibt
 jede Einheit zurück, die sie trägt, und ein Auslöser darf mehrere mit `+`
 nennen. Mission 78 gibt ihren drei Geräten dieselbe Kennung, damit **ein**

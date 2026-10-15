@@ -1110,7 +1110,12 @@ function tickEscapers(){
     // Dying, she is adrift: no more running, and she cannot get away
     // (Silvio, v183: one counted as escaped though she broke up first).
     if(e.rollT!=null) continue;
-    if(e.escHold>0){ e.escHold--; continue; }
+    // v249: escHit - she sits until somebody fires at her (the Omega and
+    // the Rasputin, FS1 M4). escDelay then is the latest she sets off.
+    if(e.escHit && !e.wasHit){
+      if(e.escHold>0){ e.escHold--; continue; }
+      if(!e.escHitCap) continue;
+    } else if(!e.escHit && e.escHold>0){ e.escHold--; continue; }
     // v240: a runner that is to take a container along loads first and
     // runs after (the Bast and the Ma'at, FS1 M3); tickDocking drives her.
     if(e.dockTo) continue;
@@ -1299,6 +1304,9 @@ function applySpawnOpts(e, sp){
   }
   // Waits this many seconds before it sets off (the Azrael at the Iceni).
   if(sp.escDelay) e.escHold = Math.round(sp.escDelay*TICK_HZ);
+  if(sp.escHit){ e.escHit = true; e.escHitCap = !!sp.escDelay; }
+  // v249: a transport with engines and weapons to shoot out (FS1 M4).
+  if(sp.subs){ e.subsOn = true; initSubsystems(e); }
   if(sp.escape){
     e.escaping = sp.escape;          // Bildpunkte je Schritt nach rechts
     e.noFlee = true;                 // sie springt nicht, sie faehrt
@@ -1406,7 +1414,10 @@ function applySpawnOpts(e, sp){
     }
   }
   if(sp.fac) e.faction = sp.fac;
-  if(sp.scan){ e.scan = true; e.noTarget = true; }
+  // A fighter to be scanned stays a fighter you can lock (the unknowns,
+  // FS1 M5); everything else is cargo and only scanned.
+  if(sp.scan){ e.scan = true;
+    if(e.type!=='fighter' && e.type!=='bomber') e.noTarget = true; }
   // Arrives with only this share of her hull; the bar shows the damage.
   if(sp.hurt) e.hp = Math.max(1, Math.round(e.maxHp*sp.hurt));
   // An installation that fights: its guns fire, and it has subsystems
@@ -2178,17 +2189,138 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'T1', w:'abzug', a2:''}
      ]},
 
-  6: {name:'Encounter', fac:'hol', o:'guard', live:5, u:[
-       {id:'A1', c:'co', n:1, spr:'cosobek', side:'ally'},
-       // v202: two wings of three Thoth on our side (Silvio)
-       {id:'W1', c:'fi', n:2, size:3, spr:'fitoth', side:'ally'},
-       {id:'V1', c:'co', n:1, spr:'cosobek'},
-       {id:'E1', c:'fi', n:2},
-       {id:'B1', c:'bo', n:1, wait:true}
+  // Avenging Angels (fs1/sm1-04a). Two transports run for it once fired
+  // on; with the Omega's engines and weapons down the Comet comes to take
+  // her. The Rasputin is the bonus. Both are capture targets: our wingmen
+  // leave them alone, and neither can die while she is to be taken.
+  // At the latest after 60/75 s they run anyway, so the mission ends
+  // even if nobody ever fires on them.
+  4: {name:'Avenging Angels', era:'fs1', orig:4, fac:'hol', o:'clear', live:6,
+      ziel:'Disable the Omega - engines and weapons', u:[
+       {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
+       {id:'O1', c:'tr', n:1, spr:'trelysium', x:430, y:190, escape:0.15, escWarp:true,
+        escHit:true, escDelay:60, subs:true, capture:true, label:'GTT Omega'},
+       {id:'R1', c:'tr', n:1, spr:'trisis', x:430, y:350, escape:0.15, escWarp:true,
+        escHit:true, escDelay:75, subs:true, capture:true, label:'PVT Rasputin'},
+       {id:'E1', c:'fi', n:1, size:4, spr:'fiapollo', fac:'ntf', t:2, x:560, y:180},
+       {id:'E2', c:'fi', n:1, size:2, spr:'fihorus', t:2, x:560, y:360},
+       {id:'B1', c:'bo', n:1, size:1, spr:'boosiris', t:3, x:600, y:270},
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:270, warpIn:true,
+        dockTo:'O1', dockHold:8, dockLabel:'BOARDING', wait:true, label:'GTT Comet'},
+       {id:'E3', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
+       {id:'E4', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
+       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:330, warpIn:true,
+        dockTo:'R1', dockHold:8, dockLabel:'BOARDING', wait:true, label:'GT Intelligence 1'}
      ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
-       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
-       {t:'alleZerstoert', a:'V1', w:'nachschub', a2:'aus'}
+       {t:'sek', a:4, w:'meldung', a2:'Bonus: disable the Rasputin as well'},
+       // the Omega dead in space: the Comet and two Anubis
+       {t:'subsystem', a:'O1', b:'engines+weapons', w:'einwarpen', a2:'T1'},
+       {t:'subsystem', a:'O1', b:'engines+weapons', w:'einwarpen', a2:'E3'},
+       {t:'subsystem', a:'O1', b:'engines+weapons', w:'ziel', a2:'Cover the Comet'},
+       {t:'angedockt', a:'T1', w:'kapern', a2:'O1'},
+       {t:'angedockt', a:'T1', w:'zielerfuellt', a2:'GTT Omega captured'},
+       {t:'vernichtet', a:'T1', w:'freigeben', a2:'O1'},
+       {t:'vernichtet', a:'T1', w:'zielverfehlt', a2:'GTT Comet destroyed'},
+       {t:'vernichtet', a:'T1', d:3, w:'raus', a2:'O1'},
+       {t:'vernichtet', a:'T1', d:4, w:'abzug', a2:''},
+       {t:'verlaesst', a:'O1', w:'zielverfehlt', a2:'The Omega got away'},
+       {t:'verlaesst', a:'O1', w:'abzug', a2:''},
+       // the Rasputin fired on: two more Anubis
+       {t:'beschossen', a:'R1', w:'einwarpen', a2:'E4'},
+       // bonus: the Rasputin dead in space, and Intelligence takes her
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'einwarpen', a2:'T2'},
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'meldung', a2:'Bonus: Intelligence is coming for the Rasputin'},
+       {t:'angedockt', a:'T2', w:'kapern', a2:'R1'},
+       {t:'angedockt', a:'T2', w:'meldung', a2:'Bonus: PVT Rasputin captured'},
+       {t:'vernichtet', a:'T2', w:'freigeben', a2:'R1'},
+       {t:'vernichtet', a:'T2', d:3, w:'raus', a2:'R1'}
+     ]},
+
+  // Out of the Dark, Into the Night (fs1/sm1-05a). The Plato crosses the
+  // field; two Vasudan wings, the second with the Taurus. Then the
+  // unknowns: they go for the Vasudans first (feud), then the Plato. Unlike
+  // the original she can be saved. Under 20 % hull she launches a pod.
+  5: {name:'Out of the Dark, Into the Night', era:'fs1', orig:5, fac:'hol', o:'clear', live:6,
+      feud:true, ziel:'Protect the Plato', u:[
+       {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
+       {id:'P1', c:'cr', n:1, spr:'scfaustus', side:'ally', guard:true, crossSecs:120,
+        y:270, label:'GTSC Plato'},
+       {id:'E1', c:'fi', n:1, size:3, spr:'fianubis', t:4},
+       {id:'B1', c:'bo', n:1, size:1, spr:'boosiris', t:4},
+       {id:'E2', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
+       {id:'B2', c:'bo', n:1, size:1, spr:'boosiris', wait:true},
+       {id:'K1', c:'cr', n:1, spr:'craten', wait:true, label:'PVC Taurus'},
+       {id:'S0', c:'fi', n:1, size:1, spr:'fiscorpion', fac:'shivan', wait:true,
+        scan:true, scanFirst:true},
+       {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'X1', c:'bo', n:1, size:1, spr:'boshaitan', fac:'shivan', wait:true},
+       {id:'S2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'X2', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
+       {id:'H1', c:'ep', n:1, spr:'ephermes', side:'ally', cross:0.45, wait:true, at:'P1',
+        label:'Escape pod'}
+     ], ev:[
+       // second Vasudan wave, with the Taurus
+       {t:'alleZerstoert', a:'E1+B1', w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'E1+B1', w:'einwarpen', a2:'B2'},
+       {t:'alleZerstoert', a:'E1+B1', w:'einwarpen', a2:'K1'},
+       {t:'da', a:'E1+B1', d:30, w:'einwarpen', a2:'E2'},
+       {t:'da', a:'E1+B1', d:30, w:'einwarpen', a2:'B2'},
+       {t:'da', a:'E1+B1', d:30, w:'einwarpen', a2:'K1'},
+       // the unknowns
+       {t:'alleZerstoert', a:'E2+B2', w:'einwarpen', a2:'S0'},
+       {t:'alleZerstoert', a:'E2+B2', w:'einwarpen', a2:'S1'},
+       {t:'alleZerstoert', a:'E2+B2', w:'einwarpen', a2:'X1'},
+       {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'S0'},
+       {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'S1'},
+       {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'X1'},
+       {t:'da', a:'S0', w:'ziel', a2:'Scan an unknown - protect the Plato'},
+       {t:'da', a:'S0', d:20, w:'einwarpen', a2:'S2'},
+       {t:'da', a:'S0', d:20, w:'einwarpen', a2:'X2'},
+       {t:'gescannt', a:'S0', w:'meldung', a2:'Unknown scanned'},
+       {t:'gescannt', a:'S0', w:'ziel', a2:'Protect the Plato - bonus: shoot one down'},
+       {t:'anzahlUnter', a:'S0+S1+X1', b:4, w:'meldung', a2:'Bonus: an unknown is down'},
+       // under 20 %, or gone at once: the escape pod
+       {t:'rumpfUnter', a:'P1', b:20, w:'einwarpen', a2:'H1'},
+       {t:'rumpfUnter', a:'P1', b:20, w:'meldung', a2:'The Plato launches an escape pod'},
+       {t:'vernichtet', a:'P1', w:'einwarpen', a2:'H1'},
+       {t:'vernichtet', a:'P1', w:'ziel', a2:'Cover the escape pod'},
+       // the ends - order counts: an 'abzug' closes every later event
+       {t:'verlaesst', a:'P1', w:'zielerfuellt', a2:'The Plato is through'},
+       {t:'verlaesst', a:'P1', w:'abzug', a2:''},
+       {t:'vernichtet', a:'P1+H1', w:'zielverfehlt', a2:'The Plato and her pod are lost'},
+       {t:'vernichtet', a:'P1+H1', w:'abzug', a2:''},
+       {t:'alleZerstoert', a:'P1+H1', w:'zielteil', a2:'The Plato is lost - her crew got away'},
+       {t:'alleZerstoert', a:'P1+H1', w:'abzug', a2:''}
+     ]},
+
+  // Paving the Way (fs1/sm1-06a). The Galatea near the edge, on her way to
+  // the jump point; Shivan bombers and fighters in turn. All down: she
+  // jumps. She is the home ship - the first mission with a rearm (F22).
+  6: {name:'Paving the Way', era:'fs1', orig:6, fac:'hol', o:'clear', live:6,
+      ziel:'Protect the Galatea - bonus: keep her above half hull', u:[
+       {id:'G1', c:'de', n:1, spr:'deorionright', side:'ally', guard:true, home:true,
+        still:true, x:640, y:270, label:'GTD Galatea'},
+       {id:'W1', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', label:'Alpha 2'},
+       {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', t:5, fac:'shivan'},
+       {id:'J1', c:'fi', n:1, size:3, spr:'fiscorpion', wait:true, fac:'shivan'},
+       {id:'B2', c:'bo', n:1, size:2, spr:'boshaitan', wait:true, fac:'shivan'},
+       {id:'J2', c:'fi', n:1, size:3, spr:'fiscorpion', wait:true, fac:'shivan'},
+       {id:'B3', c:'bo', n:1, size:2, spr:'boshaitan', wait:true, fac:'shivan'}
+     ], ev:[
+       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'J1'},
+       {t:'da', a:'B1', d:30, w:'einwarpen', a2:'J1'},
+       {t:'alleZerstoert', a:'J1', w:'einwarpen', a2:'B2'},
+       {t:'da', a:'J1', d:30, w:'einwarpen', a2:'B2'},
+       {t:'alleZerstoert', a:'B2', w:'einwarpen', a2:'J2'},
+       {t:'da', a:'B2', d:30, w:'einwarpen', a2:'J2'},
+       {t:'alleZerstoert', a:'J2', w:'einwarpen', a2:'B3'},
+       {t:'da', a:'J2', d:30, w:'einwarpen', a2:'B3'},
+       {t:'rumpfUnter', a:'G1', b:50, w:'meldung', a2:'Bonus lost - the Galatea is below half hull'},
+       {t:'alleZerstoert', a:'B1+J1+B2+J2+B3', d:2, w:'raus', a2:'G1'},
+       {t:'verlaesst', a:'G1', w:'zielerfuellt', a2:'The Galatea has jumped'},
+       {t:'verlaesst', a:'G1', w:'abzug', a2:''},
+       {t:'vernichtet', a:'G1', w:'zielverfehlt', a2:'GTD Galatea destroyed'},
+       {t:'vernichtet', a:'G1', w:'abzug', a2:''}
      ]},
 
   7: {name:'The Assault', fac:'hol', o:'guard', live:5, u:[
@@ -2254,13 +2386,6 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'A2', w:'nachschub', a2:'aus'}
      ]},
 
-  4: {name:'The Breakout', fac:'hol', o:'clear', live:5, u:[
-       // Sie ist angeschlagen und faehrt nach rechts. Wer sie ziehen
-       // laesst, verliert Punkte - das ist die ganze Uhr dieser Welle.
-       {id:'V1', c:'co', n:1, spr:'cosobek', hp:0.55, escape:0.30, x:-40},
-       {id:'E1', c:'fi', n:2}
-     ]},
-
   25:{name:'The Escape', fac:'hol', o:'clear', live:5, u:[
        {id:'F1', c:'fr', n:2, spr:'frbast', escape:0.55, x:-40},
        {id:'T1', c:'tr', n:1, spr:'trisis', escape:0.62, x:-40},
@@ -2268,19 +2393,6 @@ const SCRIPT_WAVES = {
      ], ev:[
        {t:'sek', a:2, w:'nachschub', a2:'an'},
        {t:'alleZerstoert', a:'F1', w:'nachschub', a2:'aus'}
-     ]},
-
-  5: {name:'Through the Belt', fac:'hol', o:'guard', live:4,
-      stillRocks:true, crossEnds:true, u:[
-       {id:'A1', c:'co', n:1, spr:'codeimos', side:'ally', crossSecs:55},
-       {id:'R1', c:'ast', n:30},
-       {id:'G1', c:'sg', n:5, spr:'sgankh'},
-       {id:'E1', c:'fi', n:2},
-       {id:'E2', c:'fi', n:2, wait:true}
-     ], ev:[
-       {t:'alleZerstoert', a:'G1', w:'einwarpen', a2:'E2'},
-       {t:'alleZerstoert', a:'G1', w:'nachschub', a2:'an'},
-       {t:'verlaesst',     a:'A1', w:'nachschub', a2:'aus'}
      ]},
 
   12:{name:'The Cargo', fac:'hol', o:'scan', live:5, hunt:'C1', u:[
@@ -3732,7 +3844,7 @@ const ALLY_ID = {
   craten:'vas_aten', crmentu:'vas_mentu', cosobek:'vas_sobek',
   detyphon:'vas_typhon', dehatshepsut:'vas_hatshepsut',
   crfenris:'ter_fenris', crleviathan:'ter_leviathan', craeolus:'ter_aeolus',
-  codeimos:'ter_deimos', deorionright:'ter_orion', dehecate:'ter_hecate',
+  codeimos:'ter_deimos', deorionright:'ter_orion', scfaustus:'ter_faustus', dehecate:'ter_hecate',
   ntfcodeimos:'ntf_deimos', sgmjolnir:'ter_mjolnir', cacharybdis:'ter_charybdis',
   casetekh:'ter_setekh', coiceni:'ntf_iceni'
 };
@@ -3758,6 +3870,8 @@ let EV = [], EV_HELD = {}, EV_SEEN = {}, EV_LEFT = {}, EV_DOCK = {};
 // EV_TAKEN: captured ('kapern'). EV_FLED: jumped out on a deadline.
 // Neither is a kill, and 'vernichtet' asks for a kill.
 let EV_TAKEN = {}, EV_FLED = {};
+// EV_HIT (v249): ships that have taken a hit - the 'beschossen' trigger.
+let EV_HIT = {};
 // Letzter bekannter Ort je Kennung. Wer nach dem Tod eines Schiffs
 // eingewarpt wird, soll dort erscheinen und nicht am Bildrand.
 let EV_POS = {};
@@ -3784,7 +3898,7 @@ const EV_REINF_GAP_MIN = 240;
 
 function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_POS = {};
-  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_LABEL = {};
+  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {};
   missionTimer = {end:0, label:''}; missedJumps = 0;
   evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP;
 }
@@ -3828,6 +3942,8 @@ function evTrig(ev){
     case 'verloren':     return protLost  >= (ev.a||1);
     case 'verlaesst':    return !!EV_LEFT[ev.a] || !!EV_FLED[ev.a];
     case 'angedockt':    return !!EV_DOCK[ev.a];
+    // v249: somebody has fired on her and hit (the Rasputin, FS1 M4).
+    case 'beschossen':   return !!EV_HIT[ev.a];
     // v240: on the field, or was. With d: "at the latest N seconds after
     // she arrived" - the FS1 wings that come when the last one is down,
     // or after 30 s if it is not (Silvio, FS1_MISSIONEN.md).
@@ -3989,6 +4105,13 @@ function evFire(ev){
       objAnnounce(ev.w==='zielerfuellt' ? 'OBJECTIVE COMPLETE' : 'OBJECTIVE FAILED',
                   String(arg || '').toUpperCase(),
                   ev.w==='zielerfuellt' ? 'done' : 'fail');
+      break;
+    // v249: a partial success, in yellow (the Plato lost, her crew
+    // away - FS1 M5).
+    case 'zielteil':
+      missionObj = '';
+      missionObjUsed = true;
+      objAnnounce('PARTIAL SUCCESS', String(arg || '').toUpperCase(), 'part');
       break;
     case 'freigeben':
       // The capture is off - her captors are gone. Now she can die. The
@@ -4267,7 +4390,7 @@ function scriptUnit(u, fac, q){
           put({time:t0 + w*110 + k*WING_STAGGER,
                type: ally ? (u.c==='bo' ? 'allybo' : 'allyfi') : ty, spr:hull, wing:ally?0:wid,
                y: yy + (k-(sz-1)/2)*WING_SPACING*0.5, x:u.x, rammer:u.ram,
-               disguised:u.disguised});
+               disguised:u.disguised, scan:u.scan?1:0, scanFirst:u.scanFirst});
       }
     } else {
       // Mehrere Grosskampfschiffe derselben Kennung stehen sonst
@@ -4343,7 +4466,8 @@ function scriptUnit(u, fac, q){
            x:xx, y:yy, scan:u.scan?1:0, escape:u.escape, scanFirst:u.scanFirst,
            still:u.still, escWarp:u.escWarp, fleeFree:u.fleeFree, escDelay:u.escDelay,
            invuln:u.invuln, dockTo:u.dockTo, dockHold:u.dockHold, dockLabel:u.dockLabel,
-           scenery:(fix==='ast')?1:0, pickup:u.pickup?1:0});
+           scenery:(fix==='ast')?1:0, pickup:u.pickup?1:0,
+           capture:u.capture, noFlee:u.noFlee, subs:u.subs, escHit:u.escHit});
   }
 }
 

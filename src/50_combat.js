@@ -1688,7 +1688,7 @@ function beamHits(mx, my, ang, tx, ty, rad){
 // genug, dass Streufeuer diesen Punkt zwangslaeufig irgendwann findet.
 // Auf 0.20 ist es eine Entscheidung statt eines Nebenprodukts.
 const SUB_HP_FRAC = {cruiser:0.22, corvette:0.16, destroyer:0.10, boss:0.20,
-                     station:0.09};
+                     station:0.09, freighter:0.15};
 // Rest, unter den ein Lahmlege-Ziel nicht fallen kann, solange der Auftrag
 // laeuft. 15 % ist derselbe Wert wie HULL_CRIT: der Balken steht genau
 // dort, wo er ohnehin schon pulsiert.
@@ -1879,7 +1879,7 @@ function subPositions(key){
 function hasSubsystems(e){
   // An installation only when a mission arms it (subsOn).
   return e && (e.type==='cruiser'||e.type==='corvette'||e.type==='destroyer'||e.type==='boss'
-               || (e.type==='station' && !!e.subsOn));
+               || ((e.type==='station' || e.type==='freighter') && !!e.subsOn));
 }
 function initSubsystems(e){
   if(!hasSubsystems(e)) return;
