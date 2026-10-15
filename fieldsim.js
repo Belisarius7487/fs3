@@ -4281,8 +4281,10 @@ scenario('FS1 M3 Small Deadly Space: runners, the McCarthy, then FS2 again', 'm=
   FS.step(2);       // the name is put on at the next event tick
   r.mccarthyNamed = !!mc && mc.label==='GTT MCCARTHY';
   // F25: a transport of 32 m opens a vortex, she is no big ship
+  // v247: the long sound is for destroyers and juggernauts only
   r.mccarthyJumpSoundIsTheVortex = !!mc && warpSndSmall(mc)===true
-                                && warpSndSmall({type:'cruiser', img:'crfenris'})===false;
+    && ['crfenris','codeimos','frchronos','inknossos45deg'].every(k=>warpSndSmall({img:k}))
+    && ['deorionright','ntfdehecate','sdsathanas','sdlucifer','sdcolossus'].every(k=>!warpSndSmall({img:k}));
   const k = FS.until(()=>!!EV_DOCK.T1, 20000, true);
   r.mccarthyLoads = k>=0;
   r.coverWings = evSeen('E4') && evSeen('E5');

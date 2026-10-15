@@ -1728,6 +1728,9 @@ Transportern und Frachtern von 30 bis 60 Metern.
 
 - Status: behoben in v246. Schiffe unter 100 m Länge (`HULL_LEN`) bekommen
   nur den Sound des sich öffnenden Wirbels (`warpSndSmall()`).
+- **Präzisiert (Silvio, v246):** „Außer bei Zerstörern und Juggernauts sollte
+  dieser Sound nirgendwo auftreten." Umgesetzt in v247: den langen Sound
+  haben nur Zerstörer und Superzerstörer (Rümpfe `de…`, `sd…`, auch NTF).
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

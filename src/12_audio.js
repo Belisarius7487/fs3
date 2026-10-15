@@ -393,15 +393,12 @@ function sndScanStep(o, x, y, running){
 // Once a game step: pause, the player's hits, jumps, and beams that ended.
 let sndHp = null, sndSh = null;
 // Which jump sound a ship makes: the vortex opening alone, or the long
-// sound of a big ship. v246 (Silvio: the Elysium played both): a transport
-// or freighter of a few dozen metres is no big ship either - by her length
-// (HULL_LEN, metres), not by her class.
-const WARP_SND_BIG_M = 100;
+// sound of a big ship. v246/v247 (Silvio): the long one belongs to
+// destroyers and juggernauts only - every other hull, cruisers and
+// corvettes included, opens a vortex and nothing more. Decided by the hull
+// key (de..., sd..., their NTF variants), not by the class in play.
 function warpSndSmall(e){
-  if(e.small || e.type==='fighter' || e.type==='bomber' ||
-     e.type==='sentry' || e.type==='container') return true;
-  const L = (typeof HULL_LEN !== 'undefined') ? HULL_LEN[e.img] : 0;
-  return !!L && L < WARP_SND_BIG_M;
+  return !/^(ntf)?(de|sd)/.test(String(e.img || ''));
 }
 function sndTick(){
   if(!sndCtx) return;
