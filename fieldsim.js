@@ -4238,9 +4238,14 @@ scenario('FS1 M3 Small Deadly Space: runners, the McCarthy, then FS2 again', 'm=
   const d = FS.until(()=>!!EV_DOCK.F1 && !!EV_DOCK.F2, 12000, true);
   r.freightersDock = d>=0;
   r.containerTaken = enemies.some(e=>e.uid==='C1' && e.carried);
-  FS.step(40);
-  const fr = byId('F1')[0] || byId('F2')[0];
-  r.runnerFacesTheWayOut = !!fr && fr.flip===needsFlip(fr.img, false);
+  // v243: she turns round, she does not snap - half way through she is
+  // still on her old heading, bow on
+  FS.step(60);
+  const runners = byId('F1').concat(byId('F2'));
+  r.runnerTurnsRound = runners.some(f=>f.turnP > 0 && f.turnP < 1 && f.flip===needsFlip(f.img, true));
+  FS.step(160);
+  r.runnerFacesTheWayOut = runners.length>0 && runners.filter(f=>!f.dead)
+                             .every(f=>f.flip===needsFlip(f.img, false) && f.turnP==null);
   // Our wingmen may stop one; either way both are gone in the end.
   const g = FS.until(()=>!byId('F1').length && !byId('F2').length, 30000, true);
   r.freightersGone = g>=0;

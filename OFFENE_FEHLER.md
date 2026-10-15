@@ -1696,6 +1696,11 @@ Schiff nie um. Sie startet rechts vom Container und fuhr also rückwärts.
 - Regel: **Ein Schiff schaut immer in die Richtung, in die es fährt.**
 - Status: behoben in v242. Beim Anfahren schaut das Schiff zum Container,
   danach in die Richtung, in die es weiterfährt.
+- **Nachtrag (Silvio, v242):** „Die Flugrichtung der Frachter stimmt jetzt,
+  aber sie drehen sich nicht, sondern ändern schlagartig ihre Ausrichtung
+  sobald sie die Frachtkisten aufgenommen haben." Stimmt: v242 setzte die
+  Richtung um, statt zu drehen. Behoben in v243: das Schiff dreht sich in
+  1,5 s um, wie ein Großkampfschiff in seiner Bahn (`faceTurn()`).
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

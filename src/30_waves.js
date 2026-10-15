@@ -801,8 +801,8 @@ function leaveEmpty(e, wasCargo){
     SUB_MSGS.push({x:e.x, y:e.y-28, txt:'NO CARGO', life:150, ml:150,
                    ally:false, tone:'bad'});
   }
-  if(e.crossAfter){ e.crossing = e.crossAfter; e.flip = needsFlip(e.img, e.crossAfter < 0); }
-  if(e.escaping) e.flip = needsFlip(e.img, false);
+  if(e.crossAfter){ e.crossing = e.crossAfter; faceTurn(e, e.crossAfter < 0); }
+  if(e.escaping) faceTurn(e, false);
 }
 // Is anybody still able to come for this container? A living freighter
 // heading for its id without a claim on another one, or one still queued
@@ -872,7 +872,36 @@ function tickCarry(){
   for(const c of enemies.concat(allies))
     if(c.carrier && !c.dead && !unitAlive(c.carrier)) dropCargo(c);
 }
+// v243 (F24, Silvio: "sie drehen sich nicht, sondern ändern schlagartig
+// ihre Ausrichtung"): a ship that has to face the other way turns round
+// over FACE_TURN_STEPS, the way a capital ship turns in her lane
+// (capTurnStep, 57_turrets.js): turnP yaws the model, turnSq narrows the
+// picture, turnC carries the mounts, and the heading flips at the end.
+const FACE_TURN_STEPS = 150;
+function faceTurn(e, wantLeft){
+  const want = needsFlip(e.img, wantLeft);
+  if(e._face){ e._face.want = want; return; }
+  if(!!e.flip === want) return;
+  e._face = {p:0, want:want};
+}
+function tickFaceTurns(){
+  for(const list of [enemies, allies]) for(const e of list){
+    const f = e._face;
+    if(!f) continue;
+    // Asked to face the way she already faces: the turn is off.
+    if(!!e.flip === f.want && f.p === 0){ e._face = null; continue; }
+    f.p = Math.min(1, f.p + 1/FACE_TURN_STEPS);
+    const c = Math.cos(Math.PI*f.p);
+    e.turnP = f.p; e.turnSq = (c < 0 ? -1 : 1)*Math.max(0.12, Math.abs(c)); e.turnC = c;
+    if(f.p >= 1){
+      e.flip = !e.flip; e.turnP = null; e.turnSq = null; e.turnC = null;
+      // Changed her mind while turning: she turns back from here.
+      e._face = (!!e.flip === f.want) ? null : {p:0, want:f.want};
+    }
+  }
+}
 function tickDocking(){
+  tickFaceTurns();
   const all = enemies.concat(allies);
   // Containers nobody can come for any more. This runs before the wave end
   // test, so an abandoned container never holds the wave open.
@@ -920,8 +949,12 @@ function tickDocking(){
     if(!(L <= 1 || (L <= DOCK_NEAR && e.dockStall > 60))){
       // v242 (F24): a ship always faces the way it flies - nothing in
       // FreeSpace flies backwards. A runner was turned to her escape before
-      // she had loaded, and came at her container tail first.
-      if(Math.abs(dx) > 2) e.flip = needsFlip(e.img, dx < 0);
+      // she had loaded, and came at her container tail first. On her first
+      // step she is simply set that way; after that she turns (v243).
+      if(Math.abs(dx) > 2){
+        if(!e._dockFaced){ e.flip = needsFlip(e.img, dx < 0); e._dockFaced = true; }
+        else faceTurn(e, dx < 0);
+      }
       const sx = DOCK_SPD*1.6, sy = DOCK_SPD;
       e.x += Math.max(-sx, Math.min(sx, dx));
       e.y += Math.max(-sy, Math.min(sy, dy));
@@ -958,8 +991,8 @@ function tickDocking(){
       continue;
     }
     // Load first, then leave - facing the way she leaves (F24).
-    if(e.crossAfter){ e.crossing = e.crossAfter; e.flip = needsFlip(e.img, e.crossAfter < 0); }
-    if(e.escaping) e.flip = needsFlip(e.img, false);
+    if(e.crossAfter){ e.crossing = e.crossAfter; faceTurn(e, e.crossAfter < 0); }
+    if(e.escaping) faceTurn(e, false);
   }
 }
 function tickCapRam(){
