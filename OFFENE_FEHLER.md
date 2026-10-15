@@ -1940,6 +1940,95 @@ traf das Subsystem nur, wenn sie zufällig dort aufschlug.
   (`tgtTick`), und eine Rakete mit gewähltem Subsystem trifft dieses
   (`60_effects.js`).
 
+### F45 — Mission 7 (Pandora's Box): zu viele Gegnerjäger (v253)
+
+**Befund (Silvio, 15.10.2026):** „Deutlich zu viele Gegnerjäger. Bitte
+halbieren." (Practice-Log: 15 Tode in 1:37.)
+
+- Status: behoben in v254. Statt 14 nur noch 7 Shivan-Jäger (M2 und J3
+  gestrichen, Manticore- und Dragon-Staffel kleiner).
+
+### F46 — Mission 8 (Shieldbreaker): Zeitfenster viel zu kurz (v253)
+
+**Befund (Silvio, 15.10.2026):** „Das Zeitfenster die Frachtkisten zu
+scannen, den Frachter zu disablen und sich gleichzeitig gegen die Gegner zu
+erwehren ist deutlich zu gering. Daher unmöglich zu testen was getestet
+werden muss." (Practice-Log: Asmodeus nach 18 s am Rand, kein Schuss
+abgegeben.)
+
+- Status: behoben in v254. Die Frachter fliehen nur noch mit einem Viertel
+  der Fahrt: die Asmodeus 2 braucht nach dem ersten Treffer rund 75 s bis
+  zum Rand statt 19 s, die beiden anderen rund 50 s.
+
+### F47 — Mission 9 und 10 (Hammer and Anvil): Frachter und Container (v253)
+
+**Befund (Silvio, 15.10.2026):** „Die Poseidon-Frachter und die
+Frachtcontainer stehen hintereinander anstatt angedockt zu sein. Nur wirklich
+ersichtlich dadurch, dass man den Blickwinkel ändert, wenn man sich bewegt.
+Die Arme der Poseidon müssten den Frachtcontainer eigentlich auf beiden
+Seiten greifen und festhalten. Zudem stehen die Frachter einfach still statt
+zu fliegen. Außerdem sind Frachter und Container etwas zu groß im Vergleich
+zum Spieler." Mission 10: „Genau dasselbe wie Mission 9."
+
+- Status: teilweise behoben in v254. Die Frachter fliegen langsam nach
+  rechts (rund drei Minuten bis zum Rand). Fracht auf einem Frachter liegt
+  jetzt in derselben Tiefe wie er und wird direkt nach ihm in seinem
+  Tiefenpuffer gezeichnet (`f3dCargoHost`, `59_field3d.js`), damit sie bei
+  Kamerabewegung nicht mehr verrutscht und die Arme davor liegen können.
+  Die Größe hängt an F52 und ist noch offen.
+
+### F48 — Mission 10: Vasudaner werden zu spät feindlich (v253)
+
+**Befund (Silvio, 15.10.2026):** „Zudem ist die Dauer, bis die Vasudaner
+feindlich werden zu lang."
+
+- Status: behoben in v254. Der Seitenwechsel kommt nach 6 s statt 15 s.
+
+### F49 — Mission 11: Taranis zu nah an der Ramses und zerstörbar (v253)
+
+**Befund (Silvio, 15.10.2026):** „Die Taranis ist hier zum einen zu nah an
+der Ramses und die Taranis sollte nicht zerstörbar sein, sondern nur ihr
+Waffensubsystem. Andernfalls zerstört die Taranis die Ramses zu leicht."
+
+- Status: behoben in v254. Die Taranis springt weiter rechts ein
+  (x 760 statt zufällig neben der Ramses), hat nur noch das Waffen-
+  subsystem, und ihr Rumpf hält (`noKill`).
+
+### F50 — Subsystem-Markierungen hängen beim Drehen nach (v253)
+
+**Befund (Silvio, 15.10.2026, Mission 12):** „Wenn sich ein Schiff in eine
+andere Richtung dreht, bleiben die Markierungen für Subsysteme auf der alten
+Position und gleichen sich erst an die neue Schiffsposition an, wenn dieses
+seine Drehung vollendet hat. Wahrscheinlich kein missionsspezifisches
+Problem."
+
+- Status: behoben in v254. `subPos` dreht mit `turnC` mit, wie die
+  Geschütze (`mountPos`).
+
+### F51 — Mission 13 (First Strike: Salvage): Frachter dockt falsch an (v253)
+
+**Befund (Silvio, 15.10.2026):** „Zudem dockt der Frachter immer in der
+falschen Richtung an. Die Taranis schaut nach links, der Frachter nach
+rechts. Außerdem sollte der Frachter unten am Kreuzer andocken und müsste
+dafür eine 180 Grad Fassrolle um seine Längsachse nach dem Einwarpen
+machen."
+
+- Status: behoben in v254. Die Halkins springt rechts der Taranis ein,
+  fliegt also mit derselben Blickrichtung an, macht eine halbe Fassrolle
+  (`dockBelly`, `rollC`/`rollV`, 2,2 s) und dockt unter ihr an. Andockpunkt,
+  Geschütze und Trefferumriss drehen mit.
+
+### F52 — Größe der Frachter gegenüber Kreuzern (v253) — noch zu besprechen
+
+**Befund (Silvio, 15.10.2026, Mission 13):** „Der Frachter ist deutlich zu
+groß im Vergleich zur Taranis. 1 zu 1 Proportionen wie in Freespace sind
+nicht einwandfrei umsetzbar, das weiß ich, aber das hier fällt schon extrem
+auf. Vasudanische Frachter sind dagegen nicht so groß. Shivanische schon.
+Hier muss ein Gleichgewicht gefunden werden. Das besprechen wir noch, da es
+auch deren Frachtcontainergrößen beeinflusst."
+
+- Status: offen — erst besprechen, dann bauen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes

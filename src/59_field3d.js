@@ -664,19 +664,20 @@ function f3dMat(e, x, y, L){
   const sz = L.head.size, span = sz[2]*Math.abs(Math.cos(vw)) + sz[0]*Math.abs(Math.sin(vw));
   const s = w/Math.max(0.01, span/L.head.ext);
   const a = -(e.ang||0), ca = Math.cos(a), sa = Math.sin(a), cy = Math.cos(yaw), sy = Math.sin(yaw);
-  const rl = (F3D_ROLL[e.img] || 0) + (f3dSmall(F3D_ALIAS[e.img] || e.img) ? f3dTurnRoll(e) : 0);
+  const rl = (F3D_ROLL[e.img] || 0) + (f3dSmall(F3D_ALIAS[e.img] || e.img) ? f3dTurnRoll(e) : 0)
+           + (e.rollV ? Math.PI*e.rollV : 0);      // v254 (F51): a half roll about her length
+  const tz = f3dSmall(F3D_ALIAS[e.img] || e.img) ? f3dCargoZ(e) : -s*(sz[0]*Math.abs(Math.cos(vw)) + sz[2]*Math.abs(Math.sin(vw)))/2/L.head.ext;
   if(rl){
     // translate * rotZ(a) * rotY(yaw) * roll about the bow * scale (v202)
     const A = f3dMulA(f3dMulA([ca, sa, 0, -sa, ca, 0, 0, 0, 1], [cy, 0, -sy, 0, 1, 0, sy, 0, cy]),
                       [Math.cos(rl), Math.sin(rl), 0, -Math.sin(rl), Math.cos(rl), 0, 0, 0, 1]);
     return new Float32Array([s*A[0], s*A[1], s*A[2], 0, s*A[3], s*A[4], s*A[5], 0,
-                             s*A[6], s*A[7], s*A[8], 0, x, -y, 0, 1]);
+                             s*A[6], s*A[7], s*A[8], 0, x, -y, tz, 1]);
   }
   // v209: a capital ship is sunk below the play plane by half her
   // thickness, so the side facing the camera lies in the plane - fighters
   // fly over her, and her drawn hull is never larger than her 2D outline
   // (Silvio). f3dMidZ() gives the same depth to the 2D overlays.
-  const tz = f3dSmall(F3D_ALIAS[e.img] || e.img) ? 0 : -s*(sz[0]*Math.abs(Math.cos(vw)) + sz[2]*Math.abs(Math.sin(vw)))/2/L.head.ext;
   // translate * rotZ(a) * rotY(yaw) * scale, column-major
   return new Float32Array([
     s*ca*cy, s*sa*cy, -s*sy, 0,
@@ -759,8 +760,27 @@ function f3dPersp(x, y, z){
 // v209: how deep under the play plane the middle of a hull drawn from her
 // model lies (f3dMat sinks a capital ship by half her thickness). 0 for
 // small craft, sprites and the sprite mode.
+// v254 (F47, Silvio: "Frachter und Container stehen hintereinander"): cargo
+// on a freighter - riding on her (ride/slot) or docked to her - lies at her
+// depth, not in the play plane in front of her. Seen from a moving camera
+// the two then stay together, and drawn in her depth buffer (f3dFlush) the
+// arms that grip it lie in front of it.
+function f3dCargoHost(e){
+  if(!e) return null;
+  if(e.rideId && typeof byId === 'function'){
+    const f = byId(e.rideId).find(function(o){ return !o.dead; });
+    if(f && f !== e) return f;
+  }
+  if(e.carrier && !e.carrier.dead && e.carrier !== e) return e.carrier;
+  return null;
+}
+function f3dCargoZ(e){
+  const h = f3dCargoHost(e);
+  return (h && !f3dCargoHost(h)) ? f3dMidZ(h) : 0;
+}
 function f3dMidZ(e){
   if(!f3dOn(e) || e.type === 'asteroid') return 0;
+  if(f3dCargoHost(e)) return f3dCargoZ(e);
   if(f3dSmall(F3D_ALIAS[e.img] || e.img)) return 0;
   const k = f3dKey(e), L = k ? f3dReadyLevel(k) : null;
   if(!L || !L.head || !L.head.size) return 0;
@@ -843,7 +863,7 @@ function f3dRender(items, warm){
     // big ones first), each lies wholly in front of the ones before it, as
     // the sprites did; two hulls never cut into each other (Silvio: M11,
     // M38, M54, M78)
-    gl.clear(gl.DEPTH_BUFFER_BIT);
+    if(!it.keepZ) gl.clear(gl.DEPTH_BUFFER_BIT);
     const M0 = it.M || f3dMat(it.e, it.x, it.y, L);
     // v201: moving parts - one matrix per node (turret bases, barrels,
     // spinning dishes), the hull's own for node 0
@@ -1243,6 +1263,22 @@ function f3dFlush(seg){
     }catch(et){ ctx.restore(); }
     ctx.globalAlpha = 1;
     items.push({e: e, L: s.L, x: v.x, y: v.y, a: v.a, clip: v.clip});
+  }
+  // v254 (F47): cargo right after her freighter and in her depth buffer
+  // (keepZ), so the arms gripping it can lie in front of it.
+  const hostOf = new Map();
+  for(const it of items){
+    const h = it.e && f3dCargoHost(it.e);
+    if(h && items.some(function(t){ return t.e === h; })){ it.keepZ = true; hostOf.set(it, h); }
+  }
+  if(hostOf.size){
+    const ord = [];
+    for(const it of items){
+      if(it.keepZ) continue;
+      ord.push(it);
+      for(const [c, h] of hostOf) if(h === it.e) ord.push(c);
+    }
+    items.length = 0; for(const it of ord) items.push(it);
   }
   if(items.length){
     try{ f3dRender(items); }catch(er){ F3D.err = String(er && er.message || er); }

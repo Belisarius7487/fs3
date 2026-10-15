@@ -1913,7 +1913,10 @@ function subPos(e, s){
   const img = IMGS[e.img];
   if(!img) return {x:e.x, y:e.y};
   const hw = img.width*e.sc/2, hh = img.height*e.sc/2, sgn = e.flip ? -1 : 1;
-  const px = hw*s.dx*sgn, py = hh*s.dy;
+  // v254 (F50, Silvio: the marks stayed where they were until her turn was
+  // done): they swing round with the hull in a turn (turnC), as her guns
+  // do (mountPos), and over her keel in a roll (rollC).
+  const px = hw*s.dx*sgn*(e.turnC != null ? e.turnC : 1), py = hh*s.dy*(e.rollC != null ? e.rollC : 1);
   const a = e.ang || 0;
   if(!a) return {x:e.x+px, y:e.y+py};
   const ca=Math.cos(a), sa=Math.sin(a);
@@ -3075,7 +3078,7 @@ function mountPos(e, beam) {
   const img=IMGS[e.img]; if(!img) return {x:e.x,y:e.y};
   const pw=img.width*e.sc, ph=img.height*e.sc;
   const s = e.flip ? -1 : 1;   // drawn mirrored, so flip dx
-  const px = (pw/2)*beam.dx*s*(e.turnC != null ? e.turnC : 1), py = (ph/2)*beam.dy;   // v214: turnC
+  const px = (pw/2)*beam.dx*s*(e.turnC != null ? e.turnC : 1), py = (ph/2)*beam.dy*(e.rollC != null ? e.rollC : 1);   // v214: turnC; v254: rollC (F51)
   const a = e.ang || 0;
   // Still coming out of her vortex: the guns are where the picture is
   // (a ship firing on her way out of the portal, M77 v179).

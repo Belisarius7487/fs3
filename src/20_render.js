@@ -648,6 +648,8 @@ function getMask(key){
 // cx,cy = ship centre, sc = scale, flip = mirrored
 // o: the ship herself, when known (v204: her roll picks the map)
 function onHull(key, cx, cy, sc, flip, wx, wy, ang, o){
+  // v254 (F51): rolled half round her length, her outline is upside down
+  if(o && o.rollC != null && o.rollC < 0) wy = 2*cy - wy;
   const img = IMGS[key];
   if(!img) return true;                 // with no image, behave as before
   // v201: a ship drawn from her model is hit where the model is, also

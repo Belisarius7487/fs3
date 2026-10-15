@@ -4812,11 +4812,11 @@ scenario('FS1 M9 Hammer A: all three containers lost - failed', 'm=9', `
   r.ends = FS.until(()=>wave>9, 20000, true)>=0;
   return r;`);
 
-scenario('FS1 M10 Hammer B: the escort turns at 15 s, then the Shivans, convoy out', 'm=10', `
+scenario('FS1 M10 Hammer B: the escort turns at 6 s (F48), then the Shivans, convoy out', 'm=10', `
   const r = {};
   FS.step(100);
   r.escortOurs = allies.some(a=>a.uid==='A1') && allies.some(a=>a.uid==='A2');
-  FS.step(1500);
+  FS.step(600);
   r.turnedHostile = enemies.some(e=>e.uid==='A1') && !allies.some(a=>a.uid==='A1');
   r.success = FS.until(()=>objCard && objCard.tone==='done', 40000, true)>=0;
   r.ends = FS.until(()=>wave>10, 20000, true)>=0;
@@ -4941,6 +4941,65 @@ scenario('FS1 sounds: every FS1 weapon its own launch sound, the right impacts',
   r.everyKeyHasAFile = Object.values(want).every(k=>k in SND_FILES);
   r.clusterImpacts = fs1Def('synaptic').hitSnd==='clusterboom' && fs1Def('harbinger').hitSnd==='clusterboom';
   r.railgun = F3D_GUN_SND.Railgun==='L_mass' && ('L_mass' in SND_FILES);
+  return r;`);
+
+// v254: Silvio's findings in M7 to M13 (F45-F51).
+scenario('FS1 M07 F45: half the Shivan fighters', 'm=7', `
+  const r = {};
+  const d = SCRIPT_WAVES[7];
+  let n = 0;
+  for(const u of d.u) if(u.c==='fi' && u.fac==='shivan') n += (u.size||1)*(u.n||1);
+  r.atMostSeven = n <= 7;
+  return r;`);
+scenario('FS1 M08 F46: fired on, the Asmodeus 2 needs over a minute to the edge', 'm=8', `
+  const r = {};
+  FS.step(120);
+  evFire({w:'fliehen', a:'F1+F2+F3'});
+  FS.step(6000);
+  r.notGoneIn60s = wave===8 && byId('F1').length===1 && !EV_LEFT.F1;
+  r.goneInTheEnd = FS.until(()=>!!EV_LEFT.F1 || wave>8, 6000, true) >= 0;
+  return r;`);
+scenario('FS1 M09 F47: the convoy flies, the cargo rides at her depth', 'm=9', `
+  const r = {};
+  FS.step(300);
+  const t1 = byId('T1')[0], k1 = byId('K1')[0];
+  const x0 = t1.x;
+  FS.step(1000);
+  r.flies = t1.x > x0 + 20;
+  r.facesItsWay = !t1.flip === (spriteFacing(t1.img) === 'right');
+  r.cargoWithHer = Math.abs(k1.x - t1.x) < 80;
+  r.cargoKnowsHer = typeof f3dCargoHost === 'function' && f3dCargoHost(k1) === t1;
+  r.notOutYet = !EV_LEFT.T1;
+  return r;`);
+scenario('FS1 M11 F49: the Taranis further off, only her guns can go', 'm=11', `
+  const r = {};
+  FS.until(()=>byId('C1').length>0 && byId('C1')[0].warp<=0, 4000, true);
+  const c = byId('C1')[0], ra = byId('R1')[0];
+  r.farOff = !!c && !!ra && Math.abs(c.x - ra.x) > 230*FIELD_K;
+  r.onlyGuns = !!c && !!c.subs && c.subs.length===1 && c.subs[0].id==='weapons';
+  c.hp = 1; damageEnemy(c, 1e6, c.x, c.y, true);
+  FS.step(30);
+  r.hullHolds = !c.dead && c.hp > 0 && c.rollT == null;
+  return r;`);
+scenario('FS1 M12 F50: subsystem marks turn with the hull', 'm=12', `
+  const r = {};
+  FS.step(200);
+  const t = byId('R1')[0], s = t.subs.find(x=>Math.abs(x.dx) > 0.2) || t.subs[0];
+  const a = subPos(t, s).x - t.x;
+  t.turnC = 0;
+  const b = subPos(t, s).x - t.x;
+  t.turnC = null;
+  r.swings = Math.abs(b) < Math.abs(a)*0.2;
+  return r;`);
+scenario('FS1 M13 F51: the Halkins faces the Taranis way and rolls under her', 'm=13', `
+  const r = {};
+  FS.until(()=>byId('H1').length>0 && byId('H1')[0].warp<=0, 3000, true);
+  const h = byId('H1')[0], t = byId('R1')[0];
+  FS.until(()=>!!EV_DOCK.H1, 8000, true);
+  r.docked = !!EV_DOCK.H1;
+  r.sameWay = !!h && ((spriteFacing(h.img)==='right') !== !!h.flip) === ((spriteFacing(t.img)==='right') !== !!t.flip);
+  r.rolled = !!h && h.rollC != null && h.rollC < -0.99;
+  r.under = !!h && h.y > t.y;
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

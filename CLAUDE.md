@@ -402,6 +402,13 @@ an der Kapersperre vorbei). Auslöser: `genommen` (gekapert); `gescannt` und
 `verlaesst` nehmen mehrere Kennungen mit `+`. Ereignisfeld `wenn:{t,a}`: eine
 zweite Bedingung, die zugleich gelten muss.
 
+Seit v254: `dockBelly` an einem Andockenden (er rollt nach dem Sprung
+halb um seine Längsachse und dockt unter dem Ziel an; `rollC` dreht
+Andockpunkt, Geschütze, Subsysteme und Trefferumriss mit). Fracht auf einem
+Frachter (`ride` oder angedockt) liegt im 3D-Bild in seiner Tiefe
+(`f3dCargoHost`). Subsystem-Markierungen drehen bei einer Wende mit
+(`turnC` in `subPos`).
+
 Eine **Kennung steht für eine Gruppe**, nicht für ein Schiff: `byId()` gibt
 jede Einheit zurück, die sie trägt, und ein Auslöser darf mehrere mit `+`
 nennen. Mission 78 gibt ihren drei Geräten dieselbe Kennung, damit **ein**

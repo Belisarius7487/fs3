@@ -580,6 +580,7 @@ function spawnProtected(sp){
     // then jumps out instead of flying on.
     if(sp.dockHold) a.dockHold = Math.round(sp.dockHold*TICK_HZ);
     if(sp.dockLabel) a.dockLabel = sp.dockLabel;    // 'REPAIRING' (v178)
+    if(sp.dockBelly) a.dockBelly = true;            // v254 (F51)
     a.crossAfter = sp.cross || 0.38;
     // Die Hoehe darf nicht gepinnt sein, sonst kommt er nie zum
     // Andockpunkt hoch.
@@ -756,8 +757,10 @@ function dockPoint(o){
   // v244: in a turn the dock point swings round with the hull - turnC is
   // how far her length still lies across the picture (1 to -1).
   const s = (o.flip ? -1 : 1)*(o.turnC != null ? o.turnC : 1);
+  // v254 (F51): rolled about her length (rollC, 1 to -1) it swings over
+  // her keel the same way.
   return {x:o.x + (img.width*o.sc*0.5)*d.dx*s,
-          y:o.y + (img.height*o.sc*0.5)*d.dy};
+          y:o.y + (img.height*o.sc*0.5)*d.dy*(o.rollC != null ? o.rollC : 1)};
 }
 // Offset of a ship's first dock point from its centre.
 function dockOffset(o){
@@ -883,7 +886,7 @@ function dockPointN(o, n){
   const d = m.docks[n];
   const s = (o.flip ? -1 : 1)*(o.turnC != null ? o.turnC : 1);
   return {x:o.x + (img.width*o.sc*0.5)*d.dx*s,
-          y:o.y + (img.height*o.sc*0.5)*d.dy, ang:d.ang};
+          y:o.y + (img.height*o.sc*0.5)*d.dy*(o.rollC != null ? o.rollC : 1), ang:d.ang};
 }
 // v253: cargo riding on a freighter from the start (ride/slot). It stays
 // a ship of its own - it can be scanned - but sits on her dock point. She
@@ -959,6 +962,7 @@ function tickFaceTurns(){
     }
   }
 }
+const DOCK_ROLL_STEPS = 220;    // v254 (F51): her half roll, 2.2 s
 function tickDocking(){
   tickFaceTurns();
   const all = enemies.concat(allies);
@@ -996,8 +1000,17 @@ function tickDocking(){
         continue;
       }
     }
-    // Head for the spot where his dock point meets the target's.
+    // v254 (F51, Silvio: the Halkins docks under the Taranis): dockBelly -
+    // after her jump she makes a half roll about her length, and her dock
+    // point, now on top, meets the target's mirrored to her keel. The dock
+    // waits for the roll.
+    if(e.dockBelly && e.rollV == null) e.rollV = 0;
+    if(e.dockBelly && e.rollV < 1){
+      e.rollV = Math.min(1, e.rollV + 1/DOCK_ROLL_STEPS);
+      e.rollC = Math.cos(Math.PI*e.rollV);
+    }
     const p = dockPoint(t), o = dockOffset(e);
+    if(e.dockBelly) p.y = t.y - (p.y - t.y);
     const dx = (p.x-o.x) - e.x, dy = (p.y-o.y) - e.y;
     const L = Math.hypot(dx, dy);
     e.vx = 0; e.vy = 0;
@@ -1005,7 +1018,7 @@ function tickDocking(){
     // closer while near enough, he docks where he is.
     if(e.dockBest==null || L < e.dockBest-0.05){ e.dockBest = L; e.dockStall = 0; }
     else e.dockStall = (e.dockStall||0) + 1;
-    if(!(L <= 1 || (L <= DOCK_NEAR && e.dockStall > 60))){
+    if(!(L <= 1 || (L <= DOCK_NEAR && e.dockStall > 60)) || (e.dockBelly && e.rollV < 1)){
       // v242 (F24): a ship always faces the way it flies - nothing in
       // FreeSpace flies backwards. A runner was turned to her escape before
       // she had loaded, and came at her container tail first. On her first
@@ -2416,14 +2429,13 @@ const SCRIPT_WAVES = {
        {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:540, y:110},
        {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:700, y:240},
        {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:540, y:390},
-       {id:'M1', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', wait:true},
-       {id:'M2', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', wait:true},
+       {id:'M1', c:'fi', n:1, size:2, spr:'fimanticore', fac:'shivan', wait:true},
        {id:'C1', c:'cr', n:1, spr:'crcain', fac:'shivan', wait:true, label:'SC Taranis'},
        {id:'J1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'J2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
-       {id:'J3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
-       {id:'D1', c:'fi', n:1, size:2, spr:'fidragon', fac:'shivan', wait:true}
+       {id:'D1', c:'fi', n:1, size:1, spr:'fidragon', fac:'shivan', wait:true}
      ], ev:[
+       // v254: half the Shivan fighters (Silvio, F45): 14 -> 7
        {t:'sek', a:4, w:'meldung', a2:'Bonus: destroy the three sentry guns'},
        {t:'alleZerstoert', a:'G1', w:'meldung', a2:'Bonus: sentry guns destroyed'},
        // the third scan springs the trap
@@ -2436,12 +2448,10 @@ const SCRIPT_WAVES = {
        {t:'gescannt', a:'K1+K3+K5', d:5, w:'zerstoeren', a2:'K5'},
        {t:'gescannt', a:'K1+K3+K5', d:6, w:'zerstoeren', a2:'K6'},
        {t:'gescannt', a:'K1+K3+K5', d:3, w:'einwarpen', a2:'M1'},
-       {t:'gescannt', a:'K1+K3+K5', d:4, w:'einwarpen', a2:'M2'},
        {t:'gescannt', a:'K1+K3+K5', d:5, w:'einwarpen', a2:'C1'},
        {t:'gescannt', a:'K1+K3+K5', d:8, w:'einwarpen', a2:'J1'},
        {t:'gescannt', a:'K1+K3+K5', d:22, w:'einwarpen', a2:'J2'},
        {t:'gescannt', a:'K1+K3+K5', d:30, w:'einwarpen', a2:'D1'},
-       {t:'gescannt', a:'K1+K3+K5', d:40, w:'einwarpen', a2:'J3'},
        // 60 s after the trap, unseen: they give up - order counts, an
        // 'abzug' closes every later event
        {t:'gescannt', a:'K1+K3+K5', d:62, w:'zielerfuellt', a2:'The Shivans are pulling out'},
@@ -2457,14 +2467,17 @@ const SCRIPT_WAVES = {
   // and the Shivans would rather see her dead ('opfer', 'jagd'). A second
   // Elysium if the first is lost. The player's Apollo carries the
   // D-Advanced (Silvio).
+  // v254 (F46): they run a quarter as fast - once fired on, the Asmodeus 2
+  // needs about 75 s to the edge instead of 19 (the others about 50 s), time
+  // enough to scan, disable and fight.
   8: {name:'Shieldbreaker', era:'fs1', orig:7, ship:'fiapollo', pri:'dadv', fac:'hol', o:'clear', live:6,
       ziel:'Scan the cargo - find the shield prototypes', u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
-       {id:'F1', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:480, y:265, escape:0.15, escWarp:true,
+       {id:'F1', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:480, y:265, escape:0.04, escWarp:true,
         escHit:true, escDelay:90, subs:'engines+weapons', capture:true, label:'SFr Asmodeus 2'},
-       {id:'F2', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:580, y:140, escape:0.15, escWarp:true,
+       {id:'F2', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:580, y:140, escape:0.04, escWarp:true,
         escHit:true, escDelay:90, label:'SFr Asmodeus 1', spare:true},
-       {id:'F3', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:580, y:395, escape:0.15, escWarp:true,
+       {id:'F3', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:580, y:395, escape:0.04, escWarp:true,
         escHit:true, escDelay:90, label:'SFr Asmodeus 3', spare:true},
        {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F1', slot:0, scan:true},
        {id:'K2', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F1', slot:1, scan:true, scanFirst:true},
@@ -2533,12 +2546,15 @@ const SCRIPT_WAVES = {
   // enemies down: the convoy jumps. One container through is a success,
   // all three the bonus, none a failure. Basilisks in waves of three, the
   // second only when the first is down (Silvio, 15.10.2026).
+  // v254 (F47, Silvio: the freighters stood still): the convoy flies -
+  // slowly to the right, about three minutes to the edge, so the fight is
+  // over long before they get there.
   9: {name:'The Hammer and the Anvil: Breakout', era:'fs1', orig:8, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Protect the Theta freighters and their cargo', u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
-       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:300, y:150, mark:'protect', label:'GTFr Theta 1'},
-       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:330, y:265, mark:'protect', label:'GTFr Theta 2'},
-       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:300, y:380, mark:'protect', label:'GTFr Theta 3'},
+       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:160, y:150, cross:0.04, mark:'protect', label:'GTFr Theta 1'},
+       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:190, y:265, cross:0.04, mark:'protect', label:'GTFr Theta 2'},
+       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:160, y:380, cross:0.04, mark:'protect', label:'GTFr Theta 3'},
        {id:'K1', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T1', label:'Cargo Alpha'},
        {id:'K2', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T2', label:'Cargo Beta'},
        {id:'K3', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T3', label:'Cargo Gamma'},
@@ -2572,9 +2588,9 @@ const SCRIPT_WAVES = {
        {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
        {id:'A1', c:'fi', n:1, size:3, spr:'fianubis', side:'ally'},
        {id:'A2', c:'fi', n:1, size:2, spr:'fiseth', side:'ally'},
-       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:300, y:150, mark:'protect', label:'GTFr Theta 1'},
-       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:330, y:265, mark:'protect', label:'GTFr Theta 2'},
-       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:300, y:380, mark:'protect', label:'GTFr Theta 3'},
+       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:160, y:150, cross:0.04, mark:'protect', label:'GTFr Theta 1'},
+       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:190, y:265, cross:0.04, mark:'protect', label:'GTFr Theta 2'},
+       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:160, y:380, cross:0.04, mark:'protect', label:'GTFr Theta 3'},
        {id:'K1', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T1', label:'Cargo Alpha'},
        {id:'K2', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T2', label:'Cargo Beta'},
        {id:'K3', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T3', label:'Cargo Gamma'},
@@ -2584,11 +2600,11 @@ const SCRIPT_WAVES = {
        {id:'B3', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true}
      ], ev:[
        {t:'sek', a:4, w:'meldung', a2:'Bonus: bring all three containers through'},
-       // the escort turns on the convoy
-       {t:'sek', a:15, w:'seite', a2:'A1'},
-       {t:'sek', a:15, w:'seite', a2:'A2'},
-       {t:'sek', a:15, w:'meldung', a2:'The Vasudan escort is turning on the convoy!'},
-       {t:'sek', a:15, w:'jagd', a2:'T2'},
+       // the escort turns on the convoy - v254 (F48): at 6 s, not 15
+       {t:'sek', a:6, w:'seite', a2:'A1'},
+       {t:'sek', a:6, w:'seite', a2:'A2'},
+       {t:'sek', a:6, w:'meldung', a2:'The Vasudan escort is turning on the convoy!'},
+       {t:'sek', a:6, w:'jagd', a2:'T2'},
        // then the Shivans
        {t:'alleZerstoert', a:'A1+A2', w:'einwarpen', a2:'S1'},
        {t:'sek', a:45, w:'einwarpen', a2:'S1'},
@@ -2629,7 +2645,11 @@ const SCRIPT_WAVES = {
        {id:'F2', c:'fr', n:1, spr:'frsatis', x:640, y:310, escape:0.3, escWarp:true, escHit:true, escDelay:50, label:'PVFr Satis 2'},
        {id:'E1', c:'fi', n:1, size:3, spr:'fiseth', t:2},
        {id:'E2', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
-       {id:'C1', c:'cr', n:1, spr:'crcain', fac:'shivan', wait:true, label:'SC Taranis'},
+       // v254 (F49): she comes in further off, and only her guns can be shot
+       // away - the hull holds (noKill), so she cannot be taken out early
+       // and the Ramses lives longer.
+       {id:'C1', c:'cr', n:1, spr:'crcain', fac:'shivan', wait:true, label:'SC Taranis',
+        x:760, y:265, subs:'weapons', noKill:true},
        {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'X1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
        {id:'X2', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
@@ -2697,8 +2717,11 @@ const SCRIPT_WAVES = {
        {id:'W2', c:'fi', n:1, size:4, spr:'fivalyrie', side:'ally'},
        {id:'R1', c:'cr', n:1, spr:'crcain', fac:'shivan', x:540, y:265, subs:'engines+weapons',
         subsDown:'engines+weapons', capture:true, label:'SC Taranis'},
-       {id:'H1', c:'fr', n:1, spr:'frchronos', side:'ally', x:380, y:300, warpIn:true,
-        dockTo:'R1', dockHold:25, dockLabel:'DOCKING', wait:true, mark:'protect', label:'GTFr Halkins'},
+       // v254 (F51): she jumps in to the right of the Taranis and so faces her
+       // way (left) on the approach, rolls half round and docks under her.
+       {id:'H1', c:'fr', n:1, spr:'frchronos', side:'ally', x:760, y:330, warpIn:true,
+        dockTo:'R1', dockHold:25, dockLabel:'DOCKING', wait:true, mark:'protect', label:'GTFr Halkins',
+        dockBelly:true},
        {id:'B1', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true},
        {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'B2', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true}
@@ -4798,7 +4821,7 @@ function scriptUnit(u, fac, q){
       put({time:t0+i*70, type:'protect', spr:u.spr,
            fac:allyRace(), noWarp:1, warpIn:u.warpIn,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
-           dockLabel:u.dockLabel,
+           dockLabel:u.dockLabel, dockBelly:u.dockBelly,
            pickup:u.pickup?1:0, ride:u.ride, slot:u.slot});
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast')?1:0,   // v253: u.fac, Shivan cargo in an HoL mission
