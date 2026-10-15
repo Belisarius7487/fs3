@@ -127,6 +127,7 @@ const SND_MIX = {
   warp_open:0.18, warp_in_big:0.36, warp_out_big:0.36,
   beam_charge:0.30, beam_loop:0.24, beam_down:0.26,
   ai_fire:0.05, ai_sec:0.14,
+  cap_fire:0.13, cap_heavy:0.22,     // F42 (v252): capital turrets, their own mix
   // v187: the FS2 sounds at the level of the ones they replace
   L_Prom_R:0.20, L_Prom_S:0.20, L_Sidearm:0.20, L_Scalpel:0.20, L_Flail:0.20,
   L_Kayser:0.20, L_Circle:0.20, L_Newton:0.20,
@@ -144,13 +145,15 @@ const SND_VOICES = {
   L_Prom_R:3, L_Prom_S:3, L_Sidearm:3, L_Scalpel:3, L_Flail:3, L_Kayser:3, L_Circle:3, L_Newton:3,
   fs_hit:2, fs_boom:2,
   beam_charge:3, beam_down:2, ai_fire:2, ai_sec:1, sub_destroyed:2,
+  cap_fire:4, cap_heavy:3,
   death_roll:5
 };
 // Least time between two starts of one sound, in seconds.
 const SND_GAP = {hit_player:0.15, hit_shield:0.15, sec_empty:0.35,
                  expl_secondary:0.15, expl_small:0.06, missile_explosion:0.08,
                  fs_hit:0.07, fs_boom:0.08,
-                 ai_fire:0.09, ai_sec:0.25, warp_open:0.25, beam_charge:0.10};
+                 ai_fire:0.09, ai_sec:0.25, warp_open:0.25, beam_charge:0.10,
+                 cap_fire:0.05, cap_heavy:0.03};
 // Sounds that give way when the mix is busy.
 const SND_MINOR = {ai_fire:1, ai_sec:1, expl_secondary:1, warp_open:1, beam_down:1,
                    hit_shield:1, missile_explosion:1, fs_hit:1, fs_boom:1};
@@ -341,6 +344,13 @@ function sndStop(src){
 // weapons of the game they all sound like a Prometheus (Silvio).
 // key: the gun's own sound (capital turrets), Prometheus if none is given.
 function sndAiShot(x, y, key){ sndStart(key || 'wpn_prometheus', x, 1, false, 'ai_fire', y); }
+// F42 (v252): a capital ship's turret. They shared ai_fire with the fighters
+// - 0.05 loud, two at a time, first to go when the mix was busy - so most of
+// an Orion or a Plato was never heard (Silvio). Their own mix now, not
+// dropped when busy; the heavy guns louder still.
+function sndCapShot(x, y, key, heavy){
+  sndStart(key || 'wpn_terran_turret', x, 1, false, heavy ? 'cap_heavy' : 'cap_fire', y);
+}
 function sndAiSec(x, bomb, y){ sndStart(bomb ? 'sec_cyclops' : 'sec_mx64', x, 1, false, 'ai_sec', y); }
 // A ship going up. Fighters, bombers and rocks at once; a capital ship
 // starts with its secondary blasts and the big one comes with the final

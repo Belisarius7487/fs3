@@ -115,6 +115,10 @@ const F3D_WPN = {
   // is why beams later went onto the capital ships. Scatter 1.5 is his
   // middle between the Huge Turret's 3 and a railgun's precision.
   // aspd/admg follow the Huge Turret's ratios (x1.65 and x2.26).
+  // F40 (v252): FS1 guns, scaled from the FS1 table as the Subach row above
+  // is from FS2 (15 dmg, 450 m/s, 0.2 s -> 3.43, 7.36, 0.2)
+  "ML-16 Laser": {"k":"gun","rate":0.2,"spd":7.36,"dmg":1.14,"aspd":12.27,"admg":2.57,"w":7,"h":3,"scat":1,"shiv":0},
+  "Avenger": {"k":"gun","rate":0.25,"spd":8.59,"dmg":3.66,"aspd":14.31,"admg":8.23,"w":7,"h":3,"scat":1,"shiv":0},
   "Railgun": {"k":"gun","rate":2.0,"spd":5.5,"dmg":26,"aspd":9.1,"admg":59,"w":12,"h":6,"scat":1.5,"big":true,"shiv":0},
   "Piranha": {"k":"missile","rate":1.0,"dmg":1.0},
   "SAAA": {"k":"afbeam","large":false,"type":"slash","dmg":0.257,"chargeT":533,"fireT":168,"coolT":545},
@@ -196,6 +200,17 @@ const F3D_GUNS = {
   gmzephyrus:{"primary":[[0.608,-0.229,-0.0,0.0,1.0,0.0,"Terran Turret Weak",0],[-0.592,-0.101,-0.188,-0.98,0.21,0.01,"Terran Turret Weak",2],[0.536,0.129,0.0,0.0,-1.0,0.0,"Subach HL-7",3],[-0.559,-0.148,0.0,0.0,0.0,-1.0,"Subach HL-7",4]],"flak":[[-0.592,-0.101,0.188,0.98,0.21,0.01,"Standard Flak",1]],"thr":[[-0.777,-0.139,0.019],[-0.773,-0.022,0.0159],[-0.758,-0.199,0.0072]]}
 };
 const F3D_MNT = {};
+// F40 (v252): the FS2-only turret guns and what the FS1 ships table gives
+// these hulls instead (fs1/tables/tables/ships.tbl, $Default PBanks).
+// Silvio: the Plato carried Subachs in the FS1 strand.
+const FS1_GUN_SWAP = {'Subach HL-7': 'Avenger', 'Mekhu HL-7': 'Avenger',
+                      'Shivan Standard Flak': 'Shivan Turret Laser'};
+const FS1_GUN_HULL = {trelysium: 'ML-16 Laser', scfaustus: 'ML-16 Laser'};
+function fs1Gun(key, name){
+  if(!FS1_GUN_SWAP[name]) return name;
+  if(FS1_GUN_HULL[key] && FS1_GUN_SWAP[name] !== 'Shivan Turret Laser') return FS1_GUN_HULL[key];
+  return FS1_GUN_SWAP[name];
+}
 // The mount lists of a hull, built from her model's turrets. Needs the
 // sprite's proportions (the lists are measured against its box); until it
 // has loaded the old lists are given. The old ones stay on .raw (the
@@ -273,14 +288,23 @@ function f3dMounts(key, m){
     c.beams.push(Object.assign(pos(q), {large: w.large, type: w.type, dmg: w.dmg,
       chargeT: w.chargeT, fireT: w.fireT, coolT: w.coolT}));
   }
-  for(const q of (t.primary || [])){
-    const w = F3D_WPN[q[6]];
+  // F40 (v252): in FS1 a turret carries the gun FS1 gave her, not the FS2
+  // one of the MediaVP model (fs1Gun below).
+  const fs1 = typeof currentEra !== 'undefined' && currentEra === 'fs1';
+  const gunOf = function(q, name){
+    const w = F3D_WPN[name];
     const g = {rate: w.rate, spd: w.spd, dmg: w.dmg, aspd: w.aspd, admg: w.admg, w: w.w, h: w.h,
-               scat: w.scat, big: !!w.big, name: q[6],   // name: F34, the FS1 colours
-               snd: F3D_GUN_SND[q[6]] || (w.shiv ? 'wpn_shivan_turret' : (w.big ? 'wpn_tht' : 'wpn_terran_turret'))};
+               scat: w.scat, big: !!w.big, name: name,   // name: F34, the FS1 colours
+               snd: F3D_GUN_SND[name] || (w.shiv ? 'wpn_shivan_turret' : (w.big ? 'wpn_tht' : 'wpn_terran_turret'))};
+    if(name !== q[6]) g.was = q[6];
     c.primary.push(Object.assign(pos(q), {g: g}));
+  };
+  for(const q of (t.primary || [])) gunOf(q, fs1 ? fs1Gun(key, q[6]) : q[6]);
+  for(const q of (t.flak || [])){
+    const sw = fs1 ? fs1Gun(key, q[6]) : q[6];
+    if(sw !== q[6] && F3D_WPN[sw] && F3D_WPN[sw].k === 'gun'){ gunOf(q, sw); continue; }
+    const w = F3D_WPN[q[6]]; c.flak.push(Object.assign(pos(q), {fk: {rate: w.rate, dmg: w.dmg}}));
   }
-  for(const q of (t.flak || [])){ const w = F3D_WPN[q[6]]; c.flak.push(Object.assign(pos(q), {fk: {rate: w.rate, dmg: w.dmg}})); }
   for(const q of (t.secondary || [])){ const w = F3D_WPN[q[6]]; c.secondary.push(Object.assign(pos(q), {sec: {rate: w.rate, dmg: w.dmg}})); }
   // the engine glows of the model (FUEL), aft, sized by their glow radius
   if(t.thr && t.thr.length) c.thrusters = t.thr.map(function(q){

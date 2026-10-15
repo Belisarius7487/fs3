@@ -1263,7 +1263,7 @@ function update(){
     if(b.eLife && --b.eLife<=0){ eBullets.splice(i,1); continue; }
     if(debrisEatsBolt(b)){ eBullets.splice(i,1); continue; }
     if(b.x<WX0-60||b.x>WX1+60||b.y<WY0-114||b.y>WY1+60){eBullets.splice(i,1);continue;}
-    if(!b.kind && fc%4===0){
+    if(!b.kind && fc%4===0 && !b.hidE){   // F41: not under the far flank
       PARTS.push({x:b.x-b.vx*0.5, y:b.y-b.vy*0.5,
         vx:-b.vx*0.10, vy:-b.vy*0.10+(Math.random()-0.5)*0.2,
         life:(6+Math.random()*6)|0, ml:0, sz:0.8+Math.random(),
@@ -1373,11 +1373,14 @@ function update(){
     // bound too. Without it a shot fired backwards is never cleaned up.
     if(b.x>WX1+40||b.x<WX0-40||b.y<WY0-94||b.y>WY1+40){pBullets.splice(i,1);continue;}
     // Faint glowing trail behind every laser bolt
-    if(!b.sec && fc%3===0){
+    // F41 (v252): not while the bolt is hidden under the far flank of her
+    // ship - the specks are drawn over every hull and showed on her near
+    // side; and in the bolt's own colour (an ally's were always light blue).
+    if(!b.sec && fc%3===0 && !b.hidE){
       PARTS.push({x:b.x-b.vx*0.6, y:b.y-b.vy*0.6,
         vx:-b.vx*0.10, vy:-b.vy*0.10+(Math.random()-0.5)*0.25,
         life:(7+Math.random()*7)|0, ml:0, sz:0.9+Math.random()*1.1,
-        clr: b.ally ? (b.fac==='vasudan'?'#ffd257':'#7fc4ff') : (b.col||'#ccff88')});
+        clr: b.col || (b.ally ? (b.fac==='vasudan'?'#ffd257':'#7fc4ff') : '#ccff88')});
     }
     let hit=false;
     // Incoming bombs can be shot down

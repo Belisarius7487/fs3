@@ -4632,6 +4632,54 @@ scenario('FS1 M6 v251: the exit vortex opens ahead, with a run-up (F38)', 'm=6',
   r.destroyerRunUp = !!g && g.lead >= Math.min(0.5*g.L, FS_OUT_LEAD_MAX) - 1;
   return r;`);
 
+
+// ── v252: F40 to F42 ────────────────────────────────────────────────────
+scenario('FS1 M5 v252: the Plato carries her FS1 guns, no Subach (F40)', 'm=5', `
+  const r = {};
+  FS.step(300);
+  const p = byId('P1')[0];
+  const names = (mountsFor(p.img).primary || []).map(q=>q.g && q.g.name);
+  r.guns = [...new Set(names)].join(', ');
+  r.noFs2 = names.length>0 && names.every(n=>n!=='Subach HL-7' && n!=='Mekhu HL-7');
+  return r;`);
+
+scenario('FS1 M6 v252: no trail while the bolt is under the hull, in its colour (F41)', 'm=6', `
+  const r = {};
+  FS.step(100);
+  const g = byId('G1')[0];
+  // an enemy bolt hidden and one in the open, then an ally bolt in the open.
+  // Out in space, where nothing is hit; 'on her hull' is granted so the
+  // hidden one stays hidden when drawn.
+  const keepOH = onHullAt; onHullAt = function(){ return true; };
+  const eb = function(hid, col){ eBullets.push({x:g.x, y:g.y-1500, vx:0.01, vy:0, w:8, h:4, dmg:0,
+    faction:'shivan', col:col, glow:'rgba(0,0,0,0)', hidE: hid ? g : null, eLife:40}); };
+  eb(true, '#123456'); eb(false, '#654321');
+  // well away from every hull, so no hit spark carries the colour
+  pBullets.push({x:g.x, y:g.y-1500, vx:0.01, vy:0, w:8, h:4, dmg:0, ally:true, fac:'terran', cap:true,
+    col:'#abcdef', glow:'rgba(0,0,0,0)', hidE:null, pLife:40});
+  FS.step(12);
+  onHullAt = keepOH;
+  r.hiddenTrail = PARTS.filter(p=>p.clr==='#123456').length;
+  r.openTrail = PARTS.filter(p=>p.clr==='#654321').length;
+  r.allyTrail = PARTS.filter(p=>p.clr==='#abcdef').length;
+  r.noneWhileHidden = r.hiddenTrail === 0 && r.openTrail > 0;
+  r.ownColour = r.allyTrail > 0;
+  return r;`);
+
+scenario('FS1 M6 v252: turret shots heard in their own mix, every round of a triple (F42)', 'm=6', `
+  const r = {};
+  FS.step(100);
+  const heard = [];
+  const keep = sndStart;
+  sndStart = function(name, x, vol, loop, mix){ heard.push(mix); return null; };
+  const g = byId('G1')[0];
+  capGunShot(g, g.x, g.y, 0, {big:true, aspd:5, admg:1, spd:5, dmg:1, w:12, h:12, snd:'wpn_tht'}, true, false, null);
+  FS.step(40);
+  sndStart = keep;
+  r.heard = heard.join(' ');
+  r.burstHeard = heard.filter(m=>m==='cap_heavy').length >= 2;
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

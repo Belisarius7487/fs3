@@ -82,6 +82,8 @@ function tickCapBursts(){
     CAP_BURSTS.splice(i,1);
     // a ship gone or in her death roll fires nothing more
     if(b.e.dead || b.e.rollT!=null || (enemies.indexOf(b.e)<0 && allies.indexOf(b.e)<0)) continue;
+    // F42: every round of the triple is heard, not only the first
+    if(typeof sndCapShot === 'function') sndCapShot(b.e.x+b.dx, b.e.y+b.dy, b.g.snd, !!b.g.big);
     capGunBolt(b.e, b.e.x+b.dx, b.e.y+b.dy, b.ang, b.g, b.ally, b.pd, b.hidE);
   }
 }

@@ -1871,7 +1871,44 @@ und keinen eigenen Klang. Sie wird genau wie der Schuss des schweren Turms
 gezeichnet (runde Leuchtkugel, 13 × 13) und soll dessen Klang `wpn_tht`
 spielen. Kleine Beams werden zu Standard-Flak.
 
-- Status: offen, wartet auf Silvio (Vorlage aus den FS1-Dateien)
+- Status: geklärt (Silvio, v251): die Railgun ist bewusst unser Ersatz. Was
+  er sah, waren die Schweife (F41) und der fehlende Klang (F42).
+
+### F40 — FS2-Waffen auf den Türmen im FS1-Strang (v251)
+
+**Befund (Silvio, v251):** „Jetzt stellt sich aber die Folgefrage wieso die
+Plato im FS1-Ark Subachs trägst, die es erst in FS2 gibt? Und haben dieses
+Problem auch andere Schiffe? Das betrifft nicht nur die Subach sondern alle
+FS2-Ära Waffen."
+
+- Status: behoben in v252. Im FS1-Strang tauscht `fs1Gun()` die FS2-Waffen
+  der MediaVP-Modelle gegen die der FS1-Schiffstabelle: Subach und Mekhu
+  werden zum Avenger (Elysium und Faustus: ML-16), Shivan Standard Flak
+  zum Shivan-Turm-Laser. Betroffen waren Faustus, Elysium, Chronos,
+  Poseidon, Aten, Ma'at, Isis, Demon, Asmodeus.
+
+### F41 — Schweife verdeckter Schüsse liegen vorne auf dem Schiff (v251)
+
+**Befund (Silvio, v251):** „Die Trails von Projektilen tauchen auch auf der
+Vorderseite des abschießenden Schiffes auf obwohl sie von der vom Spieler
+abgewanden Seite verschossen werden." — „Ich rede nur von den Trails der
+Schüsse, nicht von den Projektilen."
+
+- Status: behoben in v252. Die Leuchtpunkte des Schweifs wurden über allen
+  Schiffen gezeichnet; jetzt entstehen keine, solange der Schuss unter dem
+  Rumpf liegt. Dazu haben die Schweife verbündeter Schüsse die Farbe ihres
+  Schusses statt immer Hellblau.
+
+### F42 — Turmschüsse sind kaum zu hören (v251)
+
+**Befund (Silvio, v251):** „Das Tripplegeschütz feuert jetzt richtigerweise 3
+mal hintereinander, aber der Sound erklingt nur ein mal." — die Plato „scheint
+nämlich unter einem ähnlichen Problem zu leiden".
+
+- Status: behoben in v252. Alle Türme teilten sich mit den Jägern einen
+  gedrosselten Klang (leise, zwei auf einmal, bei Betrieb weggelassen).
+  Großkampfschiff-Türme haben jetzt einen eigenen, lauteren Klang, die
+  schweren noch lauter; jeder Schuss der Dreiersalve klingt.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

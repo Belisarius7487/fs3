@@ -2276,7 +2276,7 @@ function allyFire(a){
       // Turrets cover the full circle.
       const ang = leadAngle(pts[i].x, pts[i].y, tg, pSpd(g.aspd)*TEMPO_K)
                 + (Math.random()-0.5)*0.06*aScat*g.scat;
-      sndAiShot(pts[i].x, pts[i].y, g.snd);
+      sndCapShot(pts[i].x, pts[i].y, g.snd, !!g.big);   // F42
       capGunShot(a, pts[i].x, pts[i].y, ang, g, true, false,
                  (_ad && typeof mountHid === 'function' && mountHid(a, _ad)) ? a : null);
     }

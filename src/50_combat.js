@@ -2613,7 +2613,7 @@ function capitalFire(e){
         const ga = (bomb ? leadAngle(pts[i].x, pts[i].y, bomb, pSpd(g.spd)*TEMPO_K)
                          : Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x))
                  + (Math.random()-0.5)*0.10*eScat*g.scat;
-        sndAiShot(pts[i].x, pts[i].y, g.snd);
+        sndCapShot(pts[i].x, pts[i].y, g.snd, !!g.big);   // F42
         if(_md && typeof f3dAim === 'function') f3dAim(e, _md.ti, gt.x, gt.y);
         capGunShot(e, pts[i].x, pts[i].y, ga, g, false, !!bomb,
                    (_md && typeof mountHid === 'function' && mountHid(e, _md)) ? e : null);
