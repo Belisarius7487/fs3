@@ -4230,10 +4230,17 @@ scenario('FS1 M3 Small Deadly Space: runners, the McCarthy, then FS2 again', 'm=
   r.fiveContainers = enemies.filter(e=>e.type==='container').length===5;
   const f1 = byId('F1')[0];
   r.bastNamed = !!f1 && f1.label==='PVFR BAST';
+  // F24: nothing flies backwards - she comes in from the right, so she
+  // faces left on her way to the container, and right once she runs
+  FS.step(100);
+  r.bastFacesHerContainer = !!f1 && !EV_DOCK.F1 && f1.flip===needsFlip('frbast', true);
   // the runners load first, then run
   const d = FS.until(()=>!!EV_DOCK.F1 && !!EV_DOCK.F2, 12000, true);
   r.freightersDock = d>=0;
   r.containerTaken = enemies.some(e=>e.uid==='C1' && e.carried);
+  FS.step(40);
+  const fr = byId('F1')[0] || byId('F2')[0];
+  r.runnerFacesTheWayOut = !!fr && fr.flip===needsFlip(fr.img, false);
   // Our wingmen may stop one; either way both are gone in the end.
   const g = FS.until(()=>!byId('F1').length && !byId('F2').length, 30000, true);
   r.freightersGone = g>=0;

@@ -801,7 +801,8 @@ function leaveEmpty(e, wasCargo){
     SUB_MSGS.push({x:e.x, y:e.y-28, txt:'NO CARGO', life:150, ml:150,
                    ally:false, tone:'bad'});
   }
-  if(e.crossAfter) e.crossing = e.crossAfter;
+  if(e.crossAfter){ e.crossing = e.crossAfter; e.flip = needsFlip(e.img, e.crossAfter < 0); }
+  if(e.escaping) e.flip = needsFlip(e.img, false);
 }
 // Is anybody still able to come for this container? A living freighter
 // heading for its id without a claim on another one, or one still queued
@@ -917,6 +918,10 @@ function tickDocking(){
     if(e.dockBest==null || L < e.dockBest-0.05){ e.dockBest = L; e.dockStall = 0; }
     else e.dockStall = (e.dockStall||0) + 1;
     if(!(L <= 1 || (L <= DOCK_NEAR && e.dockStall > 60))){
+      // v242 (F24): a ship always faces the way it flies - nothing in
+      // FreeSpace flies backwards. A runner was turned to her escape before
+      // she had loaded, and came at her container tail first.
+      if(Math.abs(dx) > 2) e.flip = needsFlip(e.img, dx < 0);
       const sx = DOCK_SPD*1.6, sy = DOCK_SPD;
       e.x += Math.max(-sx, Math.min(sx, dx));
       e.y += Math.max(-sy, Math.min(sy, dy));
@@ -952,8 +957,9 @@ function tickDocking(){
       if(e.side==='ally') protSaved++;
       continue;
     }
-    // Load first, then leave.
-    if(e.crossAfter) e.crossing = e.crossAfter;
+    // Load first, then leave - facing the way she leaves (F24).
+    if(e.crossAfter){ e.crossing = e.crossAfter; e.flip = needsFlip(e.img, e.crossAfter < 0); }
+    if(e.escaping) e.flip = needsFlip(e.img, false);
   }
 }
 function tickCapRam(){

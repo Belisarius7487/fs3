@@ -37,7 +37,7 @@ function constObj(name){
 const NAMES = ['dockPoint','dockOffset','unitAlive','idPending','cargoLost','claimCargo',
   'leaveEmpty','cargoStillWanted','carryCargo','dropCargo','tickCarry','tickDocking',
   'tickCrossGuards','killEnemy','byId','evSeen','mountsFor','hullClass',
-  'liveThreatCount','scriptUnitsResolved'];
+  'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip'];
 
 const world = `
 let enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, spawnQ=[];

@@ -1683,6 +1683,20 @@ Flügelleute bekamen ihre Schilde aus der Rumpftabelle.
   Vorrat der Ära; vor Mission 9 haben Jäger und Bomber außer den
   Shivanern keine Schilde.
 
+### F24 — M3: die Bast fliegt rückwärts an den Container (v241)
+
+**Befund (Silvio, v241):** „Mission 3: Wieso fliegt die Bast rückwärts an den
+Frachtcontainer?" — „Natürlich schaut ein Schiff immer in die Richtung in die
+es fährt. Es gibt keine rückwärts fliegenden Schiffe in Freespace."
+
+**Stimmt.** Als Fluchtschiff bekommt sie beim Start die Nase nach rechts
+(`escape` in `applySpawnOpts`), und `tickDocking()` drehte ein andockendes
+Schiff nie um. Sie startet rechts vom Container und fuhr also rückwärts.
+
+- Regel: **Ein Schiff schaut immer in die Richtung, in die es fährt.**
+- Status: behoben in v242. Beim Anfahren schaut das Schiff zum Container,
+  danach in die Richtung, in die es weiterfährt.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
