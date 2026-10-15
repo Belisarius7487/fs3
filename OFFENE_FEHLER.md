@@ -1716,6 +1716,19 @@ Schiff nie um. Sie startet rechts vom Container und fuhr also rückwärts.
   seine Länge (`f3dTurnRoll()`, gedacht für Jäger). Behoben in v245: nach
   der Mitdrehung beginnt der Container ohne diese Rolle.
 
+### F25 — M3: die Elysium spielt beim Einsprung den Großschiff-Sound (v245)
+
+**Befund (Silvio, v245):** „Wenn die Elysium reinwarpt, kommt neben dem Sound
+für den sich öffnenden Subraumwirbel auch der Sound für hereinwarpende
+Großschiffe, was nicht sein sollte."
+
+**Stimmt.** `sndTick()` (`12_audio.js`) gab den langen Großschiff-Sound
+jedem Schiff, das kein Jäger, Bomber, Geschütz oder Container ist — also auch
+Transportern und Frachtern von 30 bis 60 Metern.
+
+- Status: behoben in v246. Schiffe unter 100 m Länge (`HULL_LEN`) bekommen
+  nur den Sound des sich öffnenden Wirbels (`warpSndSmall()`).
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes

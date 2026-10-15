@@ -392,6 +392,17 @@ function sndScanStep(o, x, y, running){
 
 // Once a game step: pause, the player's hits, jumps, and beams that ended.
 let sndHp = null, sndSh = null;
+// Which jump sound a ship makes: the vortex opening alone, or the long
+// sound of a big ship. v246 (Silvio: the Elysium played both): a transport
+// or freighter of a few dozen metres is no big ship either - by her length
+// (HULL_LEN, metres), not by her class.
+const WARP_SND_BIG_M = 100;
+function warpSndSmall(e){
+  if(e.small || e.type==='fighter' || e.type==='bomber' ||
+     e.type==='sentry' || e.type==='container') return true;
+  const L = (typeof HULL_LEN !== 'undefined') ? HULL_LEN[e.img] : 0;
+  return !!L && L < WARP_SND_BIG_M;
+}
 function sndTick(){
   if(!sndCtx) return;
   // Pause and the settings panel freeze the sound with the game.
@@ -410,8 +421,7 @@ function sndTick(){
   for(const list of [enemies, allies]){
     for(const e of list){
       if(e.type==='asteroid' || (e.warpMax||0) <= 1) continue;
-      const small = e.small || e.type==='fighter' || e.type==='bomber' ||
-                    e.type==='sentry' || e.type==='container';
+      const small = warpSndSmall(e);
       if(e.warp > 0 && !e._sndW){ e._sndW = 'in'; sndPlay(small ? 'warp_open' : 'warp_in_big', e.x, 1, e.y); }
       else if(e.warpOut > 0 && e._sndW !== 'out'){ e._sndW = 'out'; sndPlay(small ? 'warp_open' : 'warp_out_big', e.x, 1, e.y); }
       else if(!(e.warp > 0) && !(e.warpOut > 0) && e._sndW === 'in') e._sndW = 'done';
