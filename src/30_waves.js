@@ -901,7 +901,11 @@ function tickFaceTurns(){
     if(cg){ cg.turnP = e.turnP; cg.turnSq = e.turnSq; cg.turnC = e.turnC; }
     if(f.p >= 1){
       e.flip = !e.flip; e.turnP = null; e.turnSq = null; e.turnC = null;
-      if(cg){ cg.flip = !cg.flip; cg.turnP = null; cg.turnSq = null; cg.turnC = null; }
+      // A small hull whose picture flips gets a half roll about her length
+      // in 3D (f3dTurnRoll, 59_field3d.js) - right for a fighter coming
+      // round, wrong here: the container has just yawed round with her. Its
+      // roll state starts afresh (v245, Silvio: it rolled once more after).
+      if(cg){ cg.flip = !cg.flip; cg.turnP = null; cg.turnSq = null; cg.turnC = null; cg._f3r = null; }
       // Changed her mind while turning: she turns back from here.
       e._face = (!!e.flip === f.want) ? null : {p:0, want:f.want};
     }

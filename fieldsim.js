@@ -4256,13 +4256,18 @@ scenario('FS1 M3 Small Deadly Space: runners, the McCarthy, then FS2 again', 'm=
                           && slip < 2;
   r.runnerTurnsRound = runners.some(f=>f.turnP > 0 && f.turnP < 1 && f.flip===needsFlip(f.img, true));
   // no snap at the end of the turn either
-  let jump = 0;
+  let jump = 0, roll = 0;
   for(let i=0;i<160;i++){
     const before = runners.filter(f=>f.dockedTo && !f.dead).map(f=>[f, f.dockedTo.x - f.x]);
+    // what the 3D view asks every frame: how far the container is rolled
+    for(const f of runners) if(f.dockedTo) roll = Math.max(roll, Math.abs(f3dTurnRoll(f.dockedTo)));
     FS.step(1);
     for(const [f, d0] of before) if(f.dockedTo) jump = Math.max(jump, Math.abs((f.dockedTo.x - f.x) - d0));
   }
   r.noSnapAtTheEnd = jump < 3;
+  // v245: and no extra roll about its length once the turn is done
+  for(const f of runners) if(f.dockedTo) roll = Math.max(roll, Math.abs(f3dTurnRoll(f.dockedTo)));
+  r.containerDoesNotRollAfter = roll < 0.7;
   r.runnerFacesTheWayOut = runners.length>0 && runners.filter(f=>!f.dead)
                              .every(f=>f.flip===needsFlip(f.img, false) && f.turnP==null);
   // Our wingmen may stop one; either way both are gone in the end.

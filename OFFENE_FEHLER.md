@@ -1709,6 +1709,12 @@ Schiff nie um. Sie startet rechts vom Container und fuhr also rückwärts.
   Drehung dazwischen. Behoben in v244: der Andockpunkt dreht mit dem Rumpf
   (`dockPoint()` liest `turnC`), und der Container dreht dieselbe Drehung
   mit.
+- **Nachtrag (Silvio, v244):** „Die Frachtcontainer drehen sich jetzt mit dem
+  Schiff, was soweit richtig ist, aber so wie die Drehung abgeschlossen ist,
+  drehen sie sich nochmal um ihre Längsachse." Stimmt: ein kleiner Rumpf,
+  dessen Bild die Seite wechselt, rollt im 3D-Bild eine halbe Drehung um
+  seine Länge (`f3dTurnRoll()`, gedacht für Jäger). Behoben in v245: nach
+  der Mitdrehung beginnt der Container ohne diese Rolle.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
