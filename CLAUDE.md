@@ -155,7 +155,10 @@ Index, den `codemap.py` aus der neuesten Logikdatei erzeugt. Der Index wird
 Browserläufe über alle 80 alten Missionen laufen nicht mehr bei jeder
 Lieferung. Gebaut und geprüft wird: `./checks.sh --fast` und dazu nur die
 `fieldsim`-Szenarien der geänderten Missionen oder Mechaniken
-(`node fieldsim.js <logik.html> hlp_mounts_final.json "<Name>"`). Die alten
+(`node fieldsim.js <logik.html> hlp_mounts_final.json "<Name>"`), und
+`warpsim` **nur über die geänderten Missionen**
+(`node warpsim.js <logik.html> hlp_mounts_final.json 4-6`). Nie `fieldsim`
+oder `warpsim` über den ganzen Missionsstrang (Silvio, 15.10.2026). Die alten
 Missionen werden ohnehin ersetzt.
 
 `checks.sh` hält von selbst an, wenn die Logikdatei **nicht** das ist, was
