@@ -2058,6 +2058,16 @@ Nur in Chrome, nicht in Brave.
 - Nebenbefund, harmlos: die 404 auf `*_n512.webp` sind Texturen ohne
   Reliefbild im Original; das Spiel fragt c/n/g blind an.
 
+### F55 — FS1-Strang: Unterstützung kommt auch als vasudanische Schiffe (v255)
+
+**Befund (Silvio, 16.10.2026):** „Mission 5: Ich kann statt terranischer,
+vasudanische Schiffe zur Unterstützung rufen, was falsch ist. Der komplette
+FS1 Ark darf keine vasudanischen Schiffe zur Unterstützung bereitstellen.
+Immer nur terranische."
+
+- Status: offen, wird mit dem nächsten Bau gebündelt. Gilt für **alle**
+  Missionen mit `era:'fs1'`, nicht nur M5.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
