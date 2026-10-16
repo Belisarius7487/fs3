@@ -2039,6 +2039,25 @@ schon machen."
 - Status: behoben in v255. Ein Schiff, das zum Andocken einspringt, kommt
   schon mit Blick auf sein Ziel aus dem Wirbel (`spawnProtected`).
 
+### F54 — „Try Again" erscheint beim Laden in Chrome (v255)
+
+**Befund (Silvio, 16.10.2026):** „Zuerst kam während des anfänglichen
+Ladebalkens ein Try Again, das ich mehrere Male betätigen musste." — „Ist
+einfach nur graue Schrift mit weißer Hintergrundmarkierung. Wenn ich es
+einige Sekunden stehen lasse und nichts mache lädt dann der Startbildschirm."
+Nur in Chrome, nicht in Brave.
+
+- Vermutete Ursache (im Code nachgesehen, im Browser noch nicht bestätigt):
+  `loader.html` übergibt seine Gestaltung mit
+  `document.querySelector('style')` — also der **ersten** `<style>` der
+  Seite. Schiebt eine Chrome-Erweiterung eine eigene davor, bekommt
+  `f3dLoadBoxShow()` (`59_field3d.js`) die falsche, `#retry{display:none}`
+  fehlt, und der Knopf steht ungestaltet da, bis die Schiffe bereit sind.
+- Reparatur: der `<style>` in `loader.html` eine Kennung geben und gezielt
+  diese nehmen. Silvio: ja, mit der nächsten Spieländerung bündeln.
+- Nebenbefund, harmlos: die 404 auf `*_n512.webp` sind Texturen ohne
+  Reliefbild im Original; das Spiel fragt c/n/g blind an.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
