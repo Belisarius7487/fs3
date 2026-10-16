@@ -2065,8 +2065,9 @@ vasudanische Schiffe zur Unterstützung rufen, was falsch ist. Der komplette
 FS1 Ark darf keine vasudanischen Schiffe zur Unterstützung bereitstellen.
 Immer nur terranische."
 
-- Silvio, 16.10.2026: „Mission 6: Dasselbe Problem" — also M5 und M6 sicher
-  betroffen.
+- Silvio, 16.10.2026: „Mission 6: Dasselbe Problem" und „Scheint alle neuen
+  Missionen ab Mission 7 bis 13 zu betreffen" — also M5 bis M13, das sind
+  alle bisher gebauten FS1-Missionen ab M4/M5.
 - Status: offen, wird mit dem nächsten Bau gebündelt. Gilt für **alle**
   Missionen mit `era:'fs1'`, nicht nur M5 und M6.
 
