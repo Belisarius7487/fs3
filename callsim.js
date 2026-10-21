@@ -379,7 +379,10 @@ console.log('Support per era (v237)');
   ok('FS2 offers every ship', onlyFS2.concat(always).every(n => two.indexOf(n) >= 0));
   ok('FS1 offers none of the FS2 ships', onlyFS2.every(n => one.indexOf(n) < 0));
   ok('ST:R offers none of them either', onlyFS2.every(n => st.indexOf(n) < 0));
-  ok('FS1 still offers its own', always.every(n => one.indexOf(n) >= 0));
+  // F55 (v256, Silvio): the FS1 strand calls Terran ships only.
+  const terranAlways = always.filter(n => n.indexOf('ter_') === 0);
+  ok('FS1 still offers its own Terran ships', terranAlways.every(n => one.indexOf(n) >= 0));
+  ok('FS1 offers no Vasudan ship (F55)', one.every(n => n.indexOf('vas_') !== 0));
   ok('and the menu really got shorter', one.length < two.length && one.length > 0);
   console.log('      FS2 ' + two.length + ', FS1 ' + one.length + ', ST:R ' + st.length + ' entries');
   // The Colossus is drawn outside the columns on her own key. v238 asked

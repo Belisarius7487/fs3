@@ -2018,7 +2018,7 @@ machen."
   (`dockBelly`, `rollC`/`rollV`, 2,2 s) und dockt unter ihr an. Andockpunkt,
   Geschütze und Trefferumriss drehen mit.
 
-### F52 — Größe der Frachter gegenüber Kreuzern (v253) — noch zu besprechen
+### F52 — Größe der Frachter gegenüber Kreuzern (v253) — behoben in v256
 
 **Befund (Silvio, 15.10.2026, Mission 13):** „Der Frachter ist deutlich zu
 groß im Vergleich zur Taranis. 1 zu 1 Proportionen wie in Freespace sind
@@ -2027,7 +2027,16 @@ auf. Vasudanische Frachter sind dagegen nicht so groß. Shivanische schon.
 Hier muss ein Gleichgewicht gefunden werden. Das besprechen wir noch, da es
 auch deren Frachtcontainergrößen beeinflusst."
 
+- Silvio, 22.10.2026: „bevor du etwas baust, solltest du dir auch die
+  Frachtergrößen in den folgenden Missionen ansehen, denn diese sind,
+  zusammen mit ihren Frachtcontainern, zu groß dargestellt" — gilt also
+  für die FS1-Missionen nach M3, Frachter **und** Container.
 - Status: offen — erst besprechen, dann bauen.
+- **Behoben in v256 (Möglichkeit 1, Silvio 22.10.2026):** Frachter und
+  Frachtcontainer werden auf 70 % gezeichnet, alle anderen Schiffe bleiben.
+  Die Spielfläche der Missionen ändert sich dadurch nicht. Wert im Spiel
+  prüfen, bei Bedarf nachstellen.
+
 
 ### F53 — Mission 13: die Chronos springt verkehrt herum ein (v254)
 
@@ -2039,7 +2048,7 @@ schon machen."
 - Status: behoben in v255. Ein Schiff, das zum Andocken einspringt, kommt
   schon mit Blick auf sein Ziel aus dem Wirbel (`spawnProtected`).
 
-### F54 — „Try Again" erscheint beim Laden in Chrome (v255)
+### F54 — „Try Again" erscheint beim Laden in Chrome (v255) — behoben in v256
 
 **Befund (Silvio, 16.10.2026):** „Zuerst kam während des anfänglichen
 Ladebalkens ein Try Again, das ich mehrere Male betätigen musste." — „Ist
@@ -2057,8 +2066,11 @@ Nur in Chrome, nicht in Brave.
   diese nehmen. Silvio: ja, mit der nächsten Spieländerung bündeln.
 - Nebenbefund, harmlos: die 404 auf `*_n512.webp` sind Texturen ohne
   Reliefbild im Original; das Spiel fragt c/n/g blind an.
+- **Behoben in v256:** die Gestaltung des Ladebildschirms trägt eine
+  eigene Kennung und wird gezielt übergeben.
 
-### F55 — FS1-Strang: Unterstützung kommt auch als vasudanische Schiffe (v255)
+
+### F55 — FS1-Strang: Unterstützung kommt auch als vasudanische Schiffe (v255) — behoben in v256
 
 **Befund (Silvio, 16.10.2026):** „Mission 5: Ich kann statt terranischer,
 vasudanische Schiffe zur Unterstützung rufen, was falsch ist. Der komplette
@@ -2070,8 +2082,11 @@ Immer nur terranische."
   alle bisher gebauten FS1-Missionen ab M4/M5.
 - Status: offen, wird mit dem nächsten Bau gebündelt. Gilt für **alle**
   Missionen mit `era:'fs1'`, nicht nur M5 und M6.
+- **Behoben in v256:** im ganzen FS1-Strang stehen nur terranische Schiffe
+  im Rufmenü (eine Stelle für alle Missionen).
 
-### F56 — Mission 3: Omega fährt ins Leere, wenn der Container beim Andocken stirbt (v255)
+
+### F56 — Mission 3: Omega fährt ins Leere, wenn der Container beim Andocken stirbt (v255) — behoben in v256
 
 **Befund (Silvio, 21.10.2026):** „Mission 3: Wenn der Frachtcontainer, den die
 Omega aufnehmen soll zerstört wird, während sie gerade dran andocken will,
@@ -2082,7 +2097,12 @@ absolut nichts passiert."
   endet, sobald die Omega rechts aus dem Spielfeld geflogen ist. Das Problem
   ist die **Wartezeit**, in der nichts passiert (Hauptärgernis, siehe
   Missionsentwurf: Wartezeit vermeiden).
+- Silvio, 22.10.2026: Möglichkeit 1 — zerstörter Container: die Omega
+  springt sofort aus, Ziel verfehlt („Container lost"), Mission endet.
 - Status: offen, wird mit dem nächsten Bau gebündelt.
+- **Behoben in v256:** die Omega springt sofort aus, „Container lost",
+  Ziel verfehlt, die Mission endet gleich danach.
+
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

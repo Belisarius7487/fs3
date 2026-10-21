@@ -16,7 +16,7 @@
   new build bypass the browser cache. The server compresses the game with
   gzip and sends no total size, which is why the size is written in here.
 -->
-<style>
+<style id="loadcss">
 :root{
   /* HLP theme, Fire (the default). Void is set below from the saved
      settings of the game. */
@@ -110,7 +110,9 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     st.innerHTML = 'PREPARING SHIPS <b>' + Math.round(DL_SHARE*100) + ' %</b>';
     // The box goes over to the game, which shows it again while it puts
     // the models on the graphics card - one bar from start to finish.
-    var css = document.querySelector('style');
+    // Take our own sheet by id: a browser extension may insert its own <style>
+    // first, and then the hand-over would carry the wrong one (F54).
+    var css = document.getElementById('loadcss');
     window.FS3_LOADBOX = {html: document.getElementById('box').outerHTML, css: css ? css.textContent : '',
                           cls: document.documentElement.className, p: DL_SHARE, n: N};
     setTimeout(function(){ document.open(); document.write(gameText); document.close(); }, 30);

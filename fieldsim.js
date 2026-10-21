@@ -4499,6 +4499,20 @@ scenario('FS1 M3: agreed container lost, the McCarthy leaves empty', 'm=3', `
   r.endsWithoutTheContainer = t>=0;
   return r;`);
 
+// F56 (v256): the container shot while the Omega is on her way to it - she
+// jumps out at once and the mission ends as a failure, no slow drive off.
+scenario('FS1 M3 F56: container shot as the Omega docks - quick end', 'm=3', `
+  const r = {};
+  FS.step(400);
+  FS.until(()=>!byId('F1').length && !byId('F2').length, 30000, true);
+  FS.until(()=>byId('T1').some(a=>!(a.warp>0)), 20000, true);
+  FS.step(200);
+  for(const e of enemies) if(e.uid==='K1') e.hp = 0;
+  r.countsAsEmpty = FS.until(()=>!!EV_EMPTY['T1'], 500, false) >= 0;
+  const t = FS.until(()=>wave>3, 1500, false);
+  r.endsWithin15s = t>=0;
+  return r;`);
+
 scenario('FS1 M3: the McCarthy lost ends the mission', 'm=3', `
   const r = {};
   FS.step(400);

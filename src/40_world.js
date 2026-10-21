@@ -81,14 +81,20 @@ function hullClass(key){
 // buoys keep their own factor (Silvio, v166). The curve below is kept as
 // hullWidthOld(): it is what the hulls were drawn at until v207, and the
 // missions are scaled by how much larger their ships have become.
-function hullWidth(key){
+function hullWidth(key, raw){
   const L = HULL_LEN[key];
   if(!L) return 100;                       // unknown: a cruiser of old
   // v209 preview: two scales - up to CAP_L0 metres true to fighters, the
   // rest of a hull counts CAP_K
   const Lc = L <= CAP_L0 ? L : CAP_L0 + (L - CAP_L0)*CAP_K;
-  return Lc*SIZE_UPM*(SIZE_KEY_MUL[key] || 1);
+  // F52 (v256): freighters and cargo containers are drawn smaller - the
+  // two-scale rule left them almost as large as the cruisers. raw: without
+  // that factor, for the mission area (worldForWave), so no mission's
+  // layout moves because its freighters shrank.
+  const cm = raw ? 1 : (SIZE_DRAW_CLASS_MUL[hullClass(key)] || 1);
+  return Lc*SIZE_UPM*(SIZE_KEY_MUL[key] || 1)*cm;
 }
+const SIZE_DRAW_CLASS_MUL = {fr: 0.7, fc: 0.7};
 const CAP_L0 = 40, CAP_K = 0.2;
 function hullWidthOld(key){
   if(SIZE_FIXED[key]!=null) return SIZE_FIXED[key];
@@ -122,7 +128,7 @@ function worldForWave(q){
   let k = 1, need = 0;
   const look = function(key, mission){
     const L = key && HULL_LEN[key]; if(!L) return;
-    const nw = hullWidth(key);
+    const nw = hullWidth(key, true);
     need = Math.max(need, nw);
     if(mission) k = Math.max(k, nw/Math.max(1, hullWidthOld(key)));
   };
@@ -1804,7 +1810,13 @@ const ALLY_SPECIAL_KEY = 'G';
 // cycle is fought on the Vasudan side, so no Terran fleet is on call. A
 // later cycle switches its own factions back on by setting these.
 const ALLY_FAC_ON = {terran:false, vasudan:true, gtva:true};
-function allyFacOn(fac){ return ALLY_FAC_ON[fac] !== false; }
+function allyFacOn(fac){
+  // F55 (v256): the whole FS1 strand calls only Terran support, whatever
+  // cycle the mission number falls into (missions 4+ still sit in the old
+  // Hammer of Light cycle, whose call columns are Vasudan).
+  if(typeof currentEra !== 'undefined' && currentEra === 'fs1') return fac === 'terran';
+  return ALLY_FAC_ON[fac] !== false;
+}
 // v237, Silvio: "Im FS1-Block kommen auch nur FS1-Aera Schiffe vor. Die
 // Sathanas und Hecate zum Beispiel existieren da noch gar nicht. Das ist
 // auch wichtig fuer den rufbaren Support dann." Which arc an entry belongs

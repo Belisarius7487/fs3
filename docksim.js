@@ -40,7 +40,7 @@ const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','i
   'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns'];
 
 const world = `
-let enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, EV_TAKEN={}, spawnQ=[];
+let enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, EV_TAKEN={}, EV_EMPTY={}, spawnQ=[];
 let protSaved=0, protLost=0, guardLost=false, guardGone=false, crossDone=0, crossTotal=0;
 let score=0, bossAlive=false, bossSlain=false, expl=0;
 const W=800, H=500, HUD_H=44, DOCK_SPD=0.55, DOCK_NEAR=22;
@@ -63,7 +63,7 @@ return { get enemies(){return enemies;}, set enemies(v){enemies=v;},
   get allies(){return allies;}, set allies(v){allies=v;},
   get protSaved(){return protSaved;}, get protLost(){return protLost;},
   get expl(){return expl;}, SUB_MSGS, EV_SEEN, EV_HELD, EV_LEFT, EV_TAKEN, spawnQ,
-  reset(){ enemies=[]; allies=[]; SUB_MSGS.length=0; for(const k in EV_DOCK) delete EV_DOCK[k];
+  reset(){ enemies=[]; allies=[]; SUB_MSGS.length=0; for(const k in EV_DOCK) delete EV_DOCK[k]; for(const k in EV_EMPTY) delete EV_EMPTY[k];
     for(const k in EV_SEEN) delete EV_SEEN[k]; for(const k in EV_HELD) delete EV_HELD[k];
     for(const k in EV_LEFT) delete EV_LEFT[k]; for(const k in EV_TAKEN) delete EV_TAKEN[k];
     spawnQ.length=0; protSaved=0; protLost=0; guardLost=false; expl=0; },

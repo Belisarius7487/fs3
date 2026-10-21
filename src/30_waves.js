@@ -579,6 +579,7 @@ function spawnProtected(sp){
     // dockHold: seconds she stays docked before the dock counts, and
     // then jumps out instead of flying on.
     if(sp.dockHold) a.dockHold = Math.round(sp.dockHold*TICK_HZ);
+    if(sp.jumpIfEmpty) a.jumpIfEmpty = true;   // F56 (v256), see leaveEmpty
     if(sp.dockLabel) a.dockLabel = sp.dockLabel;    // 'REPAIRING' (v178)
     if(sp.dockBelly) a.dockBelly = true;            // v254 (F51)
     a.crossAfter = sp.cross || 0.38;
@@ -812,10 +813,14 @@ function leaveEmpty(e, wasCargo){
   if(e.dockRes && e.dockRes.resBy===e) e.dockRes.resBy = null;
   e.dockRes = null; e.dockTo = null;
   // An enemy transport whose ship is gone has nothing left to do here.
-  if(e.side!=='ally' && e.dockHold && !(e.warpOut>0)){
+  // jumpIfEmpty: an allied one too, instead of a long drive across an
+  // empty field (F56, v256: the Omega in FS1 M3).
+  if((e.side!=='ally' || e.jumpIfEmpty) && e.dockHold && !(e.warpOut>0)){
     e.warpOut = e.warpMax = 120; e.warpX = e.x; e.warpY = e.y;
     if(e.uid) EV_LEFT[e.uid] = true;
   }
+  // Left without what she came for ('leer').
+  if(e.uid) EV_EMPTY[e.uid] = true;
   if(wasCargo){
     e.emptyRun = true;
     SUB_MSGS.push({x:e.x, y:e.y-28, txt:'NO CARGO', life:150, ml:150,
@@ -2249,7 +2254,7 @@ const SCRIPT_WAVES = {
        {id:'E2', c:'fi', n:1, size:2, spr:'fianubis', t:4},
        {id:'E3', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
        {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:250, warpIn:true,
-        dockTo:'K1', dockHold:20, dockLabel:'LOADING', wait:true, label:'GTT Omega'},
+        dockTo:'K1', dockHold:20, dockLabel:'LOADING', wait:true, jumpIfEmpty:true, label:'GTT Omega'},
        {id:'E4', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
        {id:'E5', c:'fi', n:1, size:3, spr:'fianubis', wait:true}
      ], ev:[
@@ -2270,7 +2275,10 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'ziel', a2:'Cover the Omega'},
        {t:'da', a:'T1', d:5,  w:'einwarpen', a2:'E4'},
        {t:'da', a:'T1', d:15, w:'einwarpen', a2:'E5'},
-       {t:'verlaesst', a:'T1', w:'zielerfuellt', a2:'The Omega is away'},
+       // F56 (v256): the container shot before she has loaded - she jumps
+       // out at once and the mission ends as a failure
+       {t:'leer', a:'T1', w:'zielverfehlt', a2:'Container lost'},
+       {t:'verlaesst', a:'T1', wenn:{t:'angedockt', a:'T1'}, w:'zielerfuellt', a2:'The Omega is away'},
        {t:'verlaesst', a:'T1', w:'kulisse', a2:'P1'},
        {t:'verlaesst', a:'T1', w:'kulisse', a2:'X1'},
        {t:'verlaesst', a:'T1', w:'abzug', a2:''},
@@ -4209,7 +4217,7 @@ const CAT_FAC = {fi:1, bo:1, cr:1, co:1, de:1, in:1};
 // Ein Ausloeser wie "X zerstoert" braucht zwei Auskuenfte: war X jemals
 // da, und ist es jetzt weg. Ohne das Erste feuert jeder Ausloeser
 // sofort, weil zu Wellenbeginn nichts existiert.
-let EV = [], EV_HELD = {}, EV_SEEN = {}, EV_LEFT = {}, EV_DOCK = {};
+let EV = [], EV_HELD = {}, EV_SEEN = {}, EV_LEFT = {}, EV_DOCK = {}, EV_EMPTY = {};
 // EV_TAKEN: captured ('kapern'). EV_FLED: jumped out on a deadline.
 // Neither is a kill, and 'vernichtet' asks for a kill.
 let EV_TAKEN = {}, EV_FLED = {};
@@ -4242,7 +4250,7 @@ let evReinfGap = EV_REINF_GAP;
 const EV_REINF_GAP_MIN = 240;
 
 function evReset(){
-  EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_POS = {};
+  EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_EMPTY = {}; EV_POS = {};
   EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; PREY_ON = false;
   missionTimer = {end:0, label:''}; missedJumps = 0;
   evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP;
@@ -4288,6 +4296,8 @@ function evTrig(ev){
     // v253: several ids with '+', all of them gone (the three containers).
     case 'verlaesst':    return evIds(ev.a).every(function(id){ return !!EV_LEFT[id] || !!EV_FLED[id]; });
     case 'angedockt':    return !!EV_DOCK[ev.a];
+    // F56 (v256): her dock target was gone and she left without it.
+    case 'leer':         return !!EV_EMPTY[ev.a];
     // v253: taken by us (kapern), every id with '+'.
     case 'genommen':     return evIds(ev.a).every(function(id){ return !!EV_TAKEN[id]; });
     // v249: somebody has fired on her and hit (the Rasputin, FS1 M4).
@@ -4829,7 +4839,7 @@ function scriptUnit(u, fac, q){
       put({time:t0+i*70, type:'protect', spr:u.spr,
            fac:allyRace(), noWarp:1, warpIn:u.warpIn,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
-           dockLabel:u.dockLabel, dockBelly:u.dockBelly,
+           dockLabel:u.dockLabel, dockBelly:u.dockBelly, jumpIfEmpty:u.jumpIfEmpty,
            pickup:u.pickup?1:0, ride:u.ride, slot:u.slot});
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast')?1:0,   // v253: u.fac, Shivan cargo in an HoL mission
