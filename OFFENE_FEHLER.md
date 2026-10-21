@@ -2071,6 +2071,17 @@ Immer nur terranische."
 - Status: offen, wird mit dem nächsten Bau gebündelt. Gilt für **alle**
   Missionen mit `era:'fs1'`, nicht nur M5 und M6.
 
+### F56 — Mission 3: Omega fährt ins Leere, wenn der Container beim Andocken stirbt (v255)
+
+**Befund (Silvio, 21.10.2026):** „Mission 3: Wenn der Frachtcontainer, den die
+Omega aufnehmen soll zerstört wird, während sie gerade dran andocken will,
+beginnt die Omega eine langsame Fahrt zum rechten Bildrand in der ansonsten
+absolut nichts passiert."
+
+- Status: offen, wird mit dem nächsten Bau gebündelt. Zu prüfen auch:
+  Mission endet in dem Fall gar nicht (endsim prüft nur die Daten, nicht
+  diesen Laufzeitfall).
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
