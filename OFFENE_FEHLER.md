@@ -2104,6 +2104,23 @@ absolut nichts passiert."
   Ziel verfehlt, die Mission endet gleich danach.
 
 
+### F57 — Die Waffenkopplung wird nicht von Mission zu Mission behalten (v256)
+
+**Befund (Silvio, 22.10.2026):** „Die Missionen merken sich nicht, ob ich
+meine Waffen gekoppelt habe oder nicht. In jeder neuen Mission muss ich die
+Waffeneinstellung wieder neu vornehmen. Solange sich das Schiff bzw. die
+Anzahl Primärbänke nicht ändern, sollte die vom Spieler getroffene
+Voreinstellung beibehalten werden."
+
+- Status: offen, im Code noch nicht nachgesehen. Bau im nächsten Chat.
+
+### F58 — Mission 9 und 10: die Frachter fahren viel zu langsam (v256)
+
+**Befund (Silvio, 22.10.2026):** „In Mission 9 und 10 fliegen die Frachter
+schon extrem langsam. Das kann man mindestens mal verdoppeln."
+
+- Status: offen, im Code noch nicht nachgesehen. Bau im nächsten Chat.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
