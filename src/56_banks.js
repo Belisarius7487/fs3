@@ -356,6 +356,10 @@ function fs1AiLoadout(key, old){
 let FITS = {};
 // Which arsenal the fitted banks came from: 'fs1' or 'std' (v240).
 let armsNow = 'std';
+// The primary mode the player picked last, and for how many banks (F57,
+// Silvio 22.10.2026): a new mission or a hull swap puts it back as long
+// as the number of primary banks is the same.
+let PMODE_PREF = null;
 // The fit a hull was given in one strand is not the fit of another (v240):
 // FS1 weapons do not go into an FS2 rack and the other way round.
 function fitKey(key){ return fs1Arms() ? 'fs1:' + key : key; }
@@ -381,6 +385,7 @@ function setBanks(shipKey, fit, keepSec){
     return {key:k, max:mx, ammo:mx, t:0};
   });
   if(keepSec != null) for(const s of player.sb) s.ammo = Math.min(s.max, Math.round(s.max*keepSec));
+  if(PMODE_PREF && PMODE_PREF.n === player.pb.length && PMODE_PREF.mode < bankModes()) player.pMode = PMODE_PREF.mode;
   if(!(player.pMode >= 0) || player.pMode >= bankModes()) player.pMode = 0;
   if(!(player.sSel >= 0) || player.sSel >= player.sb.length) player.sSel = 0;
   player.enMax = Math.max(1, (b.eng || 150) * EN_STORE_K);
@@ -418,6 +423,7 @@ function cyclePrimary(dir){
   const n = bankModes();
   if(n < 2) return;
   player.pMode = ((player.pMode||0) + (dir < 0 ? n - 1 : 1)) % n;
+  PMODE_PREF = {n:(player.pb||[]).length, mode:player.pMode};
   syncLegacyWeapons();
   const pb = player.pb;
   const txt = player.pMode===2 ? 'PRIMARIES LINKED' : weaponNameP(priDefP(pb[player.pMode].key)).toUpperCase();

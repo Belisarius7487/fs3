@@ -745,7 +745,7 @@ function launchGame(){
   // the hangar needs a destroyer, the rearm panel a corvette)
   if(UI_TICKETS) score += UI_START_PTS;
   SCORE_FRAC = 0;
-  ITEMS=[];ticketFlash=0;TICKET_MSGS=[];SUB_MSGS=[];BAR_PULSE={};forcedPrev='';armsNow='std';
+  ITEMS=[];ticketFlash=0;TICKET_MSGS=[];SUB_MSGS=[];BAR_PULSE={};forcedPrev='';armsNow='std';PMODE_PREF=null;
   player={x:80,y:H/2,ang:0,head:0,aimAng:0,flip:false,vx:0,vy:0,
           hp:100,maxHp:100,sh:100,maxSh:100,
           shRecharge:0.22,shDelay:0,

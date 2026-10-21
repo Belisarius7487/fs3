@@ -2104,7 +2104,7 @@ absolut nichts passiert."
   Ziel verfehlt, die Mission endet gleich danach.
 
 
-### F57 — Die Waffenkopplung wird nicht von Mission zu Mission behalten (v256)
+### F57 — Die Waffenkopplung wird nicht von Mission zu Mission behalten (v256) — behoben in v257
 
 **Befund (Silvio, 22.10.2026):** „Die Missionen merken sich nicht, ob ich
 meine Waffen gekoppelt habe oder nicht. In jeder neuen Mission muss ich die
@@ -2112,14 +2112,21 @@ Waffeneinstellung wieder neu vornehmen. Solange sich das Schiff bzw. die
 Anzahl Primärbänke nicht ändern, sollte die vom Spieler getroffene
 Voreinstellung beibehalten werden."
 
-- Status: offen, im Code noch nicht nachgesehen. Bau im nächsten Chat.
+- Ursache (im Code nachgewiesen): beim Missionswechsel steigt der Spieler
+  kurz in den Rumpf vor der Mission zurück (`releaseShip`), der nur eine
+  Primärbank hat; dabei fiel die Einstellung auf Bank 1 zurück.
+- **Behoben in v257:** die zuletzt gewählte Einstellung wird mit der Zahl
+  der Primärbänke gemerkt (`PMODE_PREF`) und wieder gesetzt, sobald das
+  Schiff gleich viele Bänke hat. Neues Spiel setzt sie zurück.
+  Prüfung: `fieldsim` „F57".
 
-### F58 — Mission 9 und 10: die Frachter fahren viel zu langsam (v256)
+### F58 — Mission 9 und 10: die Frachter fahren viel zu langsam (v256) — behoben in v257
 
 **Befund (Silvio, 22.10.2026):** „In Mission 9 und 10 fliegen die Frachter
 schon extrem langsam. Das kann man mindestens mal verdoppeln."
 
-- Status: offen, im Code noch nicht nachgesehen. Bau im nächsten Chat.
+- **Behoben in v257:** die drei Theta-Frachter fahren in beiden Missionen
+  doppelt so schnell (0,04 → 0,08). Prüfung: `fieldsim` „F58".
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

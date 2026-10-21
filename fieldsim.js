@@ -5026,6 +5026,35 @@ scenario('FS1 M13 F51: the Halkins faces the Taranis way and rolls under her', '
   r.under = !!h && h.y > t.y;
   return r;`);
 
+// ── v257: F57 - the primary link setting carries over between missions ──
+scenario('FS1 v257: linked primaries stay linked into the next mission (F57)', 'm=1', `
+  const r = {}, seen = [];
+  wave = 0; nextWave(); FS.step(5);
+  // Linked the way the player does it: the mode key until 'linked'.
+  for(let k=0; k<3 && player.pMode!==2; k++) cyclePrimary(1);
+  r.linkedAtStart = player.pMode === 2;
+  let prevN = player.pb.length, ok = true;
+  for(const m of [2,3,4,5,6,7,8]){
+    wave = m-1; nextWave(); FS.step(5);
+    seen.push(m + ':' + player.ship + '/' + player.pb.length + '/' + player.pMode);
+    // Same number of primary banks (Silvio): the setting must be kept,
+    // even when the mission hands over another hull with as many banks.
+    if(player.pb.length === prevN && player.pb.length >= 2 && player.pMode !== 2) ok = false;
+    prevN = player.pb.length;
+  }
+  r.modes = seen.join(' ');
+  r.keptLinked = ok;
+  return r;`);
+
+// ── v257: F58 - the Theta freighters in M9 and M10 twice as fast ───────
+for(const m of [9, 10]) scenario('FS1 M' + m + ' v257: the Theta freighters move at twice the old pace (F58)', 'm=' + m, `
+  const r = {};
+  FS.until(()=>byId('T1').length>0 && !(byId('T1')[0].warp>0), 5000, true);
+  const t = byId('T1')[0];
+  r.pace = t ? +(t.crossing / FIELD_K).toFixed(3) : -1;
+  r.doubled = !!t && t.crossing >= 0.08 * FIELD_K - 1e-9;
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();
