@@ -2078,9 +2078,11 @@ Omega aufnehmen soll zerstört wird, während sie gerade dran andocken will,
 beginnt die Omega eine langsame Fahrt zum rechten Bildrand in der ansonsten
 absolut nichts passiert."
 
-- Status: offen, wird mit dem nächsten Bau gebündelt. Zu prüfen auch:
-  Mission endet in dem Fall gar nicht (endsim prüft nur die Daten, nicht
-  diesen Laufzeitfall).
+- Silvio, 21.10.2026 (Berichtigung): Die Mission steht **nicht** fest. Sie
+  endet, sobald die Omega rechts aus dem Spielfeld geflogen ist. Das Problem
+  ist die **Wartezeit**, in der nichts passiert (Hauptärgernis, siehe
+  Missionsentwurf: Wartezeit vermeiden).
+- Status: offen, wird mit dem nächsten Bau gebündelt.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
