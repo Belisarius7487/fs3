@@ -2195,7 +2195,8 @@ function beamImpactAt(o, ang, large, tr){
   // v209: the fire is drawn on her model, through the perspective
   // v259 (F76): or where a 3D beam really meets her surface (tr.vis)
   const vEn = (tr && tr.vis) ? tr.vis : hullPt(o, ex0, ey0), ex = vEn.x, ey = vEn.y;
-  if(fc%2===0){
+  // v261 (F79): a 3D beam (tr.vis) has its entry drawn in 3D with it
+  if(fc%2===0 && !(tr && tr.vis)){
     spawnFireball(ex, ey, (large?15:9), (large?16:11));
     for(let i=0;i<(large?4:2);i++){
       const a = ang + Math.PI + (Math.random()-0.5)*2.2;
@@ -2217,7 +2218,8 @@ function beamImpactAt(o, ang, large, tr){
       if(tr.exit) addScorch(o, tr.exit.x, tr.exit.y);
       // v260 (F78): where the 3D beam leaves her surface (tr.exitVis)
       const vEx = tr.exitVis || hullPt(o, tr.exit.x, tr.exit.y);     // v209
-      if(fc%2===0){
+      // v261 (F79, F80): a 3D beam (tr.exitVis) has its exit drawn in 3D
+      if(fc%2===0 && !tr.exitVis){
         spawnFireball(vEx.x, vEx.y, (large?18:10), (large?20:12));
         for(let i=0;i<(large?7:3);i++){
           const a = ang + (Math.random()-0.5)*0.55;

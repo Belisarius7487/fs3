@@ -943,9 +943,10 @@ function f3dRender(items, warm, beams){
     if(!it.keepZ || sl < 0){
       sl++;
       const near = (nSl - 1 - sl)/nSl, far = (nSl - sl)/nSl, id = Math.min(255, sl + 1);
-      slices.push({id: id, near: near, far: far});
+      slices.push({id: id, near: near, far: far, ships: []});
     }
     const S = slices[slices.length - 1];
+    if(it.e) S.ships.push(it.e);
     gl.depthRange(S.near, S.far);
     gl.stencilFunc(gl.ALWAYS, S.id, 0xff);
     const M0 = it.M || f3dMat(it.e, it.x, it.y, L);
@@ -1109,22 +1110,32 @@ function f3dBeamEnds(e, b){
   }
   const T = f3dFromLocal(M, A.surf);
   // v260 (F78, Silvio: the beam no longer came out on the far side with a
-  // jet of flame): on through her hull at the depth where it went in,
-  // along its way across the field, out at the far side of her hull
-  // (her mesh again) and on beyond her as the flat beam was
-  const hx = T[0] - S[0], hy = T[1] - S[1], hl = Math.hypot(hx, hy) || 1, ux = hx/hl, uy = hy/hl;
-  if(A.exitSurf === undefined){
-    const I = f3dInvAff(M), span = (IMGS[o.img] ? IMGS[o.img].width*o.sc : 400)*2;
-    const h = f3dRayHitsLocal(L, M, T, [T[0] + ux*span, T[1] + uy*span, T[2]], 1);
-    A.exitSurf = (h && I) ? h.far : null;
+  // jet of flame): on through her hull, out at the far side (her mesh
+  // again) and on beyond her as the flat beam was.
+  // v261 (F81, Silvio: the beam looked bent where it struck): one straight
+  // line in space from the turret, through her and on - it ran level
+  // behind the entry before, and a slope then a level stretch show as a
+  // kink in the picture.
+  const dl = Math.hypot(T[0] - S[0], T[1] - S[1], T[2] - S[2]) || 1;
+  const d = [(T[0] - S[0])/dl, (T[1] - S[1])/dl, (T[2] - S[2])/dl];
+  // how far it runs inside her, measured on her mesh once a shot; the exit
+  // then lies on the line every picture, however the two ships move
+  if(A.exitDist === undefined){
+    const span = (IMGS[o.img] ? IMGS[o.img].width*o.sc : 400)*2;
+    const h = f3dRayHitsLocal(L, M, T, [T[0] + d[0]*span, T[1] + d[1]*span, T[2] + d[2]*span], 1);
+    A.exitDist = h ? Math.hypot.apply(null, (function(P){ return [P[0]-T[0], P[1]-T[1], P[2]-T[2]]; })(f3dFromLocal(M, h.far))) : 0;
+    A.exitSurf = A.exitDist > 0.5 ? true : null;
   }
-  const X = A.exitSurf ? f3dFromLocal(M, A.exitSurf) : T;
-  const run = Math.max(0, 2000/((typeof CAM !== 'undefined' && CAM.z) || 1) - Math.hypot(X[0] - S[0], X[1] - S[1]));
-  const F = [X[0] + ux*run, X[1] + uy*run, X[2]];
+  const X = A.exitSurf ? [T[0] + d[0]*A.exitDist, T[1] + d[1]*A.exitDist, T[2] + d[2]*A.exitDist] : T;
+  let run = Math.max(0, 2000/((typeof CAM !== 'undefined' && CAM.z) || 1) - Math.hypot(X[0] - S[0], X[1] - S[1], X[2] - S[2]));
+  // not past the camera's far plane (f3dVP: 3 eye distances)
+  const zMin = -1.8*f3dEyeD();
+  if(d[2] < -1e-6) run = Math.max(0, Math.min(run, (X[2] - zMin)/(-d[2])));
+  const F = [X[0] + d[0]*run, X[1] + d[1]*run, X[2] + d[2]*run];
   A.vis = f3dPersp(T[0], -T[1], T[2]); A.vis.z = T[2];
   A.exitVis = A.exitSurf ? f3dPersp(X[0], -X[1], X[2]) : null;
   if(A.exitVis) A.exitVis.z = X[2];
-  A._g3 = {S: S, T: T, X: X, F: F}; A._g3f = F3D_FRAME;
+  A._g3 = {S: S, T: T, X: X, F: F, d: d, hasExit: !!A.exitSurf}; A._g3f = F3D_FRAME;
   return A._g3;
 }
 // A canvas picture as a texture of this context (the beam's profile).
@@ -1155,13 +1166,122 @@ function f3dBand(arr, k, P0, P1, side, w0, w1, u0, u1, al){
   return k + 6;
 }
 let F3D_BEAM_ARR = new Float32Array(6*6*64), F3D_FLOW_ARR = new Float32Array(6*6*256);
+// ── WHERE A BEAM STRIKES AND LEAVES, IN 3D (v261, F79, F80) ──
+// Silvio: the glow at the entry stayed in sight when the edge of the
+// Orion's nose moved in front of it, and so did the exit; and the exit was
+// far too faint (an FS2 picture: a light at the entry, and on the far side
+// a long bright spray of sparks and flame leaving along the beam, opening
+// a little). They were flat pictures over every hull. Now they are drawn
+// in the 3D picture with the beam, depth tested like it: a hull in front
+// hides them.
+// A soft round glow, white in the middle, the colour round it.
+const F3D_GLOWCV = {};
+function f3dGlowCanvas(col){
+  if(F3D_GLOWCV[col]) return F3D_GLOWCV[col];
+  if(typeof document === 'undefined') return null;
+  const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+  const g = c.getContext('2d'), [R, G, B] = glowRGB(col);
+  const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(255,255,255,1)');
+  gr.addColorStop(0.18, 'rgba(' + Math.round((R+255)/2) + ',' + Math.round((G+255)/2) + ',' + Math.round((B+255)/2) + ',0.95)');
+  gr.addColorStop(0.45, 'rgba(' + R + ',' + G + ',' + B + ',0.55)');
+  gr.addColorStop(1, 'rgba(' + R + ',' + G + ',' + B + ',0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  return (F3D_GLOWCV[col] = c);
+}
+// The exit: how long the spray runs and how wide it opens. Fixed by the
+// beam (Silvio: not by the length of the ship it leaves), in units of the
+// beam's own width on the screen.
+const BEAM_EXIT_LEN = {large: 30, small: 18};    // beam widths
+const BEAM_EXIT_OPEN = 2.6;                      // how many times wider at its end
+const BEAM_EXIT_SPARKS = 30, BEAM_ENTRY_SPARKS = 10;
+let F3D_FXID = 0;
+// a fixed random number for (i, k)
+function f3dRnd(i, k){ const x = Math.sin(i*127.1 + k*311.7)*43758.5453; return x - Math.floor(x); }
+// A band with its own alpha at each end.
+function f3dBandA(arr, k, P0, P1, side, w0, w1, a0, a1){
+  const c = [[P0, -w0, 0, 0, a0], [P1, -w1, 1, 0, a1], [P1, w1, 1, 1, a1], [P0, -w0, 0, 0, a0], [P1, w1, 1, 1, a1], [P0, w0, 0, 1, a0]];
+  for(let i = 0; i < 6; i++){
+    const P = c[i][0], w = c[i][1], o = (k+i)*6;
+    arr[o] = P[0] + side[0]*w; arr[o+1] = P[1] + side[1]*w; arr[o+2] = P[2] + side[2]*w;
+    arr[o+3] = c[i][2]; arr[o+4] = c[i][3]; arr[o+5] = c[i][4];
+  }
+  return k + 6;
+}
+// A glow facing the camera (the camera looks straight down), r its radius.
+function f3dSpot(arr, k, P, r, al){
+  return f3dQuad(arr, k, P, [r, 0, 0], [0, r, 0], [0, 0, 1, 1], al);
+}
+// A point moved a little towards the eye, so a glow on her surface lies on
+// it and not in it - an edge in front still hides it.
+function f3dToEye(P, eye, by){
+  const v = [eye[0]-P[0], eye[1]-P[1], eye[2]-P[2]], l = Math.hypot(v[0], v[1], v[2]) || 1;
+  return [P[0] + v[0]/l*by, P[1] + v[1]/l*by, P[2] + v[2]/l*by];
+}
+// The entry and exit of one beam into the lists of quads by texture
+// (fx: {key: {tex canvas, quads[]}}).
+function f3dBeamHitFx(e, b, g, cam, wP, Kz, fx){
+  const col = beamCol(e.faction, b.large), t = fc/TICK_HZ;
+  // v261: an entry or exit belongs to the ship struck (b.anc.o): where
+  // another ship lies over her it is hidden, as her hull is
+  const own = b.anc && b.anc.o;
+  const put = function(key, cv, q){ const k2 = key + '|' + ((own && own._fxId) || (own ? (own._fxId = ++F3D_FXID) : 0));
+    (fx[k2] || (fx[k2] = {cv: cv, own: own, q: []})).q.push(q); };
+  const glowCol = f3dGlowCanvas(col), glowFire = f3dGlowCanvas('#ffa040'), glowHot = f3dGlowCanvas('#fff2c0');
+  const seed = (b._fxSeed != null) ? b._fxSeed : (b._fxSeed = Math.random()*1000);
+  const fl = 0.85 + 0.15*Math.sin(t*37 + seed);
+  // the entry: a light on her surface where it bites, a little fire, sparks
+  // thrown back towards the gun
+  const kT = Kz(g.T[2]), Te = f3dToEye(g.T, cam.eye, 4/kT);
+  put('gc' + col, glowCol, {spot: Te, r: wP*3.0*fl/kT, al: 0.9});
+  put('gf', glowFire, {spot: Te, r: wP*2.0*(0.8 + 0.4*f3dRnd(fc, seed))/kT, al: 0.8});
+  put('gh', glowHot, {spot: Te, r: wP*1.1/kT, al: 1});
+  if(!g.d){ const v = [g.T[0]-g.S[0], g.T[1]-g.S[1], g.T[2]-g.S[2]], l = Math.hypot(v[0], v[1], v[2]) || 1; g.d = [v[0]/l, v[1]/l, v[2]/l]; }
+  const back = [-g.d[0], -g.d[1], -g.d[2]];
+  for(let i = 0; i < BEAM_ENTRY_SPARKS; i++){
+    const p = (t*2.2 + f3dRnd(i, seed)) % 1, sx = (f3dRnd(i, seed + 1) - 0.5)*2, sy = (f3dRnd(i, seed + 2) - 0.5)*2;
+    const reach = wP*7*p/kT;
+    const P = [Te[0] + back[0]*reach + sx*reach*0.8, Te[1] + back[1]*reach + sy*reach*0.8, Te[2] + back[2]*reach];
+    put('gh', glowHot, {spot: P, r: wP*(0.45 - 0.3*p)/kT, al: (1 - p)*0.9});
+  }
+  if(!g.hasExit) return;
+  // the exit: on the far side of her hull, a long spray leaving along the
+  // beam and opening as it goes, and a light where it comes out
+  const kX = Kz(g.X[2]), d = g.d;
+  const len = (b.large ? BEAM_EXIT_LEN.large : BEAM_EXIT_LEN.small)*wP/kX;
+  const mid = [g.X[0] + d[0]*len*0.5, g.X[1] + d[1]*len*0.5, g.X[2] + d[2]*len*0.5];
+  const side = f3dNorm(f3dCross(d, [cam.eye[0]-mid[0], cam.eye[1]-mid[1], cam.eye[2]-mid[2]]));
+  const w0 = wP*1.3/kX;
+  // the body of the spray: the beam's own profile in fire colours, in a
+  // few pieces, wider and fainter towards its end
+  const n = 8;
+  for(let i = 0; i < n; i++){
+    const f0 = i/n, f1 = (i + 1)/n;
+    const P0 = [g.X[0] + d[0]*len*f0, g.X[1] + d[1]*len*f0, g.X[2] + d[2]*len*f0];
+    const P1 = [g.X[0] + d[0]*len*f1, g.X[1] + d[1]*len*f1, g.X[2] + d[2]*len*f1];
+    const wa = w0*(1 + (BEAM_EXIT_OPEN - 1)*f0), wb = w0*(1 + (BEAM_EXIT_OPEN - 1)*f1);
+    const aa = Math.pow(1 - f0, 1.4), ab = Math.pow(1 - f1, 1.4);
+    put('bf', beamTex('#ff9a40'), {band: [P0, P1, side, wa*1.6, wb*1.6, aa*0.8*fl, ab*0.8*fl]});
+    put('bh', beamTex('#fff0c0'), {band: [P0, P1, side, wa*0.7, wb*0.7, aa*fl, ab*fl]});
+  }
+  // sparks running out along it, spread across its width
+  for(let i = 0; i < BEAM_EXIT_SPARKS; i++){
+    const p = (t*(1.1 + 0.6*f3dRnd(i, seed + 3)) + f3dRnd(i, seed + 4)) % 1;
+    const wide = w0*(1 + (BEAM_EXIT_OPEN - 1)*p)*1.2, off = (f3dRnd(i, seed + 5) - 0.5)*2*wide;
+    const P = [g.X[0] + d[0]*len*p + side[0]*off, g.X[1] + d[1]*len*p + side[1]*off, g.X[2] + d[2]*len*p + side[2]*off];
+    const hot = f3dRnd(i, seed + 6) < 0.45;
+    put(hot ? 'gh' : 'gf', hot ? glowHot : glowFire, {spot: P, r: wP*(0.7 - 0.45*p)/kX, al: Math.pow(1 - p, 0.8)});
+  }
+  put('gc' + col, glowCol, {spot: g.X, r: wP*3.4*fl/kX, al: 0.9});
+  put('gh', glowHot, {spot: g.X, r: wP*1.4/kX, al: 1});
+}
 // The beams of this picture into the batch just drawn (f3dRender).
 function f3dBeamPass(slices, cam){
   if(!F3D_BEAMS.length || !f3dFxProg()) return;
   const gl = F3D.gl, D = f3dEyeD(), G = (typeof fxG === 'function') ? fxG() : 1;
   const Kz = function(z){ return D/Math.max(D*0.05, D - z); };
   // by colour: one picture each
-  const groups = {};
+  const groups = {}, hitFx = {};
   for(const it of F3D_BEAMS){
     const e = it.e, b = it.b;
     if(!f3dBeam3D(e, b)) continue;
@@ -1193,6 +1313,8 @@ function f3dBeamPass(slices, cam){
       }
       u0 += Lp;
     }
+    // v261 (F79, F80): where it strikes and where it leaves, in 3D
+    f3dBeamHitFx(e, b, g, cam, wP, Kz, hitFx);
   }
   const draws = [];
   for(const col in groups){
@@ -1209,20 +1331,36 @@ function f3dBeamPass(slices, cam){
       draws.push({arr: F3D_FLOW_ARR.slice(0, k*6), n: k, tex: tf});
     }
   }
+  // v261: the entries and exits, one picture per texture
+  for(const key in hitFx){
+    const h = hitFx[key], tex = f3dCanvasTex('hfx' + key, h.cv);
+    if(!tex || !h.q.length) continue;
+    const arr = new Float32Array(h.q.length*36);
+    let k = 0;
+    for(const q of h.q){
+      if(q.spot) k = f3dSpot(arr, k, q.spot, q.r, q.al);
+      else { const B = q.band; k = f3dBandA(arr, k, B[0], B[1], B[2], B[3], B[4], B[5], B[6]); }
+    }
+    draws.push({arr: arr, n: k, tex: tex, own: h.own});
+  }
   if(!draws.length) return;
   gl.disable(gl.CULL_FACE);
   gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
   gl.depthMask(false);
   gl.enable(gl.STENCIL_TEST); gl.stencilMask(0); gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-  const pass = function(near, far, id){
+  const pass = function(near, far, id, ships){
     gl.depthRange(near, far);
     gl.stencilFunc(gl.EQUAL, id, 0xff);
-    for(const d of draws) f3dFxDraw(d.arr, d.n, d.tex, null, cam, null, 1, true);
+    for(const d of draws){
+      // v261: what belongs to a ship is drawn on her and in open space only
+      if(d.own && ships && ships.indexOf(d.own) < 0) continue;
+      f3dFxDraw(d.arr, d.n, d.tex, null, cam, null, 1, true);
+    }
   };
   // on each ship: against her hull, in her slice
-  for(const s of slices) pass(s.near, s.far, s.id);
+  for(const s of slices) pass(s.near, s.far, s.id, s.ships);
   // in open space: once a picture
-  if(!F3D_BEAM_BG){ pass(0, 1, 0); F3D_BEAM_BG = true; }
+  if(!F3D_BEAM_BG){ pass(0, 1, 0, null); F3D_BEAM_BG = true; }
   gl.depthRange(0, 1); gl.depthMask(true);
   gl.stencilMask(0xff);
   gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);

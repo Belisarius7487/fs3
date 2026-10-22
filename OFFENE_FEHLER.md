@@ -2398,7 +2398,7 @@ Flammenstrahl austritt."
   Austritt mit Flammenstrahl fällt damit weg.
 - **Behoben in v260:** der 3D-Beam läuft wieder durch das Schiff hindurch (verdeckt vom Rumpf), tritt an der anderen Seite aus (auf dem Modell gesucht) und läuft dahinter weiter wie früher der flache Strahl; dort sitzen wieder die Austrittswunde und der Flammenstrahl. Der flache Strahl (ohne Modell) läuft ebenfalls wieder durch.
 
-### F79 — Ein- und Austrittseffekt der Beams bleiben sichtbar, wenn der Rumpf davor liegt (v260)
+### F79 — Ein- und Austrittseffekt der Beams bleiben sichtbar, wenn der Rumpf davor liegt (v260) — behoben in v261
 
 **Befund (Silvio, 22.10.2026):** „Der Eintrittseffekt der Beams passt immer
 noch nicht ganz. Wenn ich mich bewege und die vorn liegende Kante der
@@ -2414,9 +2414,9 @@ im 3dimensionalen Raum darstellen lassen zu können."
   flaches Bild, gezeichnet **über allen Schiffen** (`drawParts`,
   `drawFxAnims` nach den Rümpfen). Es sitzt an der richtigen Stelle, kennt
   aber keine Tiefe und wird darum nie verdeckt.
-- Status: offen.
+- **Behoben in v261:** Ein- und Austritt eines 3D-Beams werden nicht mehr als flaches Bild über die Schiffe gemalt, sondern im 3D-Bild mit dem Strahl (`f3dBeamHitFx`), mit Tiefentest: eine Kante des eigenen Rumpfs davor verdeckt sie, und sie gehören zum getroffenen Schiff, liegen also auch unter jedem Schiff, das über ihm liegt. Prüfung mit echtem WebGL: `fieldsim` „v261: beam entry hidden“.
 
-### F80 — Der Austrittseffekt der Beams ist viel zu dezent (v260)
+### F80 — Der Austrittseffekt der Beams ist viel zu dezent (v260) — behoben in v261
 
 **Befund (Silvio, 22.10.2026):** „Der Austrittseffekt [ist] übrigens viel
 zu dezent." Dazu ein Bildschirmfoto aus FreeSpace 2 (vor 14 Jahren): ein
@@ -2429,9 +2429,9 @@ mehreren Schiffslängen folgt und sich dabei etwas auffächert.
   Schiffslänge orientieren." Meine Annahme dazu: eine feste Länge je Beam,
   bei schweren Beams länger als bei den kleinen gegen Jäger, unabhängig von
   der Größe des getroffenen Schiffs.
-- Status: offen.
+- **Behoben in v261:** der Austritt ist jetzt ein langer, heller Strahl aus Flammen (zwei Lagen im Beam-Profil, orange und weißgelb), der dem Beam folgt, sich um das 2,6-Fache auffächert und dabei verblasst, dazu 30 Funken, die ihn entlanglaufen, und ein Licht am Austrittspunkt. Länge fest je Beam (`BEAM_EXIT_LEN`: 30 Beam-Breiten bei schweren, 18 bei kleinen), nicht nach dem getroffenen Schiff. Am Eintritt ein Licht, etwas Feuer und Funken zurück zum Turm.
 
-### F81 — Mission 14: zweiter Lucifer-Beam ohne Austritt, der Strahl wirkt abgeknickt (v260)
+### F81 — Mission 14: zweiter Lucifer-Beam ohne Austritt, der Strahl wirkt abgeknickt (v260) — behoben in v261
 
 **Befund (Silvio, 22.10.2026):** „Ich habe in Mission 14 noch etwas
 festgestellt und zwar schaltet die Lucifer manchmal auf den gerade
@@ -2446,7 +2446,7 @@ er sein Ziel trifft."
   aus. Findet der zweite Strahl keinen Austritt am Modell, fehlt bei ihm
   auch die Austrittswunde.
 - Mit F79/F80 zusammen bauen.
-- Status: offen.
+- **Behoben in v261:** Vermutung bestätigt. Der Strahl ist jetzt eine gerade Linie im Raum vom Turm durch das Schiff und weiter. Die Dicke des Schiffs an der Stelle wird einmal je Schuss gemessen und der Austritt jedes Bild auf diese Linie gesetzt, so dass auch sich bewegende Schiffe keinen Knick erzeugen. Jeder Beam hat seinen eigenen Ein- und Austritt. Prüfung: `fieldsim` „straight line“ (Abweichung 0).
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

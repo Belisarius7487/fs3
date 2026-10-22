@@ -218,6 +218,14 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
 - Großkampf-Geschosse: `hz0` (Starttiefe), steigen beim Zeichnen
   (`shotsView`); `capGunShot(..., m)` braucht den Turm.
 
+### Seit v261
+
+- 3D-Beam: eine Gerade S → T → X → F (`f3dBeamEnds`, `d`, `exitDist`).
+- Ein- und Austritt im 3D-Bild (`f3dBeamHitFx`), nur in der Scheibe des
+  getroffenen Schiffs und im freien Raum gezeichnet (Scheiben merken sich
+  ihre Schiffe, `slices[i].ships`). Länge des Austritts: `BEAM_EXIT_LEN`.
+  Für 3D-Beams kein flaches Trefferfeuer mehr in `beamImpactAt`.
+
 ## C. Werkzeuge im Detail
 
 ### `tools/pof/` — der POF-Umwandler

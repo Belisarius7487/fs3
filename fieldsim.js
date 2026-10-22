@@ -5144,10 +5144,13 @@ scenario('FS1 M14 v258 Ribos IV: Taranis silent, era allies, Lucifer stop, shiel
   r.stopAt = Math.round(L.x/FIELD_K);
   r.stopsRight = r.stopAt >= 660 && r.stopAt <= 720 && r.inAt > r.stopAt;
   // F66: lockable, a hit flares the shield, nothing gets through
-  const hp0 = L.hp, fl0 = (L.shieldFlares||[]).length;
-  damageEnemy(L, 50, L.x, L.y, true, 'bolt', 'gun');
+  const hp0 = L.hp;
+  damageEnemy(L, 50, L.x + 7, L.y + 3, true, 'bolt', 'gun');
   r.lockable = canLockOn(L);
-  r.flares = (L.shieldFlares||[]).length > fl0;
+  // the newest flare is this hit (the list holds 15; since v259 the
+  // allies keep it full, so its length says nothing)
+  const lf = (L.shieldFlares||[])[(L.shieldFlares||[]).length-1];
+  r.flares = !!lf && lf.life === lf.ml && Math.abs(lf.lx - 7) < 0.01 && Math.abs(lf.ly - 3) < 0.01;
   r.noDamage = L.hp === hp0;
   // F65: her reactors are not drawn - count the calls during one frame.
   let rc = 0, drew = false; const _dr = drawReactors;
@@ -5461,6 +5464,117 @@ scenario('FS1 M14 v260: beam exits with its flame, smoke on her surface, rounds 
     r.smoke = mine.length;
     r.smokeOnSurface = mine.length > 0 && !!S3 && mine.every(p=>p.hz!=null && Math.abs(p.hz - S3.z) < 1) && Math.abs(S3.z - mid) > 20;
   }
+  r.f3dErr = String(F3D.err||'');
+  return r;`);
+
+// ── v261: F79/F80/F81 - entry and exit in 3D, hidden by hulls in front; the beam is straight ──
+scenario('v261: beam entry hidden by a hull in front, exit spray beyond her, beam straight (F79, F80, F81)', '', `
+  const r = {};
+  r.gl = !!f3dInit();
+  if(!r.gl) return r;
+  const gl = F3D.gl;
+  const mkL = function(){
+    const V = [], I = [], hx = 0.15, hy = 0.1, hz = 1.0;
+    for(const sx of [-1,1]) for(const sy of [-1,1]) for(const sz of [-1,1]) V.push(Math.round(sx*hx*32767), Math.round(sy*hy*32767), Math.round(sz*hz*32767));
+    const F = [[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]];
+    for(const f of F) I.push(f[0],f[1],f[2], f[0],f[2],f[3], f[0],f[2],f[1], f[0],f[3],f[2]);
+    const pos = new Int16Array(V), idx = new Uint16Array(I), nrm = new Int8Array(32), uv = new Uint16Array(16);
+    const mk = function(tg, a){ const bf = gl.createBuffer(); gl.bindBuffer(tg, bf); gl.bufferData(tg, a, gl.STATIC_DRAW); return bf; };
+    return {state:'ready', tex:{}, head:{size:[0.3,0.2,2], ext:1, nodes:null},
+      parts:[{kind:'flat', tex:'', n:idx.length, big:false, node:0, pos:mk(gl.ARRAY_BUFFER,pos), nrm:mk(gl.ARRAY_BUFFER,nrm), uv:mk(gl.ARRAY_BUFFER,uv), idx:mk(gl.ELEMENT_ARRAY_BUFFER,idx)}],
+      cpu:[{pos:pos, idx:idx}]};
+  };
+  const L = mkL();
+  const mkShip = function(x, y, w){ return {img:'deorionright', x:x, y:y, sc:w/(IMGS.deorionright?IMGS.deorionright.width:100), flip:false, ang:0, type:'destroyer', faction:'terran'}; };
+  CAM.x = MW/2; CAM.y = (HUD_H+MH)/2; CAM.z = CAM_BASE_Z;
+  const X = mkShip(MW/2 - 300, CAM.y, 1000), Y = mkShip(MW/2 + 100, CAM.y + 60, 1000);
+  const cam = f3dVP();
+  const px = function(P){
+    const m = cam.vp, c = [0,0,0,0];
+    for(let i=0;i<4;i++) c[i] = m[i]*P[0] + m[4+i]*P[1] + m[8+i]*P[2] + m[12+i];
+    return [Math.round((c[0]/c[3]*0.5+0.5)*F3D.can.width), Math.round((c[1]/c[3]*0.5+0.5)*F3D.can.height)];
+  };
+  const lum = function(P){ const q = px(P), o = new Uint8Array(4); gl.readPixels(q[0], q[1], 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, o); return o[0]+o[1]+o[2]; };
+  const sink = -1000*0.15;            // a box's middle (half its thickness down)
+  // a beam whose entry is at T, leaving at Xp along d; no band (S = T), so
+  // only the entry and exit are drawn
+  const shot = function(T, Xp, d, withBeam, P){
+    window.f3dBeam3D = function(){ return true; };
+    window.f3dBeamEnds = function(){ return {S:T, T:T, X:Xp, F:Xp, d:d, hasExit:true}; };
+    F3D_BEAMS.length = 0; if(withBeam) F3D_BEAMS.push({e:{faction:'shivan'}, b:{large:true, state:'firing', anc:{o:X}, _fxSeed:1}}); F3D_BEAM_BG = false;
+    f3dRender([{e:X, L:L, x:X.x, y:X.y, a:1, clip:null}, {e:Y, L:L, x:Y.x, y:Y.y, a:1, clip:null}], false, true);
+    return lum(P);
+  };
+  const lit = function(T, Xp, d, P){ return shot(T, Xp, d, true, P) - shot(T, Xp, d, false, P); };
+  const yy = -(CAM.y + 30);
+  // entry on the open top of X: seen
+  const T1 = [MW/2 - 650, yy, 0];
+  r.entryOpen = lit(T1, T1, [1,0,0], T1);
+  // entry on X where Y lies over it: hidden
+  const T2 = [MW/2 - 200, yy, 0];
+  r.entryUnderOther = lit(T2, T2, [1,0,0], T2);
+  // entry inside X, under her own top surface (an edge of her own in front): hidden
+  const T3 = [MW/2 - 650, yy, sink*1.6];
+  r.entryUnderOwn = lit(T3, T3, [1,0,0], T3);
+  r.entrySeen = r.entryOpen > 60;
+  r.entryHiddenByOther = r.entryUnderOther <= 20;
+  r.entryHiddenByOwn = r.entryUnderOwn <= 20;
+  // the exit: out of X's far end, on beyond her, at her middle depth
+  const Xe = [X.x - 500, -(CAM.y - 30), sink], dl = [-1, 0, 0];
+  const len = BEAM_EXIT_LEN.large*7.5*fxG()/(f3dEyeD()/(f3dEyeD() - sink));
+  const Pj = [Xe[0] - len*0.35, Xe[1], Xe[2]];
+  r.exitSprayBeyond = lit(Xe, Xe, dl, Pj);
+  r.exitSpraySeen = r.exitSprayBeyond > 60;
+  r.exitLen = Math.round(len);
+  return r;`, true);
+
+scenario('FS1 M14 v261: the 3D beam is one straight line, no flat fire on it (F81)', 'm=14', `
+  const r = {};
+  r.gl = !!f3dInit();
+  if(!r.gl) return r;
+  const gl = F3D.gl;
+  const mkL = function(){
+    const V = [], I = [], hx = 0.15, hy = 0.1, hz = 1.0;
+    for(const sx of [-1,1]) for(const sy of [-1,1]) for(const sz of [-1,1]) V.push(Math.round(sx*hx*32767), Math.round(sy*hy*32767), Math.round(sz*hz*32767));
+    const F = [[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]];
+    for(const f of F) I.push(f[0],f[1],f[2], f[0],f[2],f[3], f[0],f[2],f[1], f[0],f[3],f[2]);
+    const pos = new Int16Array(V), idx = new Uint16Array(I), nrm = new Int8Array(32), uv = new Uint16Array(16);
+    const mk = function(tg, a){ const bf = gl.createBuffer(); gl.bindBuffer(tg, bf); gl.bufferData(tg, a, gl.STATIC_DRAW); return bf; };
+    return {state:'ready', tex:{}, head:{size:[0.3,0.2,2], ext:1, nodes:null},
+      parts:[{kind:'flat', tex:'', n:idx.length, big:false, node:0, pos:mk(gl.ARRAY_BUFFER,pos), nrm:mk(gl.ARRAY_BUFFER,nrm), uv:mk(gl.ARRAY_BUFFER,uv), idx:mk(gl.ELEMENT_ARRAY_BUFFER,idx)}],
+      cpu:[{pos:pos, idx:idx}]};
+  };
+  for(const k of ['sdlucifer','deorionright','crcain','scfaustus','inarcadia']) if(F3D_KEYS.indexOf(k)>=0){ const L = mkL(); F3D.models[k] = {lo:L, full:L}; }
+  FS.until(()=>evSeen('E1'), 1000, false);
+  FS.until(()=>{ FS.killId('E1'); FS.killId('E2'); FS.killId('B2'); return byId('L1').length>0; }, 6000, false);
+  const L1 = byId('L1')[0];
+  let worst = 0, seen = 0, exits = 0, flatFire = 0;
+  const _sf = spawnFireball;
+  for(let k=0;k<60*30;k+=5){
+    FS.step(5);
+    try{ draw(); }catch(eD){}
+    for(const b of (L1.beams||[])) if(b.anc && b.anc._g3 && b.anc._g3f >= F3D_FRAME - 1){
+      const g = b.anc._g3; seen++; if(g.hasExit) exits++;
+      // T, X and F on the line from S along d
+      for(const P of [g.T, g.X, g.F]){
+        const v = [P[0]-g.S[0], P[1]-g.S[1], P[2]-g.S[2]], t = v[0]*g.d[0] + v[1]*g.d[1] + v[2]*g.d[2];
+        const off = Math.hypot(v[0]-g.d[0]*t, v[1]-g.d[1]*t, v[2]-g.d[2]*t);
+        worst = Math.max(worst, off);
+      }
+      // no flat fire at the entry of a 3D beam
+      const n0 = PARTS.length, f0 = (typeof FX_ANIMS!=='undefined') ? FX_ANIMS.length : 0;
+      const fcs = fc; fc = 2*Math.ceil(fc/2);
+      beamImpactAt(b.anc.o, b.angle, true, {entry:beamAncPt(b), exit:null, vis:b.anc.vis, exitVis:b.anc.exitVis});
+      fc = fcs;
+      flatFire += (PARTS.length - n0) + (((typeof FX_ANIMS!=='undefined') ? FX_ANIMS.length : 0) - f0);
+    }
+  }
+  r.beamsSeen = seen;
+  r.withExit = exits;
+  r.offLine = worst.toFixed(3);
+  r.straight = seen > 0 && worst < 0.5;
+  r.flatFire = flatFire;
+  r.noFlatFire = seen > 0 && flatFire === 0;
   r.f3dErr = String(F3D.err||'');
   return r;`);
 
