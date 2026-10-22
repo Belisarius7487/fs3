@@ -415,6 +415,17 @@ function drawBarRadar(x, y, w, h){
     ctx.drawImage(ic, -iw/2, -ih/2, iw, ih);
     ctx.restore();
   }
+  // v262 (Silvio, 22.10.2026): what can still be picked up shows on the
+  // radar as a small blinking dot in its own colour - green for repair,
+  // blue for a life - so at the end of a mission it is plain that
+  // something is still out there.
+  if(typeof ITEMS !== 'undefined' && ITEMS.length){
+    const _bl = 0.55 + 0.45*Math.sin(fc*0.12);   // same beat as the pickup itself
+    for(const it of ITEMS){
+      ctx.fillStyle = (it.kind === 'repair' ? 'rgba(70,255,140,' : 'rgba(120,235,255,') + _bl.toFixed(2) + ')';
+      ctx.beginPath(); ctx.arc(px(it.x), py(it.y), 2.2, 0, Math.PI*2); ctx.fill();
+    }
+  }
   // the player, in white
   const pic = radarIcon(isBomberHull(player.ship) ? 'radar-bomber' : 'radar-fighter', '#ffffff');
   if(pic){ const s = RADAR_ICO_MIN/pic.width; ctx.save(); ctx.translate(px(player.x), py(player.y)); if(player.flip) ctx.scale(-1, 1);

@@ -348,8 +348,22 @@ Mission 14; die Hammer-of-Light-Flotte beginnt seitdem bei 15.
 - Die Station ist das Arcadia-Modell: die FS1-Station Polaris gibt es im
   Spiel nicht.
 
-## Mission 15 — The Aftermath (Original 11) — Entwurf, verschoben
+## Mission 15 — The Aftermath (Original 11) (abgesegnet, gebaut v262)
 
-Entwurf vom 22.10.2026 (Transporter Iota, Sigma, Omega zur Pinnacle; Wellen
-Manticore, Shaitan/Basilisk, Scorpion; zuletzt Basilisk gegen die
-Pinnacle). Silvio hat ihn auf Mission 15 verschoben, noch nicht abgesegnet.
+Abgesegnet von Silvio, 22.10.2026. Ersetzt die alte Mission 15; die
+Hammer-of-Light-Flotte beginnt seitdem bei 16.
+
+- Start: der Spieler in der Valkyrie mit zwei Avenger und zwei
+  Flügelmännern. Links die Transporter Iota und Sigma (Elysium) und Omega
+  (Isis), oben der Frachter GTFr Nelson, der langsam nach rechts fährt.
+- Nach 5 s 3 Manticore, sie jagen die Nelson.
+- Tot oder nach 30 s: 2 Shaitan-Bomber und 4 Basilisk auf die Transporter.
+- Tot oder nach 30 s: die PVD Pinnacle (unzerstörbar) springt rechts ein,
+  mit 2 Anubis und den drei Satis-Frachtern Pi. 4 Scorpion jagen die Iota.
+  Die Transporter warten bis dahin und fahren dann nebeneinander an die
+  Pinnacle heran, halten 4 s und springen aus.
+- Alle Transporter weg (durch oder verloren), spätestens 60 s nach der
+  Pinnacle: letzte Welle, 4 Basilisk und 3 Scorpion gegen die Pi-Frachter.
+  Alle tot: die Mission endet.
+- Ziel: die Iota kommt durch. Stirbt sie, ist das Ziel verfehlt, die
+  Mission läuft aber bis zur letzten Welle weiter.

@@ -5578,6 +5578,59 @@ scenario('FS1 M14 v261: the 3D beam is one straight line, no flat fire on it (F8
   r.f3dErr = String(F3D.err||'');
   return r;`);
 
+// ── v262: FS1 M15 The Aftermath, and pickups on the radar ──
+scenario('FS1 M15 v262 Aftermath: transports wait, meet the Pinnacle side by side, jump, last wave, end', 'm=15', `
+  const r = {};
+  FS.step(200);
+  r.name = (SCRIPT_WAVES[15]||{}).name;
+  const T = ['T1','T2','T3'].map(id=>byId(id)[0]);
+  r.threeTransports = T.every(Boolean);
+  const x0 = T.map(t=>t ? t.x : 0);
+  FS.until(()=>evSeen('E1'), 1500, false);
+  FS.step(60*8);
+  // they hold until the Pinnacle is there
+  r.waitForPinnacle = T.every((t,i)=>t && Math.abs(t.x - x0[i]) < 3);
+  FS.until(()=>{ FS.killId('E1'); FS.killId('B1'); FS.killId('E2'); return byId('P1').length>0; }, 8000, false);
+  const P = byId('P1')[0];
+  r.pinnacleIn = !!P;
+  // keep the Scorpions off them: this checks the meeting, not the fight
+  const spots = {};
+  FS.until(()=>{ FS.killId('S1');
+    for(const id of ['T1','T2','T3']){ const t = byId(id)[0]; if(t && t.holdT!=null && !spots[id]) spots[id] = [t.x, t.y]; }
+    return Object.keys(spots).length===3 || ['T1','T2','T3'].every(id=>byId(id).length===0); }, 6000, false);
+  const sp = ['T1','T2','T3'].map(id=>spots[id]).filter(Boolean);
+  r.spots = sp.map(q=>[Math.round(q[0]/FIELD_K), Math.round(q[1]/FIELD_K)]);
+  r.allMet = sp.length===3;
+  r.besideNotOn = sp.length===3 && sp.every(q=>q[0] < P.x);
+  let minD = 1e9; for(let i=0;i<sp.length;i++) for(let j=i+1;j<sp.length;j++) minD = Math.min(minD, Math.hypot(sp[i][0]-sp[j][0], sp[i][1]-sp[j][1]));
+  r.noStacking = minD > 40*FIELD_K;
+  FS.until(()=>{ FS.killId('S1'); return !!EV_LEFT.T1; }, 3000, false);
+  r.iotaThrough = !!EV_LEFT.T1;
+  FS.until(()=>byId('L1').length>0 || byId('L2').length>0, 2000, false);
+  r.lastWave = byId('L1').length>0;
+  FS.until(()=>{ FS.killId('S1'); FS.killId('L1'); FS.killId('L2'); return waveOver || wave>15; }, 6000, false);
+  r.ends = waveOver || wave>15;
+  r.pinnacleAlive = !P.dead;
+  return r;`);
+
+scenario('v262 radar: a pickup on the field shows as a dot on the radar', 'm=15', `
+  const r = {};
+  FS.step(100);
+  const count = function(){
+    let n = 0; const _a = ctx.arc;
+    ctx.arc = function(){ n++; return _a.apply(ctx, arguments); };
+    try{ drawBarRadar(10, 10, 200, 120); }catch(eR){ r.err = String(eR); }
+    ctx.arc = _a; return n;
+  };
+  ITEMS.length = 0;
+  const n0 = count();
+  spawnTicket(300*FIELD_K, 200*FIELD_K, 'repair');
+  spawnTicket(400*FIELD_K, 250*FIELD_K, 'life');
+  const n2 = count();
+  r.twoDots = n2 - n0 === 2;
+  ITEMS.length = 0;
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

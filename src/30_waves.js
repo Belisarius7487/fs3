@@ -599,6 +599,7 @@ function spawnProtected(sp){
     if(sp.dockLabel) a.dockLabel = sp.dockLabel;    // 'REPAIRING' (v178)
     if(sp.dockBelly) a.dockBelly = true;            // v254 (F51)
     if(sp.dockStay) a.dockStay = true;              // v257: held until 'abdocken'
+    if(sp.dockBeside != null) a.dockBeside = sp.dockBeside;   // v262, see tickDocking
     a.crossAfter = sp.cross || 0.38;
     // Die Hoehe darf nicht gepinnt sein, sonst kommt er nie zum
     // Andockpunkt hoch.
@@ -1043,7 +1044,19 @@ function tickDocking(){
       e.rollV = Math.min(1, e.rollV + 1/DOCK_ROLL_STEPS);
       e.rollC = Math.cos(Math.PI*e.rollV);
     }
-    const p = dockPoint(t), o = dockOffset(e);
+    let p = dockPoint(t), o = dockOffset(e);
+    // v262 (The Aftermath): dockBeside - she does not dock but comes up
+    // alongside the end of the target that faces her, dockBeside units
+    // above (-) or below (+) its centre (mission units), and holds there. Several ships
+    // meeting one destroyer then stand side by side instead of stacking
+    // on her one dock point (the three transports at the Pinnacle).
+    if(e.dockBeside != null){
+      const _ti = IMGS[t.img], _ei = IMGS[e.img];
+      const _th = _ti ? _ti.width*t.sc*0.5 : 60, _eh = _ei ? _ei.width*e.sc*0.5 : 30;
+      const _sd = (e.x < t.x) ? -1 : 1;
+      p = {x:t.x + _sd*(_th*0.8 + _eh + 12*FIELD_K), y:t.y + e.dockBeside*FIELD_K};
+      o = {x:0, y:0};
+    }
     if(e.dockBelly) p.y = t.y - (p.y - t.y);
     const dx = (p.x-o.x) - e.x, dy = (p.y-o.y) - e.y;
     const L = Math.hypot(dx, dy);
@@ -2839,13 +2852,66 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'R1+H1+F1+F2+O1+ST', d:6, w:'abzug', a2:'', hold:true}
      ]},
 
-  15:{name:'The Supply Depot', fac:'hol', o:'clear', live:4, stillRocks:true, u:[
-       {id:'C1', c:'fc', n:5, spr:'fcvc3'},
-       {id:'G1', c:'sg', n:3, spr:'sgankh'},
-       {id:'R1', c:'ast', n:34},
-       {id:'E1', c:'fi', n:2, wait:true}
+  // The Aftermath (fs1/sm2-01a). After Tombaugh: Alpha takes three
+  // transports of refugees, Iota, Sigma and Omega, to the Vasudan
+  // destroyer Pinnacle. Manticores go for the freighter Nelson first,
+  // then bombers and Basilisks for the transports. The Pinnacle jumps in
+  // with her freighters; the transports come up alongside her and jump
+  // out, Scorpions after Iota. Last, the Shivans turn on the Pinnacle's
+  // freighters. Replaces the old mission 15 (Silvio, 22.10.2026).
+  15:{name:'The Aftermath', era:'fs1', orig:11, ship:'fivalyrie', pri:['avenger','avenger'], fac:'hol', o:'clear', live:6,
+      hunt:'N1', ziel:'Escort Iota to the Pinnacle', u:[
+       {id:'A1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
+       {id:'N1', c:'fr', n:1, spr:'frchronos', side:'ally', x:300, y:140, cross:0.15, label:'GTFr Nelson'},
+       // They wait where they are until the Pinnacle is there (tickDocking
+       // holds a dock whose target has not arrived yet), then meet her.
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:150, y:200,
+        dockTo:'P1', dockBeside:-90, dockHold:4, dockLabel:'TRANSFER', mark:'protect', label:'Iota'},
+       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:110, y:300,
+        dockTo:'P1', dockBeside:0, dockHold:4, dockLabel:'TRANSFER', label:'Sigma'},
+       {id:'T3', c:'tr', n:1, spr:'trisis', side:'ally', x:150, y:400,
+        dockTo:'P1', dockBeside:90, dockHold:4, dockLabel:'TRANSFER', label:'Omega'},
+       {id:'E1', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', wait:true},
+       {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
+       {id:'E2', c:'fi', n:1, size:4, spr:'fibasilisk', fac:'shivan', wait:true},
+       // She cannot die: the last wave is fought at her side.
+       {id:'P1', c:'de', n:1, spr:'detyphon', side:'ally', noKill:true, still:true, x:670, y:270,
+        wait:true, label:'PVD Pinnacle'},
+       {id:'K1', c:'fi', n:1, size:2, spr:'fianubis', side:'ally', wait:true, at:'P1'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:600, y:110, still:true, warpIn:true, wait:true, label:'Pi 1'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:740, y:120, still:true, warpIn:true, wait:true, label:'Pi 2'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:690, y:430, still:true, warpIn:true, wait:true, label:'Pi 3'},
+       {id:'S1', c:'fi', n:1, size:4, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'L1', c:'fi', n:1, size:4, spr:'fibasilisk', fac:'shivan', wait:true},
+       {id:'L2', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true}
      ], ev:[
-       {t:'anzahlUnter', a:'C1', b:3, w:'einwarpen', a2:'E1'}
+       {t:'sek', a:5, w:'einwarpen', a2:'E1'},
+       // second wave: bombers and Basilisks for the transports
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'da', a:'E1', d:30, w:'einwarpen', a2:'B1'},
+       {t:'da', a:'E1', d:30, w:'einwarpen', a2:'E2'},
+       {t:'da', a:'B1', w:'jagd', a2:'T1'},
+       // the Pinnacle with her escort and freighters, and Scorpions for Iota
+       {t:'alleZerstoert', a:'B1+E2', w:'einwarpen', a2:'P1'},
+       {t:'alleZerstoert', a:'B1+E2', w:'einwarpen', a2:'K1'},
+       {t:'alleZerstoert', a:'B1+E2', w:'einwarpen', a2:'F1'},
+       {t:'alleZerstoert', a:'B1+E2', w:'einwarpen', a2:'S1'},
+       {t:'da', a:'B1', d:30, w:'einwarpen', a2:'P1'},
+       {t:'da', a:'B1', d:30, w:'einwarpen', a2:'K1'},
+       {t:'da', a:'B1', d:30, w:'einwarpen', a2:'F1'},
+       {t:'da', a:'B1', d:30, w:'einwarpen', a2:'S1'},
+       {t:'verlaesst', a:'T1', w:'zielerfuellt', a2:'Iota has reached the Pinnacle'},
+       {t:'vernichtet', a:'T1', w:'zielverfehlt', a2:'Iota destroyed'},
+       // All transports gone, through or lost: the last wave. The second
+       // pair is the way out should one of them never get there.
+       {t:'alleZerstoert', a:'T1+T2+T3', w:'einwarpen', a2:'L1'},
+       {t:'alleZerstoert', a:'T1+T2+T3', w:'einwarpen', a2:'L2'},
+       {t:'da', a:'P1', d:60, w:'einwarpen', a2:'L1'},
+       {t:'da', a:'P1', d:60, w:'einwarpen', a2:'L2'},
+       {t:'da', a:'L1', w:'jagd', a2:'F1'},
+       {t:'da', a:'L1', w:'ziel', a2:'Destroy the remaining fighters'},
+       {t:'alleZerstoert', a:'L1+L2', d:3, w:'abzug', a2:'', hold:true}
      ]},
 
   16:{name:'The Mutiny', fac:'hol', o:'guard', live:5, u:[
@@ -4931,7 +4997,7 @@ function scriptUnit(u, fac, q){
       put({time:t0+i*70, type:'protect', spr:u.spr,
            fac:allyRace(), noWarp:1, warpIn:u.warpIn,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
-           dockLabel:u.dockLabel, dockBelly:u.dockBelly, jumpIfEmpty:u.jumpIfEmpty, dockStay:u.dockStay,
+           dockLabel:u.dockLabel, dockBelly:u.dockBelly, jumpIfEmpty:u.jumpIfEmpty, dockStay:u.dockStay, dockBeside:u.dockBeside,
            pickup:u.pickup?1:0, ride:u.ride, slot:u.slot});
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast')?1:0,   // v253: u.fac, Shivan cargo in an HoL mission

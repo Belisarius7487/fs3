@@ -272,3 +272,13 @@ kürzt Namen ab und trägt einen alten Schreibfehler), und wird gegen
 
 ---
 
+### Seit v262 (Mission 15, The Aftermath)
+
+- Einheit `dockBeside:dy` (zusammen mit `dockTo`): sie dockt nicht an,
+  sondern fährt neben das zugewandte Ende des Ziels, `dy` über (-) oder
+  unter (+) seiner Mitte, hält dort (`dockHold`) und springt aus. So stehen
+  mehrere Transporter an einem Zerstörer nebeneinander statt übereinander.
+- Ein Dockauftrag, dessen Ziel noch nicht eingesprungen ist, wartet an Ort
+  und Stelle (war schon so, wird in M15 genutzt).
+- Das Radar zeigt Aufsammelbares als blinkenden Punkt (grün Reparatur,
+  blau Leben).
