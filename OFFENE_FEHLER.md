@@ -2146,6 +2146,15 @@ Verbündeten Schiffen."
 - Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
   weitere Befunde, dann wird gebaut.
 
+### F61 — Mission 14: der Spieler springt gleichzeitig mit der Lucifer aus (v257)
+
+**Befund (Silvio, 22.10.2026):** „Der Warpout des Spielers passiert direkt
+als die Lucifer herauswarpt. Es sollten 5 Sekunden dazwischen liegen, damit
+der Schock über das Geschehene noch kurz nachhallen kann."
+
+- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
+  weitere Befunde, dann wird gebaut.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
