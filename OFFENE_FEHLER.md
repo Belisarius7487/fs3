@@ -2431,6 +2431,23 @@ mehreren Schiffslängen folgt und sich dabei etwas auffächert.
   der Größe des getroffenen Schiffs.
 - **Behoben in v261:** der Austritt ist jetzt ein langer, heller Strahl aus Flammen (zwei Lagen im Beam-Profil, orange und weißgelb), der dem Beam folgt, sich um das 2,6-Fache auffächert und dabei verblasst, dazu 30 Funken, die ihn entlanglaufen, und ein Licht am Austrittspunkt. Länge fest je Beam (`BEAM_EXIT_LEN`: 30 Beam-Breiten bei schweren, 18 bei kleinen), nicht nach dem getroffenen Schiff. Am Eintritt ein Licht, etwas Feuer und Funken zurück zum Turm.
 
+### F82 — Geschosse der Pinnacle schlagen einen Haken (v262)
+
+**Befund (Silvio, 22.10.2026):** „Waffenprojektile der Pinnacle fliegen
+kurz nach rechts und machen dann einen Haken nach links. Ich vermute mal,
+dass liegt an der neuen 3D-Darstellung wenn die Projektile die Ebene
+wechseln."
+
+- Nachgelesen: Seit v260 (F76 Schritt 3) startet ein Geschoss am Turm in
+  dessen Tiefe und steigt in 10 Schritten zur Spielebene auf
+  (`shotsView`). Gezielt wird aber vom Turm in der Spielebene aus, nicht
+  von dort, wo man ihn sieht. Je tiefer das Schiff und je weiter am Rand,
+  desto weiter liegen beide auseinander; beim Aufstieg wandert das
+  Geschoss im Bild nach außen, dann fliegt es zum Ziel. Die Pinnacle steht
+  rechts und ist groß, daher der Haken nach rechts.
+- Vorschlag: Geschoss startet dort, wo man den Turm sieht, schon in der
+  Spielebene, und fliegt gerade. Noch nicht abgesegnet.
+
 ### F81 — Mission 14: zweiter Lucifer-Beam ohne Austritt, der Strahl wirkt abgeknickt (v260) — behoben in v261
 
 **Befund (Silvio, 22.10.2026):** „Ich habe in Mission 14 noch etwas
