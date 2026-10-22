@@ -2431,6 +2431,19 @@ mehreren Schiffslängen folgt und sich dabei etwas auffächert.
   der Größe des getroffenen Schiffs.
 - **Behoben in v261:** der Austritt ist jetzt ein langer, heller Strahl aus Flammen (zwei Lagen im Beam-Profil, orange und weißgelb), der dem Beam folgt, sich um das 2,6-Fache auffächert und dabei verblasst, dazu 30 Funken, die ihn entlanglaufen, und ein Licht am Austrittspunkt. Länge fest je Beam (`BEAM_EXIT_LEN`: 30 Beam-Breiten bei schweren, 18 bei kleinen), nicht nach dem getroffenen Schiff. Am Eintritt ein Licht, etwas Feuer und Funken zurück zum Turm.
 
+### F83 — Antwort auf Verstärkung kommt von der falschen Seite (v262)
+
+**Befund (Silvio, 22.10.2026):** „Wenn ich in Mission 15 Verstärkung rufe,
+kommen als Antwort vasudanische Hammer of Light Gegner und ich frage mich,
+ob in Leveln, in denen es hauptsächlich um Shivaner geht, bzw. Shivaner die
+Gegner sind, nicht eher Shivaner als Antwort reinwarpen sollten."
+
+- Nachgelesen: Die Gegenbomber auf ein gerufenes Großkampfschiff
+  (`sendCapBombers`) kommen immer aus der Fraktion der Mission
+  (`currentFaction`), im FS1-Strang also Hammer of Light.
+- Vorschlag: Die Antwort kommt von der Seite, die in der Mission die
+  Gegner stellt (aus den feindlichen Einheiten der Mission gezählt).
+
 ### F82 — Geschosse der Pinnacle schlagen einen Haken (v262)
 
 **Befund (Silvio, 22.10.2026):** „Waffenprojektile der Pinnacle fliegen
