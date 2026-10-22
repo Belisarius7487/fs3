@@ -2425,6 +2425,10 @@ Eintritt ein heller Lichtfleck, auf der anderen Seite tritt ein langer,
 breiter, glühender Strahl aus Funken und Flammen aus, der dem Beam auf
 mehreren Schiffslängen folgt und sich dabei etwas auffächert.
 
+- Silvio, 22.10.2026: „Der Austrittseffekt sollte sich nicht an der
+  Schiffslänge orientieren." Meine Annahme dazu: eine feste Länge je Beam,
+  bei schweren Beams länger als bei den kleinen gegen Jäger, unabhängig von
+  der Größe des getroffenen Schiffs.
 - Status: offen.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
