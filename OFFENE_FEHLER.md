@@ -2210,9 +2210,9 @@ anzeigen zu lassen."
 und den verbündeten Schiffen getroffen werden können, damit man den coolen
 Schildeffekt sieht, den sie eigentlich hat."
 
-- Meine Lesart, noch nicht bestätigt: Treffer prallen sichtbar an ihrem
-  Schild ab, Schaden nimmt sie weiterhin keinen (Briefing: der Schild hält
-  allem stand).
+- Silvio, 22.10.2026, bestätigt: „Sie sollen nur den Schild aufflackern
+  lassen. Durchgehen tun sie nicht." Also: Treffer lassen den Schild
+  aufflackern, Schaden nimmt sie keinen.
 - Status: offen, im Code noch nicht nachgesehen.
 
 ### F67 — Eine Station trudelt, wenn sie explodiert (v257)
