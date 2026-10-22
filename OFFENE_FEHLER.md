@@ -2165,6 +2165,20 @@ vor, die zu diesem Zeitpunkt noch nicht vorgestellt wurden"
   Testläufe.
 - Status: offen, im Code noch nicht nachgesehen.
 
+### F63 — Beam-Treffer wandern mit dem Blickwinkel des Spielers (v257)
+
+**Befund (Silvio, 22.10.2026):** „Wir nutzen ja 2,5D für unser Spiel und
+wenn ich mich bewege, verschieben sich die Beam-Treffer ausgehend von meinem
+Blickwinkel aufs Spielfeld. Es sollte aber so sein, dass Beams einen
+Schiffskörper an bestimmten Stellen treffen und ich das sehe egal wo ich
+mich auf dem Spielfeld befinde."
+
+- Silvio nennt ihn „sehr tiefgreifend". Gilt nicht nur für eine Mission.
+- Gewünscht: der Treffpunkt sitzt fest an einer Stelle des Rumpfs und
+  bleibt dort, wie auch immer sich die Ansicht durch die Bewegung des
+  Spielers verschiebt.
+- Status: offen, im Code noch nicht nachgesehen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
