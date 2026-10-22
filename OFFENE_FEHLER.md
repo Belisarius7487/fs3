@@ -2177,6 +2177,10 @@ mich auf dem Spielfeld befinde."
 - Gewünscht: der Treffpunkt sitzt fest an einer Stelle des Rumpfs und
   bleibt dort, wie auch immer sich die Ansicht durch die Bewegung des
   Spielers verschiebt.
+- Silvio, 22.10.2026, Ergänzung: „Je nach dem wie ich mich bewege,
+  verrutscht der Beamstrahl sogar vom getroffenen Rumpf weg ins Freie und
+  das ‚getroffene' Schiff nimmt dann trotzdem noch Schaden, obwohl der Beam
+  sichtbar ins Nirgendwo schießt."
 - Status: offen, im Code noch nicht nachgesehen.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
