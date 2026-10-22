@@ -60,18 +60,54 @@ function gunCol(e, g){ return raceCol(e.faction); }
 // pd: fired at a bomb.
 // hidE (v201): fired from the far flank of ship hidE - drawn under her
 // hull until it is clear of it (drawShots, 70_ui.js)
-function capGunShot(e, x, y, ang, g, ally, pd, hidE){
-  // v210: from where her turret is drawn - shots fly in the plane and hit
-  // what is drawn there (hullView), so they leave the drawn hull too
-  if(typeof hullPt === 'function'){ const vp = hullPt(e, x, y); x = vp.x; y = vp.y; }
-  capGunBolt(e, x, y, ang, g, ally, pd, hidE);
+// m (v260, F76 step 3): the mount it is fired from.
+function capGunShot(e, x, y, ang, g, ally, pd, hidE, m){
+  // v260 (F76 step 3): from her turret in space - at its depth under the
+  // play plane (capShotZ) - rising to the plane on its way out (shotsView).
+  // Without a model, as before (v210): from where her turret is drawn.
+  const z0 = capShotZ(e, m);
+  if(!z0 && typeof hullPt === 'function'){ const vp = hullPt(e, x, y); x = vp.x; y = vp.y; }
+  capGunBolt(e, x, y, ang, g, ally, pd, hidE, z0);
   // F36 (v251): a triple turret fires its three one after another, not
   // as a fan all at once (Silvio). The other two follow CAP_BURST_GAP
   // steps apart from the same muzzle, carried along with the ship.
   if(g.big && CAP_TRIPLE.test(e.img))
     for(let k=1;k<3;k++)
       CAP_BURSTS.push({t:k*CAP_BURST_GAP, e:e, dx:x-e.x, dy:y-e.y, ang:ang, g:g,
-                       ally:ally, pd:pd, hidE:hidE});
+                       ally:ally, pd:pd, hidE:hidE, m:m});
+}
+// v260 (F76 step 3): how deep under the play plane a round leaves her
+// turret: the depth of her middle and the turret's height on her hull, as
+// her beams have it (mountPosV). 0 without a model.
+function capShotZ(e, m){
+  if(typeof f3dMidZ !== 'function') return 0;
+  const z = f3dMidZ(e);
+  if(!z) return 0;
+  return Math.min(0, z + ((m && typeof mountDepth === 'function') ? mountDepth(e, m) : 0));
+}
+// How many steps a round takes to rise from her turret to the play plane.
+// Short: until it is up there it is not drawn where it is tested (fighters
+// fly in the plane), and a fighter close to the turret could be struck by
+// a round that seems to pass beside it.
+const SHOT_RISE = 10;
+// The rounds still rising, drawn at their depth (on) and set back (off) -
+// around the drawing of the shots (drawShots). A round from a far flank
+// does not rise while it is under her hull (hidE): it comes out from
+// behind it first.
+function shotsView(on){
+  const lists = [pBullets, eBullets];
+  for(const L of lists) for(const b of L){
+    if(!b.hz0) continue;
+    if(on){
+      const dt = (b._hzf == null) ? 0 : Math.max(0, fc - b._hzf);
+      b._hzf = fc;
+      if(!b.hidE) b.hzT = (b.hzT || 0) + dt;
+      b.hz = b.hz0*Math.max(0, 1 - (b.hzT || 0)/SHOT_RISE);
+      if(!(b.hz < 0)){ b.hz0 = 0; continue; }
+      const q = f3dPersp(b.x, b.y, b.hz);
+      b._vx0 = b.x; b._vy0 = b.y; b.x = q.x; b.y = q.y;
+    } else if(b._vx0 != null){ b.x = b._vx0; b.y = b._vy0; b._vx0 = null; }
+  }
 }
 const CAP_BURST_GAP = 12;          // steps between the rounds of a triple
 const CAP_BURSTS = [];
@@ -84,20 +120,20 @@ function tickCapBursts(){
     if(b.e.dead || b.e.rollT!=null || (enemies.indexOf(b.e)<0 && allies.indexOf(b.e)<0)) continue;
     // F42: every round of the triple is heard, not only the first
     if(typeof sndCapShot === 'function') sndCapShot(b.e.x+b.dx, b.e.y+b.dy, b.g.snd, !!b.g.big);
-    capGunBolt(b.e, b.e.x+b.dx, b.e.y+b.dy, b.ang, b.g, b.ally, b.pd, b.hidE);
+    capGunBolt(b.e, b.e.x+b.dx, b.e.y+b.dy, b.ang, b.g, b.ally, b.pd, b.hidE, capShotZ(b.e, b.m));
   }
 }
-function capGunBolt(e, x, y, a, g, ally, pd, hidE){
+function capGunBolt(e, x, y, a, g, ally, pd, hidE, z0){
   const rc = gunCol(e, g);
   const sp = pSpd(ally ? g.aspd : g.spd)*TEMPO_K;     // v212: pSpd
   if(ally){
     pBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
       w:g.big?13:11, h:g.big?13:4, dmg:g.admg, ally:true, fac:e.faction, cap:true,
-      col:rc.core, glow:rc.glow, big:!!g.big, hidE:hidE||null});
+      col:rc.core, glow:rc.glow, big:!!g.big, hidE:hidE||null, hz0:z0||0});
   } else {
     eBullets.push({x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
       w:g.w, h:g.h, big:!!g.big, faction:e.faction||'ntf', dmg:g.dmg,
-      col:rc.core, glow:rc.glow, pd:!!pd, hidE:hidE||null});
+      col:rc.core, glow:rc.glow, pd:!!pd, hidE:hidE||null, hz0:z0||0});
   }
 }
 

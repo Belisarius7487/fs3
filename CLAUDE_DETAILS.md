@@ -208,6 +208,16 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
 - `shieldShow`-Einheiten fangen auch Geschosse ab (`bulletOnHull`).
 - Radar: `boss`-Kulisse wird gezeigt.
 
+### Seit v260
+
+- `hullFxBegin(e, z)`: Effekte in einer eigenen Tiefe (Oberflächenpunkt).
+- `dmgSurf(e, u, v, cache)` / `hullSurfPt`: der sichtbare Punkt der
+  Rumpfoberfläche zu einer Stelle der Seitenansicht, im Schiff mitgeführt.
+- `f3dRayHitsLocal`: nächster und fernster Schnitt mit dem Modell.
+  `f3dBeamEnds` liefert S (Turm), T (Eintritt), X (Austritt), F (dahinter).
+- Großkampf-Geschosse: `hz0` (Starttiefe), steigen beim Zeichnen
+  (`shotsView`); `capGunShot(..., m)` braucht den Turm.
+
 ## C. Werkzeuge im Detail
 
 ### `tools/pof/` — der POF-Umwandler

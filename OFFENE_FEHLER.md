@@ -2365,9 +2365,16 @@ betrifft noch zu 2dimensional verhält."
   der Oberfläche) und „whole picture with 3D beams“ (Mission 14 komplett
   gezeichnet, ohne Fehler). Wie es mit den echten Modellen aussieht, kann
   nur Silvio im Browser sehen.
-- Noch offen: Schritt 3 (Geschosse der Großkampfschiffe aus 3D-Turmorten).
+- **Schritt 3 gebaut in v260:** Geschosse und Flak der Großkampfschiffe
+  starten am Turm in dessen Tiefe (`capShotZ`) und steigen in `SHOT_RISE`
+  (10) Schritten zur Spielebene auf (`shotsView`, beim Zeichnen). Aus einem
+  abgewandten Turm steigen sie erst, wenn sie unter dem Rumpf hervor sind.
+  Treffer auf Großkampfschiffe brauchen keine Sonderregel: deren dem
+  Spieler zugewandte Seite liegt in der Spielebene. Rest: ein Geschoss im
+  Aufstieg wird über allen Rümpfen gezeichnet, also nicht von einem
+  fremden Schiff verdeckt, das darüber liegt (selten, sehr kurz).
 
-### F77 — Rauch auf der Orion wandert noch mit dem Blickwinkel (v259)
+### F77 — Rauch auf der Orion wandert noch mit dem Blickwinkel (v259) — behoben in v260
 
 **Befund (Silvio, 22.10.2026):** „Der Rauch bei Schadenseffekten auf der
 Orion wandert immer noch je nach Blickwinkel. Es fällt nur auf, wenn man
@@ -2377,9 +2384,9 @@ wirklich drauf achtet, dennoch sieht es nicht schön aus."
   nicht ganz).
 - Bestätigt von Silvio: Beamstrahl und Treffereffekt bleiben in v259
   zusammen (F73/F76).
-- Status: offen, im Code noch nicht nachgesehen.
+- **Behoben in v260:** Ursache: Rauch, Dampf und Flammen kamen aus der Tiefe der Schiffsmitte, also aus dem Inneren des Rumpfs, und verschoben sich beim Schwenken gegen die sichtbare Oberfläche. Jetzt wird die Stelle auf der Oberfläche des Modells gesucht (`dmgSurf`/`hullSurfPt`, einmal je Riss oder Krater, dann mitgeführt) und der Rauch in deren Tiefe gezeichnet. Ebenso die Explosionen der Todesrolle und das Trefferfeuer der Beams.
 
-### F78 — Der Beam tritt nicht mehr mit Flammenstrahl auf der anderen Seite aus (v259)
+### F78 — Der Beam tritt nicht mehr mit Flammenstrahl auf der anderen Seite aus (v259) — behoben in v260
 
 **Befund (Silvio, 22.10.2026):** „Was aber leider nicht mehr passiert, ist
 dass der Beam auf der anderen Seite des Schiffsrumpfs zusammen mit einem
@@ -2389,7 +2396,7 @@ Flammenstrahl austritt."
   an einer Stelle des Rumpfs fest, und dort wird das Trefferfeuer nur noch
   für den Eintritt gerufen (`beamImpact(..., {entry:q, exit:null})`). Der
   Austritt mit Flammenstrahl fällt damit weg.
-- Status: offen.
+- **Behoben in v260:** der 3D-Beam läuft wieder durch das Schiff hindurch (verdeckt vom Rumpf), tritt an der anderen Seite aus (auf dem Modell gesucht) und läuft dahinter weiter wie früher der flache Strahl; dort sitzen wieder die Austrittswunde und der Flammenstrahl. Der flache Strahl (ohne Modell) läuft ebenfalls wieder durch.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

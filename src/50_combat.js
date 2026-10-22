@@ -2180,13 +2180,15 @@ function beamAncPt(b){
 }
 function beamImpact(o, mx, my, ang, large, tr){
   if(tr===undefined) tr = hullTrace(o, mx, my, ang);
-  // F63/F70 (v258): the fire of the hit stays on her hull as the view moves
-  const _hf = (typeof hullFxBegin === 'function') ? hullFxBegin(o) : null;
-  try{ beamImpactAt(o, ang, large, tr); } finally { if(_hf) hullFxEnd(_hf); }
+  beamImpactAt(o, ang, large, tr);
 }
 function beamImpactAt(o, ang, large, tr){
   const scale = large ? 1.0 : 0.55;
 
+  // F63/F70 (v258): the fire of the hit stays on her hull as the view moves,
+  // v260 (F77/F78): at the depth of the point on her surface when known
+  let _hf = (typeof hullFxBegin === 'function') ? hullFxBegin(o, (tr && tr.vis) ? tr.vis.z : null) : null;
+  try{
   // Entry
   const ex0 = tr ? tr.entry.x : o.x, ey0 = tr ? tr.entry.y : o.y;
   addScorch(o, ex0, ey0);
@@ -2204,12 +2206,17 @@ function beamImpactAt(o, ang, large, tr){
     }
   }
 
+  } finally { if(_hf) hullFxEnd(_hf); _hf = null; }
   // Exit wound on the far side, with a flame jet along the beam
-  if(tr && tr.exit){
-    const dx = tr.exit.x-tr.entry.x, dy = tr.exit.y-tr.entry.y;
+  if(tr && (tr.exit || tr.exitVis)){
+    const dx = tr.exitVis && tr.vis ? tr.exitVis.x-tr.vis.x : tr.exit.x-tr.entry.x;
+    const dy = tr.exitVis && tr.vis ? tr.exitVis.y-tr.vis.y : tr.exit.y-tr.entry.y;
     if(dx*dx+dy*dy > 100){          // only when the beam really passes through
-      addScorch(o, tr.exit.x, tr.exit.y);
-      const vEx = hullPt(o, tr.exit.x, tr.exit.y);     // v209
+      _hf = (typeof hullFxBegin === 'function') ? hullFxBegin(o, tr.exitVis ? tr.exitVis.z : null) : null;
+      try{
+      if(tr.exit) addScorch(o, tr.exit.x, tr.exit.y);
+      // v260 (F78): where the 3D beam leaves her surface (tr.exitVis)
+      const vEx = tr.exitVis || hullPt(o, tr.exit.x, tr.exit.y);     // v209
       if(fc%2===0){
         spawnFireball(vEx.x, vEx.y, (large?18:10), (large?20:12));
         for(let i=0;i<(large?7:3);i++){
@@ -2222,6 +2229,7 @@ function beamImpactAt(o, ang, large, tr){
             clr:['#ffffff','#ffdd88','#ff8822','#ff5511'][(Math.random()*4)|0]});
         }
       }
+      } finally { if(_hf) hullFxEnd(_hf); _hf = null; }
     }
   }
 }
@@ -2606,12 +2614,13 @@ function flakTurrets(e, ally, fl){
     if(typeof f3dAim === 'function') f3dAim(e, fl[i].ti, tg.x, tg.y);
     const hidE = (typeof mountHid === 'function' && mountHid(e, fl[i])) ? e : null;
     sndStart('wpn_dante', p.x, 1, false, 'ai_fire', p.y);
+    const fz = capShotZ(e, fl[i]);     // v260 (F76 step 3): from the turret in space
     if(ally) pBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
                             dmg:FLAK_SHARD_DMG*mul, ally:true, fac:e.faction,
-                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow, hidE:hidE});
+                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow, hidE:hidE, hz0:fz});
     else     eBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
                             dmg:FLAK_SHARD_DMG*mul, faction:e.faction, big:false,
-                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow, hidE:hidE});
+                            flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow, hidE:hidE, hz0:fz});
   }
 }
 
@@ -2645,7 +2654,7 @@ function capitalFire(e){
         sndCapShot(pts[i].x, pts[i].y, g.snd, !!g.big);   // F42
         if(_md && typeof f3dAim === 'function') f3dAim(e, _md.ti, gt.x, gt.y);
         capGunShot(e, pts[i].x, pts[i].y, ga, g, false, !!bomb,
-                   (_md && typeof mountHid === 'function' && mountHid(e, _md)) ? e : null);
+                   (_md && typeof mountHid === 'function' && mountHid(e, _md)) ? e : null, _md);
       }
     }
     // Bosses also throw out a spread pattern
@@ -3224,7 +3233,11 @@ function updateBeams(e) {
         b.angle = b.curAngle = Math.atan2(q.y-mp.y, q.x-mp.x);
         damageEnemy(o, beamDmg(e, b), q.x, q.y, false, 'beam');
         // v259 (F76): the fire where the 3D beam meets her surface (b.anc.vis)
-        beamImpact(o, mp.x, mp.y, b.angle, !!b.large, {entry:q, exit:null, vis:(b.anc.vis && b.anc._g3f >= F3D_FRAME - 2) ? b.anc.vis : null});
+        // v260 (F78): and where it comes out on the far side, with its jet
+        const _g3 = b.anc._g3f != null && b.anc._g3f >= F3D_FRAME - 2;
+        const _bt = hullTrace(o, mp.x, mp.y, b.angle);
+        beamImpact(o, mp.x, mp.y, b.angle, !!b.large, {entry:q, exit:(_bt && _bt.exit) ? _bt.exit : null,
+                   vis:(_g3 && b.anc.vis) ? b.anc.vis : null, exitVis:(_g3 && b.anc.exitVis) ? b.anc.exitVis : null});
         if(b.timer<=0) { b.state='cooldown'; b.timer=b.coolT*(b.jit||1); b.anc = null; }
         continue;
       }
@@ -3322,7 +3335,9 @@ function drawBeamRays(e, own) {
     // (drawnHullRun), then fading out over the stretch under it - the two
     // pieces no longer lie on top of each other beside her hull, which was
     // the hard edge (Silvio)
-    const len = own ? ownRunSmooth(e, b, mpF.x, mpF.y, ang) : (ancLen > 0 ? ancLen : 2000/CAM.z);
+    // v260 (F78): an anchored beam drawn flat runs on through her and
+    // beyond, under her hull, as before - only its direction is the anchor's
+    const len = own ? ownRunSmooth(e, b, mpF.x, mpF.y, ang) : Math.max(ancLen, 2000/CAM.z);
     const g = fxG();                           // v209: v207 widths on the screen
     if(len <= 0) continue;
     const ex=mpF.x+Math.cos(ang)*len, ey=mpF.y+Math.sin(ang)*len;

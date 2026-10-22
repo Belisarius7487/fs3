@@ -362,7 +362,14 @@ function shotUnder(b){
      !onHullAt(e, b.x, b.y)){ b.hidE = null; return false; }
   return true;
 }
+// v260 (F76 step 3): rounds still rising from a turret are drawn at their
+// depth (shotsView, 57_turrets.js); b.x, b.y are where they are drawn
+// while the shots are drawn, and shotUnder() tests that point.
 function drawShots(under){
+  if(typeof shotsView === 'function') shotsView(true);
+  try{ drawShotsAt(under); } finally { if(typeof shotsView === 'function') shotsView(false); }
+}
+function drawShotsAt(under){
   for(const b of pBullets){
     if(shotUnder(b) !== under) continue;
     if(!b.sec){

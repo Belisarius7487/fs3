@@ -1588,12 +1588,28 @@ function dmgLocal(e, x, y){
   if(e.flip) px = -px;
   return {u: px/hw, v: py/hh, hw: hw, hh: hh};
 }
-function dmgWorld(e, u, v){
+function dmgPlane(e, u, v){
   const img = IMGS[e.img], hw = img.width*e.sc/2, hh = img.height*e.sc/2;
   let px = u*hw*(e.flip ? -1 : 1), py = v*hh; const a = e.ang||0;
   if(a){ const c=Math.cos(a), s=Math.sin(a); const qx=px*c-py*s; py=px*s+py*c; px=qx; }
+  return {x: e.x+px, y: e.y+py};
+}
+function dmgWorld(e, u, v){
+  const p = dmgPlane(e, u, v);
   // v209: damage effects go where her model is drawn (perspective)
-  return (typeof hullPt === 'function') ? hullPt(e, e.x+px, e.y+py) : {x: e.x+px, y: e.y+py};
+  return (typeof hullPt === 'function') ? hullPt(e, p.x, p.y) : p;
+}
+// v260 (F77, Silvio: the smoke on the Orion still wandered with the view):
+// the point of her surface the camera sees at (u, v) of her side view - a
+// plane point and its depth, {x, y, z} - found on her model once (cache: an
+// object to keep it in, the tear or crater itself) and carried with her.
+// The middle of her depth was used before; the smoke then lay inside her
+// and moved against her surface whenever the view moved. null without a
+// model.
+function dmgSurf(e, u, v, cache){
+  if(typeof hullSurfPt !== 'function') return null;
+  const p = dmgPlane(e, u, v);
+  return hullSurfPt(e, p.x, p.y, cache);
 }
 // A hit on the hull: now and then it leaves a streak of scoring.
 function dmgHit(e, hx, hy, amount){
@@ -2117,10 +2133,14 @@ function dmgEmitAt(e, D, svx, svy){
   const h = IMGS[e.img].height*e.sc;
   const fl = e.flip ? -1 : 1, ca = Math.cos(e.ang||0), sa = Math.sin(e.ang||0);
   const dirW = function(x, y){ x *= fl; return {x: x*ca - y*sa, y: x*sa + y*ca}; };
-  const push = function(o){ o.free = true; o.ml = o.life; PARTS.push(o); };
+  // v260 (F77): the depth of the point it leaks from, when known
+  let curZ = null;
+  const push = function(o){ o.free = true; o.ml = o.life; if(curZ != null) o.hz = curZ; PARTS.push(o); };
   for(const gs of D.gashes){
     if(fc - gs.t0 < DMG_GROW) continue;
-    const at = dmgWorld(e, gs.u, gs.v), n = dirW(gs.n.x, gs.n.y), q = {x: -n.y, y: n.x};
+    const S3 = dmgSurf(e, gs.u, gs.v, gs);
+    curZ = S3 ? S3.z : null;
+    const at = S3 ? {x: S3.x, y: S3.y} : dmgWorld(e, gs.u, gs.v), n = dirW(gs.n.x, gs.n.y), q = {x: -n.y, y: n.x};
     const L = gs.L*h, Wd = gs.Wd*h, age = (fc - gs.t0)/TICK_HZ;
     const out = function(speed, spread){
       const k = (Math.random()-0.5)*spread;
@@ -2161,7 +2181,9 @@ function dmgEmitAt(e, D, svx, svy){
   }
   for(const c of D.craters){
     if(fc % 12 !== (c.sd|0) % 12) continue;
-    const at = dmgWorld(e, c.u, c.v), a = Math.random()*Math.PI*2, sp = Math.min(h*0.002, 0.25)*(0.5 + Math.random());
+    const S3 = dmgSurf(e, c.u, c.v, c);
+    curZ = S3 ? S3.z : null;
+    const at = S3 ? {x: S3.x, y: S3.y} : dmgWorld(e, c.u, c.v), a = Math.random()*Math.PI*2, sp = Math.min(h*0.002, 0.25)*(0.5 + Math.random());
     push({type:'dsmk', x: at.x, y: at.y, vx: svx + Math.cos(a)*sp, vy: svy + Math.sin(a)*sp,
           life: 90 + (Math.random()*50|0), r0: Math.min(h*0.02, 3), r1: Math.min(h*0.06, 10), al: 0.24});
   }
@@ -2266,10 +2288,14 @@ function deathRollTick(e){
   if(fc >= e.rNext){
     let u = 0, v = 0;
     for(let t=0;t<8;t++){ u = Math.random()*1.7-0.85; v = Math.random()*1.3-0.65; if(!D || dmgSolid(D.inf, u, v, 0)) break; }
-    const p = dmgWorld(e, u, v);
+    // v260 (F77): on her surface, at its depth
+    const S3 = dmgSurf(e, u, v, null);
+    const _h2 = (S3 && typeof hullFxBegin === 'function') ? hullFxBegin(e, S3.z) : null;
+    const p = (S3 && _h2) ? f3dPersp(S3.x, S3.y, S3.z) : dmgWorld(e, u, v);
     const r = h*(0.10 + 0.18*k + 0.12*Math.random());
     spawnFireball(p.x, p.y, r, 16 + (k*14|0));
     spawnDebris(p.x, p.y, 4 + (k*6|0), 255,225,170, 220,120,50, false);
+    if(_h2) hullFxEnd(_h2);
     sndDeath(p.x, 0.5 + 0.5*k, p.y);
     if(k > 0.5) addShake(1 + 3*k, 6);
     e.rNext = fc + Math.max(6, Math.round(TICK_HZ*(0.45 - 0.36*k)*(0.6 + 0.8*Math.random())));

@@ -2308,7 +2308,7 @@ function allyFire(a){
                 + (Math.random()-0.5)*0.06*aScat*g.scat;
       sndCapShot(pts[i].x, pts[i].y, g.snd, !!g.big);   // F42
       capGunShot(a, pts[i].x, pts[i].y, ang, g, true, false,
-                 (_ad && typeof mountHid === 'function' && mountHid(a, _ad)) ? a : null);
+                 (_ad && typeof mountHid === 'function' && mountHid(a, _ad)) ? a : null, _ad);
     }
   }
 }

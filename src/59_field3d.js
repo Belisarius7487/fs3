@@ -834,8 +834,10 @@ function hullUnPt(e, x, y){
 // the current camera every frame, so they stay on the hull as the view
 // moves, the same rays as the model itself.
 let HULLFX = null;
-function hullFxBegin(e){
-  const z = Math.min(0, f3dMidZ(e));
+// z (v260): a depth of her own for these effects - a point on her surface
+// (F77, F78) - instead of the depth of her middle.
+function hullFxBegin(e, zAt){
+  const z = Math.min(0, (zAt != null) ? zAt : f3dMidZ(e));
   if(!z) return null;
   const D = f3dEyeD(), k = D/Math.max(D*0.05, D - z);
   const cx = (typeof CAM !== 'undefined') ? s2wX(W/2) : W/2, cy = (typeof CAM !== 'undefined') ? s2wY(H/2) : H/2;
@@ -852,6 +854,26 @@ function hullFxEnd(h){
   for(let i = h.np; i < PARTS.length; i++) if(PARTS[i].hz == null) hullFxBack(h, PARTS[i]);
   if(typeof FX_ANIMS !== 'undefined') for(const f of FX_ANIMS) if(f._hfx === h){ f._hfx = null; hullFxBack(h, f); }
   HULLFX = h.prev;
+}
+// v260 (F77): the point of her surface the camera looks at, above the plane
+// point (px, py): straight down onto her model. {x, y, z} - the plane point
+// under it and its depth - or null (no model, or the spot is off her
+// hull). cache: an object that keeps the spot in her own frame, so it is
+// searched once and then moves and turns with her.
+function hullSurfPt(e, px, py, cache){
+  if(!e || !f3dOn(e)) return null;
+  const k = f3dKey(e), L = k ? f3dReadyLevel(k) : null;
+  if(!L || !L.cpu) return null;
+  const M = f3dMat(e, e.x|0, e.y|0, L);
+  let loc = (cache && cache._s3L === L) ? cache._s3 : undefined;
+  if(loc === undefined){
+    const top = Math.abs(M[14]) + 50;
+    loc = f3dRayHitLocal(L, M, [px, -py, top], [px, -py, M[14]]);
+    if(cache){ cache._s3 = loc; cache._s3L = L; }
+  }
+  if(!loc) return null;
+  const T = f3dFromLocal(M, loc);
+  return {x: T[0], y: -T[1], z: Math.min(0, T[2])};
 }
 // on: every hull-bound effect to where the camera shows her depth now;
 // off: back to its own place in the plane.
@@ -1036,12 +1058,18 @@ function f3dFromLocal(M, p){
 // it misses. Up to a little past B, so a point inside her still finds the
 // side facing the shooter.
 function f3dRayHitLocal(L, M, A, B){
+  const h = f3dRayHitsLocal(L, M, A, B, 1.35);
+  return h ? h.near : null;
+}
+// v260 (F78): the nearest and the farthest crossing of her hull along the
+// ray from A towards B, up to tMax times A-B; null when it misses.
+function f3dRayHitsLocal(L, M, A, B, tMax){
   if(!L || !L.cpu) return null;
   const I = f3dInvAff(M); if(!I) return null;
   const a = f3dToLocal(I, A), bb = f3dToLocal(I, B);
   const dx = bb[0] - a[0], dy = bb[1] - a[1], dz = bb[2] - a[2];
   const K = 1/32767;
-  let best = 1.35;
+  let best = tMax, far = -1;
   for(const p of L.cpu){
     const P = p.pos, X = p.idx;
     for(let j = 0; j + 2 < X.length; j += 3){
@@ -1057,10 +1085,11 @@ function f3dRayHitLocal(L, M, A, B){
       const qx = ty*e1z - tz*e1y, qy = tz*e1x - tx*e1z, qz = tx*e1y - ty*e1x;
       const v = (dx*qx + dy*qy + dz*qz)*inv; if(v < 0 || u + v > 1) continue;
       const t = (e2x*qx + e2y*qy + e2z*qz)*inv;
-      if(t > 1e-4 && t < best) best = t;
+      if(t > 1e-4 && t < tMax){ if(t < best) best = t; if(t > far) far = t; }
     }
   }
-  return best < 1.35 ? [a[0] + dx*best, a[1] + dy*best, a[2] + dz*best] : null;
+  if(far < 0) return null;
+  return {near: [a[0] + dx*best, a[1] + dy*best, a[2] + dz*best], far: [a[0] + dx*far, a[1] + dy*far, a[2] + dz*far]};
 }
 // The two ends of a beam in the world (GL: y up), once per picture: S at
 // the turret, T where it meets her hull. b.anc.vis: T as the camera shows
@@ -1079,8 +1108,23 @@ function f3dBeamEnds(e, b){
     A.surf = f3dRayHitLocal(L, M, S, mid) || (I ? f3dToLocal(I, mid) : [0, 0, 0]);
   }
   const T = f3dFromLocal(M, A.surf);
-  A.vis = f3dPersp(T[0], -T[1], T[2]);
-  A._g3 = {S: S, T: T}; A._g3f = F3D_FRAME;
+  // v260 (F78, Silvio: the beam no longer came out on the far side with a
+  // jet of flame): on through her hull at the depth where it went in,
+  // along its way across the field, out at the far side of her hull
+  // (her mesh again) and on beyond her as the flat beam was
+  const hx = T[0] - S[0], hy = T[1] - S[1], hl = Math.hypot(hx, hy) || 1, ux = hx/hl, uy = hy/hl;
+  if(A.exitSurf === undefined){
+    const I = f3dInvAff(M), span = (IMGS[o.img] ? IMGS[o.img].width*o.sc : 400)*2;
+    const h = f3dRayHitsLocal(L, M, T, [T[0] + ux*span, T[1] + uy*span, T[2]], 1);
+    A.exitSurf = (h && I) ? h.far : null;
+  }
+  const X = A.exitSurf ? f3dFromLocal(M, A.exitSurf) : T;
+  const run = Math.max(0, 2000/((typeof CAM !== 'undefined' && CAM.z) || 1) - Math.hypot(X[0] - S[0], X[1] - S[1]));
+  const F = [X[0] + ux*run, X[1] + uy*run, X[2]];
+  A.vis = f3dPersp(T[0], -T[1], T[2]); A.vis.z = T[2];
+  A.exitVis = A.exitSurf ? f3dPersp(X[0], -X[1], X[2]) : null;
+  if(A.exitVis) A.exitVis.z = X[2];
+  A._g3 = {S: S, T: T, X: X, F: F}; A._g3f = F3D_FRAME;
   return A._g3;
 }
 // A canvas picture as a texture of this context (the beam's profile).
@@ -1121,25 +1165,33 @@ function f3dBeamPass(slices, cam){
   for(const it of F3D_BEAMS){
     const e = it.e, b = it.b;
     if(!f3dBeam3D(e, b)) continue;
-    const g = f3dBeamEnds(e, b), S = g.S, T = g.T;
+    const g = f3dBeamEnds(e, b);
     const col = beamCol(e.faction, b.large);
     const grp = groups[col] || (groups[col] = {core: [], flow: []});
-    const dir = [T[0]-S[0], T[1]-S[1], T[2]-S[2]];
-    const mid = [(S[0]+T[0])/2, (S[1]+T[1])/2, (S[2]+T[2])/2];
-    const v = [cam.eye[0]-mid[0], cam.eye[1]-mid[1], cam.eye[2]-mid[2]];
-    const side = f3dNorm(f3dCross(dir, v));
     // the widths of the 2D beam (drawBeamRay), as the camera shows them
     const wP = (b.large ? 7.5 : 3.6)*G, fl = 0.92 + 0.08*Math.sin(fc*0.8);
-    const kS = Kz(S[2]), kT = Kz(T[2]);
-    grp.core.push([S, T, side, wP*fl*1.6/kS, wP*fl*1.6/kT]);
-    // the light running along it: bands of the flow picture, moving out
-    const Lp = Math.hypot((T[0]-S[0])*(kS+kT)/2, (T[1]-S[1])*(kS+kT)/2) || 1;
+    // in three pieces: to her hull, through it (hidden by it), beyond her;
+    // the light runs along all three as one (u0: how far along it is)
     const seg = wP*14, off = -((fc*wP*0.9) % seg);
-    for(let x = off; x < Lp; x += seg){
-      const f0 = Math.max(0, x/Lp), f1 = Math.min(1, (x + seg)/Lp);
-      if(f1 <= f0) continue;
-      const P0 = [S[0]+dir[0]*f0, S[1]+dir[1]*f0, S[2]+dir[2]*f0], P1 = [S[0]+dir[0]*f1, S[1]+dir[1]*f1, S[2]+dir[2]*f1];
-      grp.flow.push([P0, P1, side, wP*0.9/Kz(P0[2]), wP*0.9/Kz(P1[2]), (f0*Lp - x)/seg, (f1*Lp - x)/seg]);
+    let u0 = 0;
+    for(const pc of [[g.S, g.T], [g.T, g.X], [g.X, g.F]]){
+      const S = pc[0], T = pc[1];
+      if(!S || !T) continue;
+      const dir = [T[0]-S[0], T[1]-S[1], T[2]-S[2]];
+      if(Math.hypot(dir[0], dir[1], dir[2]) < 0.5) continue;
+      const mid = [(S[0]+T[0])/2, (S[1]+T[1])/2, (S[2]+T[2])/2];
+      const v = [cam.eye[0]-mid[0], cam.eye[1]-mid[1], cam.eye[2]-mid[2]];
+      const side = f3dNorm(f3dCross(dir, v));
+      const kS = Kz(S[2]), kT = Kz(T[2]);
+      grp.core.push([S, T, side, wP*fl*1.6/kS, wP*fl*1.6/kT]);
+      const Lp = Math.hypot((T[0]-S[0])*(kS+kT)/2, (T[1]-S[1])*(kS+kT)/2) || 1;
+      for(let x = off - ((u0 % seg) + seg) % seg; x < Lp; x += seg){
+        const f0 = Math.max(0, x/Lp), f1 = Math.min(1, (x + seg)/Lp);
+        if(f1 <= f0) continue;
+        const P0 = [S[0]+dir[0]*f0, S[1]+dir[1]*f0, S[2]+dir[2]*f0], P1 = [S[0]+dir[0]*f1, S[1]+dir[1]*f1, S[2]+dir[2]*f1];
+        grp.flow.push([P0, P1, side, wP*0.9/Kz(P0[2]), wP*0.9/Kz(P1[2]), (f0*Lp - x)/seg, (f1*Lp - x)/seg]);
+      }
+      u0 += Lp;
     }
   }
   const draws = [];

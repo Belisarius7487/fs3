@@ -5392,6 +5392,78 @@ scenario('FS1 M14 v259: the whole picture with 3D beams runs (box models) (F76)'
   r.flatWhileFiring = flat;
   return r;`);
 
+// ── v260: F78 beam exit, F77 smoke on the surface, F76 step 3 rounds from the turret ──
+scenario('FS1 M14 v260: beam exits with its flame, smoke on her surface, rounds rise from the turret (F76, F77, F78)', 'm=14', `
+  const r = {};
+  r.gl = !!f3dInit();
+  if(!r.gl) return r;
+  const gl = F3D.gl;
+  const mkL = function(){
+    const V = [], I = [], hx = 0.15, hy = 0.1, hz = 1.0;
+    for(const sx of [-1,1]) for(const sy of [-1,1]) for(const sz of [-1,1]) V.push(Math.round(sx*hx*32767), Math.round(sy*hy*32767), Math.round(sz*hz*32767));
+    const F = [[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]];
+    for(const f of F) I.push(f[0],f[1],f[2], f[0],f[2],f[3], f[0],f[2],f[1], f[0],f[3],f[2]);
+    const pos = new Int16Array(V), idx = new Uint16Array(I), nrm = new Int8Array(32), uv = new Uint16Array(16);
+    const mk = function(tg, a){ const bf = gl.createBuffer(); gl.bindBuffer(tg, bf); gl.bufferData(tg, a, gl.STATIC_DRAW); return bf; };
+    return {state:'ready', tex:{}, head:{size:[0.3,0.2,2], ext:1, nodes:null},
+      parts:[{kind:'flat', tex:'', n:idx.length, big:false, node:0, pos:mk(gl.ARRAY_BUFFER,pos), nrm:mk(gl.ARRAY_BUFFER,nrm), uv:mk(gl.ARRAY_BUFFER,uv), idx:mk(gl.ELEMENT_ARRAY_BUFFER,idx)}],
+      cpu:[{pos:pos, idx:idx}]};
+  };
+  for(const k of ['sdlucifer','deorionright','crcain','scfaustus','inarcadia']) if(F3D_KEYS.indexOf(k)>=0){ const L = mkL(); F3D.models[k] = {lo:L, full:L}; }
+  FS.until(()=>evSeen('E1'), 1000, false);
+  // F76 step 3: a round from a capital turret starts deep and rises
+  let rounds = 0, risen = 0, startOk = 0;
+  for(let k=0;k<60*12;k+=5){
+    FS.step(5);
+    try{ draw(); }catch(eD){}
+    for(const L of [pBullets, eBullets]) for(const b of L){
+      if(!(b.hz0 < 0) || b._seen) continue;
+      b._seen = 1; rounds++;
+    }
+  }
+  r.rounds = rounds;
+  r.roundsFromDepth = rounds > 0;
+  // one round: drawn deep at first, in the plane once it has risen
+  { const b = {x:500, y:400, vx:1, vy:0, hz0:-300, hidE:null}; pBullets.push(b);
+    shotsView(true); const d0 = Math.hypot(b.x-500, b.y-400); shotsView(false);
+    const fc0 = fc; fc += SHOT_RISE + 1; shotsView(true); const d1 = Math.hypot(b.x-500, b.y-400); shotsView(false); fc = fc0;
+    pBullets.splice(pBullets.indexOf(b), 1);
+    r.drawnDeepFirst = d0 > 0.5; r.inPlaneAfterRise = d1 < 0.01; }
+  // F78 and F77 against the Lucifer's beams on the boxes
+  FS.until(()=>{ FS.killId('E1'); FS.killId('E2'); FS.killId('B2'); return byId('L1').length>0; }, 6000, false);
+  const L1 = byId('L1')[0];
+  let exits = 0, exitFlames = 0, beyond = 0;
+  const _bi = beamImpact;
+  window.beamImpact = function(o, mx, my, ang, large, tr){ if(tr && (tr.exit || tr.exitVis)) exits++; if(tr && tr.exitVis) exitFlames++; return _bi.apply(this, arguments); };
+  for(let k=0;k<60*30;k+=5){
+    FS.step(5);
+    try{ draw(); }catch(eD){}
+    for(const b of (L1.beams||[])) if(b.anc && b.anc._g3){ const g = b.anc._g3;
+      if(Math.hypot(g.F[0]-g.X[0], g.F[1]-g.X[1]) > 50) beyond++; }
+  }
+  window.beamImpact = _bi;
+  r.exits = exits; r.exitFlames = exitFlames;
+  r.beamExits = exits > 0;
+  r.exitFlameOn3D = exitFlames > 0;
+  r.runsOnBeyond = beyond > 0;
+  // F77: smoke from a tear on her surface, not from her middle
+  const o = byId('O1')[0] || byId('ST')[0];
+  if(o){
+    const D = dmgState(o);
+    o.hp = Math.max(1, o.maxHp*0.4);
+    D.gashes.push({u:0.1, v:0, n:{x:0, y:-1}, L:0.1, Wd:0.05, t0:fc-999, jetP:3, jetPh:0, vent:true, sd:3, thr:-1});
+    const n0 = PARTS.length;
+    for(let k=0;k<40;k++){ fc++; dmgEmit(o); }
+    const mine = PARTS.slice(n0).filter(p=>p.type==='dsmk' || p.type==='dvap' || p.type==='dfl');
+    const mid = f3dMidZ(o);
+    const S3 = dmgSurf(o, 0.1, 0, null);
+    r.surfZ = S3 ? Math.round(S3.z) : 'none'; r.midZ = Math.round(mid);
+    r.smoke = mine.length;
+    r.smokeOnSurface = mine.length > 0 && !!S3 && mine.every(p=>p.hz!=null && Math.abs(p.hz - S3.z) < 1) && Math.abs(S3.z - mid) > 20;
+  }
+  r.f3dErr = String(F3D.err||'');
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();
