@@ -2223,6 +2223,21 @@ Station anfängt zu trudeln, wenn sie explodiert."
 - Gesehen in Mission 14 (Tombaugh). Gilt für Stationen allgemein.
 - Status: offen, im Code noch nicht nachgesehen.
 
+### F68 — Ein Schiff ist beim Aussprung noch hinter dem Wirbel zu sehen (v257)
+
+**Befund (Silvio, 22.10.2026):** „Wenn die Lucifer in ihren Warpstrudel
+fliegt, kann ich sie links davon immer noch sehen als würde sie erst hinter
+dem Strudel entmaterialisieren. Ich weiß nicht was der technische Grund
+dafür ist und ich weiß nicht wie ich es besser beschreiben soll. Vermutlich
+betrifft das alle Schiffe und fällt nur je nach Blickwinkel auf den Warpin
+und Warpout auf."
+
+- Gesehen in Mission 14 (Tombaugh). Silvio dachte, das sei schon behoben;
+  ein eigener Eintrag dazu steht in dieser Datei nicht.
+- Silvios Vermutung (nicht nachgeprüft): betrifft alle Schiffe, beim Ein-
+  und Aussprung, je nach Blickwinkel.
+- Status: offen, im Code noch nicht nachgesehen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
