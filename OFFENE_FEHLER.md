@@ -2236,6 +2236,10 @@ und Warpout auf."
   ein eigener Eintrag dazu steht in dieser Datei nicht.
 - Silvios Vermutung (nicht nachgeprüft): betrifft alle Schiffe, beim Ein-
   und Aussprung, je nach Blickwinkel.
+- Silvio, 22.10.2026, Bildschirmfoto im Chat: der Wirbel steht fast von der
+  Kante her gesehen als senkrechte helle Linie mit blauem Schleier rechts
+  davon. Der Bug der Lucifer ragt links aus dem Wirbel heraus und ist voll
+  gezeichnet, obwohl er schon durch den Wirbel hindurch ist.
 - Status: offen, im Code noch nicht nachgesehen.
 
 ### F69 — Mission 14: neuer Name und ein Planet hinter der Station (Wunsch, v257)
@@ -2256,6 +2260,22 @@ Hüllenbrüchen je nach Blickwinkel wandern."
 - Vermutung (nicht nachgeprüft): dieselbe Ursache wie F63 (Beam-Treffer
   wandern mit dem Blickwinkel). Beim Bau zusammen ansehen.
 - Status: offen, im Code noch nicht nachgesehen.
+
+### F71 — Das Avenger-Geschoss ist blau-weiß statt orange-weiß (v257)
+
+**Befund (Silvio, 22.10.2026):** „Das Projektil der Avenger sollte
+Orange/weiß sein, nicht blau/weiß."
+
+- Status: offen, im Code noch nicht nachgesehen.
+
+### F72 — Mission 14: mit zwei Avenger starten (Wunsch, v257)
+
+**Wunsch (Silvio, 22.10.2026):** „In dieser Mission sollte man, wenn es die
+Waffenkompatibilität der Valkyrie zulässt, mit zwei Avengers starten."
+
+- Vor dem Bau prüfen: darf die Valkyrie in beiden Primärbänken die Avenger
+  tragen, und ist die Avenger zu diesem Zeitpunkt (orig 10) schon frei?
+- Status: offen.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
