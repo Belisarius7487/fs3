@@ -1828,7 +1828,47 @@ function f3dBreakup(e){
   }
   return made > 0;
 }
+// F87 (v265): the wreck of a station blown apart before the mission began
+// (M17, the Karnak). A mission asks for it with wreck3d:{key, n}; as soon
+// as that model is loaded, n of its own debris pieces - with their debris
+// maps, as in a break-up - are scattered over the field: cold, drifting
+// slowly, tumbling slowly, behind every ship. They never blow apart.
+let F3D_WRECK = null;
+function f3dWreckAsk(w){
+  // a new mission takes the last one's wreck away
+  F3D_HULKS = F3D_HULKS.filter(function(P){ return !P.wreck; });
+  F3D_WRECK = (w && w.key) ? {key: w.key, n: w.n || 10, t: 0} : null;
+}
+function f3dWreckSeed(){
+  const W = F3D_WRECK; if(!W) return;
+  const L = f3dReadyLevel(W.key);
+  if(!L){ if(++W.t > TICK_HZ*30) F3D_WRECK = null; return; }    // never came: give up
+  F3D_WRECK = null;
+  const N = L.head && L.head.nodes; if(!N) return;
+  const js = [];
+  for(let j = 1; j < N.length; j++){ const n = N[j]; if(n && n.k === 'deb' && !n.empty) js.push(j); }
+  if(!js.length) return;
+  // her whole hull as wide as she would be drawn on the field
+  const sz = L.head.size, span = hullWidth(W.key);
+  const s = span/Math.max(0.01, Math.max(sz[0], sz[1], sz[2])/L.head.ext);
+  for(let i = 0; i < W.n; i++){
+    const j = js[(Math.random()*js.length)|0], n = N[j];
+    let ax = [Math.random()-0.5, Math.random()-0.5, Math.random()-0.5];
+    let al = Math.hypot(ax[0], ax[1], ax[2]) || 1; ax = [ax[0]/al, ax[1]/al, ax[2]/al];
+    const A0 = f3dAxisRot(ax, Math.random()*Math.PI*2).map(function(v){ return v*s; });
+    let tx = [Math.random()-0.5, Math.random()-0.5, Math.random()-0.5];
+    al = Math.hypot(tx[0], tx[1], tx[2]) || 1; tx = [tx[0]/al, tx[1]/al, tx[2]/al];
+    const rr = (n.r || 0.2)*span/2, dir = Math.random()*Math.PI*2, sp = 0.004 + Math.random()*0.012;
+    F3D_HULKS.push({L: L, j: j, pv: n.pv, A0: A0, wreck: true,
+      x: MW*(0.06 + 0.88*Math.random()), y: HUD_H + (MH - HUD_H)*(0.08 + 0.84*Math.random()),
+      z: -(rr + 120), r: rr, fp: 1e12,                  // behind every ship
+      vx: Math.cos(dir)*sp, vy: Math.sin(dir)*sp*0.5,
+      ax: tx, w: (0.0004 + Math.random()*0.001)*(Math.random()<0.5 ? -1 : 1), a: 0,
+      heat: 0, fac: 'vasudan', next: Infinity});
+  }
+}
 function f3dTickHulks(){
+  f3dWreckSeed();
   for(let i = F3D_HULKS.length - 1; i >= 0; i--){
     const P = F3D_HULKS[i];
     P.x += P.vx; P.y += P.vy; P.a += P.w;

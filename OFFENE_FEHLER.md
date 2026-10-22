@@ -2461,6 +2461,21 @@ mitzuschleppen." Auch für NPC-Schiffe: „Gib ihnen doch einfach auch 2
 Avengers sobald sie verfügbar wird und sie sie tragen können." Ebenso
 Interceptor statt MX-50, sobald sie da ist („Fände ich gut, ja").
 
+### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
+
+**Wunsch (Silvio, 23.10.2026):** „Ebenso sollten Trümmer einer
+vasudanischen Station herumtreiben" — „Können wir nicht einfach
+Stationstrümmer nehmen? Wir haben doch das Karnak-Modell". Dazu: „wir
+nutzen Modelle, nicht Sprites" und „Trümmerteile [haben] eine andere
+Textur als intakte Modelle".
+
+- Gebaut: eine Mission kann mit `wreck3d:{key, n}` ein Trümmerfeld aus den
+  echten Trümmerteilen eines Modells verlangen (mit Trümmertextur wie beim
+  Zerbrechen). Sie treiben langsam, liegen hinter allen Schiffen und
+  explodieren nicht. Mission 17 nimmt 12 Teile der Karnak.
+- Offen: ob das Karnak-Modell auf Silvios Server mit Trümmerteilen und
+  -texturen (seit v202) umgewandelt ist, war aus der Cloud nicht zu sehen.
+
 ### F86 — Mission 16: die Shivaner ignorieren die Asimov (v263) — gebaut in v264
 
 **Befund (Silvio, 22.10.2026):** „sollte die Asimov nicht von den
@@ -2841,6 +2856,12 @@ geraten.
 ## Von mir bemerkt, nicht von Silvio gemeldet
 
 Damit es nicht verloren geht. Nichts davon ist dringend.
+
+### `warpsim`: verbündete Jäger bremsen beim Aussprung (v264)
+
+Befunde der Art „stop … speed 5,85 -> 2,63 (jump out)" bei verbündeten
+Jägern und Bombern, schon in v264 auf M14 und M15, in v265 auch auf M17.
+Nicht von Mission 17 verursacht; noch nicht untersucht.
 
 ### Die Sterne gehen beim Wellenwechsel nicht mit der Blende weg (v231)
 

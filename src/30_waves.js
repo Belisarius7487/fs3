@@ -2980,26 +2980,47 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'F1', w:'nachschub', a2:'aus'}
      ]},
 
-  17:{name:'The Tsunami', fac:'hol', o:'clear', live:6, u:[
-       {id:'K1', c:'cr', n:1, spr:'craten'},
-       {id:'K2', c:'cr', n:1, spr:'crmentu'},
-       // n counts wings, not ships: one wing is WING_MIN..WING_MAX
-       // fighters, so three wings of three or four is what arrives.
-       {id:'E1', c:'fi', n:1},
-       {id:'E2', c:'fi', n:1, wait:true},
-       {id:'E3', c:'fi', n:1, wait:true},
-       {id:'A1', c:'de', n:1, spr:'detyphon', side:'ally', wait:true}
-      ], ev:[
-        // Three wings, each one called in by the last one falling. Nothing
-        // here hangs on the clock.
-        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
-        {t:'alleZerstoert', a:'E2', w:'einwarpen', a2:'E3'},
-        // The Typhon arrives last, and she is the hangar: only with a
-        // Vasudan destroyer on the field can the player take a bomber, and
-        // only a bomber cracks the two cruisers in reasonable time.
-        {t:'alleZerstoert', a:'E3', w:'einwarpen', a2:'A1'},
-        {t:'alleZerstoert', a:'E3', w:'meldung',   a2:'GVD Typhon inbound - hangar open'}
-      ]},
+  // La Ruota della Fortuna (fs1/sm2-03a). Alpha in Medusas comes to wipe
+  // out a Hammer of Light outpost, but the Shivans were first: only the
+  // wreck of the Vasudan station still drifts about (wreck3d, the Karnak's
+  // own debris pieces), and the Shivans who did it are still there, a
+  // little worn. Their bombers down, two more Scorpions; those down, the
+  // Galatea jumps in (the home ship) and right behind her the cruisers
+  // Lilith and Cain. Replaces the old mission 17 (Silvio, 23.10.2026).
+  17:{name:'La Ruota della Fortuna', era:'fs1', orig:13, ship:'bomedusa', fac:'hol', o:'clear', live:6,
+      wreck3d:{key:'inkarnak', n:12},
+      ziel:'Destroy all Shivans - bonus: keep the Galatea above half hull', u:[
+       {id:'W1', c:'bo', n:1, size:3, spr:'bomedusa', side:'ally'},
+       // already there when Alpha arrives, worn from the fight with the outpost
+       {id:'E1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:560, y:170, noWarp:true, hurt:0.8},
+       {id:'E2', c:'fi', n:1, size:1, spr:'fibasilisk', fac:'shivan', x:620, y:300, noWarp:true, hurt:0.8},
+       {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', x:580, y:400, noWarp:true, hurt:0.85},
+       {id:'V1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'GA', c:'de', n:1, spr:'deorionright', side:'ally', x:150, y:270, still:true, wait:true,
+        home:true, label:'GTD Galatea'},
+       {id:'LI', c:'cr', n:1, spr:'crlilith', fac:'shivan', x:430, y:160, still:true, wait:true, label:'SC Lilith'},
+       {id:'CA', c:'cr', n:1, spr:'crcain', fac:'shivan', x:450, y:390, still:true, wait:true, label:'SC Cain'},
+       {id:'A1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'R1', c:'bo', n:1, size:2, spr:'bonephilim', fac:'shivan', wait:true},
+       {id:'R2', c:'fi', n:1, size:1, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'D1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally', wait:true}
+     ], ev:[
+       {t:'alleZerstoert', a:'B1', d:4, w:'einwarpen', a2:'V1'},
+       {t:'alleZerstoert', a:'V1', d:7, w:'einwarpen', a2:'GA'},
+       {t:'da', a:'GA', d:6, w:'einwarpen', a2:'LI'},
+       {t:'da', a:'GA', d:6, w:'einwarpen', a2:'CA'},
+       {t:'da', a:'GA', d:10, w:'einwarpen', a2:'A1'},
+       // the Lilith hit: Nephilims and a Scorpion go for the Galatea
+       {t:'rumpfUnter', a:'LI', b:90, w:'einwarpen', a2:'R1'},
+       {t:'rumpfUnter', a:'LI', b:90, w:'einwarpen', a2:'R2'},
+       {t:'da', a:'R1', w:'jagd', a2:'GA'},
+       // help: two Valkyries against the bombers
+       {t:'da', a:'LI', d:15, w:'einwarpen', a2:'D1'},
+       {t:'rumpfUnter', a:'GA', b:50, w:'meldung', a2:'Bonus lost - Galatea below half hull'},
+       {t:'vernichtet', a:'GA', w:'zielverfehlt', a2:'The Galatea is lost'},
+       {t:'vernichtet', a:'GA', d:6, w:'abzug', a2:''}
+       // The rest ends on its own: the last Shivan down, nothing left to come.
+     ]},
 
   18:{name:'Tenderizer', fac:'hol', o:'guard', live:6,
       ev:[{t:'alleZerstoert', a:'K1', w:'einwarpen', a2:'K2'},
@@ -4966,7 +4987,7 @@ function scriptUnit(u, fac, q){
           put({time:t0 + w*110 + k*WING_STAGGER,
                type: ally ? (u.c==='bo' ? 'allybo' : 'allyfi') : ty, spr:hull, wing:ally?0:wid,
                y: yy + (k-(sz-1)/2)*WING_SPACING*0.5, x:u.x, rammer:u.ram,
-               disguised:u.disguised, scan:u.scan?1:0, scanFirst:u.scanFirst});
+               disguised:u.disguised, scan:u.scan?1:0, scanFirst:u.scanFirst, hurt:u.hurt, noWarp:u.noWarp});
       }
     } else {
       // Mehrere Grosskampfschiffe derselben Kennung stehen sonst
@@ -5103,6 +5124,7 @@ function buildScripted(def){
   waveHunt = def.hunt || '';
   waveHuntShare = def.huntShare || HUNT_SHARE;
   astStill = !!def.stillRocks;
+  if(typeof f3dWreckAsk==='function') f3dWreckAsk(def.wreck3d);   // F87
   scanUnderFire = !!def.scanUnderFire;
   portalOn = !!def.portal;
   portalIn = !!def.portalIn;

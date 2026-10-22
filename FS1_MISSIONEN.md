@@ -386,3 +386,21 @@ Abgesegnet von Silvio, 22.10.2026. Ersetzt die alte Mission 16.
   die Shivaner ab und die Mission endet.
 - Ziel: die Wissenschaftler kommen raus. Nebenziel: die Ravage überlebt.
 - Sonst endet die Mission, wenn der letzte Shivaner tot ist.
+
+## Mission 17 — La Ruota della Fortuna (Original 13) (abgesegnet, gebaut v265)
+
+Abgesegnet von Silvio, 23.10.2026. Ersetzt die alte Mission 17.
+
+- Start: der Spieler in der Medusa mit drei Flügelmännern in Medusas.
+  Durchs Feld treiben Trümmer einer vasudanischen Station: die echten
+  Trümmerteile des Karnak-Modells, in 3D, mit Trümmertextur (F87).
+- Schon da und leicht beschädigt (80–85 %): 3 Scorpion, 1 Basilisk,
+  2 Shaitan.
+- Shaitans tot: 4 s später 2 Scorpion.
+- Diese tot: 7 s später springt die GTD Galatea ein (Trägerschiff,
+  Nachladen). 6 s danach Lilith und Cain nah an ihr, 10 s danach
+  2 Scorpion.
+- Lilith unter 90 %: 2 Nephilim und 1 Scorpion auf die Galatea.
+- 15 s nach der Lilith: 2 Valkyries als Hilfe.
+- Ziel: alle Shivaner vernichten. Nebenziel: Galatea über halbem Rumpf.
+  Galatea tot: Ziel verfehlt, 6 s später ziehen die Shivaner ab.
