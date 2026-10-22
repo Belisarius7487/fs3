@@ -2474,6 +2474,24 @@ längerem stört ist wie Missionsziele und Meldungen dargestellt werden. Die
 Galatea bei über 50% zu halten steht schon da bevor sie überhaupt im Feld ist
 und überhaupt sind solche Objective-Meldungen unschön gelöst."
 
+Weiter (Silvio, 23.10.2026): „Ich erhalte zum Beispiel mehrmals die
+Aufforderung Clear the field, obwohl einfach nur eine neue Gegnerwelle
+eingesprungen ist. Dann kommen noch Meldungen zu verfügbar gewordenen Waffen
+und Schiffen hinzu. All das ist problematisch. Hinzu kommt noch, dass
+Objectives nur oben links angezeigt werden, ich aber nicht weiß wie man das
+verbessern kann, sodass man das Objective auch auf dem Spielfeld sieht."
+
+Vorschlag (Ziel nur einmal ansagen, kein automatisches „Clear the field",
+Marken an den Schiffen, Freischaltungen ans Missionsende) — **abgelehnt**:
+„Nein, das ist nicht die Lösung." Begründung: „Ich finde die
+Texteinblendungen generell unschön gelöst. Das passt einfach nicht zum Rest
+des Designs. Das betrifft auch nicht nur diese eine Mission, sondern das
+gesamte Spiel."
+
+- Es geht also um das **Aussehen aller Texteinblendungen im ganzen Spiel**
+  (Zielkarte, Zielzeile, Meldungsspalte), die nicht zum übrigen Design
+  passen. Eigenes Thema, eigener Chat.
+
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
 **Wunsch (Silvio, 23.10.2026):** „Ebenso sollten Trümmer einer
