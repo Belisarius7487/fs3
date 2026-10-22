@@ -2320,7 +2320,28 @@ betrifft noch zu 2dimensional verhält."
   als fertiges Bild auf die Leinwand gelegt. Ein Beam kennt also keine
   Tiefe: ob er vor oder hinter einem Rumpfteil liegt, entscheidet nur die
   Zeichenreihenfolge.
-- Status: offen, Lösungsweg mit Silvio zu klären.
+- **Entschieden (Silvio, 22.10.2026): gemeinsame 3D-Szene für alles außer
+  Spieler und Jäger.** Noch nicht gebaut. Plan:
+  1. Jedes Großkampfschiff bekommt eine feste eigene Tiefe („Stockwerk"),
+     so dass sich überlappende Schiffe nicht ineinanderschieben (der Grund
+     für das Leeren des Tiefenpuffers je Schiff, v203: M11, M38, M54, M78).
+     Alle Schiffe in einem 3D-Bild mit gemeinsamem Tiefenpuffer.
+     **Tiefere Schiffe behalten ihre heutige Bildschirmgröße** (Silvio):
+     um die Perspektive ausgleichend vergrößern; Tiefe zeigt sich dann
+     beim Schwenken. Die Tiefe hängt an `f3dMidZ`/`f3dMat` (tz); Treffer
+     (`hullUnPt`), Wirbel (`f3dWarp pz`) und Rumpfeffekte (`hullFx…`)
+     rechnen schon damit. Andocken (`f3dCargoZ`) mitziehen.
+  2. Beams als echte räumliche Strahlen in diesem Bild, mit Tiefentest:
+     vom 3D-Ort des Turms bis zur Oberfläche des Ziels. Die Sonderregel für
+     abgewandte Türme (`mountHid`, „Weg 3") fällt dann weg; `mountCanAim`
+     (Halbraum des Turms) bleibt. Löst F73 und F76, auch mit drittem Schiff.
+  3. Danach Geschosse der Großkampfschiffe: Start am 3D-Ort des Turms,
+     Aufstieg zur Spielebene schnell genug, dass ein Treffer auf einen Jäger
+     dort sitzt, wo man ihn sieht; zwischen Großkampfschiffen von Rumpf zu
+     Rumpf. Spieler- und Jägergeschosse bleiben in der Ebene (über allen
+     Rümpfen).
+  - F74 (verbündete Geschosse auf die Lucifer) und F75 (Lucifer auf dem
+    Radar) kommen in den ersten Bau.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
