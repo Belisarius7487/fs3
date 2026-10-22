@@ -5124,7 +5124,10 @@ function buildScripted(def){
   waveHunt = def.hunt || '';
   waveHuntShare = def.huntShare || HUNT_SHARE;
   astStill = !!def.stillRocks;
-  if(typeof f3dWreckAsk==='function') f3dWreckAsk(def.wreck3d);   // F87
+  // F88 (v267): the wreck keeps clear of where the big ships stand or jump in
+  if(typeof f3dWreckAsk==='function') f3dWreckAsk(def.wreck3d, (def.u||[]).filter(function(u){
+    return u.x!=null && u.y!=null && u.c!=='fi' && u.c!=='bo' && u.spr; }).map(function(u){
+    return {x: u.x*FIELD_K, y: u.y*FIELD_K, r: hullWidth(u.spr)/2}; }));   // F87
   scanUnderFire = !!def.scanUnderFire;
   portalOn = !!def.portal;
   portalIn = !!def.portalIn;

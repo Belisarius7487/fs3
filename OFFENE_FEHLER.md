@@ -2461,11 +2461,14 @@ mitzuschleppen." Auch für NPC-Schiffe: „Gib ihnen doch einfach auch 2
 Avengers sobald sie verfügbar wird und sie sie tragen können." Ebenso
 Interceptor statt MX-50, sobald sie da ist („Fände ich gut, ja").
 
-### F88 — Mission 17: die Galatea warpt durch ein Trümmerstück (v266)
+### F88 — Mission 17: die Galatea warpt durch ein Trümmerstück (v266) — gebaut in v267
 
 **Befund (Silvio, 23.10.2026):** „Das passt optisch sehr gut. Was mir nur
 aufgefallen ist, war dass die Galatea durch eines der Trümmer hindurch
 rausgewarpt ist."
+
+- Gebaut in v267: die Trümmer halten Abstand zu allen Großkampfschiffen
+  der Mission mit fester Position (Galatea, Lilith, Cain).
 
 ### F89 — Missionsziele und Meldungen sind unschön dargestellt (v266)
 

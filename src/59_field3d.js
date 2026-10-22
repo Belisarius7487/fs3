@@ -1844,10 +1844,10 @@ function f3dBreakup(e){
 // maps, as in a break-up - are scattered over the field: cold, drifting
 // slowly, tumbling slowly, behind every ship. They never blow apart.
 let F3D_WRECK = null;
-function f3dWreckAsk(w){
+function f3dWreckAsk(w, keep){
   // a new mission takes the last one's wreck away
   F3D_HULKS = F3D_HULKS.filter(function(P){ return !P.wreck; });
-  F3D_WRECK = (w && w.key) ? {key: w.key, n: w.n || 10, t: 0} : null;
+  F3D_WRECK = (w && w.key) ? {key: w.key, n: w.n || 10, t: 0, keep: keep || []} : null;
 }
 function f3dWreckSeed(){
   const W = F3D_WRECK; if(!W) return;
@@ -1873,7 +1873,9 @@ function f3dWreckSeed(){
     for(let t = 0; t < 60 && !ok; t++){
       x = MW*(0.08 + 0.84*Math.random()); y = HUD_H + (MH - HUD_H)*(0.1 + 0.8*Math.random());
       // the pieces are long and slender: their bounding circles may cross
-      ok = put.every(function(q){ return Math.hypot(q.x - x, q.y - y) > (q.r + rr)*0.7; });
+      ok = put.every(function(q){ return Math.hypot(q.x - x, q.y - y) > (q.r + rr)*0.7; })
+        // F88 (Silvio): the Galatea jumped in through a piece
+        && W.keep.every(function(q){ return Math.hypot(q.x - x, q.y - y) > q.r + rr*0.75; });
     }
     if(!ok) continue;                               // no room left: fewer pieces
     // each piece in a depth of its own, deeper than the one before by more
