@@ -2461,6 +2461,19 @@ mitzuschleppen." Auch für NPC-Schiffe: „Gib ihnen doch einfach auch 2
 Avengers sobald sie verfügbar wird und sie sie tragen können." Ebenso
 Interceptor statt MX-50, sobald sie da ist („Fände ich gut, ja").
 
+### F88 — Mission 17: die Galatea warpt durch ein Trümmerstück (v266)
+
+**Befund (Silvio, 23.10.2026):** „Das passt optisch sehr gut. Was mir nur
+aufgefallen ist, war dass die Galatea durch eines der Trümmer hindurch
+rausgewarpt ist."
+
+### F89 — Missionsziele und Meldungen sind unschön dargestellt (v266)
+
+**Befund (Silvio, 23.10.2026):** „Was mir auch auffällt und mich schon seit
+längerem stört ist wie Missionsziele und Meldungen dargestellt werden. Die
+Galatea bei über 50% zu halten steht schon da bevor sie überhaupt im Feld ist
+und überhaupt sind solche Objective-Meldungen unschön gelöst."
+
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
 **Wunsch (Silvio, 23.10.2026):** „Ebenso sollten Trümmer einer
