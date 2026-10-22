@@ -1981,6 +1981,9 @@ let astStill = false;
 // Hat der Auftrag in dieser Welle ueberhaupt schon einmal gegolten?
 let objSeenOnce = false;
 const HUNT_SHARE = 0.5;
+// v263 (F86): a mission may send more of them (huntShare: The Big Bang,
+// every fighter after the Asimov).
+let waveHuntShare = HUNT_SHARE;
 let fleeTotal = 0, fleeEscaped = 0;
 
 // ── STATISTIK ─────────────────────────────────────────────────
@@ -2920,31 +2923,40 @@ const SCRIPT_WAVES = {
   // instead. A second wave follows the Spomer. Below a tenth of her hull the
   // Asimov blows herself up, and her blast hurts everything near (bigBang).
   // Replaces the old mission 16 (Silvio, 22.10.2026).
-  16:{name:'The Big Bang', era:'fs1', orig:12, ship:'fiapollo', fac:'hol', o:'clear', live:6,
+  16:{name:'The Big Bang', era:'fs1', orig:12, ship:'fiapollo', fac:'hol', o:'clear', live:6, huntShare:1,
       ziel:'Get the scientists off the Asimov - bonus: keep the Ravage', u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
        {id:'W2', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
        {id:'AS', c:'cr', n:1, spr:'scfaustus', side:'ally', x:330, y:220, still:true, noWarp:true,
         hurt:0.92, bigBang:true, label:'GTSC Asimov'},
        {id:'RV', c:'cr', n:1, spr:'crfenris', side:'ally', x:500, y:370, still:true, noWarp:true, label:'GTC Ravage'},
+       // F86 (Silvio): more of them than in the original's numbers would
+       // suggest, and every one of the first two groups after the Asimov.
        {id:'E1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
+       {id:'E3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'B3', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
        {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:130, warpIn:true, wait:true,
         dockTo:'AS', dockHold:10, dockLabel:'EVACUATING', mark:'protect', label:'GTT Spomer'},
        {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:130, warpIn:true, wait:true,
         dockTo:'AS', dockHold:10, dockLabel:'EVACUATING', mark:'protect', label:'GTT Stull'},
        {id:'E2', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true},
-       {id:'B2', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true}
+       {id:'B2', c:'bo', n:1, size:3, spr:'boshaitan', fac:'shivan', wait:true}
      ], ev:[
        // The Asimov lost: the scientists with her. After her blast the
        // Shivans pull out and the mission is over ('abzug' closes the rest).
        {t:'rumpfUnter', a:'AS', b:10, w:'zerstoeren', a2:'AS'},
        {t:'vernichtet', a:'AS', w:'zielverfehlt', a2:'The scientists are dead'},
        {t:'vernichtet', a:'AS', d:6, w:'abzug', a2:''},
+       // The fighters hunt the Asimov from the start (F86); the bombers go
+       // for the big ships on their own.
+       {t:'sek', a:1, w:'jagd', a2:'AS'},
        {t:'sek', a:3, w:'einwarpen', a2:'E1'},
        {t:'sek', a:3, w:'einwarpen', a2:'B1'},
-       // cleared, or 40 s at the latest: the Spomer
-       {t:'alleZerstoert', a:'E1+B1', w:'einwarpen', a2:'T1'},
+       {t:'da', a:'E1', d:15, w:'einwarpen', a2:'E3'},
+       {t:'da', a:'E1', d:15, w:'einwarpen', a2:'B3'},
+       // both groups cleared, or 40 s at the latest: the Spomer
+       {t:'alleZerstoert', a:'E1+B1+E3+B3', w:'einwarpen', a2:'T1'},
        {t:'da', a:'E1', d:40, w:'einwarpen', a2:'T1'},
        {t:'da', a:'T1', d:10, w:'einwarpen', a2:'E2'},
        {t:'da', a:'T1', d:10, w:'einwarpen', a2:'B2'},
@@ -4584,7 +4596,7 @@ function evFire(ev){
       // Die Zuweisung gilt fuer neue Schiffe; die im Feld werden
       // nachgezogen, sonst wirkt der Wechsel erst nach der naechsten Welle.
       for(const o of enemies)
-        if(o.type==='fighter'||o.type==='bomber') o.hunter = Math.random()<HUNT_SHARE;
+        if(o.type==='fighter'||o.type==='bomber') o.hunter = Math.random()<waveHuntShare;
       break;
     case 'nachschub':
       evReinf = (arg !== 'aus');
@@ -5089,6 +5101,7 @@ function buildScripted(def){
   escTotal = 0; escGone = 0;
   for(const u of (def.u||[])) if(u.escape) escTotal += (u.n||1);
   waveHunt = def.hunt || '';
+  waveHuntShare = def.huntShare || HUNT_SHARE;
   astStill = !!def.stillRocks;
   scanUnderFire = !!def.scanUnderFire;
   portalOn = !!def.portal;
@@ -5204,6 +5217,7 @@ function getWaveDef(n){
   waveFeud    = (o==='feud');
   waveObj     = o;
   waveHunt    = '';
+  waveHuntShare = HUNT_SHARE;
   astStill    = false;
   waveTitle   = 'WAVE '+n+'   '+K.name.toUpperCase();
   titleT      = TITLE_TIME;

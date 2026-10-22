@@ -269,7 +269,17 @@ function fs1Out(key, who){
 function fs1Carried(key, who){
   let k = key, n = 0;
   while(k && !fs1Out(k, who) && n++ < 8) k = FS1_STANDIN[k] || '';
-  return k || '';
+  return fs1Grown(k || '', who);
+}
+// v263 (F85, Silvio 22.10.2026): the default fit grows with the arsenal.
+// Once the Avenger is out the ML-16 is not carried any more - for the
+// player and the computer alike ("Es macht keinen Sinn eine wirkungslose
+// Waffe mitzuschleppen") - and once the Interceptor is out it takes the
+// MX-50's place. Every FS1 hull may carry every FS1 gun and missile.
+const FS1_GROWN = {ml16:'avenger', mx50:'interceptor'};
+function fs1Grown(k, who){
+  const g = FS1_GROWN[k];
+  return (g && fs1Out(g, who)) ? g : k;
 }
 // The banks of a hull in the FS1 strand, for the player. Its default fit as
 // FS1 had it, every weapon replaced by its stand-in until it is out. It may
@@ -278,12 +288,13 @@ function fs1Banks(key){
   const b = SHIP_BANKS[key] || BANKS_FALLBACK, d = FS1_FITS[key];
   const bomber = (typeof isBomberHull === 'function') && isBomberHull(key);
   const p = (d ? d.p : b.p.map(function(){ return 'avenger'; }))
-              .map(function(k){ return fs1Carried(k, 'p') || 'ml16'; }).slice(0, 2);
+              .map(function(k){ return fs1Carried(k, 'p') || fs1Grown('ml16', 'p'); }).slice(0, 2);
   const s = (d ? d.s : b.s.map(function(){ return bomber ? 'stiletto1' : 'mx50'; }))
               .map(function(k){ return fs1Carried(k, 'p'); })
               .filter(function(k){ return !!k; }).slice(0, 3);
   const pa = [], sa = [];
-  for(const w of ARSENAL_P) if(w.era==='fs1') pa.push(w.key);
+  // F85: the ML-16 is off the list once the Avenger is out.
+  for(const w of ARSENAL_P) if(w.era==='fs1' && !(w.key==='ml16' && fs1Out('avenger', 'p'))) pa.push(w.key);
   for(const w of ARSENAL_S) if(w.era==='fs1' && (w.cls==='bomb')===bomber) sa.push(w.key);
   return {p:p, pa:pa, s:s, sa:sa, cap:(d && d.cap) || b.cap, eng:b.eng, pow:b.pow};
 }
@@ -293,7 +304,7 @@ function fs1Banks(key){
 function fs1AiLoadout(key, old){
   const d = FS1_FITS[key];
   if(!d) return old;
-  const p = d.p.map(function(k){ return fs1Carried(k, 'c') || 'ml16'; });
+  const p = d.p.map(function(k){ return fs1Carried(k, 'c') || fs1Grown('ml16', 'c'); });
   const sec = d.s.map(function(k){ return fs1Carried(k, 'c'); }).filter(function(k){ return !!k; });
   const bomb = sec.find(function(k){ const w = fs1Def(k); return w && w.cls==='bomb'; });
   const mis  = sec.find(function(k){ const w = fs1Def(k); return w && w.cls!=='bomb'; });

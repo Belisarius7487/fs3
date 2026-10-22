@@ -2431,7 +2431,7 @@ mehreren Schiffslängen folgt und sich dabei etwas auffächert.
   der Größe des getroffenen Schiffs.
 - **Behoben in v261:** der Austritt ist jetzt ein langer, heller Strahl aus Flammen (zwei Lagen im Beam-Profil, orange und weißgelb), der dem Beam folgt, sich um das 2,6-Fache auffächert und dabei verblasst, dazu 30 Funken, die ihn entlanglaufen, und ein Licht am Austrittspunkt. Länge fest je Beam (`BEAM_EXIT_LEN`: 30 Beam-Breiten bei schweren, 18 bei kleinen), nicht nach dem getroffenen Schiff. Am Eintritt ein Licht, etwas Feuer und Funken zurück zum Turm.
 
-### F84 — Raketenaufschaltung reißt ständig ab, Klänge fehlen (v263)
+### F84 — Raketenaufschaltung reißt ständig ab, Klänge fehlen (v263) — gebaut in v264
 
 **Befund (Silvio, 22.10.2026):** „Ich glaube allerdings dass wir nochmal an
 der Raketenaufschaltung arbeiten müssen, denn Ziele bewegen sich zu
@@ -2448,8 +2448,11 @@ riesen Kurve und wird kaum treffen."
 - Klänge aus FS1 `sounds.tbl`: `trk-loop.wav` (Suchlauf, Schleife) und
   `lock.wav` (eingerastet, einmal). Im Spiel `sounds/lock_seek.wav` und
   `sounds/lock_on.wav`.
+- **Gebaut in v264:** die Aufschaltung baut sich auf, solange das Ziel im
+  sichtbaren Bildausschnitt ist (`camSees`), Kegel und Reichweite fallen
+  weg. `sndLock` spielt den Suchton in Schleife und einmal den Einrastton.
 
-### F85 — Standardbewaffnung wächst mit (v263)
+### F85 — Standardbewaffnung wächst mit (v263) — gebaut in v264
 
 **Festlegung (Silvio, 22.10.2026):** „Die ML-16 Laser kannst du komplett
 durch Avengers ersetzen, sobald sie ingame verfügbar wird und die Apollo
@@ -2458,7 +2461,7 @@ mitzuschleppen." Auch für NPC-Schiffe: „Gib ihnen doch einfach auch 2
 Avengers sobald sie verfügbar wird und sie sie tragen können." Ebenso
 Interceptor statt MX-50, sobald sie da ist („Fände ich gut, ja").
 
-### F86 — Mission 16: die Shivaner ignorieren die Asimov (v263)
+### F86 — Mission 16: die Shivaner ignorieren die Asimov (v263) — gebaut in v264
 
 **Befund (Silvio, 22.10.2026):** „sollte die Asimov nicht von den
 Shivanern zerstört werden? Die Handvoll Jäger ignorieren sie
@@ -2469,6 +2472,8 @@ Freespace entspricht."
 - Abgesprochen: 3 Scorpion und 2 Shaitan nach 3 s, 15 s später 2 Scorpion
   und 2 Shaitan, alle auf die Asimov; 10 s nach der Spomer 3 Scorpion auf
   die Spomer und 3 Shaitan auf die Asimov.
+- **Gebaut in v264:** Mission-Feld `huntShare:1` schickt alle Jäger auf
+  das Jagdziel (sonst die Hälfte, `HUNT_SHARE`).
 
 ### F83 — Antwort auf Verstärkung kommt von der falschen Seite (v262) — behoben in v263
 

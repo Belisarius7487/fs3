@@ -292,3 +292,13 @@ kürzt Namen ab und trägt einen alten Schreibfehler), und wird gegen
   der Spielebene (`capSeenPt`); der Aufstieg aus der Tiefe ist weg (F82).
 - Die Antwort auf ein gerufenes Großkampfschiff kommt von der Fraktion der
   Gegner der Mission (`missionFoe`, `scriptFoe`), nicht vom Zyklus (F83).
+
+### Seit v264 (F84, F85, F86)
+
+- Mission `huntShare:1`: dieser Anteil der Jäger geht auf das Jagdziel
+  (`jagd`/`hunt`); sonst `HUNT_SHARE` (die Hälfte).
+- FS1-Standardbewaffnung wächst mit (`fs1Grown`): ab Avenger keine ML-16
+  mehr, ab Interceptor keine MX-50, für Spieler und Computer. Die ML-16
+  verschwindet dann auch aus der Auswahl.
+- Raketenaufschaltung: solange das Ziel im sichtbaren Ausschnitt ist; Klänge
+  `lock_seek` (Schleife) und `lock_on` (`sndLock`).

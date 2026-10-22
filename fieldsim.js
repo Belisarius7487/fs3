@@ -4931,9 +4931,10 @@ scenario('Missiles go for the targeted subsystem: the lock and the strike', 'm=1
   // the nose on the subsystem, the middle of her off to one side
   player.x = p.x - 150; player.y = p.y; player.angle = 0; player.head = 0;
   // tgtTick is too tangled to drive here: checked at the source - the lock
-  // cone is measured to the chosen subsystem's place
+  // is measured to the chosen subsystem's place (since v264, F84: whether
+  // that place is on the screen, no longer a cone off the nose)
   const src = String(tgtTick);
-  r.lockMeasuredOnTheSubsystem = src.indexOf('tgtSubPos(o, TGT.sub)') >= 0 && src.indexOf('tgtOff(lp.x, lp.y)') >= 0;
+  r.lockMeasuredOnTheSubsystem = src.indexOf('tgtSubPos(o, TGT.sub)') >= 0 && src.indexOf('camSees(lp.x, lp.y') >= 0;
   // a round sent at the engines, landing on the far end of her hull
   const hp0 = eng.hp;
   const sp = subPos(ta, eng);
@@ -5741,6 +5742,50 @@ scenario('v263 F83: the answer to a called capital ship comes from the mission f
   r.shivanAnswer = added.length>0 && added.every(q=>q.type==='bo_sh');
   r.foeOfM4 = scriptFoe(SCRIPT_WAVES[4]);
   r.m4Hol = r.foeOfM4 === 'hol';
+  return r;`);
+
+// ── v264: F84 lock in the visible field, F85 loadouts grow, F86 Asimov hunted ──
+scenario('v264 F85: from Avenger and Interceptor on, the ML-16 and MX-50 are not carried', 'm=16', `
+  const r = {};
+  FS.step(100);
+  r.playerPri = player.pb.map(b=>b.key).join();
+  r.playerSec = player.sb.map(b=>b.key).join();
+  r.twoAvengers = r.playerPri === 'avenger,avenger';
+  r.twoInterceptors = r.playerSec === 'interceptor,interceptor';
+  r.ml16OffTheList = bankChoices('fiapollo', true).map(w=>w.key).indexOf('ml16') < 0;
+  const lo = fs1AiLoadout('fianubis', {p:'', s:''});
+  r.anubisAI = JSON.stringify(lo);
+  r.anubisAvenger = !!lo && lo.p === 'avenger';
+  return r;`);
+
+scenario('v264 F84: the lock builds wherever the target is on screen, with its tones', 'm=16', `
+  const r = {};
+  FS.until(()=>byId('E1').some(e=>!(e.warp>0)), 2000, false);
+  const o = byId('E1').find(e=>!(e.warp>0));
+  // an aspect missile in the bank (the Interceptor since F85)
+  let calls = [];
+  window.sndLock = function(seek, lk){ calls.push((seek?'s':'-')+(lk?'L':'-')); };
+  tgtSet(o);
+  const w = secDefP(selSecBank().key);
+  r.aspect = !!w && w.homing === 'aspect';
+  // behind the player, but on the screen
+  const hold = function(){ o.x = player.x - 140*FIELD_K; o.y = player.y + 40*FIELD_K; o.vx = 0; o.vy = 0; };
+  for(let k=0;k<(w.lockT||1)+5;k++){ hold(); tgtTick(); }
+  r.lockBehind = tgtLocked();
+  r.seekThenLock = calls.indexOf('s-') >= 0 && calls.indexOf('-L') > calls.indexOf('s-');
+  // off the screen: the lock is gone
+  o.x = CAM.x + camHalfW() + 400*FIELD_K; tgtTick();
+  r.lostOffScreen = TGT.lock === 0;
+  return r;`);
+
+scenario('v264 F86: every fighter of the first wave goes for the Asimov', 'm=16', `
+  const r = {};
+  FS.until(()=>byId('E1').length>=3 && byId('E1').every(e=>!(e.warp>0)), 2000, false);
+  FS.step(30);
+  const f = byId('E1');
+  r.huntAsimov = waveHunt === 'AS' && f.length===3 && f.every(e=>e.hunter);
+  FS.until(()=>evSeen('E3') && evSeen('B3'), 2500, false);
+  r.secondGroup = evSeen('E3') && evSeen('B3');
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

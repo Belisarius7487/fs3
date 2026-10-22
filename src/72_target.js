@@ -170,10 +170,21 @@ function tgtTick(){
   // the middle of the hull.
   const lp = (o && TGT.sub && !TGT.sub.dead && o.subs) ? tgtSubPos(o, TGT.sub) : o;
   if(TGT.lockOf !== key){ TGT.lock = 0; TGT.lockOf = key; }
+  // v263 (F84, Silvio 22.10.2026): the lock builds wherever the target is,
+  // as long as it is in the part of the field the player can see. Held
+  // only near the nose and within reach, it broke off all the time against
+  // targets that move this fast. One behind him is his own lookout: the
+  // missile turns a long way round for it.
   if(w && w.homing === 'aspect' && o && o.kind !== 'bomb' && enemies.indexOf(o) >= 0 && canLockOn(o)
-     && bank.ammo > 0 && tgtDist(o) <= w.spd*w.life && tgtOff(lp.x, lp.y) <= TGT_LOCK_CONE){
+     && bank.ammo > 0 && camSees(lp.x, lp.y, 0)){
     TGT.lock = Math.min(TGT.lock + 1, w.lockT || 1);
   } else TGT.lock = 0;
+  // F84: the seeker tone while it builds, the lock tone once it holds
+  // (FS1 sounds.tbl: trk-loop.wav, lock.wav).
+  if(typeof sndLock === 'function'){
+    const _lt = (w && w.lockT) || 1;
+    sndLock(TGT.lock > 0 && TGT.lock < _lt, TGT.lock > 0 && TGT.lock >= _lt);
+  }
 }
 function tgtLocked(){
   const bank = selSecBank(), w = bank ? secDefP(bank.key) : null;

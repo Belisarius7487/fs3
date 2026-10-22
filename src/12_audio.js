@@ -32,6 +32,8 @@ const SND_FILES = {
   beam_vas_large_down: "@@FS3_SOUND:sounds/beam_vas_large_down.mp3@@",
   beam_vas_large_loop: "@@FS3_SOUND:sounds/beam_vas_large_loop.wav@@",
   burst_dante: "@@FS3_SOUND:sounds/burst_dante.mp3@@",
+  lock_on: "@@FS3_SOUND:sounds/lock_on.wav@@",                 // F84: FS1 lock.wav
+  lock_seek: "@@FS3_SOUND:sounds/lock_seek.wav@@",             // F84: FS1 trk-loop.wav
   burst_infyrno: "@@FS3_SOUND:sounds/burst_infyrno.mp3@@",
   expl_asteroid_1: "@@FS3_SOUND:sounds/expl_asteroid_1.mp3@@",
   expl_asteroid_2: "@@FS3_SOUND:sounds/expl_asteroid_2.mp3@@",
@@ -134,6 +136,7 @@ const SND_MIX = {
   expl_secondary:0.22, expl_asteroid:0.30, expl_player:0.75,
   hit_shield:0.26, hit_player:0.34, sub_destroyed:0.40,
   scan_start:0.80, scan_done:0.90, scan_loop:0.70,
+  lock_seek:0.40, lock_on:0.40,      // F84: FS1 sounds.tbl gives both 0.40
   warp_open:0.18, warp_in_big:0.36, warp_out_big:0.36,
   beam_charge:0.30, beam_loop:0.24, beam_down:0.26,
   ai_fire:0.05, ai_sec:0.14,
@@ -400,6 +403,19 @@ function sndBeam(e, b, phase){
 // it is done or broken off; the long sound follows when it is done.
 // o is the ship or the subsystem. Called every step while scanning
 // (running), and once when it stops.
+// v263 (F84): the missile lock. seeking - the tone loops while the lock
+// builds; locked - one tone the moment it holds. Called every step the
+// lock is worked out; a loop not renewed for a few steps is stopped in
+// sndTick, as the scan loop is.
+let sndLockSrc = null, sndLockT = 0, sndLockWas = false;
+function sndLock(seeking, locked){
+  if(seeking){
+    sndLockT = fc;
+    if(!sndLockSrc) sndLockSrc = sndStart('lock_seek', player.x, 1, true, 'lock_seek', player.y);
+  } else if(sndLockSrc){ sndStop(sndLockSrc); sndLockSrc = null; }
+  if(locked && !sndLockWas) sndStart('lock_on', player.x, 1, false, 'lock_on', player.y);
+  sndLockWas = locked;
+}
 function sndScanStep(o, x, y, running){
   if(running){
     o._sndScanT = fc;
@@ -465,6 +481,7 @@ function sndTick(){
   }
   // A scan loop whose scan was not continued this step (target gone,
   // wave over) stops by itself.
+  if(sndLockSrc && fc - sndLockT > 2){ sndStop(sndLockSrc); sndLockSrc = null; }
   for(let i=SND_SCANS.length-1; i>=0; i--){
     const s = SND_SCANS[i];
     if(fc - (s.o._sndScanT||0) > 2){ sndStop(s.src); s.o._sndScan = false; SND_SCANS.splice(i, 1); }
@@ -475,6 +492,7 @@ function sndAllOff(){
   for(const s of SND_BEAMS) sndStop(s.src);
   SND_BEAMS = [];
   for(const s of SND_SCANS){ sndStop(s.src); s.o._sndScan = false; }
+  if(sndLockSrc){ sndStop(sndLockSrc); sndLockSrc = null; }
   SND_SCANS = [];
   sndHp = null; sndSh = null;
 }

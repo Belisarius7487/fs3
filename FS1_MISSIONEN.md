@@ -375,10 +375,11 @@ Abgesegnet von Silvio, 22.10.2026. Ersetzt die alte Mission 16.
 - Start: der Spieler in der Apollo mit zwei Flügelmännern, dazu 2
   Valkyries. In der Mitte der Forschungskreuzer GTSC Asimov (92 % Rumpf)
   und der Kreuzer GTC Ravage.
-- Nach 3 s 3 Scorpion und 2 Shaitan.
+- Nach 3 s 3 Scorpion und 2 Shaitan, 15 s später 2 Scorpion und 2 Shaitan;
+  alle Jäger jagen die Asimov (v264, F86).
 - Tot oder spätestens 40 s nach den Scorpions: der Transporter GTT Spomer
   springt ein, dockt an der Asimov, evakuiert 10 s lang und springt aus.
-- 10 s nach der Spomer: 3 Scorpion und 2 Shaitan, die Jäger jagen sie.
+- 10 s nach der Spomer: 3 Scorpion auf die Spomer, 3 Shaitan (v264).
 - Spomer zerstört, bevor sie fertig ist: die GTT Stull macht dasselbe.
 - Asimov unter 10 %: sie sprengt sich, die Druckwelle (BIG_BANG) trifft
   alles in der Nähe, auch den Spieler. Ziel verfehlt, 6 s später ziehen
