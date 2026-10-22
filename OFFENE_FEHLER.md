@@ -2272,6 +2272,56 @@ Waffenkompatibilität der Valkyrie zulässt, mit zwei Avengers starten."
   tragen, und ist die Avenger zu diesem Zeitpunkt (orig 10) schon frei?
 - **Behoben in v258:** Mission 14 startet mit zwei Avenger (die Valkyrie darf sie laut FS1-Tabelle tragen, frei ab Original 8).
 
+### F73 — Der Beam verschwindet hinter der Nase der Orion, der Treffer sitzt vorn (v258)
+
+**Befund (Silvio, 22.10.2026):** „Im Screenshot siehst du, dass der
+Beamstrahl hinter der Nase der Orion verschwindet, der Treffereffekt aber
+direkt an der Nase erscheint."
+
+- Bildschirmfoto im Chat: roter Lucifer-Beam von rechts, er endet unter der
+  Nase der Orion, das Trefferfeuer leuchtet vorn auf der Nase.
+- Silvio vermutet denselben Grund wie F76.
+- Status: offen.
+
+### F74 — Verbündete Geschosse treffen die Lucifer nicht, kein Schildeffekt (v258)
+
+**Befund (Silvio, 22.10.2026):** „Die Lucifer wird von verbündeten
+Projektilen nicht getroffen, entsprechend sieht man ihren Schildeffekt
+nicht."
+
+- Gehört zu F66 (in v258 als behoben eingetragen; für verbündete Geschosse
+  wirkt es nicht).
+- Status: offen.
+
+### F75 — Die Lucifer fehlt auf dem Radar (v258)
+
+**Befund (Silvio, 22.10.2026):** „Die Lucifer sollte auch auf dem Radar zu
+sehen sein."
+
+- Status: offen.
+
+### F76 — Beams verschwinden hinter dem eigenen Schiff und tauchen wieder auf (v258)
+
+**Befund (Silvio, 22.10.2026):** „Im zweiten Screenshot siehst du, dass der
+Beamstrahl, der vom vorne liegenden Arm der Lucifer abgefeuert wird, hinter
+ihrer Nase verschwindet und dahinter wieder auftaucht. Ich befürchte hier
+müssen wir die grundlegende Art ändern wie Beams von Schiffen ausgehend
+gezeichnet werden, weil evtl. alter Code von der 2D Sprite-Zeit
+hineinfunkt. Mein Eindruck ist, dass sich alles was Objekte und ihre Waffen
+betrifft noch zu 2dimensional verhält."
+
+- Silvio: F73 und F76 hängen vermutlich zusammen.
+- Im Code nachgesehen (v258): Ein Beam ist eine flache Linie auf der
+  2D-Leinwand, gezeichnet **unter allen Schiffen** (`draw()` in
+  `70_ui.js`, „Beam rays under every hull"), dazu ein Stück **über** dem
+  feuernden Schiff, abgeschätzt an dessen 2D-Umriss (`ownRunSmooth`).
+  Jedes Modell wird in `f3dRender` mit eigenem, frisch geleertem
+  Tiefenpuffer gezeichnet (`gl.clear(gl.DEPTH_BUFFER_BIT)` je Schiff) und
+  als fertiges Bild auf die Leinwand gelegt. Ein Beam kennt also keine
+  Tiefe: ob er vor oder hinter einem Rumpfteil liegt, entscheidet nur die
+  Zeichenreihenfolge.
+- Status: offen, Lösungsweg mit Silvio zu klären.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
