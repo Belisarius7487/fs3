@@ -2155,6 +2155,15 @@ der Schock über das Geschehene noch kurz nachhallen kann."
 - Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
   weitere Befunde, dann wird gebaut.
 
+### F62 — FS1-Jäger und -Bomber, die noch nicht vorgestellt wurden (v257)
+
+**Befund (Silvio, 22.10.2026):** „Es kommen auch FS1-Ära Bomber und Jäger
+vor, die zu diesem Zeitpunkt noch nicht vorgestellt wurden"
+
+- Gemeldet beim Test von Mission 14 (Tombaugh), direkt nach F60.
+- Status: offen, im Code noch nicht nachgesehen. Noch zu klären: bei den
+  Verbündeten, den Shivanern oder beiden.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
