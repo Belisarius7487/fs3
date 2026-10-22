@@ -2431,6 +2431,23 @@ mehreren Schiffslängen folgt und sich dabei etwas auffächert.
   der Größe des getroffenen Schiffs.
 - Status: offen.
 
+### F81 — Mission 14: zweiter Lucifer-Beam ohne Austritt, der Strahl wirkt abgeknickt (v260)
+
+**Befund (Silvio, 22.10.2026):** „Ich habe in Mission 14 noch etwas
+festgestellt und zwar schaltet die Lucifer manchmal auf den gerade
+inaktiven Beam um, aber nur einer wird mit Austrittseffekt am getroffenen
+Objekt dargestellt, was dazu führt, dass der Beam abgeknickt wirkt sobald
+er sein Ziel trifft."
+
+- Vermutung (aus dem Code von v260, nicht im Bild nachgewiesen): Hinter dem
+  Eintritt läuft der 3D-Strahl waagerecht in der Tiefe des Eintritts weiter
+  (`f3dBeamEnds`: X und F mit derselben Tiefe), davor aber schräg vom Turm
+  herab. Zwei Stücke mit verschiedener Neigung sehen im Bild wie ein Knick
+  aus. Findet der zweite Strahl keinen Austritt am Modell, fehlt bei ihm
+  auch die Austrittswunde.
+- Mit F79/F80 zusammen bauen.
+- Status: offen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
