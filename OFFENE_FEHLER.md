@@ -2398,6 +2398,35 @@ Flammenstrahl austritt."
   Austritt mit Flammenstrahl fällt damit weg.
 - **Behoben in v260:** der 3D-Beam läuft wieder durch das Schiff hindurch (verdeckt vom Rumpf), tritt an der anderen Seite aus (auf dem Modell gesucht) und läuft dahinter weiter wie früher der flache Strahl; dort sitzen wieder die Austrittswunde und der Flammenstrahl. Der flache Strahl (ohne Modell) läuft ebenfalls wieder durch.
 
+### F79 — Ein- und Austrittseffekt der Beams bleiben sichtbar, wenn der Rumpf davor liegt (v260)
+
+**Befund (Silvio, 22.10.2026):** „Der Eintrittseffekt der Beams passt immer
+noch nicht ganz. Wenn ich mich bewege und die vorn liegende Kante der
+Orionnase sich damit vor die Nasenfläche schiebt, bleibt der
+Eintrittseffekt sichtbar, obwohl ich die Stelle, wo der Beam einschlägt gar
+nicht mehr sehen kann. Genauso beim Austrittseffekt." — „Das mit dem 3D für
+den Beam passt also noch nicht und muss deutlich besser werden, damit es
+perspektivisch Sinn macht." — „Es muss doch möglich sein, das so real wie
+im 3dimensionalen Raum darstellen lassen zu können."
+
+- Im Code nachgesehen (v260): Der Strahl selbst liegt im 3D-Bild und wird
+  verdeckt. Das Trefferfeuer (Feuerbälle, Funken) ist aber weiter ein
+  flaches Bild, gezeichnet **über allen Schiffen** (`drawParts`,
+  `drawFxAnims` nach den Rümpfen). Es sitzt an der richtigen Stelle, kennt
+  aber keine Tiefe und wird darum nie verdeckt.
+- Status: offen.
+
+### F80 — Der Austrittseffekt der Beams ist viel zu dezent (v260)
+
+**Befund (Silvio, 22.10.2026):** „Der Austrittseffekt [ist] übrigens viel
+zu dezent." Dazu ein Bildschirmfoto aus FreeSpace 2 (vor 14 Jahren): ein
+gelber Beam einer vasudanischen Hatshepsut trifft ein kleines Schiff. Am
+Eintritt ein heller Lichtfleck, auf der anderen Seite tritt ein langer,
+breiter, glühender Strahl aus Funken und Flammen aus, der dem Beam auf
+mehreren Schiffslängen folgt und sich dabei etwas auffächert.
+
+- Status: offen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
