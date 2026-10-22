@@ -2161,8 +2161,9 @@ der Schock über das Geschehene noch kurz nachhallen kann."
 vor, die zu diesem Zeitpunkt noch nicht vorgestellt wurden"
 
 - Gemeldet beim Test von Mission 14 (Tombaugh), direkt nach F60.
-- Status: offen, im Code noch nicht nachgesehen. Noch zu klären: bei den
-  Verbündeten, den Shivanern oder beiden.
+- Silvio, 22.10.2026: „Bisher nur Verbündete." Er macht noch weitere
+  Testläufe.
+- Status: offen, im Code noch nicht nachgesehen.
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
