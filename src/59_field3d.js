@@ -822,6 +822,44 @@ function hullUnPt(e, x, y){
   if(!v) return {x: x, y: y};
   return {x: v.cx + (x - v.cx)/v.k, y: v.cy + (y - v.cy)/v.k};
 }
+// F63/F70 (v258, Silvio: smoke, steam and beam fire wander with the
+// viewpoint): effects that belong to a hull are kept at her depth, not in
+// the play plane. hullFxBegin(e) ... hullFxEnd(h) around the code that
+// spawns them: whatever was spawned in between (at the point where her
+// model is drawn now) is taken back to the plane point under that spot
+// and given her depth (hz). hullFxView() then draws each of them through
+// the current camera every frame, so they stay on the hull as the view
+// moves, the same rays as the model itself.
+let HULLFX = null;
+function hullFxBegin(e){
+  const z = Math.min(0, f3dMidZ(e));
+  if(!z) return null;
+  const D = f3dEyeD(), k = D/Math.max(D*0.05, D - z);
+  const cx = (typeof CAM !== 'undefined') ? s2wX(W/2) : W/2, cy = (typeof CAM !== 'undefined') ? s2wY(H/2) : H/2;
+  const h = {z: z, k: k, cx: cx, cy: cy, np: PARTS.length, prev: HULLFX};
+  HULLFX = h;
+  return h;
+}
+function hullFxBack(h, o){
+  o.x = h.cx + (o.x - h.cx)/h.k; o.y = h.cy + (o.y - h.cy)/h.k;
+  o.hz = h.z;
+}
+function hullFxEnd(h){
+  if(!h) return;
+  for(let i = h.np; i < PARTS.length; i++) if(PARTS[i].hz == null) hullFxBack(h, PARTS[i]);
+  if(typeof FX_ANIMS !== 'undefined') for(const f of FX_ANIMS) if(f._hfx === h){ f._hfx = null; hullFxBack(h, f); }
+  HULLFX = h.prev;
+}
+// on: every hull-bound effect to where the camera shows her depth now;
+// off: back to its own place in the plane.
+function hullFxView(on){
+  const lists = [PARTS, (typeof FX_ANIMS !== 'undefined') ? FX_ANIMS : []];
+  for(const L of lists) for(const o of L){
+    if(o.hz == null) continue;
+    if(on){ o._hx = o.x; o._hy = o.y; const q = f3dPersp(o.x, o.y, o.hz); o.x = q.x; o.y = q.y; }
+    else if(o._hx != null){ o.x = o._hx; o.y = o._hy; o._hx = null; }
+  }
+}
 function f3dVP(){
   // v208: through the camera (10_core.js). The canvas covers the whole
   // screen; its middle is the world point s2w(W/2, H/2), and the zoom moves
@@ -1860,7 +1898,12 @@ const F3D_WP_GLOW = new Float32Array(36);
 // px, py: where the vortex stands; fx, fy: the way through it; WS: its
 // size across; wS: how far open (0..1); alpha; seed: its own start frame.
 // False: not drawn (no 3D) - the caller draws the old picture.
-function f3dWarp(px, py, fx, fy, WS, wS, alpha, seed, knossos){
+// pz (v258, F68): the depth of the ship going through it. Her model lies
+// sunk below the play plane (f3dMat), and her vortex cut (uClip) is a wall
+// through px at every depth; with the disc in the plane, the camera saw
+// her bow beyond the disc wherever it looked at her from the side. At her
+// own depth the disc stands where she is cut.
+function f3dWarp(px, py, fx, fy, WS, wS, alpha, seed, knossos, pz){
   if(F3D.off || typeof document === 'undefined' || !F3D.ok || !F3D.gl) return false;
   if(!f3dWarpLoad() || !f3dFxProg()) return false;
   const sheetImg = (knossos && imgReady(KNOSSOS_WARP_IMG)) ? KNOSSOS_WARP_IMG : WARP_IMG;
@@ -1882,7 +1925,7 @@ function f3dWarp(px, py, fx, fy, WS, wS, alpha, seed, knossos){
   const th = fc*WARP_SPIN/TICK_HZ + (seed || 0), ct = Math.cos(th), st = Math.sin(th);
   const X = [u[0]*ct + v[0]*st, u[1]*ct + v[1]*st, u[2]*ct + v[2]*st];
   const Y = [-u[0]*st + v[0]*ct, -u[1]*st + v[1]*ct, -u[2]*st + v[2]*ct];
-  const R = WS/2*wS, C = [px, -py, 0];
+  const R = WS/2*wS, C = [px, -py, pz || 0];
   const M = new Float32Array([X[0]*R, X[1]*R, X[2]*R, 0, Y[0]*R, Y[1]*R, Y[2]*R, 0, n[0]*R, n[1]*R, n[2]*R, 0, C[0], C[1], C[2], 1]);
   const wF = Math.floor(fc*WARP_FPS/TICK_HZ + (seed || 0)) % WARP_FRAMES;
   const cs = 1/WARP_COLS;

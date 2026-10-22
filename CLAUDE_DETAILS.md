@@ -179,6 +179,24 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
 - `nachschub` mit einer Fraktion statt `an` (`'shivan'`): der Nachschub
   kommt aus deren Pool, nicht aus dem der Welle.
 
+### Seit v258
+
+- `stopX` auf einer `sd`-Einheit: springt bei `x` ein und kommt bei `stopX`
+  langsam zum Stehen.
+- `shieldShow` auf einer unverwundbaren Einheit mit Schild: erfassbar und
+  beschießbar, jeder Treffer lässt den Schild aufflackern.
+- Mission `planet:{x, y, w}`: ein fester Planet an dieser Stelle des
+  Bildschirms (Mitte), statt der gewürfelten.
+- Mission `pri:['avenger','avenger']`: eine Liste setzt jede Primärbank.
+- Im FS1-Strang fliegen verbündete Jäger und Bomber nur Rümpfe aus
+  `FS1_ALLY_INTRO`, die bis `orig` eingeführt sind (`allySmallPool`).
+- Beams auf ein Schiff (nicht `slash`, nicht auf den Spieler) haften an
+  einer Rumpfstelle (`beamAnchor`, `beamAncPt`) und treffen nur dort.
+- Effekte an einem Großkampfschiff: zwischen `hullFxBegin(e)` und
+  `hullFxEnd(h)` erzeugt, liegen sie in ihrer Tiefe (`hz`) und bleiben beim
+  Kameraschwenk auf dem Rumpf.
+- `f3dWarp(..., pz)`: der Wirbel in der Tiefe des Schiffs.
+
 ## C. Werkzeuge im Detail
 
 ### `tools/pof/` — der POF-Umwandler

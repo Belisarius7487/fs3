@@ -1024,7 +1024,7 @@ function nearestOf(list, e, want){
     if(list===enemies && playerOnly(o)) continue;
     // The same things nearestEnemy() leaves alone: scenery that cannot
     // be hurt, and ships that are only there to be scanned or taken.
-    if(list===enemies && (o.invuln || escortSpares(o))) continue;
+    if(list===enemies && ((o.invuln && !o.shieldShow) || escortSpares(o))) continue;
     const d=(o.x-e.x)*(o.x-e.x)+(o.y-e.y)*(o.y-e.y);
     if(d<bd){bd=d;best=o;}
   }
@@ -1525,7 +1525,7 @@ function canLockOn(o){
   if(!o) return false;
   // Eine unverwundbare Station ist Kulisse. Auf sie zu halten sieht aus
   // wie ein Fehler und ist einer.
-  if(o.invuln) return false;
+  if(o.invuln && !o.shieldShow) return false;
   // Neither side gets a lock in a nebula, and nobody gets one while the
   // storm has the sensors down. Guided rounds fall back to dumbfire.
   if(nebulaOn()) return false;
@@ -1611,7 +1611,7 @@ function beamTargets(e, wantLarge){
       if(o.dead || o.warp>0 || o.type==='asteroid' || escortSpares(o)) continue;
       // Untouchable ships are left alone - unless the player has tagged one
       // (v170: the Hecate answers a TAG on the Lucifer, on her shield).
-      if(o.invuln && !tagged(o)) continue;
+      if(o.invuln && !tagged(o) && !o.shieldShow) continue;
       if(!canLockOn(o) && !(!wantLarge && awacsSees(o)) && !tagged(o)) continue;
       if(wantLarge ? (isLargeShip(o) || (tagged(o) && !isSmallShip(o))) : isSmallShip(o)) out.push(o);
     }
@@ -2162,8 +2162,29 @@ function drawScorch(o){
 }
 
 // Der sichtbare Einschlag: Blitz vorn, Flammenstrahl hinten.
+// F63 (v258): where a beam from (mx,my) at ang first strikes ship o, kept
+// in her own frame (her middle, her heading, her facing) so it moves and
+// turns with her. Without a trace: her middle.
+function beamAnchor(o, mx, my, ang){
+  const tr = hullTrace(o, mx, my, ang);
+  let dx = tr ? tr.entry.x - o.x : 0, dy = tr ? tr.entry.y - o.y : 0;
+  const a = -(o.ang||0), c = Math.cos(a), s = Math.sin(a);
+  return {o: o, lx: dx*c - dy*s, ly: dx*s + dy*c, flip: !!o.flip};
+}
+// The anchor now, as a point of her hull outline in the plane.
+function beamAncPt(b){
+  const A = b.anc, o = A.o;
+  const lx = (!!o.flip === A.flip) ? A.lx : -A.lx;
+  const a = o.ang||0, c = Math.cos(a), s = Math.sin(a);
+  return {x: o.x + lx*c - A.ly*s, y: o.y + lx*s + A.ly*c};
+}
 function beamImpact(o, mx, my, ang, large, tr){
   if(tr===undefined) tr = hullTrace(o, mx, my, ang);
+  // F63/F70 (v258): the fire of the hit stays on her hull as the view moves
+  const _hf = (typeof hullFxBegin === 'function') ? hullFxBegin(o) : null;
+  try{ beamImpactAt(o, ang, large, tr); } finally { if(_hf) hullFxEnd(_hf); }
+}
+function beamImpactAt(o, ang, large, tr){
   const scale = large ? 1.0 : 0.55;
 
   // Entry
@@ -3180,12 +3201,30 @@ function updateBeams(e) {
           b._arc=arc;
         } else {
           b.curAngle=b.angle;
+          // F63 (v258, Silvio: beam hits wandered with the viewpoint and
+          // could slide off the hull while still doing damage): the beam
+          // is fixed to one spot of her hull, where it first strikes her.
+          // It is drawn to that spot and does its damage there, wherever
+          // the camera is and however she or the shooter moves.
+          b.anc = (tg && tg !== player) ? beamAnchor(tg, mp.x, mp.y, b.angle) : null;
         }
       }
     } else if(b.state==='firing') {
       if(b.type==='slash') {
         const arc=b._arc||0.6;
         b.curAngle += b.sweepDir * (arc/b.fireT);
+      }
+      // F63 (v258): an anchored beam holds its spot on her hull and hurts
+      // her there, and only her; with her gone it stops.
+      if(b.anc){
+        const o = b.anc.o;
+        if(!targetAlive(e, o)){ b.anc = null; b.state='cooldown'; b.timer=b.coolT*(b.jit||1); continue; }
+        const mp = mountPos(e, b), q = beamAncPt(b);
+        b.angle = b.curAngle = Math.atan2(q.y-mp.y, q.x-mp.x);
+        damageEnemy(o, beamDmg(e, b), q.x, q.y, false, 'beam');
+        beamImpact(o, mp.x, mp.y, b.angle, !!b.large, {entry:q, exit:null});
+        if(b.timer<=0) { b.state='cooldown'; b.timer=b.coolT*(b.jit||1); b.anc = null; }
+        continue;
       }
       // Damage everything on the beam line that belongs to
       // this turret's target class.
@@ -3263,13 +3302,20 @@ function drawBeamRays(e, own) {
     if(hid && b.state==='charging'){ drawBeamOrb(e, b); continue; }
     if(b.state!=='firing') continue;
     const col=beamCol(e.faction, b.large);
-    const ang = b.type==='slash' ? b.curAngle : b.angle;
+    let ang = b.type==='slash' ? b.curAngle : b.angle;
     const mpF=mountPosV(e,b);                  // v209: where it is drawn
+    // F63 (v258): an anchored beam runs to her spot as the camera shows it
+    let ancLen = 0;
+    if(b.anc && !b.anc.o.dead){
+      const q = beamAncPt(b), qd = hullPt(b.anc.o, q.x, q.y);
+      ang = Math.atan2(qd.y - mpF.y, qd.x - mpF.x);
+      ancLen = Math.hypot(qd.x - mpF.x, qd.y - mpF.y);
+    }
     // v214: over her own hull only as far as her drawn outline reaches
     // (drawnHullRun), then fading out over the stretch under it - the two
     // pieces no longer lie on top of each other beside her hull, which was
     // the hard edge (Silvio)
-    const len = own ? ownRunSmooth(e, b, mpF.x, mpF.y, ang) : 2000/CAM.z;
+    const len = own ? ownRunSmooth(e, b, mpF.x, mpF.y, ang) : (ancLen > 0 ? ancLen : 2000/CAM.z);
     const g = fxG();                           // v209: v207 widths on the screen
     if(len <= 0) continue;
     const ex=mpF.x+Math.cos(ang)*len, ey=mpF.y+Math.sin(ang)*len;

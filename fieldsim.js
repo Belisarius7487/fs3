@@ -4711,7 +4711,6 @@ scenario('FS1 M7 Pandora: three scans, the trap, blast waves that hurt, held out
   const px = k2.x - 50, py = k2.y;
   for(const id of ['K1','K3','K5']) byId(id)[0].scanned = true;
   let minHp = player.maxHp, cargoShocks = 0;
-  const seen = new Set();
   for(let t=0;t<800;t++){
     player.x = px; player.y = py; player.vx = 0; player.vy = 0;
     update(); if(t%25===0) draw();
@@ -5109,6 +5108,131 @@ scenario('FS1 M14 v257 Tombaugh: transport lost - goal failed, still ends; Shiva
   r.onlyShivan = Object.keys(hulls).length>0 && Object.keys(hulls).every(h=>/^(fi|bo)(basilisk|manticore|scorpion|dragon|shaitan|nahema|seraphim|cain)/.test(h));
   r.seconds = Math.round(n/60);
   r.ends = wave>14 || waveOver;
+  return r;`);
+
+// ── v258: Silvio's findings on Rain on Ribos IV (F59 to F62, F64 to F67, F69, F72) ──
+scenario('FS1 M14 v258 Ribos IV: Taranis silent, era allies, Lucifer stop, shield, station, end pause', 'm=14', `
+  const r = {}, small = {};
+  const fire0 = eBullets.length;
+  FS.step(200);
+  r.name = (SCRIPT_WAVES[14]||{}).name;
+  r.twoAvengers = (player.pb||[]).map(b=>b.key).join('+') === 'avenger+avenger';
+  // F59: the Taranis fires nothing - count what she puts into the field
+  let taranisShots = 0;
+  const R1 = byId('R1')[0];
+  const seen = new Set();
+  const look = function(){
+    for(const a of allies) if(a.small && !a.dead) small[a.img] = 1;
+  };
+  // Every shot she makes goes through allyFire(): count what it adds.
+  const _af = allyFire;
+  window.allyFire = function(a){ const n0 = pBullets.length; _af(a); if(a===R1 && pBullets.length>n0) taranisShots += pBullets.length-n0; };
+  FS.until(()=>!!EV_DOCK.T1, 3000, false);
+  FS.until(()=>evSeen('E1'), 1000, false);
+  for(let k=0;k<20;k++){ FS.step(30); look(); }
+  r.taranisShots = taranisShots;
+  r.taranisSilent = !!R1 && taranisShots===0;
+  FS.killId('E1'); FS.step(60);
+  FS.until(()=>evSeen('E2') && evSeen('B2'), 2500, false);
+  FS.until(()=>{ FS.killId('E2'); FS.killId('B2'); return byId('L1').length>0; }, 3000, false);
+  const L = byId('L1')[0];
+  FS.until(()=>!(L.warp>0), 1200, false);
+  r.inAt = Math.round(L.x/FIELD_K);
+  FS.step(60*20); look();
+  r.stopAt = Math.round(L.x/FIELD_K);
+  r.stopsRight = r.stopAt >= 660 && r.stopAt <= 720 && r.inAt > r.stopAt;
+  // F66: lockable, a hit flares the shield, nothing gets through
+  const hp0 = L.hp, fl0 = (L.shieldFlares||[]).length;
+  damageEnemy(L, 50, L.x, L.y, true, 'bolt', 'gun');
+  r.lockable = canLockOn(L);
+  r.flares = (L.shieldFlares||[]).length > fl0;
+  r.noDamage = L.hp === hp0;
+  // F65: her reactors are not drawn - count the calls during one frame.
+  let rc = 0, drew = false; const _dr = drawReactors;
+  window.drawReactors = function(e){ if(e===L) rc++; };
+  const _ls = drawLuciShield; window.drawLuciShield = function(e){ if(e===L) drew = true; return _ls(e); };
+  try{ draw(); }catch(eD){}
+  window.drawReactors = _dr; window.drawLuciShield = _ls;
+  r.shieldDrawn = drew;
+  r.reactorsHidden = drew && rc===0;
+  const order = []; let stRoll = null, lGoneAt = -1, overAt = -1, n = 0;
+  while(n < 60*420){
+    FS.step(30); n += 30; look();
+    for(const id of ['R1','H1','F1','F2','O1','ST']) if(evSeen(id) && byId(id).length===0 && order.indexOf(id)<0) order.push(id);
+    const st = byId('ST')[0];
+    if(st && st.rollT!=null && !stRoll) stRoll = {spin: st.rspinTo, vx: st.rvx, vy: st.rvy};
+    if(lGoneAt<0 && byId('L1').length===0) lGoneAt = n;
+    if(lGoneAt>=0 && overAt<0 && (waveOver || wave>14)) overAt = n;
+    if(overAt>=0) break;
+  }
+  r.order = order.join(' ');
+  r.orionLateStationLast = order.length===6 && order[5]==='ST' && order.indexOf('O1')>=3;
+  r.stationStill = !!stRoll && stRoll.spin===0 && stRoll.vx===0 && stRoll.vy===0;
+  r.pause = ((overAt - lGoneAt)/60).toFixed(1);
+  r.pauseFive = overAt>0 && lGoneAt>0 && (overAt - lGoneAt) >= 60*4.5;
+  r.allySmall = Object.keys(small).sort().join(' ');
+  r.allyEraOk = Object.keys(small).length>0 && Object.keys(small).every(h=>['fiapollo','fivalyrie','boathena'].indexOf(h)>=0);
+  return r;`);
+
+// ── v258: F63/F70 - beam ends and hull effects stay on the hull as the view moves ──
+scenario('FS1 M14 v258: beam end and hull fire stay on the hull when the camera moves (F63, F70)', 'm=14', `
+  const r = {};
+  FS.until(()=>evSeen('E1'), 1000, false);
+  FS.until(()=>{ FS.killId('E1'); FS.killId('E2'); FS.killId('B2'); return byId('L1').length>0; }, 6000, false);
+  const L = byId('L1')[0];
+  FS.until(()=>L.beams && L.beams.some(b=>b.state==='firing'), 3000, false);
+  const b = L.beams.find(b=>b.state==='firing');
+  r.anchored = !!(b && b.anc);
+  // No models here, so nothing is drawn sunk: give every capital hull the
+  // depth a model would have, as the game does in the browser.
+  window.f3dMidZ = function(o){ return (o && (o.type==='cruiser'||o.type==='corvette'||o.type==='destroyer'||o.type==='boss'||o.type==='station')) ? -300*FIELD_K : 0; };
+  if(b && b.anc){
+    const o = b.anc.o, q = beamAncPt(b);
+    const cx0 = CAM.x, cy0 = CAM.y, ok = [];
+    for(const d of [[0,0],[900,0],[-900,400],[0,-700]]){
+      CAM.x = cx0 + d[0]; CAM.y = cy0 + d[1];
+      o._hvFc = null;
+      const qd = hullPt(o, q.x, q.y);
+      ok.push(onHullAt(o, qd.x, qd.y));
+    }
+    CAM.x = cx0; CAM.y = cy0;
+    r.endOnHull = ok.join(',');
+    r.endAlwaysOnHull = ok.every(x=>x);
+  }
+  // a blast spawned on a capital hull keeps its place on her drawing
+  const e = byId('O1')[0] || byId('ST')[0];
+  const z = f3dMidZ(e);
+  r.depth = Math.round(z);
+  const p0 = hullPt(e, e.x+40, e.y+10);
+  const h = hullFxBegin(e); spawnFireball(p0.x, p0.y, 10, 300); hullFxEnd(h);
+  const fx = (typeof FX_ANIMS!=='undefined' && FX_ANIMS.length && FX_ANIMS[FX_ANIMS.length-1].hz!=null) ? FX_ANIMS[FX_ANIMS.length-1] : PARTS[PARTS.length-1];
+  const cx0 = CAM.x, cy0 = CAM.y, off = [];
+  for(const d of [[0,0],[900,0],[-900,400]]){
+    CAM.x = cx0 + d[0]; CAM.y = cy0 + d[1]; e._hvFc = null;
+    hullFxView(true);
+    const want = hullPt(e, e.x+40, e.y+10);
+    off.push(Math.round(Math.hypot(fx.x-want.x, fx.y-want.y)));
+    hullFxView(false);
+  }
+  CAM.x = cx0; CAM.y = cy0;
+  r.blastOff = off.join(',');
+  r.blastStays = z < 0 && off.every(v=>v<=1);
+  return r;`);
+
+// ── v258: F68 - the vortex disc stands at the depth of the ship going through ──
+scenario('FS1 M14 v258: the vortex is drawn at the depth of her hull (F68)', 'm=14', `
+  const r = {}, got = [];
+  window.f3dMidZ = function(o){ return (o && o.type==='destroyer') ? -1234 : 0; };
+  window.f3dWarp = function(){ got.push(arguments[9]); return true; };
+  const e = allies.find(a=>a.type==='destroyer') || {type:'destroyer', x:500, y:500};
+  FS_PORTALS.push({e:e, px:e.x, py:e.y, fx:1, fy:0, WS:200, mW:100, t0:fc, closeT:-1});
+  drawFsPortals();
+  r.depthIn = got[0];
+  r.atHerDepth = got[0] === -1234;
+  window.f3dMidZ = function(){ return 0; };   // she is through: no model drawn any more
+  got.length = 0; drawFsPortals();
+  r.depthKept = got[0];
+  r.keptAfter = got[0] === -1234;
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

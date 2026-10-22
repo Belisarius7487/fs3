@@ -2053,9 +2053,7 @@ function mkAllySmall(kind, fac, spr, y){
 function launchAllyWing(host){
   const vas = host.faction==='vasudan';
   const wantBomber = enemies.some(isLargeShip);
-  const pool = wantBomber
-    ? ROLES[vas?'ally_vas_bombers':'ally_ter_bombers']
-    : ROLES[vas?'ally_vas_fighters':'ally_ter_fighters'];
+  const pool = allySmallPool(wantBomber, vas);   // F60/F62 (v258)
   if(!pool || !pool.length) return;
   const spr = pool[(Math.random()*pool.length)|0];
   const mid = Math.max(HUD_H+60, Math.min(MH-60, host.y));
@@ -2094,7 +2092,7 @@ const INTERCEPT_DELAY = 90;     // scramble time, so the bombers are seen first
 function sendInterceptors(host){
   const vas = host.faction==='vasudan';
   // v241 (F23): the fighters of the era, not always the FS2 ones.
-  const pool = eraPool(vas ? 'vas_fighters' : 'ter_fighters') || ROLES[vas?'ally_vas_fighters':'ally_ter_fighters'];
+  const pool = allySmallPool(false, vas);   // F60/F62 (v258)
   if(!pool || !pool.length) return;
   const spr = pool[(Math.random()*pool.length)|0];
   const mid = Math.max(HUD_H+60, Math.min(MH-60, host.y));
@@ -2265,7 +2263,8 @@ function nearestEnemy(x, y){
     if(o.dead || o.warp>0 || o.type==='asteroid') continue;
     // Eine unverwundbare Station ist Kulisse: auf sie zu halten sieht aus
     // wie ein Fehler und haelt die Geschuetze von echten Zielen ab.
-    if(o.invuln) continue;
+    // F66 (v258): except a shield that is there to be seen flaring.
+    if(o.invuln && !o.shieldShow) continue;
     // Fracht, die gescannt oder abgeholt werden soll, ist kein Ziel -
     // sonst raeumen die eigenen Verbuendeten den Auftrag weg.
     if(escortSpares(o) || playerOnly(o)) continue;
@@ -2277,6 +2276,9 @@ function nearestEnemy(x, y){
 
 function allyFire(a){
   hullTraitsOnce(a);
+  // F59 (v258): a ship of ours with dead weapons (the captured Taranis)
+  // fires nothing at all, flak included.
+  if(a.noFire) return;
   // The flak gun is its own gun on its own clock, not one of the barrels
   // taking a turn, so it fires whether or not the main guns have a target.
   flakFire(a, true);

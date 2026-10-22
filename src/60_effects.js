@@ -819,7 +819,7 @@ function nextWave(){
   plogStart();
   for(let i=0;i<allyWingWanted;i++){
     const a = mkAllySmall('fighter','terran',
-                          rnd(ROLES.ally_ter_fighters||ROLES.ter_fighters||['fiherc']),
+                          rnd(allySmallPool(false, false)),
                           MH*(0.34+0.14*i));
     if(a) allies.push(a);
   }
@@ -1055,7 +1055,7 @@ function update(){
       // their duration: their speed is scaled too.
       if(!_sp._k){ if(_sp.x!=null) _sp.x*=FIELD_K; if(_sp.y!=null) _sp.y*=FIELD_K;
                    if(_sp.crossLeft) _sp.crossLeft*=FIELD_K; if(_sp.cross) _sp.cross*=FIELD_K;
-                   if(_sp.escape) _sp.escape*=FIELD_K; _sp._k=1;
+                   if(_sp.escape) _sp.escape*=FIELD_K; if(_sp.stopX!=null) _sp.stopX*=FIELD_K; _sp._k=1;
                    // F32 (v250): spread:1 - a rock field as wide as the
                    // camera's view, not just the mission area, centred on it
                    // and kept clear of the player's start.
@@ -1138,7 +1138,7 @@ function update(){
       if(_sp.type==='allyfi' || _sp.type==='allybo'){
         const _bo = (_sp.type==='allybo');
         const _a = mkAllySmall(_bo ? 'bomber' : 'fighter', allyRace(),
-                               _sp.spr || rnd(_bo ? ROLES.ally_ter_bombers : ROLES.ally_vas_fighters), _sp.y);
+                               _sp.spr || rnd(allySmallPool(_bo, !_bo && (currentEra!=='fs1' || allyRace()==='vasudan'))), _sp.y);
         // Nobody carries a shield in subspace, ours neither (v171).
         if(_a && waveMod==='subspace'){ _a.maxSh = 0; _a.sh = 0; }
         if(_a && _sp.disguised) _a.disguised = true;
@@ -1423,8 +1423,12 @@ function update(){
         if(b.ally && (e.captureLock || e.captured)) continue;
         if(b.f && !b.ally) sndPlay('fs_hit', b.x, 1, b.y);   // FS2 impact, hit_1 (v187)
         const _hp=hullUnPt(e,b.x,b.y);    // v210: her outline under the shot
+        // F70 (v258): the flash of the hit stays on her hull as the view moves
+        const _hf=(typeof hullFxBegin==='function')?hullFxBegin(e):null;
+        try{
         laserHit(b.x,b.y,b.col);   // v209: on her model (v210: the shot is on it)
         STATS.hits++;plogHit(b);e.shotAt=true;DMG_F=b.f||null;damageEnemy(e,(b.dmg||22),_hp.x,_hp.y,!b.ally,'bolt',(b.cap||b.flak)?'capgun':(b.shard?'shard':'gun'));DMG_F=null;
+        } finally { if(_hf) hullFxEnd(_hf); }
         if(b.flak){
           flakBurst(b.x, b.y, true, b.fac, b.fmul);
           pBullets.splice(i,1); hit=true;

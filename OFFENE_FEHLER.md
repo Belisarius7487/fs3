@@ -2128,34 +2128,31 @@ schon extrem langsam. Das kann man mindestens mal verdoppeln."
 - **Behoben in v257:** die drei Theta-Frachter fahren in beiden Missionen
   doppelt so schnell (0,04 → 0,08). Prüfung: `fieldsim` „F58".
 
-### F59 — Mission 14: die Taranis schießt (v257)
+### F59 — Mission 14: die Taranis schießt (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Die Taranis sollte deaktiviert sein,
 schießt jetzt aber auf die Shivaner mit grünen Projektilen. Sie sollte
 einfach nur da stehen und nichts tun."
 
-- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
-  weitere Befunde, dann wird gebaut.
+- **Behoben in v258:** die Taranis feuert nichts mehr, auch keine Flak (`allyFire` beachtet `noFire`). Prüfung: `fieldsim` „Ribos IV“.
 
-### F60 — FS2-Jäger und -Bomber bei den Verbündeten (v257)
+### F60 — FS2-Jäger und -Bomber bei den Verbündeten (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Ich habe FS2 Ära Jäger und Bomber bei den
 Verbündeten Schiffen."
 
 - Gemeldet beim Test von Mission 14 (Tombaugh).
-- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
-  weitere Befunde, dann wird gebaut.
+- **Behoben in v258:** verbündete Jäger und Bomber kommen im FS1-Strang nur aus der FS1-Liste (`allySmallPool`), überall: Missionsstaffeln, Staffeln der Großkampfschiffe, Abfangjäger, Flügelleute.
 
-### F61 — Mission 14: der Spieler springt gleichzeitig mit der Lucifer aus (v257)
+### F61 — Mission 14: der Spieler springt gleichzeitig mit der Lucifer aus (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Der Warpout des Spielers passiert direkt
 als die Lucifer herauswarpt. Es sollten 5 Sekunden dazwischen liegen, damit
 der Schock über das Geschehene noch kurz nachhallen kann."
 
-- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
-  weitere Befunde, dann wird gebaut.
+- **Behoben in v258:** die Mission endet 6 s nach dem Aussprung der Lucifer; im Test 5,5 s zwischen ihrem Verschwinden und dem Ende.
 
-### F62 — FS1-Jäger und -Bomber, die noch nicht vorgestellt wurden (v257)
+### F62 — FS1-Jäger und -Bomber, die noch nicht vorgestellt wurden (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Es kommen auch FS1-Ära Bomber und Jäger
 vor, die zu diesem Zeitpunkt noch nicht vorgestellt wurden"
@@ -2163,9 +2160,9 @@ vor, die zu diesem Zeitpunkt noch nicht vorgestellt wurden"
 - Gemeldet beim Test von Mission 14 (Tombaugh), direkt nach F60.
 - Silvio, 22.10.2026: „Bisher nur Verbündete." Er macht noch weitere
   Testläufe.
-- Status: offen, im Code noch nicht nachgesehen.
+- **Behoben in v258:** nur Rümpfe, die in den FS1-Originalen bis zu dieser Mission auf unserer Seite fliegen (`FS1_ALLY_INTRO`, aus den Missionsdateien gelesen): bis Original 10 Apollo, Valkyrie, Athena (Anubis, Seth bei den Vasudanern). In Mission 14 fliegen die Verbündeten Valkyries statt Hercules.
 
-### F63 — Beam-Treffer wandern mit dem Blickwinkel des Spielers (v257)
+### F63 — Beam-Treffer wandern mit dem Blickwinkel des Spielers (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Wir nutzen ja 2,5D für unser Spiel und
 wenn ich mich bewege, verschieben sich die Beam-Treffer ausgehend von meinem
@@ -2181,30 +2178,28 @@ mich auf dem Spielfeld befinde."
   verrutscht der Beamstrahl sogar vom getroffenen Rumpf weg ins Freie und
   das ‚getroffene' Schiff nimmt dann trotzdem noch Schaden, obwohl der Beam
   sichtbar ins Nirgendwo schießt."
-- Status: offen, im Code noch nicht nachgesehen.
+- **Behoben in v258:** ein Beam merkt sich die Stelle, an der er ihren Rumpf zuerst trifft, in ihrem eigenen Bezug (`beamAnchor`). Er wird bis zu dieser Stelle gezeichnet, wie die Kamera sie gerade zeigt, und macht nur dort Schaden; ist das Ziel weg, hört er auf. Prüfung: `fieldsim` „F63, F70“ (mit simulierter Rumpftiefe, weil die Cloud keine Modelle hat).
 
-### F64 — Mission 14: die Lucifer kommt der Taranis zu nah (v257)
+### F64 — Mission 14: die Lucifer kommt der Taranis zu nah (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Die Lucifer fliegt zu nah an die Taranis
 heran, sodass sie sie teilweise eigentlich gar nicht treffen können dürfte.
 Lass sie einfach etwas weiter rechts hereinwarpen und langsam zum Stehen
 kommen."
 
-- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
-  weitere Befunde, dann wird gebaut.
+- **Behoben in v258:** die Lucifer springt bei x 790 ein und kommt bei 690 langsam zum Stehen (`stopX`); Zielreihenfolge im Test weiter richtig.
 - Beim Bau beachten: Die Turmreichweite der Lucifer hängt an ihrer Lage.
   Die Reihenfolge ihrer Ziele (Orion vorletzte, Station letzte) muss danach
   im Test wieder stimmen.
 
-### F65 — Mission 14: die Reaktoren der Lucifer werden angezeigt (v257)
+### F65 — Mission 14: die Reaktoren der Lucifer werden angezeigt (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Es ist unnötig die Reaktoren der Lucifer
 anzeigen zu lassen."
 
-- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
-  weitere Befunde, dann wird gebaut.
+- **Behoben in v258:** hinter einem unverwundbaren Schild werden die Reaktoren nicht mehr gezeichnet.
 
-### F66 — Mission 14: die Lucifer soll treffbar sein, mit Schildeffekt (v257)
+### F66 — Mission 14: die Lucifer soll treffbar sein, mit Schildeffekt (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Außerdem sollte die Lucifer vom Spieler
 und den verbündeten Schiffen getroffen werden können, damit man den coolen
@@ -2213,17 +2208,17 @@ Schildeffekt sieht, den sie eigentlich hat."
 - Silvio, 22.10.2026, bestätigt: „Sie sollen nur den Schild aufflackern
   lassen. Durchgehen tun sie nicht." Also: Treffer lassen den Schild
   aufflackern, Schaden nimmt sie keinen.
-- Status: offen, im Code noch nicht nachgesehen.
+- **Behoben in v258:** die Lucifer (`shieldShow`) ist erfassbar, Spieler und Verbündete schießen auf sie, jeder Treffer lässt den Schild aufflackern, Schaden nimmt sie keinen.
 
-### F67 — Eine Station trudelt, wenn sie explodiert (v257)
+### F67 — Eine Station trudelt, wenn sie explodiert (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Es macht übrigens keinen Sinn, dass eine
 Station anfängt zu trudeln, wenn sie explodiert."
 
 - Gesehen in Mission 14 (Tombaugh). Gilt für Stationen allgemein.
-- Status: offen, im Code noch nicht nachgesehen.
+- **Behoben in v258:** eine Station (auch eine verbündete, Klasse Zerstörer) dreht und treibt beim Zerbrechen nicht mehr.
 
-### F68 — Ein Schiff ist beim Aussprung noch hinter dem Wirbel zu sehen (v257)
+### F68 — Ein Schiff ist beim Aussprung noch hinter dem Wirbel zu sehen (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Wenn die Lucifer in ihren Warpstrudel
 fliegt, kann ich sie links davon immer noch sehen als würde sie erst hinter
@@ -2240,18 +2235,18 @@ und Warpout auf."
   Kante her gesehen als senkrechte helle Linie mit blauem Schleier rechts
   davon. Der Bug der Lucifer ragt links aus dem Wirbel heraus und ist voll
   gezeichnet, obwohl er schon durch den Wirbel hindurch ist.
-- Status: offen, im Code noch nicht nachgesehen.
+- **Behoben in v258:** Ursache gefunden: das Schiffsmodell liegt unter der Spielebene versenkt, der Wirbel wurde aber in der Ebene gezeichnet. Von der Seite gesehen lag der Schnitt am Rumpf deshalb woanders als die Scheibe. Der Wirbel steht jetzt in der Tiefe des Schiffs (`f3dWarp` mit `pz`). Im Browser ansehen, die Cloud kann WebGL nicht zeigen.
 
-### F69 — Mission 14: neuer Name und ein Planet hinter der Station (Wunsch, v257)
+### F69 — Mission 14: neuer Name und ein Planet hinter der Station (Wunsch, v257) — behoben in v258
 
 **Wunsch (Silvio, 22.10.2026):** „Nenne die Mission ‚Rain on Ribos IV' und
 bau hinter der Station noch einen Planeten ein. Eine Fan-Kampagne hatte
 diese Mission aufgegriffen und aufgrund der herabstürzenden Stationstrümmer
 auf Ribos 4 so genannt."
 
-- Status: offen, wird mit F59 bis F68 gebaut.
+- **Behoben in v258:** Mission 14 heißt „Rain on Ribos IV“; ein großer Planet steht hinter der Station (`planet:` an der Mission, `placePlanet`).
 
-### F70 — Schadenseffekte wandern mit dem Blickwinkel (v257)
+### F70 — Schadenseffekte wandern mit dem Blickwinkel (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Ich stelle gerade bei genauerem Hinsehen
 auch fest, dass Schadenseffekte wie der austretende Dampf oder Rauch aus
@@ -2259,23 +2254,23 @@ Hüllenbrüchen je nach Blickwinkel wandern."
 
 - Vermutung (nicht nachgeprüft): dieselbe Ursache wie F63 (Beam-Treffer
   wandern mit dem Blickwinkel). Beim Bau zusammen ansehen.
-- Status: offen, im Code noch nicht nachgesehen.
+- **Behoben in v258:** Rauch, Dampf, Flammen und Trefferfeuer an einem Großkampfschiff liegen jetzt in ihrer Tiefe und werden jedes Bild durch die aktuelle Kamera gezeichnet (`hullFxBegin`/`hullFxEnd`/`hullFxView`). Gilt für Lecks, Todesrollen, Beam- und Geschosstreffer.
 
-### F71 — Das Avenger-Geschoss ist blau-weiß statt orange-weiß (v257)
+### F71 — Das Avenger-Geschoss ist blau-weiß statt orange-weiß (v257) — behoben in v258
 
 **Befund (Silvio, 22.10.2026):** „Das Projektil der Avenger sollte
 Orange/weiß sein, nicht blau/weiß."
 
-- Status: offen, im Code noch nicht nachgesehen.
+- **Behoben in v258:** Avenger-Geschoss orange-weiß.
 
-### F72 — Mission 14: mit zwei Avenger starten (Wunsch, v257)
+### F72 — Mission 14: mit zwei Avenger starten (Wunsch, v257) — behoben in v258
 
 **Wunsch (Silvio, 22.10.2026):** „In dieser Mission sollte man, wenn es die
 Waffenkompatibilität der Valkyrie zulässt, mit zwei Avengers starten."
 
 - Vor dem Bau prüfen: darf die Valkyrie in beiden Primärbänken die Avenger
   tragen, und ist die Avenger zu diesem Zeitpunkt (orig 10) schon frei?
-- Status: offen.
+- **Behoben in v258:** Mission 14 startet mit zwei Avenger (die Valkyrie darf sie laut FS1-Tabelle tragen, frei ab Original 8).
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
@@ -2479,6 +2474,10 @@ Mit dem schnelleren `warpsim` erstmals gesehen, auf v249 und v250 dieselben:
 - M3: die Omega steht nach dem Einsprung still, bevor sie anfährt.
 - M14 (v257): ebenso der Transporter Ptolemy nach dem Einsprung, bevor er
   zum Andocken anfährt. Dieselbe Art wie bei der Omega, nicht neu.
+- M14 (v258): die verbündeten Jäger (Valkyrie, Apollo) bremsen im Moment
+  des Aussprungs am Missionsende — dieselbe Art wie W1 in M1 bis M3. In
+  v257 sah `warpsim` das nicht, weil die Welle dort in seinem Lauf nicht
+  endete.
 - M4: Comet und Intelligence 1 stehen nach dem Einsprung still, bevor sie
   zum Andocken anfahren; dazu „wave did not end" (die Prüfung schießt die
   Subsysteme anders ab als ein Spieler — noch nicht untersucht).

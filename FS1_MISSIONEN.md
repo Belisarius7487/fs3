@@ -327,9 +327,11 @@ auf die Station Tombaugh nur. Silvio, 22.10.2026. Ersetzt die alte
 Mission 14; die Hammer-of-Light-Flotte beginnt seitdem bei 15.
 
 - Start: Station Tombaugh, die gekaperte Taranis, die Halkins (der Chronos-
-  Frachter, der sie geschleppt hat), zwei Faustus, 6 verbündete Hercules.
-  Der Spieler fliegt die Valkyrie. Der Transporter GTT Ptolemy springt ein
-  und dockt an der Taranis.
+  Frachter, der sie geschleppt hat), zwei Faustus, 6 verbündete Jäger.
+  Der Spieler fliegt die Valkyrie mit zwei Avenger (v258). Die
+  verbündeten Jäger sind Valkyries (v258: Hercules erst ab Original 15).
+  Der Transporter GTT Ptolemy springt ein und dockt an der Taranis. Hinter
+  der Station steht Ribos IV (v258).
 - Nach 5 s 4 shivanische Jäger; tot oder nach 30 s 4 Jäger und 2 Bomber.
 - Tot oder nach 30 s: der Transporter dockt ab und flieht nach links, im
   selben Moment springt die Lucifer ein (unverwundbar). 15 s später springt
@@ -337,8 +339,10 @@ Mission 14; die Hammer-of-Light-Flotte beginnt seitdem bei 15.
 - 10 s nach der Lucifer die Orion.
 - Keine geskripteten Tode (Silvio): die Lucifer feuert ihre Beams der Reihe
   nach auf Taranis, Halkins, Faustus 1 und 2, Orion als vorletzte, Station
-  als letzte. Sind alle sechs zerstört, springt sie aus und die Mission
-  endet — auch wenn der Transporter verloren ist.
+  als letzte. Sie springt weiter rechts ein und kommt langsam zum Stehen,
+  ihr Schild flackert bei Treffern (v258). Sind alle sechs zerstört,
+  springt sie aus; 6 s später endet die Mission — auch wenn der
+  Transporter verloren ist.
 - Ziel: der Transporter entkommt.
 - Im Test etwa 3,5 Minuten Lucifer-Angriff, die ganze Mission etwa 4,5.
 - Die Station ist das Arcadia-Modell: die FS1-Station Polaris gibt es im

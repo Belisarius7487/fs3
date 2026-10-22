@@ -104,6 +104,22 @@ function eraPool(name){
   const p = ERA_POOLS[currentEra];
   return (p && p[name]) ? p[name] : null;
 }
+// F60/F62 (v258): the first original FS1 mission in which each small craft
+// flies on our side (read from the fs1/ mission files, training left out).
+// Before it, our wings do not fly her.
+const FS1_ALLY_INTRO = {fiapollo:1, fivalyrie:4, fianubis:8, fiseth:8, boathena:10,
+                        bomedusa:13, fiherc:15, fiulysses:17, fihorus:21, fitoth:21, boursa:26};
+// Our fighters or bombers: in the FS1 strand only hulls of the era that
+// have been introduced by this mission; otherwise the pool as before.
+function allySmallPool(bomber, vas){
+  const old = ROLES[(vas ? 'ally_vas_' : 'ally_ter_') + (bomber ? 'bombers' : 'fighters')];
+  if(currentEra !== 'fs1' || !missionOrig) return old;
+  const era = eraPool((vas ? 'vas_' : 'ter_') + (bomber ? 'bombers' : 'fighters')) || [];
+  const ok = era.filter(function(k){ return FS1_ALLY_INTRO[k] && FS1_ALLY_INTRO[k] <= missionOrig; });
+  if(ok.length) return ok;
+  // A role nobody of ours flies yet: the Terran first of that role.
+  return bomber ? ['boathena'] : ['fiapollo'];
+}
 // True while the fleet has not been given shields yet.
 function eraShieldsOff(){
   const w = eraRule('shieldWave');
@@ -1418,6 +1434,11 @@ function applySpawnOpts(e, sp){
   // A stationary ship placed with x stays at x. Without this the station
   // drive takes it to the class's usual spot at the right.
   if(sp.still && sp.x!=null && !sp.capRam) e.targetX = sp.x;
+  // stopX (v258, F64): she jumps in at x and slows to a stop here.
+  if(sp.stopX!=null) e.targetX = sp.stopX;
+  // shieldShow (v258, F66): untouchable, but she may be locked and fired
+  // on - every hit makes her shield flare and none gets through.
+  if(sp.shieldShow) e.shieldShow = true;
   if(sp.noFlak) e.noFlak = true;
   // Holds fire: scenery that is there to be seen, not fought (M69).
   if(sp.noFire) e.noFire = true;
@@ -2772,14 +2793,15 @@ const SCRIPT_WAVES = {
   // and last the station; then she jumps out and the mission ends. The
   // transport getting away is the goal, but the mission runs on until the
   // Lucifer is done either way. Nothing is killed by script.
-  14:{name:'Tombaugh', era:'fs1', orig:10, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
+  14:{name:'Rain on Ribos IV', era:'fs1', orig:10, ship:'fivalyrie', pri:['avenger','avenger'], fac:'hol', o:'clear', live:6,
+      planet:{x:200, y:190, w:400},
       ziel:'Cover the transport until she gets away', u:[
        {id:'ST', c:'in', n:1, spr:'inarcadia', ally:'ter_tombaugh', side:'ally', x:200, y:150, still:true, noWarp:true},
        {id:'R1', c:'cr', n:1, spr:'crcain', ally:'ter_taranis', side:'ally', x:450, y:300, still:true, noWarp:true},
        {id:'H1', c:'cr', n:1, spr:'frchronos', ally:'ter_halkins', side:'ally', x:360, y:400, still:true, noWarp:true},
        {id:'F1', c:'cr', n:1, spr:'scfaustus', side:'ally', x:390, y:130, still:true, noWarp:true},
        {id:'F2', c:'cr', n:1, spr:'scfaustus', side:'ally', x:240, y:440, still:true, noWarp:true},
-       {id:'A1', c:'fi', n:2, size:3, spr:'fiherc', side:'ally'},
+       {id:'A1', c:'fi', n:2, size:3, spr:'fivalyrie', side:'ally'},
        {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:300, y:300, warpIn:true, wait:true,
         dockTo:'R1', dockStay:true, cross:-0.45, mark:'protect', label:'GTT Ptolemy'},
        {id:'E1', c:'fi', n:1, size:4, fac:'shivan', wait:true},
@@ -2787,7 +2809,9 @@ const SCRIPT_WAVES = {
        {id:'B2', c:'bo', n:1, size:2, fac:'shivan', wait:true},
        // Her beams go down this list in order (beamFocus): Orion last but
        // one, the station last.
-       {id:'L1', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, x:730, y:280, wait:true,
+       // F64 (v258): she jumps in further right and slows to a stop at stopX.
+       // F66: hits on her only make her shield flare (shieldShow).
+       {id:'L1', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, shieldShow:true, x:790, stopX:690, y:280, wait:true,
         beamFocus:'R1>H1>F1>F2>O1>ST', beamMul:15},
        {id:'O1', c:'de', n:1, spr:'deorionright', side:'ally', x:140, y:320, still:true, wait:true}
      ], ev:[
@@ -2810,7 +2834,9 @@ const SCRIPT_WAVES = {
        // The end: everything she came for is gone. Her jump first - the
        // withdrawal closes every later event and leaves the invulnerable alone.
        {t:'alleZerstoert', a:'R1+H1+F1+F2+O1+ST', w:'raus', a2:'L1'},
-       {t:'alleZerstoert', a:'R1+H1+F1+F2+O1+ST', w:'abzug', a2:'', hold:true}
+       // F61 (v258): five seconds of silence after she is gone (her own jump
+       // takes about one) before the player jumps out.
+       {t:'alleZerstoert', a:'R1+H1+F1+F2+O1+ST', d:6, w:'abzug', a2:'', hold:true}
      ]},
 
   15:{name:'The Supply Depot', fac:'hol', o:'clear', live:4, stillRocks:true, u:[
@@ -4822,8 +4848,8 @@ function scriptUnit(u, fac, q){
         // Eine Staffel fliegt einen Rumpf. Der Wurf gehoert hierher und
         // nicht in mkEnemy, sonst bekommt jedes Schiff einen eigenen.
         const pool = ally
-          ? (u.c==='bo' ? ROLES.ally_ter_bombers
-                        : (allyRace()==='vasudan' ? ROLES.ally_vas_fighters : ROLES.ally_ter_fighters))
+          ? (u.c==='bo' ? allySmallPool(true, false)
+                        : allySmallPool(false, allyRace()==='vasudan'))
           : poolFor(ty);
         const hull = u.spr || (pool ? rnd(pool) : '');
         if(!ally) sz += wingExtra(hull);
@@ -4870,7 +4896,7 @@ function scriptUnit(u, fac, q){
          invuln:u.invuln, still:u.still, fixY:(u.y!=null), noFlee:true, noFire:u.noFire,
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
          gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
-         noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, beamMul:u.beamMul,
+         noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, beamMul:u.beamMul, stopX:u.stopX, shieldShow:u.shieldShow,
          ghost:u.ghost, crossAfter:u.crossAfter, portalMid:u.portalMid});
     return;
   }
@@ -4990,6 +5016,7 @@ function buildScripted(def){
     if(missionSec(gk, true)) notice(secDefP(gk).name.toUpperCase()+' FITTED', 'info');
   }
   if(def.scene) useScene(def.scene);
+  if(def.planet) placePlanet(def.planet);     // F69 (v258)
   // Ein stehendes Feld wird gesetzt, nicht gespeist. Sonst sammeln sich
   // unbewegliche Brocken ausserhalb des rechten Randes.
   // noRocks: a crossing without the belt feeding rocks into it.

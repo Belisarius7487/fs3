@@ -530,6 +530,13 @@ function fsPortalMoving(p){
   const e = p.e;
   return ((e._fvx||0)*p.fx + (e._fvy||0)*p.fy) > 0.05;
 }
+// F68 (v258): the depth of the ship a portal belongs to, kept once she is
+// through (her model is no longer drawn then), so the disc does not move.
+function portalZ(p){
+  const z = (typeof f3dMidZ === 'function' && p.e) ? f3dMidZ(p.e) : 0;
+  if(z) p.wz = z;
+  return p.wz || 0;
+}
 // only: which portals to draw this call (each ship's own just before her,
 // v177); without it, all of them.
 function drawFsPortals(only){
@@ -545,7 +552,7 @@ function drawFsPortals(only){
     // v208: the MediaVPs' warp model in 3D (f3dWarp); the picture of
     // before where there is no 3D
     if(WARP_STYLE==='oval' && typeof f3dWarp === 'function' &&
-       f3dWarp(p.px, p.py, p.fx, p.fy, p.WS, wS, Math.min(1, wS*1.4), warpSeed(p.e), !!p.e.portalWarp)) continue;
+       f3dWarp(p.px, p.py, p.fx, p.fy, p.WS, wS, Math.min(1, wS*1.4), warpSeed(p.e), !!p.e.portalWarp, portalZ(p))) continue;
     ctx.save();
     ctx.globalAlpha = Math.min(1, wS*1.4);
     ctx.translate(p.px|0, p.py|0);
@@ -1058,6 +1065,21 @@ function makeBody(kind){
     y: HUD_H - w*0.25 + Math.random()*(H-HUD_H+w*0.5),
     spd: BODY_SPD_MIN + (w/SUN_W_MAX)*(BODY_SPD_MAX-BODY_SPD_MIN)
   };
+}
+
+// A planet a mission asks for (F69, v258: Ribos IV behind Tombaugh),
+// standing in place of the rolled ones. p: {x, y, w} on the screen of the
+// overview, x and y her middle.
+function placePlanet(p){
+  const all = Object.keys(PLANET_DATA);
+  if(!all.length || !p) return;
+  const had = bodies.filter(function(b){ return b.kind==='planet'; })[0];
+  const key = (p.key && PLANET_DATA[p.key]) ? p.key : (had ? had.key : all[(Math.random()*all.length)|0]);
+  const w = p.w || PLANET_W_MAX;
+  bodies = bodies.filter(function(b){ return b.kind!=='planet'; });
+  bodies.push({key:key, kind:'planet', meta:PLANET_DATA[key], w:w, x:p.x, y:p.y,
+               spd: BODY_SPD_MIN + (Math.min(w, SUN_W_MAX)/SUN_W_MAX)*(BODY_SPD_MAX-BODY_SPD_MIN)});
+  bodies.sort(function(a,b){ return a.w-b.w; });
 }
 
 // A place that comes back within a run keeps its sky: the same backdrop,
@@ -2084,6 +2106,11 @@ function dmgEmit(e){
   D.svx = svx; D.svy = svy;        // what a death roll starts from (v183)
   if(e.dead || e.warp > 0 || e.warpOut > 0 || !IMGS[e.img]) return;
   if(!D.gashes.length && !D.craters.length) return;
+  // F70 (v258): what leaks from her stays on her as the view moves
+  const _hf = (typeof hullFxBegin === 'function') ? hullFxBegin(e) : null;
+  try{ dmgEmitAt(e, D, svx, svy); } finally { if(_hf) hullFxEnd(_hf); }
+}
+function dmgEmitAt(e, D, svx, svy){
   const f = Math.max(0, e.hp/e.maxHp), t = fc/TICK_HZ;
   const h = IMGS[e.img].height*e.sc;
   const fl = e.flip ? -1 : 1, ca = Math.cos(e.ang||0), sa = Math.sin(e.ang||0);
@@ -2209,8 +2236,12 @@ function startDeathRoll(e){
   e.hp = 1; e.noFire = true; e.noTarget = true;
   // what she was doing when she died is what she keeps doing
   e.rvx = e._vx || 0; e.rvy = e._vy || 0;
+  // F67 (v258): an installation does not turn or drift as it breaks up -
+  // also one of ours, which is a destroyer by class (Tombaugh).
+  const fixed = e.type==='station' || e.stay || (typeof hullClass==='function' && hullClass(e.img)==='in');
+  if(fixed){ e.rvx = 0; e.rvy = 0; }
   // only a slight turn: she is out of control, not tumbling (Silvio)
-  e.rspin = 0; e.rspinTo = (e.type==='station' ? 0 : (0.0002 + Math.random()*0.0003)) * (Math.random()<0.5 ? -1 : 1);
+  e.rspin = 0; e.rspinTo = (fixed ? 0 : (0.0002 + Math.random()*0.0003)) * (Math.random()<0.5 ? -1 : 1);
   e.rNext = 0;
   const img = IMGS[e.img];
   addDanger(e.x, e.y, img.width*e.sc*0.6, len + 60);
@@ -2227,6 +2258,8 @@ function deathRollTick(e){
   e.rspin += (e.rspinTo - e.rspin)*0.01;
   e.x += e.rvx; e.y += e.rvy; e.ang = (e.ang||0) + e.rspin;
   e.hp = 1; e.noFire = true;
+  // F70 (v258): her blasts and tears stay on her as the view moves
+  const _hf = (typeof hullFxBegin === 'function') ? hullFxBegin(e) : null;
   // the chain of explosions: further apart at first, then one on another
   if(fc >= e.rNext){
     let u = 0, v = 0;
@@ -2245,6 +2278,7 @@ function deathRollTick(e){
     if(g){ g.thr = -1; g.vent = true; g.jetP = 2 + 2*Math.random(); D.gashes.push(g); D.dirty = true;
       const p = dmgWorld(e, g.u, g.v); spawnFireball(p.x, p.y, Math.max(8, g.L*h*0.8), 16); }
   }
+  if(_hf) hullFxEnd(_hf);
   if(--e.rollT > 0) return false;
   e.rollT = null; e.rolled = true;
   return true;

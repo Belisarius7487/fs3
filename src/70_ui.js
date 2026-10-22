@@ -182,8 +182,11 @@ function draw(){
       drawJumpVortex();
     }
   }catch(ep2){ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}
+  // F63/F70 (v258): hull-bound effects drawn at her depth (hullFxView)
+  if(typeof hullFxView==='function') hullFxView(true);
   try{drawParts();}catch(ep){}
   try{ if(typeof drawFxAnims==='function') drawFxAnims(); }catch(ef){ ctx.restore(); }   // v216: FS explosions
+  if(typeof hullFxView==='function') hullFxView(false);
   // Fadenkreuz an Mausposition (v208: on the screen, where the pointer is)
   camScreen();
   const mx=(MOUSE.scr?MOUSE.sx:w2sX(MOUSE.x))|0,my=(MOUSE.scr?MOUSE.sy:w2sY(MOUSE.y))|0;
@@ -552,7 +555,9 @@ function drawShipTop(e){
     }}
   ctx.globalAlpha=1;
   if(e.rollT!=null){ /* dying: nothing on her any more */ }
-  else if(e.bShield>0){ drawLuciShield(e); drawReactors(e); }
+  // F65 (v258): behind a shield nothing gets through, so her reactors
+  // are no target and are not shown.
+  else if(e.bShield>0){ drawLuciShield(e); if(!e.invuln) drawReactors(e); }
   // In subspace the Lucifer has no shield, only her reactors (v170).
   else if(e.reactorOnly) drawReactors(e);
   // Our own ships carry no subsystem marks: the enemy does not aim at
@@ -4406,6 +4411,13 @@ function drawVortexOf(e){
   // Her arrival portal (FreeSpace style), still open or closing.
   try{ drawFsPortals(function(p){ return p.e===e; }); }catch(ep){ ctx.restore(); ctx.globalAlpha=1; }
 }
+// F68 (v258): the depth of a ship jumping out, kept for the last frames of
+// her jump when her model may no longer be drawn.
+function warpOutZ(e){
+  const z = (typeof f3dMidZ === 'function') ? f3dMidZ(e) : 0;
+  if(z) e._wz = z;
+  return e._wz || 0;
+}
 function drawOwnVortex(e){
   if(e.warp>0 || e.warpOut>0){
     // FreeSpace style: the vortex stands across the flight path.
@@ -4431,7 +4443,7 @@ function drawOwnVortex(e){
         const mx = -fg.fx, my = -fg.fy;      // going out: the mouth looks back at her
         // v208: the warp model in 3D, the old picture without 3D
         if(WARP_STYLE==='oval' && typeof f3dWarp === 'function' &&
-           f3dWarp(fg.px, fg.py, mx, my, WSf, fg.wS, fg.wA, warpSeed(e), warpTurquoise(e))) return;
+           f3dWarp(fg.px, fg.py, mx, my, WSf, fg.wS, fg.wA, warpSeed(e), warpTurquoise(e), warpOutZ(e))) return;
         ctx.save();
         ctx.globalAlpha = fg.wA;
         ctx.translate(fg.px|0, fg.py|0);

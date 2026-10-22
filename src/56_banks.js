@@ -80,7 +80,8 @@ const ARSENAL_P = [
    col:'#d6a2ff', glow:'rgba(200,140,255,0.32)', note:'shields and subsystems only - no hull damage'},
   {key:'avenger', name:'Avenger', era:'fs1', fs1:{p:8, c:2}, snd:'L_avenge',
    fs:{d:16, v:525, w:0.25, l:1.9, e:0.3, a:1.25, s:0.85, u:0.35},
-   col:'#a6dcff', glow:'rgba(120,200,255,0.32)', note:'the fleet gun, good against everything'},
+   // F71 (v258, Silvio): orange-white, not blue-white.
+   col:'#ffd6a8', glow:'rgba(255,140,50,0.38)', note:'the fleet gun, good against everything'},
   {key:'prom1', name:'Prometheus', era:'fs1', fs1:{p:16, c:17}, snd:'L_flux',
    fs:{d:20, v:450, w:0.3, l:2.0, e:0.4, a:1.3, s:0.7, u:0.35},
    col:'#ccff88', glow:'rgba(180,255,80,0.30)', note:'hard on hulls'},
@@ -488,6 +489,13 @@ function missionSec(key, last){
 // D-Advanced in Shieldbreaker, Silvio), whether it is out yet or not.
 function missionPri(key){
   if(!player.pb || !player.pb.length || !key) return false;
+  // F72 (v258): a list fits one gun per bank, as far as there are banks
+  // (two Avengers in Rain on Ribos IV).
+  if(Array.isArray(key)){
+    for(let i=0;i<key.length && i<player.pb.length;i++) player.pb[i] = {key:key[i], t:0};
+    syncLegacyWeapons();
+    return true;
+  }
   player.pb[0] = {key:key, t:0};
   syncLegacyWeapons();
   return true;

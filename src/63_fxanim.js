@@ -93,7 +93,8 @@ function fxFire(k, x, y, d, dur, a){
     if(wi < 0 || FX_ANIMS[wi].d > d) return;
     FX_ANIMS.splice(wi, 1);
   }
-  FX_ANIMS.push({k: k, x: x, y: y, d: d, t0: fc, dur: Math.max(4, dur|0), rot: Math.random()*Math.PI*2, a: (a == null ? 1 : a)});
+  FX_ANIMS.push({k: k, x: x, y: y, d: d, t0: fc, dur: Math.max(4, dur|0), rot: Math.random()*Math.PI*2, a: (a == null ? 1 : a),
+                 _hfx: (typeof HULLFX !== 'undefined') ? HULLFX : null});   // F70 (v258)
 }
 // the flash of B: a white-hot glow that swells fast and dies away
 function fxFlash(x, y, r, dur){
