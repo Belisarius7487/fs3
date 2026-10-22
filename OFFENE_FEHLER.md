@@ -2128,6 +2128,15 @@ schon extrem langsam. Das kann man mindestens mal verdoppeln."
 - **Behoben in v257:** die drei Theta-Frachter fahren in beiden Missionen
   doppelt so schnell (0,04 → 0,08). Prüfung: `fieldsim` „F58".
 
+### F59 — Mission 14: die Taranis schießt (v257)
+
+**Befund (Silvio, 22.10.2026):** „Die Taranis sollte deaktiviert sein,
+schießt jetzt aber auf die Shivaner mit grünen Projektilen. Sie sollte
+einfach nur da stehen und nichts tun."
+
+- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
+  weitere Befunde, dann wird gebaut.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
