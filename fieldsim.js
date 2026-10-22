@@ -5055,6 +5055,62 @@ for(const m of [9, 10]) scenario('FS1 M' + m + ' v257: the Theta freighters move
   r.doubled = !!t && t.crossing >= 0.08 * FIELD_K - 1e-9;
   return r;`);
 
+// ── v257: FS1 M14 Tombaugh - the Lucifer ambush (Silvio, 22.10.2026) ────
+scenario('FS1 M14 v257 Tombaugh: dock, two waves, Lucifer takes all six, jumps out, the end', 'm=14', `
+  const r = {}, order = [], born = {};
+  const big = ['R1','H1','F1','F2','O1','ST'];
+  FS.step(200);
+  r.allThere = ['R1','H1','F1','F2','ST'].every(id=>byId(id).length===1);
+  FS.until(()=>!!EV_DOCK.T1, 3000, false);
+  r.docked = !!EV_DOCK.T1;
+  FS.step(120);
+  r.stillDocked = byId('T1').length===1 && !(byId('T1')[0].crossing);
+  FS.until(()=>evSeen('E1'), 1000, false);
+  FS.killId('E1'); FS.step(60);
+  FS.until(()=>evSeen('E2') && byId('E2').some(e=>!(e.warp>0)), 2500, false);
+  r.wave2 = byId('E2').length>0;
+  FS.until(()=>evSeen('B2'), 600, false);
+  FS.killId('E2'); FS.killId('B2');
+  FS.until(()=>byId('L1').length>0, 600, false);
+  FS.step(30);
+  r.lucifer = byId('L1').length===1;
+  const t = byId('T1')[0];
+  r.castOff = !!t && t.crossing < 0;
+  const t0 = runTime;
+  let n = 0;
+  while(n < 60*360 && (byId('L1').length>0 || wave<=14)){
+    FS.step(60); n += 60;
+    for(const id of big) if(evSeen(id) && byId(id).length===0 && order.indexOf(id)<0) order.push(id);
+    if(byId('L1').length===0 && order.length===6) break;
+  }
+  r.order = order.join(' ');
+  r.seconds = Math.round(n/60);
+  r.allSix = order.length===6;
+  r.orionLateStationLast = order[order.length-1]==='ST' && order.indexOf('O1')>=3;
+  r.luciferGone = byId('L1').length===0;
+  r.transportOut = !!EV_LEFT.T1;
+  FS.step(600);
+  r.missionOver = wave>14 || GS!=='playing' || waveOver;
+  return r;`);
+
+scenario('FS1 M14 v257 Tombaugh: transport lost - goal failed, still ends; Shivan reinforcements', 'm=14', `
+  const r = {}, hulls = {};
+  FS.until(()=>!!EV_DOCK.T1, 3000, false);
+  for(const a of allies) if(a.uid==='T1') a.hp = 0;
+  FS.step(60);
+  r.transportDead = byId('T1').length===0;
+  let n = 0;
+  while(n < 60*480 && wave<=14 && !waveOver){
+    FS.step(60); n += 60;
+    for(const e of enemies) if(e.type==='fighter'||e.type==='bomber') hulls[e.img] = 1;
+  }
+  r.hulls = Object.keys(hulls).sort().join(' ');
+  // FS1 Shivan small craft only - no Vasudan hulls of the Hammer of Light.
+  r.onlyShivan = Object.keys(hulls).length>0 && Object.keys(hulls).every(h=>/^(fi|bo)(basilisk|manticore|scorpion|dragon|shaitan|nahema|seraphim|cain)/.test(h));
+  r.seconds = Math.round(n/60);
+  r.ends = wave>14 || waveOver;
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

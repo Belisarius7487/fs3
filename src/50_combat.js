@@ -1632,9 +1632,12 @@ function pickBeamTarget(e, b){
   if(!list.length) return null;
   // beamFocus: the ship her guns are here for, while it is there (M77).
   const mp = mountPos(e, b);
+  // v257 (Tombaugh): an ordered list 'R1>H1>O1' - the first one still
+  // there that this turret can reach.
   if(e.beamFocus){
-    const f = byId(e.beamFocus)[0];
-    if(f && list.indexOf(f) >= 0 && beamCanAim(e, b, mp, f)) return f;
+    for(const id of String(e.beamFocus).split('>'))
+      for(const f of byId(id))
+        if(list.indexOf(f) >= 0 && beamCanAim(e, b, mp, f)) return f;
   }
   let best=null, bd=Infinity;
   for(const o of list){
@@ -1982,6 +1985,7 @@ const SATH_ARMS = 2;              // the two mounted furthest forward
 function beamDmg(e, b){
   let d = b.dmg;
   if(e.img===LUCI_HULL && !(e.bShield>0)) d *= LUCI_BEAM_UNSHIELDED;
+  if(e.beamMul) d *= e.beamMul;
   return d;
 }
 const LUCI_REACTORS = 5;

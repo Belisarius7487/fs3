@@ -2328,6 +2328,8 @@ Anlegen veraltet.
 Mit dem schnelleren `warpsim` erstmals gesehen, auf v249 und v250 dieselben:
 - M1, M2, M3: der Flügelmann W1 bremst im Moment des Aussprungs ab.
 - M3: die Omega steht nach dem Einsprung still, bevor sie anfährt.
+- M14 (v257): ebenso der Transporter Ptolemy nach dem Einsprung, bevor er
+  zum Andocken anfährt. Dieselbe Art wie bei der Omega, nicht neu.
 - M4: Comet und Intelligence 1 stehen nach dem Einsprung still, bevor sie
   zum Andocken anfahren; dazu „wave did not end" (die Prüfung schießt die
   Subsysteme anders ab als ein Spieler — noch nicht untersucht).

@@ -1791,6 +1791,14 @@ const ALLY_DEFS = {
   // cannot call reinforcements, and answer with subspace bombs (v169).
   ter_setekh:     {cls:'cruiser',   fac:'terran',  spr:'casetekh',     label:'GTA Setekh',
                    jammer:true, hullMul:0.75},
+  // Mission use only (FS1 M14, Tombaugh, v257): the captured Taranis, her
+  // weapons dead; the Halkins that towed her (a freighter, cruiser class so
+  // the Lucifer's heavy beams take her); the station itself, which stays
+  // put and does not jump at the end of the wave.
+  ter_taranis:    {cls:'cruiser',   fac:'terran',  spr:'crcain',       label:'SC Taranis', noFire:true},
+  ter_halkins:    {cls:'cruiser',   fac:'terran',  spr:'frchronos',    label:'GTFr Halkins', noFire:true},
+  ter_tombaugh:   {cls:'destroyer', fac:'terran',  spr:'inarcadia',    label:'Tombaugh Station',
+                   stay:true, hullMul:1.5},
   // Mission use only: the Iceni on our side of a fight (M70).
   ntf_iceni:      {cls:'corvette',  fac:'terran',  spr:'coiceni',      label:'NTF Iceni'}
 };
@@ -1963,6 +1971,8 @@ function mkAlly(id){
   if(d.platform){ a.platform = true; a.vy = 0; a.minY = a.y; a.maxY = a.y;
                   a.warp = 0; a.warpMax = 1; }
   if(d.awacs) a.awacs = true;
+  if(d.noFire) a.noFire = true;
+  if(d.stay){ a.stay = true; a.vy = 0; a.minY = a.y; a.maxY = a.y; }
   if(d.jammer) a.jammer = true;
   initBeams(a);
   initWeapons(a);

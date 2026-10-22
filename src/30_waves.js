@@ -582,6 +582,7 @@ function spawnProtected(sp){
     if(sp.jumpIfEmpty) a.jumpIfEmpty = true;   // F56 (v256), see leaveEmpty
     if(sp.dockLabel) a.dockLabel = sp.dockLabel;    // 'REPAIRING' (v178)
     if(sp.dockBelly) a.dockBelly = true;            // v254 (F51)
+    if(sp.dockStay) a.dockStay = true;              // v257: held until 'abdocken'
     a.crossAfter = sp.cross || 0.38;
     // Die Hoehe darf nicht gepinnt sein, sonst kommt er nie zum
     // Andockpunkt hoch.
@@ -698,6 +699,10 @@ let crossDone = 0, crossTotal = 0;
 function evPending(){
   for(const e of EV){
     if(e.done) continue;
+    // hold (v257, Tombaugh): this event ends the mission, and until it
+    // fires the wave stays open - the Lucifer is invulnerable and counts
+    // for nothing, so an empty field would otherwise end it early.
+    if(e.hold) return true;
     // A delayed event already on its way holds the wave (v177, M77).
     if(e.at!=null) return true;
     // So does a transport still on its way to her dock: the field may be
@@ -1075,6 +1080,8 @@ function tickDocking(){
       if(e.side==='ally') protSaved++;
       continue;
     }
+    // v257 (Tombaugh): she stays on her dock until the script lets her go.
+    if(e.dockStay){ e.crossing = 0; continue; }
     // Load first, then leave - facing the way she leaves (F24).
     if(e.crossAfter){ e.crossing = e.crossAfter; faceTurn(e, e.crossAfter < 0); }
     if(e.escaping) faceTurn(e, false);
@@ -1443,6 +1450,9 @@ function applySpawnOpts(e, sp){
   if(sp.portalMid) e.portalMid = true;
   // beamFocus: her guns go for this ship first (the Hatshepsut, M77).
   if(sp.beamFocus) e.beamFocus = sp.beamFocus;
+  // beamMul (v257, Tombaugh): her beams hit this many times harder - the
+  // Lucifer that wiped out a station and its fleet in one strike.
+  if(sp.beamMul) e.beamMul = sp.beamMul;
   // ghost: scenery shots pass through, no lock and no subsystems (M78).
   if(sp.ghost){ e.ghost = true; e.noTarget = true; e.subs = null; }
   if(sp.gasBeams) e.gasBeams = true;
@@ -2754,12 +2764,53 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'H1', w:'abzug', a2:''}
      ]},
 
-  14:{name:'The Stealth', fac:'hol', o:'clear', live:5, u:[
-       {id:'A1', c:'fi', n:2, side:'ally'},
-       {id:'E1', c:'fi', n:3}
+  // v257: new, not an FS1 mission - the Lucifer at Tombaugh, which FS1
+  // only tells in the briefing of its mission 11 (Silvio, 22.10.2026).
+  // A transport docks at the captured Taranis; after two Shivan waves she
+  // casts off and runs, and the Lucifer jumps in. Her beams take the
+  // Taranis, the Halkins, both Faustus, the Orion that comes to fight her
+  // and last the station; then she jumps out and the mission ends. The
+  // transport getting away is the goal, but the mission runs on until the
+  // Lucifer is done either way. Nothing is killed by script.
+  14:{name:'Tombaugh', era:'fs1', orig:10, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
+      ziel:'Cover the transport until she gets away', u:[
+       {id:'ST', c:'in', n:1, spr:'inarcadia', ally:'ter_tombaugh', side:'ally', x:200, y:150, still:true, noWarp:true},
+       {id:'R1', c:'cr', n:1, spr:'crcain', ally:'ter_taranis', side:'ally', x:450, y:300, still:true, noWarp:true},
+       {id:'H1', c:'cr', n:1, spr:'frchronos', ally:'ter_halkins', side:'ally', x:360, y:400, still:true, noWarp:true},
+       {id:'F1', c:'cr', n:1, spr:'scfaustus', side:'ally', x:390, y:130, still:true, noWarp:true},
+       {id:'F2', c:'cr', n:1, spr:'scfaustus', side:'ally', x:240, y:440, still:true, noWarp:true},
+       {id:'A1', c:'fi', n:2, size:3, spr:'fiherc', side:'ally'},
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:300, y:300, warpIn:true, wait:true,
+        dockTo:'R1', dockStay:true, cross:-0.45, mark:'protect', label:'GTT Ptolemy'},
+       {id:'E1', c:'fi', n:1, size:4, fac:'shivan', wait:true},
+       {id:'E2', c:'fi', n:1, size:4, fac:'shivan', wait:true},
+       {id:'B2', c:'bo', n:1, size:2, fac:'shivan', wait:true},
+       // Her beams go down this list in order (beamFocus): Orion last but
+       // one, the station last.
+       {id:'L1', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, x:730, y:280, wait:true,
+        beamFocus:'R1>H1>F1>F2>O1>ST', beamMul:15},
+       {id:'O1', c:'de', n:1, spr:'deorionright', side:'ally', x:140, y:320, still:true, wait:true}
      ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'meldung', a2:'turning hostile'},
-       {t:'alleZerstoert', a:'E1', w:'seite', a2:'A1'}
+       {t:'sek', a:1, w:'einwarpen', a2:'T1'},
+       {t:'sek', a:5, w:'einwarpen', a2:'E1'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
+       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B2'},
+       {t:'da', a:'E1', d:30, w:'einwarpen', a2:'E2'},
+       {t:'da', a:'E1', d:30, w:'einwarpen', a2:'B2'},
+       // After the second wave the transport casts off - and the Lucifer comes.
+       {t:'alleZerstoert', a:'E2+B2', w:'abdocken', a2:'T1'},
+       {t:'alleZerstoert', a:'E2+B2', w:'einwarpen', a2:'L1'},
+       {t:'da', a:'E2', d:30, w:'abdocken', a2:'T1'},
+       {t:'da', a:'E2', d:30, w:'einwarpen', a2:'L1'},
+       {t:'da', a:'L1', d:3, w:'nachschub', a2:'shivan'},
+       {t:'da', a:'L1', d:10, w:'einwarpen', a2:'O1'},
+       {t:'da', a:'L1', d:15, w:'raus', a2:'T1'},
+       {t:'verlaesst', a:'T1', w:'zielerfuellt', a2:'The transport got away'},
+       {t:'vernichtet', a:'T1', w:'zielverfehlt', a2:'GTT Ptolemy destroyed'},
+       // The end: everything she came for is gone. Her jump first - the
+       // withdrawal closes every later event and leaves the invulnerable alone.
+       {t:'alleZerstoert', a:'R1+H1+F1+F2+O1+ST', w:'raus', a2:'L1'},
+       {t:'alleZerstoert', a:'R1+H1+F1+F2+O1+ST', w:'abzug', a2:'', hold:true}
      ]},
 
   15:{name:'The Supply Depot', fac:'hol', o:'clear', live:4, stillRocks:true, u:[
@@ -4232,6 +4283,8 @@ let EV_LABEL = {};
 // v253: the mission mark of each unit (drawMissionMark, 72_target.js)
 let EV_MARK = {};
 let evReinf = false, evReinfCd = 0;
+// v257: the faction a 'nachschub' names ('shivan'), else the wave's own.
+let evReinfFac = '';
 // The mission's clock (v169): 'timer' starts it ("seconds|LABEL"),
 // 'zeit' fires when it runs out, 'timerStopp' takes it down.
 let missionTimer = {end:0, label:''};
@@ -4253,7 +4306,7 @@ function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_EMPTY = {}; EV_POS = {};
   EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; PREY_ON = false;
   missionTimer = {end:0, label:''}; missedJumps = 0;
-  evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP;
+  evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP; evReinfFac = '';
 }
 function byId(id){
   const out = [];
@@ -4415,6 +4468,9 @@ function evFire(ev){
       break;
     case 'nachschub':
       evReinf = (arg !== 'aus');
+      // v257 (Tombaugh): a faction instead of 'an' - the Lucifer's Shivans
+      // in an FS1 mission that runs in the Hammer of Light cycle.
+      evReinfFac = FAC_TAG[arg] ? arg : '';
       break;
     case 'meldung':
       // {saved}: how many protected ships are through so far. "Second
@@ -4490,6 +4546,15 @@ function evFire(ev){
       // disable, destroy or protect); 'id:' takes the mark off.
       { const mk = String(arg||'').split(':');
         if(mk[1]) EV_MARK[mk[0]] = mk[1]; else delete EV_MARK[mk[0]]; }
+      break;
+    case 'abdocken':
+      // v257 (Tombaugh): a ship held on her dock (dockStay) casts off and
+      // sets off the way she came; one still on her way in gives up the dock.
+      for(const u of byId(arg)){
+        u.dockStay = false; u.dockedOn = null; u.dockTo = null; u.dockRes = null;
+        u.crossing = u.crossAfter || -0.38;
+        faceTurn(u, u.crossing < 0);
+      }
       break;
     case 'freigeben':
       // The capture is off - her captors are gone. Now she can die. The
@@ -4716,7 +4781,7 @@ function tickEvents(){
     if(evReinfCd>0){ evReinfCd--; }
     else if(liveSmallCount() < smallCap()){
       evReinfCd = evReinfGap;
-      const ty = 'fi_' + FAC_TAG[currentFaction];
+      const ty = 'fi_' + FAC_TAG[evReinfFac || currentFaction];
       const rp = poolFor(ty);
       const rh = rp ? rnd(rp) : '';     // eine Staffel, ein Rumpf
       const wid = ++wingSeq, sz = WING_MIN + ((Math.random()*(WING_MAX-WING_MIN+1))|0) + wingExtra(rh);
@@ -4778,7 +4843,7 @@ function scriptUnit(u, fac, q){
       for(let i=0;i<n;i++){
         const yy = (u.y!=null) ? u.y : H*(0.28+0.44*((i+0.5)/n));
         put(ally
-          ? {time:t0+i*140, type:'ally', allyId:ALLY_ID[u.spr]||'vas_aten', spr:u.spr,
+          ? {time:t0+i*140, type:'ally', allyId:u.ally||ALLY_ID[u.spr]||'vas_aten', spr:u.spr,
              crossSecs:u.crossSecs, still:u.still,
              crossDir:u.crossDir, defectRun:u.defectRun, noWings:u.noWings,
              x:u.x, y:u.y, callsOk:u.callsOk, beamDelay:u.beamDelay, guard:u.guard,
@@ -4800,11 +4865,12 @@ function scriptUnit(u, fac, q){
   // A super destroyer by name (the Lucifer, v169). invuln makes her
   // scenery: her shield holds, she counts for nothing at the end.
   if(u.c==='sd'){
-    put({time:t0, type:'boss_'+FAC_TAG[fac], spr:u.spr, y:(u.y!=null)?u.y:H*0.5, x:u.x,
+    // u.fac (v257): the Lucifer in an FS1 mission that runs under 'hol'.
+    put({time:t0, type:'boss_'+FAC_TAG[u.fac||fac], spr:u.spr, y:(u.y!=null)?u.y:H*0.5, x:u.x,
          invuln:u.invuln, still:u.still, fixY:(u.y!=null), noFlee:true, noFire:u.noFire,
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
          gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
-         noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus,
+         noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, beamMul:u.beamMul,
          ghost:u.ghost, crossAfter:u.crossAfter, portalMid:u.portalMid});
     return;
   }
@@ -4839,7 +4905,7 @@ function scriptUnit(u, fac, q){
       put({time:t0+i*70, type:'protect', spr:u.spr,
            fac:allyRace(), noWarp:1, warpIn:u.warpIn,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
-           dockLabel:u.dockLabel, dockBelly:u.dockBelly, jumpIfEmpty:u.jumpIfEmpty,
+           dockLabel:u.dockLabel, dockBelly:u.dockBelly, jumpIfEmpty:u.jumpIfEmpty, dockStay:u.dockStay,
            pickup:u.pickup?1:0, ride:u.ride, slot:u.slot});
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast')?1:0,   // v253: u.fac, Shivan cargo in an HoL mission
@@ -4935,7 +5001,7 @@ function buildScripted(def){
     if(u.replace) EV_REPL[u.id] = {u:u, mul:u.replace, hp:u.hp||1};
   }
   EV = (def.ev||[]).map(function(e){
-    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, d:e.d, wenn:e.wenn,
+    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, d:e.d, wenn:e.wenn, hold:e.hold,
             at:null, done:false}; });
   return q.sort(function(a,b){ return a.time-b.time; });
 }

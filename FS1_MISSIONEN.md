@@ -316,3 +316,34 @@ Je etwa 2 bis 2,5 Minuten.
 
 Korrektur (Silvio, 15.10.2026): Der Transporter heißt im Original **Omega**
 (GTT Elysium); McCarthy ist nur der Name eines Funkspruchs. Umgesetzt in v248.
+
+
+## Mission 14 (neu) — Tombaugh (abgesegnet, gebaut v257)
+
+Nicht in FS1: das Briefing von Original 11 erzählt den Angriff der Lucifer
+auf die Station Tombaugh nur. Silvio, 22.10.2026. Ersetzt die alte
+Mission 14; die Hammer-of-Light-Flotte beginnt seitdem bei 15.
+
+- Start: Station Tombaugh, die gekaperte Taranis, die Halkins (der Chronos-
+  Frachter, der sie geschleppt hat), zwei Faustus, 6 verbündete Hercules.
+  Der Spieler fliegt die Valkyrie. Der Transporter GTT Ptolemy springt ein
+  und dockt an der Taranis.
+- Nach 5 s 4 shivanische Jäger; tot oder nach 30 s 4 Jäger und 2 Bomber.
+- Tot oder nach 30 s: der Transporter dockt ab und flieht nach links, im
+  selben Moment springt die Lucifer ein (unverwundbar). 15 s später springt
+  der Transporter aus. Laufend shivanischer Nachschub.
+- 10 s nach der Lucifer die Orion.
+- Keine geskripteten Tode (Silvio): die Lucifer feuert ihre Beams der Reihe
+  nach auf Taranis, Halkins, Faustus 1 und 2, Orion als vorletzte, Station
+  als letzte. Sind alle sechs zerstört, springt sie aus und die Mission
+  endet — auch wenn der Transporter verloren ist.
+- Ziel: der Transporter entkommt.
+- Im Test etwa 3,5 Minuten Lucifer-Angriff, die ganze Mission etwa 4,5.
+- Die Station ist das Arcadia-Modell: die FS1-Station Polaris gibt es im
+  Spiel nicht.
+
+## Mission 15 — The Aftermath (Original 11) — Entwurf, verschoben
+
+Entwurf vom 22.10.2026 (Transporter Iota, Sigma, Omega zur Pinnacle; Wellen
+Manticore, Shaitan/Basilisk, Scorpion; zuletzt Basilisk gegen die
+Pinnacle). Silvio hat ihn auf Mission 15 verschoben, noch nicht abgesegnet.

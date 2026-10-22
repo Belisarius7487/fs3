@@ -159,6 +159,26 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
 ---
 
 
+### Seit v257 (Mission 14, Tombaugh)
+
+- Einheit `ally:'ter_…'`: ein verbündetes Großkampfschiff nimmt diesen
+  Eintrag aus `ALLY_DEFS` statt des aus dem Bild abgeleiteten. Nur für
+  Missionen: `ter_taranis` (Cain, feuert nicht), `ter_halkins` (Chronos,
+  Kreuzerklasse, damit die schweren Beams sie nehmen), `ter_tombaugh`
+  (Station, bleibt stehen, springt am Ende nicht).
+- Einheit `dockStay:true`: bleibt angedockt, bis die Wirkung `abdocken` sie
+  löst; dann fährt sie mit `cross` davon.
+- `beamFocus:'R1>H1>O1'`: eine Reihenfolge — der erste noch lebende, den
+  der Turm erreichen kann. Erreicht er keinen, nimmt er wie sonst den
+  nächsten.
+- `beamMul` auf einem Supergroßkampfschiff: ihre Beams treffen so viel
+  härter.
+- `fac` auf einer `sd`-Einheit: die Lucifer in einer Mission unter `hol`.
+- Ereignis `hold:true`: hält die Welle offen, bis es gefeuert hat (sonst
+  endet die Mission, sobald nur die unverwundbare Lucifer übrig ist).
+- `nachschub` mit einer Fraktion statt `an` (`'shivan'`): der Nachschub
+  kommt aus deren Pool, nicht aus dem der Welle.
+
 ## C. Werkzeuge im Detail
 
 ### `tools/pof/` — der POF-Umwandler
