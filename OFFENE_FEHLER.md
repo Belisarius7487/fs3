@@ -2183,6 +2183,19 @@ mich auf dem Spielfeld befinde."
   sichtbar ins Nirgendwo schießt."
 - Status: offen, im Code noch nicht nachgesehen.
 
+### F64 — Mission 14: die Lucifer kommt der Taranis zu nah (v257)
+
+**Befund (Silvio, 22.10.2026):** „Die Lucifer fliegt zu nah an die Taranis
+heran, sodass sie sie teilweise eigentlich gar nicht treffen können dürfte.
+Lass sie einfach etwas weiter rechts hereinwarpen und langsam zum Stehen
+kommen."
+
+- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
+  weitere Befunde, dann wird gebaut.
+- Beim Bau beachten: Die Turmreichweite der Lucifer hängt an ihrer Lage.
+  Die Reihenfolge ihrer Ziele (Orion vorletzte, Station letzte) muss danach
+  im Test wieder stimmen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
