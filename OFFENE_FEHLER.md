@@ -2247,6 +2247,16 @@ auf Ribos 4 so genannt."
 
 - Status: offen, wird mit F59 bis F68 gebaut.
 
+### F70 — Schadenseffekte wandern mit dem Blickwinkel (v257)
+
+**Befund (Silvio, 22.10.2026):** „Ich stelle gerade bei genauerem Hinsehen
+auch fest, dass Schadenseffekte wie der austretende Dampf oder Rauch aus
+Hüllenbrüchen je nach Blickwinkel wandern."
+
+- Vermutung (nicht nachgeprüft): dieselbe Ursache wie F63 (Beam-Treffer
+  wandern mit dem Blickwinkel). Beim Bau zusammen ansehen.
+- Status: offen, im Code noch nicht nachgesehen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
