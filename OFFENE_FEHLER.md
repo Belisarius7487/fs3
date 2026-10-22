@@ -2137,6 +2137,15 @@ einfach nur da stehen und nichts tun."
 - Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
   weitere Befunde, dann wird gebaut.
 
+### F60 — FS2-Jäger und -Bomber bei den Verbündeten (v257)
+
+**Befund (Silvio, 22.10.2026):** „Ich habe FS2 Ära Jäger und Bomber bei den
+Verbündeten Schiffen."
+
+- Gemeldet beim Test von Mission 14 (Tombaugh).
+- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
+  weitere Befunde, dann wird gebaut.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
