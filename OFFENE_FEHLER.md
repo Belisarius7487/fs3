@@ -2238,6 +2238,15 @@ und Warpout auf."
   und Aussprung, je nach Blickwinkel.
 - Status: offen, im Code noch nicht nachgesehen.
 
+### F69 — Mission 14: neuer Name und ein Planet hinter der Station (Wunsch, v257)
+
+**Wunsch (Silvio, 22.10.2026):** „Nenne die Mission ‚Rain on Ribos IV' und
+bau hinter der Station noch einen Planeten ein. Eine Fan-Kampagne hatte
+diese Mission aufgegriffen und aufgrund der herabstürzenden Stationstrümmer
+auf Ribos 4 so genannt."
+
+- Status: offen, wird mit F59 bis F68 gebaut.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes

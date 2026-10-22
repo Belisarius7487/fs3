@@ -318,7 +318,9 @@ Korrektur (Silvio, 15.10.2026): Der Transporter heißt im Original **Omega**
 (GTT Elysium); McCarthy ist nur der Name eines Funkspruchs. Umgesetzt in v248.
 
 
-## Mission 14 (neu) — Tombaugh (abgesegnet, gebaut v257)
+## Mission 14 (neu) — Rain on Ribos IV, bis v257 „Tombaugh" (abgesegnet, gebaut v257)
+
+Name und Planet hinter der Station: Silvio, 22.10.2026 (F69).
 
 Nicht in FS1: das Briefing von Original 11 erzählt den Angriff der Lucifer
 auf die Station Tombaugh nur. Silvio, 22.10.2026. Ersetzt die alte
