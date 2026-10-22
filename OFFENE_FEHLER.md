@@ -2215,6 +2215,14 @@ Schildeffekt sieht, den sie eigentlich hat."
   allem stand).
 - Status: offen, im Code noch nicht nachgesehen.
 
+### F67 — Eine Station trudelt, wenn sie explodiert (v257)
+
+**Befund (Silvio, 22.10.2026):** „Es macht übrigens keinen Sinn, dass eine
+Station anfängt zu trudeln, wenn sie explodiert."
+
+- Gesehen in Mission 14 (Tombaugh). Gilt für Stationen allgemein.
+- Status: offen, im Code noch nicht nachgesehen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
