@@ -2431,6 +2431,45 @@ mehreren Schiffslängen folgt und sich dabei etwas auffächert.
   der Größe des getroffenen Schiffs.
 - **Behoben in v261:** der Austritt ist jetzt ein langer, heller Strahl aus Flammen (zwei Lagen im Beam-Profil, orange und weißgelb), der dem Beam folgt, sich um das 2,6-Fache auffächert und dabei verblasst, dazu 30 Funken, die ihn entlanglaufen, und ein Licht am Austrittspunkt. Länge fest je Beam (`BEAM_EXIT_LEN`: 30 Beam-Breiten bei schweren, 18 bei kleinen), nicht nach dem getroffenen Schiff. Am Eintritt ein Licht, etwas Feuer und Funken zurück zum Turm.
 
+### F84 — Raketenaufschaltung reißt ständig ab, Klänge fehlen (v263)
+
+**Befund (Silvio, 22.10.2026):** „Ich glaube allerdings dass wir nochmal an
+der Raketenaufschaltung arbeiten müssen, denn Ziele bewegen sich zu
+schnell, um eine dauerhafte Aufschaltung zu gewährleisten. Dazu fehlt auch
+der Sound der angibt, dass die Aufschaltung noch sucht und der
+Einrastsound."
+
+**Silvios Festlegung:** „könnten wir es so machen, dass der Suchlauf
+startet egal wo sich das als Ziel erfasste Schiff befindet, solange es im
+für den Spieler gerade sichtbaren Spielbereich befindet. Wenn das Zielschiff
+beim Raketenabschuss hinter dem Spieler befindet, fliegt die Rakete eh eine
+riesen Kurve und wird kaum treffen."
+
+- Klänge aus FS1 `sounds.tbl`: `trk-loop.wav` (Suchlauf, Schleife) und
+  `lock.wav` (eingerastet, einmal). Im Spiel `sounds/lock_seek.wav` und
+  `sounds/lock_on.wav`.
+
+### F85 — Standardbewaffnung wächst mit (v263)
+
+**Festlegung (Silvio, 22.10.2026):** „Die ML-16 Laser kannst du komplett
+durch Avengers ersetzen, sobald sie ingame verfügbar wird und die Apollo
+zwei davon tragen kann. Es macht keinen Sinn eine wirkungslose Waffe
+mitzuschleppen." Auch für NPC-Schiffe: „Gib ihnen doch einfach auch 2
+Avengers sobald sie verfügbar wird und sie sie tragen können." Ebenso
+Interceptor statt MX-50, sobald sie da ist („Fände ich gut, ja").
+
+### F86 — Mission 16: die Shivaner ignorieren die Asimov (v263)
+
+**Befund (Silvio, 22.10.2026):** „sollte die Asimov nicht von den
+Shivanern zerstört werden? Die Handvoll Jäger ignorieren sie
+größtenteils." Dazu: „ich würde dennoch ein paar mehr Gegner einbauen,
+denn du musst bedenken, dass unser Balancing nicht 1 zu 1 dem von
+Freespace entspricht."
+
+- Abgesprochen: 3 Scorpion und 2 Shaitan nach 3 s, 15 s später 2 Scorpion
+  und 2 Shaitan, alle auf die Asimov; 10 s nach der Spomer 3 Scorpion auf
+  die Spomer und 3 Shaitan auf die Asimov.
+
 ### F83 — Antwort auf Verstärkung kommt von der falschen Seite (v262) — behoben in v263
 
 **Befund (Silvio, 22.10.2026):** „Wenn ich in Mission 15 Verstärkung rufe,
