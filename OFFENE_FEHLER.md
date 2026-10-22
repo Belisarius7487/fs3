@@ -2196,6 +2196,25 @@ kommen."
   Die Reihenfolge ihrer Ziele (Orion vorletzte, Station letzte) muss danach
   im Test wieder stimmen.
 
+### F65 — Mission 14: die Reaktoren der Lucifer werden angezeigt (v257)
+
+**Befund (Silvio, 22.10.2026):** „Es ist unnötig die Reaktoren der Lucifer
+anzeigen zu lassen."
+
+- Status: offen, im Code noch nicht nachgesehen. Silvio sammelt erst
+  weitere Befunde, dann wird gebaut.
+
+### F66 — Mission 14: die Lucifer soll treffbar sein, mit Schildeffekt (v257)
+
+**Befund (Silvio, 22.10.2026):** „Außerdem sollte die Lucifer vom Spieler
+und den verbündeten Schiffen getroffen werden können, damit man den coolen
+Schildeffekt sieht, den sie eigentlich hat."
+
+- Meine Lesart, noch nicht bestätigt: Treffer prallen sichtbar an ihrem
+  Schild ab, Schaden nimmt sie weiterhin keinen (Briefing: der Schild hält
+  allem stand).
+- Status: offen, im Code noch nicht nachgesehen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
