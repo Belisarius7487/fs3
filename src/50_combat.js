@@ -2191,7 +2191,8 @@ function beamImpactAt(o, ang, large, tr){
   const ex0 = tr ? tr.entry.x : o.x, ey0 = tr ? tr.entry.y : o.y;
   addScorch(o, ex0, ey0);
   // v209: the fire is drawn on her model, through the perspective
-  const vEn = hullPt(o, ex0, ey0), ex = vEn.x, ey = vEn.y;
+  // v259 (F76): or where a 3D beam really meets her surface (tr.vis)
+  const vEn = (tr && tr.vis) ? tr.vis : hullPt(o, ex0, ey0), ex = vEn.x, ey = vEn.y;
   if(fc%2===0){
     spawnFireball(ex, ey, (large?15:9), (large?16:11));
     for(let i=0;i<(large?4:2);i++){
@@ -3222,7 +3223,8 @@ function updateBeams(e) {
         const mp = mountPos(e, b), q = beamAncPt(b);
         b.angle = b.curAngle = Math.atan2(q.y-mp.y, q.x-mp.x);
         damageEnemy(o, beamDmg(e, b), q.x, q.y, false, 'beam');
-        beamImpact(o, mp.x, mp.y, b.angle, !!b.large, {entry:q, exit:null});
+        // v259 (F76): the fire where the 3D beam meets her surface (b.anc.vis)
+        beamImpact(o, mp.x, mp.y, b.angle, !!b.large, {entry:q, exit:null, vis:(b.anc.vis && b.anc._g3f >= F3D_FRAME - 2) ? b.anc.vis : null});
         if(b.timer<=0) { b.state='cooldown'; b.timer=b.coolT*(b.jit||1); b.anc = null; }
         continue;
       }
@@ -3301,6 +3303,11 @@ function drawBeamRays(e, own) {
     if(hid && own) continue;
     if(hid && b.state==='charging'){ drawBeamOrb(e, b); continue; }
     if(b.state!=='firing') continue;
+    // v259 (F76): drawn in 3D with the hulls (f3dBeamPass) - not here
+    if(typeof f3dBeam3D === 'function' && f3dBeam3D(e, b)){
+      if(!own){ F3D_BEAMS.push({e: e, b: b}); if(hid) drawBeamOrb(e, b); }
+      continue;
+    }
     const col=beamCol(e.faction, b.large);
     let ang = b.type==='slash' ? b.curAngle : b.angle;
     const mpF=mountPosV(e,b);                  // v209: where it is drawn

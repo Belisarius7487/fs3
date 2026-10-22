@@ -63,6 +63,9 @@ function draw(){
 
   // Beam rays under every hull: a ship lies on top of the beam that
   // hits it, which reads as the beam running through her.
+  // v259 (F76): a beam between two ships drawn from their models is not
+  // drawn here but in 3D with them (f3dBeamPass); this collects them.
+  if(typeof f3dBeamFrame === 'function') f3dBeamFrame();
   for(const e of SHIPS_ON_FIELD){
     try{ drawBeamRays(e); }catch(eb){ ctx.restore(); }
   }

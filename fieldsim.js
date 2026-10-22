@@ -5105,7 +5105,9 @@ scenario('FS1 M14 v257 Tombaugh: transport lost - goal failed, still ends; Shiva
   }
   r.hulls = Object.keys(hulls).sort().join(' ');
   // FS1 Shivan small craft only - no Vasudan hulls of the Hammer of Light.
-  r.onlyShivan = Object.keys(hulls).length>0 && Object.keys(hulls).every(h=>/^(fi|bo)(basilisk|manticore|scorpion|dragon|shaitan|nahema|seraphim|cain)/.test(h));
+  // the FS1 Shivan pools themselves (ERA_POOLS), not a list of my own
+  const sh = ERA_POOLS.fs1.sh_fighters.concat(ERA_POOLS.fs1.sh_bombers);
+  r.onlyShivan = Object.keys(hulls).length>0 && Object.keys(hulls).every(h=>sh.indexOf(h)>=0);
   r.seconds = Math.round(n/60);
   r.ends = wave>14 || waveOver;
   return r;`);
@@ -5233,6 +5235,161 @@ scenario('FS1 M14 v258: the vortex is drawn at the depth of her hull (F68)', 'm=
   got.length = 0; drawFsPortals();
   r.depthKept = got[0];
   r.keptAfter = got[0] === -1234;
+  return r;`);
+
+// ── v259: F74/F75 - allied shots flare the Lucifer's shield; she is on the radar ──
+scenario('FS1 M14 v259: allied shots strike the Lucifer shield, she is on the radar (F74, F75)', 'm=14', `
+  const r = {};
+  FS.until(()=>evSeen('E1'), 1000, false);
+  FS.until(()=>{ FS.killId('E1'); FS.killId('E2'); FS.killId('B2'); return byId('L1').length>0; }, 6000, false);
+  const L = byId('L1')[0]; let allyHits = 0;
+  const _d = damageEnemy;
+  window.damageEnemy = function(e, dmg, hx, hy, fp){ if(e===L && !fp) allyHits++; return _d.apply(this, arguments); };
+  const hp0 = L.hp, fl = [];
+  for(let k=0;k<60*40;k+=10){ FS.step(10); if((L.shieldFlares||[]).length) fl.push(1); }
+  window.damageEnemy = _d;
+  r.allyHits = allyHits;
+  r.alliesStrikeHer = allyHits > 0;
+  r.flared = fl.length > 0;
+  r.noDamage = L.hp === hp0;
+  let onRadar = false; const _ri = radarIconOf;
+  window.radarIconOf = function(e){ if(e===L) onRadar = true; return _ri(e); };
+  try{ drawBarRadar(0, 0, 200, 60); }catch(eR){}
+  window.radarIconOf = _ri;
+  r.onRadar = onRadar;
+  return r;`);
+
+// ── v259: F76 - beams in 3D, tested against the hulls in the shared depth ──
+// Box models stand in for the real ones (the cloud has none); the beam is
+// read back from the 3D picture: hidden where a hull lies above it, seen
+// where it lies above the hull, and between two ships the top one decides.
+scenario('v259: 3D beams hidden by hulls above them, seen over hulls below (F76)', '', `
+  const r = {};
+  r.gl = !!f3dInit();
+  if(!r.gl) return r;
+  const gl = F3D.gl;
+  // a box, 2 long (z, model forward), 0.3 deep (x), 0.2 high (y)
+  const box = function(){
+    const V = [], N = [], T = [], I = [];
+    const hx = 0.15, hy = 0.1, hz = 1.0;
+    const faces = [[[1,0,0],[0,0,1],[0,1,0]],[[-1,0,0],[0,0,-1],[0,1,0]],[[0,1,0],[1,0,0],[0,0,1]],[[0,-1,0],[1,0,0],[0,0,-1]],[[0,0,1],[-1,0,0],[0,1,0]],[[0,0,-1],[1,0,0],[0,1,0]]];
+    for(const f of faces){
+      const n = f[0], u = f[1], v = f[2], b0 = V.length/3;
+      for(const [a, c] of [[-1,-1],[1,-1],[1,1],[-1,1]]){
+        const x = n[0]*hx + u[0]*a*hx + v[0]*c*hx, y = n[1]*hy + u[1]*a*hy + v[1]*c*hy, z = n[2]*hz + u[2]*a*hz + v[2]*c*hz;
+        V.push(Math.round(Math.max(-1,Math.min(1,(n[0]?n[0]*hx:(u[0]*a+v[0]*c)*hx)))*32767), Math.round(Math.max(-1,Math.min(1,(n[1]?n[1]*hy:(u[1]*a+v[1]*c)*hy)))*32767), Math.round(Math.max(-1,Math.min(1,(n[2]?n[2]*hz:(u[2]*a+v[2]*c)*hz)))*32767));
+        N.push(n[0]*127, n[1]*127, n[2]*127, 0); T.push(0,0);
+      }
+      // both windings: the test does not depend on which side faces out
+      I.push(b0, b0+1, b0+2, b0, b0+2, b0+3, b0, b0+2, b0+1, b0, b0+3, b0+2);
+    }
+    const pos = new Int16Array(V), nrm = new Int8Array(N), uv = new Uint16Array(T), idx = new Uint16Array(I);
+    const mk = function(tg, a){ const bf = gl.createBuffer(); gl.bindBuffer(tg, bf); gl.bufferData(tg, a, gl.STATIC_DRAW); return bf; };
+    return {state:'ready', tex:{}, head:{size:[0.3,0.2,2], ext:1, nodes:null},
+      parts:[{kind:'flat', tex:'', n:idx.length, big:false, node:0, pos:mk(gl.ARRAY_BUFFER,pos), nrm:mk(gl.ARRAY_BUFFER,nrm), uv:mk(gl.ARRAY_BUFFER,uv), idx:mk(gl.ELEMENT_ARRAY_BUFFER,idx)}],
+      cpu:[{pos:pos, idx:idx}]};
+  };
+  const L = box();
+  const mkShip = function(x, y, w){ return {img:'deorionright', x:x, y:y, sc:w/(IMGS.deorionright?IMGS.deorionright.width:100), flip:false, ang:0, type:'destroyer', faction:'terran'}; };
+  CAM.x = MW/2; CAM.y = (HUD_H+MH)/2; CAM.z = CAM_BASE_Z;
+  const X = mkShip(MW/2 - 300, CAM.y, 1000), Y = mkShip(MW/2 + 100, CAM.y + 60, 1000);
+  const cam = f3dVP();
+  const px = function(P){
+    const m = cam.vp, c = [0,0,0,0];
+    for(let i=0;i<4;i++) c[i] = m[i]*P[0] + m[4+i]*P[1] + m[8+i]*P[2] + m[12+i];
+    return [Math.round((c[0]/c[3]*0.5+0.5)*F3D.can.width), Math.round((c[1]/c[3]*0.5+0.5)*F3D.can.height)];
+  };
+  const read = function(P){ const q = px(P), o = new Uint8Array(4); gl.readPixels(q[0], q[1], 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, o); return Array.from(o); };
+  // one beam along y=CAM.y, at depth z, across both boxes
+  // a point counts as lit by the beam when it is clearly brighter than the
+  // same picture without it
+  const pts = function(z){ return {open:[MW/2 - 950, -(CAM.y+30), z], onX:[MW/2 - 650, -(CAM.y+30), z], onY:[MW/2 + 450, -(CAM.y+30), z]}; };
+  const shot = function(z, withBeam){
+    const e = {faction:'shivan', beams:[]}, b = {large:true, state:'firing', anc:{o:X}};
+    window.f3dBeam3D = function(){ return true; };
+    window.f3dBeamEnds = function(){ return {S:[MW/2 - 1600, -(CAM.y+30), z], T:[MW/2 + 1400, -(CAM.y+30), z]}; };
+    F3D_BEAMS.length = 0; if(withBeam) F3D_BEAMS.push({e:e, b:b}); F3D_BEAM_BG = false;
+    f3dRender([{e:X, L:L, x:X.x, y:X.y, a:1, clip:null}, {e:Y, L:L, x:Y.x, y:Y.y, a:1, clip:null}], false, true);
+    const P = pts(z), o = {};
+    for(const k in P){ const c = read(P[k]); o[k] = c[0] + c[1] + c[2]; }
+    return o;
+  };
+  const run = function(z){
+    const a = shot(z, false), b = shot(z, true), o = {};
+    for(const k in a) o[k] = (b[k] - a[k]) > 60;
+    o.raw = JSON.stringify([a, b]);
+    return o;
+  };
+  const deep = run(-0.9*1000*0.15);       // well inside the hulls: under their top
+  const high = run(40);                   // above the plane: over every hull
+  r.deepRaw = deep.raw; r.highRaw = high.raw; delete deep.raw; delete high.raw;
+  r.deep = JSON.stringify(deep); r.high = JSON.stringify(high);
+  r.err = String(F3D.err||'');
+  // the third ship: X lies 300 deeper than Y. A beam between their tops
+  // is seen over X alone and hidden where Y lies over X - Y is on top there.
+  {
+    const MX = f3dMat(X, X.x, X.y, L); MX[14] -= 300;
+    const z = -120;
+    const P = {xOnly:[MW/2 - 650, -(CAM.y+30), z], both:[MW/2 - 200, -(CAM.y+30), z]};
+    const one = function(withBeam){
+      window.f3dBeamEnds = function(){ return {S:[MW/2 - 1600, -(CAM.y+30), z], T:[MW/2 + 1400, -(CAM.y+30), z]}; };
+      F3D_BEAMS.length = 0; if(withBeam) F3D_BEAMS.push({e:{faction:'shivan'}, b:{large:true, state:'firing', anc:{o:X}}}); F3D_BEAM_BG = false;
+      f3dRender([{e:X, L:L, x:X.x, y:X.y, a:1, clip:null, M:MX}, {e:Y, L:L, x:Y.x, y:Y.y, a:1, clip:null}], false, true);
+      const o = {}; for(const k in P){ const c = read(P[k]); o[k] = c[0]+c[1]+c[2]; } return o;
+    };
+    const a = one(false), b = one(true);
+    r.third = JSON.stringify([a, b]);
+    r.seenOverDeeperShip = (b.xOnly - a.xOnly) > 60;
+    r.hiddenWhereUpperShipLies = (b.both - a.both) <= 20;
+  }
+  // where a beam from the left towards her middle meets her: on her surface
+  {
+    const M = f3dMat(X, X.x, X.y, L), mid = [X.x, -X.y, M[14]];
+    const loc = f3dRayHitLocal(L, M, [X.x - 2000, -X.y, 0], mid);
+    r.surf = loc ? loc.map(v=>v.toFixed(3)).join(',') : 'none';
+    r.onSurface = !!loc && Math.abs(Math.max(Math.abs(loc[0])/0.15, Math.abs(loc[1])/0.1, Math.abs(loc[2])/1.0) - 1) < 0.01;
+    r.stencil = !!F3D.stencil;
+  }
+  r.openSpaceShown = deep.open && high.open;
+  r.hiddenUnderHull = !deep.onX && !deep.onY;
+  r.shownOverHull = high.onX && high.onY;
+  return r;`, true);
+
+scenario('FS1 M14 v259: the whole picture with 3D beams runs (box models) (F76)', 'm=14', `
+  const r = {};
+  r.gl = !!f3dInit();
+  if(!r.gl) return r;
+  const gl = F3D.gl;
+  const mkL = function(){
+    const V = [], I = [], hx = 0.15, hy = 0.1, hz = 1.0;
+    for(const sx of [-1,1]) for(const sy of [-1,1]) for(const sz of [-1,1]) V.push(Math.round(sx*hx*32767), Math.round(sy*hy*32767), Math.round(sz*hz*32767));
+    const F = [[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]];
+    for(const f of F) I.push(f[0],f[1],f[2], f[0],f[2],f[3], f[0],f[2],f[1], f[0],f[3],f[2]);
+    const pos = new Int16Array(V), idx = new Uint16Array(I), nrm = new Int8Array(32), uv = new Uint16Array(16);
+    const mk = function(tg, a){ const bf = gl.createBuffer(); gl.bindBuffer(tg, bf); gl.bufferData(tg, a, gl.STATIC_DRAW); return bf; };
+    return {state:'ready', tex:{}, head:{size:[0.3,0.2,2], ext:1, nodes:null},
+      parts:[{kind:'flat', tex:'', n:idx.length, big:false, node:0, pos:mk(gl.ARRAY_BUFFER,pos), nrm:mk(gl.ARRAY_BUFFER,nrm), uv:mk(gl.ARRAY_BUFFER,uv), idx:mk(gl.ELEMENT_ARRAY_BUFFER,idx)}],
+      cpu:[{pos:pos, idx:idx}]};
+  };
+  for(const k of ['sdlucifer','deorionright','crcain','scfaustus','inarcadia']) if(F3D_KEYS.indexOf(k)>=0){ const L = mkL(); F3D.models[k] = {lo:L, full:L}; }
+  FS.until(()=>evSeen('E1'), 1000, false);
+  FS.until(()=>{ FS.killId('E1'); FS.killId('E2'); FS.killId('B2'); return byId('L1').length>0; }, 6000, false);
+  const L1 = byId('L1')[0];
+  let frames = 0, beams3d = 0, errs = [], vis = 0, flat = 0;
+  for(let k=0;k<60*30;k+=5){
+    FS.step(5);
+    try{ draw(); frames++; }catch(eD){ errs.push(String(eD.message||eD)); }
+    beams3d += F3D_BEAMS.length;
+    for(const b of (L1.beams||[])) if(b.state==='firing'){ if(b.anc && b.anc.vis) vis++; if(!f3dBeam3D(L1, b)) flat++; }
+  }
+  r.frames = frames;
+  r.errors = errs.slice(0,3).join(' | ');
+  r.noErrors = errs.length===0 && !F3D.err;
+  r.f3dErr = String(F3D.err||'');
+  r.beams3d = beams3d;
+  r.beamsIn3D = beams3d > 0;
+  r.hitOnSurface = vis > 0;
+  r.flatWhileFiring = flat;
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

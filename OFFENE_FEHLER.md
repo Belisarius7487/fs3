@@ -2272,7 +2272,7 @@ Waffenkompatibilität der Valkyrie zulässt, mit zwei Avengers starten."
   tragen, und ist die Avenger zu diesem Zeitpunkt (orig 10) schon frei?
 - **Behoben in v258:** Mission 14 startet mit zwei Avenger (die Valkyrie darf sie laut FS1-Tabelle tragen, frei ab Original 8).
 
-### F73 — Der Beam verschwindet hinter der Nase der Orion, der Treffer sitzt vorn (v258)
+### F73 — Der Beam verschwindet hinter der Nase der Orion, der Treffer sitzt vorn (v258) — behoben in v259
 
 **Befund (Silvio, 22.10.2026):** „Im Screenshot siehst du, dass der
 Beamstrahl hinter der Nase der Orion verschwindet, der Treffereffekt aber
@@ -2281,9 +2281,9 @@ direkt an der Nase erscheint."
 - Bildschirmfoto im Chat: roter Lucifer-Beam von rechts, er endet unter der
   Nase der Orion, das Trefferfeuer leuchtet vorn auf der Nase.
 - Silvio vermutet denselben Grund wie F76.
-- Status: offen.
+- **Behoben in v259:** siehe F76: der Strahl endet jetzt dort, wo er die Oberfläche trifft (auf ihrem Modell gesucht), und das Trefferfeuer sitzt an genau diesem Punkt.
 
-### F74 — Verbündete Geschosse treffen die Lucifer nicht, kein Schildeffekt (v258)
+### F74 — Verbündete Geschosse treffen die Lucifer nicht, kein Schildeffekt (v258) — behoben in v259
 
 **Befund (Silvio, 22.10.2026):** „Die Lucifer wird von verbündeten
 Projektilen nicht getroffen, entsprechend sieht man ihren Schildeffekt
@@ -2291,14 +2291,14 @@ nicht."
 
 - Gehört zu F66 (in v258 als behoben eingetragen; für verbündete Geschosse
   wirkt es nicht).
-- Status: offen.
+- **Behoben in v259:** Geschosse prallen am Schild einer unverwundbaren Einheit mit `shieldShow` ab (`bulletOnHull` ließ „Kulisse“ bisher durch). Im Test 109 verbündete Treffer in 40 s, Schild flackert, kein Schaden.
 
-### F75 — Die Lucifer fehlt auf dem Radar (v258)
+### F75 — Die Lucifer fehlt auf dem Radar (v258) — behoben in v259
 
 **Befund (Silvio, 22.10.2026):** „Die Lucifer sollte auch auf dem Radar zu
 sehen sein."
 
-- Status: offen.
+- **Behoben in v259:** das Radar zeigt auch ein unverwundbares Superschiff (Typ `boss`), das sonst als Kulisse gilt.
 
 ### F76 — Beams verschwinden hinter dem eigenen Schiff und tauchen wieder auf (v258)
 
@@ -2342,6 +2342,30 @@ betrifft noch zu 2dimensional verhält."
      Rümpfen).
   - F74 (verbündete Geschosse auf die Lucifer) und F75 (Lucifer auf dem
     Radar) kommen in den ersten Bau.
+- **Gebaut in v259 (Schritte 1 und 2), mit einer Änderung am Weg:** Statt
+  echter Stockwerke (jedes Schiff tiefer versenkt) bekommt jedes Schiff eine
+  eigene **Scheibe im gemeinsamen Tiefenpuffer** (`gl.depthRange`), in der
+  Reihenfolge des Spielfelds, und der Stencil merkt sich, welches Schiff an
+  jedem Bildpunkt oben liegt. Wirkung wie Stockwerke — Rümpfe schneiden
+  sich nie, alle Schiffe in einem 3D-Bild —, aber jedes Schiff bleibt genau
+  so groß und genau dort, wo es heute ist (Silvio wollte die heutige
+  Größe); echte Stockwerke hätten Lage und Mitschwenken jedes Schiffs
+  verändert.
+  Beams (`f3dBeamPass`): ein Band im Raum vom 3D-Ort des Turms bis zum
+  Punkt, an dem der Strahl ihren Rumpf trifft (`f3dRayHitLocal` auf dem
+  Modell, einmal je Schuss, dann mit ihr mitgeführt). Gezeichnet in jeder
+  Scheibe gegen den Rumpf, der dort oben liegt, und einmal im freien Raum.
+  Die Sonderregel „Weg 3“ für den Strahl entfällt (das Leuchten am
+  abgewandten Turm bleibt). Fallback auf den flachen Strahl, wenn eines
+  der Schiffe nicht als Modell gezeichnet wird oder das Gerät keinen
+  Stencil hat.
+  Prüfung mit echtem WebGL im Browser ohne Fenster (Kisten statt Modelle,
+  die Cloud hat keine): `fieldsim` „3D beams hidden“ (Strahl unter einem
+  Rumpf verdeckt, darüber sichtbar, drittes Schiff entscheidet, Treffer auf
+  der Oberfläche) und „whole picture with 3D beams“ (Mission 14 komplett
+  gezeichnet, ohne Fehler). Wie es mit den echten Modellen aussieht, kann
+  nur Silvio im Browser sehen.
+- Noch offen: Schritt 3 (Geschosse der Großkampfschiffe aus 3D-Turmorten).
 
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 

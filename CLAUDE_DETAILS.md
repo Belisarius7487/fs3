@@ -197,6 +197,17 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
   Kameraschwenk auf dem Rumpf.
 - `f3dWarp(..., pz)`: der Wirbel in der Tiefe des Schiffs.
 
+### Seit v259
+
+- `f3dRender(items, warm, beams)`: ein Tiefenpuffer für den ganzen Stapel,
+  jedes Schiff in seiner Scheibe (`gl.depthRange`), Stencil = Nummer des
+  obersten Schiffs. `beams` nur aus `f3dFlush`.
+- Beams zwischen zwei Modellen: `drawBeamRays` sammelt sie in `F3D_BEAMS`
+  (`f3dBeam3D`), `f3dBeamPass` zeichnet sie; `f3dBeamEnds` (Turm, Treffpunkt
+  auf der Oberfläche, `b.anc.surf`, `b.anc.vis`).
+- `shieldShow`-Einheiten fangen auch Geschosse ab (`bulletOnHull`).
+- Radar: `boss`-Kulisse wird gezeigt.
+
 ## C. Werkzeuge im Detail
 
 ### `tools/pof/` — der POF-Umwandler

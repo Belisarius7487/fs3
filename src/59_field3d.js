@@ -361,8 +361,10 @@ function f3dInit(){
   try{
     if(typeof document === 'undefined' || !document.createElement) return false;
     const can = document.createElement('canvas');
+    // v259 (F76): with a stencil - which ship lies on top at each point,
+    // so a beam is tested against her hull there (f3dBeamPass)
     const gl = can.getContext('webgl', {alpha: true, premultipliedAlpha: true, antialias: true,
-                                        preserveDrawingBuffer: true, depth: true});
+                                        preserveDrawingBuffer: true, depth: true, stencil: true});
     if(!gl) return false;
     const deriv = !!gl.getExtension('OES_standard_derivatives');
     gl.getExtension('OES_element_index_uint');
@@ -420,6 +422,7 @@ function f3dInit(){
       ev.preventDefault(); F3D.models = {}; F3D.gl = null; F3D.ok = null;
     }, false);
     F3D.gl = gl; F3D.can = can; F3D.prog = pr; F3D.loc = loc;
+    F3D.stencil = (gl.getParameter(gl.STENCIL_BITS) || 0) >= 8;   // v259 (F76)
     F3D.ok = true;
   }catch(e){ F3D.ok = false; F3D.err = String(e && e.message || e); }
   return F3D.ok;
@@ -881,13 +884,27 @@ function f3dVP(){
 }
 // Draws the given ships into the field canvas and copies it into the
 // field. items: {e, L, x, y, a (alpha), clip (screen half-plane or null)}.
-function f3dRender(items, warm){
+function f3dRender(items, warm, beams){
   const gl = F3D.gl, can = F3D.can, loc = F3D.loc;
   const pw = (typeof CVS !== 'undefined' && CVS.width) || Math.round(W), ph = (typeof CVS !== 'undefined' && CVS.height) || Math.round(H);
   if(can.width !== pw || can.height !== ph){ can.width = pw; can.height = ph; }
   gl.viewport(0, 0, pw, ph);
-  gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.clearColor(0, 0, 0, 0); gl.clearStencil(0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
+  // v259 (F76): one depth buffer for the whole batch, each ship in her own
+  // slice of it (F3D_SLICES), later ships nearer. Between two ships it
+  // decides as the order always did - two hulls never cut into each other
+  // (v203: M11, M38, M54, M78) - and within a ship as her geometry does.
+  // The stencil keeps which ship is on top at each point: there a beam is
+  // tested against her (f3dBeamPass), in her slice.
+  let nSl = 0;
+  for(const it of items) if(!it.keepZ) nSl++;
+  nSl = Math.max(1, nSl);
+  gl.enable(gl.STENCIL_TEST); gl.stencilMask(0xff);
+  gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
+  const slices = [];
+  let sl = -1;
   gl.useProgram(F3D.prog);
   const cam = f3dVP();
   gl.uniformMatrix4fv(loc.uVP, false, cam.vp);
@@ -901,7 +918,14 @@ function f3dRender(items, warm){
     // big ones first), each lies wholly in front of the ones before it, as
     // the sprites did; two hulls never cut into each other (Silvio: M11,
     // M38, M54, M78)
-    if(!it.keepZ) gl.clear(gl.DEPTH_BUFFER_BIT);
+    if(!it.keepZ || sl < 0){
+      sl++;
+      const near = (nSl - 1 - sl)/nSl, far = (nSl - sl)/nSl, id = Math.min(255, sl + 1);
+      slices.push({id: id, near: near, far: far});
+    }
+    const S = slices[slices.length - 1];
+    gl.depthRange(S.near, S.far);
+    gl.stencilFunc(gl.ALWAYS, S.id, 0xff);
     const M0 = it.M || f3dMat(it.e, it.x, it.y, L);
     // v201: moving parts - one matrix per node (turret bases, barrels,
     // spinning dishes), the hull's own for node 0
@@ -944,10 +968,19 @@ function f3dRender(items, warm){
       gl.drawElements(gl.TRIANGLES, p.n, p.big ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT, 0);
     }
     // v208: her engine flames (FUEL), then v205: her shield where it was
-    // hit, over her hull
+    // hit, over her hull. They do not mark the stencil: a beam beside her
+    // hull is in open space, not on her.
+    gl.stencilMask(0);
     if(!warm){ try{ f3dThDraw(it, M0, cam); }catch(et){ F3D.err = String(et && et.message || et); } }
     if(!warm) f3dShDraw(it, M0, cam);
+    gl.stencilMask(0xff);
+    gl.useProgram(F3D.prog);
   }
+  // v259 (F76): the beams, in the same depth, against the hulls of this batch
+  if(!warm && beams){ try{ f3dBeamPass(slices, cam); }catch(eb){ F3D.err = String(eb && eb.message || eb); } }
+  gl.depthRange(0, 1); gl.depthMask(true);
+  gl.disable(gl.STENCIL_TEST); gl.stencilMask(0xff);
+  gl.useProgram(F3D.prog);
   gl.disable(gl.BLEND);
   // v208: the picture is the screen's, whatever transform the field has
   if(!warm){
@@ -957,6 +990,193 @@ function f3dRender(items, warm){
     ctx.restore();
   }
 }
+// ── BEAMS IN 3D (v259, F76) ──────────────────────────────────
+// Silvio: a beam vanished behind the Orion's nose while its hit glowed on
+// the nose, and the Lucifer's beam from her forward arm went under her own
+// nose and came out again. A beam was a flat stroke under every hull; now
+// it is a band in space from the turret (her depth plus the turret's
+// height) to the point where it meets the target's hull (found on her
+// mesh), drawn in the batch's depth buffer: at each point it is tested
+// against the hull of the ship that lies on top there (stencil), in that
+// ship's depth slice, so a nose in front hides it and a hull behind it
+// does not - its own ship's, the target's and any other's. In open space
+// it is drawn once (the first batch of the picture).
+const F3D_BEAMS = [];
+let F3D_BEAM_BG = false;
+function f3dBeamFrame(){ F3D_BEAMS.length = 0; F3D_BEAM_BG = false; }
+// Is this beam drawn in 3D? Both ships drawn from their models, the beam
+// fixed to a spot of the target (beamAnchor).
+function f3dBeam3D(e, b){
+  if(!b || b.state !== 'firing' || !b.anc || !b.anc.o) return false;
+  // without a stencil the hull on top is unknown: then the flat beam
+  if(F3D.off || !F3D.ok || !F3D.gl || !F3D.stencil || !f3dOn(e) || !f3dOn(b.anc.o)) return false;
+  const k = f3dKey(b.anc.o);
+  return !!(k && f3dReadyLevel(k));
+}
+// 4x4 column-major affine: inverse of its 3x3 and the point through it
+function f3dInvAff(M){
+  const a = M[0], b = M[4], c = M[8], d = M[1], e = M[5], f = M[9], g = M[2], h = M[6], i = M[10];
+  const A = e*i - f*h, B = -(d*i - f*g), C = d*h - e*g, det = a*A + b*B + c*C;
+  if(!det) return null;
+  const r = 1/det;
+  return {m: [A*r, (c*h - b*i)*r, (b*f - c*e)*r, B*r, (a*i - c*g)*r, (c*d - a*f)*r, C*r, (b*g - a*h)*r, (a*e - b*d)*r],
+          t: [M[12], M[13], M[14]]};
+}
+function f3dToLocal(I, p){
+  const x = p[0] - I.t[0], y = p[1] - I.t[1], z = p[2] - I.t[2], m = I.m;
+  return [m[0]*x + m[1]*y + m[2]*z, m[3]*x + m[4]*y + m[5]*z, m[6]*x + m[7]*y + m[8]*z];
+}
+function f3dFromLocal(M, p){
+  return [M[0]*p[0] + M[4]*p[1] + M[8]*p[2] + M[12],
+          M[1]*p[0] + M[5]*p[1] + M[9]*p[2] + M[13],
+          M[2]*p[0] + M[6]*p[1] + M[10]*p[2] + M[14]];
+}
+// Where the ray from A towards B (world) first meets her hull (L.cpu, the
+// mesh in her own coordinates), as a point in her coordinates; null when
+// it misses. Up to a little past B, so a point inside her still finds the
+// side facing the shooter.
+function f3dRayHitLocal(L, M, A, B){
+  if(!L || !L.cpu) return null;
+  const I = f3dInvAff(M); if(!I) return null;
+  const a = f3dToLocal(I, A), bb = f3dToLocal(I, B);
+  const dx = bb[0] - a[0], dy = bb[1] - a[1], dz = bb[2] - a[2];
+  const K = 1/32767;
+  let best = 1.35;
+  for(const p of L.cpu){
+    const P = p.pos, X = p.idx;
+    for(let j = 0; j + 2 < X.length; j += 3){
+      const i0 = X[j]*3, i1 = X[j+1]*3, i2 = X[j+2]*3;
+      const v0x = P[i0]*K, v0y = P[i0+1]*K, v0z = P[i0+2]*K;
+      const e1x = P[i1]*K - v0x, e1y = P[i1+1]*K - v0y, e1z = P[i1+2]*K - v0z;
+      const e2x = P[i2]*K - v0x, e2y = P[i2+1]*K - v0y, e2z = P[i2+2]*K - v0z;
+      const px = dy*e2z - dz*e2y, py = dz*e2x - dx*e2z, pz = dx*e2y - dy*e2x;
+      const det = e1x*px + e1y*py + e1z*pz;
+      if(det > -1e-12 && det < 1e-12) continue;
+      const inv = 1/det, tx = a[0] - v0x, ty = a[1] - v0y, tz = a[2] - v0z;
+      const u = (tx*px + ty*py + tz*pz)*inv; if(u < 0 || u > 1) continue;
+      const qx = ty*e1z - tz*e1y, qy = tz*e1x - tx*e1z, qz = tx*e1y - ty*e1x;
+      const v = (dx*qx + dy*qy + dz*qz)*inv; if(v < 0 || u + v > 1) continue;
+      const t = (e2x*qx + e2y*qy + e2z*qz)*inv;
+      if(t > 1e-4 && t < best) best = t;
+    }
+  }
+  return best < 1.35 ? [a[0] + dx*best, a[1] + dy*best, a[2] + dz*best] : null;
+}
+// The two ends of a beam in the world (GL: y up), once per picture: S at
+// the turret, T where it meets her hull. b.anc.vis: T as the camera shows
+// it in the plane, for the fire of the hit (beamImpact).
+function f3dBeamEnds(e, b){
+  const A = b.anc, o = A.o;
+  if(A._g3f === F3D_FRAME && A._g3) return A._g3;
+  const p = mountPos(e, b);
+  const S = [p.x, -p.y, Math.min(0, f3dMidZ(e) + mountDepth(e, b))];
+  const L = f3dReadyLevel(f3dKey(o));
+  const M = f3dMat(o, o.x|0, o.y|0, L);
+  const q = beamAncPt(b), mid = [q.x, -q.y, f3dMidZ(o)];
+  // the spot on her surface, found once per shot and then carried with her
+  if(!A.surf){
+    const I = f3dInvAff(M);
+    A.surf = f3dRayHitLocal(L, M, S, mid) || (I ? f3dToLocal(I, mid) : [0, 0, 0]);
+  }
+  const T = f3dFromLocal(M, A.surf);
+  A.vis = f3dPersp(T[0], -T[1], T[2]);
+  A._g3 = {S: S, T: T}; A._g3f = F3D_FRAME;
+  return A._g3;
+}
+// A canvas picture as a texture of this context (the beam's profile).
+const F3D_CVTEX = {};
+function f3dCanvasTex(key, cv){
+  const T = F3D_CVTEX[key];
+  if(T && T.gl === F3D.gl) return T.t;
+  if(!cv) return null;
+  const gl = F3D.gl, t = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cv);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  F3D_CVTEX[key] = {gl: gl, t: t};
+  return t;
+}
+// A band from P0 to P1 (world), half widths w0 and w1 across the view,
+// u0..u1 along the picture, into arr at corner k.
+function f3dBand(arr, k, P0, P1, side, w0, w1, u0, u1, al){
+  const c = [[P0, -w0, u0, 0], [P1, -w1, u1, 0], [P1, w1, u1, 1], [P0, -w0, u0, 0], [P1, w1, u1, 1], [P0, w0, u0, 1]];
+  for(let i = 0; i < 6; i++){
+    const P = c[i][0], w = c[i][1], o = (k+i)*6;
+    arr[o] = P[0] + side[0]*w; arr[o+1] = P[1] + side[1]*w; arr[o+2] = P[2] + side[2]*w;
+    arr[o+3] = c[i][2]; arr[o+4] = c[i][3]; arr[o+5] = al;
+  }
+  return k + 6;
+}
+let F3D_BEAM_ARR = new Float32Array(6*6*64), F3D_FLOW_ARR = new Float32Array(6*6*256);
+// The beams of this picture into the batch just drawn (f3dRender).
+function f3dBeamPass(slices, cam){
+  if(!F3D_BEAMS.length || !f3dFxProg()) return;
+  const gl = F3D.gl, D = f3dEyeD(), G = (typeof fxG === 'function') ? fxG() : 1;
+  const Kz = function(z){ return D/Math.max(D*0.05, D - z); };
+  // by colour: one picture each
+  const groups = {};
+  for(const it of F3D_BEAMS){
+    const e = it.e, b = it.b;
+    if(!f3dBeam3D(e, b)) continue;
+    const g = f3dBeamEnds(e, b), S = g.S, T = g.T;
+    const col = beamCol(e.faction, b.large);
+    const grp = groups[col] || (groups[col] = {core: [], flow: []});
+    const dir = [T[0]-S[0], T[1]-S[1], T[2]-S[2]];
+    const mid = [(S[0]+T[0])/2, (S[1]+T[1])/2, (S[2]+T[2])/2];
+    const v = [cam.eye[0]-mid[0], cam.eye[1]-mid[1], cam.eye[2]-mid[2]];
+    const side = f3dNorm(f3dCross(dir, v));
+    // the widths of the 2D beam (drawBeamRay), as the camera shows them
+    const wP = (b.large ? 7.5 : 3.6)*G, fl = 0.92 + 0.08*Math.sin(fc*0.8);
+    const kS = Kz(S[2]), kT = Kz(T[2]);
+    grp.core.push([S, T, side, wP*fl*1.6/kS, wP*fl*1.6/kT]);
+    // the light running along it: bands of the flow picture, moving out
+    const Lp = Math.hypot((T[0]-S[0])*(kS+kT)/2, (T[1]-S[1])*(kS+kT)/2) || 1;
+    const seg = wP*14, off = -((fc*wP*0.9) % seg);
+    for(let x = off; x < Lp; x += seg){
+      const f0 = Math.max(0, x/Lp), f1 = Math.min(1, (x + seg)/Lp);
+      if(f1 <= f0) continue;
+      const P0 = [S[0]+dir[0]*f0, S[1]+dir[1]*f0, S[2]+dir[2]*f0], P1 = [S[0]+dir[0]*f1, S[1]+dir[1]*f1, S[2]+dir[2]*f1];
+      grp.flow.push([P0, P1, side, wP*0.9/Kz(P0[2]), wP*0.9/Kz(P1[2]), (f0*Lp - x)/seg, (f1*Lp - x)/seg]);
+    }
+  }
+  const draws = [];
+  for(const col in groups){
+    const g = groups[col];
+    const tc = f3dCanvasTex('beam' + col, beamTex(col)), tf = f3dCanvasTex('flow' + col, beamFlow(col));
+    if(tc && g.core.length){
+      if(F3D_BEAM_ARR.length < g.core.length*36) F3D_BEAM_ARR = new Float32Array(g.core.length*72);
+      let k = 0; for(const c of g.core) k = f3dBand(F3D_BEAM_ARR, k, c[0], c[1], c[2], c[3], c[4], 0, 1, 0.95);
+      draws.push({arr: F3D_BEAM_ARR.slice(0, k*6), n: k, tex: tc});
+    }
+    if(tf && g.flow.length){
+      if(F3D_FLOW_ARR.length < g.flow.length*36) F3D_FLOW_ARR = new Float32Array(g.flow.length*72);
+      let k = 0; for(const c of g.flow) k = f3dBand(F3D_FLOW_ARR, k, c[0], c[1], c[2], c[3], c[4], c[5], c[6], 0.9);
+      draws.push({arr: F3D_FLOW_ARR.slice(0, k*6), n: k, tex: tf});
+    }
+  }
+  if(!draws.length) return;
+  gl.disable(gl.CULL_FACE);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+  gl.depthMask(false);
+  gl.enable(gl.STENCIL_TEST); gl.stencilMask(0); gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+  const pass = function(near, far, id){
+    gl.depthRange(near, far);
+    gl.stencilFunc(gl.EQUAL, id, 0xff);
+    for(const d of draws) f3dFxDraw(d.arr, d.n, d.tex, null, cam, null, 1, true);
+  };
+  // on each ship: against her hull, in her slice
+  for(const s of slices) pass(s.near, s.far, s.id);
+  // in open space: once a picture
+  if(!F3D_BEAM_BG){ pass(0, 1, 0); F3D_BEAM_BG = true; }
+  gl.depthRange(0, 1); gl.depthMask(true);
+  gl.stencilMask(0xff);
+  gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
+  gl.disable(gl.BLEND);
+}
+
 // ── DAMAGE ON THE MODEL (v204) ───────────────────────────────
 // Silvio (M38): the damage of a ship drawn from her model lies on her
 // model, under whatever is in front of her. The damage picture is still
@@ -1319,7 +1539,7 @@ function f3dFlush(seg){
     items.length = 0; for(const it of ord) items.push(it);
   }
   if(items.length){
-    try{ f3dRender(items); }catch(er){ F3D.err = String(er && er.message || er); }
+    try{ f3dRender(items, false, true); }catch(er){ F3D.err = String(er && er.message || er); }
   }
   for(const s of seg){
     if(s.hulk) continue;

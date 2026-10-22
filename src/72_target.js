@@ -398,7 +398,9 @@ function drawBarRadar(x, y, w, h){
   const py = v => y + 2 + (Math.max(ay0, Math.min(ay1, v)) - ay0)*sy;
   ctx.imageSmoothingEnabled = true;
   const list = [];
-  for(const e of enemies) if(!e.dead && e.img && e.type !== 'asteroid' && !(e.warp > 0) && !e.scenery) list.push([e, false]);
+  // F75 (v259): an untouchable super destroyer is scenery for the fight,
+  // but she is a ship on the field and the radar shows her (the Lucifer).
+  for(const e of enemies) if(!e.dead && e.img && e.type !== 'asteroid' && !(e.warp > 0) && (!e.scenery || e.type === 'boss')) list.push([e, false]);
   for(const e of allies)  if(!e.dead && e.img && !(e.warp > 0)) list.push([e, true]);
   // big ones first, the small craft over them
   const wOf = o => IMGS[o.img] ? IMGS[o.img].width*o.sc : 0;

@@ -710,7 +710,9 @@ function bulletOnHull(e, b){
   // Pure scenery - an installation that cannot be hurt, such as the
   // Arcadia or the Knossos portal in the background - catches no shots
   // (v185, Silvio). An installation that is a target is not invuln.
-  if(e.invuln && e.scenery) return false;
+  // F74 (v259): unless her shield is there to be seen (shieldShow) - then
+  // shots strike it and make it flare.
+  if(e.invuln && e.scenery && !e.shieldShow) return false;
   const ea = e.ang || 0;
   const pr = probeAxis(b);
   // v210: against her hull as it is drawn (hullView, 59_field3d.js)
