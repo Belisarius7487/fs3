@@ -2473,8 +2473,18 @@ Textur als intakte Modelle".
   echten Trümmerteilen eines Modells verlangen (mit Trümmertextur wie beim
   Zerbrechen). Sie treiben langsam, liegen hinter allen Schiffen und
   explodieren nicht. Mission 17 nimmt 12 Teile der Karnak.
-- Offen: ob das Karnak-Modell auf Silvios Server mit Trümmerteilen und
-  -texturen (seit v202) umgewandelt ist, war aus der Cloud nicht zu sehen.
+- v265 auf dem Server: das Karnak-Modell fehlte ganz (FSPort-MediaVPs,
+  nie umgewandelt). Als ZIP nachgeliefert.
+- **Befund (Silvio, 23.10.2026):** „es hat keine Trümmertexturen, sondern
+  seine normalen Texturen. Hinzukommt, dass es zuviele Trümmer sind, die
+  zwar herumschweben, aufgrund ihrer Menge aber wild ineinander schweben."
+  Die Karnak-Trümmerteile tragen schon im FSPort-Modell die Stationstextur.
+  Gewählt: im Spiel verbrannt einfärben — „die Trümmer [sind] recht groß
+  und ich [möchte] nicht, dass es unecht oder verwaschen aussieht".
+- **Gebaut in v266:** verbrannt (dunkler, rußig, ungleichmäßig, Lichter
+  aus, Detail und Licht bleiben); jedes Stück höchstens einmal, höchstens
+  5, mit Abstand, jedes in eigener Tiefe, gemeinsame Drift — sie ziehen
+  hintereinander vorbei, nie durcheinander.
 
 ### F86 — Mission 16: die Shivaner ignorieren die Asimov (v263) — gebaut in v264
 

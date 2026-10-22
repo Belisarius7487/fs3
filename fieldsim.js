@@ -5788,7 +5788,7 @@ scenario('v264 F86: every fighter of the first wave goes for the Asimov', 'm=16'
   r.secondGroup = evSeen('E3') && evSeen('B3');
   return r;`);
 
-scenario('v265 M17 La Ruota della Fortuna: Medusas, worn Shivans, the Karnak wreck, Galatea then Lilith and Cain', 'm=17', `
+scenario('v266 M17 La Ruota della Fortuna: Medusas, worn Shivans, the Karnak wreck, Galatea then Lilith and Cain', 'm=17', `
   const r = {};
   FS.until(()=>allies.filter(a=>a.img==='bomedusa').length>=3 && enemies.filter(e=>/^(E1|E2|B1)$/.test(e.uid)).length>=6, 600, false);
   r.inMedusa = player.ship === 'bomedusa';
@@ -5799,13 +5799,16 @@ scenario('v265 M17 La Ruota della Fortuna: Medusas, worn Shivans, the Karnak wre
   // the wreck: asked for at once, seeded from the model's own debris pieces
   r.wreckAsked = !!F3D_WRECK && F3D_WRECK.key === 'inkarnak';
   const realReady = f3dReadyLevel;
-  f3dReadyLevel = ()=>({head:{size:[2,1,1], ext:1, nodes:[null, {k:'deb', pv:[0,0,0], r:0.2}, {k:'deb', pv:[0.4,0,0], r:0.1}, {k:'x', pv:[0,0,0]}]}});
+  f3dReadyLevel = ()=>({head:{size:[2,1,1], ext:1, nodes:[null, {k:'x', pv:[0,0,0]}].concat([1,2,3,4,5,6,7,8,9,10].map(i=>({k:'deb', pv:[i/20,0,0], r:0.03})))}});
   f3dTickHulks();
   f3dReadyLevel = realReady;
   const w = F3D_HULKS.filter(P=>P.wreck);
-  r.wreckPieces = w.length === 12 && w.every(P=>P.heat===0 && P.next===Infinity && P.j!==3);
+  r.wreckPieces = w.length >= 3 && w.length <= 5 && w.every(P=>P.heat===0 && P.next===Infinity && P.j!==1);
+  r.wreckEachOnce = new Set(w.map(P=>P.j)).size === w.length;
+  r.wreckApart = w.every((P,i)=>w.every((Q,k)=>k<=i || Math.abs(P.z-Q.z) > P.r+Q.r));
+  r.wreckBurnt = w.every(P=>f3dHulkItem(Object.assign({}, P, {L:{state:'ready'}})).burn === 1);
   FS.step(600);
-  r.wreckStays = F3D_HULKS.filter(P=>P.wreck).length === 12;
+  r.wreckStays = F3D_HULKS.filter(P=>P.wreck).length === w.length;
   FS.killId('B1');
   FS.until(()=>evSeen('V1'), 1500, false);
   r.scorpionsAfterBombers = evSeen('V1') && !evSeen('GA');

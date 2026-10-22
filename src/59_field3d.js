@@ -376,7 +376,7 @@ function f3dInit(){
       + 'uniform sampler2D tC; uniform sampler2D tN; uniform sampler2D tG; uniform sampler2D tD; uniform sampler2D tF;'
       + 'uniform vec4 uDP; uniform vec3 uDD; uniform vec4 uFR; uniform float uFon;'
       + 'uniform float uHasN; uniform float uKind; uniform vec3 uCam; uniform vec3 uL1; uniform vec3 uL2;'
-      + 'uniform vec3 uClip; uniform float uA; uniform vec3 uGA; uniform vec3 uGF;'
+      + 'uniform vec3 uClip; uniform float uA; uniform vec3 uGA; uniform vec3 uGF; uniform float uBurn;'
       + 'void main(){'
       + ' if(dot(uClip.xy, vW.xy) + uClip.z < 0.0) discard;'
       + ' vec3 N = normalize(vN);'
@@ -391,8 +391,17 @@ function f3dInit(){
       + ' vec3 V = normalize(uCam - vW);'
       + ' float d = max(dot(N, uL1), 0.0)*0.95 + max(dot(N, uL2), 0.0)*0.30;'
       + ' float s = pow(max(dot(N, normalize(uL1+V)), 0.0), uKind > 1.5 ? 60.0 : 24.0)*(uKind > 1.5 ? 0.9 : 0.35);'
+      // F87 (v266): a burnt-out wreck (uBurn). The hull's own map stays the
+      // ground, so its detail and the lighting stay sharp; it is darkened
+      // and partly drained of colour towards a warm soot, unevenly - the
+      // soot pattern is the same map read again at another scale - and its
+      // lights are out and its plating dull.
+      + ' if(uBurn > 0.0){ float lu = dot(base, vec3(0.299, 0.587, 0.114));'
+      + '  float so = smoothstep(0.22, 0.68, texture2D(tC, vT*2.37 + vec2(0.31, 0.17)).g);'
+      + '  vec3 ch = mix(vec3(lu)*vec3(0.92, 0.86, 0.80), base, 0.40)*mix(0.60, 0.20, so);'
+      + '  base = mix(base, ch, uBurn); s *= mix(1.0, 0.4, uBurn); }'
       + ' vec3 col = base*(0.30 + d*1.15)*1.15 + vec3(s);'
-      + ' if(uKind < 0.5){ vec2 gt = vT;'
+      + ' if(uKind < 0.5 && uBurn < 0.5){ vec2 gt = vT;'
       + '  if(uGF.z > 0.5) gt = (uGF.xy + clamp(fract(vT), vec2(uGA.z), vec2(1.0-uGA.z)))/uGA.xy;'
       + '  col += texture2D(tG, gt).rgb; }'
       // v204: what she has taken, on her hull - the damage picture of her
@@ -413,7 +422,7 @@ function f3dInit(){
     const loc = {};
     for(const a of ['aP', 'aN', 'aT']) loc[a] = gl.getAttribLocation(pr, a);
     for(const u of ['uM', 'uVP', 'tC', 'tN', 'tG', 'uHasN', 'uKind', 'uCam', 'uL1', 'uL2', 'uClip', 'uA', 'uGA', 'uGF',
-                    'tD', 'tF', 'uDP', 'uDD', 'uFR', 'uFon']) loc[u] = gl.getUniformLocation(pr, u);
+                    'tD', 'tF', 'uDP', 'uDD', 'uFR', 'uFon', 'uBurn']) loc[u] = gl.getUniformLocation(pr, u);
     const px = function(r, g, b){ const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([r, g, b, 255])); return t; };
     F3D.white = px(160, 160, 160); F3D.black = px(0, 0, 0); F3D.flatN = px(128, 128, 255);
@@ -956,6 +965,7 @@ function f3dRender(items, warm, beams){
     let curNode = -1;
     gl.uniformMatrix4fv(loc.uM, false, M0);
     gl.uniform1f(loc.uA, it.a);
+    gl.uniform1f(loc.uBurn, it.burn || 0);   // F87
     f3dDmgBind(it.deb != null ? null : it.e, L);
     // the clip of a ship sliding through her vortex (fsWarpClip), in the
     // field's own units with y turned up
@@ -1848,22 +1858,39 @@ function f3dWreckSeed(){
   const js = [];
   for(let j = 1; j < N.length; j++){ const n = N[j]; if(n && n.k === 'deb' && !n.empty) js.push(j); }
   if(!js.length) return;
+  // v266 (Silvio): every piece at most once, and apart - twelve drawn at
+  // random drifted through each other
+  for(let i = js.length - 1; i > 0; i--){ const k = (Math.random()*(i + 1))|0; const t = js[i]; js[i] = js[k]; js[k] = t; }
   // her whole hull as wide as she would be drawn on the field
   const sz = L.head.size, span = hullWidth(W.key);
   const s = span/Math.max(0.01, Math.max(sz[0], sz[1], sz[2])/L.head.ext);
-  for(let i = 0; i < W.n; i++){
-    const j = js[(Math.random()*js.length)|0], n = N[j];
+  // they drift together, as the wreck of one station does, so they keep apart
+  const dir = Math.random()*Math.PI*2, sp0 = 0.006;
+  const put = [];
+  for(const j of js.slice(0, W.n)){
+    const n = N[j], rr = (n.r || 0.2)*span/2;
+    let x = 0, y = 0, ok = false;
+    for(let t = 0; t < 60 && !ok; t++){
+      x = MW*(0.08 + 0.84*Math.random()); y = HUD_H + (MH - HUD_H)*(0.1 + 0.8*Math.random());
+      // the pieces are long and slender: their bounding circles may cross
+      ok = put.every(function(q){ return Math.hypot(q.x - x, q.y - y) > (q.r + rr)*0.7; });
+    }
+    if(!ok) continue;                               // no room left: fewer pieces
+    // each piece in a depth of its own, deeper than the one before by more
+    // than both their sizes: tumbling, they pass behind each other, never
+    // through each other
+    const z = put.length ? put[put.length - 1].z - (put[put.length - 1].r + rr)*1.05 : -(rr + 120);
+    put.push({x: x, y: y, r: rr, z: z});
     let ax = [Math.random()-0.5, Math.random()-0.5, Math.random()-0.5];
     let al = Math.hypot(ax[0], ax[1], ax[2]) || 1; ax = [ax[0]/al, ax[1]/al, ax[2]/al];
     const A0 = f3dAxisRot(ax, Math.random()*Math.PI*2).map(function(v){ return v*s; });
     let tx = [Math.random()-0.5, Math.random()-0.5, Math.random()-0.5];
     al = Math.hypot(tx[0], tx[1], tx[2]) || 1; tx = [tx[0]/al, tx[1]/al, tx[2]/al];
-    const rr = (n.r || 0.2)*span/2, dir = Math.random()*Math.PI*2, sp = 0.004 + Math.random()*0.012;
-    F3D_HULKS.push({L: L, j: j, pv: n.pv, A0: A0, wreck: true,
-      x: MW*(0.06 + 0.88*Math.random()), y: HUD_H + (MH - HUD_H)*(0.08 + 0.84*Math.random()),
-      z: -(rr + 120), r: rr, fp: 1e12,                  // behind every ship
+    const sp = sp0*(0.85 + 0.3*Math.random());
+    F3D_HULKS.push({L: L, j: j, pv: n.pv, A0: A0, wreck: true, x: x, y: y,
+      z: z, r: rr, fp: 1e12,                            // behind every ship
       vx: Math.cos(dir)*sp, vy: Math.sin(dir)*sp*0.5,
-      ax: tx, w: (0.0004 + Math.random()*0.001)*(Math.random()<0.5 ? -1 : 1), a: 0,
+      ax: tx, w: (0.0003 + Math.random()*0.0006)*(Math.random()<0.5 ? -1 : 1), a: 0,
       heat: 0, fac: 'vasudan', next: Infinity});
   }
 }
@@ -1900,7 +1927,7 @@ function f3dHulkItem(P){
   const q = f3dMulV(A, P.pv);
   const M = new Float32Array([A[0], A[1], A[2], 0, A[3], A[4], A[5], 0, A[6], A[7], A[8], 0,
                               P.x - q[0], -P.y - q[1], P.z - q[2], 1]);
-  return {e: null, L: P.L, deb: P.j, M: M, a: 1, clip: null};
+  return {e: null, L: P.L, deb: P.j, M: M, a: 1, clip: null, burn: P.wreck ? 1 : 0};
 }
 function f3dHulksOn(){ return F3D_HULKS.length > 0 && !F3D.off && f3dInit(); }
 // all of them at once (tests, older callers)

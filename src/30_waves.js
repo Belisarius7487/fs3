@@ -2988,7 +2988,7 @@ const SCRIPT_WAVES = {
   // Galatea jumps in (the home ship) and right behind her the cruisers
   // Lilith and Cain. Replaces the old mission 17 (Silvio, 23.10.2026).
   17:{name:'La Ruota della Fortuna', era:'fs1', orig:13, ship:'bomedusa', fac:'hol', o:'clear', live:6,
-      wreck3d:{key:'inkarnak', n:12},
+      wreck3d:{key:'inkarnak', n:5},
       ziel:'Destroy all Shivans - bonus: keep the Galatea above half hull', u:[
        {id:'W1', c:'bo', n:1, size:3, spr:'bomedusa', side:'ally'},
        // already there when Alpha arrives, worn from the fight with the outpost
