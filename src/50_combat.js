@@ -2603,10 +2603,13 @@ function flakTurrets(e, ally, fl){
   for(let i=0;i<pts.length && i<e.flakTs.length;i++){
     if(--e.flakTs[i] > 0) continue;
     e.flakTs[i] = (rndR(FLAK_RATE)*fl[i].fk.rate/boost)|0;
-    const p = pts[i];
-    const tg = ally ? nearestEnemy(p.x, p.y) : capGunTarget(e);
+    const p0 = pts[i];
+    const tg = ally ? nearestEnemy(p0.x, p0.y) : capGunTarget(e);
     if(!tg) continue;
-    if(typeof mountCanAim === 'function' && !mountCanAim(e, fl[i], p.x, p.y, tg.x, tg.y)){ e.flakTs[i] = 15; continue; }
+    if(typeof mountCanAim === 'function' && !mountCanAim(e, fl[i], p0.x, p0.y, tg.x, tg.y)){ e.flakTs[i] = 15; continue; }
+    // v263 (F82): the shell leaves from where the turret is seen, in the
+    // play plane, aimed from there - no rise from her depth any more.
+    const p = capSeenPt(e, p0.x, p0.y, fl[i]);
     const ang  = Math.atan2(tg.y-p.y, tg.x-p.x);
     const want = Math.hypot(tg.x-p.x, tg.y-p.y);
     const d    = flakReach(p.x, p.y, ang, want);
@@ -2616,7 +2619,7 @@ function flakTurrets(e, ally, fl){
     if(typeof f3dAim === 'function') f3dAim(e, fl[i].ti, tg.x, tg.y);
     const hidE = (typeof mountHid === 'function' && mountHid(e, fl[i])) ? e : null;
     sndStart('wpn_dante', p.x, 1, false, 'ai_fire', p.y);
-    const fz = capShotZ(e, fl[i]);     // v260 (F76 step 3): from the turret in space
+    const fz = 0;                       // v263 (F82): already in the plane (capSeenPt)
     if(ally) pBullets.push({x:p.x, y:p.y, vx:vx, vy:vy, w:11, h:5,
                             dmg:FLAK_SHARD_DMG*mul, ally:true, fac:e.faction,
                             flak:true, fuse:fuse, fmul:mul, col:dw.col, glow:dw.glow, hidE:hidE, hz0:fz});
@@ -2650,12 +2653,14 @@ function capitalFire(e){
         if(_md && _md.n3 && typeof mountCanAim === 'function' && !mountCanAim(e, _md, pts[i].x, pts[i].y, gt.x, gt.y)){
           e.gunT[i] = 12 + (Math.random()*18|0); continue;
         }
-        const ga = (bomb ? leadAngle(pts[i].x, pts[i].y, bomb, pSpd(g.spd)*TEMPO_K)
-                         : Math.atan2(gt.y-pts[i].y, gt.x-pts[i].x))
+        // v263 (F82): from where the turret is seen, aimed from there.
+        const _sp = capSeenPt(e, pts[i].x, pts[i].y, _md);
+        const ga = (bomb ? leadAngle(_sp.x, _sp.y, bomb, pSpd(g.spd)*TEMPO_K)
+                         : Math.atan2(gt.y-_sp.y, gt.x-_sp.x))
                  + (Math.random()-0.5)*0.10*eScat*g.scat;
         sndCapShot(pts[i].x, pts[i].y, g.snd, !!g.big);   // F42
         if(_md && typeof f3dAim === 'function') f3dAim(e, _md.ti, gt.x, gt.y);
-        capGunShot(e, pts[i].x, pts[i].y, ga, g, false, !!bomb,
+        capGunShot(e, _sp.x, _sp.y, ga, g, false, !!bomb,
                    (_md && typeof mountHid === 'function' && mountHid(e, _md)) ? e : null, _md);
       }
     }

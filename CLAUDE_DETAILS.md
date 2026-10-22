@@ -282,3 +282,13 @@ kürzt Namen ab und trägt einen alten Schreibfehler), und wird gegen
   und Stelle (war schon so, wird in M15 genutzt).
 - Das Radar zeigt Aufsammelbares als blinkenden Punkt (grün Reparatur,
   blau Leben).
+
+### Seit v263 (Mission 16, The Big Bang; F82, F83)
+
+- Verbündetes Großkampfschiff: `hurt:0.92` (startet mit diesem Anteil des
+  Rumpfs), `bigBang:true` (ihr Ende ist eine große Druckwelle `BIG_BANG`,
+  die Jäger, Bomber und den Spieler trifft).
+- Geschosse und Flak der Großkampfschiffe starten am sichtbaren Turm in
+  der Spielebene (`capSeenPt`); der Aufstieg aus der Tiefe ist weg (F82).
+- Die Antwort auf ein gerufenes Großkampfschiff kommt von der Fraktion der
+  Gegner der Mission (`missionFoe`, `scriptFoe`), nicht vom Zyklus (F83).

@@ -2067,7 +2067,8 @@ function launchAllyWing(host){
 
 // Enemy bombers sent in answer to a called capital ship.
 function sendCapBombers(){
-  const type = 'bo_' + FAC_TAG[currentFaction];
+  // v263 (F83): from the mission's foe (scriptFoe), else the cycle's.
+  const type = 'bo_' + FAC_TAG[(typeof missionFoe !== 'undefined' && missionFoe) || currentFaction];
   const pool = poolFor(type);
   if(!pool || !pool.length) return;
   const spr = pool[(Math.random()*pool.length)|0];
@@ -2304,10 +2305,12 @@ function allyFire(a){
       if(_ad && typeof f3dAim === 'function') f3dAim(a, _ad.ti, tg.x, tg.y);
       // Aimed where the target will be, not where it is (M35, v159).
       // Turrets cover the full circle.
-      const ang = leadAngle(pts[i].x, pts[i].y, tg, pSpd(g.aspd)*TEMPO_K)
+      // v263 (F82): from where the turret is seen, aimed from there.
+      const _sp = capSeenPt(a, pts[i].x, pts[i].y, _ad);
+      const ang = leadAngle(_sp.x, _sp.y, tg, pSpd(g.aspd)*TEMPO_K)
                 + (Math.random()-0.5)*0.06*aScat*g.scat;
       sndCapShot(pts[i].x, pts[i].y, g.snd, !!g.big);   // F42
-      capGunShot(a, pts[i].x, pts[i].y, ang, g, true, false,
+      capGunShot(a, _sp.x, _sp.y, ang, g, true, false,
                  (_ad && typeof mountHid === 'function' && mountHid(a, _ad)) ? a : null, _ad);
     }
   }

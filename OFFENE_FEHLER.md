@@ -2431,7 +2431,7 @@ mehreren Schiffslängen folgt und sich dabei etwas auffächert.
   der Größe des getroffenen Schiffs.
 - **Behoben in v261:** der Austritt ist jetzt ein langer, heller Strahl aus Flammen (zwei Lagen im Beam-Profil, orange und weißgelb), der dem Beam folgt, sich um das 2,6-Fache auffächert und dabei verblasst, dazu 30 Funken, die ihn entlanglaufen, und ein Licht am Austrittspunkt. Länge fest je Beam (`BEAM_EXIT_LEN`: 30 Beam-Breiten bei schweren, 18 bei kleinen), nicht nach dem getroffenen Schiff. Am Eintritt ein Licht, etwas Feuer und Funken zurück zum Turm.
 
-### F83 — Antwort auf Verstärkung kommt von der falschen Seite (v262)
+### F83 — Antwort auf Verstärkung kommt von der falschen Seite (v262) — behoben in v263
 
 **Befund (Silvio, 22.10.2026):** „Wenn ich in Mission 15 Verstärkung rufe,
 kommen als Antwort vasudanische Hammer of Light Gegner und ich frage mich,
@@ -2443,8 +2443,11 @@ Gegner sind, nicht eher Shivaner als Antwort reinwarpen sollten."
   (`currentFaction`), im FS1-Strang also Hammer of Light.
 - Vorschlag: Die Antwort kommt von der Seite, die in der Mission die
   Gegner stellt (aus den feindlichen Einheiten der Mission gezählt).
+- **Gebaut in v263:** `scriptFoe` zählt die feindlichen Schiffe der
+  Mission, `sendCapBombers` nimmt deren Fraktion. Gilt für jede
+  geschriebene Mission.
 
-### F82 — Geschosse der Pinnacle schlagen einen Haken (v262)
+### F82 — Geschosse der Pinnacle schlagen einen Haken (v262) — behoben in v263
 
 **Befund (Silvio, 22.10.2026):** „Waffenprojektile der Pinnacle fliegen
 kurz nach rechts und machen dann einen Haken nach links. Ich vermute mal,
@@ -2459,7 +2462,10 @@ wechseln."
   Geschoss im Bild nach außen, dann fliegt es zum Ziel. Die Pinnacle steht
   rechts und ist groß, daher der Haken nach rechts.
 - Vorschlag: Geschoss startet dort, wo man den Turm sieht, schon in der
-  Spielebene, und fliegt gerade. Noch nicht abgesegnet.
+  Spielebene, und fliegt gerade.
+- **Gebaut in v263:** Geschosse und Flak aller Großkampfschiffe starten,
+  wo der Turm zu sehen ist (`capSeenPt`), und werden von dort gezielt.
+  Der Aufstieg aus der Tiefe (v260, F76 Schritt 3) entfällt.
 
 ### F81 — Mission 14: zweiter Lucifer-Beam ohne Austritt, der Strahl wirkt abgeknickt (v260) — behoben in v261
 

@@ -451,7 +451,16 @@ function triggerExpl(x, y, shipType, faction, src) {
   EXPL_NOW = !!(src && src.rolled);
   try{ triggerExplBody(x, y, shipType, faction, src); } finally { EXPL_NOW = false; }
 }
+// v263 (M16, The Big Bang): the Asimov's end. Wider and harder than any
+// capital ship's own blast wave: a share of maximum hull to everything
+// it reaches, the player included.
+const BIG_BANG = [600, 6.0, 0.25];   // radius in world units, like every blast wave
 function triggerExplBody(x, y, shipType, faction, src) {
+  if(src && src.bigBang && !src._banged){
+    src._banged = true;
+    spawnShock(x, y, BIG_BANG[0], BIG_BANG[1], BIG_BANG[2]);
+    addShake(18, 70);
+  }
   // The branch chain below has no else. Any type that is not in it dies
   // silently, with no fireball, no ring and no debris - which is what the
   // non-combatants did when they were first added. They borrow the
@@ -1095,6 +1104,11 @@ function update(){
         // noKill: held above a sliver of hull until the mission lets go
         // ('freigeben') - the Iceni until her crew is off (v169).
         if(_a && _sp.noKill) _a.keepAlive = true;
+        // v263 (M16): hurt - she starts with this share of her hull (the
+        // Asimov at 92 %); bigBang - her end is a blast that hurts everything
+        // near (BIG_BANG, triggerExplBody).
+        if(_a && _sp.hurt) _a.hp = Math.max(1, Math.round(_a.maxHp*_sp.hurt));
+        if(_a && _sp.bigBang) _a.bigBang = true;
         // Already there when the wave opens (the Iceni in 70): no jump in.
         if(_a && _sp.noWarp){ _a.warp = 0; }
         // guard: a ship of ours the mission is about. Her loss costs

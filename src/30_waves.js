@@ -2914,21 +2914,49 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'L1+L2', d:3, w:'abzug', a2:'', hold:true}
      ]},
 
-  16:{name:'The Mutiny', fac:'hol', o:'guard', live:5, u:[
-       // v188: the Aten has her FS2 hull now. She is the ship to guard
-       // here, so this one keeps the hull she had (v189: 0.75 x 1.33).
-       {id:'A1', c:'cr', n:1, spr:'craten', side:'ally', hp:1.33},
-       {id:'A2', c:'fi', n:2, side:'ally'},
-       // v189: 3+3 -> 2+2. Since v185 the Thoth has her FS2 values and
-       // six deaths in fifty seconds was the result (Silvio).
-       {id:'E1', c:'fi', n:2},
-       {id:'E2', c:'fi', n:2, wait:true}
+  // The Big Bang (fs1/sm2-02a). The science cruiser Asimov and the cruiser
+  // Ravage under Scorpions and Shaitans. Cleared, the transport Spomer docks
+  // and takes the scientists off; lost before she is done, the Stull comes
+  // instead. A second wave follows the Spomer. Below a tenth of her hull the
+  // Asimov blows herself up, and her blast hurts everything near (bigBang).
+  // Replaces the old mission 16 (Silvio, 22.10.2026).
+  16:{name:'The Big Bang', era:'fs1', orig:12, ship:'fiapollo', fac:'hol', o:'clear', live:6,
+      ziel:'Get the scientists off the Asimov - bonus: keep the Ravage', u:[
+       {id:'W1', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
+       {id:'W2', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
+       {id:'AS', c:'cr', n:1, spr:'scfaustus', side:'ally', x:330, y:220, still:true, noWarp:true,
+        hurt:0.92, bigBang:true, label:'GTSC Asimov'},
+       {id:'RV', c:'cr', n:1, spr:'crfenris', side:'ally', x:500, y:370, still:true, noWarp:true, label:'GTC Ravage'},
+       {id:'E1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:130, warpIn:true, wait:true,
+        dockTo:'AS', dockHold:10, dockLabel:'EVACUATING', mark:'protect', label:'GTT Spomer'},
+       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:130, warpIn:true, wait:true,
+        dockTo:'AS', dockHold:10, dockLabel:'EVACUATING', mark:'protect', label:'GTT Stull'},
+       {id:'E2', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true},
+       {id:'B2', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true}
      ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'meldung', a2:'escort turning hostile'},
-       {t:'alleZerstoert', a:'E1', w:'seite', a2:'A2'},
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
-       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
-       {t:'alleZerstoert', a:'A2', w:'nachschub', a2:'aus'}
+       // The Asimov lost: the scientists with her. After her blast the
+       // Shivans pull out and the mission is over ('abzug' closes the rest).
+       {t:'rumpfUnter', a:'AS', b:10, w:'zerstoeren', a2:'AS'},
+       {t:'vernichtet', a:'AS', w:'zielverfehlt', a2:'The scientists are dead'},
+       {t:'vernichtet', a:'AS', d:6, w:'abzug', a2:''},
+       {t:'sek', a:3, w:'einwarpen', a2:'E1'},
+       {t:'sek', a:3, w:'einwarpen', a2:'B1'},
+       // cleared, or 40 s at the latest: the Spomer
+       {t:'alleZerstoert', a:'E1+B1', w:'einwarpen', a2:'T1'},
+       {t:'da', a:'E1', d:40, w:'einwarpen', a2:'T1'},
+       {t:'da', a:'T1', d:10, w:'einwarpen', a2:'E2'},
+       {t:'da', a:'T1', d:10, w:'einwarpen', a2:'B2'},
+       {t:'da', a:'E2', w:'jagd', a2:'T1'},
+       // the Stull, should the Spomer be lost before she is done
+       {t:'vernichtet', a:'T1', w:'einwarpen', a2:'T2'},
+       {t:'vernichtet', a:'T1', w:'jagd', a2:'T2'},
+       {t:'angedockt', a:'T1', w:'zielerfuellt', a2:'The scientists are safe'},
+       {t:'angedockt', a:'T2', w:'zielerfuellt', a2:'The scientists are safe'},
+       {t:'vernichtet', a:'T1+T2', w:'zielverfehlt', a2:'Spomer and Stull destroyed'},
+       {t:'vernichtet', a:'RV', w:'meldung', a2:'Bonus lost - GTC Ravage destroyed'}
+       // The rest ends on its own: the last Shivan down, nothing left to come.
      ]},
 
   25:{name:'The Escape', fac:'hol', o:'clear', live:5, u:[
@@ -4939,7 +4967,7 @@ function scriptUnit(u, fac, q){
              crossSecs:u.crossSecs, still:u.still,
              crossDir:u.crossDir, defectRun:u.defectRun, noWings:u.noWings,
              x:u.x, y:u.y, callsOk:u.callsOk, beamDelay:u.beamDelay, guard:u.guard,
-             noKill:u.noKill, noWarp:u.noWarp, home:u.home}
+             noKill:u.noKill, noWarp:u.noWarp, home:u.home, hurt:u.hurt, bigBang:u.bigBang}
           : {time:t0+i*140, type:ty, spr:u.spr||'', y:(u.c==='in'?(u.y!=null?u.y:H*0.5):yy),
              x:u.x, escape:u.escape, invuln:u.invuln, edge:u.edge, capRam:u.capRam,
              escWarp:u.escWarp, capture:u.capture, flee:u.flee, scanSubs:u.scanSubs,
@@ -5099,7 +5127,27 @@ function buildScripted(def){
   return q.sort(function(a,b){ return a.time-b.time; });
 }
 
+// v263 (F83, Silvio): who the enemy is in a written mission - the faction
+// most of its hostile ships fly for, counted ship by ship. The answer to a
+// called capital ship (sendCapBombers) comes from them, not from the
+// cycle the mission runs under: Shivans in M15, the Hammer of Light where
+// the Vasudans are the foe. '' outside a written mission.
+let missionFoe = '';
+function scriptFoe(def){
+  const n = {};
+  for(const u of (def.u||[])){
+    if(u.side === 'ally' || u.c === 'ast' || u.c === 'fc' || u.c === 'sg' || u.invuln) continue;
+    const f = u.fac || def.fac;
+    if(!FAC_TAG[f]) continue;
+    n[f] = (n[f] || 0) + (u.n || 1)*(u.size || 1);
+  }
+  let best = '', bn = 0;
+  for(const f in n) if(n[f] > bn){ best = f; bn = n[f]; }
+  return best;
+}
+
 function getWaveDef(n){
+  missionFoe = '';
   // Test mode replaces the wave plan entirely. Without ?test=1 on the URL
   // none of this is reachable and the normal game is untouched.
   if(TEST_MODE) return buildTestWave(TEST_FIRST===5 ? 5 : ((n-2+TEST_FIRST)%4)+1);
@@ -5109,7 +5157,7 @@ function getWaveDef(n){
   // take over after the last written one.
   {
     const def = SCRIPT_WAVES[n];
-    if(def) return buildScripted(def);
+    if(def){ missionFoe = scriptFoe(def); return buildScripted(def); }
   }
   // The dice are FS2, whatever the written mission before them was.
   currentEra = 'fs2'; missionOrig = 0;

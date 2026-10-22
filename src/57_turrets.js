@@ -62,12 +62,13 @@ function gunCol(e, g){ return raceCol(e.faction); }
 // hull until it is clear of it (drawShots, 70_ui.js)
 // m (v260, F76 step 3): the mount it is fired from.
 function capGunShot(e, x, y, ang, g, ally, pd, hidE, m){
-  // v260 (F76 step 3): from her turret in space - at its depth under the
-  // play plane (capShotZ) - rising to the plane on its way out (shotsView).
-  // Without a model, as before (v210): from where her turret is drawn.
-  const z0 = capShotZ(e, m);
-  if(!z0 && typeof hullPt === 'function'){ const vp = hullPt(e, x, y); x = vp.x; y = vp.y; }
-  capGunBolt(e, x, y, ang, g, ally, pd, hidE, z0);
+  // v263 (F82): x, y is where the turret is SEEN (capSeenPt), already in
+  // the play plane, and the caller aimed from there. Since v260 a round
+  // left her turret at its depth and rose to the plane over ten steps,
+  // aimed from the turret's place in the plane: far from the middle of
+  // the view the two lie apart, and the round first slid outwards, then
+  // hooked back to its target (Silvio, the Pinnacle).
+  capGunBolt(e, x, y, ang, g, ally, pd, hidE, 0);
   // F36 (v251): a triple turret fires its three one after another, not
   // as a fan all at once (Silvio). The other two follow CAP_BURST_GAP
   // steps apart from the same muzzle, carried along with the ship.
@@ -84,6 +85,16 @@ function capShotZ(e, m){
   const z = f3dMidZ(e);
   if(!z) return 0;
   return Math.min(0, z + ((m && typeof mountDepth === 'function') ? mountDepth(e, m) : 0));
+}
+// v263 (F82): where a turret is seen - at her depth, through the view - as
+// a point in the play plane. Her rounds and flak start there and are aimed
+// from there, so they fly straight from the turret the player sees. Without
+// a model, where the turret is drawn on her picture (hullPt), as before v260.
+function capSeenPt(e, x, y, m){
+  const z = capShotZ(e, m);
+  if(z < 0 && typeof f3dPersp === 'function'){ const q = f3dPersp(x, y, z); return {x:q.x, y:q.y}; }
+  if(typeof hullPt === 'function') return hullPt(e, x, y);
+  return {x:x, y:y};
 }
 // How many steps a round takes to rise from her turret to the play plane.
 // Short: until it is up there it is not drawn where it is tested (fighters
@@ -120,7 +131,7 @@ function tickCapBursts(){
     if(b.e.dead || b.e.rollT!=null || (enemies.indexOf(b.e)<0 && allies.indexOf(b.e)<0)) continue;
     // F42: every round of the triple is heard, not only the first
     if(typeof sndCapShot === 'function') sndCapShot(b.e.x+b.dx, b.e.y+b.dy, b.g.snd, !!b.g.big);
-    capGunBolt(b.e, b.e.x+b.dx, b.e.y+b.dy, b.ang, b.g, b.ally, b.pd, b.hidE, capShotZ(b.e, b.m));
+    capGunBolt(b.e, b.e.x+b.dx, b.e.y+b.dy, b.ang, b.g, b.ally, b.pd, b.hidE, 0);
   }
 }
 function capGunBolt(e, x, y, a, g, ally, pd, hidE, z0){

@@ -367,3 +367,21 @@ Hammer-of-Light-Flotte beginnt seitdem bei 16.
   Alle tot: die Mission endet.
 - Ziel: die Iota kommt durch. Stirbt sie, ist das Ziel verfehlt, die
   Mission läuft aber bis zur letzten Welle weiter.
+
+## Mission 16 — The Big Bang (Original 12) (abgesegnet, gebaut v263)
+
+Abgesegnet von Silvio, 22.10.2026. Ersetzt die alte Mission 16.
+
+- Start: der Spieler in der Apollo mit zwei Flügelmännern, dazu 2
+  Valkyries. In der Mitte der Forschungskreuzer GTSC Asimov (92 % Rumpf)
+  und der Kreuzer GTC Ravage.
+- Nach 3 s 3 Scorpion und 2 Shaitan.
+- Tot oder spätestens 40 s nach den Scorpions: der Transporter GTT Spomer
+  springt ein, dockt an der Asimov, evakuiert 10 s lang und springt aus.
+- 10 s nach der Spomer: 3 Scorpion und 2 Shaitan, die Jäger jagen sie.
+- Spomer zerstört, bevor sie fertig ist: die GTT Stull macht dasselbe.
+- Asimov unter 10 %: sie sprengt sich, die Druckwelle (BIG_BANG) trifft
+  alles in der Nähe, auch den Spieler. Ziel verfehlt, 6 s später ziehen
+  die Shivaner ab und die Mission endet.
+- Ziel: die Wissenschaftler kommen raus. Nebenziel: die Ravage überlebt.
+- Sonst endet die Mission, wenn der letzte Shivaner tot ist.

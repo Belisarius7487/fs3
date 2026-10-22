@@ -5414,18 +5414,19 @@ scenario('FS1 M14 v260: beam exits with its flame, smoke on her surface, rounds 
   };
   for(const k of ['sdlucifer','deorionright','crcain','scfaustus','inarcadia']) if(F3D_KEYS.indexOf(k)>=0){ const L = mkL(); F3D.models[k] = {lo:L, full:L}; }
   FS.until(()=>evSeen('E1'), 1000, false);
-  // F76 step 3: a round from a capital turret starts deep and rises
-  let rounds = 0, risen = 0, startOk = 0;
+  // F76 step 3 (v260) had capital rounds start deep and rise; F82 (v263,
+  // Silvio's decision) starts them in the plane where the turret is seen.
+  let rounds = 0, deep = 0;
   for(let k=0;k<60*12;k+=5){
     FS.step(5);
     try{ draw(); }catch(eD){}
     for(const L of [pBullets, eBullets]) for(const b of L){
-      if(!(b.hz0 < 0) || b._seen) continue;
-      b._seen = 1; rounds++;
+      if(b.hz0 === undefined || b._seen) continue;
+      b._seen = 1; rounds++; if(b.hz0 < 0) deep++;
     }
   }
   r.rounds = rounds;
-  r.roundsFromDepth = rounds > 0;
+  r.roundsInPlane = rounds > 0 && deep === 0;
   // one round: drawn deep at first, in the plane once it has risen
   { const b = {x:500, y:400, vx:1, vy:0, hz0:-300, hidE:null}; pBullets.push(b);
     shotsView(true); const d0 = Math.hypot(b.x-500, b.y-400); shotsView(false);
@@ -5629,6 +5630,117 @@ scenario('v262 radar: a pickup on the field shows as a dot on the radar', 'm=15'
   const n2 = count();
   r.twoDots = n2 - n0 === 2;
   ITEMS.length = 0;
+  return r;`);
+
+// ── v263: F82 - the Pinnacle's rounds fly straight from the turret seen ──
+scenario('FS1 M15 v263: capital rounds leave the turret where it is seen and fly straight (F82)', 'm=15', `
+  const r = {};
+  r.gl = !!f3dInit();
+  if(!r.gl) return r;
+  const gl = F3D.gl;
+  const mkL = function(){
+    const V = [], I = [], hx = 0.15, hy = 0.1, hz = 1.0;
+    for(const sx of [-1,1]) for(const sy of [-1,1]) for(const sz of [-1,1]) V.push(Math.round(sx*hx*32767), Math.round(sy*hy*32767), Math.round(sz*hz*32767));
+    const F = [[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]];
+    for(const f of F) I.push(f[0],f[1],f[2], f[0],f[2],f[3], f[0],f[2],f[1], f[0],f[3],f[2]);
+    const pos = new Int16Array(V), idx = new Uint16Array(I), nrm = new Int8Array(32), uv = new Uint16Array(16);
+    const mk = function(tg, a){ const bf = gl.createBuffer(); gl.bindBuffer(tg, bf); gl.bufferData(tg, a, gl.STATIC_DRAW); return bf; };
+    return {state:'ready', tex:{}, head:{size:[0.3,0.2,2], ext:1, nodes:null},
+      parts:[{kind:'flat', tex:'', n:idx.length, big:false, node:0, pos:mk(gl.ARRAY_BUFFER,pos), nrm:mk(gl.ARRAY_BUFFER,nrm), uv:mk(gl.ARRAY_BUFFER,uv), idx:mk(gl.ELEMENT_ARRAY_BUFFER,idx)}],
+      cpu:[{pos:pos, idx:idx}]};
+  };
+  for(const k of ['detyphon','frsatis','frchronos','trelysium','trisis']) if(F3D_KEYS.indexOf(k)>=0){ const L = mkL(); F3D.models[k] = {lo:L, full:L}; }
+  // A deep hull, as in the browser, so the turret is seen away from its
+  // place in the plane.
+  window.f3dMidZ = function(o){ return (o && (o.type==='destroyer'||o.type==='cruiser'||o.type==='freighter')) ? -400*FIELD_K : 0; };
+  FS.until(()=>evSeen('E1'), 1500, false);
+  FS.until(()=>{ FS.killId('E1'); FS.killId('B1'); FS.killId('E2'); return byId('P1').length>0 && !(byId('P1')[0].warp>0); }, 8000, false);
+  const P = byId('P1')[0];
+  // Every new round of hers: the path it is drawn on over its first 30
+  // steps must not turn back - its sideways drift may not change sign.
+  const track = new Map();
+  const isHers = function(b){ return b.hz0 !== undefined && Math.hypot(b.x-P.x, b.y-P.y) < 700*FIELD_K; };
+  for(const L of [pBullets, eBullets]) for(const b of L) b._old = 1;
+  for(let k=0;k<60*10;k++){
+    FS.step(1);
+    shotsView(true);
+    for(const L of [pBullets, eBullets]) for(const b of L){
+      if(b._old || !isHers(b)) continue;
+      if(!track.has(b)) track.set(b, []);
+      const t = track.get(b); if(t.length < 30) t.push([b.x, b.y]);
+    }
+    shotsView(false);
+  }
+  let n = 0, hooks = 0;
+  for(const [b, t] of track){
+    if(t.length < 12) continue;
+    n++;
+    const dx0 = t[3][0]-t[0][0], dx1 = t[t.length-1][0]-t[t.length-4][0];
+    if(Math.abs(dx0) > 0.5 && Math.abs(dx1) > 0.5 && Math.sign(dx0) !== Math.sign(dx1)) hooks++;
+  }
+  r.rounds = n;
+  r.straight = n > 0 && hooks === 0;
+  r.hooks = hooks;
+  return r;`);
+
+// ── v263: FS1 M16 The Big Bang ──
+scenario('FS1 M16 v263 Big Bang: Spomer docks and evacuates, second wave, end', 'm=16', `
+  const r = {};
+  FS.step(200);
+  r.name = (SCRIPT_WAVES[16]||{}).name;
+  const AS = byId('AS')[0];
+  r.asimovHurt = !!AS && AS.hp < AS.maxHp && AS.hp > AS.maxHp*0.85;
+  FS.until(()=>evSeen('E1') && evSeen('B1'), 1500, false);
+  FS.until(()=>{ FS.killId('E1'); FS.killId('B1'); return byId('T1').length>0; }, 3000, false);
+  r.spomerIn = byId('T1').length>0;
+  FS.until(()=>{ FS.killId('E2'); FS.killId('B2'); return !!EV_DOCK.T1 || byId('T1').length===0; }, 6000, false);
+  r.evacuated = !!EV_DOCK.T1;
+  r.stullStaysOut = !evSeen('T2');
+  FS.until(()=>{ FS.killId('E2'); FS.killId('B2'); return waveOver || wave>16; }, 6000, false);
+  r.ends = waveOver || wave>16;
+  return r;`);
+
+scenario('FS1 M16 v263 Big Bang: the Asimov blows up with a wide blast, the mission ends', 'm=16', `
+  const r = {};
+  FS.until(()=>evSeen('E1'), 1500, false);
+  const AS = byId('AS')[0];
+  let big = null; const _ss = spawnShock;
+  window.spawnShock = function(x, y, rMax){ if(rMax >= 600) big = {x:x, y:y}; return _ss.apply(this, arguments); };
+  AS.hp = Math.round(AS.maxHp*0.09);
+  FS.until(()=>{ player.x = AS.x + 120*FIELD_K; player.y = AS.y; player.invT = 0; return !!big; }, 2500, false);
+  const hp0 = player.hp;
+  r.selfDestruct = byId('AS').length===0 || AS.dead;
+  r.bigShock = !!big;
+  let low = hp0;
+  for(let k=0;k<120;k++){ player.x = big.x + 120*FIELD_K; player.y = big.y; FS.step(1); low = Math.min(low, player.hp); }
+  r.hpDrop = hp0 - low;
+  FS.until(()=>waveOver || wave>16, 3000, false);
+  r.ends = waveOver || wave>16;
+  r.playerHurt = low < hp0;
+  return r;`);
+
+scenario('FS1 M16 v263 Big Bang: the Spomer lost, the Stull comes instead', 'm=16', `
+  const r = {};
+  FS.until(()=>evSeen('E1'), 1500, false);
+  FS.until(()=>{ FS.killId('E1'); FS.killId('B1'); return byId('T1').length>0 && !(byId('T1')[0].warp>0); }, 3000, false);
+  const T1 = byId('T1')[0]; T1.hp = 0;
+  damageEnemy(T1, 99999, T1.x, T1.y, false, 'bolt');
+  FS.until(()=>evSeen('T2'), 1500, false);
+  r.stullComes = evSeen('T2');
+  FS.until(()=>{ FS.killId('E2'); FS.killId('B2'); return !!EV_DOCK.T2 || waveOver; }, 8000, false);
+  r.stullEvacuates = !!EV_DOCK.T2;
+  return r;`);
+
+// ── v263: F83 - the answer to a call comes from the mission's foe ──
+scenario('v263 F83: the answer to a called capital ship comes from the mission foe', 'm=15', `
+  const r = {};
+  FS.step(100);
+  r.foe15 = missionFoe;
+  const q0 = spawnQ.length; sendCapBombers();
+  const added = spawnQ.slice(q0).concat(spawnQ.filter(q=>q.type && q.type.indexOf('bo_')===0));
+  r.shivanAnswer = added.length>0 && added.every(q=>q.type==='bo_sh');
+  r.foeOfM4 = scriptFoe(SCRIPT_WAVES[4]);
+  r.m4Hol = r.foeOfM4 === 'hol';
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────
