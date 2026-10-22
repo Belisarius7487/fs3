@@ -2367,6 +2367,30 @@ betrifft noch zu 2dimensional verhält."
   nur Silvio im Browser sehen.
 - Noch offen: Schritt 3 (Geschosse der Großkampfschiffe aus 3D-Turmorten).
 
+### F77 — Rauch auf der Orion wandert noch mit dem Blickwinkel (v259)
+
+**Befund (Silvio, 22.10.2026):** „Der Rauch bei Schadenseffekten auf der
+Orion wandert immer noch je nach Blickwinkel. Es fällt nur auf, wenn man
+wirklich drauf achtet, dennoch sieht es nicht schön aus."
+
+- Gehört zu F70 (in v258 als behoben eingetragen; beim Rauch wirkt es noch
+  nicht ganz).
+- Bestätigt von Silvio: Beamstrahl und Treffereffekt bleiben in v259
+  zusammen (F73/F76).
+- Status: offen, im Code noch nicht nachgesehen.
+
+### F78 — Der Beam tritt nicht mehr mit Flammenstrahl auf der anderen Seite aus (v259)
+
+**Befund (Silvio, 22.10.2026):** „Was aber leider nicht mehr passiert, ist
+dass der Beam auf der anderen Seite des Schiffsrumpfs zusammen mit einem
+Flammenstrahl austritt."
+
+- Von mir verursacht (im Code nachgesehen): seit v258 (F63) hält ein Beam
+  an einer Stelle des Rumpfs fest, und dort wird das Trefferfeuer nur noch
+  für den Eintritt gerufen (`beamImpact(..., {entry:q, exit:null})`). Der
+  Austritt mit Flammenstrahl fällt damit weg.
+- Status: offen.
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
