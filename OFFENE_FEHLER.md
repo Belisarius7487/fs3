@@ -2448,6 +2448,9 @@ er sein Ziel trifft."
 - Mit F79/F80 zusammen bauen.
 - **Behoben in v261:** Vermutung bestätigt. Der Strahl ist jetzt eine gerade Linie im Raum vom Turm durch das Schiff und weiter. Die Dicke des Schiffs an der Stelle wird einmal je Schuss gemessen und der Austritt jedes Bild auf diese Linie gesetzt, so dass auch sich bewegende Schiffe keinen Knick erzeugen. Jeder Beam hat seinen eigenen Ein- und Austritt. Prüfung: `fieldsim` „straight line“ (Abweichung 0).
 
+- Silvio, 22.10.2026, nach dem Test von v261 (F79 bis F81): „Das sah jetzt
+  richtig gut aus."
+
 ### Jumpnodes — Silvio erinnern, wenn es soweit ist
 
 **Silvio, v237:** „Ich frage mich, ob wir die Freespace-typischen Jumpnodes
