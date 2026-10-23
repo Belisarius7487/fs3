@@ -2547,6 +2547,9 @@ gesamte Spiel."
     halt kleiner." **v270:** Auf dem Anflugweg fliegen sie in der Tiefe des
     Zerstörers (Tiefe aus dem `$bay`-Weg), am Ende weiter durch die Öffnung
     hinein statt zu schrumpfen.
+    **Abgenommen (Silvio, 23.10.2026):** „Punktlandung. Der Anflug ist
+    korrekt, der Flug auf der Landebahn ist korrekt und der Einflug in die
+    Fighterbay ist auch korrekt. Aus mehreren Blickwinkeln getestet."
   - Reparatur: Idee Phidias-Reparaturdrohnen, die der Transporter aussendet
     und die mit einem Strahl reparieren. Ob das Modell im MVPS-Paket ist,
     prüft Silvio. Eigener Baustein, offen.
