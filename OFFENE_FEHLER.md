@@ -2470,6 +2470,15 @@ rausgewarpt ist."
 - Gebaut in v267: die Trümmer halten Abstand zu allen Großkampfschiffen
   der Mission mit fester Position (Galatea, Lilith, Cain).
 
+### F91 — M8: Elysium kriecht nach zerstörtem Transporter an den Rand (v274)
+
+**Befund (Silvio, 23.10.2026):** „In Mission 8, wenn der Transporter
+zerstört wird und die Elysium bereits im Feld ist, fliegt die Elysium dann im
+Schneckentempo an den rechten Bildrand und die Mission geht vermutlich erst
+weiter, wenn sie herausgewarpt ist."
+
+- Status: offen, noch nicht im Code nachgesehen.
+
 ### F90 — Aspect-Lock zeigt auf die Rumpfmitte statt aufs Subsystem (v270)
 
 **Befund (Silvio, 23.10.2026):** „Wenn der Spieler ein Subsystem anvisiert,
