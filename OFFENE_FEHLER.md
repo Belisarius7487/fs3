@@ -2596,6 +2596,10 @@ gesamte Spiel."
     **Entschieden (Silvio, 23.10.2026):** Immer dieselbe Menge, 10 Drohnen. „Die
     Drohnen fliegen den Rumpf des zu reparierenden Schiffes ab, vorzugsweise
     die Stellen, die Schadenszeichnungen haben."
+    **Entschieden (Silvio, 23.10.2026):** Eine Schadenszeichnung verblasst unter
+    dem Strahl, bis sie verschwunden ist; dann fliegt die Drohne zur nächsten.
+    „Die Drohnen sollten dasselbe Flugverhalten wie Jäger und Bomber haben,
+    damit ihre Bewegungen realistisch aussehen."
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
