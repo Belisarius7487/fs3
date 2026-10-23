@@ -405,7 +405,7 @@ Abgesegnet von Silvio, 23.10.2026. Ersetzt die alte Mission 17.
 - Ziel: alle Shivaner vernichten. Nebenziel: Galatea über halbem Rumpf.
   Galatea tot: Ziel verfehlt, 6 s später ziehen die Shivaner ab.
 
-## Mission 18 — Where Eagles Dare (Original 14) (abgesegnet)
+## Mission 18 — Where Eagles Dare (Original 14) (abgesegnet, gebaut v276)
 
 Abgesegnet von Silvio, 23.10.2026. Ersetzt die alte Mission 18.
 
@@ -423,3 +423,8 @@ Abgesegnet von Silvio, 23.10.2026. Ersetzt die alte Mission 18.
 - Ende: alle Gegner tot und die eigenen Frachter fertig oder tot.
   Entkommene sind Teilerfolg. Kein Nachladen (kein Trägerschiff im
   Original). Nicht geteilt.
+- Beim Bau (v276) abweichend: die Transporter liegen neben den Frachtern
+  statt angedockt (feindliche Schiffe können noch nicht angedockt
+  starten), und das Lager hat 6 statt 4 Container — jeder der sechs
+  Frachter braucht einen, sonst springen zwei sofort leer ab. Szenarien
+  „FS1 M18 v276" (schlagen gegen v275 fehl).

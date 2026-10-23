@@ -3214,13 +3214,74 @@ const SCRIPT_WAVES = {
        // The rest ends on its own: the last Shivan down, nothing left to come.
      ]},
 
-  18:{name:'Tenderizer', fac:'hol', o:'guard', live:6,
-      ev:[{t:'alleZerstoert', a:'K1', w:'einwarpen', a2:'K2'},
-          {t:'alleZerstoert', a:'K1', w:'nachschub', a2:'an'},
-          {t:'alleZerstoert', a:'K2', w:'nachschub', a2:'aus'}], u:[
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:1.35},
-       {id:'K1', c:'fi', n:3, ram:true},
-       {id:'K2', c:'fi', n:3, wait:true, ram:true}
+  // Where Eagles Dare (fs1/sm2-04a). Alpha raids a Hammer of Light supply
+  // depot: six containers, three Ankh sentry guns, Seths. Two transports
+  // lie alongside two freighters; after 10 s all four run for the jump
+  // node. Once they are gone, Anubis come in, and Hammer of
+  // Light freighters and GTA freighters race for the containers - ours to
+  // be covered, theirs to be stopped. No home ship, so no rearm.
+  // Replaces the old mission 18 (Silvio, 23.10.2026).
+  18:{name:'Where Eagles Dare', era:'fs1', orig:14, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
+      ziel:'Stop the Gemini transports and freighters', u:[
+       {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
+       {id:'W2', c:'bo', n:1, size:3, spr:'boathena', side:'ally'},
+       // six containers: one for each of the six freighters that come for
+       // them, else two would find none and jump out empty at once
+       {id:'K', c:'fc', n:1, spr:'fcvc3', x:520, y:130},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', x:600, y:190},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', x:540, y:250},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', x:600, y:300},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', x:540, y:360},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', x:600, y:410},
+       {id:'G1', c:'sg', n:1, spr:'sgankh', x:470, y:250},
+       {id:'G1', c:'sg', n:1, spr:'sgankh', x:660, y:120},
+       {id:'G1', c:'sg', n:1, spr:'sgankh', x:660, y:410},
+       {id:'E1', c:'fi', n:1, size:4, spr:'fiseth', t:2},
+       // the Gemini: two freighters, a transport alongside each. They lie
+       // well short of the jump node (right) so they can be caught.
+       {id:'F1', mark:'destroy', c:'fr', n:1, spr:'frsatis', x:380, y:190, escape:0.25, escWarp:true,
+        escHit:true, escDelay:10, label:'PVFr Gemini 2'},
+       {id:'F2', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:380, y:340, escape:0.25, escWarp:true,
+        escHit:true, escDelay:10, label:'PVFr Gemini 3'},
+       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:385, y:145, escape:0.3, escWarp:true,
+        escHit:true, escDelay:10, label:'PVT Gemini 4'},
+       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:385, y:385, escape:0.3, escWarp:true,
+        escHit:true, escDelay:10, label:'PVT Gemini 1'},
+       {id:'E2', c:'fi', n:1, size:3, spr:'fiseth', wait:true},
+       {id:'E3', c:'fi', n:1, size:4, spr:'fianubis', wait:true},
+       // the race for the containers
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:150, wait:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 1'},
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frsatis', x:760, y:265, wait:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:380, wait:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 3'},
+       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:200, y:160, warpIn:true, wait:true,
+        dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 1'},
+       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frchronos', side:'ally', x:200, y:265, warpIn:true, wait:true,
+        dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 2'},
+       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:200, y:370, warpIn:true, wait:true,
+        dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 3'},
+       {id:'IO', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', wait:true}
+     ], ev:[
+       // after 10 s (escDelay), or once fired on, the Gemini run
+       {t:'sek', a:25, w:'einwarpen', a2:'E2'},
+       {t:'vernichtet', a:'F1+F2+GT', w:'zielerfuellt', a2:'All Gemini stopped'},
+       {t:'verlaesst', a:'F1', w:'meldung', a2:'A Gemini freighter got away'},
+       {t:'verlaesst', a:'F2', w:'meldung', a2:'A Gemini freighter got away'},
+       {t:'verlaesst', a:'GT', w:'meldung', a2:'A Gemini transport got away'},
+       // the Gemini gone, whichever way: Anubis, then the race
+       {t:'alleZerstoert', a:'F1+F2+GT', d:20, w:'einwarpen', a2:'E3'},
+       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'TA'},
+       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'KA'},
+       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'IO'},
+       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'ziel', a2:'Cover the Kappa freighters - stop the Taurus'},
+       {t:'verlaesst', a:'TA', w:'meldung', a2:'A Taurus freighter got away with cargo'},
+       {t:'vernichtet', a:'TA', w:'meldung', a2:'All Taurus freighters stopped'},
+       {t:'leer', a:'KA', w:'meldung', a2:'A Kappa freighter found no cargo left'},
+       {t:'verlaesst', a:'KA', wenn:{t:'angedockt', a:'KA'}, w:'zielerfuellt', a2:'The Kappa freighters are away with the cargo'},
+       {t:'vernichtet', a:'KA', w:'zielverfehlt', a2:'The Kappa freighters are lost'},
+       // the wave stays open until our freighters are through, one way or
+       // the other; then what is left of the depot is scenery
+       {t:'alleZerstoert', a:'KA', hold:true, w:'kulisse', a2:'K'}
+       // The rest ends on its own: the last enemy down, nothing left to come.
      ]},
 
   26:{name:'The Minefield', fac:'hol', o:'guard', live:4,

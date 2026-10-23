@@ -6198,6 +6198,64 @@ scenario('F89 target marks without text, the subsystem bracketed in the bar', 'm
   r.bracketOnTheTargetedIcon = ic.filter(i=>i.picked).length === 1 && ic.find(i=>i.picked).id === 'engines';
   return r;`);
 
+// ── v276: M18 Where Eagles Dare (FS1 original 14) ──
+scenario('FS1 M18 v276 Where Eagles Dare: Gemini docked then stopped, the race, Kappa away, end', 'm=18', `
+  const r = {};
+  const W = SCRIPT_WAVES[18] || {};
+  const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
+  r.name = W.name;
+  FS.step(50);
+  r.pairsSideBySide = byId('GT').length===2 && byId('F1').length===1;
+  r.sentries = byId('G1').length===3;
+  r.containers = byId('K').length===6;
+  FS.until(()=>{ player.invT = 999; return fc > 1200; }, 1500, false);
+  r.geminiRun = byId('F1').concat(byId('F2'), byId('GT')).every(function(t){ return t.x > 420*FIELD_K; });
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return fired('All Gemini stopped'); }, 1500, false);
+  r.geminiStopped = fired('All Gemini stopped');
+  FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); return evSeen('KA') && evSeen('TA'); }, 4000, false);
+  r.raceOn = evSeen('KA') && evSeen('TA') && evSeen('E3');
+  FS.until(()=>{ player.invT = 999; FS.killId('TA'); FS.killId('E3'); FS.killId('E1'); FS.killId('E2'); FS.killId('G1');
+                 return fired('The Kappa freighters are away with the cargo'); }, 12000, false);
+  r.kappaAway = fired('The Kappa freighters are away with the cargo');
+  FS.until(()=>{ player.invT = 999; FS.killId('E3'); FS.killId('G1'); return waveOver || wave>18; }, 8000, false);
+  r.ends = waveOver || wave>18;
+  return r;`);
+
+scenario('FS1 M18 v276 Where Eagles Dare: the Gemini get away, the Kappa lost, end', 'm=18', `
+  const r = {};
+  const W = SCRIPT_WAVES[18] || {};
+  const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
+  const keep = function(){ for(const id of ['F1','F2','GT']) for(const g of byId(id)) g.hp = g.maxHp; };
+  FS.until(()=>{ player.invT = 999; keep(); return evSeen('KA'); }, 12000, false);
+  r.geminiEscaped = fired('A Gemini freighter got away');
+  r.notAllStopped = !fired('All Gemini stopped');
+  FS.until(()=>{ player.invT = 999; return byId('KA').length===3 && byId('KA').every(function(k){ return !(k.warp>0); }); }, 2000, false);
+  for(const k of byId('KA')){ k.hp = 0; damageEnemy(k, 99999, k.x, k.y, false, 'bolt'); }
+  FS.until(()=>fired('The Kappa freighters are lost'), 600, false);
+  r.noneLeftEmpty = !EV_EMPTY.KA;
+  r.kappaLost = fired('The Kappa freighters are lost');
+  FS.until(()=>{ player.invT = 999; FS.killId('TA'); FS.killId('E1'); FS.killId('E2'); FS.killId('E3'); FS.killId('G1'); return waveOver || wave>18; }, 8000, false);
+  r.ends = waveOver || wave>18;
+  return r;`);
+
+// ── v276: F92 - a small craft's vortex is never under a capital hull ──
+scenario('v276 F92: small craft vortex drawn after the capital hulls of its batch', 'm=17', `
+  const r = {};
+  FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); FS.killId('B1'); FS.killId('V1'); return byId('GA').length>0; }, 3000, false);
+  FS.until(()=>byId('D1').length>0 || evSeen('LI'), 3000, false);
+  const GA = byId('GA')[0];
+  // every ship counts as drawn from a model; fighters and bombers as small
+  const small = function(e){ return e.type==='fighter' || e.type==='bomber' || e.c==='fi' || e.c==='bo'; };
+  const batches = [];
+  window.f3dFieldPrep = function(list){ const m = new Map(); for(const e of list) m.set(e, {e:e}); return m; };
+  window.f3dFront = function(e){ return !!e && e!==GA && small(e); };
+  window.f3dFlush = function(seg){ batches.push(seg.filter(function(s){ return s.e; }).map(function(s){ return s.e; })); };
+  try{ draw(); }catch(ex){ r.err = String(ex); }
+  const bGA = batches.find(function(b){ return b.indexOf(GA)>=0; }) || [];
+  r.smallOnField = enemies.concat(allies).some(small);
+  r.galateaDrawn = bGA.length>0;
+  r.noSmallInHerBatch = !bGA.some(small);
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

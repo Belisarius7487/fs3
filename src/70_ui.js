@@ -56,9 +56,11 @@ function draw(){
       return fb-fa;
     });
   // Vortices of ships no longer on the field (a portal still closing).
-  if(WARP_IMG&&WARP_IMG.complete&&WARP_IMG.naturalWidth>0){
-    const _onField = new Set(SHIPS_ON_FIELD);
-    try{ drawFsPortals(function(p){ return !_onField.has(p.e); }); }catch(ep){ ctx.restore(); ctx.globalAlpha=1; }
+  // F92 (v276): those of small craft are drawn after the hulls instead.
+  const _onField = new Set(SHIPS_ON_FIELD);
+  const _warpOk = !!(WARP_IMG&&WARP_IMG.complete&&WARP_IMG.naturalWidth>0);
+  if(_warpOk){
+    try{ drawFsPortals(function(p){ return !_onField.has(p.e) && !f3dFront(p.e); }); }catch(ep){ ctx.restore(); ctx.globalAlpha=1; }
   }
 
   // Beam rays under every hull: a ship lies on top of the beam that
@@ -100,7 +102,12 @@ function draw(){
       while(_hi < _hk.length && _hk[_hi].fp >= fpe) _f3seg.push({hulk: _hk[_hi++]});
     }
     const _f3 = F3D_DONE && F3D_DONE.get(e);
-    if(_f3){ _f3seg.push(_f3); continue; }
+    if(_f3){
+      // F92 (v276): a small craft starts a batch of its own, so her vortex
+      // is not drawn under the capital hulls of the same batch.
+      if(f3dFront(e) && _f3seg.some(function(s){ return s.hulk || !f3dFront(s.e); })) _f3flush();
+      _f3seg.push(_f3); continue;
+    }
     _f3flush();
     try{ drawVortexOf(e); }catch(ev){ ctx.restore(); ctx.globalAlpha=1; }
     ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
@@ -161,6 +168,10 @@ function draw(){
     }catch(ee){ctx.restore();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';}}
   while(_hi < _hk.length) _f3seg.push({hulk: _hk[_hi++]});
   _f3flush();
+  // F92 (v276): closing vortices of small craft already gone, over the hulls.
+  if(_warpOk){
+    try{ drawFsPortals(function(p){ return !_onField.has(p.e) && f3dFront(p.e); }); }catch(ep){ ctx.restore(); ctx.globalAlpha=1; }
+  }
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
   drawShots(false);
 

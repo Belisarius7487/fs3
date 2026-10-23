@@ -46,6 +46,9 @@ const F3D_SMALL = ['boamun', 'boartemisdh', 'boboanerges', 'bonahema', 'bonephil
 const F3D_SMALLSET = new Set(F3D_SMALL);
 for(const k of F3D_SMALL) F3D_KEYS.push(k);
 function f3dSmall(key){ return F3D_SMALLSET.has(key); }
+// F92 (v276): small craft drawn from a model. They and their vortices are
+// always in front of the capital ships, never behind a hull.
+function f3dFront(e){ const k = f3dKey(e); return !!k && f3dSmall(k); }
 const F3D_ALIAS = {deorionleft: 'deorionright', inknossos45deg: 'inknossos', inknossosfront: 'inknossos'};
 // v202: hulls not seen from the side - the turn about the vertical from the
 // side view (radians). The Knossos sprites show her face on and at 45
