@@ -2610,13 +2610,16 @@ gesamte Spiel."
   Sprungwirbel vor dem Absprung; „die Mission schreibt es in ihr Ziel" (es
   gibt keine Missionsbesprechungen, und lange Formulierungen sollen weg).
 - **Noch NICHT entschieden** (beim Abgleich am 23.10.2026 gefunden):
-  1. Rückmeldung, wenn ein Auftrag erfüllt, verfehlt oder teilweise erfüllt
-     ist (ersetzt die Zielkarte „OBJECTIVE COMPLETE/FAILED", „PARTIAL
-     SUCCESS"). Rot allein geht nicht (Feindfarbe).
-  2. Missionsmeldungen (Wirkung `meldung`, z. B. „The Plato launches an
-     escape pod", Bonusmeldungen) und die übrigen Spalten-Meldungen: ENEMY
-     COMMS DOWN, YOUR COVER IS BLOWN, BOSS DISARMED, „… FITTED", „…
-     ASSIGNED", Refit.
+  1. ~~Rückmeldung bei erfülltem/verfehltem Auftrag~~ — **entschieden:** der
+     Stand (erfüllt, verfehlt, teilweise) steht in der Auftragsliste im
+     Pausebildschirm; auf dem Feld erlischt der Auftragsrahmen, sonst
+     nichts. Die Zielkarte entfällt.
+  2. ~~Missionsmeldungen~~ — **entschieden:** Wirkung `meldung` und die
+     übrigen Spalten-Meldungen (ENEMY COMMS DOWN, YOUR COVER IS BLOWN, BOSS
+     DISARMED, „… FITTED", „… ASSIGNED", Refit) erscheinen nur noch als
+     Protokoll unter der Auftragsliste im Pausebildschirm; die Meldungsspalte
+     entfällt. Dazu (Silvio): **jede losgeschickte Rettungskapsel ist
+     automatisch ein Schutzobjekt** und trägt den blauen Rahmen.
   3. Die übrigen Texte am Schiff: SCAN COMPLETE (Scannen selbst ist laut
      Silvio intuitiv), CARGO LEFT BEHIND, TARGET ESCAPED, REACTOR DESTROYED,
      HULL REPAIRED, REPAIRS COMPLETE, RESCUED, DELIVERED, LEFT EMPTY, TAGGED,
