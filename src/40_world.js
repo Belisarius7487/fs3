@@ -2377,6 +2377,8 @@ function updateAllies(){
       continue;                       // no firing while jumping out
     }
 
+    // F89 (v268): an escape pod on its way into a hangar flies itself.
+    if(a.landOn){ if(podFly(a)) allies.splice(i,1); continue; }
     if(a.small){
       // Same flight model as the enemy small craft.
       const tg = flySmall(a);

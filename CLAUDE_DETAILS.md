@@ -226,6 +226,16 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
   ihre Schiffe, `slices[i].ships`). Länge des Austritts: `BEAM_EXIT_LEN`.
   Für 3D-Beams kein flaches Trefferfeuer mehr in `beamImpactAt`.
 
+### Seit v268 (F89)
+
+- Einheit `land:'GA'` an einer Rettungskapsel (`c:'ep'`, `side:'ally'`):
+  sie fliegt mit Jägerkurven (`podFly`, `POD_SPEED`, `POD_TURN`) unter den
+  Rumpf von GA, um dessen nächstes Ende herum statt quer darüber, und wird
+  in den Hangar gezogen (`POD_IN_T`). Danach gilt sie als gerettet
+  (`EV_LEFT`, `protSaved`). `bay:[u, v]` setzt die Hangaröffnung als Anteil
+  des Rumpfkastens, `u` vom Bug aus (Vorgabe `POD_BAY`, Bauchmitte).
+- Mission 90 ist eine reine Testmission (`&m=90`), nicht Teil der Kampagne.
+
 ## C. Werkzeuge im Detail
 
 ### `tools/pof/` — der POF-Umwandler

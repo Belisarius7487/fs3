@@ -5824,6 +5824,16 @@ scenario('v267 M17 La Ruota della Fortuna: Medusas, worn Shivans, the Karnak wre
   r.cruisersFollow = evSeen('LI') && evSeen('CA');
   return r;`);
 
+// F89 (v268): escape pods fly into the Galatea's hangar (test mission 90).
+scenario('Escape pods: all four fly into the Galatea and the mission ends', 'm=90', `
+  const r = {};
+  r.podsLaunched = FS.until(()=>allies.some(a=>a.landOn), 1500, false) >= 0 && allies.some(a=>a.landOn);
+  FS.until(()=>['H1','H2','H3','H4'].every(id=>EV_LEFT[id]), 4000, false);
+  r.allAboard = ['H1','H2','H3','H4'].every(id=>EV_LEFT[id]);
+  r.countedRescued = protSaved === 4;
+  r.noPodLeft = !allies.some(a=>a.landOn);
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

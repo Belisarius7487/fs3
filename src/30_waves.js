@@ -627,6 +627,17 @@ function spawnProtected(sp){
     const _t = byId(sp.dockTo)[0];
     if(_t){ a.flip = needsFlip(a.img, _t.x < a.x); a._dockFaced = true; }
   }
+  // F89 (v268): an escape pod that flies into the hangar of a ship with a
+  // bay (land:'GA'), with a fighter's curves instead of a straight line.
+  if(sp.land){
+    a.landOn = sp.land;
+    if(sp.bay) a.bay = sp.bay;
+    a.minY = HUD_H+20*FIELD_K; a.maxY = MH-20*FIELD_K;
+    a.spd = POD_SPEED; a.turn = POD_TURN; a.cs = 0;
+    const _t = byId(sp.land)[0];
+    a.head = _t ? Math.atan2(_t.y - a.y, _t.x - a.x) : Math.PI;
+    a.head += (Math.random()*2-1)*0.9;      // each pod leaves at its own angle
+  }
   if(sp.cross && !sp.dockTo){
     a.crossing = sp.cross;         // Bildpunkte je Schritt
     // Below zero she flies out to the left and faces that way.
@@ -1267,6 +1278,80 @@ function tickEscapers(){
     }
   }
 }
+// ── ESCAPE PODS INTO A HANGAR (F89, v268) ───────────────────
+// A pod launched with land:'GA' flies to the bay of that ship the way a
+// fighter flies: it turns with a limited rate, the turn builds up, and the
+// path follows the nose. It comes up under the bay from below, slows, and
+// is drawn in: smaller and gone. Then it counts as rescued.
+const POD_SPEED  = 2.9;    // a step; the Hermes, two thirds of an Apollo (F29)
+const POD_TURN   = 0.055;  // rad a step at most
+const POD_IN_T   = 40;     // steps to be drawn into the bay
+const POD_BAY    = [0.50, 0.86];   // bay as a share of the hull box (from the bow side), default
+const POD_BELOW  = 70;     // the approach starts at least this far under the bay
+const POD_TURN_IN = 3;     // turn rate multiplier on the last stretch
+const POD_CATCH  = 30;     // this close to the bay she is drawn in
+function podBay(a, t){
+  const b = eBox(t), f = a.bay || POD_BAY;
+  // share measured from the bow: the bow is on the right unless she is flipped
+  const u = t.flip ? f[0] : 1 - f[0];
+  return {x:b[0] + b[2]*u, y:b[1] + b[3]*f[1]};
+}
+// Returns true when the pod is inside and has to leave the list.
+function podFly(a){
+  const t = byId(a.landOn)[0];
+  if(a.landT != null){
+    // being drawn in: no more steering, onto the bay, smaller each step
+    const p = t ? podBay(a, t) : {x:a.x, y:a.y};
+    a.x += (p.x - a.x)*0.18; a.y += (p.y - a.y)*0.18;
+    a.sc = a.sc0 * Math.max(0.05, 1 - (POD_IN_T - a.landT)/POD_IN_T);
+    if(--a.landT > 0) return false;
+    if(a.uid) EV_LEFT[a.uid] = true;
+    if(a.guard && !a.protCounted){ a.protCounted = true; protSaved++; }
+    return true;
+  }
+  let wx, wy, want = 1, turnK = 1;
+  if(!t || t.dead || t.warp > 0){
+    // nowhere to go yet: drift on slowly along the nose
+    wx = Math.cos(a.head); wy = Math.sin(a.head); want = 0.35;
+  } else {
+    const p = podBay(a, t);
+    const bh = eBox(t)[3], low = Math.max(POD_BELOW, bh*0.35);
+    const below = a.y > p.y + low*0.5 && Math.abs(a.x - p.x) < low*0.8;
+    // first to a point under the bay, then straight up into it. Still level
+    // with her hull she goes round the nearer end instead of across it.
+    const hb = eBox(t), bottom = hb[1] + hb[3];
+    let gx = p.x, gy = below ? p.y : bottom + low;
+    if(!below && a.y < bottom + low*0.3 && a.x > hb[0] - low*0.5 && a.x < hb[0] + hb[2] + low*0.5){
+      gx = (a.x < hb[0] + hb[2]*0.5) ? hb[0] - low : hb[0] + hb[2] + low;
+      gy = bottom + low;
+    }
+    const dx = gx - a.x, dy = gy - a.y, d = Math.hypot(dx, dy) || 0.001;
+    wx = dx/d; wy = dy/d;
+    if(below){
+      // the last stretch: slower, and the manoeuvring jets turn her tighter
+      // than her drive could, so she does not circle the opening
+      want = Math.max(0.35, Math.min(1, d/(low*1.2)));
+      turnK = POD_TURN_IN;
+      // her hull keeps other ships out, so the opening is reached at the
+      // belly's edge, not at the bay point inside it
+      const edge = eBox(t); const reach = Math.max(0, edge[1] + edge[3] - p.y) + POD_CATCH;
+      if(Math.abs(p.x - a.x) < reach && Math.hypot(p.x - a.x, p.y - a.y) < reach){ a.landT = POD_IN_T; a.sc0 = a.sc; a.invuln = true; return false; }
+    }
+  }
+  let df = Math.atan2(wy, wx) - a.head;
+  while(df >  Math.PI) df -= Math.PI*2;
+  while(df < -Math.PI) df += Math.PI*2;
+  const tr = a.turn*turnK, tw = Math.max(-tr, Math.min(tr, df));
+  a.tv = a.tv || 0;
+  a.tv += Math.max(-tr*FLY_TURN_ACC, Math.min(tr*FLY_TURN_ACC, tw - a.tv));
+  a.head += a.tv;
+  want *= 1 - 0.3*Math.min(1, Math.abs(df)/1.2);   // slower in a hard turn
+  a.cs += Math.max(-a.spd*FLY_ACC, Math.min(a.spd*FLY_ACC, a.spd*want - a.cs));
+  a.x += Math.cos(a.head)*a.cs; a.y += Math.sin(a.head)*a.cs;
+  const ps = poseFor(a.head, a.flip); a.ang = ps.ang; a.flip = ps.flip;
+  return false;
+}
+
 function tickCrossGuards(){
   for(const a of allies.slice()){
     if(!a.crossing || a.dead || allies.indexOf(a)<0) continue;
@@ -2222,6 +2307,28 @@ function rollWave(n){
 //           side:'ally', t:Sekunde, x, y, hp:Faktor, wait:true}
 // wait heisst: kommt nur, wenn ein Ereignis es einwarpen laesst.
 const SCRIPT_WAVES = {
+  // F89 (v268): test only, reached with &m=90 - escape pods flying into the
+  // Galatea's hangar. Not part of the campaign (nothing leads from 80 to 90).
+  90:{name:'Test: Escape Pods', era:'fs1', orig:5, ship:'fiapollo', fac:'shivan', o:'clear', live:6,
+      ziel:'Cover the escape pods', u:[
+       {id:'GA', c:'de', n:1, spr:'deorionright', side:'ally', x:170, y:300, still:true,
+        home:true, label:'GTD Galatea'},
+       {id:'P1', c:'cr', n:1, spr:'scfaustus', side:'ally', x:610, y:170, still:true, hurt:0.3,
+        label:'GTSC Plato'},
+       {id:'H1', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, at:'P1', land:'GA', label:'Escape pod'},
+       {id:'H2', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, at:'P1', land:'GA', label:'Escape pod'},
+       {id:'H3', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, at:'P1', land:'GA', label:'Escape pod'},
+       {id:'H4', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, at:'P1', land:'GA', label:'Escape pod'}
+     ], ev:[
+       {t:'da', a:'P1', d:3,  w:'einwarpen', a2:'H1'},
+       {t:'da', a:'P1', d:6,  w:'einwarpen', a2:'H2'},
+       {t:'da', a:'P1', d:9,  w:'einwarpen', a2:'H3'},
+       {t:'da', a:'P1', d:12, w:'einwarpen', a2:'H4'},
+       {t:'verlaesst', a:'H1+H2+H3+H4', w:'zielerfuellt', a2:'All pods aboard', hold:true},
+       {t:'verlaesst', a:'H1+H2+H3+H4', w:'abzug', a2:''},
+       {t:'vernichtet', a:'H1+H2+H3+H4', w:'zielverfehlt', a2:'The pods are lost'},
+       {t:'vernichtet', a:'H1+H2+H3+H4', w:'abzug', a2:''}
+     ]},
   // ── FS1 STRAND (v240) ──────────────────────────────────────
   // The FS1 campaign, as drafted with Silvio (FS1_MISSIONEN.md). era: the
   // strand, orig: the number of the original in the FS1 campaign - the
@@ -5059,7 +5166,7 @@ function scriptUnit(u, fac, q){
            fac:allyRace(), noWarp:1, warpIn:u.warpIn,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
            dockLabel:u.dockLabel, dockBelly:u.dockBelly, jumpIfEmpty:u.jumpIfEmpty, dockStay:u.dockStay, dockBeside:u.dockBeside,
-           pickup:u.pickup?1:0, ride:u.ride, slot:u.slot});
+           pickup:u.pickup?1:0, ride:u.ride, slot:u.slot, land:u.land, bay:u.bay});
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast')?1:0,   // v253: u.fac, Shivan cargo in an HoL mission
            x:xx, y:yy, scan:u.scan?1:0, escape:u.escape, scanFirst:u.scanFirst,

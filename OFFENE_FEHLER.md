@@ -2520,8 +2520,30 @@ gesamte Spiel."
 - **Knöpfe:** Rechts neben dem Radar nur noch Systemknöpfe (Ton,
   Einstellungen, Pause). Schiffs- und Waffenwechsel rücken neben den
   SUPPORT-Knopf; der Zielbereich wird um diese Breite größer.
-- Noch offen: Ziel, Boarding/Andocken, Countdown, die Symbolreihe über den
-  Schiffen auf dem Feld.
+- **Symbolreihe über den Schiffen** (Subsystem-Symbole unter dem Namen)
+  entfällt auf dem Feld; der Zustand steht in der Leiste, sobald man das
+  Schiff anvisiert.
+- **Ziel auf dem Feld:** Innen die Klammern nach Seite (rot Feind, grün
+  eigene) — künftig auch an großen Schiffen. Außen herum ein zweiter Rahmen
+  in der Farbe des Auftrags: **Blau = Protect, Rot = Destroy, Gelb =
+  Disable** (der bestehende pulsierende Missionsrahmen, `drawMissionMark`,
+  nur nach Auftrag gefärbt). Kulisse (`scenery`) bekommt weder Klammern noch
+  Rahmen.
+- **Boarding, Andocken, Evakuieren** (Silvio: „Der Spieler weiß nicht was
+  gerade passiert"; Lichtpunkte allein abgelehnt):
+  - Andocken ist nie Selbstzweck (z. B. Abschleppen) — keine eigene
+    Darstellung.
+  - Evakuieren: Rettungskapseln (Hermes, vasudanisch Ra) fliegen sichtbar in
+    ein Schiff mit Hangar; Transporter haben keinen. Wird beim Missionsentwurf
+    dazugestellt. **Testmission 90 gebaut (v268)**, Kapseln fliegen Kurven
+    wie Jäger und unter dem Rumpf in den Hangar. Silvio prüft.
+  - Reparatur: Idee Phidias-Reparaturdrohnen, die der Transporter aussendet
+    und die mit einem Strahl reparieren. Ob das Modell im MVPS-Paket ist,
+    prüft Silvio. Eigener Baustein, offen.
+  - Boarding: Vorschlag „Lichter flackern und gehen aus, am Ende wechseln die
+    Klammern auf Grün" — „nicht verkehrt", geht aber nur mit Umbau der
+    bestehenden Boarding-Missionen (fünf Stellen). Offen.
+- Noch offen: die Zielzeile oben links, Countdown/Flucht.
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
