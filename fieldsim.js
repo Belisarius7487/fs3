@@ -5828,7 +5828,11 @@ scenario('v267 M17 La Ruota della Fortuna: Medusas, worn Shivans, the Karnak wre
 scenario('Escape pods: all four fly into the Galatea and the mission ends', 'm=90', `
   const r = {};
   r.podsLaunched = FS.until(()=>allies.some(a=>a.landOn), 1500, false) >= 0 && allies.some(a=>a.landOn);
-  FS.until(()=>['H1','H2','H3','H4'].every(id=>EV_LEFT[id]), 4000, false);
+  // v269: each pod flies one of the Galatea's own bay paths, and they share them out
+  const used = {};
+  FS.until(()=>{ for(const a of allies) if(a.landOn && a.bayIx != null) used[a.uid] = a.bayIx;
+                 return ['H1','H2','H3','H4'].every(id=>EV_LEFT[id]); }, 4000, false, false, 20);
+  r.followedBayPaths = Object.keys(used).length === 4 && new Set(Object.values(used)).size >= 2;
   r.allAboard = ['H1','H2','H3','H4'].every(id=>EV_LEFT[id]);
   r.countedRescued = protSaved === 4;
   r.noPodLeft = !allies.some(a=>a.landOn);

@@ -2537,6 +2537,10 @@ gesamte Spiel."
     ein Schiff mit Hangar; Transporter haben keinen. Wird beim Missionsentwurf
     dazugestellt. **Testmission 90 gebaut (v268)**, Kapseln fliegen Kurven
     wie Jäger und unter dem Rumpf in den Hangar. Silvio prüft.
+    Silvio (23.10.2026): „Die Orion hat eine Fighterbay, in der auch
+    Hermes-Kapseln in Freespace hineinpassen“ — das gilt für alle Zerstörer.
+    **v269:** Die Kapseln fliegen die echten Anflugwege aus den Modellen
+    (`$bay`, alle sieben Zerstörer-Rümpfe, `tools/pof/mkbays.py`).
   - Reparatur: Idee Phidias-Reparaturdrohnen, die der Transporter aussendet
     und die mit einem Strahl reparieren. Ob das Modell im MVPS-Paket ist,
     prüft Silvio. Eigener Baustein, offen.

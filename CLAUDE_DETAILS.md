@@ -232,8 +232,13 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
   sie fliegt mit Jägerkurven (`podFly`, `POD_SPEED`, `POD_TURN`) unter den
   Rumpf von GA, um dessen nächstes Ende herum statt quer darüber, und wird
   in den Hangar gezogen (`POD_IN_T`). Danach gilt sie als gerettet
-  (`EV_LEFT`, `protSaved`). `bay:[u, v]` setzt die Hangaröffnung als Anteil
-  des Rumpfkastens, `u` vom Bug aus (Vorgabe `POD_BAY`, Bauchmitte).
+  (`EV_LEFT`, `protSaved`).
+- Seit v269 fliegen sie die echten Anflugwege der Fighterbay aus dem Modell
+  (`$bayNN`): `tools/pof/mkbays.py <MVPS> hlp_mounts_final.json` schreibt sie
+  als `bays` (Liste von Wegen, Punkte `[dx, dy, Tiefe]` von außen nach innen)
+  in die Mount-Daten aller Zerstörer. Die Kapseln teilen sich die Wege eines
+  Schiffs der Reihe nach (`podFly`, `podBayPt`). Ohne `bays` gilt die
+  Bauchmitte (`POD_BAY`, `bay:[u, v]` an der Einheit).
 - Mission 90 ist eine reine Testmission (`&m=90`), nicht Teil der Kampagne.
 
 ## C. Werkzeuge im Detail

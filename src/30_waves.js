@@ -1278,30 +1278,59 @@ function tickEscapers(){
     }
   }
 }
-// ── ESCAPE PODS INTO A HANGAR (F89, v268) ───────────────────
-// A pod launched with land:'GA' flies to the bay of that ship the way a
-// fighter flies: it turns with a limited rate, the turn builds up, and the
-// path follows the nose. It comes up under the bay from below, slows, and
-// is drawn in: smaller and gone. Then it counts as rescued.
+// ── ESCAPE PODS INTO A HANGAR (F89, v268, v269) ─────────────
+// A pod launched with land:'GA' flies into that ship's fighter bay the way
+// a fighter flies: limited turn rate that builds up, the path following the
+// nose. Since v269 it flies FreeSpace's own approach to the bay ($bayNN in
+// the model, exported into the mounts as 'bays' by tools/pof/mkbays.py):
+// to the path's first point, then from point to point, and at the last one
+// it is drawn in - smaller and gone - and counts as rescued. Pods take the
+// ship's bays in turn. A ship without bay paths falls back to her belly.
 const POD_SPEED  = 2.9;    // a step; the Hermes, two thirds of an Apollo (F29)
 const POD_TURN   = 0.055;  // rad a step at most
 const POD_IN_T   = 40;     // steps to be drawn into the bay
-const POD_BAY    = [0.50, 0.86];   // bay as a share of the hull box (from the bow side), default
-const POD_BELOW  = 70;     // the approach starts at least this far under the bay
-const POD_TURN_IN = 3;     // turn rate multiplier on the last stretch
-const POD_CATCH  = 30;     // this close to the bay she is drawn in
+const POD_BAY    = [0.50, 0.86];   // fallback bay: share of the hull box from the bow
+const POD_BELOW  = 70;     // fallback: the approach starts at least this far under it
+const POD_TURN_IN = 3;     // turn rate multiplier on the path itself
+const POD_CATCH  = 30;     // this close to a path point she takes the next
+// A point of a bay path in world units, placed like dockPoint() places a
+// dock: with her facing, her turn and her roll.
+function podBayPt(t, q){
+  const img = IMGS[t.img]; if(!img) return {x:t.x, y:t.y};
+  const s = (t.flip ? -1 : 1)*(t.turnC != null ? t.turnC : 1);
+  return {x:t.x + (img.width*t.sc*0.5)*q[0]*s,
+          y:t.y + (img.height*t.sc*0.5)*q[1]*(t.rollC != null ? t.rollC : 1)};
+}
+function podPaths(t){
+  const m = (typeof mountsFor === 'function') ? mountsFor(t.img) : null;
+  return (m && m.bays && m.bays.length) ? m.bays : null;
+}
+// Fallback without bay paths: the middle of her belly.
 function podBay(a, t){
   const b = eBox(t), f = a.bay || POD_BAY;
-  // share measured from the bow: the bow is on the right unless she is flipped
   const u = t.flip ? f[0] : 1 - f[0];
   return {x:b[0] + b[2]*u, y:b[1] + b[3]*f[1]};
+}
+// Where to steer to reach (gx, gy) without crossing her hull: round the
+// nearer end of it when the straight line would go through.
+function podAround(a, t, gx, gy){
+  const b = eBox(t), m = 30;
+  let hit = false;
+  for(let k=1;k<8 && !hit;k++){
+    const x = a.x + (gx - a.x)*k/8, y = a.y + (gy - a.y)*k/8;
+    hit = x > b[0]-m && x < b[0]+b[2]+m && y > b[1]-m && y < b[1]+b[3]+m;
+  }
+  if(!hit) return {x:gx, y:gy};
+  const endX = (Math.abs(a.x - b[0]) < Math.abs(a.x - b[0] - b[2])) ? b[0] - 120 : b[0] + b[2] + 120;
+  const yOut = (gy < b[1] || gy > b[1] + b[3]) ? gy : (a.y < b[1] + b[3]*0.5 ? b[1] - 120 : b[1] + b[3] + 120);
+  return {x:endX, y:yOut};
 }
 // Returns true when the pod is inside and has to leave the list.
 function podFly(a){
   const t = byId(a.landOn)[0];
   if(a.landT != null){
-    // being drawn in: no more steering, onto the bay, smaller each step
-    const p = t ? podBay(a, t) : {x:a.x, y:a.y};
+    // being drawn in: onto the bay's last point, smaller each step
+    const p = t ? a._inPt() : {x:a.x, y:a.y};
     a.x += (p.x - a.x)*0.18; a.y += (p.y - a.y)*0.18;
     a.sc = a.sc0 * Math.max(0.05, 1 - (POD_IN_T - a.landT)/POD_IN_T);
     if(--a.landT > 0) return false;
@@ -1310,33 +1339,38 @@ function podFly(a){
     return true;
   }
   let wx, wy, want = 1, turnK = 1;
+  const goIn = function(fn){ a.landT = POD_IN_T; a.sc0 = a.sc; a.invuln = true; a._inPt = fn; };
   if(!t || t.dead || t.warp > 0){
     // nowhere to go yet: drift on slowly along the nose
     wx = Math.cos(a.head); wy = Math.sin(a.head); want = 0.35;
   } else {
-    const p = podBay(a, t);
-    const bh = eBox(t)[3], low = Math.max(POD_BELOW, bh*0.35);
-    const below = a.y > p.y + low*0.5 && Math.abs(a.x - p.x) < low*0.8;
-    // first to a point under the bay, then straight up into it. Still level
-    // with her hull she goes round the nearer end instead of across it.
-    const hb = eBox(t), bottom = hb[1] + hb[3];
-    let gx = p.x, gy = below ? p.y : bottom + low;
-    if(!below && a.y < bottom + low*0.3 && a.x > hb[0] - low*0.5 && a.x < hb[0] + hb[2] + low*0.5){
-      gx = (a.x < hb[0] + hb[2]*0.5) ? hb[0] - low : hb[0] + hb[2] + low;
-      gy = bottom + low;
+    const P = podPaths(t);
+    let g;
+    if(P){
+      if(a.bayIx == null){ t._bayNext = (t._bayNext || 0); a.bayIx = t._bayNext % P.length; t._bayNext++; a.bayStep = 0; }
+      const path = P[a.bayIx], last = path.length - 1;
+      const q = podBayPt(t, path[a.bayStep]);
+      if(Math.hypot(q.x - a.x, q.y - a.y) < POD_CATCH*(a.bayStep ? 1 : 2)){
+        if(a.bayStep >= last){ const ix = a.bayIx; goIn(function(){ return podBayPt(t, P[ix][P[ix].length-1]); }); return false; }
+        a.bayStep++;
+      }
+      const q2 = podBayPt(t, path[a.bayStep]);
+      // on the path she follows it; on the way to its start she goes round
+      // the hull rather than through it
+      g = a.bayStep ? q2 : podAround(a, t, q2.x, q2.y);
+      if(a.bayStep){ turnK = POD_TURN_IN; want = 0.6; }
+    } else {
+      const p = podBay(a, t), bh = eBox(t)[3], low = Math.max(POD_BELOW, bh*0.35);
+      const below = a.y > p.y + low*0.5 && Math.abs(a.x - p.x) < low*0.8;
+      g = below ? p : podAround(a, t, p.x, p.y + low);
+      if(below){
+        want = 0.5; turnK = POD_TURN_IN;
+        const edge = eBox(t), reach = Math.max(0, edge[1] + edge[3] - p.y) + POD_CATCH;
+        if(Math.hypot(p.x - a.x, p.y - a.y) < reach){ goIn(function(){ return podBay(a, t); }); return false; }
+      }
     }
-    const dx = gx - a.x, dy = gy - a.y, d = Math.hypot(dx, dy) || 0.001;
+    const dx = g.x - a.x, dy = g.y - a.y, d = Math.hypot(dx, dy) || 0.001;
     wx = dx/d; wy = dy/d;
-    if(below){
-      // the last stretch: slower, and the manoeuvring jets turn her tighter
-      // than her drive could, so she does not circle the opening
-      want = Math.max(0.35, Math.min(1, d/(low*1.2)));
-      turnK = POD_TURN_IN;
-      // her hull keeps other ships out, so the opening is reached at the
-      // belly's edge, not at the bay point inside it
-      const edge = eBox(t); const reach = Math.max(0, edge[1] + edge[3] - p.y) + POD_CATCH;
-      if(Math.abs(p.x - a.x) < reach && Math.hypot(p.x - a.x, p.y - a.y) < reach){ a.landT = POD_IN_T; a.sc0 = a.sc; a.invuln = true; return false; }
-    }
   }
   let df = Math.atan2(wy, wx) - a.head;
   while(df >  Math.PI) df -= Math.PI*2;
