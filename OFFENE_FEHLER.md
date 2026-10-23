@@ -2609,7 +2609,7 @@ gesamte Spiel."
   für Boarding/Evakuieren; Symbole Schild/Explosion/Stecker für die Aufträge;
   Sprungwirbel vor dem Absprung; „die Mission schreibt es in ihr Ziel" (es
   gibt keine Missionsbesprechungen, und lange Formulierungen sollen weg).
-- **Noch NICHT entschieden** (beim Abgleich am 23.10.2026 gefunden):
+- Beim Abgleich am 23.10.2026 gefunden und danach entschieden:
   1. ~~Rückmeldung bei erfülltem/verfehltem Auftrag~~ — **entschieden:** der
      Stand (erfüllt, verfehlt, teilweise) steht in der Auftragsliste im
      Pausebildschirm; auf dem Feld erlischt der Auftragsrahmen, sonst
@@ -2620,11 +2620,14 @@ gesamte Spiel."
      Protokoll unter der Auftragsliste im Pausebildschirm; die Meldungsspalte
      entfällt. Dazu (Silvio): **jede losgeschickte Rettungskapsel ist
      automatisch ein Schutzobjekt** und trägt den blauen Rahmen.
-  3. Die übrigen Texte am Schiff: SCAN COMPLETE (Scannen selbst ist laut
-     Silvio intuitiv), CARGO LEFT BEHIND, TARGET ESCAPED, REACTOR DESTROYED,
-     HULL REPAIRED, REPAIRS COMPLETE, RESCUED, DELIVERED, LEFT EMPTY, TAGGED,
-     IMPACT, TARGET CANNOT JUMP, NO CARGO, „+N RETURNED", die Ticket-Texte
-     („+1 …").
+  3. ~~Die übrigen Texte am Schiff~~ — **entschieden:** alle entfallen.
+     Sichtbar ohnehin: SCAN COMPLETE (Scanring), TAGGED (gelbe Markierung),
+     IMPACT und REACTOR DESTROYED (Explosion), HULL REPAIRED/REPAIRS
+     COMPLETE (Rumpfbalken), TARGET CANNOT JUMP (Kompass in der Leiste rot).
+     Ins Protokoll im Pausebildschirm: RESCUED, DELIVERED, LEFT EMPTY, CARGO
+     LEFT BEHIND, TARGET ESCAPED, NO CARGO. Punkte („+1 …", „+N RETURNED"):
+     der Stand steht im Punkte-Kasten der Leiste.
+- **Alle Punkte entschieden (23.10.2026).** Nächster Schritt: bauen.
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
