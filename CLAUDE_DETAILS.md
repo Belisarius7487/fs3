@@ -144,12 +144,29 @@ an der Kapersperre vorbei). Auslöser: `genommen` (gekapert); `gescannt` und
 `verlaesst` nehmen mehrere Kennungen mit `+`. Ereignisfeld `wenn:{t,a}`: eine
 zweite Bedingung, die zugleich gelten muss.
 
-Seit v254: `dockBelly` an einem Andockenden (er rollt nach dem Sprung
-halb um seine Längsachse und dockt unter dem Ziel an; `rollC` dreht
-Andockpunkt, Geschütze, Subsysteme und Trefferumriss mit). Fracht auf einem
-Frachter (`ride` oder angedockt) liegt im 3D-Bild in seiner Tiefe
-(`f3dCargoHost`). Subsystem-Markierungen drehen bei einer Wende mit
-(`turnC` in `subPos`).
+Seit v254: ein Andockender kann halb um seine Längsachse rollen und unter
+dem Ziel andocken (`rollV`/`rollC` drehen Andockpunkt, Geschütze, Subsysteme
+und Trefferumriss mit). Fracht auf einem Frachter (`ride` oder angedockt)
+liegt im 3D-Bild in seiner Tiefe (`f3dCargoHost`). Subsystem-Markierungen
+drehen bei einer Wende mit (`turnC` in `subPos`).
+
+**Seit v283 (F99): Andocken aus den Modelldaten, ein Ablauf für alle
+Missionen** (Silvio, 24.10.2026). `tools/pof/mkdocks.py` schreibt je Rumpf
+die Andockpunkte der POF in `hlp_mounts_final.json` (`docks`: Name, Lage
+auch in der Tiefe, Richtung, Anflugweg, `clear`, Höhenkarte `hm`; dazu
+`m3d`). `src/31_dock.js` fährt damit jedes Andocken gleich: anfahren
+(vorwärts, Höhe zuerst, rollt halb herum, wenn beide Andockpunkte in
+dieselbe Richtung zeigen — der Schalter `dockBelly` ist dadurch
+weggefallen), auf dem Anflugweg einschweben, Kontakt. Wo sich die beiden
+berühren, rechnet `dkMeet` aus den Höhenkarten beider Rümpfe; ein Container
+wird höchstens so tief (zum Betrachter) gezeichnet, wie zwischen die Arme
+passt (`_thin`), Länge und Höhe bleiben. Container einer Gruppe liegen von
+Anfang an so herum, wie ihre Frachter sie brauchen (`dkPlanFor`: unter den
+Armen der Poseidon kopfüber). `docksim` Teil 12 prüft jedes Paar der
+Missionen 1–18 (sitzt der Container auf dem Andockpunkt, nicht obenauf auf
+Armen oder Aufbauten?), Teil 13 den Ablauf. Rümpfe ohne Modelldaten
+fahren noch den alten Weg; ein neuer Rumpf bekommt sie mit
+`python3 -I tools/pof/mkdocks.py <MVPS> hlp_mounts_final.json <schlüssel>`.
 
 Eine **Kennung steht für eine Gruppe**, nicht für ein Schiff: `byId()` gibt
 jede Einheit zurück, die sie trägt, und ein Auslöser darf mehrere mit `+`

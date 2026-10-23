@@ -13,6 +13,7 @@ loads from `models/<key>/`. Python 3 with Pillow (`pip install pillow`).
 | `buildmodels.py` | Batch: every hull in `HULLS` (game key → MediaVP folder and POF name) into `<out>/<key>/`. |
 | `buildfull201.py` | Capital ships with moving parts kept apart (turrets, dishes), gzipped `full.bin.gz`. |
 | `builddebtex.py` | Maps of the debris pieces (dead, damage, debris textures). |
+| `mkdocks.py` | Dock points of the models (name, position and depth, facing, approach path, height map of the hull around each) → `docks` in the mount JSON; every dock in the game runs on these (v283, F99). |
 | `mkthrusters.py` | Thruster points of all hulls → `thrusters.json`. |
 | `mkwarp.py` | The warp disc from MediaVP `Warp.pof` → JSON. |
 | `mkfxsheets.py` | MediaVP explosion/smoke/trail animations (`.dds` frames) → sprite sheets (v216). |

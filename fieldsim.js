@@ -4254,8 +4254,10 @@ scenario('FS1 M3 Small Deadly Space: runners, the McCarthy, then FS2 again', 'm=
     FS.step(1);
     for(const f of runners){
       if(f.dead || !f.dockedTo) continue;
-      const p = dockPoint(f), o = dockOffset(f.dockedTo), c = f.dockedTo;
-      slip = Math.max(slip, Math.hypot(c.x - (p.x - o.x), c.y - (p.y - o.y)));
+      // F99 (v283): her cargo dock and the container's own from the models -
+      // the seat (cargoSeat) is where the two meet
+      const c = f.dockedTo, q = cargoSeat(f, c);
+      slip = Math.max(slip, Math.hypot(c.x - q.x, c.y - q.y));
     }
   }
   r.containerTurnsWithHer = runners.some(f=>f.dockedTo && f.dockedTo.turnP===f.turnP && f.turnP>0)
@@ -6270,7 +6272,9 @@ scenario('FS1 M18 v278 F94 F95: containers drawn larger, no Satis comes for one'
   FS.step(20);
   const K = byId('K');
   const w = function(e){ const im = IMGS[e.img]; return im ? im.width*e.sc : 0; };
-  r.containersLarger = K.length===6 && K.every(function(c){ return w(c) >= 0.99*hullWidth(c.img)*(c.img==='fcvc3' ? 3 : 1.4); });
+  // F99 (v283): as large as still fits the Chronos' deck (VC3 x2.2, VAC4
+  // x0.95 instead of x3 and x1.4) - docksim 12 checks that they fit
+  r.containersLarger = K.length===6 && K.every(function(c){ return w(c) >= 0.99*hullWidth(c.img)*(c.img==='fcvc3' ? 2.2 : 0.95); });
   r.noSatisTaurus = (SCRIPT_WAVES[18].u||[]).filter(function(u){ return u.id==='TA'; }).every(function(u){ return u.spr!=='frsatis'; });
   return r;`);
 scenario('FS1 M18 v279 F96: the Taurus never snap round, they turn', 'm=18', `
@@ -6314,9 +6318,11 @@ scenario('v281 F97: the Poseidon holds her container under her keel, not up in h
   r.held = !!h;
   if(h){
     FS.step(20);
-    const c = h.dockedTo, p = dockPoint(h), ci = IMGS[c.img];
-    r.below = c.y > p.y;
-    r.topAtDock = Math.abs((c.y - ci.height*c.sc*0.5) - p.y) < 1;
+    // F99 (v283): her cargo dock from the model, the container's own dock
+    // on it (it lies upside down, its dock up)
+    const c = h.dockedTo, P = dkPose(h, dkPick(h, true)), q = dkPose(c, 0);
+    r.below = c.y > P.y;
+    r.topAtDock = Math.abs(q.y - (P.y + P.vy*(c._gap||0))) < 1 && Math.abs(q.x - P.x) < 1;
   }
   return r;`);
 scenario('v282 F97 F98: a container being loaded is in its freighter depth; each Kappa keeps its name', 'm=18', `
@@ -6329,6 +6335,46 @@ scenario('v282 F97 F98: a container being loaded is in its freighter depth; each
   FS.until(()=>{ clean(); h = allies.find(k=>k.uid==='KA' && k.dockRes && k.holdT!=null && k.holdT>0); return !!h; }, 8000, false);
   r.loading = !!h;
   r.inHerDepth = !!h && f3dCargoHost(h.dockRes) === h;
+  return r;`);
+scenario('v283 F99: every Kappa docks the one way - over or under it, then straight in', 'm=18', `
+  // Silvio (24.10.2026): "Beim Anflug der Poseidon befinden sich beide Arme
+  // hinter dem Container. Die Chronos ... muesste eigentlich unter dem
+  // Container stoppen und dann langsam hoch schweben". Decided: docking
+  // from the models' dock data, one procedure for every mission.
+  const r = {};
+  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT','E1','E2','E3','TA','G1']) FS.killId(id); for(const k of byId('KA')) k.hp=k.maxHp; };
+  FS.until(()=>{ clean(); return byId('KA').length===3; }, 6000, false);
+  const st = new Map();
+  for(let t=0; t<9000; t++){
+    clean();
+    for(const k of byId('KA')){
+      let o = st.get(k); if(!o){ o = {ph:[], bad:0, side:0, dir:0, early:false, late:false, up:null, last:null}; st.set(k, o); }
+      const d = k._dk, ph = d ? d.ph : (k.dockedTo ? 'on' : '-');
+      if(o.ph[o.ph.length-1] !== ph) o.ph.push(ph);
+      const c = d && d.t;
+      if(c && ph === 'go' && Math.abs(k.x - c.x) < dkHalf(k) + dkHalf(c)){
+        const B = dkPose(c, d.iB), A = dkPose(k, d.iA);
+        if((A.x - B.x)*B.vx + (A.y - B.y)*B.vy < d.stand - 2.5) o.bad++;
+      }
+      if(c && ph === 'in' && o.last && o.last.ph === 'in'){ o.side = Math.max(o.side, Math.abs(k.x - o.last.x)); o.dir += k.y - o.last.y; }
+      if(c && ph === 'go' && f3dCargoHost(c) === k) o.early = true;
+      if(c && ph === 'in' && f3dCargoHost(c) === k) o.late = true;
+      if(c && o.up == null) o.up = c.rollC === -1;
+      o.last = {x:k.x, y:k.y, ph:ph};
+    }
+    FS.step(1);
+    if(byId('KA').length === 3 && byId('KA').every(function(k){ return k.dockedTo; })) break;
+  }
+  const all = Array.from(st.entries());
+  r.three = all.length === 3;
+  r.goInOn = all.every(function(e){ return e[1].ph.join(' ').indexOf('go in on') >= 0; });
+  r.neverThrough = all.every(function(e){ return e[1].bad === 0; });
+  r.straightIn = all.every(function(e){ return e[1].side < 0.01; });
+  r.poseidonSinks = all.filter(function(e){ return e[0].img === 'frposeidon'; }).every(function(e){ return e[1].dir > 1 && e[1].up; });
+  r.chronosRises = all.filter(function(e){ return e[0].img === 'frchronos'; }).every(function(e){ return e[1].dir < -1 && !e[1].up; });
+  r.withHerFromSlide = all.every(function(e){ return e[1].late && !e[1].early; });
+  r.allHold = byId('KA').every(function(k){ return k.dockedTo && k.dockedTo.carrier === k; });
+  r.info = all.map(function(e){ return e[0].img + ':' + e[1].ph.join('>') + ' dir ' + e[1].dir.toFixed(1) + ' up ' + e[1].up; }).join(' / ');
   return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{

@@ -37,10 +37,16 @@ function constObj(name){
 const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','idPending','cargoLost','claimCargo',
   'leaveEmpty','cargoStillWanted','carryCargo','cargoDockUp','cargoSeat','dropCargo','tickCarry','tickDocking',
   'tickCrossGuards','killEnemy','byId','evSeen','mountsFor','hullClass',
-  'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns'];
+  'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns',
+  // F99 (v283): docking from the models' dock data (31_dock.js)
+  'dkList','dkHas','dkHalf','dkIsCargo','dkInPlane','dkPick','dkRideIndex','dkRight','dkPose','dkGrid',
+  'dkClear','dkMeet','dkDepthOf','dkMustRoll','dkNeedsUpsideDown','dkPlanFor','dkPlaceCargo','dkSeat',
+  'dkApproach','dkCastOff','dkCastOffStep','dkPairInfo'];
+// their constants, as the game has them
+const DK_CONSTS = (src.match(/^(?:const|let) (?:DK_\w+|DOCK_ROLL_STEPS|FACE_TURN_STEPS)\b.*$/mg) || []).join('\n');
 
 const world = `
-let enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, EV_TAKEN={}, EV_EMPTY={}, spawnQ=[];
+let wave=0, enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, EV_TAKEN={}, EV_EMPTY={}, spawnQ=[];
 let protSaved=0, protLost=0, guardLost=false, guardGone=false, crossDone=0, crossTotal=0;
 let score=0, bossAlive=false, bossSlain=false, expl=0;
 const W=800, H=500, HUD_H=44, DOCK_SPD=0.55, DOCK_NEAR=22;
@@ -54,6 +60,7 @@ function plogKill(){} function plogRearm(){} function plogSec(){} function plogH
 function triggerExpl(){ expl++; }
 // The long death of a capital ship (v183) is not what is tested here: they go at once.
 function startDeathRoll(){ return false; }
+${DK_CONSTS}
 ${NAMES.map(fn).join('\n')}
 ${constObj('SCRIPT_WAVES')}
 `;
@@ -68,6 +75,8 @@ return { get enemies(){return enemies;}, set enemies(v){enemies=v;},
     for(const k in EV_LEFT) delete EV_LEFT[k]; for(const k in EV_TAKEN) delete EV_TAKEN[k];
     spawnQ.length=0; protSaved=0; protLost=0; guardLost=false; expl=0; },
   tickDocking, tickCrossGuards, tickCarry, killEnemy, dockPoint, cargoSeat, liveThreatCount,
+  dockPointN, dkRideIndex, dkSeat, dkHas, dkPose, dkPairInfo, dkPlanFor, dkPick, dkPlaceCargo, needsFlip, IMGS,
+  hullClassFn: hullClass, setWave(w){ wave = w; DK_PLAN = {wave: null, g: {}}; },
   scriptUnitsResolved, SCRIPT_WAVES };`)(TICK_HZ);
 
 // ── Stand-ins ─────────────────────────────────────────────────
@@ -238,11 +247,17 @@ function rider(uid, ride, slot, side){
   const f = freighter('F1', 300, 250, null, 'enemy'); f.img = 'frasmodeus'; f.dockTo = null;
   const a = rider('K1', 'F1', 0, 'enemy'), b = rider('K2', 'F1', 1, 'enemy');
   run(1);
-  const p0 = api.dockPoint(f);
-  check('first rider on her first dock point, above her', Math.abs(a.x - p0.x) < 0.01 && a.y < f.y, a.x.toFixed(1) + ',' + a.y.toFixed(1));
+  // F99 (v283): with the models' dock data a rider sits on her cargo dock
+  // for its slot (dkRideIndex: those towards the viewer first), dock on
+  // dock (dkSeat) - no longer on her first dock point of the old,
+  // hand-placed list. Its own dock lies on hers, out the way hers faces.
+  const seatOk = (c, slot) => { const s = api.dkSeat(f, c, api.dkRideIndex(f, slot)); return Math.abs(c.x - s.x) < 0.01 && Math.abs(c.y - s.y) < 0.01; };
+  const onLine = (c, slot) => { const P = api.dkPose(f, api.dkRideIndex(f, slot)), q = api.dkPose(c, 0);
+    return Math.abs((q.x - P.x)*P.vy - (q.y - P.y)*P.vx) < 0.5; };
+  check('first rider on her first cargo dock, above her', seatOk(a, 0) && onLine(a, 0) && a.y < f.y, a.x.toFixed(1) + ',' + a.y.toFixed(1));
   check('second rider on her second dock point', Math.abs(b.x - a.x) > 20, 'gap ' + Math.abs(b.x - a.x).toFixed(1));
   f.x += 50; run(1);
-  check('riders move with her, no lag', Math.abs(a.x - api.dockPoint(f).x) < 0.01);
+  check('riders move with her, no lag', seatOk(a, 0) && onLine(a, 0));
   // she is destroyed: the cargo goes up with her
   f.dead = true; api.enemies.splice(api.enemies.indexOf(f), 1);
   const e0 = api.expl; run(1);
@@ -263,8 +278,96 @@ function rider(uid, ride, slot, side){
   const f = freighter('T1', 300, 250, null, 'ally'); f.img = 'frasmodeus'; f.dockTo = null;
   const a = rider('K4', 'T1', 0, 'ally');
   run(1);
-  check('a rider of ours sits on her too', Math.abs(a.x - api.dockPoint(f).x) < 0.01);
+  const s4 = api.dkSeat(f, a, api.dkRideIndex(f, 0));
+  check('a rider of ours sits on her too', Math.abs(a.x - s4.x) < 0.01 && Math.abs(a.y - s4.y) < 0.01);
 }
+
+// ── 12. F99 (v283): every dock of missions 1-18 against the real hulls ──
+// Silvio (24.10.2026): docking from the models' own dock data, for every
+// mission. A container must sit on its freighter's dock - between the
+// Poseidon's arms, between the Chronos' end blocks - not rest on top of
+// them: what keeps it off her dock (dkMeet, from both hulls' height maps)
+// may be at most half its own height. Sizes as the game draws them.
+begin('12 F99: every container fits its freighter (missions 1-18)');
+const SIZE = new Function('hullClass', [
+  (src.match(/^const HULL_LEN = .*$/m) || [''])[0], (src.match(/^const SIZE_KEY_MUL = .*$/m) || [''])[0],
+  (src.match(/^const SIZE_DRAW_CLASS_MUL = .*$/m) || [''])[0], (src.match(/^const CAP_L0 = .*$/m) || [''])[0],
+  'const SIZE_UPM = 3.75;', fn('hullWidth'), 'return hullWidth;'].join('\n'));
+const realWidth = SIZE(api.hullClassFn);
+function realSized(k){ if(!api.IMGS[k] || !api.IMGS[k]._real) api.IMGS[k] = {width: realWidth(k), height: realWidth(k)/3, _real: true}; }
+const pairs = new Map();
+for(let m = 1; m <= 18; m++){
+  const d = api.SCRIPT_WAVES[m]; if(!d) continue;
+  for(const u of d.u){
+    if(!u.dockTo || u.dockBeside != null || !u.spr) continue;
+    for(const t of d.u.filter(x => x.id === u.dockTo && x.c === 'fc' && x.spr))
+      pairs.set(u.spr + '|' + t.spr + '|' + (t.big || 1), {m, f: u.spr, c: t.spr, big: t.big || 1});
+  }
+  for(const u of d.u){
+    if(!u.ride || !u.spr) continue;
+    const f = d.u.find(x => x.id === u.ride && x.spr);
+    if(f) pairs.set(f.spr + '|' + u.spr + '|' + (u.big || 1), {m, f: f.spr, c: u.spr, big: u.big || 1, ride: true});
+  }
+}
+for(const q of pairs.values()){
+  realSized(q.f); realSized(q.c);
+  if(!api.dkHas({img: q.f}) || !api.dkHas({img: q.c})){ check('M' + q.m + ' ' + q.f + ' + ' + q.c + ': dock data from the models', false, 'run tools/pof/mkdocks.py'); continue; }
+  const r = api.dkPairInfo(q.f, q.c, q.big);
+  // the largest it may be, for the message (from small up: the first that no longer sits)
+  let lo = 0;
+  for(let b = 0.05; b <= 6; b += 0.05){ const x = api.dkPairInfo(q.f, q.c, b); if(x.gap <= 0.5*x.height) lo = b; else break; }
+  check('M' + q.m + ' ' + q.f + ' + ' + q.c + (q.big !== 1 ? ' x' + q.big : '') + (q.ride ? ' (rides)' : '') + ': sits on her dock',
+        r.gap <= 0.5*r.height, 'off her dock ' + r.gap.toFixed(1) + ' of ' + r.height.toFixed(1) + (r.upsideDown ? ', upside down' : '') +
+        (r.thin < 1 ? ', drawn ' + Math.round(r.thin*100) + '% deep' : '') +
+        ', at most x' + lo.toFixed(2));
+}
+
+// ── 13. F99 (v283): the approach, phase by phase ──────────────────
+// Silvio (24.10.2026, F99): the Chronos stops under the container and
+// rises into it; the Poseidon's arms must not lie behind it on the way.
+// She drives up only at a height where nothing touches, then slides in
+// straight along the dock path; from the slide on the container is drawn
+// with her (f3dCargoHost reads _inBy).
+function approach(fkey, ckey, big, fromLeft){
+  begin('13 F99: ' + fkey + ' takes a ' + ckey + (big !== 1 ? ' x' + big : ''));
+  realSized(fkey); realSized(ckey);
+  api.SCRIPT_WAVES[99] = {u: [{id: 'C9', c: 'fc', spr: ckey, x: 500, y: 300, big: big},
+                              {id: 'F9', c: 'fr', spr: fkey, x: fromLeft ? 100 : 900, y: 300, dockTo: 'C9'}]};
+  api.setWave(99);
+  const c = container('C9', 500, 300); c.img = ckey; c.sc = big; c.flip = false; c.uid = 'C9';
+  api.dkPlaceCargo(c, 'C9');
+  const f = freighter('F9', fromLeft ? 100 : 900, 300, 'C9'); f.img = fkey; f.crossAfter = 0;
+  f.flip = api.needsFlip(fkey, !fromLeft); f.dockHold = 300; f.holdT = null;
+  const fw = api.IMGS[fkey].width/2, cw = api.IMGS[ckey].width*big/2;
+  let phases = [], bad = 0, slideDx = 0, slideDir = 0, inByEarly = false, inByLate = false, last = null;
+  for(let t = 0; t < 12000 && !f.dockedTo; t++){
+    const k = f._dk, ph = k ? k.ph : '-';
+    if(phases[phases.length-1] !== ph) phases.push(ph);
+    // lengthwise over it: at least her standoff away along the dock's way
+    if(k && ph === 'go' && Math.abs(f.x - c.x) < fw + cw){
+      const B = api.dkPose(c, k.iB), A = api.dkPose(f, k.iA);
+      const sep = (A.x - B.x)*B.vx + (A.y - B.y)*B.vy;
+      if(sep < k.stand - 2.5) bad++;
+    }
+    if(ph === 'in' && last && last.ph === 'in'){ slideDx = Math.max(slideDx, Math.abs(f.x - last.x)); slideDir += f.y - last.y; }
+    if(ph === 'go' && c._inBy) inByEarly = true;
+    if(ph === 'in' && c._inBy === f) inByLate = true;
+    last = {x: f.x, y: f.y, ph: ph};
+    step();
+  }
+  check('she docks: go, then in, then on', phases.join(' ').indexOf('go in on') >= 0 && !!f.dockedTo, phases.join(' '));
+  check('never over it at a height where they touch', bad === 0, bad + ' steps');
+  check('the slide is straight along the dock path', slideDx < 0.01, 'sideways ' + slideDx.toFixed(3));
+  check('drawn with her from the slide on, not before', inByLate && !inByEarly);
+  return {slideDir, f, c};
+}
+let a1 = approach('frchronos', 'fcvc3', 1, true);
+check('the Chronos rises into it', a1.slideDir < -1, 'moved ' + a1.slideDir.toFixed(1));
+let a2 = approach('frposeidon', 'fcvc3', 1, true);
+check('the Poseidon sinks onto it, the container upside down', a2.slideDir > 1 && a2.c.rollC === -1,
+      'moved ' + a2.slideDir.toFixed(1) + ', container ' + (a2.c.rollC === -1 ? 'upside down' : 'upright') + (a2.f._dk && a2.f._dk.roll ? ', she rolled' : ''));
+let a3 = approach('frmaat', 'fcvac4', 1, false);
+check('the Ma\'at rises into it', a3.slideDir < -1, 'moved ' + a3.slideDir.toFixed(1));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

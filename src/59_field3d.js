@@ -690,10 +690,11 @@ function f3dMat(e, x, y, L){
   const rl = (F3D_ROLL[e.img] || 0) + (f3dSmall(F3D_ALIAS[e.img] || e.img) ? f3dTurnRoll(e) : 0)
            + (e.rollV ? Math.PI*e.rollV : 0);      // v254 (F51): a half roll about her length
   const tz = f3dSmall(F3D_ALIAS[e.img] || e.img) ? f3dCargoZ(e) : -s*(sz[0]*Math.abs(Math.cos(vw)) + sz[2]*Math.abs(Math.sin(vw)))/2/L.head.ext;
-  // F97 (v281): a container held by a ship is drawn no thicker (towards the
-  // camera) than fits between her arms - its long side and its height stay.
-  // Drawn larger (F94), it stood out through the Poseidon's near arm.
-  const kx = f3dHeldThin(e, s, L);
+  // F97 (v281): a held container is drawn no deeper (towards the camera)
+  // than fits between her arms - its length and height, all a side view
+  // shows, stay. F99 (v283): the room is measured on her model (dkMeet,
+  // 31_dock.js), no longer a fixed share of her beam.
+  const kx = (e.type === 'container' && f3dCargoHost(e) && e._thin) ? e._thin : 1;
   if(rl){
     // translate * rotZ(a) * rotY(yaw) * roll about the bow * scale (v202)
     const A = f3dMulA(f3dMulA([ca, sa, 0, -sa, ca, 0, 0, 0, 1], [cy, 0, -sy, 0, 1, 0, sy, 0, cy]),
@@ -801,28 +802,13 @@ function f3dCargoHost(e){
     if(f && f !== e) return f;
   }
   if(e.carrier && !e.carrier.dead && e.carrier !== e) return e.carrier;
-  // F97 (v282): a container while its freighter holds at it to load (her
-  // dockHold) is in her depth already - before, it lay in the play plane in
-  // front of the Poseidon's arms and only went between them as she jumped.
-  const b = e._boardBy;
-  if(e.type === 'container' && b && !b.dead && b !== e && b.dockRes === e && b.holdT != null) return b;
+  // F97 (v282), F99 (v283): a container is with its freighter from the
+  // moment she slides in to take it (dkApproach, 31_dock.js) - drawn in her
+  // depth buffer, so her arms and end blocks lie in front of it or behind it
+  // as the two hulls really are, on the way in, loading and carried.
+  const b = e._inBy;
+  if(e.type === 'container' && b && !b.dead && b !== e && (b.dockRes === e || b.dockedTo === e)) return b;
   return null;
-}
-// F97 (v281): the factor for a held container's thickness (model x, across
-// the side view): at most HELD_THIN of her own half beam, the room between
-// the Poseidon's arms (arms at 45 % of her half beam, POF).
-const HELD_THIN = 0.38;
-function f3dHeldThin(e, s, L){
-  const h = (e.type === 'container') ? f3dCargoHost(e) : null;
-  if(!h) return 1;
-  const k = f3dKey(h), HL = k ? f3dReadyLevel(k) : null;
-  if(!HL || !HL.head || !HL.head.size || !L.head.size) return 1;
-  const hi = IMGS[h.img], hs = hi ? hi.width*h.sc : 0;
-  const hsz = HL.head.size, hspan = hsz[2]*Math.abs(Math.cos(F3D_VIEW[h.img] || 0)) + hsz[0]*Math.abs(Math.sin(F3D_VIEW[h.img] || 0));
-  const hScale = hs/Math.max(0.01, hspan/HL.head.ext);
-  const room = HELD_THIN*hScale*hsz[0]/2/HL.head.ext;      // world units
-  const half = s*L.head.size[0]/2/L.head.ext;
-  return half > room ? room/half : 1;
 }
 function f3dCargoZ(e){
   const h = f3dCargoHost(e);
@@ -831,7 +817,12 @@ function f3dCargoZ(e){
   // 0 her middle), from the model's own $bay path
   if(e.podHost && h === e.podHost && e.podD != null && !f3dCargoHost(h))
     return f3dMidZ(h)*(1 - Math.min(1, e.podD));
-  return (h && !f3dCargoHost(h)) ? f3dMidZ(h) : 0;
+  if(!h || f3dCargoHost(h)) return 0;
+  // F99 (v283): in her depth, and on her dock's side of her middle (the
+  // Asmodeus carries hers on her flanks); a container she is just sliding
+  // in to take goes there over the first moments of the slide (_dz)
+  const z = f3dMidZ(h) + (e._seatZ || 0);
+  return (e.carrier === h || e.rideId || e._dz == null) ? z : z*Math.min(1, e._dz);
 }
 function f3dMidZ(e){
   if(!f3dOn(e) || e.type === 'asteroid') return 0;

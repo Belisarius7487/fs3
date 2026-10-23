@@ -315,7 +315,8 @@ nie mit einem Sonderschalter für eine Mission oder ein Schiff — und nie
 ohne Bild aus dem Spiel von allen Phasen.
 
 Was seit v240 an Einheiten, Auslösern und Wirkungen dazukam (`escHit`,
-`ride`, `mark`, `dockBelly`, `wenn` …): `CLAUDE_DETAILS.md`, Abschnitt B.
+`ride`, `mark`, `wenn` …) und wie das Andocken seit v283 läuft:
+`CLAUDE_DETAILS.md`, Abschnitt B.
 
 ## 9. Rammmechanik — teuer erkämpfte Regeln
 
@@ -342,6 +343,10 @@ Was seit v240 an Einheiten, Auslösern und Wirkungen dazukam (`escHit`,
   `python3 -I tools/pof/buildmodels.py models <schluessel>`.
   **Die Modelle gehören nicht ins Repo** (`models/` ist gesperrt); sie gehen
   als ZIP mit Pfaden `models/<schluessel>/…` auf Silvios Server.
+- **`tools/pof/mkdocks.py`** (v283, F99) schreibt die Andockdaten der
+  Modelle in `hlp_mounts_final.json`. Ein neuer Rumpf, der andockt oder an
+  dem angedockt wird, braucht sie, sonst fährt er den alten Weg und
+  `docksim` meldet ihn.
 - **`missions_read.py`** liest die Originalmissionen in `fs1/`, `str/`,
   `fs2/`. **Keine 1:1-Übersetzung** — genommen wird, was in einer Mission
   passiert. `--klassen` zeigt Schiffsklassen und ihren FS3-Rumpf.

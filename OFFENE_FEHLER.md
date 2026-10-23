@@ -2523,7 +2523,7 @@ nicht mit einer normalen Anfahrt aufnehmen, sondern müsste eigentlich unter
 dem Container stoppen und dann langsam hoch schweben, damit er zwischen die
 beiden Aufbauten passt."
 
-- Offen. Silvios Befund stammt aus v282, im Spiel getestet (Silvio,
+- Silvios Befund stammt aus v282, im Spiel getestet (Silvio,
   24.10.2026). Claude hatte fälschlich angenommen, v282 sei noch nicht
   getestet — nachfragen statt vermuten.
 - Nächste Sitzung: zuerst im echten Spiel nachstellen (eingebauter Browser,
@@ -2556,6 +2556,44 @@ beiden Aufbauten passt."
     Bild je Schritt), die Silvio einmal abnimmt.
   - Folge für M18: die vergrößerten Container (F94) müssen so groß sein,
     dass sie zwischen Arme und Aufbauten passen.
+- Vorher im echten Spiel nachgestellt (24.10.2026, v282, eingebauter
+  Browser): die Poseidon fuhr waagerecht an, der Container lag vor beiden
+  Armen; beim Laden saß er unter ihr, ragte aber weit über die Arme hinaus.
+- **Gebaut in v283** (für alle Missionen, nicht nur M18):
+  - `tools/pof/mkdocks.py` schreibt die Andockpunkte aller beteiligten
+    Rümpfe aus den POFs in `hlp_mounts_final.json`: Name, Lage samt Tiefe,
+    Richtung, Anflugweg, wie weit der Rumpf über den Andockpunkt hinausragt
+    (`clear`) und eine Höhenkarte des Rumpfs um den Andockpunkt (`hm`). Die
+    alten, von Hand auf die Sprites gesetzten Punkte dieser Rümpfe sind
+    ersetzt (sie lagen z. B. bei der Aten oben, das Modell hat ihn unten).
+  - `src/31_dock.js`: ein Ablauf — anfahren (vorwärts, erst die Höhe, dann
+    waagerecht, nie durch den Container hindurch; halbe Rolle, wenn beide
+    Andockpunkte in dieselbe Richtung zeigen — der Schalter `dockBelly` in
+    M13 ist weg, die Rolle der Halkins kommt jetzt aus den Daten), auf dem
+    Anflugweg gerade einschweben (Chronos steigt, Poseidon sinkt), Kontakt,
+    beim Abdocken (`abdocken`) erst auf demselben Weg zurück, dann wenden.
+  - Ab dem Einschweben wird der Container mit dem Frachter in dessen Tiefe
+    gezeichnet (`_inBy`), seine Tiefe gleitet in 0,8 s hinüber, solange
+    noch nichts überlappt.
+  - Wo sich zwei Rümpfe berühren, rechnet `dkMeet` aus beiden Höhenkarten:
+    nichts geht durch etwas hindurch. Die Tiefe eines Containers sieht man
+    in der Seitenansicht nicht: er wird höchstens so tief gezeichnet, wie
+    zwischen die Arme der Poseidon passt — gemessen am Modell statt des
+    festen Anteils aus v281.
+  - Container einer Gruppe liegen von Anfang an so herum, wie ihre
+    Frachter sie brauchen (`dkPlanFor`): unter den Armen der Poseidon
+    kopfüber (ihr Andockpunkt zeigt nach unten, der eines VC3 auch). Nur
+    wenn keiner mehr passend liegt, rollt ein Frachter.
+  - M18: VC3 ×2,2 statt ×3 und VAC4 ×0,95 statt ×1,4 — größer passen sie
+    nicht zwischen die Aufbauten der Chronos, und jeder Container kann ihrer
+    sein. (Die Chronos wird nach der Zweiskalenregel stark verkleinert
+    gezeichnet, Container nicht.)
+  - Prüfungen: `docksim` Teil 12 (jedes Paar Frachter + Container der
+    Missionen 1–18 sitzt auf dem Andockpunkt, nicht obenauf), Teil 13
+    (Ablauf Chronos/Poseidon/Ma'at), `fieldsim` „v283 F99" (M18 im Spiel;
+    schlägt gegen v282 fehl). Alte Szenarien, die den alten Sitz maßen
+    (v281 F97, M3 Container in der Wende, v278 Größen), messen jetzt den
+    neuen Sitz.
 
 ### F98 — M18: alle drei Kappa-Frachter heißen „GTFr Kappa 3" (v281)
 

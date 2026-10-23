@@ -37,7 +37,7 @@ function decl(re){
 }
 
 const names = ['ramsOnContact', 'tickRamming', 'tickCapRam', 'ramBlast', 'impactBase',
-               'applySpawnOpts', 'halfW', 'halfH',
+               'applySpawnOpts', 'dkPlaceCargo', 'dkHas', 'dkList', 'halfW', 'halfH',
                'spriteBox', 'hullBox', 'hullsTouch', 'hullDepth', 'hullsBite'];
 const consts = [
   decl(/const RAM_PCT_CAPITAL = [\d.]+;/),

@@ -598,7 +598,6 @@ function spawnProtected(sp){
     if(sp.dockHold) a.dockHold = Math.round(sp.dockHold*TICK_HZ);
     if(sp.jumpIfEmpty) a.jumpIfEmpty = true;   // F56 (v256), see leaveEmpty
     if(sp.dockLabel) a.dockLabel = sp.dockLabel;    // 'REPAIRING' (v178)
-    if(sp.dockBelly) a.dockBelly = true;            // v254 (F51)
     if(sp.dockStay) a.dockStay = true;              // v257: held until 'abdocken'
     if(sp.dockBeside != null) a.dockBeside = sp.dockBeside;   // v262, see tickDocking
     a.crossAfter = sp.cross || 0.38;
@@ -798,6 +797,8 @@ let escTotal = 0, escGone = 0;
 function dockPoint(o){
   const m = mountsFor(o.img), img = IMGS[o.img];
   if(!m || !m.docks || !m.docks.length || !img) return {x:o.x, y:o.y};
+  // F99 (v283): a hull with its model's dock data (31_dock.js)
+  if(dkHas(o)){ const P = dkPose(o, dkPick(o, false)); return {x:P.x, y:P.y}; }
   const d = m.docks[0];
   // v244: in a turn the dock point swings round with the hull - turnC is
   // how far her length still lies across the picture (1 to -1).
@@ -837,7 +838,10 @@ function claimCargo(e){
   for(const c of byId(e.dockTo)){
     if(c.type!=='container' || c.carried || c.stranded) continue;
     if(c.resBy && c.resBy!==e && unitAlive(c.resBy)) continue;
-    const d = (c.x-e.x)*(c.x-e.x) + (c.y-e.y)*(c.y-e.y);
+    let d = (c.x-e.x)*(c.x-e.x) + (c.y-e.y)*(c.y-e.y);
+    // F99 (v283): one lying the way up she needs it first (dkPlanFor);
+    // only if none is left does she roll for another
+    if(dkHas(e) && dkHas(c) && dkMustRoll(e, dkPick(e, true), c, 0)) d += 1e12;
     if(d < bd){ bd = d; best = c; }
   }
   if(best){ best.resBy = e; e.dockRes = best; }
@@ -896,6 +900,7 @@ function carryCargo(e){
 // is not used: the container is turned to meet hers, as in FreeSpace (the
 // VC3's is on its bottom, and it sat up inside the Poseidon's hull).
 function cargoDockUp(e){
+  if(dkHas(e)){ const P = dkPose(e, dkPick(e, true)); return P.vy < 0; }
   const m = mountsFor(e.img), d = m && m.docks && m.docks[0];
   const p = dockPoint(e);
   let up = d ? ((d.ang === 270) || (d.ang !== 90 && p.y < e.y)) : (p.y < e.y);
@@ -903,6 +908,9 @@ function cargoDockUp(e){
   return up;
 }
 function cargoSeat(e, c){
+  // F99 (v283): both with their models' dock data - dock on dock, as far
+  // off as the two hulls let it (31_dock.js)
+  if(dkHas(e) && dkHas(c)) return dkSeat(e, c);
   const p = dockPoint(e), ci = IMGS[c.img];
   const hc = ci ? ci.height*c.sc*0.5 : 0;
   return {x:p.x, y:p.y + (cargoDockUp(e) ? -hc : hc)};
@@ -949,6 +957,7 @@ function tickDockWarp(){
 function dockPointN(o, n){
   const m = mountsFor(o.img), img = IMGS[o.img];
   if(!m || !m.docks || !m.docks[n] || !img) return dockPoint(o);
+  if(dkHas(o)){ const P = dkPose(o, n); return {x:P.x, y:P.y, ang:P.vy < 0 ? 270 : 90}; }
   const d = m.docks[n];
   const s = (o.flip ? -1 : 1)*(o.turnC != null ? o.turnC : 1);
   return {x:o.x + (img.width*o.sc*0.5)*d.dx*s,
@@ -973,6 +982,16 @@ function tickRiders(){
         continue;
       }
       c.rideSeen = true;
+      // F99 (v283): with the models' dock data it sits on her cargo dock as
+      // a carried one does (31_dock.js), the way up its dock needs
+      if(dkHas(f) && dkHas(c)){
+        if(c._rideUp == null){ c._rideUp = dkNeedsUpsideDown(f.img, c.img); if(c._rideUp){ c.rollV = 1; c.rollC = -1; } }
+        const st = dkSeat(f, c, dkRideIndex(f, c.rideSlot));
+        c.x = st.x; c.y = st.y; c.vx = 0; c.vy = 0;
+        if(f.warpOut > 0){ c.warpMax = f.warpMax; c.warpOut = f.warpOut; }
+        c.warpX = c.x; c.warpY = c.y;
+        continue;
+      }
       // Sits on her dock point, on the outside of her hull: above a dock
       // on her top, below one on her keel.
       const p = dockPointN(f, c.rideSlot), ci = IMGS[c.img];
@@ -1066,58 +1085,57 @@ function tickDocking(){
         continue;
       }
     }
-    // v254 (F51, Silvio: the Halkins docks under the Taranis): dockBelly -
-    // after her jump she makes a half roll about her length, and her dock
-    // point, now on top, meets the target's mirrored to her keel. The dock
-    // waits for the roll.
-    if(e.dockBelly && e.rollV == null) e.rollV = 0;
-    if(e.dockBelly && e.rollV < 1){
-      e.rollV = Math.min(1, e.rollV + 1/DOCK_ROLL_STEPS);
-      e.rollC = Math.cos(Math.PI*e.rollV);
-    }
-    let p = dockPoint(t), o = dockOffset(e);
-    // F97 (v281): a container is met at the side that will touch her dock
-    // (its top when she holds it under her keel), so it does not jump into
-    // its seat (cargoSeat) when she takes it.
-    if(t.type === 'container'){
-      const _ci = IMGS[t.img], _hc = _ci ? _ci.height*t.sc*0.5 : 0;
-      p = {x:t.x, y:t.y + (cargoDockUp(e) ? _hc : -_hc)};
-    }
-    // v262 (The Aftermath): dockBeside - she does not dock but comes up
-    // alongside the end of the target that faces her, dockBeside units
-    // above (-) or below (+) its centre (mission units), and holds there. Several ships
-    // meeting one destroyer then stand side by side instead of stacking
-    // on her one dock point (the three transports at the Pinnacle).
-    if(e.dockBeside != null){
-      const _ti = IMGS[t.img], _ei = IMGS[e.img];
-      const _th = _ti ? _ti.width*t.sc*0.5 : 60, _eh = _ei ? _ei.width*e.sc*0.5 : 30;
-      const _sd = (e.x < t.x) ? -1 : 1;
-      p = {x:t.x + _sd*(_th*0.8 + _eh + 12*FIELD_K), y:t.y + e.dockBeside*FIELD_K};
-      o = {x:0, y:0};
-    }
-    if(e.dockBelly) p.y = t.y - (p.y - t.y);
-    const dx = (p.x-o.x) - e.x, dy = (p.y-o.y) - e.y;
-    const L = Math.hypot(dx, dy);
     e.vx = 0; e.vy = 0;
-    // The field clamp can keep him off the exact spot. If he stops getting
-    // closer while near enough, he docks where he is.
-    if(e.dockBest==null || L < e.dockBest-0.05){ e.dockBest = L; e.dockStall = 0; }
-    else e.dockStall = (e.dockStall||0) + 1;
-    if(!(L <= 1 || (L <= DOCK_NEAR && e.dockStall > 60)) || (e.dockBelly && e.rollV < 1)){
-      // v242 (F24): a ship always faces the way it flies - nothing in
-      // FreeSpace flies backwards. A runner was turned to her escape before
-      // she had loaded, and came at her container tail first. On her first
-      // step she is simply set that way; after that she turns (v243).
-      if(Math.abs(dx) > 2){
-        // F96 (v279): set without a turn only for a ship there from the
-        // start (no jump); one that was seen arriving turns.
-        if(!e._dockFaced && !(e.warpMax > 1)){ e.flip = needsFlip(e.img, dx < 0); e._dockFaced = true; }
-        else { e._dockFaced = true; faceTurn(e, dx < 0); }
+    // F99 (v283, Silvio: "zukunftssicher"): both hulls with their models'
+    // dock data - the one procedure for every mission (31_dock.js).
+    if(e.dockBeside == null && dkHas(e) && dkHas(t)){
+      if(!dkApproach(e, t)) continue;
+    } else {
+      // Hulls without model dock data, and dockBeside (no dock at all):
+      // the way it was before v283.
+      let p = dockPoint(t), o = dockOffset(e);
+      // F97 (v281): a container is met at the side that will touch her dock
+      // (its top when she holds it under her keel), so it does not jump into
+      // its seat (cargoSeat) when she takes it.
+      if(t.type === 'container'){
+        const _ci = IMGS[t.img], _hc = _ci ? _ci.height*t.sc*0.5 : 0;
+        p = {x:t.x, y:t.y + (cargoDockUp(e) ? _hc : -_hc)};
       }
-      const sx = DOCK_SPD*1.6, sy = DOCK_SPD;
-      e.x += Math.max(-sx, Math.min(sx, dx));
-      e.y += Math.max(-sy, Math.min(sy, dy));
-      continue;
+      // v262 (The Aftermath): dockBeside - she does not dock but comes up
+      // alongside the end of the target that faces her, dockBeside units
+      // above (-) or below (+) its centre (mission units), and holds there. Several ships
+      // meeting one destroyer then stand side by side instead of stacking
+      // on her one dock point (the three transports at the Pinnacle).
+      if(e.dockBeside != null){
+        const _ti = IMGS[t.img], _ei = IMGS[e.img];
+        const _th = _ti ? _ti.width*t.sc*0.5 : 60, _eh = _ei ? _ei.width*e.sc*0.5 : 30;
+        const _sd = (e.x < t.x) ? -1 : 1;
+        p = {x:t.x + _sd*(_th*0.8 + _eh + 12*FIELD_K), y:t.y + e.dockBeside*FIELD_K};
+        o = {x:0, y:0};
+      }
+      const dx = (p.x-o.x) - e.x, dy = (p.y-o.y) - e.y;
+      const L = Math.hypot(dx, dy);
+      e.vx = 0; e.vy = 0;
+      // The field clamp can keep him off the exact spot. If he stops getting
+      // closer while near enough, he docks where he is.
+      if(e.dockBest==null || L < e.dockBest-0.05){ e.dockBest = L; e.dockStall = 0; }
+      else e.dockStall = (e.dockStall||0) + 1;
+      if(!(L <= 1 || (L <= DOCK_NEAR && e.dockStall > 60))){
+        // v242 (F24): a ship always faces the way it flies - nothing in
+        // FreeSpace flies backwards. A runner was turned to her escape before
+        // she had loaded, and came at her container tail first. On her first
+        // step she is simply set that way; after that she turns (v243).
+        if(Math.abs(dx) > 2){
+          // F96 (v279): set without a turn only for a ship there from the
+          // start (no jump); one that was seen arriving turns.
+          if(!e._dockFaced && !(e.warpMax > 1)){ e.flip = needsFlip(e.img, dx < 0); e._dockFaced = true; }
+          else { e._dockFaced = true; faceTurn(e, dx < 0); }
+        }
+        const sx = DOCK_SPD*1.6, sy = DOCK_SPD;
+        e.x += Math.max(-sx, Math.min(sx, dx));
+        e.y += Math.max(-sy, Math.min(sy, dy));
+        continue;
+      }
     }
     // Boarding: she stays on the spot for dockHold steps before the
     // dock counts. Lost in that time, nothing was taken.
@@ -1444,6 +1462,7 @@ function tickCrossGuards(){
     // v250 (F29): in her death roll she is lost, not on her way - with the
     // pod at its real speed she rolled off the edge and counted as rescued.
     if(a.rollT != null) continue;
+    if(dkCastOffStep(a)) continue;           // F99 (v283): off the dock first
     a.x += a.crossing;
     if(a.crossing > 0 ? (a.x > WX1+60 || (a.x > MW+60 && !camSees(a.x, a.y, 200))) : (a.x < WX0-60 || (a.x < -60 && !camSees(a.x, a.y, 200)))){
       if(a.dockedTo){ a.dockedTo.dead = true;
@@ -1685,6 +1704,9 @@ function applySpawnOpts(e, sp){
   // F94 (v278): drawn larger in this mission (M18's containers next to
   // the GTA freighters, Silvio)
   if(sp.big) e.sc *= sp.big;
+  // F99 (v283): a container waits the way up its freighter needs it
+  // (upside down under a Poseidon's arms) - set before it is ever seen
+  dkPlaceCargo(e, sp.uid || e.uid);
   // F96 (v279): like our own ships (F53), one that comes to dock leaves her
   // vortex already facing her target - else she snapped round on her first
   // step (the Taurus in M18). An escaper turns to her escape later, visibly.
@@ -3011,9 +3033,10 @@ const SCRIPT_WAVES = {
         subsDown:'engines+weapons', capture:true, label:'SC Taranis'},
        // v254 (F51): she jumps in to the right of the Taranis and so faces her
        // way (left) on the approach, rolls half round and docks under her.
+       // F99 (v283): the roll is no longer a switch here - her dock and the
+       // Taranis' both face down in the models, so she must (31_dock.js).
        {id:'H1', c:'fr', n:1, spr:'frchronos', side:'ally', x:760, y:330, warpIn:true,
-        dockTo:'R1', dockHold:25, dockLabel:'DOCKING', wait:true, mark:'protect', label:'GTFr Halkins',
-        dockBelly:true},
+        dockTo:'R1', dockHold:25, dockLabel:'DOCKING', wait:true, mark:'protect', label:'GTFr Halkins'},
        {id:'B1', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true},
        {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'B2', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true}
@@ -3266,12 +3289,15 @@ const SCRIPT_WAVES = {
        {id:'W2', c:'bo', n:1, size:3, spr:'boathena', side:'ally'},
        // six containers: one for each of the six freighters that come for
        // them, else two would find none and jump out empty at once
-       {id:'K', c:'fc', n:1, spr:'fcvc3', big:3, x:520, y:130},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', big:1.4, x:600, y:190},
-       {id:'K', c:'fc', n:1, spr:'fcvc3', big:3, x:540, y:250},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', big:1.4, x:600, y:300},
-       {id:'K', c:'fc', n:1, spr:'fcvc3', big:3, x:540, y:360},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', big:1.4, x:600, y:410},
+       // F99 (v283): as large as still fits the Chronos' deck between her
+       // end blocks (docksim 12) - any of them may be hers. Was VC3 x3 and
+       // VAC4 x1.4 (F94); those rested on her end blocks.
+       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:520, y:130},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:600, y:190},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:540, y:250},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:600, y:300},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:540, y:360},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:600, y:410},
        {id:'G1', c:'sg', n:1, spr:'sgankh', x:470, y:250},
        {id:'G1', c:'sg', n:1, spr:'sgankh', x:660, y:120},
        {id:'G1', c:'sg', n:1, spr:'sgankh', x:660, y:410},
@@ -4751,6 +4777,7 @@ const EV_REINF_GAP_MIN = 240;
 
 function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_EMPTY = {}; EV_POS = {};
+  if(typeof DK_PLAN !== 'undefined') DK_PLAN = {wave: null, g: {}};   // F99: containers placed afresh
   EV_REPAIRED = {}; EV_REPFAIL = {};
   EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; PREY_ON = false;
   missionTimer = {end:0, label:''}; missedJumps = 0;
@@ -5005,7 +5032,9 @@ function evFire(ev){
       for(const u of byId(arg)){
         u.dockStay = false; u.dockedOn = null; u.dockTo = null; u.dockRes = null;
         u.crossing = u.crossAfter || -0.38;
-        faceTurn(u, u.crossing < 0);
+        // F99 (v283): she first slides back out along the dock path, then
+        // turns and goes (dkCastOffStep in tickCrossGuards)
+        if(!dkCastOff(u)) faceTurn(u, u.crossing < 0);
       }
       break;
     case 'freigeben':
@@ -5363,7 +5392,7 @@ function scriptUnit(u, fac, q){
       put({time:t0+i*70, type:'protect', spr:u.spr,
            fac:allyRace(), noWarp:1, warpIn:u.warpIn,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
-           dockLabel:u.dockLabel, dockBelly:u.dockBelly, jumpIfEmpty:u.jumpIfEmpty, dockStay:u.dockStay, dockBeside:u.dockBeside,
+           dockLabel:u.dockLabel, jumpIfEmpty:u.jumpIfEmpty, dockStay:u.dockStay, dockBeside:u.dockBeside,
            pickup:u.pickup?1:0, ride:u.ride, slot:u.slot, land:u.land, bay:u.bay,
            repair:u.repair, repPct:u.repPct});   // v275 (F89): Phidias drones
     else
