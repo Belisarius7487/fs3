@@ -2613,6 +2613,9 @@ gesamte Spiel."
     Subsysteme; ein lahmgelegtes Schiff bleibt lahmgelegt.
     **Entschieden (Silvio, 23.10.2026):** „Die Drohnen [sind] nicht größer als
     Jäger … Sie sollten höchstens ein Drittel so groß sein wie Jäger."
+    Gilt nur, falls die Originalgröße nicht kleiner als ein Jäger ist. Gemessen
+    (phidias.pof): rund 16,5 m lang, so groß wie eine Ulysses (16 m). Also gilt
+    die Drittel-Regel: Länge 5,5 m.
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
