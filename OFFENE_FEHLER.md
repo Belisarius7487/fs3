@@ -2609,6 +2609,8 @@ gesamte Spiel."
     **Entschieden (Silvio, 23.10.2026):** Sind alle zehn Drohnen abgeschossen,
     bevor die Reparatur fertig ist, springt der Transporter weg; die Reparatur
     gilt als gescheitert, die Mission kann darauf reagieren.
+    **Entschieden (Silvio, 23.10.2026):** Nur der Rumpf wird repariert, keine
+    Subsysteme; ein lahmgelegtes Schiff bleibt lahmgelegt.
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
