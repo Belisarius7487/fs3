@@ -239,6 +239,10 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
   in die Mount-Daten aller Zerstörer. Die Kapseln teilen sich die Wege eines
   Schiffs der Reihe nach (`podFly`, `podBayPt`). Ohne `bays` gilt die
   Bauchmitte (`POD_BAY`, `bay:[u, v]` an der Einheit).
+- Seit v270 fliegt eine Kapsel ab dem zweiten Wegpunkt in der Tiefe des
+  Zerstörers (`podHost`, `podD` = Anteil der halben Breite zur Kamera, über
+  `f3dCargoHost`/`f3dCargoZ` wie Fracht) und am letzten Punkt weiter hinein
+  (`POD_IN_DEPTH`) statt zu schrumpfen.
 - Mission 90 ist eine reine Testmission (`&m=90`), nicht Teil der Kampagne.
 
 ## C. Werkzeuge im Detail

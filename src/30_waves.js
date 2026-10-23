@@ -1293,6 +1293,7 @@ const POD_BAY    = [0.50, 0.86];   // fallback bay: share of the hull box from t
 const POD_BELOW  = 70;     // fallback: the approach starts at least this far under it
 const POD_TURN_IN = 3;     // turn rate multiplier on the path itself
 const POD_CATCH  = 30;     // this close to a path point she takes the next
+const POD_IN_DEPTH = 0.5;  // how much deeper into her she goes after the last point
 // A point of a bay path in world units, placed like dockPoint() places a
 // dock: with her facing, her turn and her roll.
 function podBayPt(t, q){
@@ -1329,10 +1330,17 @@ function podAround(a, t, gx, gy){
 function podFly(a){
   const t = byId(a.landOn)[0];
   if(a.landT != null){
-    // being drawn in: onto the bay's last point, smaller each step
-    const p = t ? a._inPt() : {x:a.x, y:a.y};
-    a.x += (p.x - a.x)*0.18; a.y += (p.y - a.y)*0.18;
-    a.sc = a.sc0 * Math.max(0.05, 1 - (POD_IN_T - a.landT)/POD_IN_T);
+    if(a.podHost){
+      // v270: on through the opening along the path's last stretch, slowing,
+      // and deeper into her - not shrunk on the spot
+      a.cs *= 0.96; a.x += Math.cos(a.head)*a.cs; a.y += Math.sin(a.head)*a.cs;
+      a.podD -= POD_IN_DEPTH/POD_IN_T;
+    } else {
+      // no bay paths: drawn into the belly, smaller each step
+      const p = t ? a._inPt() : {x:a.x, y:a.y};
+      a.x += (p.x - a.x)*0.18; a.y += (p.y - a.y)*0.18;
+      a.sc = a.sc0 * Math.max(0.05, 1 - (POD_IN_T - a.landT)/POD_IN_T);
+    }
     if(--a.landT > 0) return false;
     if(a.uid) EV_LEFT[a.uid] = true;
     if(a.guard && !a.protCounted){ a.protCounted = true; protSaved++; }
@@ -1355,6 +1363,13 @@ function podFly(a){
         a.bayStep++;
       }
       const q2 = podBayPt(t, path[a.bayStep]);
+      // v270: from the path's second point on she flies in the ship's depth,
+      // easing towards the depth the path has there (never in front of her
+      // near side, so she leaves the play plane without a jump)
+      if(a.bayStep){
+        if(!a.podHost){ a.podHost = t; a.podD = 1; }
+        a.podD += (Math.min(1, path[a.bayStep][2]) - a.podD)*0.06;
+      }
       // on the path she follows it; on the way to its start she goes round
       // the hull rather than through it
       g = a.bayStep ? q2 : podAround(a, t, q2.x, q2.y);

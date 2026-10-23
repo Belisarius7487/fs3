@@ -779,6 +779,8 @@ function f3dPersp(x, y, z){
 // arms that grip it lie in front of it.
 function f3dCargoHost(e){
   if(!e) return null;
+  // F89 (v270): an escape pod on a destroyer's bay approach flies in her depth
+  if(e.podHost && !e.podHost.dead && e.podHost !== e) return e.podHost;
   if(e.rideId && typeof byId === 'function'){
     const f = byId(e.rideId).find(function(o){ return !o.dead; });
     if(f && f !== e) return f;
@@ -788,6 +790,11 @@ function f3dCargoHost(e){
 }
 function f3dCargoZ(e){
   const h = f3dCargoHost(e);
+  // F89 (v270): on the bay approach, as deep as the path lies at this point:
+  // podD is the share of her half beam towards the camera (1 her near side,
+  // 0 her middle), from the model's own $bay path
+  if(e.podHost && h === e.podHost && e.podD != null && !f3dCargoHost(h))
+    return f3dMidZ(h)*(1 - Math.min(1, e.podD));
   return (h && !f3dCargoHost(h)) ? f3dMidZ(h) : 0;
 }
 function f3dMidZ(e){

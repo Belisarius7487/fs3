@@ -2541,6 +2541,12 @@ gesamte Spiel."
     Hermes-Kapseln in Freespace hineinpassen“ — das gilt für alle Zerstörer.
     **v269:** Die Kapseln fliegen die echten Anflugwege aus den Modellen
     (`$bay`, alle sieben Zerstörer-Rümpfe, `tools/pof/mkbays.py`).
+    Befund v269 (Silvio): „Die Kapseln müssten sich dieselbe Ebene wie die
+    Orion teilen, auf der langen Landebahn entlang in die Öffnung für die
+    Fighterbay fliegen. Im Moment fliegen sie einfach davor und werden dann
+    halt kleiner." **v270:** Auf dem Anflugweg fliegen sie in der Tiefe des
+    Zerstörers (Tiefe aus dem `$bay`-Weg), am Ende weiter durch die Öffnung
+    hinein statt zu schrumpfen.
   - Reparatur: Idee Phidias-Reparaturdrohnen, die der Transporter aussendet
     und die mit einem Strahl reparieren. Ob das Modell im MVPS-Paket ist,
     prüft Silvio. Eigener Baustein, offen.

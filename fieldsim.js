@@ -5830,10 +5830,18 @@ scenario('Escape pods: all four fly into the Galatea and the mission ends', 'm=9
   r.podsLaunched = FS.until(()=>allies.some(a=>a.landOn), 1500, false) >= 0 && allies.some(a=>a.landOn);
   // v269: each pod flies one of the Galatea's own bay paths, and they share them out
   const used = {};
-  FS.until(()=>{ for(const a of allies) if(a.landOn && a.bayIx != null) used[a.uid] = a.bayIx;
+  // v270: on the path in the Galatea's depth, and not shrunk at the bay
+  let inDepth = false, sc0 = {}, shrunk = false;
+  FS.until(()=>{ for(const a of allies) if(a.landOn){
+                   if(sc0[a.uid] == null) sc0[a.uid] = a.sc;
+                   if(a.sc < sc0[a.uid]*0.9) shrunk = true;
+                   if(a.podHost && a.podHost.uid === 'GA' && a.podD < 1) inDepth = true; }
+                 for(const a of allies) if(a.landOn && a.bayIx != null) used[a.uid] = a.bayIx;
                  return ['H1','H2','H3','H4'].every(id=>EV_LEFT[id]); }, 4000, false, false, 20);
   r.followedBayPaths = Object.keys(used).length === 4 && new Set(Object.values(used)).size >= 2;
   r.allAboard = ['H1','H2','H3','H4'].every(id=>EV_LEFT[id]);
+  r.flewInHerDepth = inDepth;
+  r.notShrunkAtBay = !shrunk;
   r.countedRescued = protSaved === 4;
   r.noPodLeft = !allies.some(a=>a.landOn);
   return r;`);
