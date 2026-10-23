@@ -2584,6 +2584,12 @@ gesamte Spiel."
     **Entschieden (Silvio, 23.10.2026):** Die Drohnen reparieren nur große
     Schiffe (Kreuzer, Zerstörer u. ä.), nicht den Spieler. Sie ersetzen das
     bisherige Anlegen des Transporters zur Reparatur.
+    **Entschieden (Silvio, 23.10.2026):** „Man kann die Drohnen und den
+    Transporter, dem aus sie gesteuert werden, abschießen. Schießt man den
+    Transporter ab, fliehen die Drohnen an den nächstgelegenen Bildrand rechts
+    oder links. Schießt man auf die Drohnen machen sie weiter bis entweder alle
+    zerstört wurden oder die Reparatur abgeschlossen ist. Ist die Reparatur
+    abgeschlossen, fliegen sie zurück zum Transporter und der warpt dann raus."
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
