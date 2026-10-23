@@ -2603,7 +2603,25 @@ gesamte Spiel."
   außerhalb des Bildes werden **nicht** an den Rand verschoben (Silvio: „Man
   muss nicht alle Ecken sehen"; Gesamtansicht mit Z oder Y). Eine laufende
   Uhr steht zusätzlich in der Auftragsliste im Pausebildschirm.
-- **Alle Punkte entschieden (23.10.2026).** Nächster Schritt: bauen.
+- Subsystem zerstört: der Text „… DESTROYED" am Schiff entfällt; der Zustand
+  steht in der Leiste (Symbole oben).
+- Ebenfalls abgelehnt: Ring, der sich beim Boarding füllt; nur Lichtpunkte
+  für Boarding/Evakuieren; Symbole Schild/Explosion/Stecker für die Aufträge;
+  Sprungwirbel vor dem Absprung; „die Mission schreibt es in ihr Ziel" (es
+  gibt keine Missionsbesprechungen, und lange Formulierungen sollen weg).
+- **Noch NICHT entschieden** (beim Abgleich am 23.10.2026 gefunden):
+  1. Rückmeldung, wenn ein Auftrag erfüllt, verfehlt oder teilweise erfüllt
+     ist (ersetzt die Zielkarte „OBJECTIVE COMPLETE/FAILED", „PARTIAL
+     SUCCESS"). Rot allein geht nicht (Feindfarbe).
+  2. Missionsmeldungen (Wirkung `meldung`, z. B. „The Plato launches an
+     escape pod", Bonusmeldungen) und die übrigen Spalten-Meldungen: ENEMY
+     COMMS DOWN, YOUR COVER IS BLOWN, BOSS DISARMED, „… FITTED", „…
+     ASSIGNED", Refit.
+  3. Die übrigen Texte am Schiff: SCAN COMPLETE (Scannen selbst ist laut
+     Silvio intuitiv), CARGO LEFT BEHIND, TARGET ESCAPED, REACTOR DESTROYED,
+     HULL REPAIRED, REPAIRS COMPLETE, RESCUED, DELIVERED, LEFT EMPTY, TAGGED,
+     IMPACT, TARGET CANNOT JUMP, NO CARGO, „+N RETURNED", die Ticket-Texte
+     („+1 …").
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
