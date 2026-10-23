@@ -2514,6 +2514,20 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
+### F99 — M18: Anflug der Poseidon und der Chronos an den Container (v282)
+
+**Befund (Silvio, 24.10.2026):** „Beim Anflug der Poseidon befinden sich
+beide Arme hinter dem Container. Die Chronos kann, aufgrund ihrer Form von
+vorn und hinten hochstehenden Schiffsaufbauten den Container eigentlich
+nicht mit einer normalen Anfahrt aufnehmen, sondern müsste eigentlich unter
+dem Container stoppen und dann langsam hoch schweben, damit er zwischen die
+beiden Aufbauten passt."
+
+- Offen. Ob v282 Laden, Tragen und Absprung im echten Spiel richtig zeigt,
+  ist noch nicht im echten Spiel geprüft (CLAUDE.md, Abschnitt 1).
+- Nächste Sitzung: zuerst im echten Spiel nachstellen (eingebauter Browser,
+  Dev-Server), alle Phasen, mit Bild.
+
 ### F98 — M18: alle drei Kappa-Frachter heißen „GTFr Kappa 3" (v281)
 
 - Selbst gefunden beim Nachsehen im Spiel (23.10.2026): Einheiten mit
