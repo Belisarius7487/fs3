@@ -2582,11 +2582,13 @@ gesamte Spiel."
   Gefecht und keine eigene Taste, das Spiel wird mit der Maus gespielt):
   **entschieden** — die Liste aller Aufträge mit Stand (offen, erfüllt,
   verfehlt) steht im **Pausebildschirm**. Im Gefecht sprechen die Rahmen an
-  den Schiffen. Ob die Zielzeile oben links dann ganz entfällt, ist mit dem
-  Fall „Auftrag ohne Schiff" noch zu klären.
+  den Schiffen. **Die Zielzeile oben links entfällt ganz** (Silvio: „Ja,
+  macht Sinn. Zudem sieht man Gegner in der Regel ja auch auf dem Radar.").
+  Aufträge ohne Schiff (alle Gegner vernichten) brauchen im Gefecht keine
+  Anzeige: die Gegner tragen ihre Klammern und stehen auf dem Radar.
 - Idee für später (Silvio): eine Trainingsmission, die dem Spieler alle
   diese Feinheiten zeigt.
-- Noch offen: Aufträge ohne Schiff im Gefecht, Countdown/Flucht.
+- Noch offen: Countdown/Flucht.
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
