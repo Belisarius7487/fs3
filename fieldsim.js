@@ -6265,6 +6265,14 @@ scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   FS.until(()=>byId('TA').every(function(t){ return !(t.warp>0); }), 1500, false);
   r.nearPlace = byId('TA').every(function(t){ return t.x > 600*FIELD_K; });
   return r;`);
+scenario('FS1 M18 v278 F94 F95: containers drawn larger, no Satis comes for one', 'm=18', `
+  const r = {};
+  FS.step(20);
+  const K = byId('K');
+  const w = function(e){ const im = IMGS[e.img]; return im ? im.width*e.sc : 0; };
+  r.containersLarger = K.length===6 && K.every(function(c){ return w(c) >= 0.99*hullWidth(c.img)*(c.img==='fcvc3' ? 3 : 1.4); });
+  r.noSatisTaurus = (SCRIPT_WAVES[18].u||[]).filter(function(u){ return u.id==='TA'; }).every(function(u){ return u.spr!=='frsatis'; });
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

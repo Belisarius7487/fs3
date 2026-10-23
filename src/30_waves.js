@@ -1655,6 +1655,9 @@ function applySpawnOpts(e, sp){
   // v253: cargo that rides on a freighter from the start (Shieldbreaker):
   // ride is the freighter's id, slot which of her dock points.
   if(sp.ride){ e.rideId = sp.ride; e.rideSlot = sp.slot || 0; }
+  // F94 (v278): drawn larger in this mission (M18's containers next to
+  // the GTA freighters, Silvio)
+  if(sp.big) e.sc *= sp.big;
   // v253: goes up with a blast wave that hurts (Pandora's Box, Silvio).
   if(sp.shock) e.shockDeath = true;
   // v253: our wingmen leave her alone until somebody fires on her.
@@ -3220,6 +3223,8 @@ const SCRIPT_WAVES = {
   // node. Once they are gone, Anubis come in, and Hammer of
   // Light freighters and GTA freighters race for the containers - ours to
   // be covered, theirs to be stopped. No home ship, so no rearm.
+  // The containers are drawn larger (F94); every Taurus is a Ma'at, the
+  // Satis took no containers in FS1 (F95).
   // Replaces the old mission 18 (Silvio, 23.10.2026).
   18:{name:'Where Eagles Dare', era:'fs1', orig:14, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Stop the Gemini transports and freighters', u:[
@@ -3227,12 +3232,12 @@ const SCRIPT_WAVES = {
        {id:'W2', c:'bo', n:1, size:3, spr:'boathena', side:'ally'},
        // six containers: one for each of the six freighters that come for
        // them, else two would find none and jump out empty at once
-       {id:'K', c:'fc', n:1, spr:'fcvc3', x:520, y:130},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', x:600, y:190},
-       {id:'K', c:'fc', n:1, spr:'fcvc3', x:540, y:250},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', x:600, y:300},
-       {id:'K', c:'fc', n:1, spr:'fcvc3', x:540, y:360},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', x:600, y:410},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', big:3, x:520, y:130},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', big:1.4, x:600, y:190},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', big:3, x:540, y:250},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', big:1.4, x:600, y:300},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', big:3, x:540, y:360},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', big:1.4, x:600, y:410},
        {id:'G1', c:'sg', n:1, spr:'sgankh', x:470, y:250},
        {id:'G1', c:'sg', n:1, spr:'sgankh', x:660, y:120},
        {id:'G1', c:'sg', n:1, spr:'sgankh', x:660, y:410},
@@ -3251,7 +3256,7 @@ const SCRIPT_WAVES = {
        {id:'E3', c:'fi', n:1, size:4, spr:'fianubis', wait:true},
        // the race for the containers
        {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:150, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 1'},
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frsatis', x:760, y:265, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:265, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
        {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:380, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 3'},
        {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:200, y:160, warpIn:true, wait:true,
         dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 1'},
@@ -5332,7 +5337,7 @@ function scriptUnit(u, fac, q){
            scenery:(fix==='ast')?1:0, spread:(fix==='ast')?u.spread:undefined, pickup:u.pickup?1:0,
            capture:u.capture, noFlee:u.noFlee, subs:u.subs, escHit:u.escHit,
            repair:u.repair, repPct:u.repPct,   // v275 (F89): Phidias drones
-           ride:u.ride, slot:u.slot, shock:u.shock, subsDown:u.subsDown, spare:u.spare});
+           ride:u.ride, slot:u.slot, shock:u.shock, subsDown:u.subsDown, spare:u.spare, big:u.big});
   }
 }
 

@@ -2475,6 +2475,21 @@ rausgewarpt ist."
 **Befund (Silvio, 23.10.2026):** „Die Frachtkisten sind zudem zu klein für
 die ankommenden verbündeten Frachter"
 
+- Entschieden (Silvio, 23.10.2026): die Container in dieser Mission größer
+  zeichnen, passend zu den Frachtern (statt alle als VAC 4).
+- Gebaut in v278: Einheit `big:N` vergrößert ein feindliches Schiff um den
+  Faktor N; in M18 VC 3 ×3 und VAC 4 ×1,4.
+
+### F95 — M18: Container docken falsch an der Satis an (v276)
+
+**Befund (Silvio, 23.10.2026):** „die Frachtcontainer [docken] an den
+Satis-Frachtern fehlerhaft an." Die Satis konnte im Original keine Container
+aufnehmen (sie ist eher ein Transporter): „Daher würde ich empfehlen, die
+Satis durch Ma'at Frachter zu ersetzen."
+
+- Gebaut in v278: der Satis-Frachter der Taurus ist eine Ma'at. Die Satis
+  der Gemini bleibt — sie nimmt keinen Container auf, sondern flieht nur.
+
 ### F93 — M18: Taurus-Frachter erscheinen ohne Sprung (v276)
 
 **Befund (Silvio, 23.10.2026):** „Die Taurus Frachter sind bei mir gerade
