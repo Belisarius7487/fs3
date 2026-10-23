@@ -2528,6 +2528,34 @@ beiden Aufbauten passt."
   getestet — nachfragen statt vermuten.
 - Nächste Sitzung: zuerst im echten Spiel nachstellen (eingebauter Browser,
   Dev-Server), alle Phasen, mit Bild.
+- **Entschieden (Silvio, 24.10.2026): Andocken nur noch nach den
+  Andockdaten der Originalmodelle, ein Ablauf für alle Missionen.** Silvio
+  wollte das Problem „zukunftssicher gelöst" haben, statt es in jeder neuen
+  Mission neu zu flicken. Ursache aller Andockfehler bisher (F24, F47, F51,
+  F53, F96, F97 dreimal, F99): das Spiel las aus den Modellen nur die Lage
+  des Andockpunkts auf dem Bild und riet Richtung, Tiefe und Anflug.
+  - Die POFs enthalten je Andockpunkt Name, Lage (auch in der Tiefe),
+    Richtung und den Anflugweg, den FreeSpace fliegt. Nachgesehen
+    (24.10.2026): Poseidon „cargo dock" unter dem Rumpf zwischen den Armen,
+    zeigt nach unten, Anflugweg senkrecht von unten. Chronos „cargo
+    dockpoint" in der Mulde zwischen den Aufbauten, zeigt nach oben,
+    Anflugweg senkrecht von oben. Ma'at „cargo dock" oben, senkrecht.
+    VC3 „cargo dock" an der Unterseite. Satis hat nur einen „docking point",
+    keinen für Fracht (passt zu F95).
+  - Ablauf: (1) Anfahren, vorwärts und mit sichtbarer Wende, bis der
+    Container genau über bzw. unter dem Ladepunkt steht; (2) Einschweben,
+    langsam und gerade auf dem Anflugweg (Chronos steigt, Poseidon sinkt);
+    (3) Laden; (4) auf demselben Weg ausschweben, dann wegfahren oder
+    springen. Ab (2) werden Frachter und Container als ein 3D-Bild
+    gezeichnet, Arme und Aufbauten liegen dadurch von selbst davor oder
+    dahinter.
+  - Missionen sagen nur noch, wer welchen Container holt, nie wie.
+  - Absicherung: eine automatische Prüfung mit den echten Schiffsformen
+    (fährt ein Container durch einen Rumpf, wird nicht geliefert) und für
+    jedes Paar Frachter + Container einmal vier Bilder aus dem Spiel (ein
+    Bild je Schritt), die Silvio einmal abnimmt.
+  - Folge für M18: die vergrößerten Container (F94) müssen so groß sein,
+    dass sie zwischen Arme und Aufbauten passen.
 
 ### F98 — M18: alle drei Kappa-Frachter heißen „GTFr Kappa 3" (v281)
 

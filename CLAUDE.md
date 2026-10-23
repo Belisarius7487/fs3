@@ -305,6 +305,15 @@ Eine **Kennung steht für eine Gruppe**, nicht für ein Schiff: `byId()` gibt
 jede Einheit zurück, die sie trägt, und ein Auslöser darf mehrere mit `+`
 nennen (Mission 78: drei Geräte, ein Scan-Auslöser). Das ist Absicht.
 
+**Andocken wird nie in einer Mission gelöst (Silvio, 24.10.2026, F99).**
+Wie ein Schiff andockt, steht in den Andockdaten der Originalmodelle
+(Lage, Tiefe, Richtung, Anflugweg) und läuft für alle Missionen nach einem
+Ablauf: anfahren, auf dem Anflugweg einschweben, laden, auf demselben Weg
+ausschweben, abfahren. Eine Mission nennt nur, wer an wen andockt. Ein
+Andockfehler wird im gemeinsamen Ablauf oder in den Modelldaten behoben,
+nie mit einem Sonderschalter für eine Mission oder ein Schiff — und nie
+ohne Bild aus dem Spiel von allen Phasen.
+
 Was seit v240 an Einheiten, Auslösern und Wirkungen dazukam (`escHit`,
 `ride`, `mark`, `dockBelly`, `wenn` …): `CLAUDE_DETAILS.md`, Abschnitt B.
 
