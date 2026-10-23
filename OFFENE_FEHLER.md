@@ -2502,6 +2502,23 @@ angedocktem Container: „Was soll das?"
   den echten Modellen von Poseidon, Chronos und Ma'at. `docksim` misst jetzt
   den Sitz statt das Aufeinandertreffen der beiden Andockpunkte. Szenario
   „v281 F97" (schlägt gegen v280 fehl).
+- **Noch nicht behoben in v281** (Silvio, 23.10.2026): „Wie im Screenshot zu
+  sehen ist, tut sie das immer noch nicht. Wenn die Poseidon herauswarpt,
+  ändert sie zudem ihre Ebene, sodass sie den Container entweder korrekt
+  zwischen ihren Armen trägt oder davor liegt." Vorbild: Mission 10.
+- Diesmal im echten Spiel auf dem Server nachgesehen (eingebauter Browser):
+  während der Ladezeit (`dockHold`, 12 s) gilt der Container noch nicht als
+  gehalten; er lag in der Spielebene vor ihren Armen. Erst nach dem Laden
+  — im Moment des Absprungs — kam er in ihre Tiefe. Daher der Ebenenwechsel.
+- Gebaut in v282: ein Container, an dem ein Frachter gerade lädt, liegt
+  schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
+  `_boardBy`).
+
+### F98 — M18: alle drei Kappa-Frachter heißen „GTFr Kappa 3" (v281)
+
+- Selbst gefunden beim Nachsehen im Spiel (23.10.2026): Einheiten mit
+  derselben Kennung bekamen alle den Namen der letzten.
+- Gebaut in v282: jede Einheit behält ihren eigenen Namen.
 
 ### F96 — M18: Taurus springen nach rechts ein und schnappen nach links um (v278)
 

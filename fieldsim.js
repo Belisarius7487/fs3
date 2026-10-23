@@ -6319,6 +6319,17 @@ scenario('v281 F97: the Poseidon holds her container under her keel, not up in h
     r.topAtDock = Math.abs((c.y - ci.height*c.sc*0.5) - p.y) < 1;
   }
   return r;`);
+scenario('v282 F97 F98: a container being loaded is in its freighter depth; each Kappa keeps its name', 'm=18', `
+  const r = {};
+  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT','E1','E2','E3','TA','G1']) FS.killId(id); for(const k of byId('KA')) k.hp=k.maxHp; };
+  FS.until(()=>{ clean(); return byId('KA').length===3; }, 6000, false);
+  FS.step(5);
+  r.names = byId('KA').map(function(k){ return k.label; }).sort().join(',') === 'GTFR KAPPA 1,GTFR KAPPA 2,GTFR KAPPA 3';
+  let h = null;
+  FS.until(()=>{ clean(); h = allies.find(k=>k.uid==='KA' && k.dockRes && k.holdT!=null && k.holdT>0); return !!h; }, 8000, false);
+  r.loading = !!h;
+  r.inHerDepth = !!h && f3dCargoHost(h.dockRes) === h;
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

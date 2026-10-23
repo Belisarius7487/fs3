@@ -1141,7 +1141,7 @@ function update(){
           _a.flip = needsFlip(_a.img, _toLeft);
           guardWanted = true; guardSpawned = true;
         }
-        if(_a){ _a.uid=_sp.uid; if(_sp.uid) EV_SEEN[_sp.uid]=true;
+        if(_a){ _a.uid=_sp.uid;if(_sp.lbl){_a.label=_sp.lbl;_a._lbl=true;} if(_sp.uid) EV_SEEN[_sp.uid]=true;
                 _a.defectLock = evWillDefect(_sp.uid);
                 if(_sp.defectRun) _a.defectRun = _sp.defectRun;
                 if(_sp.noWings) _a.noWings = true;
@@ -1159,7 +1159,7 @@ function update(){
         // Nobody carries a shield in subspace, ours neither (v171).
         if(_a && waveMod==='subspace'){ _a.maxSh = 0; _a.sh = 0; }
         if(_a && _sp.disguised) _a.disguised = true;
-        if(_a){ _a.uid=_sp.uid; if(_sp.uid) EV_SEEN[_sp.uid]=true;
+        if(_a){ _a.uid=_sp.uid;if(_sp.lbl){_a.label=_sp.lbl;_a._lbl=true;} if(_sp.uid) EV_SEEN[_sp.uid]=true;
                 // Wer eine Korvette durchbringt, bekommt kein Kreuzerticket.
                 guardReward = (_a.type==='destroyer') ? 'destroyer'
                             : (_a.type==='corvette') ? 'corvette' : 'cruiser';
@@ -1167,7 +1167,7 @@ function update(){
         continue;
       }
       const _e=mkEnemy(_sp.type, _sp.spr, _sp.y);
-      if(_e && _sp.flee) _e.fleeT = _sp.flee*TICK_HZ;if(_e){_e.side='enemy';_e.flip=needsFlip(_e.img,true);if(_e.type==='fighter'||_e.type==='bomber'){const _p=poseFor(_e.head,_e.flip);_e.ang=_p.ang;_e.flip=_p.flip;}_e.warpMax=_e.warp||1;initWeapons(_e);initSecAmmo(_e);initLuciShield(_e);initSubsystems(_e);assignStation(_e);applySpawnOpts(_e,_sp);if((portalIn||_sp.viaPortal)&&!_sp.noWarp)portalArrive(_e);_e.uid=_sp.uid;_e.wing=_sp.wing||0;if(_sp.uid)EV_SEEN[_sp.uid]=true;_e.hunter=(waveHunt&&Math.random()<(typeof waveHuntShare!=='undefined'?waveHuntShare:HUNT_SHARE));_e.rammer=!!_sp.rammer;enemies.push(_e);}}
+      if(_e && _sp.flee) _e.fleeT = _sp.flee*TICK_HZ;if(_e){_e.side='enemy';_e.flip=needsFlip(_e.img,true);if(_e.type==='fighter'||_e.type==='bomber'){const _p=poseFor(_e.head,_e.flip);_e.ang=_p.ang;_e.flip=_p.flip;}_e.warpMax=_e.warp||1;initWeapons(_e);initSecAmmo(_e);initLuciShield(_e);initSubsystems(_e);assignStation(_e);applySpawnOpts(_e,_sp);if((portalIn||_sp.viaPortal)&&!_sp.noWarp)portalArrive(_e);_e.uid=_sp.uid;if(_sp.lbl){_e.label=_sp.lbl;_e._lbl=true;}_e.wing=_sp.wing||0;if(_sp.uid)EV_SEEN[_sp.uid]=true;_e.hunter=(waveHunt&&Math.random()<(typeof waveHuntShare!=='undefined'?waveHuntShare:HUNT_SHARE));_e.rammer=!!_sp.rammer;enemies.push(_e);}}
     // With a boss calling for more, the queue is never empty for long, but
     // the wave still ends the moment the boss itself dies, because its
     // calls stop with it.

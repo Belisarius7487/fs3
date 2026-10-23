@@ -581,6 +581,7 @@ function spawnProtected(sp){
   if(!a) return;
   a.side = 'ally';
   a.uid = sp.uid;
+  if(sp.lbl){ a.label = sp.lbl; a._lbl = true; }   // F98 (v282): her own name
   if(sp.uid) EV_SEEN[sp.uid] = true;
   a.faction = sp.fac || 'terran';
   if(sp.pickup) a.pickup = true;
@@ -5256,6 +5257,9 @@ function scriptUnit(u, fac, q){
   const t0 = (u.t||0)*TICK_HZ + 1;
   const put = function(e){
     e.uid = u.id;
+    // F98 (v282): each unit keeps its own name - one id shared by three
+    // freighters gave all three the last name (Kappa 3)
+    if(u.label) e.lbl = String(u.label).toUpperCase();
     if(u.hp) e.hpMul = u.hp;
     if(u.hull) e.hullMul = u.hull;
     if(u.wait){ e.delay = e.time - t0; (EV_HELD[u.id]=EV_HELD[u.id]||[]).push(e); }

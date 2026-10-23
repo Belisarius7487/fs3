@@ -801,6 +801,11 @@ function f3dCargoHost(e){
     if(f && f !== e) return f;
   }
   if(e.carrier && !e.carrier.dead && e.carrier !== e) return e.carrier;
+  // F97 (v282): a container while its freighter holds at it to load (her
+  // dockHold) is in her depth already - before, it lay in the play plane in
+  // front of the Poseidon's arms and only went between them as she jumped.
+  const b = e._boardBy;
+  if(e.type === 'container' && b && !b.dead && b !== e && b.dockRes === e && b.holdT != null) return b;
   return null;
 }
 // F97 (v281): the factor for a held container's thickness (model x, across
@@ -808,8 +813,9 @@ function f3dCargoHost(e){
 // the Poseidon's arms (arms at 45 % of her half beam, POF).
 const HELD_THIN = 0.38;
 function f3dHeldThin(e, s, L){
-  if(e.type !== 'container' || !e.carrier || e.carrier.dead) return 1;
-  const h = e.carrier, k = f3dKey(h), HL = k ? f3dReadyLevel(k) : null;
+  const h = (e.type === 'container') ? f3dCargoHost(e) : null;
+  if(!h) return 1;
+  const k = f3dKey(h), HL = k ? f3dReadyLevel(k) : null;
   if(!HL || !HL.head || !HL.head.size || !L.head.size) return 1;
   const hi = IMGS[h.img], hs = hi ? hi.width*h.sc : 0;
   const hsz = HL.head.size, hspan = hsz[2]*Math.abs(Math.cos(F3D_VIEW[h.img] || 0)) + hsz[0]*Math.abs(Math.sin(F3D_VIEW[h.img] || 0));

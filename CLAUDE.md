@@ -42,6 +42,24 @@ Silvio hat **keine Programmiererfahrung.**
 - Bei jeder Lieferung die **vollständige Test-URL** mitgeben, mit Versions-
   und nötigen Modusparametern.
 
+**Sichtbare Fehler im echten Spiel prüfen (Silvio, 24.10.2026).** v280 und
+v281 sollten den Container an der Poseidon (F97) beheben und taten es nicht:
+geändert ohne hinzusehen, dann nur im eigenen Nachbau und nur in einer
+Phase geprüft. Deshalb:
+
+1. Den Fehler zuerst **im echten Spiel auf dem Dev-Server** nachstellen
+   (eingebauter Browser auf Silvios PC, `https://dev.hard-light.org/fs3/`;
+   Spielvariablen über ein eingefügtes `<script>` erreichbar), genau an der
+   gemeldeten Stelle, mit Bild. Erst wenn es aussieht wie bei ihm, ist die
+   Ursache gefunden.
+2. **Alle Phasen** des Ablaufs prüfen (beim Andocken: Anflug, Laden,
+   Tragen, Absprung), nicht nur eine.
+3. Nach dem Bau und Silvios `build.sh` dieselbe Stelle **noch einmal im
+   echten Spiel** ansehen und das Bild mitschicken, bevor „fertig" gesagt
+   wird.
+4. Eine Vermutung als Vermutung sagen und prüfen, bevor Silvio dafür etwas
+   tun muss.
+
 **Wenn Silvio sagt „X geht nicht", ist das der Befund.** Nicht umdeuten in
 „vermutlich fehlt Y". Das hat schon einen kompletten Bauzyklus gekostet: Er
 meldete, der Rearm-Knopf reagiere nicht; die Antwort war, ihm fehle eine
