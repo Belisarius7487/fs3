@@ -2593,6 +2593,9 @@ gesamte Spiel."
     **Entschieden (Silvio, 23.10.2026):** Die Reparatur ist abgeschlossen, wenn
     der Rumpf wieder voll ist; das Tempo legt die Mission fest. Den Fortschritt
     zeigt der Rumpfbalken.
+    **Entschieden (Silvio, 23.10.2026):** Immer dieselbe Menge, 10 Drohnen. „Die
+    Drohnen fliegen den Rumpf des zu reparierenden Schiffes ab, vorzugsweise
+    die Stellen, die Schadenszeichnungen haben."
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
