@@ -6273,6 +6273,24 @@ scenario('FS1 M18 v278 F94 F95: containers drawn larger, no Satis comes for one'
   r.containersLarger = K.length===6 && K.every(function(c){ return w(c) >= 0.99*hullWidth(c.img)*(c.img==='fcvc3' ? 3 : 1.4); });
   r.noSatisTaurus = (SCRIPT_WAVES[18].u||[]).filter(function(u){ return u.id==='TA'; }).every(function(u){ return u.spr!=='frsatis'; });
   return r;`);
+scenario('FS1 M18 v279 F96: the Taurus never snap round, they turn', 'm=18', `
+  const r = {};
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);
+  let snaps = 0, seen = 0;
+  const last = new Map();
+  for(let k=0; k<1500; k++){
+    player.invT = 999;
+    for(const t of byId('TA')){
+      const p = last.get(t);
+      if(p && p.flip !== !!t.flip && !p.face) snaps++;
+      last.set(t, {flip: !!t.flip, face: !!t._face});
+    }
+    seen = Math.max(seen, last.size);
+    FS.step(1);
+  }
+  r.watched = seen === 3;
+  r.noSnap = snaps === 0;
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

@@ -2470,6 +2470,22 @@ rausgewarpt ist."
 - Gebaut in v267: die Trümmer halten Abstand zu allen Großkampfschiffen
   der Mission mit fester Position (Galatea, Lilith, Cain).
 
+### F96 — M18: Taurus springen nach rechts ein und schnappen nach links um (v278)
+
+**Befund (Silvio, 23.10.2026):** „Die Taurus Frachter warpen nach rechts
+gerichtet ein, snappen nach dem Warp in aber instant nach links um. Ich
+dachte das wäre längst schon bei allen Schiffen behoben? Es nervt diesen
+Fehler immer wieder beheben zu müssen. Schiffe sollen sich ganz normal
+drehen und nicht instant die Richtung wechseln."
+
+- Nachgelesen: F53 (v254) hatte das nur für eigene Schiffe gelöst. Ein
+  feindliches Schiff, das zum Andocken einspringt, wurde im ersten Schritt
+  ohne Wende umgesetzt.
+- Gebaut in v279, für alle Schiffe: wer zum Andocken einspringt, kommt schon
+  zum Ziel gewandt aus dem Wirbel; ohne Wende umgesetzt wird nur noch ein
+  Schiff, das von Anfang an ohne Sprung im Feld steht (unsichtbar, erstes
+  Bild). Szenario „FS1 M18 v279 F96" (schlägt gegen v278 fehl).
+
 ### F94 — M18: Container zu klein für die verbündeten Frachter (v276)
 
 **Befund (Silvio, 23.10.2026):** „Die Frachtkisten sind zudem zu klein für

@@ -1084,8 +1084,10 @@ function tickDocking(){
       // she had loaded, and came at her container tail first. On her first
       // step she is simply set that way; after that she turns (v243).
       if(Math.abs(dx) > 2){
-        if(!e._dockFaced){ e.flip = needsFlip(e.img, dx < 0); e._dockFaced = true; }
-        else faceTurn(e, dx < 0);
+        // F96 (v279): set without a turn only for a ship there from the
+        // start (no jump); one that was seen arriving turns.
+        if(!e._dockFaced && !(e.warpMax > 1)){ e.flip = needsFlip(e.img, dx < 0); e._dockFaced = true; }
+        else { e._dockFaced = true; faceTurn(e, dx < 0); }
       }
       const sx = DOCK_SPD*1.6, sy = DOCK_SPD;
       e.x += Math.max(-sx, Math.min(sx, dx));
@@ -1658,6 +1660,13 @@ function applySpawnOpts(e, sp){
   // F94 (v278): drawn larger in this mission (M18's containers next to
   // the GTA freighters, Silvio)
   if(sp.big) e.sc *= sp.big;
+  // F96 (v279): like our own ships (F53), one that comes to dock leaves her
+  // vortex already facing her target - else she snapped round on her first
+  // step (the Taurus in M18). An escaper turns to her escape later, visibly.
+  if(sp.dockTo){
+    const _t = byId(sp.dockTo)[0];
+    if(_t){ e.flip = needsFlip(e.img, _t.x < e.x); e._dockFaced = true; }
+  }
   // v253: goes up with a blast wave that hurts (Pandora's Box, Silvio).
   if(sp.shock) e.shockDeath = true;
   // v253: our wingmen leave her alone until somebody fires on her.
