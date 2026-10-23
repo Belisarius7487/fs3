@@ -2470,6 +2470,15 @@ rausgewarpt ist."
 - Gebaut in v267: die Trümmer halten Abstand zu allen Großkampfschiffen
   der Mission mit fester Position (Galatea, Lilith, Cain).
 
+### F97 — M18: vergrößerter Container verdeckt die Poseidon (v279)
+
+**Befund (Silvio, 23.10.2026):** Bildschirmfoto der GTFr Kappa 3 mit
+angedocktem Container: „Was soll das?"
+
+- Nachgelesen: die Poseidon nimmt ihren Container in der Mitte ihres Rumpfs
+  auf (Andockpunkt dort). Mit F94 ist ein VC 3 ×3 fast so groß wie die
+  Poseidon und deckt sie ganz zu.
+
 ### F96 — M18: Taurus springen nach rechts ein und schnappen nach links um (v278)
 
 **Befund (Silvio, 23.10.2026):** „Die Taurus Frachter warpen nach rechts
