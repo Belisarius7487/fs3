@@ -2603,6 +2603,9 @@ gesamte Spiel."
     **Entschieden (Silvio, 23.10.2026):** Strahl und Effekte aus den fertigen
     Bildern unter `bp\data\effects\phidias` (RepairCore, RepairGlow, RepairHaze,
     Particle_Repair …; goldgelb).
+    **Entschieden (Silvio, 23.10.2026):** Mikes Bilder kommen wie die Modelle
+    nicht ins (öffentliche) Repo, sondern als ZIP auf den Server. Modell in
+    `bp\data\models`, Texturen in `bp\data\maps\phidias`.
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
