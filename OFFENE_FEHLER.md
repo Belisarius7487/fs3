@@ -2588,7 +2588,15 @@ gesamte Spiel."
   Anzeige: die Gegner tragen ihre Klammern und stehen auf dem Radar.
 - Idee für später (Silvio): eine Trainingsmission, die dem Spieler alle
   diese Feinheiten zeigt.
-- Noch offen: Countdown/Flucht.
+- **Flucht/Absprung:** Sprungwirbel vorab verworfen (widerspricht der
+  FreeSpace-Mechanik). **Entschieden** (Silvio): wie beim Boarding — die vier
+  Ecken der Klammern des fliehenden Schiffs werden nacheinander **grau**,
+  alle vier grau = sie springt. Die Klammern **pulsieren**, schneller je
+  knapper, damit es nicht übersehen wird. Ersetzt die Countdown-Zeile oben
+  rechts. (Hinweis: das Grau für zerstörte, anvisierte Subsysteme in
+  `drawTargetMarks` erscheint praktisch nie, weil `tgtTick` die Auswahl im
+  selben Moment löscht.)
+- Noch offen: Missionsuhren (`timer`, z. B. HECATE JUMP DRIVE).
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
