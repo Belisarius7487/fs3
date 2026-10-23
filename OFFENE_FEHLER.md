@@ -2523,8 +2523,9 @@ nicht mit einer normalen Anfahrt aufnehmen, sondern müsste eigentlich unter
 dem Container stoppen und dann langsam hoch schweben, damit er zwischen die
 beiden Aufbauten passt."
 
-- Offen. Ob v282 Laden, Tragen und Absprung im echten Spiel richtig zeigt,
-  ist noch nicht im echten Spiel geprüft (CLAUDE.md, Abschnitt 1).
+- Offen. Silvios Befund stammt aus v282, im Spiel getestet (Silvio,
+  24.10.2026). Claude hatte fälschlich angenommen, v282 sei noch nicht
+  getestet — nachfragen statt vermuten.
 - Nächste Sitzung: zuerst im echten Spiel nachstellen (eingebauter Browser,
   Dev-Server), alle Phasen, mit Bild.
 
