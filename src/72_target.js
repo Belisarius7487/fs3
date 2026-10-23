@@ -318,7 +318,11 @@ function drawTargetMarks(){
     const bank = selSecBank(), w = bank ? secDefP(bank.key) : null;
     if(w && w.homing === 'aspect' && TGT.lock > 0){
       const f = Math.min(1, TGT.lock/(w.lockT || 1)), locked = f >= 1;
-      const cx = (x1+x2)/2, cy = (y1+y2)/2;
+      // F90 (Silvio, 23.10.2026): with a subsystem chosen the ring goes to
+      // the subsystem, where the lock is taken and the missile flies (v253),
+      // not to the middle of the hull
+      const lsub = (TGT.sub && !TGT.sub.dead && o.subs && o.kind !== 'bomb') ? tgtSubPos(o, TGT.sub) : null;
+      const cx = lsub ? w2sX(lsub.x) : (x1+x2)/2, cy = lsub ? w2sY(lsub.y) : (y1+y2)/2;
       const ns = player.flip ? -1 : 1, na = player.ang || 0;
       const p0x = w2sX(player.x + Math.cos(na)*ns*40), p0y = w2sY(player.y + Math.sin(na)*ns*40);
       const lx = locked ? cx : p0x + (cx - p0x)*f, ly = locked ? cy : p0y + (cy - p0y)*f;
@@ -473,9 +477,75 @@ function barTargetModel(e, x, y, w, h){
   ctx.drawImage(can, (W/2 - w/2)*fx, (H/2 - h/2)*fy, w*fx, h*fy, x, y, w, h);
   return true;
 }
-// called at the end of drawHUDHLP with the first free x after SUPPORT
-function drawBarScope(x0){
-  const H2 = HUD_H, bX0 = W - 5*22 - 4*3 - 4;
+// ── SUBSYSTEM ICONS IN THE TARGET VIEW (F89, Silvio 23.10.2026) ──
+// The five subsystems of the target, in the right margin of the target view
+// (not in the radar box). Coloured like the HULL bar, red and struck through
+// once destroyed. Weapons, sensors, navigation and communication are
+// Material Symbols, outlined (Apache-2.0, see licenses/README.md); the
+// engines are a bell nozzle lying on its side, drawn by hand in the same
+// line style (tools/f89_subsystem_icons_mock.js).
+const SUB_ICON_D = {
+  weapons: 'M450-42v-75q-137-14-228-105T117-450H42v-60h75q14-137 105-228t228-105v-75h60v75q137 14 228 105t105 228h75v60h-75q-14 137-105 228T510-117v75h-60Zm244.5-223.5Q784-355 784-480t-89.5-214.5Q605-784 480-784t-214.5 89.5Q176-605 176-480t89.5 214.5Q355-176 480-176t214.5-89.5Zm-321-108Q330-417 330-480t43.5-106.5Q417-630 480-630t106.5 43.5Q630-543 630-480t-43.5 106.5Q543-330 480-330t-106.5-43.5ZM544-416q26-26 26-64t-26-64q-26-26-64-26t-64 26q-26 26-26 64t26 64q26 26 64 26t64-26Zm-64-64Z',
+  sensors: 'M324-111.5Q251-143 197-197t-85.5-127Q80-397 80-480t31.5-156Q143-709 197-763t127-85.5Q397-880 480-880t156 31.5Q709-817 763-763t85.5 127Q880-563 880-480t-31.5 156Q817-251 763-197t-127 85.5Q563-80 480-80t-156-31.5ZM480-140q63 0 118.5-20.5T699-219l-72-71q-31 23-68 36.5T480-240q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 42-13.5 79T670-333l71 71q37-45 58-100t21-118q0-142-99-241t-241-99q-142 0-241 99t-99 241q0 142 99 241t241 99Zm0-160q29 0 55.5-8.5T584-333l-74-73q-7 3-14.5 4.5T480-400q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 8-2 16t-5 16l74 72q16-22 24.5-48.5T660-480q0-75-52.5-127.5T480-660q-75 0-127.5 52.5T300-480q0 75 52.5 127.5T480-300Z',
+  navigation: 'm303-303 270-83 83-270-270 83-83 270Zm176.76-137q-16.76 0-28.26-11.74-11.5-11.73-11.5-28.5 0-16.76 11.74-28.26 11.73-11.5 28.5-11.5 16.76 0 28.26 11.74 11.5 11.73 11.5 28.5 0 16.76-11.74 28.26-11.73 11.5-28.5 11.5Zm.51 360q-82.74 0-155.5-31.5Q252-143 197.5-197.5t-86-127.34Q80-397.68 80-480.5t31.5-155.66Q143-709 197.5-763t127.34-85.5Q397.68-880 480.5-880t155.66 31.5Q709-817 763-763t85.5 127Q880-563 880-480.27q0 82.74-31.5 155.5Q817-252 763-197.68q-54 54.31-127 86Q563-80 480.27-80Zm.22-60Q622-140 721-239.49q99-99.48 99-241Q820-622 721-721t-240.51-99q-141.52 0-241 99Q140-622 140-480.49q0 141.52 99.49 241 99.48 99.49 241 99.49ZM480-480Z',
+  communication: 'M198-278q-60-58-89-133T80-560q0-74 29-149t89-133l35 35q-50 49-76.5 116.5T130-560q0 63 26.5 130.5T233-313l-35 35Zm92-92q-40-37-59-89.5T212-560q0-48 19-100.5t59-89.5l35 35q-29 29-46 72.5T262-560q0 35 17.5 79.5T325-405l-35 35Zm4 290 133-405q-17-12-27.5-31T389-560q0-38 26.5-64.5T480-651q38 0 64.5 26.5T571-560q0 25-10.5 44T533-485L666-80h-59l-29-90H383l-30 90h-59Zm108-150h156l-78-238-78 238Zm268-140-35-35q29-29 46-72.5t17-82.5q0-35-17.5-79.5T635-715l35-35q39 37 58.5 89.5T748-560q0 47-19.5 100T670-370Zm92 92-35-35q49-49 76-116.5T830-560q0-63-27-130.5T727-807l35-35q60 58 89 133t29 149q0 75-27.5 149.5T762-278Z',
+};
+const SUB_ICON_P = {};
+function subIconPath(id){
+  if(!SUB_ICON_D[id] || typeof Path2D === 'undefined') return null;
+  return SUB_ICON_P[id] || (SUB_ICON_P[id] = new Path2D(SUB_ICON_D[id]));
+}
+const SUB_ICON_ORDER = ['weapons','engines','sensors','navigation','communication'];
+const SUB_DEAD_COL = '#ff4a33';
+function drawEngineGlyph(cx, cy, sz, col){
+  const k = sz/24;
+  ctx.save(); ctx.translate(cx - sz/2, cy - sz/2); ctx.scale(k, k);
+  ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  // chamber on the right, a narrow throat, the bell flaring to the left
+  ctx.beginPath(); ctx.moveTo(18, 9); ctx.lineTo(21.5, 9); ctx.lineTo(21.5, 15); ctx.lineTo(18, 15); ctx.closePath(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(18, 10.5); ctx.lineTo(15.5, 11);
+  ctx.quadraticCurveTo(11, 5, 2.5, 3.5);
+  ctx.lineTo(2.5, 20.5);
+  ctx.quadraticCurveTo(11, 19, 15.5, 13);
+  ctx.lineTo(18, 13.5); ctx.stroke();
+  // two rings on the bell
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(11.5, 7.6); ctx.lineTo(11.5, 16.4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(7, 5.2); ctx.lineTo(7, 18.8); ctx.stroke();
+  ctx.restore();
+}
+function drawSubIcon(id, cx, cy, sz, col){
+  if(id === 'engines'){ drawEngineGlyph(cx, cy, sz, col); return; }
+  const P = subIconPath(id); if(!P) return;
+  ctx.save(); ctx.translate(cx - sz/2, cy - sz/2); ctx.scale(sz/960, sz/960); ctx.translate(0, 960);
+  ctx.fillStyle = col; ctx.fill(P); ctx.restore();
+}
+// the icons of e's subsystems in the box x, y, w, h: three on top, two under
+function drawBarSubIcons(e, x, y, w, h){
+  window._barSubIcons = [];
+  if(!e || e.kind === 'bomb' || !e.subs || !e.subs.length || w < 12) return;
+  const cols = 3, cell = Math.min(w/cols, h/2), sz = cell*0.86;
+  let i = 0;
+  for(const id of SUB_ICON_ORDER){
+    const s = e.subs.find(function(q){ return q.id === id; });
+    const cx = x + (i%cols + 0.5)*(w/cols), cy = y + (Math.floor(i/cols) + 0.5)*cell;
+    i++; if(!s) continue;
+    const dead = !!s.dead || !(s.hp > 0);
+    const col = dead ? SUB_DEAD_COL : hullCol(Math.max(0, s.hp/s.maxHp));
+    ctx.save(); ctx.globalAlpha = dead ? 0.55 : 1; drawSubIcon(id, cx, cy, sz, col); ctx.restore();
+    if(dead){
+      ctx.save(); ctx.strokeStyle = SUB_DEAD_COL; ctx.lineWidth = Math.max(1.5, sz*0.1); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(cx - sz*0.45, cy + sz*0.45); ctx.lineTo(cx + sz*0.45, cy - sz*0.45); ctx.stroke(); ctx.restore();
+    }
+    window._barSubIcons.push({id: id, x: cx, y: cy, sz: sz, col: col, dead: dead});
+  }
+}
+// called at the end of drawHUDHLP with the first free x after the ship and
+// weapon buttons; x1 is where the system buttons (sound, settings, pause)
+// begin (F89: the target view is wider by the two buttons that moved)
+function drawBarScope(x0, x1){
+  const H2 = HUD_H, bX0 = (x1 != null) ? x1 : W - 3*22 - 2*3 - 4;
   const x = x0 + 5, y = 5, w = bX0 - 6 - x, h = H2 - 10;
   thDivider(x0, 4, H2 - 4);
   ctx.save();
@@ -512,6 +582,8 @@ function drawBarScope(x0){
     if(!ship){ ctx.fillStyle = col; ctx.font = thLabel(7); ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText('BOMB', bx, y + 3); }
     ctx.font = thValue(8, true); ctx.textBaseline = 'top'; ctx.textAlign = 'right'; ctx.fillStyle = col;
     ctx.fillText(Math.round(tgtDist(e)/SIZE_UPM) + 'm', x + w - 3, y + 3);
+    // F89: the subsystems in the right margin, under the distance
+    if(ship) drawBarSubIcons(e, x + w - mg + 3, y + 16, mg - 6, h - 16);
   } else {
     ctx.fillStyle = TH('textDim'); ctx.font = thLabel(7); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     ctx.fillText('NO TARGET', x + 3, y + 3);

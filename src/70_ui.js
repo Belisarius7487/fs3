@@ -1832,15 +1832,16 @@ function drawHUDHLP(){
   lab('['+bindKey('call')+']', alX+4, alBY+alBH-7);
   window._allyBtnRect={x:alX, y:alBY, w:alBW, h:alBH};
   x+=alBW+5;
-  // v210: radar and target view in one window (72_target.js)
-  if(typeof drawBarScope==='function') drawBarScope(x);
 
   // 7  (v202: the support tickets are gone - support is paid in points)
   ctx.textBaseline='middle';
 
-  // 8  V R M S P - five buttons of one kind, each with its key at the foot
-  // (Silvio, v186: the ones without a letter stood lower than the others).
-  var bW=22, bG=3, bY=4, bH=H2-8, bX0=W-5*bW-4*bG-4;
+  // 8  The buttons, each with its key at the foot (Silvio, v186: the ones
+  // without a letter stood lower than the others). F89 (Silvio,
+  // 23.10.2026): ship and weapon swap sit next to SUPPORT; right of the
+  // radar only the system buttons remain (sound, settings, pause), and the
+  // target view grows by the width that freed.
+  var bW=22, bG=3, bY=4, bH=H2-8, bX0=W-3*bW-2*bG-4;
   function keyHint(bx, key, c){
     ctx.save(); ctx.textAlign='center'; ctx.textBaseline='alphabetic';
     ctx.font=thLabel(8); ctx.fillStyle=c; ctx.fillText(key, bx+bW/2, bY+bH-4); ctx.restore();
@@ -1848,7 +1849,7 @@ function drawHUDHLP(){
   var icy=bY+(bH-11)/2+5.5;    // the middle of what the letter leaves
   var hideSwap=FS1_MODE;
   // V
-  var swX=bX0;
+  var swX=x;
   if(!hideSwap){
     var swSt=btnState(shipSwapReady()||shipMenu, shipMenu, hovering(swX, bY, bW, bH));
     thButton(swX, bY, bW, bH, swSt);
@@ -1857,24 +1858,29 @@ function drawHUDHLP(){
     window._shipBtnRect={x:swX, y:bY, w:bW, h:bH};
   } else window._shipBtnRect=null;
   // R
-  var rmX=bX0+bW+bG;
+  var rmX=swX+bW+bG;
   if(!hideSwap){
     var rmSt=btnState(rearmReady()||rearmMenu, rearmMenu, hovering(rmX, bY, bW, bH));
     thButton(rmX, bY, bW, bH, rmSt);
     var rmPl=barPulseLevel('rearm'); if(rmPl>0) thGlowPath(rmX-3, bY-2, bW+6, bH+4, 5, rmPl);
     var rmC=btnText(rmSt); drawMissilesIcon(rmX+bW/2, icy, rmC); keyHint(rmX, bindKeyShort('rearm'), rmC);
     window._rearmBtnRect={x:rmX, y:bY, w:bW, h:bH};
+    x=rmX+bW+5;
   } else window._rearmBtnRect=null;
+  // v210: radar and target view in one window (72_target.js), from here to
+  // the system buttons
+  if(typeof drawBarScope==='function') drawBarScope(x, bX0);
+  ctx.textBaseline='middle';
   // M
-  drawMuteButton(bX0+2*(bW+bG), bY, bW, bH, bindKeyShort('sound'));
+  drawMuteButton(bX0, bY, bW, bH, bindKeyShort('sound'));
   // S
-  var stbX=bX0+3*(bW+bG);
+  var stbX=bX0+(bW+bG);
   var stbSt=btnState(true, settingsOpen, hovering(stbX, bY, bW, bH));
   thButton(stbX, bY, bW, bH, stbSt);
   var stbC=btnText(stbSt); drawGearSolid(stbX+bW/2, icy, 5.6, stbC); keyHint(stbX, bindKeyShort('settings'), stbC);
   window._settingsBtnRect={x:stbX, y:bY, w:bW, h:bH};
   // P
-  var pbX=bX0+4*(bW+bG);
+  var pbX=bX0+2*(bW+bG);
   var pbSt=btnState(true, paused, hovering(pbX, bY, bW, bH));
   thButton(pbX, bY, bW, bH, pbSt);
   var pbC=btnText(pbSt); drawPauseIcon(pbX+bW/2, icy, pbC, !paused); keyHint(pbX, bindKeyShort('pause'), pbC);

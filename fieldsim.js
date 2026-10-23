@@ -5846,6 +5846,56 @@ scenario('Escape pods: all four fly into the Galatea and the mission ends', 'm=9
   r.noPodLeft = !allies.some(a=>a.landOn);
   return r;`);
 
+// F89 step 1 / F90 (v271, Silvio 23.10.2026): the target's subsystems show
+// as icons in the bar's target view (red and struck through when destroyed),
+// the row of symbols over the ship on the field is gone, and with a
+// subsystem chosen the lock ring sits on the subsystem, not on the hull.
+scenario('F89 subsystem icons in the bar, F90 lock ring on the subsystem', 'm=31', `
+  const r = {};
+  FS.step(30);
+  let e = null;
+  FS.until(()=>{ e = enemies.find(x=>!x.dead && !(x.warp>0) && !x.scenery && x.subs && x.subs.length >= 3 && x.kind !== 'bomb'); return !!e; }, 3000, true);
+  r.foundShip = !!e;
+  if(!e) return r;
+  TGT.e = e; TGT.sub = null;
+  window._barSubIcons = undefined;
+  drawHUD();
+  const ic = window._barSubIcons || [];
+  r.iconPerSubsystem = ic.length === e.subs.length;
+  r.iconsColouredLikeHull = ic.every(i => !i.dead && i.col === hullCol(Math.max(0, e.subs.find(s=>s.id===i.id).hp/e.subs.find(s=>s.id===i.id).maxHp)));
+  const victim = e.subs[0]; const keepHp = victim.hp;
+  victim.dead = true; victim.hp = 0;
+  drawHUD();
+  const vi = (window._barSubIcons || []).find(i => i.id === victim.id);
+  r.destroyedIsRedAndStruck = !!vi && vi.dead && vi.col === '#ff4a33';
+  victim.dead = false; victim.hp = keepHp;
+  // the icons sit in the right margin of the target view, not in the radar
+  {
+    const sx = window._rearmBtnRect.x + window._rearmBtnRect.w + 10, sw = window._muteRect.x - 6 - sx, sh = HUD_H - 10;
+    const rw = Math.round(sh*(WX1 - WX0)/Math.max(1, WY1 - WY0)), radarRight = sx + (sw + rw)/2;
+    r.iconsRightOfTheRadar = ic.length > 0 && ic.every(i => i.x - i.sz/2 >= radarRight && i.x + i.sz/2 <= sx + sw);
+  }
+  r.noSymbolRowOnTheField = typeof drawSubGlyph === 'undefined';
+
+  // F90: a lock with a subsystem chosen
+  let far = null, fd = -1;
+  for(const s of e.subs){ const p = tgtSubPos(e, s); const d = Math.hypot(p.x - e.x, p.y - e.y); if(d > fd){ fd = d; far = s; } }
+  TGT.sub = far;
+  player.x = e.x - 200; player.y = e.y + 150;
+  FS.step(5); TGT.e = e; TGT.sub = far;
+  const keepSel = selSecBank, keepDef = secDefP;
+  selSecBank = function(){ return {key:'f90test', ammo:5}; };
+  secDefP = function(){ return {key:'f90test', homing:'aspect', lockT:1}; };
+  TGT.lock = 1;
+  const arcs = [], ao = ctx.arc;
+  ctx.arc = function(x, y, rr){ if(Math.abs(rr - LOCK_RING_R) < 0.01) arcs.push([x, y]); return ao.apply(ctx, arguments); };
+  try{ drawTargetMarks(); } finally { ctx.arc = ao; selSecBank = keepSel; secDefP = keepDef; }
+  const sp = tgtSubPos(e, far);
+  r.ringDrawn = arcs.length > 0;
+  r.ringOnTheSubsystem = arcs.length > 0 && Math.hypot(arcs[0][0] - w2sX(sp.x), arcs[0][1] - w2sY(sp.y)) < 2;
+  r.subsystemOffCentrePx = Math.round(fd*CAM.z);
+  return r;`);
+
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

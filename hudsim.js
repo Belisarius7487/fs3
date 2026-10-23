@@ -177,7 +177,9 @@ console.log('\nThe bar of v186 (variant A)');
      ['F2','\u21e7R','F4','P'].every(k=>CALLS.some(c=>c.fn==='fillText' && c.args[0]===k)));
   ok('the last ends inside the canvas', btn[4].x+btn[4].w <= 800);
   const al = g('_allyBtnRect');
-  ok('the tickets end before the buttons start', al.x+al.w+5+82 <= btn[0].x);
+  // F89 (Silvio, 23.10.2026): ship and weapon swap sit right after SUPPORT,
+  // the target view follows, and right of it only sound, settings, pause.
+  ok('ship and weapon swap sit right after support', btn[0].x === al.x+al.w+5 && btn[1].x === btn[0].x+btn[0].w+3);
   const rows = g('_secRows');
   ok('one row per secondary bank', rows.length===3);
   ok('the chosen one is the fire button', g('_secBtnRect') && g('_secBtnRect').i===0);

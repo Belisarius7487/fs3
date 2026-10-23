@@ -911,34 +911,9 @@ function drawHullBlocks(e, bx, by, bw, ratio, showShield){
   ctx.strokeStyle = (e.side==='ally') ? 'rgba(120,190,255,0.7)' : 'rgba(255,110,90,0.7)';
   ctx.stroke();
 
-  // Subsysteme, dieselben Symbole wie auf dem Rumpf - aber OBERHALB des
-  // Balkens, sonst liegen sie auf dem Schiff.
-  if(e.subs && e.subs.length){
-    const sr = 4, sg = 4;
-    const sw = e.subs.length*(sr*2) + (e.subs.length-1)*sg;
-    let sx = ex - sw*0.5 + sr;
-    const sy = by - 8;
-    for(const s of e.subs){
-      const ok = s.hp > 0;
-      ctx.save();
-      ctx.translate(sx|0, sy|0);
-      // Keine eigene Farbe: hell heisst heil, rot heisst hin. Das UI hat
-      // genug Farben.
-      ctx.globalAlpha = ok ? 0.75 : 0.9;
-      ctx.strokeStyle = ok ? '#cfcfc8' : '#ff5a44';
-      ctx.fillStyle   = ok ? '#cfcfc8' : '#ff5a44';
-      ctx.lineWidth = 1;
-      drawSubGlyph(s.id, sr*1.7);
-      if(!ok){
-        ctx.beginPath();
-        ctx.moveTo(-sr,-sr); ctx.lineTo(sr,sr);
-        ctx.moveTo(sr,-sr);  ctx.lineTo(-sr,sr);
-        ctx.stroke();
-      }
-      ctx.restore();
-      sx += sr*2 + sg;
-    }
-  }
+  // F89 (Silvio, 23.10.2026): the row of subsystem symbols over the bar is
+  // gone from the field; the target view in the bar shows them once the
+  // ship is targeted.
 
   // Name. Aus derselben Quelle wie die Auftragszeile.
   const nm = e.label || shipName(e.img, '');
@@ -955,31 +930,6 @@ function drawHullBlocks(e, bx, by, bw, ratio, showShield){
 }
 
 const SUB_CORNERS = [[-1,-1],[1,-1],[1,1],[-1,1]];
-function drawSubGlyph(id, r){
-  ctx.beginPath();
-  if(id==='weapons'){ ctx.arc(0,0,r*0.42,0,Math.PI*2); ctx.fill(); return; }
-  if(id==='engines'){
-    ctx.moveTo(-r*0.5,-r*0.45); ctx.lineTo(r*0.15,0); ctx.lineTo(-r*0.5,r*0.45);
-    ctx.moveTo(r*0.05,-r*0.45); ctx.lineTo(r*0.6,0); ctx.lineTo(r*0.05,r*0.45);
-    ctx.stroke(); return;
-  }
-  if(id==='navigation'){
-    ctx.arc(0,0,r*0.45,0,Math.PI*2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-r*0.62,0); ctx.lineTo(r*0.62,0); ctx.stroke(); return;
-  }
-  if(id==='sensors'){
-    ctx.moveTo(-r*0.6,0); ctx.lineTo(r*0.6,0);
-    ctx.moveTo(0,-r*0.6); ctx.lineTo(0,r*0.6); ctx.stroke();
-    ctx.beginPath(); ctx.arc(0,0,r*0.28,0,Math.PI*2); ctx.stroke(); return;
-  }
-  // communication: three rising arcs
-  for(let i=1;i<=3;i++){
-    ctx.beginPath();
-    ctx.arc(-r*0.15, r*0.35, r*0.28*i, -Math.PI*0.85, -Math.PI*0.15);
-    ctx.stroke();
-  }
-}
-
 // The hull stays clear (Silvio, v185): the marks are off until the player
 // asks for them with the middle mouse button, and off again with the next
 // press. Then every live subsystem gets four corner brackets in its
