@@ -885,9 +885,26 @@ function carryCargo(e){
     cargoLost(c);
     return;
   }
-  const p = dockPoint(e), o = dockOffset(c);
-  c.x = p.x - o.x; c.y = p.y - o.y;
+  const st = cargoSeat(e, c);
+  c.x = st.x; c.y = st.y;
   c.vx = 0; c.vy = 0; c.warpX = c.x; c.warpY = c.y;
+}
+// F97 (v281): where a held container sits - as in tickRiders, on the
+// outside of her hull at her dock point: below a dock on her keel (the
+// Poseidon's, between her arms), above one on her top. Its own dock point
+// is not used: the container is turned to meet hers, as in FreeSpace (the
+// VC3's is on its bottom, and it sat up inside the Poseidon's hull).
+function cargoDockUp(e){
+  const m = mountsFor(e.img), d = m && m.docks && m.docks[0];
+  const p = dockPoint(e);
+  let up = d ? ((d.ang === 270) || (d.ang !== 90 && p.y < e.y)) : (p.y < e.y);
+  if(e.rollC != null && e.rollC < 0) up = !up;
+  return up;
+}
+function cargoSeat(e, c){
+  const p = dockPoint(e), ci = IMGS[c.img];
+  const hc = ci ? ci.height*c.sc*0.5 : 0;
+  return {x:p.x, y:p.y + (cargoDockUp(e) ? -hc : hc)};
 }
 // Decided: cargo dies with its carrier. The carrier was already counted
 // as lost, the cargo is not counted a second time.
@@ -1058,6 +1075,13 @@ function tickDocking(){
       e.rollC = Math.cos(Math.PI*e.rollV);
     }
     let p = dockPoint(t), o = dockOffset(e);
+    // F97 (v281): a container is met at the side that will touch her dock
+    // (its top when she holds it under her keel), so it does not jump into
+    // its seat (cargoSeat) when she takes it.
+    if(t.type === 'container'){
+      const _ci = IMGS[t.img], _hc = _ci ? _ci.height*t.sc*0.5 : 0;
+      p = {x:t.x, y:t.y + (cargoDockUp(e) ? _hc : -_hc)};
+    }
     // v262 (The Aftermath): dockBeside - she does not dock but comes up
     // alongside the end of the target that faces her, dockBeside units
     // above (-) or below (+) its centre (mission units), and holds there. Several ships

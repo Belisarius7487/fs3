@@ -690,11 +690,15 @@ function f3dMat(e, x, y, L){
   const rl = (F3D_ROLL[e.img] || 0) + (f3dSmall(F3D_ALIAS[e.img] || e.img) ? f3dTurnRoll(e) : 0)
            + (e.rollV ? Math.PI*e.rollV : 0);      // v254 (F51): a half roll about her length
   const tz = f3dSmall(F3D_ALIAS[e.img] || e.img) ? f3dCargoZ(e) : -s*(sz[0]*Math.abs(Math.cos(vw)) + sz[2]*Math.abs(Math.sin(vw)))/2/L.head.ext;
+  // F97 (v281): a container held by a ship is drawn no thicker (towards the
+  // camera) than fits between her arms - its long side and its height stay.
+  // Drawn larger (F94), it stood out through the Poseidon's near arm.
+  const kx = f3dHeldThin(e, s, L);
   if(rl){
     // translate * rotZ(a) * rotY(yaw) * roll about the bow * scale (v202)
     const A = f3dMulA(f3dMulA([ca, sa, 0, -sa, ca, 0, 0, 0, 1], [cy, 0, -sy, 0, 1, 0, sy, 0, cy]),
                       [Math.cos(rl), Math.sin(rl), 0, -Math.sin(rl), Math.cos(rl), 0, 0, 0, 1]);
-    return new Float32Array([s*A[0], s*A[1], s*A[2], 0, s*A[3], s*A[4], s*A[5], 0,
+    return new Float32Array([s*kx*A[0], s*kx*A[1], s*kx*A[2], 0, s*A[3], s*A[4], s*A[5], 0,
                              s*A[6], s*A[7], s*A[8], 0, x, -y, tz, 1]);
   }
   // v209: a capital ship is sunk below the play plane by half her
@@ -703,7 +707,7 @@ function f3dMat(e, x, y, L){
   // (Silvio). f3dMidZ() gives the same depth to the 2D overlays.
   // translate * rotZ(a) * rotY(yaw) * scale, column-major
   return new Float32Array([
-    s*ca*cy, s*sa*cy, -s*sy, 0,
+    s*kx*ca*cy, s*kx*sa*cy, -s*kx*sy, 0,
     -s*sa,   s*ca,    0,     0,
     s*ca*sy, s*sa*sy, s*cy,  0,
     x,       -y,      tz,    1]);
@@ -798,6 +802,21 @@ function f3dCargoHost(e){
   }
   if(e.carrier && !e.carrier.dead && e.carrier !== e) return e.carrier;
   return null;
+}
+// F97 (v281): the factor for a held container's thickness (model x, across
+// the side view): at most HELD_THIN of her own half beam, the room between
+// the Poseidon's arms (arms at 45 % of her half beam, POF).
+const HELD_THIN = 0.38;
+function f3dHeldThin(e, s, L){
+  if(e.type !== 'container' || !e.carrier || e.carrier.dead) return 1;
+  const h = e.carrier, k = f3dKey(h), HL = k ? f3dReadyLevel(k) : null;
+  if(!HL || !HL.head || !HL.head.size || !L.head.size) return 1;
+  const hi = IMGS[h.img], hs = hi ? hi.width*h.sc : 0;
+  const hsz = HL.head.size, hspan = hsz[2]*Math.abs(Math.cos(F3D_VIEW[h.img] || 0)) + hsz[0]*Math.abs(Math.sin(F3D_VIEW[h.img] || 0));
+  const hScale = hs/Math.max(0.01, hspan/HL.head.ext);
+  const room = HELD_THIN*hScale*hsz[0]/2/HL.head.ext;      // world units
+  const half = s*L.head.size[0]/2/L.head.ext;
+  return half > room ? room/half : 1;
 }
 function f3dCargoZ(e){
   const h = f3dCargoHost(e);

@@ -35,7 +35,7 @@ function constObj(name){
 }
 
 const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','idPending','cargoLost','claimCargo',
-  'leaveEmpty','cargoStillWanted','carryCargo','dropCargo','tickCarry','tickDocking',
+  'leaveEmpty','cargoStillWanted','carryCargo','cargoDockUp','cargoSeat','dropCargo','tickCarry','tickDocking',
   'tickCrossGuards','killEnemy','byId','evSeen','mountsFor','hullClass',
   'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns'];
 
@@ -67,7 +67,7 @@ return { get enemies(){return enemies;}, set enemies(v){enemies=v;},
     for(const k in EV_SEEN) delete EV_SEEN[k]; for(const k in EV_HELD) delete EV_HELD[k];
     for(const k in EV_LEFT) delete EV_LEFT[k]; for(const k in EV_TAKEN) delete EV_TAKEN[k];
     spawnQ.length=0; protSaved=0; protLost=0; guardLost=false; expl=0; },
-  tickDocking, tickCrossGuards, tickCarry, killEnemy, dockPoint, liveThreatCount,
+  tickDocking, tickCrossGuards, tickCarry, killEnemy, dockPoint, cargoSeat, liveThreatCount,
   scriptUnitsResolved, SCRIPT_WAVES };`)(TICK_HZ);
 
 // ── Stand-ins ─────────────────────────────────────────────────
@@ -104,9 +104,11 @@ function step(){
     if(seen.has(c)) shared++;
     seen.set(c, f);
   }
-  // carried cargo: both dock points meet, with no lag after moving
+  // carried cargo sits in its seat at her dock point, with no lag after
+  // moving. F97 (v281): the seat, not the container's own dock point - the
+  // container is turned to meet hers, as in FreeSpace (Silvio).
   for(const f of api.allies) if(f.dockedTo && !f.dockedTo.dead){
-    const a = api.dockPoint(f), b = api.dockPoint(f.dockedTo);
+    const a = api.cargoSeat(f, f.dockedTo), b = f.dockedTo;
     lag = Math.max(lag, Math.hypot(a.x-b.x, a.y-b.y));
   }
 }

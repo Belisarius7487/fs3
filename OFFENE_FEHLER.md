@@ -2487,6 +2487,21 @@ angedocktem Container: „Was soll das?"
   Dazu wird Fracht, die ein Schiff hält, immer direkt nach ihm gezeichnet —
   der vergrößerte Container war sonst vor die kleinere Poseidon sortiert.
   Szenario „v280 F97" (schlägt gegen v279 fehl).
+- **Nicht behoben in v280** (Silvio, Bildschirmfoto: „du willst mich doch
+  verarschen"). Erst mit den echten Modellen headless gerendert gesehen: der
+  Container saß mit seinem eigenen Andockpunkt (beim VC3 auf seiner
+  Unterseite) auf dem der Poseidon und ragte so nach oben in ihren Rumpf.
+  In FreeSpace zeigt ihr Andockpunkt nach unten (POF: Normale -y, unter dem
+  Rumpf bei den Armen); der Container wird dazu umgedreht und hängt darunter.
+- Gebaut in v281: gehaltene Container sitzen wie mitfliegende Fracht
+  (`tickRiders`) außen an ihrem Andockpunkt, unter dem Kiel oder oben drauf,
+  je nach Richtung des Andockpunkts (`cargoSeat`); der Frachter fährt beim
+  Andocken die passende Seite des Containers an. Im 3D-Bild ist ein
+  gehaltener Container höchstens so dick, dass er zwischen ihre Arme passt
+  (`f3dHeldThin`), damit der vordere Arm vor ihm liegt. Geprüft per Bild mit
+  den echten Modellen von Poseidon, Chronos und Ma'at. `docksim` misst jetzt
+  den Sitz statt das Aufeinandertreffen der beiden Andockpunkte. Szenario
+  „v281 F97" (schlägt gegen v280 fehl).
 
 ### F96 — M18: Taurus springen nach rechts ein und schnappen nach links um (v278)
 

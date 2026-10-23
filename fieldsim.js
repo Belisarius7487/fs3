@@ -6305,6 +6305,20 @@ scenario('v280 F97: a docked container stays in its freighter batch', 'm=18', `
   try{ draw(); }catch(ex){ r.err = String(ex); }
   r.sameBatch = !!cargo && batches.some(function(b){ return b.indexOf(host)>=0 && b.indexOf(cargo)>=0; });
   return r;`);
+scenario('v281 F97: the Poseidon holds her container under her keel, not up in her hull', 'm=18', `
+  const r = {};
+  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT','E1','E2','E3','TA','G1']) FS.killId(id); for(const k of byId('KA')) k.hp=k.maxHp; };
+  FS.until(()=>{ clean(); return byId('KA').length>0; }, 6000, false);
+  let h = null;
+  FS.until(()=>{ clean(); h = allies.find(k=>k.uid==='KA' && k.img==='frposeidon' && k.dockedTo && k.dockedTo.carrier===k); return !!h; }, 8000, false);
+  r.held = !!h;
+  if(h){
+    FS.step(20);
+    const c = h.dockedTo, p = dockPoint(h), ci = IMGS[c.img];
+    r.below = c.y > p.y;
+    r.topAtDock = Math.abs((c.y - ci.height*c.sc*0.5) - p.y) < 1;
+  }
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();
