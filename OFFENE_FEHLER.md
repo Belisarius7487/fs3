@@ -2581,6 +2581,9 @@ gesamte Spiel."
     eine FS2-Cutscene, nicht vom Blue-Planet-Team; der Ersteller (Mike) hat
     sein OK gegeben. Die eigenen Strahlklänge gehören dazu. Eigener
     Baustein, noch zu bauen.
+    **Entschieden (Silvio, 23.10.2026):** Die Drohnen reparieren nur große
+    Schiffe (Kreuzer, Zerstörer u. ä.), nicht den Spieler. Sie ersetzen das
+    bisherige Anlegen des Transporters zur Reparatur.
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
