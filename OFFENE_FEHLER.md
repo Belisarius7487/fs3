@@ -2483,6 +2483,8 @@ weiter, wenn sie herausgewarpt ist."
   wartete auf sie. Die Omega in M3 hatte dafür schon `jumpIfEmpty` (F56).
 - Gebaut in v275: beide Elysium in M8 mit `jumpIfEmpty` — sie springen
   sofort. Szenario „FS1 M8 F91" (schlägt gegen v274 fehl).
+- **Abgenommen (Silvio, 23.10.2026):** „In Mission 8 warpt die Elysium raus,
+  wenn der Transporter zerstört wurde."
 
 ### F90 — Aspect-Lock zeigt auf die Rumpfmitte statt aufs Subsystem (v270)
 
@@ -2625,6 +2627,9 @@ gesamte Spiel."
       `repair:'A1', repPct:N` am Transporter, Auslöser `repariert` und
       `reparaturGescheitert`. Der Strahl kommt aus der Nase der Drohne.
       Modell, Bilder und Klänge als ZIP für den Server.
+      **Abgenommen (Silvio, 23.10.2026):** „Sieht sehr gut aus. Die Phidias
+      reparieren den Kreuzer, der Sound spielt korrekt ab und sie fliegen
+      auch realistisch."
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
