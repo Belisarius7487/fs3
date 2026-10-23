@@ -2550,9 +2550,15 @@ gesamte Spiel."
     **Abgenommen (Silvio, 23.10.2026):** „Punktlandung. Der Anflug ist
     korrekt, der Flug auf der Landebahn ist korrekt und der Einflug in die
     Fighterbay ist auch korrekt. Aus mehreren Blickwinkeln getestet."
-  - Reparatur: Idee Phidias-Reparaturdrohnen, die der Transporter aussendet
-    und die mit einem Strahl reparieren. Ob das Modell im MVPS-Paket ist,
-    prüft Silvio. Eigener Baustein, offen.
+  - Reparatur: Phidias-Reparaturdrohnen, die der Transporter aussendet und
+    die mit einem Strahl reparieren. Nicht im MVPS-Paket. Modell
+    `phidias.pof` liegt bei Silvio unter
+    `C:\Desktop Portals\Roots Various Stuff\BPTDWID-999.0.0-DevEnv\bp\data\models`,
+    Klänge des Reparaturstrahls im Nachbarordner `sounds`
+    (`repairup.wav`, `repairloop.wav`, `repairdown.wav`). Silvio: gebaut für
+    eine FS2-Cutscene, nicht vom Blue-Planet-Team; der Ersteller (Mike) hat
+    sein OK gegeben. Die eigenen Strahlklänge gehören dazu. Eigener
+    Baustein, noch zu bauen.
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
