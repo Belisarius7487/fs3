@@ -2646,6 +2646,9 @@ gesamte Spiel."
   Boarding-Ecken grün, Flucht-Ecken grau und pulsierend — auch für Schiffe,
   die zum Rand fliehen und dort springen (Bast, Ma'at, Omega, Asmodeus), und
   für eine Uhr an einem Schiff (Wirkung `timer` mit `Sekunden|Text|Kennung`).
+- **Neutrale Container (Silvio, 23.10.2026):** behalten ihre rosa Klammern
+  (die FreeSpace-Farbe für Neutrale). Testlauf M4 bis M17 mit v273: „sieht
+  alles sehr gut aus".
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
