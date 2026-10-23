@@ -2611,6 +2611,8 @@ gesamte Spiel."
     gilt als gescheitert, die Mission kann darauf reagieren.
     **Entschieden (Silvio, 23.10.2026):** Nur der Rumpf wird repariert, keine
     Subsysteme; ein lahmgelegtes Schiff bleibt lahmgelegt.
+    **Entschieden (Silvio, 23.10.2026):** „Die Drohnen [sind] nicht größer als
+    Jäger … Sie sollten höchstens ein Drittel so groß sein wie Jäger."
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
