@@ -2495,6 +2495,34 @@ gesamte Spiel."
   (Zielkarte, Zielzeile, Meldungsspalte), die nicht zum übrigen Design
   passen. Eigenes Thema, eigener Chat.
 
+**Gestaltungsgespräch (Silvio, 23.10.2026):**
+
+- Abgelehnt: größere Tafeln mit Überschrift über Wert („nur noch mehr
+  Platzverschwendung auf der Spielfläche"), ebenso eine Textzeile in einer
+  höheren oberen Leiste.
+- Ziel: „ein einheitliches UI, bei dem der Spieler versteht was los ist,
+  ohne es erst lesen zu müssen."
+- **Meldungen über verfügbare Waffen und Schiffe entfallen ganz.** Auch kein
+  Punkt am Knopf: ohne Trägerschiff kann man ohnehin nicht nachsehen.
+- „Wird feindlich" zeigt das Spiel schon über Farbe; kein Text nötig.
+- Ein zweiter Balken am Schiff (Countdown) ist neben dem HP-Balken nicht zu
+  deuten. Verworfen.
+- **Subsysteme:** eindeutige Symbole in den Zielbereich der Leiste, im
+  Rand rechts neben dem Radar (nicht im Radarkasten selbst). Zustand per
+  Farbe wie der HULL-Balken, zerstört rot und durchgestrichen. Gewählt:
+  Waffen = Fadenkreuz (`my_location`), Sensoren = Radar (`radar`),
+  Navigation = Kompass (`explore`), Kommunikation = Funkmast
+  (`cell_tower`), alle aus Material Symbols (Apache-2.0, npm
+  `@material-symbols/svg-400`, outlined). Triebwerke = eigene liegende
+  Glockendüse im selben Linienstil (Vorlage `tools/f89_subsystem_icons_mock.js`).
+  Abgelehnt für Triebwerke: Flamme, Rakete, Tacho, Doppelpfeil,
+  Turbinensymbol.
+- **Knöpfe:** Rechts neben dem Radar nur noch Systemknöpfe (Ton,
+  Einstellungen, Pause). Schiffs- und Waffenwechsel rücken neben den
+  SUPPORT-Knopf; der Zielbereich wird um diese Breite größer.
+- Noch offen: Ziel, Boarding/Andocken, Countdown, die Symbolreihe über den
+  Schiffen auf dem Feld.
+
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
 **Wunsch (Silvio, 23.10.2026):** „Ebenso sollten Trümmer einer
