@@ -6291,6 +6291,20 @@ scenario('FS1 M18 v279 F96: the Taurus never snap round, they turn', 'm=18', `
   r.watched = seen === 3;
   r.noSnap = snaps === 0;
   return r;`);
+scenario('v280 F97: a docked container stays in its freighter batch', 'm=18', `
+  const r = {};
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('KA').length>0; }, 6000, false);
+  FS.until(()=>{ player.invT = 999; FS.killId('TA'); return byId('KA').some(function(k){ return k.dockedTo; }); }, 6000, false);
+  const host = byId('KA').find(function(k){ return k.dockedTo; });
+  const cargo = host && host.dockedTo;
+  r.docked = !!cargo;
+  r.notInFront = !!cargo && !f3dFront(cargo);
+  const batches = [];
+  window.f3dFieldPrep = function(list){ const m = new Map(); for(const e of list) if(f3dKey(e)) m.set(e, {e:e}); return m; };
+  window.f3dFlush = function(seg){ batches.push(seg.filter(function(s){ return s.e; }).map(function(s){ return s.e; })); };
+  try{ draw(); }catch(ex){ r.err = String(ex); }
+  r.sameBatch = !!cargo && batches.some(function(b){ return b.indexOf(host)>=0 && b.indexOf(cargo)>=0; });
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

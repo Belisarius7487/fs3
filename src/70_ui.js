@@ -55,6 +55,16 @@ function draw(){
       const fb=ib?ib.width*b.sc*ib.height*b.sc:0;
       return fb-fa;
     });
+  // F97 (v280): cargo held by a ship is drawn right after her, whatever its
+  // own size - with her in one batch and her depth buffer, between her arms
+  // (F47). A container drawn larger (F94) sorted ahead of its Poseidon.
+  if(typeof f3dCargoHost === 'function'){
+    const _held = SHIPS_ON_FIELD.filter(function(e){ const h = f3dCargoHost(e); return h && SHIPS_ON_FIELD.indexOf(h)>=0; });
+    for(const c of _held){
+      SHIPS_ON_FIELD.splice(SHIPS_ON_FIELD.indexOf(c), 1);
+      SHIPS_ON_FIELD.splice(SHIPS_ON_FIELD.indexOf(f3dCargoHost(c))+1, 0, c);
+    }
+  }
   // Vortices of ships no longer on the field (a portal still closing).
   // F92 (v276): those of small craft are drawn after the hulls instead.
   const _onField = new Set(SHIPS_ON_FIELD);

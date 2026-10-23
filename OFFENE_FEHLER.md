@@ -2475,9 +2475,18 @@ rausgewarpt ist."
 **Befund (Silvio, 23.10.2026):** Bildschirmfoto der GTFr Kappa 3 mit
 angedocktem Container: „Was soll das?"
 
-- Nachgelesen: die Poseidon nimmt ihren Container in der Mitte ihres Rumpfs
-  auf (Andockpunkt dort). Mit F94 ist ein VC 3 ×3 fast so groß wie die
-  Poseidon und deckt sie ganz zu.
+- Silvio, 23.10.2026: „Die Poseidon hat unter ihrem Rumpf extra 2 Arme, mit
+  denen sie Frachtcontainer halten kann und du hast sie einfach gedankenlos
+  hinter den Frachtcontainer geschoben". Die Größe des Containers stimmt.
+- Ursache: F92 (v276). Container stehen in der Liste der Kleinschiffe
+  (`F3D_SMALL`), also bekamen sie einen eigenen Zeichenstapel nach den
+  Großkampfschiffen — damit lagen sie nicht mehr im Tiefenpuffer ihres
+  Frachters (F47) und vor ihm statt zwischen seinen Armen.
+- Gebaut in v280: nach vorn kommen nur noch Jäger, Bomber und
+  Rettungskapseln, nie Fracht und nie etwas, das an einem Schiff hängt.
+  Dazu wird Fracht, die ein Schiff hält, immer direkt nach ihm gezeichnet —
+  der vergrößerte Container war sonst vor die kleinere Poseidon sortiert.
+  Szenario „v280 F97" (schlägt gegen v279 fehl).
 
 ### F96 — M18: Taurus springen nach rechts ein und schnappen nach links um (v278)
 
