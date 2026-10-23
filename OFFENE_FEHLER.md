@@ -2470,6 +2470,19 @@ rausgewarpt ist."
 - Gebaut in v267: die Trümmer halten Abstand zu allen Großkampfschiffen
   der Mission mit fester Position (Galatea, Lilith, Cain).
 
+### F90 — Aspect-Lock zeigt auf die Rumpfmitte statt aufs Subsystem (v270)
+
+**Befund (Silvio, 23.10.2026):** „Wenn der Spieler ein Subsystem anvisiert,
+sollte der Aspect-Lock einer Rakete auch aufs Subsystem gehen und nicht auf
+den Mittelpunkt des Schiffsrumpfes." Früher schon gemeldet (F44), „aber
+vergessen wurde umzusetzen".
+
+- Nachgelesen: Seit v253 (F44) misst `tgtTick` die Aufschaltung am
+  Subsystem, und die Rakete fliegt es an (`60_effects.js`). Der Lock-Ring
+  (`drawTargetMarks`, 72_target.js) wird aber weiter in der Mitte des
+  Zielkastens gezeichnet — F44 war nur halb behoben.
+- Status: offen, kommt mit dem nächsten Bau.
+
 ### F89 — Missionsziele und Meldungen sind unschön dargestellt (v266)
 
 **Befund (Silvio, 23.10.2026):** „Was mir auch auffällt und mich schon seit
@@ -2565,7 +2578,15 @@ gesamte Spiel."
     Zielschiffs nacheinander auf Grün — jede Ecke ein Viertel; alle vier grün
     = gekapert. Gehört ins Boarding selbst (M4, M8, M11 enden alle mit
     `kapern`), kein Umbau der Missionen.
-- Noch offen: die Zielzeile oben links, Countdown/Flucht.
+- **Auftragsliste** (Silvio: in FreeSpace links im HUD; aber kein Platz im
+  Gefecht und keine eigene Taste, das Spiel wird mit der Maus gespielt):
+  **entschieden** — die Liste aller Aufträge mit Stand (offen, erfüllt,
+  verfehlt) steht im **Pausebildschirm**. Im Gefecht sprechen die Rahmen an
+  den Schiffen. Ob die Zielzeile oben links dann ganz entfällt, ist mit dem
+  Fall „Auftrag ohne Schiff" noch zu klären.
+- Idee für später (Silvio): eine Trainingsmission, die dem Spieler alle
+  diese Feinheiten zeigt.
+- Noch offen: Aufträge ohne Schiff im Gefecht, Countdown/Flucht.
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
