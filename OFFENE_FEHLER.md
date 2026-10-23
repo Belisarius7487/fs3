@@ -2470,6 +2470,15 @@ rausgewarpt ist."
 - Gebaut in v267: die Trümmer halten Abstand zu allen Großkampfschiffen
   der Mission mit fester Position (Galatea, Lilith, Cain).
 
+### F92 — Wirbel von Kleinschiffen liegt hinter einem Großkampfschiff (v275)
+
+**Befund (Silvio, 23.10.2026):** „Subraumwirbel [werden] nicht immer auf
+derselben Ebene gezeichnet wie die Schiffe, die aus ihnen herauskommen.
+Hatte gerade eine Mission mit der Galatea. Bomber sind an der Position
+eingewarpt wo die Galatea stand und die Bomber sind aufgetaucht, aber der
+Subraumwirbel lag hinter der Galatea, was nicht sein darf. Kleinschiffe und
+ihre Warptunnel müssen immer im Vordergrund liegen."
+
 ### F91 — M8: Elysium kriecht nach zerstörtem Transporter an den Rand (v274)
 
 **Befund (Silvio, 23.10.2026):** „In Mission 8, wenn der Transporter

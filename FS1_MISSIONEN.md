@@ -404,3 +404,22 @@ Abgesegnet von Silvio, 23.10.2026. Ersetzt die alte Mission 17.
 - 15 s nach der Lilith: 2 Valkyries als Hilfe.
 - Ziel: alle Shivaner vernichten. Nebenziel: Galatea über halbem Rumpf.
   Galatea tot: Ziel verfehlt, 6 s später ziehen die Shivaner ab.
+
+## Mission 18 — Where Eagles Dare (Original 14) (abgesegnet)
+
+Abgesegnet von Silvio, 23.10.2026. Ersetzt die alte Mission 18.
+
+- Start: der Spieler in der Valkyrie, 2 Valkyries und 3 Athena-Bomber
+  dabei. Im Lager des Hammer of Light: 4 Container, 3 Ankh-Geschütztürme,
+  4 Seth. Zwei Paare aus Transporter (Isis) und Frachter (Satis, Ma'at)
+  liegen angedockt.
+- 10 s: die zwei Paare legen ab und fliehen zum Rand. Ziel: zerstören.
+- 15 s danach: 3 weitere Seth.
+- Fluchtschiffe weg (tot oder entkommen), 20 s später: 4 Anubis, 5 s
+  danach 3 Frachter des Hammer of Light, die an den Containern andocken
+  und mit Ladung fliehen wollen. Ziel: zerstören.
+- Gleichzeitig: 1 Apollo und 3 terranische Frachter (Poseidon, Chronos,
+  Poseidon), die ebenfalls andocken. Ziel: beschützen, bis sie fertig sind.
+- Ende: alle Gegner tot und die eigenen Frachter fertig oder tot.
+  Entkommene sind Teilerfolg. Kein Nachladen (kein Trägerschiff im
+  Original). Nicht geteilt.
