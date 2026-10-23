@@ -2600,6 +2600,9 @@ gesamte Spiel."
     dem Strahl, bis sie verschwunden ist; dann fliegt die Drohne zur nächsten.
     „Die Drohnen sollten dasselbe Flugverhalten wie Jäger und Bomber haben,
     damit ihre Bewegungen realistisch aussehen."
+    **Entschieden (Silvio, 23.10.2026):** Strahl und Effekte aus den fertigen
+    Bildern unter `bp\data\effects\phidias` (RepairCore, RepairGlow, RepairHaze,
+    Particle_Repair …; goldgelb).
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
