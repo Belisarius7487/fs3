@@ -6256,6 +6256,15 @@ scenario('v276 F92: small craft vortex drawn after the capital hulls of its batc
   r.galateaDrawn = bGA.length>0;
   r.noSmallInHerBatch = !bGA.some(small);
   return r;`);
+scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
+  const r = {};
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);
+  const T = byId('TA');
+  r.arrived = T.length>0;
+  r.jumping = T.length>0 && T.every(function(t){ return t.warp>0; });
+  FS.until(()=>byId('TA').every(function(t){ return !(t.warp>0); }), 1500, false);
+  r.nearPlace = byId('TA').every(function(t){ return t.x > 600*FIELD_K; });
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

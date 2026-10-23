@@ -3250,9 +3250,9 @@ const SCRIPT_WAVES = {
        {id:'E2', c:'fi', n:1, size:3, spr:'fiseth', wait:true},
        {id:'E3', c:'fi', n:1, size:4, spr:'fianubis', wait:true},
        // the race for the containers
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:150, wait:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 1'},
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frsatis', x:760, y:265, wait:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:380, wait:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 3'},
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:150, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 1'},
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frsatis', x:760, y:265, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:380, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 3'},
        {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:200, y:160, warpIn:true, wait:true,
         dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 1'},
        {id:'KA', mark:'protect', c:'fr', n:1, spr:'frchronos', side:'ally', x:200, y:265, warpIn:true, wait:true,
@@ -5325,7 +5325,7 @@ function scriptUnit(u, fac, q){
            pickup:u.pickup?1:0, ride:u.ride, slot:u.slot, land:u.land, bay:u.bay,
            repair:u.repair, repPct:u.repPct});   // v275 (F89): Phidias drones
     else
-      put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast')?1:0,   // v253: u.fac, Shivan cargo in an HoL mission
+      put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast' && !u.warpIn)?1:0,   // F93 (v277): warpIn - a late one jumps in   // v253: u.fac, Shivan cargo in an HoL mission
            x:xx, y:yy, scan:u.scan?1:0, escape:u.escape, scanFirst:u.scanFirst,
            still:u.still, escWarp:u.escWarp, fleeFree:u.fleeFree, escDelay:u.escDelay,
            invuln:u.invuln, dockTo:u.dockTo, dockHold:u.dockHold, dockLabel:u.dockLabel,

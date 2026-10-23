@@ -2470,6 +2470,22 @@ rausgewarpt ist."
 - Gebaut in v267: die Trümmer halten Abstand zu allen Großkampfschiffen
   der Mission mit fester Position (Galatea, Lilith, Cain).
 
+### F94 — M18: Container zu klein für die verbündeten Frachter (v276)
+
+**Befund (Silvio, 23.10.2026):** „Die Frachtkisten sind zudem zu klein für
+die ankommenden verbündeten Frachter"
+
+### F93 — M18: Taurus-Frachter erscheinen ohne Sprung (v276)
+
+**Befund (Silvio, 23.10.2026):** „Die Taurus Frachter sind bei mir gerade
+ohne Warp-Animation ins Bild gesprungen."
+
+- Nachgelesen: feindliche Frachter, Transporter, Container und Geschütze
+  (`CAT_FIX`) stehen immer ohne Sprung im Feld (`noWarp`), auch wenn sie
+  erst später kommen. Eigene Schiffe haben dafür `warpIn`.
+- Gebaut in v277: `warpIn` gilt jetzt auch für diese feindlichen Einheiten;
+  die Taurus tragen es. Szenario „FS1 M18 v277 F93" (schlägt gegen v276 fehl).
+
 ### F92 — Wirbel von Kleinschiffen liegt hinter einem Großkampfschiff (v275)
 
 **Befund (Silvio, 23.10.2026):** „Subraumwirbel [werden] nicht immer auf

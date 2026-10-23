@@ -56,7 +56,7 @@ git add CODEMAP.md
 ## Full index
 
 <!-- AUTO:START -->
-Generated from `hlp_shooter_v276_logic.html` by `codemap.py` — do not edit by hand.
+Generated from `hlp_shooter_v277_logic.html` by `codemap.py` — do not edit by hand.
 
 ### (file start) (line 1)
 - data: `SPR_DATA`, `NEB_DATA`, `ROLES`, `NEB_NAMES`, `CVS`, `ctx`, `W`
