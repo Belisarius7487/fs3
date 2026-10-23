@@ -2596,7 +2596,14 @@ gesamte Spiel."
   rechts. (Hinweis: das Grau für zerstörte, anvisierte Subsysteme in
   `drawTargetMarks` erscheint praktisch nie, weil `tgtTick` die Auswahl im
   selben Moment löscht.)
-- Noch offen: Missionsuhren (`timer`, z. B. HECATE JUMP DRIVE).
+- **Missionsuhren:** heute nur in den alten Missionen 69, 70, 75, 79, aber
+  das FS1-Finale (Lucifer im Subraum) braucht eine. **Entschieden:** eine
+  Uhr, die an einem Schiff hängt (die Lucifer verlässt den Subraum), zeigt
+  sich wie eine Flucht — graue, pulsierende Ecken an diesem Schiff. Ecken
+  außerhalb des Bildes werden **nicht** an den Rand verschoben (Silvio: „Man
+  muss nicht alle Ecken sehen"; Gesamtansicht mit Z oder Y). Eine laufende
+  Uhr steht zusätzlich in der Auftragsliste im Pausebildschirm.
+- **Alle Punkte entschieden (23.10.2026).** Nächster Schritt: bauen.
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
