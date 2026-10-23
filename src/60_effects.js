@@ -826,6 +826,7 @@ function nextWave(){
   player.x = 80*FIELD_K; player.y = MH/2; mouseHold();
   camSnap(player.x, player.y);
   plogStart();
+  mlogReset();          // F89: the pause screen's list starts over
   for(let i=0;i<allyWingWanted;i++){
     const a = mkAllySmall('fighter','terran',
                           rnd(allySmallPool(false, false)),
@@ -1027,6 +1028,7 @@ function update(){
   if(allies.length) tickScorch(allies);
   updateSecBullets();
   tickExplQueue();
+  MLOG.t++;             // F89: the mission clock in the pause screen
   if(!waveOver){
     spawnT++;
     while(spawnQ.length&&spawnQ[0].time<=spawnT){

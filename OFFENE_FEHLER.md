@@ -2657,6 +2657,15 @@ gesamte Spiel."
   - DISABLE / PROTECT / DESTROY bleiben vorerst
   - LOCKED fällt weg („man sieht ja dass es locked ist, wenn der Ring sich
     nicht mehr bewegt")
+- **v274 (Schritt 3) gebaut:** Zielkarte, Zielzeile, Meldungsspalte,
+  Countdown-Zeile, Texte an Schiffen und Ticket-Texte sind weg; Meldungen
+  über freie Waffen und Schiffe entfallen ersatzlos. Der Pausebildschirm
+  zeigt die Aufträge mit Stand, die Missionszeit, eine laufende Uhr und das
+  Protokoll. Annahmen: ein neuer Auftrag, während der vorige noch offen ist,
+  zählt den vorigen als erfüllt (M4: „Disable the Omega" → „Cover the
+  Comet"); der Waffenwechsel wird nicht mehr angesagt (die Leiste zeigt
+  ihn). Offen: die Entfernung neben den Randpfeilen eines Ziels außerhalb
+  des Bildes steht noch da.
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 

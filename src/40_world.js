@@ -998,37 +998,21 @@ function drawSubsystems(e){
       if(d2<nearD){ nearD=d2; near=s; nearP=sp; }
     }
   }
-  if(pick) drawSubName(pick, pickP);
-  if(near && near!==pick) drawSubName(near, nearP);
+  // F89 (Silvio, 23.10.2026): no subsystem names on the field; the bar
+  // marks the targeted one among its icons.
 }
 
+// F89 (Silvio, 23.10.2026): no text at the ships any more. What happened
+// is seen on the field (scan ring, tag, explosion, hull bar, the icons in
+// the bar); the results go to the log in the pause screen. The messages are
+// still made where they were and run out here, unseen.
+const SUB_MSG_LOG = /^(RESCUED|DELIVERED|LEFT EMPTY|CARGO LEFT BEHIND|TARGET ESCAPED|NO CARGO)\b/;
 function drawSubMsgs(){
   for(let i=SUB_MSGS.length-1;i>=0;i--){
     const m=SUB_MSGS[i];
+    if(!m._seen){ m._seen = true; if(SUB_MSG_LOG.test(String(m.txt||''))) mlogLine(m.txt, m.tone==='bad'?'bad':(m.tone==='good'?'good':'info')); }
     if(--m.life<=0){ SUB_MSGS.splice(i,1); continue; }
-    const t=m.life/m.ml;
-    ctx.save();
-    // Fades only over the last quarter, so the three seconds are readable
-    // rather than three seconds of fading.
-    // Smaller and quieter than before: no box, a dark edge around the
-    // letters for contrast, and a shorter rise.
-    ctx.globalAlpha=Math.min(1,t*4)*0.92;
-    ctx.font=thValue(10, true);
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    // v208: drawn on the screen at the place it belongs to (scr: a
-    // place on the screen already), so the text keeps its size in the
-    // overview
-    const mx=m.scr?m.x:w2sX(m.x), y=(m.scr?m.y:w2sY(m.y))-(1-t)*18;
-    ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
-    ctx.strokeText(m.txt,mx,y);
-    ctx.fillStyle = (m.tone==='good') ? '#3ce06a'
-                  : (m.tone==='bad')  ? '#ff4a33'
-                  : (m.tone==='warn') ? '#ffcc44'
-                  : (m.ally?'#ffcc44':'#ff8844');
-    ctx.fillText(m.txt,mx,y);
-    ctx.restore();
   }
-  ctx.textAlign='left'; ctx.textBaseline='top';
 }
 
 function drawShield(e){
@@ -1589,24 +1573,10 @@ const TICKET_NAME = {cruiser:'CRUISER TICKET', corvette:'CORVETTE TICKET',
                      destroyer:'DESTROYER TICKET', colossus:'COLOSSUS TICKET',
                      repair:'HULL REPAIR', life:'EXTRA LIFE'};
 
+// F89: the ticket texts ("+1 ...") are gone; the score box in the bar
+// carries the count.
 function drawTicketMsgs(){
-  for(let i=TICKET_MSGS.length-1;i>=0;i--){
-    const m=TICKET_MSGS[i];
-    if(--m.life<=0){ TICKET_MSGS.splice(i,1); continue; }
-    const t=m.life/m.ml;
-    ctx.save();
-    ctx.globalAlpha=Math.min(1, t*2.2)*0.92;
-    ctx.font=thValue(10, true);
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    const mx=w2sX(m.x), y=w2sY(m.y)-(1-t)*20;
-    const tt=(m.kind==='repair'?'+':'+1 ')+(TICKET_NAME[m.kind]||'');
-    ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.lineJoin='round';
-    ctx.strokeText(tt, mx, y);
-    ctx.fillStyle=m.rep?REPAIR_COL:'#8fe4ff';
-    ctx.fillText(tt, mx, y);
-    ctx.restore();
-  }
-  ctx.textAlign='left'; ctx.textBaseline='top';
+  for(let i=TICKET_MSGS.length-1;i>=0;i--) if(--TICKET_MSGS[i].life<=0) TICKET_MSGS.splice(i,1);
 }
 
 

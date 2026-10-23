@@ -1336,28 +1336,37 @@ scenario('New look: no Courier left in these', 'm=36', `
   ctx.fillText = of;
   return {somethingDrawn: used.length>=4, fleeShown: fleeingEnemies().length>0, noCourier: used.every(f=>!/Courier/.test(f))};`);
 
-scenario('Notices: a column, not the field', 'm=31', `
+// F89 (Silvio, 23.10.2026): the notice column is gone. What it said goes to
+// the log of the pause screen; a weapon or hull becoming available is not
+// announced at all. (Until v273: a column under the bar.)
+scenario('F89 notices: no column, the log in the pause screen, no unlock news', 'm=31', `
   const r = {};
   FS.step(300);
+  const n0 = MLOG.log.length;
   score = cycleBase + 4000; tickShipUnlocks();
-  r.unlockIsANotice = NOTICES.length>0 && NOTICES[0].txt==='GTF HERCULES AVAILABLE' && NOTICES[0].tone==='unlock';
-  r.notInTheField = !SUB_MSGS.some(m=>/AVAILABLE/.test(m.txt));
+  r.noUnlockNews = !MLOG.log.some(l=>/AVAILABLE/.test(l.txt)) && !SUB_MSGS.some(m=>/AVAILABLE/.test(m.txt));
+  notice('Test line', 'info');
+  r.aNoticeGoesToTheLog = MLOG.log.length === n0 + 1 && MLOG.log[MLOG.log.length-1].txt === 'TEST LINE';
   const plates = []; const op = thPlate;
   thPlate = function(x,y,w,h){ plates.push({x,y,w,h}); return op.apply(this, arguments); };
   draw(); thPlate = op;
-  r.onTheLeftUnderTheBar = plates.some(p=>p.x===8 && p.y>=HUD_H+6 && p.h===18);
-  for(let i=0;i<5;i++) notice('N'+i, 'info');
-  r.atMostThreeNewestFirst = NOTICES.length===3 && NOTICES[0].txt==='N4' && NOTICES[2].txt==='N2';
-  FS.step(NOTICE_TIME+30); draw();
-  // Only the test's own notices: the mission may post one of its own
-  // meanwhile (M31: the Leviathan turning hostile).
-  r.theyGoAgain = !NOTICES.some(n=>/^N\d$/.test(n.txt));
+  r.nothingUnderTheBar = !plates.some(p=>p.y>=HUD_H && p.y < HUD_H+80 && p.h<=24);
+  // the results of the ship texts go to the log, the rest of them nowhere
+  SUB_MSGS.push({x:300, y:250, txt:'RESCUED', life:150, ml:150, ally:true, tone:'good'});
+  SUB_MSGS.push({x:300, y:250, txt:'DOCKED', life:150, ml:150, ally:true, tone:'good'});
+  const texts = []; const of = ctx.fillText, os = ctx.strokeText;
+  ctx.fillText = function(t){ texts.push(String(t)); return of.apply(this, arguments); };
+  ctx.strokeText = function(t){ texts.push(String(t)); return os.apply(this, arguments); };
+  try{ draw(); } finally { ctx.fillText = of; ctx.strokeText = os; }
+  r.noTextAtTheShips = !texts.some(t=>t==='RESCUED' || t==='DOCKED');
+  r.rescuedLogged = MLOG.log.some(l=>l.txt==='RESCUED');
+  r.dockedNot = !MLOG.log.some(l=>l.txt==='DOCKED');
   return r;`);
 
 scenario('Notices: radio lines of a mission', 'm=34', `
   FS.step(400);
-  FS.until(()=>NOTICES.some(n=>/ORION INBOUND/.test(n.txt)), 6000, true);
-  return {orionInbound: NOTICES.some(n=>n.txt==='GTD ORION INBOUND - HANGAR OPEN' && n.tone==='info'),
+  FS.until(()=>MLOG.log.some(n=>/ORION INBOUND/.test(n.txt)), 6000, true);
+  return {orionInbound: MLOG.log.some(n=>n.txt==='GTD ORION INBOUND - HANGAR OPEN' && n.tone==='info'),
           notInTheField: !SUB_MSGS.some(m=>/INBOUND/i.test(m.txt))};`);
 
 scenario('Hull band: calm, lit by a hit, full when nearly dead', 'm=42', `
@@ -1613,7 +1622,7 @@ scenario('M53 Der Gegenangriff', 'm=53', `
   r.completeCard = FS.until(()=>!!objCard && objCard.txt==='COUNTERATTACK BROKEN', 3000, false) >= 0;
   // Our ships jump out at the end of the wave: that is not a loss.
   const said = new Set();
-  FS.until(()=>{ for(const n of NOTICES) said.add(n.txt); return wave===54; }, 9000, true, true);
+  FS.until(()=>{ for(const n of MLOG.log) said.add(n.txt); return wave===54; }, 9000, true, true);
   r.jumpIsNoLoss = !said.has('GTD ORION LOST');
   return r;`);
 
@@ -1629,7 +1638,7 @@ scenario('M54 Die Evakuierung', 'm=54', `
   const t = FS.until(()=>{ keep(); return protSaved>=1; }, 3000, true);
   r.firstOut = t>=0;
   FS.step(5);
-  r.noticeForIt = NOTICES.some(n=>n.txt==='AN ELYSIUM IS OUT - 1 SAFE SO FAR');
+  r.noticeForIt = MLOG.log.some(n=>n.txt==='AN ELYSIUM IS OUT - 1 SAFE SO FAR');
   // Three out while the fourth is still flying: not yet complete.
   FS.until(()=>{ keep(); return protSaved>=3; }, 9000, true);
   const t4 = allies.find(a=>a.uid==='T4');
@@ -1805,7 +1814,7 @@ scenario('M60 Der Sprung', 'm=60', `
   r.throughThePortal = j>=0 && v.portalWarp===true && v.x >= PORTAL_X*FIELD_K;
   FS.until(()=>!enemies.includes(v), 1000, false);
   FS.step(5);
-  r.sheGotAway = icenEscapes===esc0+1 && NOTICES.some(n=>n.txt==='THE ICENI IS THROUGH THE KNOSSOS');
+  r.sheGotAway = icenEscapes===esc0+1 && MLOG.log.some(n=>n.txt==='THE ICENI IS THROUGH THE KNOSSOS');
   for(const e of enemies) if(/^(K|C)/.test(e.uid||'')) e.hp = 0;
   r.completeCard = FS.until(()=>!!objCard && objCard.txt==='ESCORT DESTROYED', 3000, false) >= 0;
   return r;`);
@@ -2011,18 +2020,9 @@ scenario('M46 Die Wissenschaftler', 'm=46', `
   const f = enemies.find(e=>e.uid==='F1');
   r.faustusParked = !!f && Math.abs(f.y-250*FIELD_K) < 1;
   r.onADeadline = !!f && f.fleeT>0;
-  // The countdown sits at the right edge, clear of the objective line.
-  const _ft = [], _pl = [];
-  const _fx = ctx.fillText, _tp = thPlate;
-  ctx.fillText = function(t, x, y){ _ft.push({t:String(t), x, y}); return _fx.apply(this, arguments); };
-  thPlate = function(x, y, w, h){ _pl.push({x, y, w, h}); return _tp.apply(this, arguments); };
-  try { drawObjLine({txt:missionObj, col:'#fff'}); drawFleeWarning(); }
-  finally { ctx.fillText = _fx; thPlate = _tp; }
-  const _fw = _ft.find(o=>/JUMPING OUT IN/.test(o.t));
-  r.countdownNamesShip = !!_fw && /FAUSTUS/.test(_fw.t);
-  const _ol = _pl[0], _cd = _pl[_pl.length-1];
-  r.countdownClearOfObjective = !!_ol && !!_cd && _pl.length>=2 &&
-    (_ol.x+_ol.w < _cd.x) && (_cd.x+_cd.w <= W);
+  // F89 (Silvio, 23.10.2026): no countdown row any more; her corners count
+  // down (until v273: a row at the right edge naming her)
+  r.herCornersCountDown = !!bracketState(f) && bracketState(f).kind === 'clock';
   damageEnemy(f, f.maxHp*5, f.x, f.y, true, 'bolt'); FS.step(2);
   r.cannotBeDestroyed = enemies.includes(f);
   const kill = id=>{ for(const s of f.subs) if(s.id===id){ s.dead=true; s.hp=0; } };
@@ -2079,7 +2079,7 @@ scenario('M47 Die zweite Flucht', 'm=47', `
 scenario('M48 Die Aufklaerung', 'm=48', `
   const r = {};
   score = 2000;
-  r.announced = NOTICES.some(n=>n.txt==='GTF PEGASUS ASSIGNED');
+  r.announced = MLOG.log.some(n=>n.txt==='GTF PEGASUS ASSIGNED');
   FS.step(400);
   r.flyingAPegasus = player.ship==='fipegasus';
   r.nothingLocksHer = !canLockOn(player);
@@ -6025,6 +6025,72 @@ scenario('F89 flight: a runner greys towards her jump (M8)', 'm=8', `
     FS.step(Math.round(4*TICK_HZ*0.55));
     r.clockHalfWayTwoGrey = g2() === 2;
   }
+  return r;`);
+
+// F89 step 3 (v274, Silvio 23.10.2026): no texts in the fight; the pause
+// screen holds the objectives with their state, a mission clock, a running
+// clock and a short log.
+scenario('F89 pause screen: objectives, state, clock, log (M3)', 'm=3', `
+  const r = {};
+  FS.step(30); draw();
+  r.firstObjectiveOpen = MLOG.objs.length === 1 && MLOG.objs[0].st === 'open' && /INTERCEPT THE BAST/.test(MLOG.objs[0].txt);
+  const t0 = MLOG.t; FS.step(100);
+  r.clockRuns = MLOG.t >= t0 + 100;
+  userPaused = true; syncPause();
+  const t1 = MLOG.t; for(let i = 0; i < 20; i++){ if(!paused) update(); draw(); }
+  r.clockStopsInPause = MLOG.t === t1;
+  userPaused = false; syncPause();
+  FS.until(()=>byId('F1').some(e=>!(e.warp>0)) && byId('F2').some(e=>!(e.warp>0)), 2000, true);
+  for(const id of ['F1','F2']) for(const e of byId(id)) e.hp = 0;
+  FS.until(()=>MLOG.objs.length >= 2, 1500, false, false, 5); draw();
+  r.firstComplete = MLOG.objs[0] && MLOG.objs[0].st === 'done';
+  r.nextOpen = MLOG.objs[1] && MLOG.objs[1].st === 'open' && /VASUDAN FIGHTERS/.test(MLOG.objs[1].txt);
+  r.resultInTheLog = MLOG.log.some(l=>l.txt === 'BOTH FREIGHTERS STOPPED' && l.tone === 'good');
+  // a clock started by the mission shows in the list
+  evFire({w:'timer', wa:'30|TEST CLOCK'});
+  const texts = []; const of = ctx.fillText;
+  ctx.fillText = function(t){ texts.push(String(t)); return of.apply(this, arguments); };
+  userPaused = true; syncPause();
+  try{ draw(); } finally { ctx.fillText = of; }
+  userPaused = false; syncPause();
+  r.listShown = texts.includes('OBJECTIVES') && texts.includes('COMPLETE') && texts.includes('OPEN') && texts.includes('LOG');
+  r.missionClockShown = texts.includes('MISSION TIME');
+  r.runningClockShown = texts.includes('TEST CLOCK') && texts.some(t=>/^0:[23][0-9]$/.test(t));
+  r.panelOnTheScreen = !!window._pausePanelRect && window._pausePanelRect.y >= HUD_H && window._pausePanelRect.y + window._pausePanelRect.h <= H;
+  return r;`);
+
+scenario('F89 pause screen: a partial success (M5)', 'm=5', `
+  const r = {};
+  FS.step(30); draw();
+  evFire({w:'zielteil', wa:'The Plato is lost - her crew got away'}); draw();
+  r.partial = MLOG.objs.length >= 1 && MLOG.objs[MLOG.objs.length-1].st === 'part';
+  r.inTheLog = MLOG.log.some(l=>/HER CREW GOT AWAY/.test(l.txt) && l.tone === 'part');
+  return r;`);
+
+// F89 step 3: at the target no distance, no subsystem name, no LOCKED; the
+// bar marks the targeted subsystem with a bracket.
+scenario('F89 target marks without text, the subsystem bracketed in the bar', 'm=12', `
+  const r = {};
+  FS.step(300);
+  const ta = byId('R1')[0];
+  const eng = ta.subs.find(s=>s.id==='engines');
+  TGT.e = ta; TGT.sub = eng;
+  const keepSel = selSecBank, keepDef = secDefP;
+  selSecBank = function(){ return {key:'f89test', ammo:5}; };
+  secDefP = function(){ return {key:'f89test', name:'Test', homing:'aspect', lockT:1}; };
+  TGT.lock = 1;
+  const texts = []; const of = ctx.fillText, os = ctx.strokeText;
+  ctx.fillText = function(t){ texts.push(String(t)); return of.apply(this, arguments); };
+  ctx.strokeText = function(t){ texts.push(String(t)); return os.apply(this, arguments); };
+  try{ drawTargetMarks(); subMarksOn = true; MOUSE.scr = true; draw(); } finally { ctx.fillText = of; ctx.strokeText = os; selSecBank = keepSel; secDefP = keepDef; subMarksOn = false; }
+  r.noLocked = !texts.includes('LOCKED');
+  r.noSubsystemName = !texts.includes('ENGINES');
+  r.noDistanceAtTheBrackets = !texts.includes(String(Math.round(tgtDist(ta)/SIZE_UPM)));
+  r.barShowsDistance = texts.includes(Math.round(tgtDist(ta)/SIZE_UPM) + 'm');
+  r.shipNameStays = !!ta.label && texts.includes(String(ta.label).toUpperCase());
+  drawHUD();
+  const ic = window._barSubIcons || [];
+  r.bracketOnTheTargetedIcon = ic.filter(i=>i.picked).length === 1 && ic.find(i=>i.picked).id === 'engines';
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

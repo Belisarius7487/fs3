@@ -438,8 +438,8 @@ function cyclePrimary(dir){
   PMODE_PREF = {n:(player.pb||[]).length, mode:player.pMode};
   syncLegacyWeapons();
   const pb = player.pb;
-  const txt = player.pMode===2 ? 'PRIMARIES LINKED' : weaponNameP(priDefP(pb[player.pMode].key)).toUpperCase();
-  notice(txt, 'info');
+  // F89: no notice - the bar shows the firing banks
+  void pb;
   sndPlay('ui_click', player.x);
 }
 // Mouse wheel down / E: the next secondary bank.
@@ -448,7 +448,7 @@ function cycleSecondary(){
   if(n < 2) return;
   player.sSel = ((player.sSel||0) + 1) % n;
   syncLegacyWeapons();
-  notice(weaponNameP(secDefP(player.sb[player.sSel].key)).toUpperCase(), 'info');
+  // F89: no notice - the bar shows the chosen bank
   sndPlay('ui_click', player.x);
 }
 function weaponNameP(w){ return (typeof weaponName === 'function') ? weaponName(w) : w.name; }

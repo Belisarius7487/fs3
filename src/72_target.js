@@ -361,13 +361,12 @@ function drawTargetMarks(){
   if(x2 > 0 && x1 < W && y2 > HUD_H && y1 < H){
     const bst = bracketState(o);
     fsBrackets(x1, y1, x2, y2, col, 1.6, bst ? bst.pulse : 1, bst ? bst.cc : null);
-    markText(String(Math.round(tgtDist(o)/SIZE_UPM)), x2 + 1, y2 + 3, col, 'right', 'top');   // metres, as in the bar
+    // F89 (Silvio): no distance at the brackets - the bar shows it
     // the subsystem: FS's small square brackets (12 px at 1024 or more)
     if(TGT.sub && o.kind !== 'bomb'){
       const p = tgtSubPos(o, TGT.sub), px = w2sX(p.x), py = w2sY(p.y), r = 6;
       const dead = !!TGT.sub.dead;          // FS: grey once destroyed
       fsBrackets(px - r, py - r, px + r, py + r, dead ? '#9a9a9a' : col, 1.3, 1);
-      markText(String(TGT.sub.label || '').toUpperCase(), px, py - r - 3, col, 'center', 'bottom');
     }
     // the aspect lock as in FS2: the lock ring travels from the nose to
     // her while it builds, then spins round her, LOCKED under it. In her
@@ -396,7 +395,7 @@ function drawTargetMarks(){
         ctx.strokeStyle = MARK_HALO; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = col; ctx.fill();
       }
       ctx.globalAlpha = 1;
-      if(locked) markText('LOCKED', lx, ly + R + 6, col, 'center', 'top');
+      // F89 (Silvio): no LOCKED - the ring stops travelling once it holds
     }
   }
   // the lead indicator as in FS2: four small triangles pointing in. Only
@@ -595,7 +594,11 @@ function drawBarSubIcons(e, x, y, w, h){
       ctx.save(); ctx.strokeStyle = SUB_DEAD_COL; ctx.lineWidth = Math.max(1.5, sz*0.1); ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(cx - sz*0.45, cy + sz*0.45); ctx.lineTo(cx + sz*0.45, cy - sz*0.45); ctx.stroke(); ctx.restore();
     }
-    window._barSubIcons.push({id: id, x: cx, y: cy, sz: sz, col: col, dead: dead});
+    // F89 (Silvio, 23.10.2026): the targeted subsystem wears a bracket here
+    // instead of its name on the field
+    const picked = typeof TGT !== 'undefined' && TGT.e === e && TGT.sub === s;
+    if(picked){ const r = cell*0.5; fsBrackets(cx - r, cy - r, cx + r, cy + r, '#ffffff', 1.1, 1); }
+    window._barSubIcons.push({id: id, x: cx, y: cy, sz: sz, col: col, dead: dead, picked: picked});
   }
 }
 // called at the end of drawHUDHLP with the first free x after the ship and

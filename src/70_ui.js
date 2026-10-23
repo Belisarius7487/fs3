@@ -244,7 +244,7 @@ function draw(){
   // Blackout is drawn over the strip rather than skipping it, so the
   // instruments visibly fail instead of quietly disappearing.
   drawEmpHudGlitch();
-  drawFleeWarning();
+  // F89: no countdown row - the corners of the ship run grey instead
   drawPlogCard();
   drawFieldBanner();
   tickFps();
@@ -576,21 +576,85 @@ function drawShipTop(e){
   drawBeams(e);
 }
 
-// The pause notice: a panel from the kit over a dimmed field.
+// The pause screen (F89, Silvio 23.10.2026): what the fight no longer
+// spells out - the objectives with their state (open, complete, failed,
+// partial), a running mission clock, any clock the mission has started, and
+// under them a short log of the mission's messages and results.
+const MLOG_COL = {open:null, done:'#4dff88', fail:'#ff5533', part:'#ffcc44'};
+const MLOG_WORD = {open:'OPEN', done:'COMPLETE', fail:'FAILED', part:'PARTIAL'};
+const MLOG_TONE = {info:'#7fd6ff', good:'#4dff88', bad:'#ff5533', part:'#ffcc44'};
+function mlogClock(steps){ const s = Math.max(0, Math.floor(steps/TICK_HZ)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
 function drawPaused(){
-  ctx.fillStyle='rgba(0,0,8,0.50)'; ctx.fillRect(0,0,W,H);
-  const pw=300, ph=92, px=((W-pw)/2)|0, py=((H-ph)/2)|0;
-  thPlate(px, py, pw, ph, thRGBA('panelBack', 0.90), 12);
-  thGlowPath(px, py, pw, ph, 12, 0.9);
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.save();
-  ctx.shadowColor='rgba('+TH('glow')+',0.55)'; ctx.shadowBlur=ecoBlur(18);
-  ctx.fillStyle=TH('textBright'); ctx.font=thLabel(28);
-  ctx.fillText('PAUSED', W/2, py+36);
-  ctx.restore();
-  ctx.fillStyle=TH('textDim'); ctx.font=thValue(12, false);
-  ctx.fillText('Press '+bindKey('pause')+' or tap to resume', W/2, py+68);
-  ctx.textAlign='left'; ctx.textBaseline='top';
+  // sizes for a phone too: the whole canvas shrinks there (Silvio)
+  const pw = 560, pad = 18, rowH = 21, headH = 44;
+  const objs = MLOG.objs.length ? MLOG.objs.slice() : [];
+  if(!objs.length){ const c = currentObjective(); if(c) objs.push({txt:String(c.txt).toUpperCase(), st:'open'}); }
+  const tmr = missionTimerLeft();
+  const nObj = Math.max(1, objs.length) + (tmr >= 0 ? 1 : 0);
+  const LOG_ROWS = 6, log = MLOG.log.slice(-LOG_ROWS);
+  const ph = headH + 20 + nObj*rowH + 14 + 20 + Math.max(1, log.length)*rowH + 12 + 26;
+  const px = ((W-pw)/2)|0, py = Math.max(HUD_H + 4, ((H-ph)/2)|0);
+  thFrame(px, py, pw, ph, headH);
+  window._pausePanelRect = {x:px, y:py, w:pw, h:ph};
+  const x0 = px + pad, x1 = px + pw - pad;
+  ctx.textBaseline = 'middle';
+  // header: PAUSED, the mission, the mission clock
+  ctx.textAlign = 'left'; ctx.fillStyle = TH('textBright'); ctx.font = thLabel(20);
+  ctx.fillText('PAUSED', x0, py + headH/2);
+  const pwW = ctx.measureText('PAUSED').width;
+  const nm = (typeof SCRIPT_WAVES !== 'undefined' && SCRIPT_WAVES[wave] && SCRIPT_WAVES[wave].name) || '';
+  ctx.textAlign = 'right'; ctx.fillStyle = TH('textBright'); ctx.font = thValue(18, true);
+  const clk = mlogClock(MLOG.t); ctx.fillText(clk, x1, py + headH/2);
+  const ckW = ctx.measureText(clk).width;
+  ctx.fillStyle = TH('textDim'); ctx.font = thLabel(10);
+  ctx.fillText('MISSION TIME', x1 - ckW - 8, py + headH/2 + 1);
+  const mtW = ctx.measureText('MISSION TIME').width;
+  if(nm){ ctx.textAlign = 'left'; ctx.fillStyle = TH('accentWarm'); ctx.font = thValue(13, true);
+          ctx.fillText(thFit(nm.toUpperCase(), (x1 - ckW - mtW - 20) - (x0 + pwW + 14)), x0 + pwW + 14, py + headH/2 + 1); }
+  // objectives
+  let y = py + headH + 12;
+  ctx.textAlign = 'left'; ctx.fillStyle = TH('textDim'); ctx.font = thLabel(10);
+  ctx.fillText('OBJECTIVES', x0, y); y += 14;
+  const wordW = 86;
+  if(!objs.length){ ctx.fillStyle = TH('textDim'); ctx.font = thValue(12, false); ctx.fillText('NONE', x0 + 18, y + rowH/2); y += rowH; }
+  for(const o of objs){
+    const c = MLOG_COL[o.st] || TH('text'), cy = y + rowH/2;
+    if(o.st === 'open'){ ctx.strokeStyle = TH('text'); ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, cy - 4.5, 9, 9); }
+    else { ctx.fillStyle = c; ctx.fillRect(x0, cy - 5, 10, 10); }
+    ctx.textAlign = 'left'; ctx.fillStyle = o.st === 'open' ? TH('textBright') : TH('text'); ctx.font = thValue(12, o.st === 'open');
+    ctx.fillText(thFit(o.txt, x1 - wordW - (x0 + 18) - 8), x0 + 18, cy);
+    ctx.textAlign = 'right'; ctx.fillStyle = o.st === 'open' ? TH('textDim') : c; ctx.font = thLabel(10);
+    ctx.fillText(MLOG_WORD[o.st] || '', x1, cy);
+    y += rowH;
+  }
+  if(tmr >= 0){
+    const cy = y + rowH/2;
+    ctx.strokeStyle = '#7fd6ff'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x0 + 4, cy, 4, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x0 + 4, cy); ctx.lineTo(x0 + 4, cy - 3); ctx.stroke();
+    ctx.textAlign = 'left'; ctx.fillStyle = '#7fd6ff'; ctx.font = thValue(12, true);
+    ctx.fillText(thFit(String(missionTimer.label || 'TIME'), x1 - wordW - (x0 + 18) - 8), x0 + 18, cy);
+    ctx.textAlign = 'right'; ctx.font = thValue(13, true); ctx.fillText(mlogClock(tmr + TICK_HZ - 1), x1, cy);
+    y += rowH;
+  }
+  // the log
+  y += 12;
+  ctx.strokeStyle = TH('edgeLight'); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, y - 6.5); ctx.lineTo(x1, y - 6.5); ctx.stroke();
+  ctx.textAlign = 'left'; ctx.fillStyle = TH('textDim'); ctx.font = thLabel(10);
+  ctx.fillText('LOG', x0, y + 6); y += 18;
+  if(!log.length){ ctx.fillStyle = TH('textDim'); ctx.font = thValue(12, false); ctx.fillText('NOTHING YET', x0 + 54, y + rowH/2); y += rowH; }
+  for(const l of log){
+    const cy = y + rowH/2;
+    ctx.textAlign = 'right'; ctx.fillStyle = TH('textDim'); ctx.font = thValue(11, false);
+    ctx.fillText(mlogClock(l.t), x0 + 38, cy);
+    ctx.fillStyle = MLOG_TONE[l.tone] || TH('accentWarm'); ctx.fillRect(x0 + 44, cy - 6, 2, 12);
+    ctx.textAlign = 'left'; ctx.fillStyle = TH('text'); ctx.font = thValue(12, false);
+    ctx.fillText(thFit(l.txt, x1 - (x0 + 54)), x0 + 54, cy);
+    y += rowH;
+  }
+  // foot
+  ctx.textAlign = 'center'; ctx.fillStyle = TH('textDim'); ctx.font = thValue(12, false);
+  ctx.fillText(thFit('Press '+bindKey('pause')+' or tap to resume', pw - 2*pad), W/2, py + ph - 16);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
 }
 
 // The countdown used to live in the HUD bar, in the same strip as the
@@ -745,7 +809,11 @@ let objPinned = '';           // the objective the last card announced
 let missionObj = '';          // a mission's own objective, see 'ziel'
 let missionObjUsed = false;   // this wave speaks for itself
 function objStrip(t){ return String(t||'').replace(/^\[\s*/, '').replace(/\s*\]$/, ''); }
-function objAnnounce(head, txt, tone){ objCard = {head:head, txt:txt, tone:tone, t0:fc}; }
+function objAnnounce(head, txt, tone){
+  objCard = {head:head, txt:txt, tone:tone, t0:fc};
+  // F89: no card on the field any more; the pause screen keeps the list
+  if(tone === 'new') mlogObjective(txt); else mlogResult(tone, txt);
+}
 // What the player is to do right now, or null. A mission's own words
 // come first; otherwise whatever the field says.
 function currentObjective(){
@@ -789,9 +857,10 @@ function drawFieldBanner(){
   const cardAge = objCard ? fc - objCard.t0 : 1e9;
   const cardUp = objCard && cardAge < OBJ_CARD_TIME - OBJ_CARD_FADE;
   const lineUp = pin && arriveT<=0 && !(cardUp && objCard.tone==='new' && objCard.txt===pin.txt);
-  if(lineUp) drawObjLine(pin);
-  drawNotices(HUD_H + 6 + (lineUp ? 26 : 0));
-  drawObjCard();
+  // F89 (Silvio, 23.10.2026): no card, no line, no column in the fight -
+  // the list is in the pause screen. The card still runs out unseen.
+  if(objCard && fc - objCard.t0 >= OBJ_CARD_TIME) objCard = null;
+  void lineUp;
 }
 // ── NOTICES ──────────────────────────────────────────────────
 // What concerns the whole fight rather than one ship: a hull or weapon
@@ -802,9 +871,39 @@ function drawFieldBanner(){
 const NOTICE_TIME = 320, NOTICE_FADE = 40, NOTICE_IN = 10, NOTICE_MAX = 3;
 const NOTICE_TONE = {unlock:null, info:'#7fd6ff', good:'#4dff88', bad:'#ff5533'};
 let NOTICES = [];
+// F89 (Silvio, 23.10.2026): the column is gone. What it said goes to the
+// log in the pause screen; news of a weapon or hull becoming available is
+// dropped altogether.
 function notice(txt, tone){
-  NOTICES.unshift({txt:String(txt), tone:tone||'info', t0:fc});
-  if(NOTICES.length > NOTICE_MAX) NOTICES.length = NOTICE_MAX;
+  if(tone === 'unlock') return;
+  mlogLine(String(txt), tone || 'info');
+}
+// ── MISSION LOG (F89): the objectives with their state, a clock and a
+// short log - shown only in the pause screen ──
+const MLOG_MAX = 40;
+let MLOG = {objs:[], log:[], t:0};
+function mlogReset(){ MLOG = {objs:[], log:[], t:0}; }
+function mlogLine(txt, tone){
+  txt = String(txt||'').trim(); if(!txt) return;
+  MLOG.log.push({t:MLOG.t, txt:txt.toUpperCase(), tone:tone||'info'});
+  if(MLOG.log.length > MLOG_MAX) MLOG.log.shift();
+}
+function mlogOpen(){ for(let i=MLOG.objs.length-1;i>=0;i--) if(MLOG.objs[i].st==='open') return MLOG.objs[i]; return null; }
+// a new objective; one still open is done with, as the mission moves on
+// only once a step is taken
+function mlogObjective(txt){
+  txt = String(txt||'').trim().toUpperCase(); if(!txt) return;
+  const o = mlogOpen();
+  if(o && o.txt === txt) return;
+  if(o) o.st = 'done';
+  MLOG.objs.push({txt:txt, st:'open'});
+}
+// a result: the open objective takes its state, the words go to the log
+function mlogResult(st, txt){
+  const o = mlogOpen();
+  if(o) o.st = st;
+  else if(txt) MLOG.objs.push({txt:String(txt).toUpperCase(), st:st});
+  if(txt && !(o && o.txt === String(txt).toUpperCase())) mlogLine(txt, st==='done'?'good':(st==='fail'?'bad':'part'));
 }
 function drawNotices(y0){
   for(let i=NOTICES.length-1;i>=0;i--) if(fc-NOTICES[i].t0 >= NOTICE_TIME) NOTICES.splice(i,1);
