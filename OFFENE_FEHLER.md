@@ -2590,6 +2590,9 @@ gesamte Spiel."
     oder links. Schießt man auf die Drohnen machen sie weiter bis entweder alle
     zerstört wurden oder die Reparatur abgeschlossen ist. Ist die Reparatur
     abgeschlossen, fliegen sie zurück zum Transporter und der warpt dann raus."
+    **Entschieden (Silvio, 23.10.2026):** Die Reparatur ist abgeschlossen, wenn
+    der Rumpf wieder voll ist; das Tempo legt die Mission fest. Den Fortschritt
+    zeigt der Rumpfbalken.
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
