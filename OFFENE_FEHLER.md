@@ -2649,6 +2649,14 @@ gesamte Spiel."
 - **Neutrale Container (Silvio, 23.10.2026):** behalten ihre rosa Klammern
   (die FreeSpace-Farbe für Neutrale). Testlauf M4 bis M17 mit v273: „sieht
   alles sehr gut aus".
+- **Beschriftungen am Schiff (Silvio, 23.10.2026, vor Schritt 3):**
+  - der Schiffsname bleibt
+  - die Entfernung am Ziel fällt weg
+  - der Name des Subsystems fällt weg; stattdessen zeigt eine Klammer oben
+    im Radarbereich der Leiste, welches Subsystem anvisiert ist
+  - DISABLE / PROTECT / DESTROY bleiben vorerst
+  - LOCKED fällt weg („man sieht ja dass es locked ist, wenn der Ring sich
+    nicht mehr bewegt")
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
