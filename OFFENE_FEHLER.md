@@ -2479,6 +2479,15 @@ eingewarpt wo die Galatea stand und die Bomber sind aufgetaucht, aber der
 Subraumwirbel lag hinter der Galatea, was nicht sein darf. Kleinschiffe und
 ihre Warptunnel müssen immer im Vordergrund liegen."
 
+- Nachgelesen: Großkampfschiffe und Jäger mit Modell werden in einem
+  gemeinsamen Stapel gezeichnet — erst alle Wirbel, dann alle Rümpfe. Der
+  Wirbel eines Bombers lag so unter dem Rumpf der Galatea, der Bomber
+  selbst davor.
+- Gebaut in v276: ein Kleinschiff beginnt einen eigenen Stapel nach den
+  Großkampfschiffen (`f3dFront`); auch die Wirbel schon verschwundener
+  Kleinschiffe kommen nach den Rümpfen. Szenario „v276 F92" (schlägt
+  gegen v275 fehl). Im Browser ansehen, die Cloud kann WebGL nicht zeigen.
+
 ### F91 — M8: Elysium kriecht nach zerstörtem Transporter an den Rand (v274)
 
 **Befund (Silvio, 23.10.2026):** „In Mission 8, wenn der Transporter
