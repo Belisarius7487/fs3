@@ -220,7 +220,10 @@ function tgtLead(o, s){
 // number right aligned under the lower right corner. A dark edge under
 // every line so the marks hold against fire and beams.
 const TGT_BOX_MIN = 23, TGT_BOX_PAD = 3, MARK_HALO = 'rgba(0,0,0,0.78)';
-function fsBrackets(x1, y1, x2, y2, col, lw, alpha){
+// cc (F89): optional colours of the four corners, clockwise from the top
+// left (TL, TR, BR, BL); a corner without one keeps col.
+const FS_SEG_CORNER = [0, 3, 1, 2, 0, 1, 3, 2];
+function fsBrackets(x1, y1, x2, y2, col, lw, alpha, cc){
   const bw = (x2-x1)/4, bh = (y2-y1)/4;
   const seg = [[x1,y1,x1+bw,y1],[x1,y2,x1+bw,y2],[x2,y1,x2-bw,y1],[x2,y2,x2-bw,y2],
                [x1,y1,x1,y1+bh],[x2,y1,x2,y1+bh],[x1,y2,x1,y2-bh],[x2,y2,x2,y2-bh]];
@@ -228,11 +231,57 @@ function fsBrackets(x1, y1, x2, y2, col, lw, alpha){
   ctx.strokeStyle = MARK_HALO; ctx.lineWidth = lw + 2;
   ctx.beginPath(); for(const q of seg){ ctx.moveTo(q[0],q[1]); ctx.lineTo(q[2],q[3]); } ctx.stroke();
   ctx.lineWidth = lw;
-  for(const q of seg){
-    const g = ctx.createLinearGradient(q[0],q[1],q[2],q[3]); g.addColorStop(0, col); g.addColorStop(1, col + '30');
+  for(let i = 0; i < seg.length; i++){
+    const q = seg[i], c = (cc && cc[FS_SEG_CORNER[i]]) || col;
+    const g = ctx.createLinearGradient(q[0],q[1],q[2],q[3]); g.addColorStop(0, c); g.addColorStop(1, c + '30');
     ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(q[0],q[1]); ctx.lineTo(q[2],q[3]); ctx.stroke();
   }
   ctx.restore();
+}
+// ── PROGRESS ON THE BRACKETS (F89, Silvio 23.10.2026) ──
+// The four corners of a ship's brackets tell what is going on with her,
+// one corner a quarter, clockwise from the top left:
+// - boarding: while the transport lies alongside, the corners turn green
+//   one after another; all four green = taken.
+// - flight or a clock running on her: the corners turn grey one after
+//   another and the brackets pulse, faster the less time is left; all four
+//   grey = she jumps.
+// Corners off the screen are not pulled to its edge (Silvio: "Man muss
+// nicht alle Ecken sehen").
+const BRK_BOARD_COL = '#3ce06a', BRK_CLOCK_COL = '#9a9a9a';
+function bracketProgress(o){
+  if(!o || o.dead) return null;
+  // boarding: the transport holding on her (holdT counts down from dockHold)
+  const b = o._boardBy;
+  if(b && !b.dead && b.dockHold > 0 && b.holdT != null)
+    return {kind: 'board', f: Math.max(0, Math.min(1, 1 - b.holdT/b.dockHold))};
+  // flight or a clock: whichever brings her jump closest counts
+  if((o.fleeT0 > 0 || o.escF != null) && o.warpOut > 0) return {kind: 'clock', f: 1};
+  let f = -1;
+  // her jump-out clock (fleeT, started at fleeT0)
+  if(o.fleeT > 0 && o.fleeT0 > 0) f = Math.max(f, 1 - o.fleeT/o.fleeT0);
+  // a runner on her way to the jump at the edge (or the portal)
+  if(o.escWarp && o.escF != null && o.escaping) f = Math.max(f, o.escF);
+  // a mission clock hung on her ('timer' with a ship: 'secs|label|ID')
+  if(typeof missionTimer !== 'undefined' && missionTimer.ship && missionTimer.total > 0 && o.uid === missionTimer.ship){
+    const left = missionTimerLeft();
+    if(left >= 0) f = Math.max(f, 1 - left/missionTimer.total);
+  }
+  return f >= 0 ? {kind: 'clock', f: Math.max(0, Math.min(1, f))} : null;
+}
+// the corner colours and the pulse for o's brackets; null when nothing runs
+function bracketState(o){
+  const P = bracketProgress(o); if(!P) return null;
+  const col = P.kind === 'board' ? BRK_BOARD_COL : BRK_CLOCK_COL;
+  const n = Math.floor(P.f*4 + 1e-6), cc = [];
+  for(let i = 0; i < 4; i++) cc.push(i < n ? col : null);
+  let pulse = 1;
+  if(P.kind === 'clock'){
+    // faster the closer the jump: from a slow beat to about three a second
+    o._brkPh = (o._brkPh || 0) + 0.06 + 0.26*P.f;
+    pulse = 0.4 + 0.6*(0.5 + 0.5*Math.sin(o._brkPh));
+  }
+  return {cc: cc, pulse: pulse, kind: P.kind, f: P.f};
 }
 // her drawn box on the screen, with a margin and a smallest size
 const LOCK_RING_R = 16;      // v216: the lock ring's radius on the screen
@@ -258,16 +307,23 @@ function markText(t, x, y, col, al, bl){
 // changed in a mission with the effect 'markieren' (a2: 'id:word', 'id:'
 // takes the mark off).
 const MARK_WORDS = {disable:'DISABLE', destroy:'DESTROY', protect:'PROTECT'};
+// F89 (Silvio, 23.10.2026): the frame wears the colour of the job - blue
+// protect, red destroy, yellow disable - not the side colour; the side is
+// what the inner brackets say.
+const MARK_COL = {DISABLE:'#ffcc22', DESTROY:'#ff4a33', PROTECT:'#3aa0ff'};
+// F89: every escape pod sent off is a ship to protect, without a mark set
+function isEscapePod(e){ return !!e && e.side === 'ally' && /^ep/.test(e.img || ''); }
 function missionMark(e){
-  if(typeof EV_MARK === 'undefined' || !e || e.uid == null) return '';
-  return MARK_WORDS[EV_MARK[e.uid]] || '';
+  if(!e) return '';
+  if(typeof EV_MARK !== 'undefined' && e.uid != null && MARK_WORDS[EV_MARK[e.uid]]) return MARK_WORDS[EV_MARK[e.uid]];
+  if(isEscapePod(e)) return MARK_WORDS.protect;
+  return '';
 }
 function drawMissionMark(e){
   const word = missionMark(e); if(!word) return;
   if(e.dead || e.warp > 0 || e.captured) return;
   const img = IMGS[e.img]; if(!img) return;
-  const ally = (e.side === 'ally') || allies.indexOf(e) >= 0;
-  const col = ally ? OFF_COL.friend : OFF_COL.enemy;
+  const col = MARK_COL[word] || OFF_COL.enemy;
   // On the screen, a little outside the TAG box so both can be seen.
   const hw = img.width*e.sc*0.5*CAM.z + 12, hh = img.height*e.sc*0.5*CAM.z + 12;
   const L = 12, k = 0.45 + 0.55*(0.5 + 0.5*Math.sin(fc*0.15));
@@ -303,7 +359,8 @@ function drawTargetMarks(){
   ctx.save();
   const [x1, y1, x2, y2] = markBox(o, TGT_BOX_PAD, TGT_BOX_MIN);
   if(x2 > 0 && x1 < W && y2 > HUD_H && y1 < H){
-    fsBrackets(x1, y1, x2, y2, col, 1.6, 1);
+    const bst = bracketState(o);
+    fsBrackets(x1, y1, x2, y2, col, 1.6, bst ? bst.pulse : 1, bst ? bst.cc : null);
     markText(String(Math.round(tgtDist(o)/SIZE_UPM)), x2 + 1, y2 + 3, col, 'right', 'top');   // metres, as in the bar
     // the subsystem: FS's small square brackets (12 px at 1024 or more)
     if(TGT.sub && o.kind !== 'bomb'){

@@ -2635,6 +2635,17 @@ gesamte Spiel."
   schmaler, kein Name wird gekürzt; die gewonnene Breite geht an den
   Zielbereich. Abgelehnt (A): je 25 Punkte schmaler, weil dann z. B.
   Prometheus R und S gleich aussehen („PROME…").
+- **Auftragsrahmen in den Missionen (Silvio, 23.10.2026):** nur M1 bis M17
+  bekommen sie, alles danach wird ersetzt. Zu scannende Ziele (M7) brauchen
+  keinen Rahmen: der Scanring zeigt sie. **v273:** Rahmen ergänzt in M1
+  (Orff), M3 (Bast, Ma'at, Omega), M4 (Omega gelb bis lahmgelegt, Comet,
+  Intelligence 1), M5 (Plato), M6 (Galatea), M9/M10 (Cargo Alpha, Beta,
+  Gamma), M11 (Depot-Container), M16 (Asimov), M17 (Galatea).
+- **v273 (Schritt 2) gebaut:** Klammern an jedem Schiff (rot Feind, grün
+  eigene, nie Kulisse), Rahmen in Auftragsfarbe, Kapseln automatisch blau,
+  Boarding-Ecken grün, Flucht-Ecken grau und pulsierend — auch für Schiffe,
+  die zum Rand fliehen und dort springen (Bast, Ma'at, Omega, Asmodeus), und
+  für eine Uhr an einem Schiff (Wirkung `timer` mit `Sekunden|Text|Kennung`).
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 

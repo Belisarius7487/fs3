@@ -801,9 +801,10 @@ scenario('A sentry gun is bracketed like a fighter', 'm=31', `
   const count = (e) => { seen.length = 0; try{ drawHostileMark(e); }catch(err){} return seen.length; };
   r.fighterIsBracketed = count(mk('fighter')) > 0;    // the known good case
   r.sentryIsBracketed  = count(mk('sentry'))  > 0;
-  // and an ally still gets none, whatever she is
+  // F89 (Silvio, 23.10.2026): our own ships wear green brackets now (until
+  // v272: an ally got none)
   const friend = mk('sentry'); friend.side = 'ally';
-  r.allyGetsNone = count(friend) === 0;
+  r.allyIsBracketedToo = count(friend) > 0;
   fsBrackets = fb;
   return r;`);
 
@@ -4912,7 +4913,9 @@ scenario('Mission mark: pulsing brackets, the word under them when targeted or p
   const w1 = words.find(w=>w.t==='DISABLE');
   r.wordWhenTargeted = !!w1;
   r.underTheShip = !!w1 && w1.y > w2sY(ta.y);
-  r.inHerOwnColour = !!w1 && w1.col===OFF_COL.enemy;
+  // F89 (Silvio, 23.10.2026): the frame is in the colour of the job -
+  // yellow for disable (until v272 her side colour)
+  r.inTheColourOfTheJob = !!w1 && w1.col===MARK_COL.DISABLE;
   TGT.e = null; MOUSE.sx = w2sX(ta.x); MOUSE.sy = w2sY(ta.y);
   words.length = 0; draw();
   r.wordWhenPointedAt = words.some(w=>w.t==='DISABLE');
@@ -5894,6 +5897,134 @@ scenario('F89 subsystem icons in the bar, F90 lock ring on the subsystem', 'm=31
   r.ringDrawn = arcs.length > 0;
   r.ringOnTheSubsystem = arcs.length > 0 && Math.hypot(arcs[0][0] - w2sX(sp.x), arcs[0][1] - w2sY(sp.y)) < 2;
   r.subsystemOffCentrePx = Math.round(fd*CAM.z);
+  return r;`);
+
+// F89 step 2 (v273, Silvio 23.10.2026): the inner brackets say the side on
+// every ship (red enemy, green ours, capital ships too, never scenery); the
+// outer frame the job (blue protect, red destroy, yellow disable); every
+// escape pod is one to protect; M1-M17 carry their frames.
+scenario('F89 brackets: the side on every ship, the job on the frame', 'm=31', `
+  const r = {};
+  FS.step(60);
+  const mk = (type, side, img) => ({type: type, side: side, faction: 'ntf', img: img,
+                         x: player.x + 200, y: player.y, hp: 100, maxHp: 100,
+                         dead: false, warp: 0, warpOut: 0, sc: 1});
+  const seen = [];
+  const fb = fsBrackets;
+  fsBrackets = function(x1, y1, x2, y2, col){ seen.push(col); };
+  const col = (e) => { seen.length = 0; try{ drawHostileMark(e); }catch(err){ seen.push('ERR ' + err.message); } return seen[0]; };
+  r.enemyCruiserRed = col(mk('cruiser', 'enemy', 'crleviathan')) === OFF_COL.enemy;
+  r.alliedDestroyerGreen = col(mk('destroyer', 'ally', 'deorionright')) === OFF_COL.friend;
+  r.alliedFighterGreen = col(mk('fighter', 'ally', 'fiapollo')) === OFF_COL.friend;
+  const sc = mk('cruiser', 'enemy', 'crleviathan'); sc.scenery = true;
+  r.sceneryNone = col(sc) === undefined;
+  r.rockNone = col(mk('asteroid', 'enemy', 'crleviathan')) === undefined;
+  fsBrackets = fb;
+  // the frame in the colour of the job
+  const strokes = [];
+  const frameCol = (e, word) => {
+    EV_MARK[e.uid] = word; strokes.length = 0;
+    const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'strokeStyle');
+    Object.defineProperty(ctx, 'strokeStyle', {configurable: true, set(v){ strokes.push(v); d.set.call(this, v); }, get(){ return d.get.call(this); }});
+    try{ drawMissionMark(e); } finally { delete ctx.strokeStyle; delete EV_MARK[e.uid]; }
+    return strokes[0];
+  };
+  const en = mk('cruiser', 'enemy', 'crleviathan'); en.uid = 'ZZ1';
+  const al = mk('transport', 'ally', 'trelysium'); al.uid = 'ZZ2';
+  r.protectBlue = frameCol(al, 'protect') === MARK_COL.PROTECT && MARK_COL.PROTECT === '#3aa0ff';
+  r.destroyRed = frameCol(en, 'destroy') === MARK_COL.DESTROY;
+  r.disableYellow = frameCol(en, 'disable') === MARK_COL.DISABLE;
+  r.protectOnAnEnemyStillBlue = frameCol(en, 'protect') === MARK_COL.PROTECT;
+  // every escape pod is one to protect, mark or no mark
+  r.podIsProtected = missionMark(mk('pod', 'ally', 'ephermes')) === 'PROTECT' && missionMark(mk('pod', 'ally', 'epra')) === 'PROTECT';
+  r.fighterIsNot = missionMark(mk('fighter', 'ally', 'fiapollo')) === '';
+  // the frames of M1-M17 (Silvio: M7 needs none, the scan ring speaks)
+  const want = {1:{A1:'protect'}, 3:{F1:'destroy',F2:'destroy',T1:'protect'}, 4:{O1:'disable',T1:'protect',T2:'protect'},
+                5:{P1:'protect'}, 6:{G1:'protect'}, 9:{K1:'protect',K2:'protect',K3:'protect'},
+                10:{K1:'protect',K2:'protect',K3:'protect'}, 11:{D1:'destroy'}, 16:{AS:'protect'}, 17:{GA:'protect'}};
+  const miss = [];
+  for(const m in want) for(const id in want[m]){
+    const u = SCRIPT_WAVES[m].u.filter(q=>q.id===id);
+    if(!u.length || !u.every(q=>q.mark===want[m][id])) miss.push(m + ':' + id);
+  }
+  r.framesOfM1toM17 = miss.length === 0 || miss.join(' ');
+  r.m4OmegaFrameGoesOutWhenDisabled = SCRIPT_WAVES[4].ev.some(e=>e.t==='subsystem' && e.a==='O1' && e.w==='markieren' && e.a2==='O1:');
+  return r;`);
+
+// F89 step 2: boarding - while the Comet lies alongside the Omega, the four
+// corners of the Omega's brackets turn green one after another.
+scenario('F89 boarding: the corners of the prize turn green one by one (M4)', 'm=4', `
+  const r = {};
+  FS.step(300);
+  const o = byId('O1')[0];
+  for(const e of enemies) if(/^(E1|E2|B1)$/.test(e.uid||'')) e.hp = 0;
+  damageEnemy(o, 1, o.x, o.y, true);
+  FS.step(20);
+  for(const sb of o.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  r.cometArrives = FS.until(()=>evSeen('T1'), 800, false) >= 0;
+  r.frameOutOnceDisabled = FS.until(()=>!EV_MARK.O1, 200, false) >= 0;
+  const t = () => byId('T1')[0];
+  r.holdStarts = FS.until(()=>t() && t().holdT != null, 20000, true, false, 20) >= 0;
+  const green = () => { const st = bracketState(o); return st ? st.cc.filter(c=>c===BRK_BOARD_COL).length : 0; };
+  const seen = [];
+  for(let i = 0; i < 4000 && t() && t().holdT > 0; i++){ FS.killSmall(); FS.step(1); const g = green(); if(seen[seen.length-1] !== g) seen.push(g); }
+  r.greenCorners = seen.join(',');
+  r.oneAfterAnother = seen.length >= 4 && seen.every((g, i)=>!i || g === seen[i-1] + 1);
+  r.allFourAtTheEnd = seen[seen.length-1] === 4;
+  r.taken = FS.until(()=>!!EV_TAKEN.O1, 400, true) >= 0;
+  return r;`);
+
+// F89 step 2: flight and a clock on a ship - the corners turn grey one
+// after another and the brackets pulse, faster the less time is left.
+scenario('F89 flight: grey corners and a pulse that quickens', 'm=31', `
+  const r = {};
+  FS.step(60);
+  let e = null;
+  FS.until(()=>{ e = enemies.find(x=>!x.dead && !(x.warp>0) && !x.scenery && x.subs && (x.type==='cruiser'||x.type==='corvette')); return !!e; }, 3000, true);
+  r.foundShip = !!e;
+  if(!e) return r;
+  e.noFlee = true; e.fleeT = 400;
+  const grey = () => { const st = bracketState(e); return st ? st.cc.filter(c=>c===BRK_CLOCK_COL).length : -1; };
+  const beat = () => { const a = []; for(let i = 0; i < 200; i++){ const st = bracketState(e); a.push(st.pulse); } let n = 0;
+                       for(let i = 2; i < a.length; i++) if(a[i-1] > a[i-2] && a[i-1] > a[i]) n++; return n; };
+  FS.step(2);
+  r.atTheStartNoGrey = grey() === 0;
+  const slow = beat();
+  FS.step(210);
+  r.halfWayTwoGrey = grey() === 2;
+  FS.step(120);
+  r.nearTheEndThree = grey() === 3;
+  const fast = beat();
+  r.pulseQuickens = fast > slow;
+  r.beats = slow + ' -> ' + fast;
+  r.jumpingAllFour = FS.until(()=>e.warpOut > 0, 400, false) >= 0 && grey() === 4;
+  return r;`);
+
+// F89 step 2: a runner on her way to the jump at the edge counts down too.
+scenario('F89 flight: a runner greys towards her jump (M8)', 'm=8', `
+  const r = {};
+  FS.step(120);
+  evFire({w:'fliehen', a:'F1+F2+F3'});
+  const f = byId('F1')[0];
+  r.moving = FS.until(()=>f.escF != null, 2000, false) >= 0;
+  const grey = () => { const st = bracketState(f); return st ? st.cc.filter(c=>c===BRK_CLOCK_COL).length : -1; };
+  r.earlyNoGrey = grey() === 0;
+  const img = IMGS[f.img], ew = img ? img.width*f.sc : 120;
+  const jx = MW - TRANS_EDGE_PAD - ew*0.5;
+  f.x = f.escX0 + (jx - f.escX0)*0.6;
+  FS.step(1);
+  r.past60PercentTwoGrey = grey() === 2;
+  // a mission clock hung on a ship ('secs|label|ID'): the Lucifer in the
+  // FS1 finale will wear one
+  const k1 = byId('K1')[0] || enemies.find(x=>x.uid && x!==f && !x.dead && !(x.warp>0) && x.type!=='fighter' && x.type!=='bomber');
+  r.clockShip = !!k1 && (k1.uid + ' ' + k1.type);
+  if(k1){
+    const g2 = () => { const st = bracketState(k1); return st ? st.cc.filter(c=>c===BRK_CLOCK_COL).length : -1; };
+    r.clockStartsClear = g2() <= 0;
+    evFire({w:'timer', wa:'4|TEST|' + k1.uid});
+    FS.step(Math.round(4*TICK_HZ*0.55));
+    r.clockHalfWayTwoGrey = g2() === 2;
+  }
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

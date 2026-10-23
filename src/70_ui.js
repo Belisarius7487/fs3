@@ -693,47 +693,41 @@ function drawWaveTitle(){
 
 const CHEV_FULL = 120;    // bis hierher voll sichtbar
 const CHEV_FADE = 240;    // ab hier gar nicht mehr - Nebelsichtweite
+// F89 (Silvio, 23.10.2026): the inner brackets say the side - red the
+// enemy, green our own - on every ship now, the capital ships included,
+// never on scenery or rocks. Their corners carry what is going on with her
+// (bracketState, 72_target.js). The name stays from v211; it is no longer
+// only for the hostile ones.
 function drawHostileMark(e){
-  // SHIPS_ON_FIELD ist enemies.concat(allies) - ohne diese Zeile bekaeme
-  // jeder Verbuendete denselben Winkel. Ein Ueberlaeufer hat nach defect()
-  // side='enemy' und bekommt ihn dann zu Recht.
-  if(e.side === 'ally') return;
-  // Sentry guns carry them too (Silvio, v216: they had none unless they
-  // were the target). They are the same case the brackets were made for -
-  // small, easily lost among the effects - and being stationary they are
-  // easier to miss than a fighter, not harder. The capital ships are left
-  // out on purpose: they are large enough to find without help.
-  // F37 (v251): the FS1 freighters too - Silvio missed the red marks on the
-  // Bast and the Ma'at that the fighters carry.
-  const fs1Fr = e.type==='freighter' && typeof currentEra !== 'undefined' && currentEra === 'fs1'
-                && !neutralLike(e);
-  if(e.type!=='fighter' && e.type!=='bomber' && e.type!=='sentry' && !fs1Fr) return;
-  if(e.dead || e.warp>0 || e.warpOut>0) return;
+  if(!e || e === player || e.type === 'asteroid' || e.scenery) return;
+  if(e.dead || e.warp>0) return;
+  // jumping out: only a ship that fled keeps her (all grey) brackets
+  if(e.warpOut>0 && !(e.fleeT0>0 || e.escF!=null)) return;
   let a = 1;
   if(nebulaOn()){
     const d = Math.hypot(e.x-player.x, e.y-player.y);
     if(d >= CHEV_FADE) return;
     a = (d <= CHEV_FULL) ? 1 : (CHEV_FADE-d)/(CHEV_FADE-CHEV_FULL);
   }
-  // v211 (Silvio): the red chevron over her was lost too quickly among
-  // the effects. Now FS-style corner brackets round her (fsBrackets,
-  // 72_target.js), thinner and paler than the target's, with a dark edge.
   // The target has her own, larger ones (drawTargetMarks).
   if(e === TGT.e) return;
+  const ally = e.side === 'ally' || allies.indexOf(e) >= 0;
   // On a run at one of our capital ships: yellow and blinking, as the
   // double chevron was - a bomber about to strike is to be told apart from
   // one that only passes. A run at the player stays red like any other.
   let run = false;
-  if(ramsOnContact(e) && e.role==='attack' && e.passT<=0){
+  if(!ally && ramsOnContact(e) && e.role==='attack' && e.passT<=0){
     const t = smallTarget(e);
     run = !!(t && t!==player && !t.small && t.side==='ally');
   }
   if(run && fc%24 >= 17) return;
+  const st = bracketState(e);
   ctx.save();
   camScreen();
   ctx.globalAlpha = a;
   const bx = markBox(e, 2, 16);
-  fsBrackets(bx[0], bx[1], bx[2], bx[3], run ? '#ffcc22' : OFF_COL.enemy, 1.2, run ? 1 : 0.8);
+  const col = run ? '#ffcc22' : offColour(e, ally);
+  fsBrackets(bx[0], bx[1], bx[2], bx[3], col, 1.2, (run ? 1 : 0.8)*(st ? st.pulse : 1), st ? st.cc : null);
   ctx.restore();
 }
 

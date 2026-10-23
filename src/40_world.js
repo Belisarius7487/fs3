@@ -2450,6 +2450,8 @@ function runFlee(e, i){
     }
     return true;                    // no firing while jumping out
   }
+  // F89: where her clock started, so the corners can count it down
+  if(e.fleeT>0 && !(e.fleeT0>=e.fleeT)) e.fleeT0 = e.fleeT;
   if(e.fleeT>0){
     // With the jump drive gone the clock keeps running and buys nothing.
     if(!subOK(e,'navigation')) return false;
