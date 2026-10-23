@@ -2553,9 +2553,12 @@ gesamte Spiel."
   - Reparatur: Idee Phidias-Reparaturdrohnen, die der Transporter aussendet
     und die mit einem Strahl reparieren. Ob das Modell im MVPS-Paket ist,
     prüft Silvio. Eigener Baustein, offen.
-  - Boarding: Vorschlag „Lichter flackern und gehen aus, am Ende wechseln die
-    Klammern auf Grün" — „nicht verkehrt", geht aber nur mit Umbau der
-    bestehenden Boarding-Missionen (fünf Stellen). Offen.
+  - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
+    Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
+    Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des
+    Zielschiffs nacheinander auf Grün — jede Ecke ein Viertel; alle vier grün
+    = gekapert. Gehört ins Boarding selbst (M4, M8, M11 enden alle mit
+    `kapern`), kein Umbau der Missionen.
 - Noch offen: die Zielzeile oben links, Countdown/Flucht.
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
