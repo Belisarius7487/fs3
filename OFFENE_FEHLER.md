@@ -2646,6 +2646,8 @@ gesamte Spiel."
   Anzeige: die Gegner tragen ihre Klammern und stehen auf dem Radar.
 - Idee für später (Silvio): eine Trainingsmission, die dem Spieler alle
   diese Feinheiten zeigt.
+  **Zurückgestellt (Silvio, 23.10.2026):** „Die Trainingsmission kommt erst,
+  wenn der FS1, STR und FS2-Ark komplett sind."
 - **Flucht/Absprung:** Sprungwirbel vorab verworfen (widerspricht der
   FreeSpace-Mechanik). **Entschieden** (Silvio): wie beim Boarding — die vier
   Ecken der Klammern des fliehenden Schiffs werden nacheinander **grau**,
@@ -2722,8 +2724,9 @@ gesamte Spiel."
   Protokoll. Annahmen: ein neuer Auftrag, während der vorige noch offen ist,
   zählt den vorigen als erfüllt (M4: „Disable the Omega" → „Cover the
   Comet"); der Waffenwechsel wird nicht mehr angesagt (die Leiste zeigt
-  ihn). Offen: die Entfernung neben den Randpfeilen eines Ziels außerhalb
-  des Bildes steht noch da.
+  ihn). Die Entfernung neben den Randpfeilen eines Ziels außerhalb des
+  Bildes **bleibt** (Silvio, 23.10.2026: „Die Entfernungsangabe bei den
+  Randmarkierungen bleibt, da hatte ich den alten Chat falsch verstanden.").
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 
