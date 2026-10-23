@@ -190,6 +190,8 @@ function draw(){
   try{drawParts();}catch(ep){}
   try{ if(typeof drawFxAnims==='function') drawFxAnims(); }catch(ef){ ctx.restore(); }   // v216: FS explosions
   if(typeof hullFxView==='function') hullFxView(false);
+  // v275 (F89): the Phidias drones' repair beams, over the hull they work on
+  try{ if(typeof drawRepairBeams==='function') drawRepairBeams(); }catch(er){ ctx.restore(); }
   // Fadenkreuz an Mausposition (v208: on the screen, where the pointer is)
   camScreen();
   const mx=(MOUSE.scr?MOUSE.sx:w2sX(MOUSE.x))|0,my=(MOUSE.scr?MOUSE.sy:w2sY(MOUSE.y))|0;

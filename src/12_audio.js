@@ -14,6 +14,11 @@
 // one of them is picked at random each time.
 const SND_FILES = {
   beam_lucifer_charge: "@@FS3_SOUND:sounds/beam_lucifer_charge.mp3@@",
+  // v275 (F89): the Phidias repair beam, from Mike's Phidias (his OK given;
+  // the files come with the model ZIP, not from the repo)
+  repair_up: "@@FS3_SOUND:sounds/repair_up.mp3@@",
+  repair_loop: "@@FS3_SOUND:sounds/repair_loop.wav@@",
+  repair_down: "@@FS3_SOUND:sounds/repair_down.mp3@@",
   beam_lucifer_down: "@@FS3_SOUND:sounds/beam_lucifer_down.mp3@@",
   beam_lucifer_loop: "@@FS3_SOUND:sounds/beam_lucifer_loop.wav@@",
   beam_shivan_large_charge: "@@FS3_SOUND:sounds/beam_shivan_large_charge.mp3@@",
@@ -139,6 +144,7 @@ const SND_MIX = {
   lock_seek:0.40, lock_on:0.40,      // F84: FS1 sounds.tbl gives both 0.40
   warp_open:0.18, warp_in_big:0.36, warp_out_big:0.36,
   beam_charge:0.30, beam_loop:0.24, beam_down:0.26,
+  repair_up:0.30, repair_loop:0.22, repair_down:0.26,   // v275
   ai_fire:0.05, ai_sec:0.14,
   cap_fire:0.13, cap_heavy:0.22,     // F42 (v252): capital turrets, their own mix
   // v187: the FS2 sounds at the level of the ones they replace
@@ -170,7 +176,8 @@ const SND_GAP = {hit_player:0.15, hit_shield:0.15, sec_empty:0.35,
                  expl_secondary:0.15, expl_small:0.06, missile_explosion:0.08,
                  fs_hit:0.07, fs_boom:0.08,
                  ai_fire:0.09, ai_sec:0.25, warp_open:0.25, beam_charge:0.10,
-                 cap_fire:0.05, cap_heavy:0.03};
+                 cap_fire:0.05, cap_heavy:0.03,
+                 repair_up:0.4, repair_down:0.6};   // v275: ten drones, not ten sounds
 // Sounds that give way when the mix is busy.
 const SND_MINOR = {ai_fire:1, ai_sec:1, expl_secondary:1, warp_open:1, beam_down:1,
                    hit_shield:1, missile_explosion:1, fs_hit:1, fs_boom:1};

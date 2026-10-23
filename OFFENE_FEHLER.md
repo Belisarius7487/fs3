@@ -2477,7 +2477,12 @@ zerstört wird und die Elysium bereits im Feld ist, fliegt die Elysium dann im
 Schneckentempo an den rechten Bildrand und die Mission geht vermutlich erst
 weiter, wenn sie herausgewarpt ist."
 
-- Status: offen, noch nicht im Code nachgesehen.
+- Nachgelesen: „der Transporter" ist die Asmodeus 2 (F1). Ist sie weg,
+  verliert die Elysium ihr Andockziel. Eine verbündete Elysium sprang dann
+  nicht, sondern fuhr leer an den Rand (`leaveEmpty`), und die Mission
+  wartete auf sie. Die Omega in M3 hatte dafür schon `jumpIfEmpty` (F56).
+- Gebaut in v275: beide Elysium in M8 mit `jumpIfEmpty` — sie springen
+  sofort. Szenario „FS1 M8 F91" (schlägt gegen v274 fehl).
 
 ### F90 — Aspect-Lock zeigt auf die Rumpfmitte statt aufs Subsystem (v270)
 
@@ -2616,6 +2621,10 @@ gesamte Spiel."
     Gilt nur, falls die Originalgröße nicht kleiner als ein Jäger ist. Gemessen
     (phidias.pof): rund 16,5 m lang, so groß wie eine Ulysses (16 m). Also gilt
     die Drittel-Regel. **Silvio danach: 10 Meter, „sonst wirds evtl zu klein".**
+    - Gebaut in v275 (`64_repair.js`, Testmission 91). Einheit
+      `repair:'A1', repPct:N` am Transporter, Auslöser `repariert` und
+      `reparaturGescheitert`. Der Strahl kommt aus der Nase der Drohne.
+      Modell, Bilder und Klänge als ZIP für den Server.
   - Boarding: Lichter-Idee verworfen (Elysium und Isis haben keine sichtbaren
     Lichter). **Entschieden (Silvio: „Das ist genial"):** Solange der
     Transporter anliegt, wechseln die vier Ecken der roten Feindklammern des

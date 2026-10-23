@@ -16,6 +16,7 @@ loads from `models/<key>/`. Python 3 with Pillow (`pip install pillow`).
 | `mkthrusters.py` | Thruster points of all hulls → `thrusters.json`. |
 | `mkwarp.py` | The warp disc from MediaVP `Warp.pof` → JSON. |
 | `mkfxsheets.py` | MediaVP explosion/smoke/trail animations (`.dds` frames) → sprite sheets (v216). |
+| `mksprite.py` | A side-view sprite rendered from a POF, for a hull without a drawn one (v275, the Phidias). |
 
 ## Usage
 

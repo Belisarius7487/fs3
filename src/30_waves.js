@@ -608,6 +608,8 @@ function spawnProtected(sp){
   // v253: cargo riding on a freighter of ours from the start (tickRiders)
   if(sp.ride){ a.rideId = sp.ride; a.rideSlot = sp.slot || 0; }
   if(sp.still){ a.vy = 0; a.minY = a.y; a.maxY = a.y; }
+  // v275 (F89): a transport that sends Phidias drones to repair a ship.
+  if(sp.repair && typeof repairSetup === 'function') repairSetup(a, sp);
   // An installation does not jump out at the end of the wave; it stays
   // where it is until the screen goes dark (the buoys, M65).
   if(hullClass(a.img)==='in') a.stay = true;
@@ -1670,6 +1672,8 @@ function applySpawnOpts(e, sp){
   if(sp.runner) e.runner = true;
   // A ship that has lost its drive and is only there to be defended.
   if(sp.still){ e.vx = 0; e.vy = 0; e.still = true; }
+  // v275 (F89): a transport that sends Phidias drones to repair a ship.
+  if(sp.repair && typeof repairSetup === 'function') repairSetup(e, sp);
   // hull: a lighter or heavier build of the hull, bar and all (the comm
   // nodes in 78, v177) - unlike hp below, which is damage.
   if(sp.hullMul){
@@ -2386,6 +2390,26 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'H1+H2+H3+H4', w:'zielverfehlt', a2:'The pods are lost'},
        {t:'vernichtet', a:'H1+H2+H3+H4', w:'abzug', a2:''}
      ]},
+  // v275 (F89): test mission for the Phidias repair drones (&m=91). A
+  // damaged Leviathan, a transport that sends ten drones to patch her up,
+  // and a Shivan wing that goes for them. Not part of any campaign.
+  91:{name:'Test: Repair Drones', fac:'shivan', o:'clear', live:6,
+      ziel:'Cover the repair of the Leviathan', u:[
+       {id:'A1', c:'cr', n:1, spr:'crleviathan', side:'ally', x:470, y:250, still:true, hurt:0.35,
+        guard:true, label:'GTC Leviathan'},
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:150, y:420, warpIn:true, still:true, t:2,
+        repair:'A1', repPct:2.5, label:'GTT Elysium'},
+       {id:'E1', c:'fi', n:1, size:3, t:14}
+     ], ev:[
+       {t:'repariert', a:'A1', w:'zielerfuellt', a2:'The Leviathan is repaired'},
+       {t:'reparaturGescheitert', a:'T1', w:'zielverfehlt', a2:'All drones lost'},
+       {t:'vernichtet', a:'A1', w:'zielverfehlt', a2:'The Leviathan is lost'},
+       {t:'vernichtet', a:'A1', w:'abzug', a2:''},
+       {t:'vernichtet', a:'T1', w:'zielverfehlt', a2:'The Elysium is lost'},
+       // a few seconds for her drones to make for the edge
+       {t:'vernichtet', a:'T1', d:6, w:'abzug', a2:'', hold:true},
+       {t:'verlaesst', a:'T1', w:'abzug', a2:'', hold:true}
+     ]},
   // ── FS1 STRAND (v240) ──────────────────────────────────────
   // The FS1 campaign, as drafted with Silvio (FS1_MISSIONEN.md). era: the
   // strand, orig: the number of the original in the FS1 campaign - the
@@ -2715,10 +2739,12 @@ const SCRIPT_WAVES = {
        {id:'K5', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F3', slot:0, scan:true},
        {id:'K6', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F3', slot:1, scan:true},
        {id:'E1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', t:3},
+       // F91 (v275): with the Asmodeus gone the Elysium jumps at once (jumpIfEmpty),
+       // instead of a slow drive to the edge that held the mission open.
        {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:360, y:265, warpIn:true,
-        dockTo:'F1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium 1'},
+        dockTo:'F1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium 1', jumpIfEmpty:true},
        {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:360, y:265, warpIn:true,
-        dockTo:'F1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium 2'},
+        dockTo:'F1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium 2', jumpIfEmpty:true},
        {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'S2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'S3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
@@ -4588,6 +4614,8 @@ const CAT_FAC = {fi:1, bo:1, cr:1, co:1, de:1, in:1};
 // da, und ist es jetzt weg. Ohne das Erste feuert jeder Ausloeser
 // sofort, weil zu Wellenbeginn nichts existiert.
 let EV = [], EV_HELD = {}, EV_SEEN = {}, EV_LEFT = {}, EV_DOCK = {}, EV_EMPTY = {};
+// v275 (F89): repaired by Phidias drones (ship id) / the repair given up (transport id)
+let EV_REPAIRED = {}, EV_REPFAIL = {};
 // EV_TAKEN: captured ('kapern'). EV_FLED: jumped out on a deadline.
 // Neither is a kill, and 'vernichtet' asks for a kill.
 let EV_TAKEN = {}, EV_FLED = {};
@@ -4623,6 +4651,7 @@ const EV_REINF_GAP_MIN = 240;
 
 function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_EMPTY = {}; EV_POS = {};
+  EV_REPAIRED = {}; EV_REPFAIL = {};
   EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; PREY_ON = false;
   missionTimer = {end:0, label:''}; missedJumps = 0;
   evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP; evReinfFac = '';
@@ -4670,6 +4699,10 @@ function evTrig(ev){
     case 'angedockt':    return !!EV_DOCK[ev.a];
     // F56 (v256): her dock target was gone and she left without it.
     case 'leer':         return !!EV_EMPTY[ev.a];
+    // v275 (F89): the drones have brought her hull back to full (ship id),
+    // or all ten were lost first and the transport jumps (transport id).
+    case 'repariert':    return evIds(ev.a).every(function(id){ return !!EV_REPAIRED[id]; });
+    case 'reparaturGescheitert': return !!EV_REPFAIL[ev.a];
     // v253: taken by us (kapern), every id with '+'.
     case 'genommen':     return evIds(ev.a).every(function(id){ return !!EV_TAKEN[id]; });
     // v249: somebody has fired on her and hit (the Rasputin, FS1 M4).
@@ -5228,7 +5261,8 @@ function scriptUnit(u, fac, q){
            fac:allyRace(), noWarp:1, warpIn:u.warpIn,
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
            dockLabel:u.dockLabel, dockBelly:u.dockBelly, jumpIfEmpty:u.jumpIfEmpty, dockStay:u.dockStay, dockBeside:u.dockBeside,
-           pickup:u.pickup?1:0, ride:u.ride, slot:u.slot, land:u.land, bay:u.bay});
+           pickup:u.pickup?1:0, ride:u.ride, slot:u.slot, land:u.land, bay:u.bay,
+           repair:u.repair, repPct:u.repPct});   // v275 (F89): Phidias drones
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast')?1:0,   // v253: u.fac, Shivan cargo in an HoL mission
            x:xx, y:yy, scan:u.scan?1:0, escape:u.escape, scanFirst:u.scanFirst,
@@ -5236,6 +5270,7 @@ function scriptUnit(u, fac, q){
            invuln:u.invuln, dockTo:u.dockTo, dockHold:u.dockHold, dockLabel:u.dockLabel,
            scenery:(fix==='ast')?1:0, spread:(fix==='ast')?u.spread:undefined, pickup:u.pickup?1:0,
            capture:u.capture, noFlee:u.noFlee, subs:u.subs, escHit:u.escHit,
+           repair:u.repair, repPct:u.repPct,   // v275 (F89): Phidias drones
            ride:u.ride, slot:u.slot, shock:u.shock, subsDown:u.subsDown, spare:u.spare});
   }
 }

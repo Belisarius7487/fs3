@@ -6,7 +6,13 @@ M = os.path.join(os.environ.get('FS3_MVPS', '/mnt/user-data/uploads/MVPS-473'), 
 OUT = sys.argv[1] if len(sys.argv) > 1 else '../models'
 maps = {}
 for f in glob.glob(M + '*/data/maps/*'):
+    if os.path.isdir(f): continue    # v275: a subfolder is not a map
     b = os.path.basename(f); n = b.rsplit('.', 1)[0].lower(); maps[n] = f
+# v275: maps kept in a subfolder (bp/data/maps/phidias) - only where the
+# flat MediaVP maps do not already have that name.
+for f in glob.glob(M + '*/data/maps/*/*'):
+    b = os.path.basename(f); n = b.rsplit('.', 1)[0].lower()
+    if n not in maps: maps[n] = f
 HULLS = {
  'fitoth': ('MV_Assets_V', 'Thoth'), 'fihorus': ('MV_Assets_V', 'Horus'), 'boosiris': ('MV_Assets_V', 'Osiris'),
  'fiserapis': ('MV_Assets_V', 'Serapis'), 'fiseth': ('MV_Assets_V', 'Seth'), 'bobakha': ('MV_Assets_V', 'Fighter2V-03'),
@@ -76,6 +82,12 @@ HULLS.update({
  'inpolarispylon': ('mv_fsport_47x', 'dock02-terran'),
  'incheops': ('mv_fsport_47x', 'cheops'),
  'inastbase': ('MV_Assets_T_2', 'Base2R-01')})
+# v275: the Phidias repair drone (F89), key 'su' (support class). Not from the Blue Planet team and
+# not in the MediaVPs - its maker (Mike) gave his OK. It lives in Silvio's
+# Blue Planet dev data: point FS3_MVPS at the folder that holds 'bp'
+# (bp/data/models/phidias.pof, maps in bp/data/maps/phidias). Like every
+# model it goes to the server as a ZIP, never into the repo.
+HULLS.update({'suphidias': ('bp', 'phidias')})
 SMALL_NEW = ['boamun', 'boartemisdh', 'boboanerges', 'bonahema', 'bonephilim', 'boseraphim', 'boshaitan', 'botaurvi', 'bozeus',
  'ephermes', 'epra', 'fcmeson', 'fcsac3', 'fcsc5', 'fctac1', 'fctc2', 'fctctri', 'fctsc2', 'fcttc1', 'fcvac4', 'fcvac5', 'fcvc3',
  'fiaeshma', 'fianubis', 'fiastaroth', 'fibasilisk', 'fidragon', 'filoki', 'fimanticore', 'fiscorpion',

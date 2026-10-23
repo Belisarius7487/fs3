@@ -226,6 +226,25 @@ Scan-Auslöser für alle drei gilt. Das ist Absicht, kein Fehler.
   ihre Schiffe, `slices[i].ships`). Länge des Austritts: `BEAM_EXIT_LEN`.
   Für 3D-Beams kein flaches Trefferfeuer mehr in `beamImpactAt`.
 
+### Seit v275 (F89, Phidias-Reparaturdrohnen)
+
+- Einheit `repair:'A1', repPct:N` an einem Transporter (`c:'tr'`, eigene
+  oder feindliche Seite): er schickt nacheinander zehn Phidias-Drohnen
+  (`suphidias`, `64_repair.js`) aus, die den Rumpf von A1 reparieren. `repPct`
+  = Prozent ihres Rumpfs je Sekunde, wenn alle zehn arbeiten. Nur der Rumpf,
+  keine Subsysteme. Die Drohnen fliegen wie Jäger (`flyDrone`), arbeiten die
+  Schadenszeichnungen ab (`repPickSpot`; eine Zeichnung verblasst über
+  `fix`) und fliegen bei vollem Rumpf zurück; dann springt der Transporter.
+- Auslöser `repariert` (Schiffskennung) und `reparaturGescheitert`
+  (Transporterkennung: alle zehn abgeschossen, der Transporter springt).
+  Der Transporter verloren: die Drohnen fliehen an den näheren Rand.
+- Risse schließen sich seitdem nicht mehr schlagartig, sondern verblassen
+  (`g.fix`, `dmgTick`).
+- Testmission 91 (`&m=91`). Modell, Strahlbilder (`models/suphidias/
+  repair_*.webp`), Sprite `sprites/te-su-phidias.png` (gerendert mit
+  `tools/pof/mksprite.py`) und Klänge `sounds/repair_*.{mp3,wav}` kommen als
+  ZIP auf den Server, nicht ins Repo (Mikes Arbeit, sein OK liegt vor).
+
 ### Seit v268 (F89)
 
 - Einheit `land:'GA'` an einer Rettungskapsel (`c:'ep'`, `side:'ally'`):

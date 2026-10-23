@@ -37,6 +37,8 @@ const F3D_SMALL = ['boamun', 'boartemisdh', 'boboanerges', 'bonahema', 'bonephil
   'ephermes', 'epra', 'fcmeson', 'fcsac3', 'fcsc5', 'fctac1', 'fctc2', 'fctctri', 'fctsc2', 'fcttc1', 'fcvac4', 'fcvac5', 'fcvc3',
   'fiaeshma', 'fianubis', 'fiastaroth', 'fibasilisk', 'fidragon', 'filoki', 'fimanticore', 'fiscorpion',
   'sgalastor', 'sgankh', 'sgbelial', 'sgcerberus', 'sgtrident', 'sgwatchdog', 'sucentaur', 'suhygeia', 'sunephthys', 'suscarab',
+  // v275 (F89): the Phidias repair drone (Mike's model, his OK given)
+  'suphidias',
   // the player's hulls (flown by the AI as well)
   'fitoth', 'fihorus', 'boosiris', 'fiserapis', 'fiseth', 'bobakha', 'fitauret', 'bosekhmet', 'fiptah', 'fimyrmidon',
   'fiperseus', 'fiherc', 'boartemis', 'fihercmk2', 'bomedusa', 'fierinyes', 'boursa', 'fiares', 'fipegasus', 'fiulysses',

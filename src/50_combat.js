@@ -1147,7 +1147,7 @@ function smallTarget(e){
 // in, which keeps the runs coming from a sensible direction.
 function assignAttackRoles(list){
   const smalls=[];
-  for(const e of (list||enemies)) if(isSmallEnemy(e)) smalls.push(e);
+  for(const e of (list||enemies)) if(isSmallEnemy(e) && !e.drone) smalls.push(e);   // v275: drones do not attack
   let n=0;
   for(const e of smalls) if(e.role==='attack') n++;
   if(n>=ATTACK_QUOTA) return;

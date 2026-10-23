@@ -120,6 +120,7 @@ Datei mit einem Skriptblock, wie alles flussabwärts sie erwartet.
 | `61_glow.js` | 232 | Leuchten |
 | `62_perf.js` | 66 | Leistungsmessung |
 | `63_fxanim.js` | 222 | Effektbilder (FreeSpace-Animationen, base64) |
+| `64_repair.js` | 309 | Phidias-Reparaturdrohnen (v275) |
 | `70_ui.js` | 4450 | `draw()`, Leiste, alle Fenster, Titel, Waffentabellen |
 | `71_radar_icons.js` | 30 | Radarsymbole |
 | `72_target.js` | 439 | Zielerfassung, Zielkasten |

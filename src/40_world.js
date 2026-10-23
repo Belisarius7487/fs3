@@ -27,9 +27,11 @@
 // longest side), incheops 2055, inastbase 1568. The NTF Boadicea of
 // FS2 SM1-02 is the same model as the Terran asteroid base and uses
 // inastbase - she has no key of her own.
-const HULL_LEN = {boamun:30,boartemis:36,boartemisdh:36,boathena:20,bobakha:18,boboanerges:34,bomedusa:36,bonahema:37.4,bonephilim:53,boosiris:40,bosekhmet:23,boseraphim:57.9,boshaitan:28,botaurvi:30,boursa:41,bozeus:20,cacharybdis:181,casetekh:190,codeimos:717,coiceni:998,comoloch:724,cosobek:608,craeolus:272,craten:230,crcain:190,crfenris:253,crleviathan:253,crlilith:190,crmentu:322,crrakshasa:349,dedemon:2139,dehatshepsut:2126,dehecate:2174,deorionleft:2030,deorionright:2030,deravana:2346,detyphon:2153,ephermes:14,epra:23,fcmeson:372,fcsac3:243,fcsc5:20,fctac1:58,fctc2:35,fctctri:249,fctsc2:35,fcttc1:26,fcvac4:25,fcvac5:53,fcvc3:12,fiaeshma:30,fianubis:23,fiapollo:21,fiares:20,fiastaroth:21,fibasilisk:21.5,fidragon:12.6,fierinyes:17,fiherc:20,fihercmk2:17,fihorus:26,filoki:20,fimanticore:15.5,fimara:17.8,fimyrmidon:16,fipegasus:19,fiperseus:17,fiptah:17,fiscorpion:17.3,fiserapis:14,fiseth:20,fitauret:17.5,fitoth:17,fiulysses:16,fivalyrie:21,frasmodeus:123,frbast:38,frbes:56,frchronos:164,frdis:317,frmaat:56,frmephisto:54,frposeidon:67,frsatis:107,frtriton:313,gmanuket:347,gmrahu:211,gmzephyrus:240,inarcadia:3792,incommnode:748,inknossos45deg:4732,inknossosfront:4732,inpharos:40,fiangel:21,scimhotep:201,inkarnak:5296,inpolaris:1000,inpolarispylon:1000,incheops:2055,inastbase:1568,mehippocrates:420,ntfcodeimos:717,ntfcraeolus:272,ntfcrfenris:253,ntfcrleviathan:253,ntfdehecate:2174,ntfdeorion:2030,scfaustus:162,sdcolossus:6166,sdhades:3404,sdlucifer:2777,sdsathanas:5978,sgalastor:13,sgankh:10,sgbelial:22,sgcerberus:9,sgmjolnir:108,sgtrident:11,sgwatchdog:9,sucentaur:26,suhygeia:32,sunephthys:34,suscarab:27,trargo:171,trazrael:46,trelysium:32,trisis:27};
+const HULL_LEN = {boamun:30,boartemis:36,boartemisdh:36,boathena:20,bobakha:18,boboanerges:34,bomedusa:36,bonahema:37.4,bonephilim:53,boosiris:40,bosekhmet:23,boseraphim:57.9,boshaitan:28,botaurvi:30,boursa:41,bozeus:20,cacharybdis:181,casetekh:190,codeimos:717,coiceni:998,comoloch:724,cosobek:608,craeolus:272,craten:230,crcain:190,crfenris:253,crleviathan:253,crlilith:190,crmentu:322,crrakshasa:349,dedemon:2139,dehatshepsut:2126,dehecate:2174,deorionleft:2030,deorionright:2030,deravana:2346,detyphon:2153,ephermes:14,epra:23,fcmeson:372,fcsac3:243,fcsc5:20,fctac1:58,fctc2:35,fctctri:249,fctsc2:35,fcttc1:26,fcvac4:25,fcvac5:53,fcvc3:12,fiaeshma:30,fianubis:23,fiapollo:21,fiares:20,fiastaroth:21,fibasilisk:21.5,fidragon:12.6,fierinyes:17,fiherc:20,fihercmk2:17,fihorus:26,filoki:20,fimanticore:15.5,fimara:17.8,fimyrmidon:16,fipegasus:19,fiperseus:17,fiptah:17,fiscorpion:17.3,fiserapis:14,fiseth:20,fitauret:17.5,fitoth:17,fiulysses:16,fivalyrie:21,frasmodeus:123,frbast:38,frbes:56,frchronos:164,frdis:317,frmaat:56,frmephisto:54,frposeidon:67,frsatis:107,frtriton:313,gmanuket:347,gmrahu:211,gmzephyrus:240,inarcadia:3792,incommnode:748,inknossos45deg:4732,inknossosfront:4732,inpharos:40,fiangel:21,scimhotep:201,inkarnak:5296,inpolaris:1000,inpolarispylon:1000,incheops:2055,inastbase:1568,mehippocrates:420,ntfcodeimos:717,ntfcraeolus:272,ntfcrfenris:253,ntfcrleviathan:253,ntfdehecate:2174,ntfdeorion:2030,scfaustus:162,sdcolossus:6166,sdhades:3404,sdlucifer:2777,sdsathanas:5978,sgalastor:13,sgankh:10,sgbelial:22,sgcerberus:9,sgmjolnir:108,sgtrident:11,sgwatchdog:9,sucentaur:26,suhygeia:32,sunephthys:34,suscarab:27,suphidias:10,trargo:171,trazrael:46,trelysium:32,trisis:27};
 // Diese drei Wiki-Seiten fuehren keine Laenge, die Werte sind geschaetzt.
 const HULL_LEN_EST = ['gmzephyrus','inpharos','mehippocrates'];
+// v275 (F89): suphidias, the Phidias repair drone, is 16.5 m in her model but
+// drawn at 10 m (Silvio: no larger than a fighter, "mach 10 Meter").
 
 const SIZE_K = 2.880, SIZE_E = 0.641, SIZE_MAX = 400;
 // Kreuzer eine Stufe groesser. Bei 100 Bildpunkten Breite trug die
@@ -1918,7 +1920,7 @@ let capBomberLeft = CAP_BOMBER_WAVES;
 let capBomberCd = 0;
 
 function countAllySmall(){
-  let n=0; for(const a of allies) if(a.small && !a.dead) n++; return n;
+  let n=0; for(const a of allies) if(a.small && !a.dead && !a.drone) n++; return n;   // v275: repair drones are not a wing
 }
 function countEnemyBombers(){
   let n=0; for(const e of enemies) if(e.type==='bomber' && !e.dead) n++; return n;
@@ -2299,6 +2301,8 @@ function updateAllies(){
 
     // F89 (v268): an escape pod on its way into a hangar flies itself.
     if(a.landOn){ if(podFly(a)) allies.splice(i,1); continue; }
+    // v275 (F89): a repair drone flies its own job (64_repair.js).
+    if(a.drone){ if(droneTick(a)) allies.splice(i,1); continue; }
     if(a.small){
       // Same flight model as the enemy small craft.
       const tg = flySmall(a);

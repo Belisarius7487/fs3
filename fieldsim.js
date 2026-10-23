@@ -3470,8 +3470,11 @@ scenario('v180: lasting damage on a capital ship', 'm=62', `
   if(en){ en.hp = 0; en.dead = true; dmgCrater(k, en); }
   r.flamesOut = !en || dmgThrust(k, {dx:-0.9, dy:0}, 0) <= 0.45;
   r.crater = !en || D.craters.length === 1;
-  // Patched up, the breach closes again.
+  // Patched up, the breach closes again. v275 (F89, Silvio: a repaired
+  // mark fades instead of vanishing): it fades out over about a second.
   k.hp = k.maxHp*0.9; draw();
+  r.repairFades = D.gashes.length > 0 && D.gashes.some(g=>g.fix > 0);
+  for(let i=0;i<2*TICK_HZ;i++) draw();
   r.repairCloses = D.gashes.length === 0;
   r.scorchStays = D.scorch.length >= 5;
   return r;`);
@@ -4512,6 +4515,108 @@ scenario('FS1 M3 F56: container shot as the Omega docks - quick end', 'm=3', `
   r.countsAsEmpty = FS.until(()=>!!EV_EMPTY['T1'], 500, false) >= 0;
   const t = FS.until(()=>wave>3, 1500, false);
   r.endsWithin15s = t>=0;
+  return r;`);
+
+// ── v275 (F89): the Phidias repair drones, test mission 91 ─────────────
+scenario('Repair drones: ten go out, the hull comes back, marks fade, home and jump', 'm=91', `
+  const r = {};
+  const drones = () => allies.filter(a=>a.drone);
+  FS.until(()=>byId('T1').some(a=>!(a.warp>0)), 2000, true);
+  const S = byId('A1')[0], T = byId('T1')[0];
+  // a gun of hers shot out: the drones leave it as it is (hull only)
+  const gun = S && (S.subs||[]).find(x=>x.id==='weapons') || (S.subs||[])[0];
+  if(gun){ gun.dead = true; gun.hp = 0; }
+  const hp0 = S ? S.hp/S.maxHp : 1;
+  r.startsHurt = hp0 < 0.5;
+  let most = 0, beaming = 0, lostOne = false, jumps = 0, maxTurn = 0, marks0 = -1;
+  const last = new Map();
+  for(let k=0;k<12000 && !EV_REPAIRED['A1'];k++){
+    if(k%200===0) FS.killSmall();
+    if(S.dm && marks0 < 0 && S.dm.scorch.length) marks0 = S.dm.scorch.length;
+    const d = drones(); most = Math.max(most, d.length);
+    beaming = Math.max(beaming, d.filter(x=>x.beamOn).length);
+    for(const x of d){
+      if(last.has(x)){ let dh = x.head - last.get(x); while(dh>Math.PI) dh-=2*Math.PI; while(dh<-Math.PI) dh+=2*Math.PI; maxTurn = Math.max(maxTurn, Math.abs(dh)); }
+      last.set(x, x.head);
+    }
+    FS.step(1);
+  }
+  r.tenDrones = most === 10;
+  r.someBeam = beaming >= 3;
+  r.turnLikeAFighter = maxTurn <= EFIGHTER_TURN*1.01;
+  const one = [...last.keys()][0];
+  r.tenMetres = !!one && Math.abs(one.sc*Math.max(IMGS[one.img].width, IMGS[one.img].height) - hullWidth('suphidias')) < 0.5;
+  r.repaired = !!EV_REPAIRED['A1'] && S.hp >= S.maxHp;
+  r.marksWere = marks0;
+  FS.step(150);
+  r.marksGone = !!S.dm && S.dm.scorch.length === 0;
+  r.gunStillDead = !gun || gun.dead === true;
+  r.dronesBackAboard = FS.until(()=>drones().length===0, 3000, true) >= 0;
+  r.noDroneLost = !lostOne;
+  r.transportJumps = FS.until(()=>!byId('T1').length || T.warpOut>0, 300, true) >= 0;
+  r.missionEnds = FS.until(()=>wave>91 || waveOver, 3000, true) >= 0;
+  return r;`);
+
+scenario('Repair drones: the transport lost - the drones flee to the nearer edge', 'm=91', `
+  const r = {};
+  const drones = () => allies.filter(a=>a.drone);
+  FS.until(()=>byId('T1').some(a=>!(a.warp>0)), 2000, true);
+  FS.until(()=>drones().length>=6, 2000, true);
+  const d0 = drones().slice();
+  const side = new Map(d0.map(x=>[x, x.x < (WX0+WX1)/2 ? -1 : 1]));
+  const x0 = new Map(d0.map(x=>[x, x.x]));
+  for(const a of allies) if(a.uid==='T1') a.hp = 0;
+  FS.step(10);
+  r.allFlee = drones().length>0 && drones().every(x=>x.mode==='flee' && !x.beamOn);
+  r.nearerEdge = d0.every(x=>(x.fleeX < (WX0+WX1)/2 ? -1 : 1) === side.get(x));
+  FS.step(150);
+  r.headForIt = d0.every(x=>!allies.includes(x) || (x.x - x0.get(x))*side.get(x) > 20);
+  r.gone = FS.until(()=>drones().length===0, 4000, false) >= 0;
+  r.leftNotKilled = d0.every(x=>x.hp>0);
+  return r;`);
+
+scenario('Repair drones: half of them shot - the rest work on to a full hull', 'm=91', `
+  const r = {};
+  const drones = () => allies.filter(a=>a.drone);
+  FS.until(()=>byId('T1').some(a=>!(a.warp>0)), 2000, true);
+  FS.until(()=>byId('T1')[0].rep.n>=10 && drones().length===10, 3000, true);
+  drones().slice(0,5).forEach(x=>{ x.hp = 0; });
+  FS.step(5);
+  r.fiveLeft = drones().length === 5;
+  r.noNewOnes = byId('T1')[0].rep.n === 10;
+  r.repaired = FS.until(()=>!!EV_REPAIRED['A1'], 20000, true) >= 0;
+  r.notFailed = !EV_REPFAIL['T1'];
+  return r;`);
+
+scenario('Repair drones: all ten shot down - the transport jumps, the repair failed', 'm=91', `
+  const r = {};
+  FS.until(()=>byId('T1').some(a=>!(a.warp>0)), 2000, true);
+  const S = byId('A1')[0], T = byId('T1')[0];
+  // every drone shot as soon as it is out
+  for(let k=0;k<3000 && !EV_REPFAIL['T1'];k++){
+    for(const a of allies) if(a.drone && a.mode==='beam') a.hp = 0;
+    if(k%200===0) FS.killSmall();
+    FS.step(1);
+  }
+  r.failed = !!EV_REPFAIL['T1'];
+  r.notRepaired = !EV_REPAIRED['A1'] && S.hp < S.maxHp;
+  r.transportJumps = T.warpOut > 0 || !byId('T1').length;
+  r.missionEnds = FS.until(()=>wave>91 || waveOver, 3000, true) >= 0;
+  return r;`);
+
+// F91 (v275): the Asmodeus destroyed while the Elysium is already in the
+// field - she must jump out at once, not crawl to the right edge.
+scenario('FS1 M8 F91: Asmodeus lost with the Elysium in the field - quick end', 'm=8', `
+  const r = {};
+  FS.step(300);
+  const f = byId('F1')[0];
+  if(f) for(const s of (f.subs||[])) if(s.id==='engines'||s.id==='weapons'){ s.dead = true; s.hp = 0; }
+  FS.until(()=>byId('T1').some(a=>!(a.warp>0)), 6000, true);
+  r.elysiumIn = byId('T1').length>0;
+  FS.step(100);
+  for(const e of enemies) if(e.uid==='F1') e.hp = 0;
+  r.elysiumJumps = FS.until(()=>byId('T1').every(a=>a.warpOut>0), 300, false) >= 0;
+  r.endsWithin20s = FS.until(()=>wave>8, 1200, false) >= 0;
   return r;`);
 
 scenario('FS1 M3: the McCarthy lost ends the mission', 'm=3', `

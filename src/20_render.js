@@ -1754,7 +1754,11 @@ function dmgTick(e, D){
       } else { D.nGash = k; }
       break;
     }
-    if(g && f > g.thr + 0.08){ D.gashes.splice(k); D.dirty = true; break; }   // patched up
+    // patched up. v275 (F89): it fades out instead of vanishing at once
+    if(g && f > g.thr + 0.08){
+      g.fix = Math.min(1, (g.fix||0) + 1/TICK_HZ); D.dirty = true;
+      if(g.fix >= 1){ D.gashes.splice(k); break; }
+    }
   }
   // secondary explosions: small, somewhere on her, more often as she weakens
   if(f < DMG_BLAST_BELOW && !D.quiet && !(e.warp > 0) && !(e.warpOut > 0)){
@@ -1834,7 +1838,8 @@ function dmgBuild(e, D){
   // scoring: a streak of small splashes along the line the shot came in
   for(const s of D.scorch){
     // a hit marks a few metres of plating, whatever the ship's size
-    const gt = Math.min(1, (fc - s.t0)/DMG_GROW), r = Math.min(s.r*h, DMG_MARK_MAX);
+    // v275 (F89): fix - how far a repair drone's beam has faded it (0..1)
+    const gt = Math.min(1, (fc - s.t0)/DMG_GROW)*(1 - (s.fix||0)), r = Math.min(s.r*h, DMG_MARK_MAX);
     const cx = (s.u*0.5+0.5)*w, cy = (s.v*0.5+0.5)*h;
     g.save(); g.translate(cx, cy); g.rotate(s.rot);
     for(let j=0;j<4;j++){
@@ -1852,6 +1857,10 @@ function dmgBuild(e, D){
   const unit = Math.max(0.35, 1/k);              // about one screen pixel
   // tears
   for(const gs of D.gashes){
+    // v275 (F89): faded by a repair beam or as the hull comes back
+    const ga = gs.fixed ? 0 : 1 - (gs.fix||0);
+    if(ga <= 0) continue;
+    g.globalAlpha = ga;
     const cx = (gs.u*0.5+0.5)*w, cy = (gs.v*0.5+0.5)*h, L = gs.L*h, Wd = gs.Wd*h;
     // soot round it, stretched along it
     g.save(); g.translate(cx, cy); g.rotate(gs.rot); g.scale(1, (Wd*2.6)/(L*0.8));
@@ -1887,6 +1896,7 @@ function dmgBuild(e, D){
     gs.sh.bot.forEach(function(p, i){ const q = P(p, gs.sh.mid[i]); if(i) g.lineTo(q.x, q.y+unit*0.6); else g.moveTo(q.x, q.y+unit*0.6); });
     g.stroke();
   }
+  g.globalAlpha = 1;
   // craters: a charred pit
   for(const c of D.craters){
     const gt = Math.min(1, (fc - c.t0)/DMG_GROW);

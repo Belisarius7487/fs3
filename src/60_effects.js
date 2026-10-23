@@ -885,6 +885,7 @@ function update(){
   if(typeof tickCapBursts==='function') tickCapBursts();   // F36: triple rounds
   tickDefectors();
   tickDocking();
+  if(typeof repairTick==='function') repairTick();   // v275 (F89): Phidias drones
   tickCapRam();
   tickDeathRoll();
   tickEscapers();
@@ -1482,6 +1483,8 @@ function update(){
       if(e.empT>0) e.empT--;
       if(e.shDelay>0) e.shDelay--;
       else if(e.maxSh && e.sh<e.maxSh) e.sh=Math.min(e.maxSh,e.sh+e.shRe);
+      // v275 (F89): a repair drone flies its own job (64_repair.js).
+      if(e.drone){ if(droneTick(e)) enemies.splice(i,1); continue; }
       const tgt=flySmall(e);
       // While the cover holds nobody out here is a target for them (M78).
       if(!coverHolds()){
