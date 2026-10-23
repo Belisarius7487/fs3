@@ -2628,6 +2628,13 @@ gesamte Spiel."
      LEFT BEHIND, TARGET ESCAPED, NO CARGO. Punkte („+1 …", „+N RETURNED"):
      der Stand steht im Punkte-Kasten der Leiste.
 - **Alle Punkte entschieden (23.10.2026).** Nächster Schritt: bauen.
+- **Breite des Zielbereichs (Silvio, 23.10.2026, beim Bau von Schritt 1):**
+  Die zwei Knöpfe brauchen neben SUPPORT so viel Platz, wie sie rechts frei
+  machen; der Zielbereich wurde dadurch nicht breiter. Entschieden (B): die
+  Waffennamen in PRIMARY und SECONDARY eine Spur kleiner, beide Felder etwas
+  schmaler, kein Name wird gekürzt; die gewonnene Breite geht an den
+  Zielbereich. Abgelehnt (A): je 25 Punkte schmaler, weil dann z. B.
+  Prometheus R und S gleich aussehen („PROME…").
 
 ### F87 — Mission 17: Stationstrümmer aus dem Karnak-Modell (v264) — gebaut in v265
 

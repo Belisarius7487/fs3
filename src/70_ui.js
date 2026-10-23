@@ -1779,22 +1779,24 @@ function drawHUDHLP(){
     var pw=priDefP(pb[pi].key), poor=player.en<pw.en;
     ctx.fillStyle=on?TH('accent'):TH('textDim'); ctx.font=thLabel(7);
     ctx.fillText(String(pi+1), x, py);
-    ctx.fillStyle=on?(poor?'#ff5a44':TH('textBright')):TH('textDim'); ctx.font=thValue(9, on);
-    ctx.fillText(thFit(weaponName(pw).toUpperCase(), 74), x+9, py);
+    ctx.fillStyle=on?(poor?'#ff5a44':TH('textBright')):TH('textDim'); ctx.font=thValue(8, on);
+    // F89 (Silvio, 23.10.2026): names a size smaller and the panel narrower,
+    // so the target view grows; the longest name still fits whole
+    ctx.fillText(thFit(weaponName(pw).toUpperCase(), 64), x+9, py);
     var g=(pb.length>=2 && nM>=2) ? Math.ceil((nM-pi)/2) : Math.max(1, nM);
     ctx.fillStyle=TH('textDim'); ctx.font=thValue(8, false); ctx.textAlign='right';
-    ctx.fillText(g+'×', x+96, py); ctx.textAlign='left';
+    ctx.fillText(g+'×', x+86, py); ctx.textAlign='left';
   }
   if(fire.length>1){
     ctx.strokeStyle=TH('accent'); ctx.lineWidth=1.2;
     var y0=14+prow*0.5-4, y1=14+prow*(pb.length-0.5)+4;
-    ctx.beginPath(); ctx.moveTo(x+101,y0); ctx.lineTo(x+104,y0); ctx.lineTo(x+104,y1); ctx.lineTo(x+101,y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+91,y0); ctx.lineTo(x+94,y0); ctx.lineTo(x+94,y1); ctx.lineTo(x+91,y1); ctx.stroke();
     ctx.fillStyle=TH('accent'); ctx.font=thLabel(6);
-    ctx.save(); ctx.translate(x+110,(y0+y1)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('LINK',0,0); ctx.restore();
+    ctx.save(); ctx.translate(x+100,(y0+y1)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('LINK',0,0); ctx.restore();
   }
-  window._priRect=(pb.length>=2)?{x:px0-3, y:3, w:116, h:H2-6}:null;
-  if(window._priRect && hovering(px0-3, 3, 116, H2-6)) thGlowPath(px0-3, 3, 114, H2-6, 4, 0.35);
-  x+=116; thDivider(x, 4, H2-4); x+=6;
+  window._priRect=(pb.length>=2)?{x:px0-3, y:3, w:106, h:H2-6}:null;
+  if(window._priRect && hovering(px0-3, 3, 106, H2-6)) thGlowPath(px0-3, 3, 104, H2-6, 4, 0.35);
+  x+=106; thDivider(x, 4, H2-4); x+=6;
 
   // 5  SECONDARY: one row per bank with its own rack, the chosen one lit.
   // A tap on another row chooses it, on the chosen one it fires (touch).
@@ -1803,7 +1805,7 @@ function drawHUDHLP(){
   window._secRows=[]; window._secBtnRect=null;
   for(var si=0;si<sb.length;si++){
     var sy=14+si*srow+srow/2, son=(si===player.sSel), sw=secDefP(sb[si].key);
-    var rr={x:x-2, y:sy-srow/2+1, w:102, h:srow-2, i:si};
+    var rr={x:x-2, y:sy-srow/2+1, w:94, h:srow-2, i:si};
     if(son){
       // The theme's own glow, not a fixed orange (it read red on Void).
       ctx.fillStyle='rgba('+TH('glow')+',0.30)'; ctx.fillRect(rr.x, rr.y, rr.w, rr.h);
@@ -1814,13 +1816,13 @@ function drawHUDHLP(){
       window._secBtnRect=rr;
     } else if(hovering(rr.x, rr.y, rr.w, rr.h)){ ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.fillRect(rr.x, rr.y, rr.w, rr.h); }
     ctx.fillStyle=son?TH('accent'):TH('textDim'); ctx.font=thLabel(7); ctx.fillText(String(si+1), x, sy);
-    ctx.fillStyle=son?TH('textBright'):(sb[si].ammo?TH('text'):TH('textDim')); ctx.font=thValue(9, son);
-    ctx.fillText(thFit(weaponName(sw).toUpperCase(), 64), x+9, sy);
+    ctx.fillStyle=son?TH('textBright'):(sb[si].ammo?TH('text'):TH('textDim')); ctx.font=thValue(8, son);
+    ctx.fillText(thFit(weaponName(sw).toUpperCase(), 57), x+9, sy);
     ctx.fillStyle=sb[si].ammo?(son?TH('textBright'):TH('text')):'#ff5a44'; ctx.font=thValue(9, true); ctx.textAlign='right';
-    ctx.fillText(String(sb[si].ammo).padStart(2,'0'), x+96, sy); ctx.textAlign='left';
+    ctx.fillText(String(sb[si].ammo).padStart(2,'0'), x+88, sy); ctx.textAlign='left';
     window._secRows.push(rr);
   }
-  x+=104; thDivider(x, 4, H2-4); x+=5;
+  x+=96; thDivider(x, 4, H2-4); x+=5;
 
   // 6  SUPPORT - a narrow button
   var alX=x, alBW=50, alBH=H2-10, alBY=5;
