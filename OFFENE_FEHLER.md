@@ -2522,7 +2522,17 @@ Container an, indem sie darunter fliegt und dann hochschwebt. In Mission 18
 jedoch dockt sie nicht mehr ab, sondern warpt ganz normal nach vorn raus,
 lässt den Container dabei stehen und fliegt somit durch ihn durch."
 
-- Offen. Zuerst im echten Spiel nachstellen.
+- Im echten Spiel nachgestellt (v283, eingebauter Browser): genau so. Beim
+  Absprung blieb der Container stehen, die Chronos glitt in den Wirbel, ihr
+  hinterer Aufbau durch ihn hindurch. Bei der Poseidon dasselbe, nur sieht
+  man es dort nicht (der Container hängt unter ihr, sie gleitet von ihm weg).
+- Ursache: ein Container, den ein Frachter aufgenommen hat, bekam ihren
+  Absprung nicht mit (nur von Anfang an mitfahrende Fracht, `tickRiders`).
+  Ohne gemeinsame Sprunguhr legt `tickDockWarp` die beiden nicht zusammen in
+  ihren Wirbel. Am Ende des Sprungs ging er mit ihr verloren (Explosion).
+- Gebaut in v284: getragene Fracht springt auf ihrer Uhr mit (`carryCargo`),
+  durch ihren Wirbel, und verlässt das Feld mit ihr, ohne Explosion.
+  `docksim` 13 und `fieldsim` „v284 F100" (schlagen gegen v283 fehl).
 
 ### F99 — M18: Anflug der Poseidon und der Chronos an den Container (v282)
 

@@ -363,6 +363,15 @@ function approach(fkey, ckey, big, fromLeft){
 }
 let a1 = approach('frchronos', 'fcvc3', 1, true);
 check('the Chronos rises into it', a1.slideDir < -1, 'moved ' + a1.slideDir.toFixed(1));
+// F100 (v284, Silvio: she jumped and left her container standing): the
+// cargo she carries jumps on her clock, and leaves with her - no blast
+{
+  const f = a1.f, c = a1.c, e0 = api.expl;
+  f.warpOut = f.warpMax = 160; step(); f.warpOut--; step();
+  check('her jump: the container jumps on the same clock', c.warpOut === f.warpOut && c.warpMax === f.warpMax, 'container ' + c.warpOut + ', she ' + f.warpOut);
+  f.dead = true; api.allies.splice(api.allies.indexOf(f), 1); step();
+  check('jumped out: the container leaves with her, no blast', c.dead && api.expl === e0 && api.allies.indexOf(c) < 0 && api.enemies.indexOf(c) < 0);
+}
 let a2 = approach('frposeidon', 'fcvc3', 1, true);
 check('the Poseidon sinks onto it, the container upside down', a2.slideDir > 1 && a2.c.rollC === -1,
       'moved ' + a2.slideDir.toFixed(1) + ', container ' + (a2.c.rollC === -1 ? 'upside down' : 'upright') + (a2.f._dk && a2.f._dk.roll ? ', she rolled' : ''));

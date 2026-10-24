@@ -6376,6 +6376,27 @@ scenario('v283 F99: every Kappa docks the one way - over or under it, then strai
   r.allHold = byId('KA').every(function(k){ return k.dockedTo && k.dockedTo.carrier === k; });
   r.info = all.map(function(e){ return e[0].img + ':' + e[1].ph.join('>') + ' dir ' + e[1].dir.toFixed(1) + ' up ' + e[1].up; }).join(' / ');
   return r;`);
+scenario('v284 F100: each Kappa jumps out with her container, through her vortex', 'm=18', `
+  // Silvio (24.10.2026): the Chronos "warpt ganz normal nach vorn raus,
+  // laesst den Container dabei stehen und fliegt somit durch ihn durch".
+  const r = {};
+  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT','E1','E2','E3','TA','G1']) FS.killId(id); for(const k of byId('KA')) k.hp=k.maxHp; };
+  FS.until(()=>{ clean(); return byId('KA').length===3; }, 6000, false);
+  FS.until(()=>{ clean(); return byId('KA').some(function(k){ return k.warpOut > 0 && k.dockedTo; }); }, 9000, false);
+  const k = byId('KA').find(function(x){ return x.warpOut > 0 && x.dockedTo; });
+  r.jumping = !!k;
+  if(k){
+    const c = k.dockedTo;
+    FS.step(30);
+    r.sameClock = c.warpOut === k.warpOut;
+    r.throughHerVortex = c._wLead === k;
+    const a = fsWarp(k), b = fsWarp(c);
+    r.movesWithHer = !!a && !!b && Math.abs(a.dx - b.dx) < 0.01 && Math.abs(a.dy - b.dy) < 0.01;
+    FS.until(()=>{ clean(); return !byId('KA').includes(k); }, 400, false);
+    FS.step(3);
+    r.leavesWithHer = !enemies.includes(c) && !allies.includes(c);
+  }
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();

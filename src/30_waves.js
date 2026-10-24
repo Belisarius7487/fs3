@@ -893,6 +893,11 @@ function carryCargo(e){
   const st = cargoSeat(e, c);
   c.x = st.x; c.y = st.y;
   c.vx = 0; c.vy = 0; c.warpX = c.x; c.warpY = c.y;
+  // F100 (v284, Silvio: the Chronos jumped and left her container standing,
+  // her end block went through it): she jumps - the cargo goes through her
+  // vortex with her, on her clock (tickDockWarp pairs them), as cargo
+  // riding from the start always did (tickRiders)
+  if(e.warpOut > 0){ c.warpMax = e.warpMax; c.warpOut = e.warpOut; }
 }
 // F97 (v281): where a held container sits - as in tickRiders, on the
 // outside of her hull at her dock point: below a dock on her keel (the
@@ -1007,8 +1012,18 @@ function tickRiders(){
 function tickCarry(){
   tickRiders();
   for(const e of enemies.concat(allies)) if(e.dockedTo) carryCargo(e);
-  for(const c of enemies.concat(allies))
-    if(c.carrier && !c.dead && !unitAlive(c.carrier)) dropCargo(c);
+  for(const c of enemies.concat(allies)){
+    if(!c.carrier || c.dead || unitAlive(c.carrier)) continue;
+    // F100 (v284): she jumped out with it - it left with her, no blast
+    if(c.warpOut > 0){
+      c.dead = true; c.lostCounted = true;
+      let k = enemies.indexOf(c); if(k>=0) enemies.splice(k,1);
+      k = allies.indexOf(c); if(k>=0) allies.splice(k,1);
+      if(c.uid) EV_LEFT[c.uid] = true;
+      continue;
+    }
+    dropCargo(c);
+  }
 }
 // v243 (F24, Silvio: "sie drehen sich nicht, sondern ändern schlagartig
 // ihre Ausrichtung"): a ship that has to face the other way turns round
