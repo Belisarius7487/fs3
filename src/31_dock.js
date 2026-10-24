@@ -211,19 +211,27 @@ function dkApproach(e, t){
   let k = e._dk;
   if(!k || k.t !== t){
     k = e._dk = {t: t, iA: dkPick(e, toC), iB: dkPick(t, false), ph: 'go'};
-    // the way she will face: towards it, from the side she comes from;
-    // she keeps it to the end (nothing flies backwards, F24)
+    // the way she flies to it: towards it, from the side she comes from
+    // (nothing flies backwards, F24)
     k.left = t.x < e.x;
-    k.flip = needsFlip(e.img, k.left);
+    // F101 (v285, Silvio: the Elysium jumped out backwards with the Ramses):
+    // the way she faces once docked. At a container, the way she came. At a
+    // ship, the way that ship faces - docked ships jump together through
+    // the larger one's vortex (tickDockWarp), so both must face its way. If
+    // that is not the way she came, she turns round at her standoff before
+    // she slides in (below). The target's own turn, if it is in one, counts.
+    k.wantLeft = toC ? k.left : !dkRight(t, t._face ? t._face.want : null);
+    k.flip = needsFlip(e.img, k.wantLeft);
     k.roll = dkMustRoll(e, k.iA, t, k.iB);
     const r0 = (e.rollC != null ? e.rollC : 1);
     k.rEnd = k.roll ? -r0 : r0;
     const mt = dkMeet(e, k.iA, k.rEnd, k.flip, t, k.iB, null, toC);
     k.gap = mt.gap; k.thin = mt.thin;
     k.stand = Math.max(k.gap, dkClear(e, k.iA) + dkClear(t, k.iB)) + DK_MARGIN;
-    if(!!e.flip !== k.flip){
+    const goFlip = needsFlip(e.img, k.left);
+    if(!!e.flip !== goFlip){
       // F96: one seen arriving turns; one there from the start is set
-      if(!(e.warpMax > 1) && !e._dockFaced){ e.flip = k.flip; }
+      if(!(e.warpMax > 1) && !e._dockFaced){ e.flip = goFlip; }
       else faceTurn(e, k.left);
     }
     e._dockFaced = true;
@@ -250,8 +258,12 @@ function dkApproach(e, t){
       e.x += mx; e.y += my;
       return false;
     }
-    if((k.roll && e.rollV < 1) || e._face) return false;     // turned and rolled first
+    // on the spot before she turns: the last bit of the way is still forwards
     if(L <= 1){ e.x = hx; e.y = hy; }        // held off the spot (field edge): slides from where she is
+    // F101 (v285): at her standoff she turns, visibly, to the way she will
+    // face docked - only now, so she never flies backwards on her way here
+    if(!e._face && !!e.flip !== k.flip) faceTurn(e, k.wantLeft);
+    if((k.roll && e.rollV < 1) || e._face) return false;     // turned and rolled first
     k.ph = 'in';
   }
   if(k.ph === 'in'){

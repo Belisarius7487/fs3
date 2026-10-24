@@ -378,5 +378,42 @@ check('the Poseidon sinks onto it, the container upside down', a2.slideDir > 1 &
 let a3 = approach('frmaat', 'fcvac4', 1, false);
 check('the Ma\'at rises into it', a3.slideDir < -1, 'moved ' + a3.slideDir.toFixed(1));
 
+// ── 14. F101 (v285): a ship docks facing the way of the ship it docks to ──
+// Silvio (24.10.2026, M11): "the Elysium warps out backwards, because she
+// does not turn when she docks". Docked ships jump together through the
+// larger one's vortex (tickDockWarp), so she must face the Ramses' way. She
+// flies there forwards, turns visibly at her standoff, then slides in -
+// whichever side she comes from and whichever way the Ramses faces.
+function shipDock(dkey, tkey, fromLeft, tRight){
+  begin('14 F101: ' + dkey + ' docks at a ' + tkey + ' facing ' + (tRight ? 'right' : 'left') +
+        ', she comes from the ' + (fromLeft ? 'left' : 'right'));
+  realSized(dkey); realSized(tkey);
+  const facesRight = o => !!o.flip === api.needsFlip(o.img, false);
+  const t = {uid:'R9', type:'cruiser', img:tkey, x:500, y:300, sc:1, flip:api.needsFlip(tkey, !tRight),
+             warp:0, dead:false, hp:500, maxHp:500, _n:++uidc};
+  api.EV_SEEN.R9 = true; api.enemies.push(t);
+  const f = freighter('T9', fromLeft ? 100 : 900, 300, 'R9'); f.img = dkey; f.crossAfter = 0;
+  f.flip = api.needsFlip(dkey, !fromLeft); f.warpMax = 160; f.dockHold = 300; f.holdT = null;
+  const turnFirst = facesRight(f) !== tRight;
+  let phases = [], back = 0, turned = false, inFace = null, last = null;
+  for(let s = 0; s < 12000; s++){
+    const k = f._dk, ph = k ? k.ph : '-';
+    if(phases[phases.length-1] !== ph) phases.push(ph);
+    if(ph === 'on') break;
+    if(f.turnP != null && f.turnP > 0 && f.turnP < 1) turned = true;
+    // a step along her length against the way she faces (not mid-turn)
+    if(last && f.turnP == null && Math.abs(f.x - last.x) > 0.01 && (f.x > last.x) !== facesRight(f)) back++;
+    if(ph === 'in' && inFace == null) inFace = facesRight(f);
+    last = {x: f.x};
+    step();
+  }
+  check('she docks: go, then in, then on', phases.join(' ').indexOf('go in on') >= 0, phases.join(' '));
+  check('she never flies backwards', back === 0, back + ' steps');
+  check('she slides in facing the ' + tkey + '\'s way', inFace === tRight, 'faces ' + (inFace ? 'right' : 'left'));
+  check('docked, both face the same way', facesRight(f) === facesRight(t));
+  if(turnFirst) check('she turns round visibly before she slides in', turned);
+}
+for(const fromLeft of [true, false]) for(const tRight of [false, true]) shipDock('trelysium', 'craten', fromLeft, tRight);
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

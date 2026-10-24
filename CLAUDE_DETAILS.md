@@ -164,7 +164,12 @@ passt (`_thin`), Länge und Höhe bleiben. Container einer Gruppe liegen von
 Anfang an so herum, wie ihre Frachter sie brauchen (`dkPlanFor`: unter den
 Armen der Poseidon kopfüber). `docksim` Teil 12 prüft jedes Paar der
 Missionen 1–18 (sitzt der Container auf dem Andockpunkt, nicht obenauf auf
-Armen oder Aufbauten?), Teil 13 den Ablauf. Rümpfe ohne Modelldaten
+Armen oder Aufbauten?), Teil 13 den Ablauf. **Seit v285 (F101):** wer an
+ein Schiff (keinen Container) andockt, schaut angedockt in dessen Richtung,
+weil beide gemeinsam durch den Wirbel des größeren springen
+(`tickDockWarp`). Er fährt vorwärts bis zum Haltepunkt, dreht dort sichtbar
+um, wenn nötig, und schwebt erst dann ein (`k.wantLeft` in `dkApproach`);
+`docksim` Teil 14. Rümpfe ohne Modelldaten
 fahren noch den alten Weg; ein neuer Rumpf bekommt sie mit
 `python3 -I tools/pof/mkdocks.py <MVPS> hlp_mounts_final.json <schlüssel>`.
 

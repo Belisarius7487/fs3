@@ -2534,6 +2534,15 @@ weil sie sich nicht dreht, wenn sie andockt."
   Richtung der Ramses.
 - Die andere Ausrichtung (Ramses nach rechts) ist noch nicht im Spiel
   angesehen; nach dem Bau beide prüfen.
+- **Entschieden (Silvio, 24.10.2026, „Gerne"):** Wer an ein Schiff
+  andockt, fliegt wie bisher vorwärts bis unter (oder über) es, dreht sich
+  dort sichtbar um, bis er in dieselbe Richtung schaut wie dieses Schiff,
+  und schwebt erst dann ein. Gilt für jedes Andocken an ein Schiff, nicht
+  nur in M11. Container bleiben ausgenommen.
+- Gebaut in v285 im gemeinsamen Ablauf (`dkApproach`, `31_dock.js`).
+  `docksim` Teil 14 (vier Fälle: von links und rechts, Ramses nach links
+  und rechts) und `fieldsim` „v285 F101" (beide Ausrichtungen in M11)
+  schlagen gegen v284 fehl.
 - Nach F99 im gemeinsamen Ablauf beheben (`31_dock.js`), nicht in M11.
 
 ### F100 — M18: die Chronos springt ohne ihren Container (v283)

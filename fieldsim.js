@@ -6397,6 +6397,40 @@ scenario('v284 F100: each Kappa jumps out with her container, through her vortex
     r.leavesWithHer = !enemies.includes(c) && !allies.includes(c);
   }
   return r;`);
+// F101 (v285), Silvio (24.10.2026): "In Mission 11 ... kann es je nach
+// Ausrichtung der Ramses passieren, dass die Elysium rueckwaerts
+// herauswarpt, weil sie sich nicht dreht, wenn sie andockt." Both ways the
+// Ramses can face: the Elysium flies there forwards, turns, slides in
+// facing the Ramses' way and goes into the vortex bow first with her.
+for(const rRight of [false, true]) scenario('v285 F101: M11 the Elysium docks and jumps facing the Ramses\' way (Ramses faces ' + (rRight ? 'right' : 'left') + ')', 'm=11', `
+  const r = {};
+  const faceR = function(o){ return (spriteFacing(o.img)==='right') !== !!o.flip; };
+  const keep = function(){ player.invT=999; for(const id of ['R1','T1']) for(const o of byId(id)) o.hp=o.maxHp; };
+  FS.until(()=>{ keep(); return byId('R1').length>0; }, 2000, false);
+  FS.step(300); keep();
+  const ra = byId('R1')[0];
+  ra.flip = needsFlip(ra.img, !${rRight});
+  r.ramsesFaces = faceR(ra) ? 'right' : 'left';
+  for(const sb of ra.subs) if(sb.id==='engines'||sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  FS.until(()=>{ keep(); return byId('T1').length>0 && !(byId('T1')[0].warp>0); }, 1500, false);
+  const t = byId('T1')[0];
+  let back = 0, turned = false, inFace = null, lx = t ? t.x : 0;
+  FS.until(()=>{
+    keep();
+    if(!t || t.dead) return true;
+    const ph = t._dk ? t._dk.ph : '-';
+    if(t.turnP != null && t.turnP > 0 && t.turnP < 1) turned = true;
+    if(t.turnP == null && Math.abs(t.x - lx) > 0.01 && (t.x > lx) !== faceR(t)) back++;
+    if(ph === 'in' && inFace == null) inFace = faceR(t);
+    lx = t.x;
+    return t.warpOut > 0;
+  }, 9000, false);
+  r.neverBackwards = back === 0;
+  r.slidesInFacingTheRamses = inFace === faceR(ra);
+  r.turnedFirst = ${rRight} ? true : turned;
+  r.jumpsTogether = !!t && t.warpOut > 0 && ra.warpOut > 0 && t._wLead === ra;
+  r.bothSameWay = !!t && faceR(t) === faceR(ra);
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{
   const browser = await chromium.launch();
