@@ -2521,14 +2521,19 @@ Ramses zu disablen und die Elysium dran andockt, dann kann es je nach
 Ausrichtung der Ramses passieren, dass die Elysium rückwärts herauswarpt,
 weil sie sich nicht dreht, wenn sie andockt."
 
-- Offen. Zuerst im echten Spiel nachstellen (alle Phasen, beide
-  Ausrichtungen der Ramses).
-- Vermutung, nicht geprüft: Angedockte springen gemeinsam durch den Wirbel
-  des größeren Schiffs (`tickDockWarp`), also in Fahrtrichtung der Ramses.
-  Die Elysium behält beim Andocken die Richtung, aus der sie kam
-  (`dkApproach`, `k.left`). In FreeSpace legt das Andocken auch die
-  Richtung fest (die beiden Punkte eines Andockpunkts richten sich
-  aneinander aus); dann müsste sie sich vor dem Einschweben sichtbar drehen.
+- **Im echten Spiel nachgestellt (v284, eingebauter Browser, 24.10.2026):**
+  genau so. Die Ramses schaut von Anfang an nach links (`flip`), die
+  Elysium springt links von ihr ein, fährt nach rechts unter sie, behält
+  diese Richtung beim Einschweben und Laden. Beim Absprung öffnet sich der
+  Wirbel links vor der Ramses; die Ramses fährt mit der Nase hinein, die
+  Elysium mit dem Heck. Bilder: `fs3-claude-export\v285`.
+- Ursache (im Code und im Spiel bestätigt): Angedockte springen gemeinsam
+  durch den Wirbel des größeren Schiffs (`tickDockWarp`), also in
+  Fahrtrichtung der Ramses. Die Elysium nimmt beim Andocken die Richtung,
+  aus der sie kommt (`dkApproach`, `k.left`), und dreht sich nie zur
+  Richtung der Ramses.
+- Die andere Ausrichtung (Ramses nach rechts) ist noch nicht im Spiel
+  angesehen; nach dem Bau beide prüfen.
 - Nach F99 im gemeinsamen Ablauf beheben (`31_dock.js`), nicht in M11.
 
 ### F100 — M18: die Chronos springt ohne ihren Container (v283)
