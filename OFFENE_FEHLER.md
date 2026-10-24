@@ -2514,6 +2514,16 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
+### F100 — M18: die Chronos springt ohne ihren Container (v283)
+
+**Befund (Silvio, 24.10.2026):** „Am An- und Abdockverhalten der Poseidon
+gibt es nichts mehr auszusetzen. Die Chronos dockt auch völlig korrekt am
+Container an, indem sie darunter fliegt und dann hochschwebt. In Mission 18
+jedoch dockt sie nicht mehr ab, sondern warpt ganz normal nach vorn raus,
+lässt den Container dabei stehen und fliegt somit durch ihn durch."
+
+- Offen. Zuerst im echten Spiel nachstellen.
+
 ### F99 — M18: Anflug der Poseidon und der Chronos an den Container (v282)
 
 **Befund (Silvio, 24.10.2026):** „Beim Anflug der Poseidon befinden sich
