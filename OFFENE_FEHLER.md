@@ -2588,6 +2588,12 @@ beiden Aufbauten passt."
     nicht zwischen die Aufbauten der Chronos, und jeder Container kann ihrer
     sein. (Die Chronos wird nach der Zweiskalenregel stark verkleinert
     gezeichnet, Container nicht.)
+  - M8: die Elysium dockt jetzt unter der Asmodeus 2 an (der Andockpunkt
+    des Modells, „blahblah"; FS2 SM1-09 nutzt ihn genauso) statt in ihr zu
+    stecken — dort lag sie im Feuer der beiden anderen Asmodeus und starb im
+    Test beim Entern. **Entschieden (Silvio, 24.10.2026, Möglichkeit A):** die
+    beiden anderen springen weg, sobald die Asmodeus 2 lahmgelegt ist; den
+    Bonus muss man sich vorher holen.
   - Prüfungen: `docksim` Teil 12 (jedes Paar Frachter + Container der
     Missionen 1–18 sitzt auf dem Andockpunkt, nicht obenauf), Teil 13
     (Ablauf Chronos/Poseidon/Ma'at), `fieldsim` „v283 F99" (M18 im Spiel;

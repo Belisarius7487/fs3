@@ -2829,6 +2829,11 @@ const SCRIPT_WAVES = {
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'markieren', a2:'F1:protect'},
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'opfer', a2:'F1'},
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'jagd', a2:'F1'},
+       // F99 (v283, Silvio 24.10.2026, choice A): the Elysium now docks
+       // under her (her model's dock) and there she lay in the fire of the
+       // other two - they jump out once the Asmodeus 2 is dead in space
+       {t:'subsystem', a:'F1', b:'engines+weapons', w:'raus', a2:'F2'},
+       {t:'subsystem', a:'F1', b:'engines+weapons', w:'raus', a2:'F3'},
        {t:'subsystem', a:'F1', b:'engines+weapons', d:3, w:'einwarpen', a2:'S1'},
        {t:'alleZerstoert', a:'S1', w:'einwarpen', a2:'S2'},
        {t:'da', a:'S1', d:15, w:'einwarpen', a2:'S2'},
