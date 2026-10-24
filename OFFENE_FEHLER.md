@@ -2533,6 +2533,11 @@ lässt den Container dabei stehen und fliegt somit durch ihn durch."
 - Gebaut in v284: getragene Fracht springt auf ihrer Uhr mit (`carryCargo`),
   durch ihren Wirbel, und verlässt das Feld mit ihr, ohne Explosion.
   `docksim` 13 und `fieldsim` „v284 F100" (schlagen gegen v283 fehl).
+- **Abgenommen (Silvio, 24.10.2026):** „Jetzt hat es problemlos
+  funktioniert. Alle verbündeten Frachter haben ihre Frachtcontainer
+  mitgenommen." Zur Poseidon schon vorher (v283): „Am An- und Abdockverhalten
+  der Poseidon gibt es nichts mehr auszusetzen." Bilder aller drei Paare von
+  M18 aus dem echten Spiel in `fs3-claude-export\v284`.
 
 ### F99 — M18: Anflug der Poseidon und der Chronos an den Container (v282)
 
