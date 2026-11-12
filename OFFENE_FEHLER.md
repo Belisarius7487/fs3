@@ -2514,6 +2514,38 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
+### F102 — Unter Linux sind die großen Schiffe zu dunkel (v285)
+
+**Befund (Silvio, 12.11.2026):** „Ich spiele gerade auf cachyOS im Brave
+Browser und habe in der Mission mit der zu beschützenden Galatea (M6), sieht
+die Galatea etwas dunkel aus. Auf Windows habe ich das Problem nicht." Auf
+Nachfrage: nur die Galatea, nicht das übrige Bild. Mit abgeschalteter
+Hardwarebeschleunigung in Brave ist sie „deutlich heller und gleicht der
+Darstellung auf Windows".
+
+- **Auf Silvios Rechner gemessen (eingebauter Browser, 12.11.2026):**
+  ANGLE auf einer NVIDIA GeForce RTX 2080 Ti über OpenGL ES 3.2.
+  `getShaderPrecisionFormat(FRAGMENT_SHADER, MEDIUM_FLOAT).precision`
+  ergibt **10** — `mediump` ist dort wirklich ein 16-Bit-Gleitkommawert;
+  `HIGH_FLOAT` ergibt 23. Unter Windows läuft ANGLE über Direct3D, wo
+  `mediump` ohnehin 32 Bit ist. Daher der Unterschied zwischen den Systemen.
+- Ursache (im Code nachgewiesen): Der Fragment-Shader der 3D-Rümpfe
+  (`59_field3d.js`) beginnt mit `precision mediump float`. In der
+  Normalmap-Rechnung steht `inversesqrt(max(max(dot(T,T), dot(B,B)),
+  1e-20))`. In 16 Bit ist `1e-20` nicht darstellbar und wird 0,
+  `inversesqrt(0)` wird unendlich, die Normale wird NaN, und beide
+  Lichtterme fallen auf 0. Übrig bleibt `base*0.30*1.15` — rund ein Drittel
+  der Helligkeit, ohne Glanzlicht. Betrifft nur Rümpfe mit Normalmap, also
+  die großen Schiffe; kleine Jäger fallen nicht auf.
+- Gebaut in v286: Alle vier Shader (`58_model3d.js`, `59_field3d.js` ×3)
+  fordern volle Genauigkeit an, wo die Karte sie hat
+  (`#ifdef GL_FRAGMENT_PRECISION_HIGH` → `precision highp float`), sonst
+  wie bisher `mediump`. Die beiden Schranken `1e-20` und `1e-12` in der
+  Normalmap-Rechnung sind auf `1e-6` angehoben, damit sie auch im
+  mediump-Fall noch Schranken sind. Neue Prüfstufe `glsltest` (schlägt
+  gegen v285 fehl). Der geänderte Shader wurde auf Silvios Karte selbst
+  übersetzt: fehlerfrei.
+
 ### F101 — M11: die Elysium springt rückwärts mit der Ramses heraus (v284)
 
 **Befund (Silvio, 24.10.2026):** „In Mission 11, wenn man es schafft die

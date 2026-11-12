@@ -382,8 +382,15 @@ function f3dInit(){
     const vs = 'attribute vec3 aP; attribute vec3 aN; attribute vec2 aT;'
       + 'uniform mat4 uM; uniform mat4 uVP; varying vec3 vW; varying vec3 vN; varying vec2 vT; varying vec3 vP; varying vec3 vMN;'
       + 'void main(){ vec4 w = uM*vec4(aP,1.0); vW = w.xyz; vN = mat3(uM)*aN; vT = aT*3.99994-1.0; vP = aP; vMN = aN; gl_Position = uVP*w; }';
+    // v286 (F102): ask for full precision wherever the card has it. Under
+    // Linux, ANGLE runs on OpenGL ES, where mediump really is 16 bit, and
+    // the normal-map maths below then underflows: the hull keeps only its
+    // ambient term and looks about a third as bright. Under Windows, ANGLE
+    // runs on Direct3D, where mediump is 32 bit anyway - hence the
+    // difference between the two systems.
     const fs = (deriv ? '#extension GL_OES_standard_derivatives : enable\n#define DERIV 1\n' : '')
-      + 'precision mediump float; varying vec3 vW; varying vec3 vN; varying vec2 vT; varying vec3 vP; varying vec3 vMN;'
+      + '#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n'
+      + 'varying vec3 vW; varying vec3 vN; varying vec2 vT; varying vec3 vP; varying vec3 vMN;'
       + 'uniform sampler2D tC; uniform sampler2D tN; uniform sampler2D tG; uniform sampler2D tD; uniform sampler2D tF;'
       + 'uniform vec4 uDP; uniform vec3 uDD; uniform vec4 uFR; uniform float uFon;'
       + 'uniform float uHasN; uniform float uKind; uniform vec3 uCam; uniform vec3 uL1; uniform vec3 uL2;'
@@ -394,7 +401,7 @@ function f3dInit(){
       + '\n#ifdef DERIV\n'
       + ' if(uHasN > 0.5){ vec3 d1 = dFdx(vW), d2 = dFdy(vW); vec2 t1 = dFdx(vT), t2 = dFdy(vT);'
       + '  vec3 c2 = cross(d2, N), c1 = cross(N, d1); vec3 T = c2*t1.x + c1*t2.x; vec3 B = c2*t1.y + c1*t2.y;'
-      + '  float im = inversesqrt(max(max(dot(T,T), dot(B,B)), 1e-20));'
+      + '  float im = inversesqrt(max(max(dot(T,T), dot(B,B)), 1e-6));'
       + '  vec2 nm = texture2D(tN, vT).rg*2.0-1.0; vec3 tn = vec3(nm, sqrt(max(0.0, 1.0-dot(nm,nm))));'
       + '  N = normalize(T*im*tn.x - B*im*tn.y + N*tn.z); }\n'
       + '\n#endif\n'
@@ -2006,7 +2013,8 @@ function f3dShLoad(){
       + 'varying vec2 vU; varying float vF; varying float vZ; varying vec3 vNw; varying vec3 vWp;'
       + 'void main(){ vec3 d = aP - uH; vU = vec2(dot(d, uT), dot(d, uB))/(2.0*uR) + 0.5; vZ = dot(d, uHN)/uR;'
       + ' vF = dot(normalize(aN), uHN); vec4 w = uM*vec4(aP, 1.0); vWp = w.xyz; vNw = mat3(uM)*aN; gl_Position = uVP*w; }';
-    const fs = 'precision mediump float; varying vec2 vU; varying float vF; varying float vZ; varying vec3 vNw; varying vec3 vWp;'
+    const fs = '#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n'
+      + 'varying vec2 vU; varying float vF; varying float vZ; varying vec3 vNw; varying vec3 vWp;'
       + 'uniform sampler2D tS; uniform vec2 uFr; uniform vec3 uCol; uniform float uA; uniform float uMode; uniform vec3 uCam; uniform float uGrid;'
       + 'void main(){ vec3 c;'
       + ' if(uMode < 0.5){'
@@ -2212,7 +2220,8 @@ function f3dFxProg(){
     const vs = 'attribute vec3 aP; attribute vec3 aT; uniform mat4 uVP; uniform mat4 uM;'
       + 'varying vec3 vT; varying vec3 vW;'
       + 'void main(){ vec4 w = uM*vec4(aP, 1.0); vW = w.xyz; vT = aT; gl_Position = uVP*w; }';
-    const fs = 'precision mediump float; varying vec3 vT; varying vec3 vW;'
+    const fs = '#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n'
+      + 'varying vec3 vT; varying vec3 vW;'
       + 'uniform sampler2D tS; uniform vec3 uClip; uniform float uA; uniform vec4 uUV; uniform float uPre;'
       + 'void main(){ if(dot(uClip.xy, vW.xy) + uClip.z < 0.0) discard;'
       + ' vec4 c = texture2D(tS, uUV.xy + clamp(vT.xy, vec2(0.002), vec2(0.998))*uUV.zw); float a = vT.z*uA;'

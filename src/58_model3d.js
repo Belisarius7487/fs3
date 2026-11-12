@@ -55,7 +55,8 @@ function m3dInit(){
       + 'uniform mat4 uMV; uniform mat4 uPr; varying vec3 vP; varying vec3 vN; varying vec2 vT;'
       + 'void main(){ vec4 p = uMV*vec4(aP,1.0); vP = p.xyz; vN = mat3(uMV)*aN; vT = aT*3.99994-1.0; gl_Position = uPr*p; }';
     const fs = (M3D.deriv ? '#extension GL_OES_standard_derivatives : enable\n#define DERIV 1\n' : '')
-      + 'precision mediump float; varying vec3 vP; varying vec3 vN; varying vec2 vT;'
+      + '#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n'
+      + 'varying vec3 vP; varying vec3 vN; varying vec2 vT;'
       + 'uniform sampler2D tC; uniform sampler2D tN; uniform sampler2D tG;'
       + 'uniform float uHasN; uniform float uKind; uniform vec3 uFlat;'
       + 'void main(){'
@@ -63,7 +64,7 @@ function m3dInit(){
       + '\n#ifdef DERIV\n'
       + ' if(uHasN > 0.5){ vec3 d1 = dFdx(vP), d2 = dFdy(vP); vec2 t1 = dFdx(vT), t2 = dFdy(vT);'
       + '  vec3 c2 = cross(d2, N), c1 = cross(N, d1); vec3 T = c2*t1.x + c1*t2.x; vec3 B = c2*t1.y + c1*t2.y;'
-      + '  float im = inversesqrt(max(max(dot(T,T), dot(B,B)), 1e-12));'
+      + '  float im = inversesqrt(max(max(dot(T,T), dot(B,B)), 1e-6));'
       + '  vec2 nm = texture2D(tN, vT).rg*2.0-1.0; vec3 tn = vec3(nm, sqrt(max(0.0, 1.0-dot(nm,nm))));'
       + '  N = normalize(T*im*tn.x - B*im*tn.y + N*tn.z); }\n'
       + '\n#endif\n'
