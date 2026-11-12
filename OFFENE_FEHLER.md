@@ -2514,7 +2514,7 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
-### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — offen, Weg nicht entschieden
+### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B, noch nicht gebaut
 
 **Wunsch (Silvio, 12.11.2026):** „Wir haben immer noch die 2D Sprites der
 Schiffe im Spiel, obwohl wir bereits auf 3D Modelle umgestellt haben. Mein
@@ -2589,6 +2589,38 @@ nur halb gelesen, siehe unten.
 - **B:** Rahmen und Umriss neu aus den Modellen ableiten. Eine Quelle statt
   zwei, aber Mounts, Subsysteme und Andocken jedes Rumpfs müssen neu geprüft
   werden.
+
+**Entschieden (Silvio, 12.11.2026):** Auf die Frage, ob B die Sprites
+komplett fallen lässt (ja: aus Spiel, Bau und Server; bei A blieben sie als
+Vorlage auf dem Server): „Es wird B. Karnak und Angel sollten aber vorhanden
+sein soweit ich weiß."
+
+- **Karnak und Angel:** Silvio hat recht. Beide stehen in `HULLS`
+  (`tools/pof/buildmodels.py`: `fiangel`, `inkarnak`), die Karnak liefert
+  seit v265 die Trümmer in Mission 17 (F87). Sie fehlen nur in `F3D_KEYS` —
+  wie `scimhotep`, `inpolaris`, `inpolarispylon`, `incheops`, `inastbase`,
+  die ebenfalls in `HULLS` und `HULL_LEN` stehen. Ob ihre Modelldateien auf
+  dem Server liegen, ist nicht geprüft.
+
+**Etappen für B (Claudes Plan; jede Etappe ist eine eigene Lieferung):**
+
+1. **Messen, nichts ändern.** Für jeden Rumpf den Rahmen aus dem Modell
+   bestimmen (Seitenansicht so, wie das Feld ihn zeichnet, mit `F3D_ROLL`
+   und `F3D_VIEW`) und neben den Sprite-Rahmen stellen (Sprite-Maße aus dem
+   laufenden Spiel: `IMGS[key].width/.height`). Ergebnis: eine Tabelle,
+   welche Rümpfe sich wie stark verschieben. Dazu die Bildverwendungen aus
+   der Liste oben einzeln klären (läuft bei 3D-Schiffen: ja/nein, Ersatz).
+2. **Daten aus dem Modell.** `tools/pof` schreibt je Rumpf Rahmen und
+   Umrisskarte in eine Datei im Repo (wie `hlp_mounts_final.json`). Damit
+   haben auch die Prüfungen in der Cloud echte Rahmen statt der grauen
+   Flächen aus `FS.fakeImages()`.
+3. **Umstellen, Klasse für Klasse.** Das Spiel liest Rahmen und Umriss aus
+   diesen Daten statt aus `IMGS`/`MASKS`. Je Klasse Mounts, Subsysteme und
+   Andocken (`docksim`) prüfen und im echten Spiel ansehen.
+4. **Aufräumen.** Sprite-Zeichenwege, `&f3d=0` und der Rückfall entfallen;
+   Browser ohne WebGL bekommen einen Hinweis; die Listenbilder kommen aus
+   dem Modell; `SPR_DATA` und der Sprite-Teil des Packers entfallen, danach
+   der Sprite-Ordner auf dem Server.
 
 ### F102 — Unter Linux sind die großen Schiffe zu dunkel (v285) — behoben in v286
 
