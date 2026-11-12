@@ -2514,6 +2514,82 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
+### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — offen, Weg nicht entschieden
+
+**Wunsch (Silvio, 12.11.2026):** „Wir haben immer noch die 2D Sprites der
+Schiffe im Spiel, obwohl wir bereits auf 3D Modelle umgestellt haben. Mein
+Wunsch wäre diese Altlast, die als Rückfallebene für Spieler genutzt wird,
+deren Browser keine 3D Modelle nutzen können, fallen zu lassen. Meine
+Hoffnung ist, dass dies die Ladezeit anfangs etwas verkürzt und auch deine
+Tokennutzung etwas reduziert, weil du diesen Bereich nicht mehr mit anfassen
+brauchst."
+
+**Dazu (Silvio, 12.11.2026):** „Viel mehr will ich wissen warum das Spiel auf
+2D Bilder baut, wenn es um Trefferflächen auf 3D Modellen geht. Im Rearm,
+Support und Schiffswechsel Bildschirm werden die 2D Sprites nur als
+Platzhalter genutzt, bis das 3D Modell geladen hat. Das ließe sich doch
+sicher auch besser machen."
+
+**Abgelehnt (Silvio, 12.11.2026):** Claudes Gegenvorschlag, die Sprites zu
+lassen und stattdessen vor jeder Mission nur deren Modelle zu laden: „Nein."
+Nicht wieder vorschlagen.
+
+**Claudes Fehler im Gespräch:** behauptet, im Rearm-Fenster sehe man die
+Sprites „heute noch", und die Trefferfläche komme aus dem 2D-Bild. Beides war
+nur halb gelesen, siehe unten.
+
+**Im Code nachgelesen (v286) — was die Sprites heute noch liefern:**
+
+- **Den Rahmen.** `IMGS[key].width/.height` wird an 133 Stellen in `src/`
+  gelesen. Die Breite eines Schiffs im Feld kommt aus seiner echten Länge
+  (`hullWidth()`, `HULL_LEN`); `sc` ist Zielbreite durch Spritebreite. Vom
+  Sprite stammt also nur das Seitenverhältnis — und alles, was in diesen
+  Rahmen eingepasst ist (Mounts, Andockabstand `dkHalf()`, Schadensflächen).
+- **Trefferfläche:** kommt bei 3D-Schiffen schon aus dem Modell — `MASKS3D`
+  (große Schiffe, v199/v201, `f3dMask()`) und `f3dRollMask()` (kleine, v204).
+  Beide passen ihre Karte in den Sprite-Rahmen ein und brauchen dafür
+  `IMGS[key]`. Die Sprite-Karte (`MASKS`, `buildMask()`) ist in `onHull()`
+  und `spriteBox()` nur noch Rückfall: Modell nicht geladen, `&f3d=0`,
+  Kulisse von vorn (`F3D_VIEW`).
+- **Subsysteme:** `subPositions()`, `hullRay()`, `hullRayNear()` und
+  `maskCentre()` rechnen nur auf der Sprite-Karte (`getMask()`), auch bei
+  3D-Schiffen.
+- **Wrackteile in 2D:** `cutCoverage()`, `onDebris()`, `drawDebris()`. Ob sie
+  bei 3D-Schiffen noch entstehen, ist nicht geprüft.
+- **Fenster:** `drawRearmShip()` und `drawInfoCard()` zeigen das Modell
+  (`m3dDraw()`), das Sprite nur als Platzhalter — wie Silvio sagt. Die
+  kleinen Bilder in den Listenzeilen (`drawHullCell()` in `drawShipMenu()`
+  und `drawAllyRow()`) sind laut Code immer das Sprite; im echten Spiel noch
+  nicht angesehen.
+- **Bilder aus dem Sprite:** `drawShip()` (Rückfall), `drawRimLight()`,
+  `buildGlint()`, `shieldSkin()`/`hullShieldSkin()`, `dmgBuild()` (beschneidet
+  auch im 3D-Weg mit dem Sprite). Welche davon bei 3D-Schiffen laufen, ist
+  vor einem Umbau einzeln zu klären.
+- **Prüfungen:** `FS.fakeImages()` (`fieldsim.js`, `tools/shot.js`) legt
+  graue Flächen fester Größe in `IMGS`. Die Logik läuft dort also schon mit
+  bloßen Rahmen.
+
+**Gemessen auf dem Dev-Server (v286, eingebauter Browser, 12.11.2026):**
+
+- `game.html`: 22,86 MB über die Leitung, 30,83 MB entpackt. Darin
+  `SPR_DATA`: 121 Sprites, 13,82 MB Text (Zerstörer 5,2 MB, Superzerstörer
+  2,3 MB, Installationen 1,2 MB, Korvetten 1,1 MB) — über die Leitung rund
+  10 MB. Planeten 1,7 MB, Sonnen 3,4 MB.
+- Modelle, die die Ladeseite vor dem Start holt: 930 Dateien, 117,7 MB,
+  119 Rümpfe (die kleinen Schiffe davon 23,3 MB).
+- Erster Start also rund 140 MB; die Sprites sind davon etwa 7 %.
+
+**Zwei Wege (Claudes Vorschlag, nicht entschieden):**
+
+- **A:** Der Packer rechnet aus jedem Sprite einmal heraus, was noch
+  gebraucht wird (Rahmen, Umrisskarte, kleines Listenbild), und bettet nur
+  das ein. `IMGS[key]` wird ein leichter Stellvertreter mit `width`/`height`,
+  die 133 Stellen bleiben stehen. Kein Rückfall mehr für Browser ohne WebGL.
+  Alle Positionen bleiben, wo sie sind.
+- **B:** Rahmen und Umriss neu aus den Modellen ableiten. Eine Quelle statt
+  zwei, aber Mounts, Subsysteme und Andocken jedes Rumpfs müssen neu geprüft
+  werden.
+
 ### F102 — Unter Linux sind die großen Schiffe zu dunkel (v285) — behoben in v286
 
 **Befund (Silvio, 12.11.2026):** „Ich spiele gerade auf cachyOS im Brave
