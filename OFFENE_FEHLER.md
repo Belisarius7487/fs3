@@ -2514,7 +2514,7 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
-### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B, noch nicht gebaut
+### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B; Etappe 1 (Messen) erledigt, noch nichts gebaut
 
 **Wunsch (Silvio, 12.11.2026):** „Wir haben immer noch die 2D Sprites der
 Schiffe im Spiel, obwohl wir bereits auf 3D Modelle umgestellt haben. Mein
@@ -2621,6 +2621,68 @@ sein soweit ich weiß."
    Browser ohne WebGL bekommen einen Hinweis; die Listenbilder kommen aus
    dem Modell; `SPR_DATA` und der Sprite-Teil des Packers entfallen, danach
    der Sprite-Ordner auf dem Server.
+
+**Etappe 1 — gemessen (12.11.2026, v286, echtes Spiel auf dem Dev-Server,
+eingebauter Browser; nichts am Spiel geändert).** Volle Tabelle:
+`tools/f103/rahmen_v286.csv` (121 Sprites; `W`/`H` Sprite in Pixeln, `Hm`
+Höhe des Modells im selben Maß, `ratio` = `Hm/H`, `sw`/`sh` sichtbarer Rumpf
+im Sprite, `iou` Deckung von Sprite-Umriss und Modell-Umriss, `sOnly` nur
+Sprite, `mOnly` nur Modell, `vw` Ansichtswinkel aus `F3D_VIEW`). Gemessen mit
+den Daten des laufenden Spiels (`IMGS`, `F3D.models[k].full.head`/`.cpu`) und
+seiner eigenen `f3dBuildMask()`; an Aten, Iceni und Orion gegen `spriteBox()`
+gegengeprüft (82/359/363 gegen 80/355/356 — die Karte des Spiels hat 2 % Rand).
+
+- **Breite: bei allen gleich.** Das Modell wird heute schon auf die volle
+  Sprite-Breite gezogen (`f3dMat`), der sichtbare Rumpf füllt das Sprite zu
+  97–100 % der Breite, höchstens 0,6 % aus der Mitte. Das Modell liegt bei
+  allen genau mittig (`mcx`/`mcy` = 0). Die Länge eines Schiffs ändert sich
+  mit B also nicht.
+- **Höhe: 84 Rümpfe innerhalb 2 %, 21 zwischen 2 und 5 %, 15 darüber:**
+  Aten +31 %, Alastor +17 %, Iceni +16 %, Mentu +16 %, Cerberus und Watchdog
+  +16 %, Aeolus +12 %, Orion (beide Bilder) +8 %, Ursa +7 %, Argo +6 %,
+  Hades +6 %, Leviathan +5 %, Fenris +5 %, Typhon −5 %. Plus heißt: das
+  Modell ist höher als das Sprite-Bild (Aufbauten, Antennen, anderes Modell).
+- **Was das für die Daten heißt:** `mountPos()` und die Subsysteme aus dem
+  Mount-Editor sind Anteile des Rahmens (`dx` × halbe Breite, `dy` × halbe
+  Höhe). `dx` bleibt; `dy` muss je Rumpf einmal mit `H/Hm` umgerechnet
+  werden, dann sitzt jeder Punkt, wo er heute sitzt. Dafür werden die
+  Sprite-Maße `W`/`H` aus der Tabelle gebraucht — sie liegen jetzt im Repo.
+- **Umriss:** bei den meisten deckt sich der Sprite-Umriss zu 90 % und mehr
+  mit dem Modell. Deutlich darunter: Ankh 0,41 (das Sprite zeigt sie
+  anders), Hades 0,71, Mentu 0,72, Mjolnir 0,78, Hippocrates 0,80,
+  Leviathan 0,81, Fenris 0,83, Lilith 0,83, Mephisto 0,86, Ursa, Cerberus,
+  Watchdog 0,87. Dort verschiebt sich, was am Sprite-Umriss hängt.
+- **Subsysteme:** 33 Rümpfe (Kreuzer, Korvetten, Zerstörer und größer) haben
+  alle fünf Positionen aus dem Mount-Editor — die werden nur umgerechnet.
+  87 Rümpfe (Jäger, Bomber, Frachter, Transporter, Wachgeschütze,
+  Installationen, Container) bekommen sie aus dem Sprite-Umriss
+  (`hullRay()`, `hullRayNear()`, `maskCentre()`); mit B kommen sie aus dem
+  Modell-Umriss.
+- **Phidias:** ihr Modell fehlt auf dem Dev-Server
+  (`models/suphidias/full.bin.gz` → 404, Zustand `failed`), sie hat auch
+  keine Mount-Daten. Sie wird dort also gerade als Sprite gezeichnet. Vor
+  Etappe 3 klären (ZIP `phidias_v275.zip` neu einspielen?).
+- **Rümpfe ohne Sprite und ohne Eintrag in `F3D_KEYS`:** `fiangel`,
+  `scimhotep`, `inkarnak`, `inpolaris`, `inpolarispylon`, `incheops`,
+  `inastbase`. Auf dem Server liegt davon nur das Modell der Karnak (200),
+  die anderen sechs fehlen (404). `fiangel` steht in der Liste
+  `ter_fighters` (`30_waves.js`).
+- **`inknossos`** steht in `F3D_KEYS`, hat aber kein eigenes Sprite (nur
+  `inknossosfront` und `inknossos45deg`).
+
+**Bildverwendungen einzeln (im Code nachgelesen, v286):**
+
+| Stelle | läuft bei einem Schiff, das aus dem Modell gezeichnet wird? | Ersatz bei B |
+|---|---|---|
+| `drawShip()` | nein (`!e._gl3`; Spieler: nur wenn `f3dPlayer()` scheitert) | entfällt |
+| `drawRimLight()`, `buildGlint()` | nein (`!e._gl3`) | entfällt |
+| `shieldSkin()` (`drawLuciShield`), `hullShieldSkin()` (`drawShield`, `drawPlayerShield`) | nein (`f3dOn()` → Schild am Modell, v205) | entfällt |
+| `dmgBuild()` | **ja**: Schadensmarken werden am Ende mit dem Sprite-Bild beschnitten (`destination-in`), Größe der Fläche aus `img.width/height` | mit der Umrisskarte des Modells beschneiden |
+| `spawnWreck()` / `cutPiece()` / `cutCoverage()` / `onDebris()` / `drawDebris()` | nein, wenn `f3dBreakup()` greift (Modell geladen, hat Knoten); von den großen Rümpfen hat nur die Pharos keine Trümmerteile im Modell | entfällt; Pharos prüfen |
+| `subPositions()` über `hullRay()` usw. | **ja**, bei den 87 Rümpfen ohne Editor-Positionen | Modell-Umriss |
+| `onHull()` / `spriteBox()` | nur als Rückfall (Modell nicht geladen, `&f3d=0`, `F3D_VIEW`) | Modell-Umriss; für die fünf `F3D_VIEW`-Bilder eine Karte aus der gedrehten Ansicht |
+| `drawHullCell()` (Schiffsliste, Infokarte, Rufmenü) | **ja**, immer das Sprite, ohne Abzweig | kleines Bild aus dem Modell |
+| `drawRearmShip()`, `drawInfoCard()` | Sprite nur als Platzhalter | Platzhalter entfällt |
 
 ### F102 — Unter Linux sind die großen Schiffe zu dunkel (v285) — behoben in v286
 
