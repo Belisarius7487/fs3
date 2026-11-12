@@ -2514,7 +2514,7 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
-### F102 — Unter Linux sind die großen Schiffe zu dunkel (v285)
+### F102 — Unter Linux sind die großen Schiffe zu dunkel (v285) — behoben in v286
 
 **Befund (Silvio, 12.11.2026):** „Ich spiele gerade auf cachyOS im Brave
 Browser und habe in der Mission mit der zu beschützenden Galatea (M6), sieht
@@ -2545,6 +2545,9 @@ Darstellung auf Windows".
   mediump-Fall noch Schranken sind. Neue Prüfstufe `glsltest` (schlägt
   gegen v285 fehl). Der geänderte Shader wurde auf Silvios Karte selbst
   übersetzt: fehlerfrei.
+- **Abgenommen (Silvio, 12.11.2026):** „Jawoll, jetzt ist sie voll
+  beleuchtet." — v286 auf cachyOS/Brave mit eingeschalteter
+  Hardwarebeschleunigung.
 
 ### F101 — M11: die Elysium springt rückwärts mit der Ramses heraus (v284)
 
