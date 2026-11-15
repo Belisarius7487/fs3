@@ -2533,6 +2533,8 @@ Rümpfe; Sigma und Pinnacle lagen in derselben Gruppe. **v290:** ein Schiff,
 dessen Wirbel gerade zu sehen ist, bekommt eine eigene Gruppe nach den
 größeren Rümpfen (wie die Kleinschiffe seit F92). Szenario „v290 F106"
 (schlägt gegen v289 fehl).
+Nach Silvios Bau im echten Spiel angesehen (v290, M15): der Wirbel der Sigma
+steht vor der Pinnacle. Silvios Urteil steht aus.
 
 ### F105 — M18: die beiden später kommenden Frachter springen ohne Wirbel ein (v289) — offen
 
