@@ -2793,6 +2793,21 @@ Leiste einmal vorgemalt und Bildpunkt für Bildpunkt kopiert (`uiMemo()`).
 Aussehen gleich (mittlere Abweichung 0,03–0,04 von 255). Versuch, die
 Klammern als vorgemalte Streifen zu zeichnen, war langsamer (55 µs) und
 wurde verworfen. Szenario „v303 F104".
+Lag-Log v303 (Silvio, Brave, M6): „es ruckelt immer noch" — 8 Hänger
+(Start 150 ms, im Gefecht 50–167 ms), also kaum anders.
+Gemessen danach (eingebauter Browser, v303, M6, 52 Gegner, 504 Partikel,
+Bild eingefroren, je Variante Median aus 25 Bildern mit Warten auf den
+Grafikprozess): ein Bild kostet dort ~23 ms. Kein einzelner großer Posten;
+Ersparnis, wenn ein Teil weggelassen wird: Schüsse 2,6 ms, Randlicht 2,3,
+Laser 1,9, Partikel 1,5, Zielbild in der Leiste 1,4, Leuchtpunkte 1,2,
+Leiste 1,0, Klammern 1,0, 3D 0,6 (Streuung ±1 ms). Das Zeichnen über die
+2D-Fläche ist als Ganzes zu teuer: jeder der rund 500 Zeichenbefehle je
+Bild läuft einzeln durch den Grafikprozess. Auffällig nebenbei: im
+Pausebildschirm werden je Bild über 5000 Leuchtpunkte gezeichnet (64×64).
+**Vorschlag (noch nicht entschieden):** Effekte mit vielen gleichen Teilen —
+Schüsse, Laser, Partikel, Leuchtpunkte, Randlicht — gesammelt über die
+3D-Fläche (WebGL) zeichnen, je Art ein Befehl statt Hunderte; Aussehen
+gleich.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
