@@ -2530,6 +2530,10 @@ schwebt, hinter der Pinnacle obwohl der Transporter davor schwebt."
 
 **Befund (Silvio, 15.11.2026):** „In M18 ist mir aufgefallen, dass die beiden
 Frachter, die im Laufe der Mission hereinwarpen, keine Warpanimation haben."
+Auf Nachfrage: gemeint sind die feindlichen Taurus. „Bei der Beobachtung in
+deinem Browser jetzt hatten sie Warpanimationen. Beim Spielen in Brave vorhin
+hatten sie keine." (Im eingebauten Browser angehalten mitten im Sprung: alle
+sechs Frachter, Taurus und Kappa, haben einen Wirbel.)
 
 ### F104 — Mikroruckler alle paar Sekunden, besonders in M6 (v287) — offen
 
