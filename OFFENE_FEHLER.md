@@ -2530,8 +2530,34 @@ Windows."
   `draw()` 15 MB/s, `f3dRender()` 8 MB/s.
 - Nicht von F103: die neuen Rahmen zur Laufzeit abgeschaltet ändert in M1
   nichts (17,7 gegen 16,5 MB/s, gleich wenige lange Bilder).
-- Weg: die Stellen finden, die in jedem Bild neue Objekte anlegen
-  (Punkte, Listen, Texte), und sie wiederverwenden.
+- **Ursache, mit Werkzeug festgestellt (15.11.2026):** `tools/heapprof.js`
+  (neu, Speicherprofil im Browser ohne Fenster, mit Zeilen der Logikdatei)
+  über M6, v287, 600 Spielschritte nach 600 Schritten Vorlauf, 48 Gegner:
+  380 MB angelegt, davon
+  - **`eBox()` rund 125 MB (ein Drittel)** — aufgerufen aus
+    `updateAsteroidImpacts()` (68 MB) und aus den Trefferschleifen in
+    `update()` (52 MB). `eBox()` legt bei jedem Aufruf zwei neue Felder an
+    (`rotExtent()` gibt eins zurück, `eBox()` selbst eins) und über
+    `hullView()` oft noch ein Objekt. Gerufen wird sie **für jedes Paar**
+    Schuss × Schiff bzw. Asteroid × Schiff in jedem Schritt, obwohl sich der
+    Kasten eines Schiffs innerhalb eines Schritts nicht ändert.
+  - **`next` rund 36 MB** — das Auspacken `const[ox,oy,ow,oh]=eBox(o)` legt
+    jedes Mal einen Durchlaufzähler an (in `update()` an drei Stellen:
+    Schüsse auf Gegner, auf Verbündete, Bolzen gegen Gegner).
+  - `update()` selbst 68 MB und `updateAsteroidImpacts()` selbst 23 MB
+    (dort u. a. je Asteroid und Schritt ein neues `probe`-Objekt).
+  - kleiner: `tickParts()` 15 MB, `drawRockLight()` 8 MB, `glowSprite()`
+    zusammen rund 13 MB, `fsBrackets()` 4 MB, `flySmall()` 5 MB.
+- **Weg für den nächsten Chat:** den Kasten jedes Schiffs **einmal pro
+  Schritt** berechnen und am Schiff ablegen (mit Schrittnummer `fc`), ohne
+  neues Feld zurückzugeben; die Trefferschleifen lesen die vier Zahlen
+  direkt statt auszupacken. Danach `probe` in `updateAsteroidImpacts()`
+  wiederverwenden. Mit `tools/heapprof.js` vorher und nachher messen
+  (Ziel: `eBox` und `next` verschwinden aus den oberen Zeilen); danach im
+  echten Spiel M6 im eingebauten Browser die Speicherrate und die langen
+  Bilder messen (Fenster sichtbar), wie oben.
+- Die 3D-Zeichnung (`f3dRender()` 8 MB/s im echten Spiel) misst das
+  Werkzeug nicht, weil die Modelle dort fehlen.
 
 ### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B; Etappe 1 (Messen) und 2 (Daten aus dem Modell) erledigt, am Spiel noch nichts geändert
 
