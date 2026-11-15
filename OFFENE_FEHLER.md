@@ -2708,6 +2708,9 @@ Mount-Datei, `F3D_VIEW` und `F3D_ALIAS` liest das Werkzeug aus
   `tools/shot.js`) kann die echten Rahmen aus `hlp_outlines.json` nehmen
   statt grauer Flächen fester Größe.
 
+**Etappe 3 — Reihenfolge (Silvio, 15.11.2026):** „fangen wir klein an" —
+zuerst Jäger und Bomber (Schlüssel `fi…`, `bo…`), dann die übrigen Klassen.
+
 **Bildverwendungen einzeln (im Code nachgelesen, v286):**
 
 | Stelle | läuft bei einem Schiff, das aus dem Modell gezeichnet wird? | Ersatz bei B |
