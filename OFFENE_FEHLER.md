@@ -2514,6 +2514,25 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
+### F104 — Mikroruckler alle paar Sekunden, besonders in M6 (v287) — offen
+
+**Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
+Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
+nicht vorher schon da war. Aufgefallen ist es mir besonders bei Mission 6
+und ja, ich spiele mit demselben Browser wie sonst auch. Jetzt gerade unter
+Windows."
+
+- **Gemessen (eingebauter Browser auf Silvios PC, M6, v287):** das Spiel
+  legt rund **52 MB Speicher je Sekunde** neu an (M1: 17 MB/s). Die langen
+  Bilder (37–84 ms) fallen mit dem Aufräumen des Speichers zusammen (der
+  belegte Speicher fällt dabei um 13–27 MB). Davon `update()` rund 29 MB/s,
+  darin `updateBeams()` 8 MB/s bei rund 3500 Aufrufen je Sekunde;
+  `draw()` 15 MB/s, `f3dRender()` 8 MB/s.
+- Nicht von F103: die neuen Rahmen zur Laufzeit abgeschaltet ändert in M1
+  nichts (17,7 gegen 16,5 MB/s, gleich wenige lange Bilder).
+- Weg: die Stellen finden, die in jedem Bild neue Objekte anlegen
+  (Punkte, Listen, Texte), und sie wiederverwenden.
+
 ### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B; Etappe 1 (Messen) und 2 (Daten aus dem Modell) erledigt, am Spiel noch nichts geändert
 
 **Wunsch (Silvio, 12.11.2026):** „Wir haben immer noch die 2D Sprites der
