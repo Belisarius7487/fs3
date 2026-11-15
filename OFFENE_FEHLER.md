@@ -2707,6 +2707,13 @@ weggelassen**. **v298:** Brocken, Sprite-Schiffe, Schüsse und Partikel
 außerhalb der Kamera werden nicht mehr gezeichnet: **2057 → 977** Befehle je
 Bild. Szenario „v298 F104". Nächster großer Posten: die obere Leiste (280,
 jedes Bild komplett neu gezeichnet).
+Lag-Log v298 (Silvio, Brave): „kleinere Ruckler vernehme ich noch" — im
+Gefecht 4 Hänger (67–133 ms) in 75 s, vorher 8–13. Weiter offen: (1) Leiste
+269 Befehle je Bild, davon `thButton` 84 (Knöpfe, die sich kaum ändern);
+(2) Hänger am Missionsende in allen Browsern (1:22: ein Bild 106 ms im
+Zeichnen, dann 3× 100 ms); in der Aufzeichnung lagen Hänger von 90–130 ms
+auf dem Hauptfaden beim Entpacken von Modellen („DecompressionStream
+Inflate").
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
