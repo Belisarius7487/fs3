@@ -55,8 +55,48 @@ function thCutGlint(x, y, w, h, c, col){
 // top, the gloss over its top third and the cut faces lit. Every surface
 // in the game comes from here, which is why the sheen is applied once,
 // in this function, and never per screen.
+// F104 (v303): pieces of the interface that look the same frame after frame
+// are drawn once into a small canvas and copied from there. The browser's
+// graphics side was busy 85-98 % of each frame in Silvio's Brave trace (M6),
+// and one plate of the bar cost it about 65 us a frame (measured). Baked at
+// the same device pixels - same scale, same fraction of a pixel - and copied
+// 1:1 to a whole pixel, so the copy is the picture it replaces. Only where
+// nothing could tell the two apart: no rotation, full opacity, plain mixing.
+const UI_MEMO = new Map();
+function uiMemo(key, x, y, w, h, pad, draw){
+  if(typeof document === 'undefined' || !ctx.getTransform) return false;
+  if(ctx.globalAlpha !== 1 || ctx.globalCompositeOperation !== 'source-over') return false;
+  const T = ctx.getTransform();
+  if(T.b || T.c || !(T.a > 0) || !(T.d > 0)) return false;
+  const X0 = T.a*(x - pad) + T.e, Y0 = T.d*(y - pad) + T.f;
+  const ix = Math.floor(X0), iy = Math.floor(Y0);
+  const fx = X0 - ix, fy = Y0 - iy;
+  const k = key + '|' + w + '|' + h + '|' + T.a + '|' + T.d + '|' + fx.toFixed(3) + '|' + fy.toFixed(3) + '|' +
+            ctx.lineJoin + ctx.lineCap + ctx.miterLimit + '|' + ECO.scheme;
+  let cv = UI_MEMO.get(k);
+  if(!cv){
+    cv = document.createElement('canvas');
+    cv.width = Math.ceil((w + 2*pad)*T.a) + 2; cv.height = Math.ceil((h + 2*pad)*T.d) + 2;
+    const g = cv.getContext('2d');
+    g.lineJoin = ctx.lineJoin; g.lineCap = ctx.lineCap; g.miterLimit = ctx.miterLimit;
+    g.setTransform(T.a, 0, 0, T.d, T.e - ix, T.f - iy);
+    const keep = ctx; ctx = g;
+    try{ draw(); } finally { ctx = keep; }
+    if(UI_MEMO.size > 300) UI_MEMO.clear();
+    UI_MEMO.set(k, cv);
+  }
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(cv, ix, iy); ctx.restore();
+  return true;
+}
 function thPlate(x, y, w, h, fill, c){
   if(c === undefined) c = 6;
+  if(typeof fill === 'string' && !thPlate._in && typeof uiMemo === 'function'){
+    thPlate._in = true;
+    let ok = false;
+    try{ ok = uiMemo('plate|' + fill + '|' + c, x, y, w, h, 2, function(){ thPlate(x, y, w, h, fill, c); }); }
+    finally{ thPlate._in = false; }
+    if(ok) return;
+  }
   thChamferPath(x, y, w, h, c);
   ctx.fillStyle = fill;
   ctx.fill();
@@ -235,7 +275,9 @@ let ctxRestores = 0, ctxNoticeUntil = 0;
 // there). Every such loss counts up CACHE_GEN, and whoever keeps a picture
 // rebuilds it when the count has moved.
 let CACHE_GEN = 0;
-function cacheLost(){ CACHE_GEN++; }
+function cacheLost(){
+  if(typeof UI_MEMO !== 'undefined') UI_MEMO.clear();   // F104 (v303)
+  CACHE_GEN++; }
 function cacheCanvas(w, h){
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   if(c.addEventListener){

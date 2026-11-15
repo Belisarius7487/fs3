@@ -83,10 +83,57 @@ buildAsteroids();
 // Randlicht in Bildschirmkoordinaten. Auf die gedrehte Silhouette
 // beschnitten, damit der Bogen bei den Einbuchtungen nicht danebenliegt,
 // aber selbst nicht mitgedreht - der Brocken taumelt, das Licht steht.
+// F104 (v303): the clipped light cost the browser's graphics side about
+// 73 us a rock and frame (measured; the clip to the outline is most of it).
+// It is now baked once per rock shape and light direction - AST_LQ steps
+// round the circle - and drawn as two pictures turned with the rock.
+const AST_LQ = 48, AST_LPX = 64;
+function rockLightBake(t, q){
+  if(!t.light) t.light = [];
+  if(t.light[q] !== undefined) return t.light[q];
+  let L = null;
+  try{
+    if(typeof document !== 'undefined'){
+      const b = AST_LPX/t.S, la = q/AST_LQ*Math.PI*2, c = t.S/2*b, R = t.R*b;
+      const mk = function(draw){
+        const cv = document.createElement('canvas'); cv.width = AST_LPX; cv.height = AST_LPX;
+        const g = cv.getContext('2d');
+        g.beginPath(); g.moveTo(t.pts[0][0]*b, t.pts[0][1]*b);
+        for(let i=1;i<t.pts.length;i++) g.lineTo(t.pts[i][0]*b, t.pts[i][1]*b);
+        g.closePath(); g.clip();
+        draw(g); return cv;
+      };
+      L = {
+        d: mk(function(g){ g.strokeStyle = 'rgba(16,13,10,0.50)'; g.lineWidth = R*0.34;
+                           g.beginPath(); g.arc(c, c, R*0.88, la-1.05, la+1.05); g.stroke(); }),
+        m: mk(function(g){ g.strokeStyle = 'rgba(212,196,164,'+AST_RIM+')'; g.lineWidth = R*0.20;
+                           g.beginPath(); g.arc(c, c, R*0.86, la+Math.PI-1.0, la+Math.PI+1.0); g.stroke(); })
+      };
+    }
+  }catch(er){ L = null; }
+  t.light[q] = L;
+  return L;
+}
 function drawRockLight(e, r){
   const t = AST_TEX[e.tex||0];
   if(!t) return;
   const la = lightAngleAt(e.x, e.y);
+  // the rim's floor of 1.4 only bites on the smallest rocks: drawn as before
+  if(r*0.20 >= 1.4){
+    let q = Math.round((la - e.rot)/(Math.PI*2)*AST_LQ) % AST_LQ;
+    if(q < 0) q += AST_LQ;
+    const L = rockLightBake(t, q);
+    if(L){
+      const d = r/t.R*t.S;
+      ctx.save();
+      ctx.translate(e.x, e.y); ctx.rotate(e.rot);
+      ctx.drawImage(L.d, -d/2, -d/2, d, d);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.drawImage(L.m, -d/2, -d/2, d, d);
+      ctx.restore();
+      return;
+    }
+  }
   const k = r/t.R;
   ctx.save();
   ctx.translate(e.x, e.y);

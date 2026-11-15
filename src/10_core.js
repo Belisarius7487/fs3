@@ -39,7 +39,9 @@ const NEB_NAMES=["Aldebaran", "AlphaCentauri", "Antares", "BeAquilae", "darkspac
 
 
 const CVS=document.getElementById('c');
-const ctx=CVS.getContext('2d');
+// let, not const: uiMemo() (20_render.js) points it at a small canvas for a
+// moment to bake a piece of the interface once (F104, v303)
+let ctx=CVS.getContext('2d');
 const W=800,H=500,HUD_H=54;
 
 // ── WORLD AND CAMERA (v208) ──────────────────────────────────

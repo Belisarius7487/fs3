@@ -2779,6 +2779,20 @@ langes Bild; selbst bei 3985×2490 nur 1–2 in 15 s, mit und ohne 3D gleich.
 Während der Mission keine Netzanfragen. In Brave also nicht nachstellbar.
 Nächster Schritt: eine gespeicherte Leistungsaufzeichnung aus Brave (Datei),
 um die Aufgaben im Grafikprozess bei einem Hänger einzeln auszuwerten.
+Aufzeichnung aus Brave (Silvio, 15.11.2026, als Datei; „bei der Aufnahme
+stürzt das Spiel leider immer ab"): der Grafikprozess des Browsers ist mit
+wachsender Gegnerzahl **85–98 % jeder Sekunde** beschäftigt (das Spiel selbst
+3–6 ms je Bild); die Hänger sind einzelne Aufgaben dort von 120–312 ms. Er
+ist also am Anschlag, jede Kleinigkeit darüber wird zum Ruckler — auf
+schwächeren Rechnern erst recht. Gemessen (eingebauter Browser, Wartezeit
+auf den Grafikprozess je Aufruf): Randlicht eines Asteroiden 67 µs
+(Ausschneiden auf den Umriss), eine Platte der Leiste 65 µs, Klammern an
+einem Schiff 38 µs, ein Leuchtpunkt 5,5 µs. **v303:** Randlicht je
+Brockenform und 48 Lichtrichtungen einmal vorgemalt (67 → 20 µs); Platten der
+Leiste einmal vorgemalt und Bildpunkt für Bildpunkt kopiert (`uiMemo()`).
+Aussehen gleich (mittlere Abweichung 0,03–0,04 von 255). Versuch, die
+Klammern als vorgemalte Streifen zu zeichnen, war langsamer (55 µs) und
+wurde verworfen. Szenario „v303 F104".
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es

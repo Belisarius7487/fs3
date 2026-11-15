@@ -6409,6 +6409,34 @@ scenario('v301 F104: the vortex sheet is on the graphics card before the first w
   if(r.helper && F3D.gl){ f3dWarmFx(); r.uploaded = !imgReady(WARP_IMG) || !!(F3D_FXTEX.warp && F3D_FXTEX.warp.t); }
   else r.uploaded = r.helper && !F3D.gl;
   return r;`);
+scenario('v303 F104: baked plates and rock lights look like the drawn ones', 'm=6', `
+  const r = {};
+  FS.step(20);
+  r.helpers = typeof uiMemo === 'function' && typeof rockLightBake === 'function';
+  if(!r.helpers) return r;
+  const grab = function(fn){
+    ctx.save(); ctx.setTransform(RES_X, 0, 0, RES_Y, 0, 0);
+    ctx.fillStyle = '#202830'; ctx.fillRect(90, 90, 220, 220); fn(); ctx.restore();
+    return ctx.getImageData(Math.round(90*RES_X), Math.round(90*RES_Y), Math.round(220*RES_X), Math.round(220*RES_Y)).data;
+  };
+  const diff = function(a, b){ let s = 0; for(let i = 0; i < a.length; i++) s += Math.abs(a[i] - b[i]); return s/a.length; };
+  const fill = TH('plate') || '#223';
+  const plate = function(){ ctx.save(); ctx.setTransform(RES_X, 0, 0, RES_Y, 0, 0); thPlate(120.5, 130, 63, 31, fill); ctx.restore(); };
+  UI_MEMO.clear();
+  const a = grab(function(){ thPlate._in = true; try{ thPlate(120.5, 130, 63, 31, fill); } finally { thPlate._in = false; } });
+  const b = grab(function(){ thPlate(120.5, 130, 63, 31, fill); });
+  r.plateBaked = UI_MEMO.size === 1;
+  r.plateSame = diff(a, b) < 0.05;
+  const rock = {x: 200, y: 200, sc: 2, rot: 0.7, tex: 2};
+  const t = AST_TEX[2], q = Math.round((lightAngleAt(200, 200) - 0.7)/(Math.PI*2)*AST_LQ);
+  rock.rot = lightAngleAt(200, 200) - q/AST_LQ*Math.PI*2;   // on a step: no rounding
+  const old = function(){ const keep = rockLightBake; window.rockLightBake = function(){ return null; };
+    try{ drawRockLight(rock, 40); } finally { window.rockLightBake = keep; } };
+  const c = grab(old), d = grab(function(){ drawRockLight(rock, 40); });
+  r.rockBaked = !!(t.light && t.light.some(function(L){ return L; }));
+  r.rockClose = diff(c, d) < 0.5;
+  r.diffs = [diff(a, b).toFixed(3), diff(c, d).toFixed(3)].join(' ');
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);
