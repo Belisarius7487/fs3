@@ -2752,6 +2752,11 @@ nach „damage picture", teils ohne Ereignis. Silvio: „Wenn ich raten müsste
 haben die restlichen Ruckler Explosionen zur Ursache." **v302:** Testschalter
 `&lag=1` (Explosionsbilder nicht gezeichnet), `&lag=2` (Schadensbild nicht
 auf die Modelle geladen), `&lag=3` (beides) — nur zum Messen in Brave.
+Lag-Log v302 mit `&lag=1` (Silvio, Brave, M6): „Die Ruckler sind schlimmer
+denn je" — 61 Hänger 50–233 ms (v301 ohne Schalter: 9). Ohne Explosionsbilder
+also mehr statt weniger: die Explosionen sind es nicht. Nächster Schritt:
+v302 ohne Schalter noch einmal, um zu sehen, ob es am Schalter oder am
+Zustand des PCs lag.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
