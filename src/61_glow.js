@@ -54,6 +54,46 @@ function glowSprite(col, hot){
   g.fillStyle = gr; g.fillRect(0, 0, GLOW_N, GLOW_N);
   return (GLOW_SPR[k] = c);
 }
+// F104 (v294, Silvio's lag log in Brave, M6: hitches of 60-250 ms right
+// after "new glow sprite" - a new canvas, painted and handed to the graphics
+// card in the middle of the fight). The glows the FS1 missions 1-18 use
+// (collected by playing them headless) are made on the title screen, a few
+// at a time, and each drawn once, invisibly, so the card has it already.
+const GLOW_WARM = [
+  '128,208,255|0', '144,208,255|0.7', '176,224,255|0.7', '192,240,255|0.5',
+  '192,240,255|0.7', '192,80,32|0.7', '208,255,208|0.7', '208,255,208|1',
+  '224,128,32|0', '224,128,48|0', '224,144,48|0', '224,160,48|0',
+  '224,160,64|0', '240,160,64|0', '240,176,64|0', '240,176,80|0',
+  '240,192,80|0', '240,208,80|0', '240,240,255|0.7', '240,240,255|1',
+  '255,112,112|0', '255,112,64|0.7', '255,128,96|0.5', '255,128,96|0.7',
+  '255,144,144|0.5', '255,144,144|0.7', '255,144,48|0', '255,160,64|0.7',
+  '255,176,0|0.7', '255,176,48|0.7', '255,176,96|0.5', '255,176,96|0.7',
+  '255,192,176|0.7', '255,192,176|1', '255,192,192|0.7', '255,192,192|1',
+  '255,192,80|0.5', '255,192,80|0.7', '255,208,128|0.7', '255,208,176|0.5',
+  '255,208,176|0.7', '255,208,208|0.7', '255,208,208|1', '255,208,80|0',
+  '255,208,96|0', '255,208,96|0.7', '255,224,0|0.7', '255,224,160|0.7',
+  '255,224,176|0.8', '255,224,208|0.7', '255,224,208|1', '255,224,224|0.7',
+  '255,224,224|1', '255,224,96|0', '255,240,192|0.7', '255,240,192|1',
+  '255,240,224|0.7', '255,240,224|1', '255,255,255|0.7', '255,32,16|0',
+  '255,48,16|0', '255,48,16|0.5', '255,48,16|0.7', '255,64,48|0',
+  '255,80,48|0.5', '255,80,48|0.7', '255,96,0|0.7', '32,224,32|0',
+  '64,176,255|0.7', '64,64,64|0.7', '80,80,96|0.7', '96,255,96|0.5',
+  '96,255,96|0.7'
+];
+function glowWarm(){
+  if(typeof document === 'undefined' || typeof ctx === 'undefined') return;
+  let i = 0;
+  (function step(){
+    try{
+      for(let n = 0; n < 4 && i < GLOW_WARM.length; n++, i++){
+        const p = GLOW_WARM[i].split('|'), s = glowSprite('rgb(' + p[0] + ')', +p[1]);
+        if(s){ const a0 = ctx.globalAlpha; ctx.globalAlpha = 0.004; ctx.drawImage(s, 0, 0, 1, 1); ctx.globalAlpha = a0; }
+      }
+    }catch(e){ i = GLOW_WARM.length; }
+    if(i < GLOW_WARM.length) setTimeout(step, 40);
+  })();
+}
+if(typeof window !== 'undefined' && typeof setTimeout !== 'undefined') setTimeout(glowWarm, 800);
 // Draws one glow, centred, rx by ry (radii), turned by ang. Additive.
 function glowAt(x, y, rx, ry, col, alpha, hot, ang){
   const s = glowSprite(col, hot); if(!s || !(rx > 0) || !(ry > 0) || !(alpha > 0)) return;

@@ -6326,6 +6326,13 @@ scenario('v293 F112: bonus is a row of its own', 'm=6', `
   FS.step(30);
   r.bonusFailed = MLOG.objs.length === 2 && MLOG.objs[1].st === 'fail' && MLOG.objs[0].st === 'open';
   return r;`);
+// F104 (v294): the glows of missions 1-18 are made before the fight
+scenario('v294 F104: glow sprites made in advance', 'm=6', `
+  const r = {};
+  await new Promise(function(res){ setTimeout(res, 3500); });
+  r.listed = typeof GLOW_WARM !== 'undefined' && GLOW_WARM.length > 50;
+  r.allMade = r.listed && GLOW_WARM.every(function(k){ return !!GLOW_SPR[k]; });
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

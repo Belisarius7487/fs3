@@ -2637,6 +2637,15 @@ weg. Größte Posten danach laut heapprof: `update()` selbst 51 MB,
 `updateAsteroidImpacts()` 21 MB, `tickParts()` 18 MB je 600 Schritte.
 Silvio zu v291: „Bisher hab ich keine Ruckler mehr festgestellt." Zu v293
 (15.11.2026): „Ich hab wieder Ruckler in M6".
+Im eingebauten Browser (v293, M6, 30 s): zwei Bilder über 34 ms, Spiel darin
+unter 7 ms, kein Aufräumen des Speichers in dem Moment. **Silvios Lag-Log aus
+Brave (v293, M6, 27 s):** 9 Bilder über 50 ms (67–283 ms), fast alles
+„elsewhere" (außerhalb des Spielcodes), jeweils nach „warp in deorionright"
+(Missionsstart), „new glow sprite" (bis x14) oder Asteroiden-Explosionen mit
+300–600 Partikeln. **v294:** die 73 Leuchtbilder, die M1–M18 brauchen
+(headless gesammelt), werden auf dem Titelbild vorab gemacht und einmal
+unsichtbar gezeichnet (`GLOW_WARM`, `glowWarm()`). Szenario „v294 F104".
+Offen, falls es bleibt: Partikel-Obergrenze (650) senken.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
