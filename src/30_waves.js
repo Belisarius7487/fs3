@@ -824,10 +824,20 @@ function idPending(id){
 }
 // Counts one cargo run as lost, once. Every path that loses cargo goes
 // through here, so a container can never be counted twice.
-function cargoLost(c){
-  if(!c || c.lostCounted) return;
+// F107 (v292): only cargo meant for one of ours is a loss. A container an
+// enemy freighter came for (M3, M18: the Taurus) that he never got away
+// with is a win, not a failed objective. Unclaimed cargo counts only when
+// the mission gave it to us to guard. Returns whether it was counted.
+function cargoOurs(c, by){
+  const o = by || c.carrier || c.resBy;
+  return o ? o.side === 'ally' : !!c.guard;
+}
+function cargoLost(c, by){
+  if(!c || c.lostCounted) return false;
   c.lostCounted = true;
+  if(!cargoOurs(c, by)) return false;
   protLost++; guardLost = true;
+  return true;
 }
 // One container per freighter. Nearest free one of the id, where free means
 // alive, not carried, not left behind and not promised to a living freighter.
@@ -863,8 +873,9 @@ function leaveEmpty(e, wasCargo){
   if(e.uid) EV_EMPTY[e.uid] = true;
   if(wasCargo){
     e.emptyRun = true;
+    // F107 (v292): an enemy leaving empty is good news
     SUB_MSGS.push({x:e.x, y:e.y-28, txt:'NO CARGO', life:150, ml:150,
-                   ally:false, tone:'bad'});
+                   ally:false, tone:e.side==='ally' ? 'bad' : 'good'});
   }
   if(e.crossAfter){ e.crossing = e.crossAfter; faceTurn(e, e.crossAfter < 0); }
   if(e.escaping) faceTurn(e, false);
@@ -887,7 +898,7 @@ function carryCargo(e){
   if(!unitAlive(c)){
     // Shot off the carrier on the way: he arrives with nothing.
     e.dockedTo = null; e.hasCargo = false; e.emptyRun = true;
-    cargoLost(c);
+    cargoLost(c, e);
     return;
   }
   const st = cargoSeat(e, c);
@@ -1071,13 +1082,14 @@ function tickDocking(){
   for(const c of all){
     if(!c.pickup || c.carried || c.stranded || c.dead || c.warp>0) continue;
     if(cargoStillWanted(c)) continue;
+    const ours = cargoOurs(c);     // F107: before guard is dropped
     c.stranded = true; c.scenery = true; c.guard = false;
     // A freighter that died on its way here was already counted as lost.
     if(c.resBy && c.resBy.dead) c.lostCounted = true;
-    else cargoLost(c);
+    else if(!c.lostCounted){ c.lostCounted = true; if(ours){ protLost++; guardLost = true; } }
     c.resBy = null;
     SUB_MSGS.push({x:c.x, y:c.y-24, txt:'CARGO LEFT BEHIND', life:170, ml:170,
-                   ally:false, tone:'bad'});
+                   ally:false, tone:ours ? 'bad' : 'good'});
   }
   for(const e of all){
     if(!e.dockTo || e.dead || e.warp>0) continue;

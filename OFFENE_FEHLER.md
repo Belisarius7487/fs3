@@ -2566,6 +2566,13 @@ Auf Nachfrage: „In Mission 3." Später auch zu M18: „Gleiches Problem mit zu
 langen UND gefailten Missionszielen, weil Taurus seine Fracht nicht mitnehmen
 konnte." Bildschirmfotos (Pause-Log): M3 und M18 zeigen „CARGO LEFT BEHIND"
 rot, in M18 dazu zweimal „NO CARGO" rot.
+Ursache im Code: jede liegengebliebene Ladung schrieb „CARGO LEFT BEHIND"
+rot ins Protokoll (und zählte als Verlust), egal wem sie gehörte; „NO CARGO"
+war immer rot. **v292:** als Verlust (rot) zählt nur Ladung für einen
+eigenen Frachter (`cargoOurs()`: Träger oder Reservierer verbündet, sonst nur
+bewachte Ladung); feindliche Ladung, die liegen bleibt, und ein feindlicher
+Frachter ohne Ladung stehen grün im Protokoll. Szenario „v292 F107"
+(schlägt gegen v291 fehl).
 
 ### F106 — M15: Sprungwirbel der Elysium hinter der Pinnacle (v289) — offen
 
@@ -2580,6 +2587,9 @@ Rümpfe; Sigma und Pinnacle lagen in derselben Gruppe. **v290:** ein Schiff,
 dessen Wirbel gerade zu sehen ist, bekommt eine eigene Gruppe nach den
 größeren Rümpfen (wie die Kleinschiffe seit F92). Szenario „v290 F106"
 (schlägt gegen v289 fehl).
+Nachtrag v292: v290 trennte auch einen Frachter, der mit seinem Container
+springt, von diesem (Szenario „v280 F97" rot). Jetzt bleibt ein Verband,
+der gemeinsam springt, in einer Gruppe.
 Nach Silvios Bau im echten Spiel angesehen (v290, M15): der Wirbel der Sigma
 steht vor der Pinnacle. Silvios Urteil steht aus.
 

@@ -34,7 +34,7 @@ function constObj(name){
   return src.slice(at, block(at)) + ';';
 }
 
-const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','idPending','cargoLost','claimCargo',
+const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','idPending','cargoLost','cargoOurs','claimCargo',
   'leaveEmpty','cargoStillWanted','carryCargo','cargoDockUp','cargoSeat','dropCargo','tickCarry','tickDocking',
   'tickCrossGuards','killEnemy','byId','evSeen','mountsFor','f103Mounts','hullClass',
   'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns',

@@ -6300,6 +6300,20 @@ scenario('v291 F104: the hit box is reused, and follows the ship', 'm=6', `
   r.followsTurn = eBox(e)[2] !== w0;
   e.ang -= 0.5;
   return r;`);
+// F107 (v292): cargo an enemy freighter came for and never took is no loss
+// of ours (M3: the Bast and the Ma'at shot before they loaded).
+scenario('v292 F107: enemy cargo left behind is not a failed objective', 'm=3', `
+  const r = {};
+  FS.until(()=>byId('F1').length>0 && byId('F2').length>0 && !(byId('F1')[0].warp>0) && !(byId('F2')[0].warp>0), 600, false);
+  const p0 = protLost;
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); return byId('F1').length===0 && byId('F2').length===0; }, 600, false);
+  FS.until(()=>{ player.invT = 999; return MLOG.log.some(function(l){ return /CARGO LEFT BEHIND/.test(l.txt); }); }, 2000, false);
+  r.log = MLOG.log.map(function(l){ return l.txt + ':' + l.tone; }).join(' | ');
+  const lines = MLOG.log.filter(function(l){ return /CARGO LEFT BEHIND/.test(l.txt); });
+  r.leftBehindSeen = lines.length > 0;
+  r.notBad = lines.every(function(l){ return l.tone !== 'bad'; });
+  r.noLossCounted = protLost === p0;
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

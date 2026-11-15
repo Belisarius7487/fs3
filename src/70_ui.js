@@ -119,7 +119,9 @@ function draw(){
       // drawn before the batch and a larger hull of the same batch covers
       // it (M15: Sigma jumping out at the Pinnacle's stern).
       if(f3dFront(e) ? _f3seg.some(function(s){ return s.hulk || !f3dFront(s.e); })
-                     : ((e.warp > 0 || e.warpOut > 0) && _f3seg.length)) _f3flush();
+                     : ((e.warp > 0 || e.warpOut > 0) && _f3seg.some(function(s){
+                         // not away from what is docked to her: one jump, one batch (F97, F100)
+                         return s.hulk || !(s.e === e.dockedTo || s.e === e.carrier || s.e.dockedTo === e || s.e.carrier === e); }))) _f3flush();
       _f3seg.push(_f3); continue;
     }
     _f3flush();
