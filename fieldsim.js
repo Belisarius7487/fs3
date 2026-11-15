@@ -6333,6 +6333,21 @@ scenario('v294 F104: glow sprites made in advance', 'm=6', `
   r.listed = typeof GLOW_WARM !== 'undefined' && GLOW_WARM.length > 50;
   r.allMade = r.listed && GLOW_WARM.every(function(k){ return !!GLOW_SPR[k]; });
   return r;`);
+// F104 (v295): particles in two passes, the fireball from a sprite
+scenario('v295 F104: particles drawn with one blend switch, fireball sprite', 'm=6', `
+  const r = {};
+  FS.step(5);
+  PARTS.length = 0;
+  PARTS.push({type:'fb', x:CAM.x, y:CAM.y, life:20, ml:40, maxR:60, r:0});
+  for(let i=0;i<30;i++) PARTS.push({x:CAM.x+i, y:CAM.y, life:20, ml:40, sz:2, clr:'#ffcc66'});
+  let sw = 0; const proto = Object.getPrototypeOf(ctx), d0 = Object.getOwnPropertyDescriptor(proto, 'globalCompositeOperation');
+  Object.defineProperty(ctx, 'globalCompositeOperation', {configurable:true, get(){ return d0.get.call(this); }, set(v){ sw++; d0.set.call(this, v); }});
+  try{ drawParts(); }catch(e){ r.err = String(e); }
+  delete ctx.globalCompositeOperation;
+  r.fewSwitches = sw <= 4;
+  r.switches = sw;
+  r.fireballSprite = typeof FB_SPR !== 'undefined' && Object.keys(FB_SPR).length > 0;
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

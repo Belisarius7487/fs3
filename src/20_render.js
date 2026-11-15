@@ -1298,38 +1298,74 @@ function tickParts(){
   }
 }
 const FB_MIN_PX = 5;      // v209: a fireball is never smaller on the screen
+// F104 (v295, Silvio: cheaper hit effects without looking worse): the
+// same pictures, drawn in two passes - first every additive glow with the
+// blend mode set once, then the solid parts (fireballs, rings, debris
+// cores, smoke). Switching the blend mode for every single particle made
+// the graphics card wait (Brave: hitches of 100-250 ms with 300-600
+// particles). The fireball's gradient is painted once per strength into a
+// sprite instead of anew for every fireball and frame.
+const FB_SPR = {}, FB_N = 128;
+function fbSprite(a){
+  const k = Math.round(a*10);
+  if(FB_SPR[k]) return FB_SPR[k];
+  if(typeof document === 'undefined') return null;
+  const aa = k/10, c = document.createElement('canvas'); c.width = c.height = FB_N;
+  const g = c.getContext('2d'), r = FB_N/2, gr = g.createRadialGradient(r, r, 0, r, r, r);
+  gr.addColorStop(0,'rgba(255,255,255,1)');
+  gr.addColorStop(0.25,'rgba(255,240,100,'+aa+')');
+  gr.addColorStop(0.55,'rgba(255,100,0,'+aa*0.85+')');
+  gr.addColorStop(0.8,'rgba(180,30,0,'+aa*0.5+')');
+  gr.addColorStop(1,'rgba(60,0,0,0)');
+  g.fillStyle = gr; g.beginPath(); g.arc(r, r, r, 0, Math.PI*2); g.fill();
+  return (FB_SPR[k] = c);
+}
 function drawParts(){
   ctx.save();
   // v209: sparks, debris and trails at their v207 size on the screen
   // (fxG), a fireball at least FB_MIN_PX across; smoke clouds keep the
   // size of their blast
-  var G=fxG(), FBm=FB_MIN_PX/CAM.z;
-  for(var pi=0;pi<PARTS.length;pi++){
-    var p=PARTS[pi];
+  var G=fxG(), FBm=FB_MIN_PX/CAM.z, pi, p, a;
+  // pass 0: fireballs under everything else, as the sparks lay over them
+  for(pi=0;pi<PARTS.length;pi++){
+    p=PARTS[pi];
+    if(p.type!=='fb') continue;
     if(!p.ml||p.ml===0) p.ml=p.life;
-    var a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
-
-    if(p.type==='fb'){
-      // Feuerball: Radialverlauf (eigenes save/restore)
+    a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
       var prog=1-(p.life/p.ml);
       var r=Math.max(2, FBm*(0.4+0.6*prog), p.maxR*(0.4+0.6*prog));
-      try {
-        var gr=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
-        gr.addColorStop(0,'rgba(255,255,255,1)');
-        gr.addColorStop(0.25,'rgba(255,240,100,'+a+')');
-        gr.addColorStop(0.55,'rgba(255,100,0,'+a*0.85+')');
-        gr.addColorStop(0.8,'rgba(180,30,0,'+a*0.5+')');
-        gr.addColorStop(1,'rgba(60,0,0,0)');
-        ctx.globalAlpha=1;
-        ctx.fillStyle=gr;
-        ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();
-      } catch(ex){
-        ctx.globalAlpha=a;
-        ctx.fillStyle='rgba(255,150,0,0.8)';
-        ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();
-      }
+      var fs=fbSprite(a);
+      ctx.globalAlpha=1;
+      if(fs) ctx.drawImage(fs, p.x-r, p.y-r, r*2, r*2);
+      else { ctx.globalAlpha=a; ctx.fillStyle='rgba(255,150,0,0.8)'; ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill(); }
       p.r=r;
-
+  }
+  // pass 1: the glows, additive
+  ctx.globalCompositeOperation='lighter';
+  for(pi=0;pi<PARTS.length;pi++){
+    p=PARTS[pi];
+    if(!p.ml||p.ml===0) p.ml=p.life;
+    a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
+    if(p.type==='mag'){
+      // v213: a soft glow (61_glow.js) instead of stacked circles
+      glowAdd(p.x, p.y, (p.sz||1.5)*2.6*G, (p.sz||1.5)*2.6*G, p.clr||'#ffffff', a, 0.8);
+    } else if(p.type==='deb'){
+      var tp=1-(p.life/p.ml), sz=Math.max(0.8,p.sz*(1-tp*0.4))*G;
+      // v213: a soft glow round a small hot core, no hard ring
+      glowAdd(p.x, p.y, sz*2.2, sz*2.2, lerpRGB(255,220,100,200,80,0,tp*0.7), a*0.6, 0);
+    } else if(p.type!=='fb' && p.type!=='ring' && p.type!=='smoke' && !p.free){
+      // v213: one soft glow with a white-hot heart, no rings
+      var sz2=(p.sz||2)*G;
+      if(a > 0.04) glowAdd(p.x, p.y, sz2*1.6, sz2*1.6, p.clr||'#ffffff', a, 0.7);   // v215: smaller, none when faded
+    }
+  }
+  ctx.globalCompositeOperation='source-over';
+  // pass 2: the solid parts
+  for(pi=0;pi<PARTS.length;pi++){
+    p=PARTS[pi];
+    a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
+    if(p.type==='fb'){
+      // drawn in pass 0
     } else if(p.type==='ring'){
       var rp=Math.pow(1-(p.life/p.ml),0.5);
       var rr=p.r+(p.maxR-p.r)*rp;
@@ -1337,49 +1373,27 @@ function drawParts(){
       ctx.strokeStyle='rgba('+p.cr+','+p.cg+','+p.cb+','+Math.min(1,a*1.2)+')';
       ctx.lineWidth=Math.max(0.5,p.lw*(1.5-rp))*G;
       ctx.beginPath();ctx.arc(p.x,p.y,rr,0,Math.PI*2);ctx.stroke();
-
-    } else if(p.type==='mag'){
-      // v213: a soft glow (glowAt, 61_glow.js) instead of stacked circles
-      ctx.globalAlpha=1;
-      glowAt(p.x, p.y, (p.sz||1.5)*2.6*G, (p.sz||1.5)*2.6*G, p.clr||'#ffffff', a, 0.8);
-
     } else if(p.type==='deb'){
-      // Debris: glow from stacked circles
-      var tp=1-(p.life/p.ml);
-      var dclr=lerpRGB(p.sr,p.sg,p.sb,p.er,p.eg,p.eb,tp);
-      var sz=Math.max(0.8,p.sz*(1-tp*0.4))*G;
-      // v213: a soft glow round a small hot core, no hard ring
-      ctx.globalAlpha=1;
-      glowAt(p.x, p.y, sz*2.2, sz*2.2, lerpRGB(255,220,100,200,80,0,tp*0.7), a*0.6, 0);
+      var tq=1-(p.life/p.ml), sq=Math.max(0.8,p.sz*(1-tq*0.4))*G;
       ctx.globalAlpha=a;
-      ctx.fillStyle=dclr;
-      ctx.beginPath();ctx.arc(p.x,p.y,sz*0.55,0,Math.PI*2);ctx.fill();
-
+      ctx.fillStyle=lerpRGB(p.sr,p.sg,p.sb,p.er,p.eg,p.eb,tq);
+      ctx.beginPath();ctx.arc(p.x,p.y,sq*0.55,0,Math.PI*2);ctx.fill();
     } else if(p.free){
       dmgDrawPart(p, a);
-
+      ctx.globalCompositeOperation='source-over';
     } else if(p.type==='smoke'){
       var tp2=1-(p.life/p.ml);
       var v=p.v||50;
       // v216: an FS smoke cloud (ParticleSmoke01, 63_fxanim.js)
-      if(typeof drawFxSmoke==='function' && drawFxSmoke(p, a, p.sz*(1+tp2*1.5))) continue;
+      if(typeof drawFxSmoke==='function' && drawFxSmoke(p, a, p.sz*(1+tp2*1.5))){ ctx.globalCompositeOperation='source-over'; continue; }
       ctx.globalAlpha=a*0.3;
       ctx.fillStyle='rgb('+v+','+v+','+v+')';
       var sr2=p.sz*(1+tp2*1.5);         // a cloud: as large as its blast
       ctx.beginPath();ctx.arc(p.x,p.y,sr2,0,Math.PI*2);ctx.fill();
-
-    } else {
-      // Default: two stacked circles for glow, no shadowBlur
-      var sz2=(p.sz||2)*G;
-      var clr=p.clr||'#ffffff';
-      // v213: one soft glow with a white-hot heart (glowAt), no rings
-      ctx.globalAlpha=1;
-      if(a > 0.04) glowAt(p.x, p.y, sz2*1.6, sz2*1.6, clr, a, 0.7);   // v215: smaller, none when faded
     }
   }
   ctx.restore(); // stellt globalAlpha, lineWidth, etc. wieder her
 }
-
 
 let GS='title';
 let paused=false;

@@ -2646,6 +2646,17 @@ Brave (v293, M6, 27 s):** 9 Bilder über 50 ms (67–283 ms), fast alles
 (headless gesammelt), werden auf dem Titelbild vorab gemacht und einmal
 unsichtbar gezeichnet (`GLOW_WARM`, `glowWarm()`). Szenario „v294 F104".
 Offen, falls es bleibt: Partikel-Obergrenze (650) senken.
+Lag-Log v294 (Silvio, Brave, M6): keine „new glow sprite"-Hänger mehr; übrig
+13 Bilder über 50 ms, fast alle „elsewhere", nach Asteroiden-Explosionen,
+Schadensbildern und beim Absprung. Silvio: „es muss ja ersichtlich bleiben,
+dass man etwas trifft. Gibts eine Möglichkeit, dies weniger leistungshungrig
+zu gestalten, ohne dass es schlechter aussieht? [...] (Beams würde ich ungern
+anrühren [...])". **v295:** Partikel in drei Durchgängen (Feuerbälle, dann
+alle Leuchtpunkte mit einmal umgeschaltetem Mischmodus, dann der Rest) statt
+Umschalten für jeden einzelnen; Feuerball aus vorgemaltem Bild statt neuem
+Verlauf je Bild (`fbSprite`, auf dem Titelbild vorab). Headless-Vergleich
+v294/v295 mit gleichen Partikeln: Bild gleich (mittlere Abweichung 0,2 von
+255). Beams unberührt. Szenario „v295 F104" (60 → 2 Umschaltungen).
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es

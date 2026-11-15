@@ -91,9 +91,19 @@ function glowWarm(){
       }
     }catch(e){ i = GLOW_WARM.length; }
     if(i < GLOW_WARM.length) setTimeout(step, 40);
+    else if(typeof fbSprite === 'function') try{   // v295: the fireballs too
+      for(let k = 0; k <= 10; k++){ const f = fbSprite(k/10); if(f){ const a0 = ctx.globalAlpha; ctx.globalAlpha = 0.004; ctx.drawImage(f, 0, 0, 1, 1); ctx.globalAlpha = a0; } }
+    }catch(e){}
   })();
 }
 if(typeof window !== 'undefined' && typeof setTimeout !== 'undefined') setTimeout(glowWarm, 800);
+// F104 (v295): one glow while the caller holds 'lighter' - no switching
+function glowAdd(x, y, rx, ry, col, alpha, hot){
+  if(!(rx > 0) || !(ry > 0) || !(alpha > 0)) return;
+  const s = glowSprite(col, hot); if(!s) return;
+  ctx.globalAlpha = Math.min(1, alpha);
+  ctx.drawImage(s, x - rx, y - ry, rx*2, ry*2);
+}
 // Draws one glow, centred, rx by ry (radii), turned by ang. Additive.
 function glowAt(x, y, rx, ry, col, alpha, hot, ang){
   const s = glowSprite(col, hot); if(!s || !(rx > 0) || !(ry > 0) || !(alpha > 0)) return;
