@@ -2779,6 +2779,17 @@ Rettungskapseln `ep`, `sc`, `me`. Andocken rechnet nur mit der Breite
 (`dkHalf()`, Andockdaten in Modellmaß), bleibt also unberührt; die
 Andock-Szenarien M3, M14, M16, M18 (F97, F99) laufen grün. Offen: die großen
 Schiffe (`cr`, `co`, `de`, `ca`, `sd`, `gm`, `in`, `nt…`).
+**Abgenommen (Silvio, 15.11.2026):** „Für mich sahen alle Missionen soweit
+in Ordnung aus, in denen Schiffe docken." Auf dem Server geprüft: v288 live,
+Chronos-Rahmen 228×88 aus dem Modell, Aten noch Sprite.
+
+**Nächster Schritt:** die großen Schiffe — `F103_CLASSES` in
+`20_render.js` um ihre Schlüssel erweitern. Dort ändert sich viel (Aten
++32 %, Iceni +16 %, Mentu +16 %, Aeolus +12 %, Orion +8 %): die
+Editor-Positionen (Subsysteme, Geschütze, Strahlen) rechnet `f103Mounts()`
+schon um; prüfen, was sonst an der Höhe hängt (`dmgBuild()`-Schadensbild,
+`F3D_VIEW`, Schilde, Zerstörer-Hangar `$bay`, Container-Tiefe beim Andocken
+an großen Schiffen). Einzelne Klasse zuerst, im echten Spiel ansehen.
 
 **Befund zu v287 (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler. Die Treffersilhouette scheint aber soweit zu stimmen."
