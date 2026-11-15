@@ -2763,6 +2763,14 @@ zu zeichnen macht es in Brave also schlimmer, nicht besser — das passt zu
 einer Grafikkarte, die bei wenig Last heruntertaktet, und nicht zu zu viel
 Arbeit des Spiels. Edge auf demselben PC hatte schon mit v295 im Gefecht
 keinen Hänger.
+Silvio auf den Vorschlag, hier aufzuhören: „Ich erwarte, dass du eine
+brauchbare Lösung findest, ohne dabei meine Grafikkarte zu grillen oder
+meinen Browser zu verdammen." → F104 bleibt offen, keine künstliche Last,
+keine Browser-Einstellungen. Gemessen (eingebauter Browser, M6, v302, je
+Bild): 4 Kopien aus der 3D-Fläche in die 2D-Fläche, 74 neue Farbverläufe,
+19 Ausschneide-Formen, 174 Zeichnungen mit anderem Mischmodus. Nächster
+Schritt: der Grafikbericht aus Brave und Edge (brave://gpu, edge://gpu),
+um zu sehen, worin sich die beiden auf demselben PC unterscheiden.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
