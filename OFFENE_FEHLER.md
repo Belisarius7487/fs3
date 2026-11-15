@@ -2599,6 +2599,16 @@ bis Silvio es wieder sieht (dann: waren die Taurus beim Eintreffen im Bild?).
 Silvio, 15.11.2026: „Und über allem liegt immer noch das Problem mit den
 Rucklern."
 
+**v291 (15.11.2026):** der Weg aus „Weg für den nächsten Chat" gebaut:
+`eBox()` merkt sich den Kasten am Schiff (Schlüssel in einem Zahlenfeld:
+Schritt, Ort, Winkel, Größe, Wende, Kamera) und gibt immer dasselbe Feld
+zurück; die drei Trefferschleifen in `update()` lesen die vier Zahlen ohne
+Auspacken; `hullView()` vergleicht Zahlen statt einen Text zu bauen;
+`updateAsteroidImpacts()` nutzt ein Prüfobjekt für alle Brocken und den
+Kasten des Spielers einmal je Schritt. `tools/heapprof.js` M6, 600 Schritte:
+**469 → 237 MB** (`eBox` 147 → 35 MB, `next` 38 MB → weg). Szenario
+„v291 F104" (schlägt gegen v290 fehl).
+
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
 nicht vorher schon da war. Aufgefallen ist es mir besonders bei Mission 6

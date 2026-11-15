@@ -860,9 +860,11 @@ function hullPt(e, x, y, d){
 // sprites, ships not drawn this moment and the sprite mode. Once per step.
 function hullView(e){
   if(!e || F3D_FOV < 0.1) return null;
-  const f = ((typeof fc !== 'undefined') ? fc : 0) + '|' + ((typeof CAM !== 'undefined') ? CAM.x + ',' + CAM.y + ',' + CAM.z : '');
-  if(e._hvFc === f) return e._hv;
-  e._hvFc = f; e._hv = null;
+  // F104 (v291): compared as numbers - the key used to be a new string per call
+  const f = (typeof fc !== 'undefined') ? fc : 0, hc = (typeof CAM !== 'undefined');
+  const cx0 = hc ? CAM.x : 0, cy0 = hc ? CAM.y : 0, cz0 = hc ? CAM.z : 0;
+  if(e._hvFc === f && e._hvX === cx0 && e._hvY === cy0 && e._hvZ === cz0) return e._hv;
+  e._hvFc = f; e._hvX = cx0; e._hvY = cy0; e._hvZ = cz0; e._hv = null;
   const z = f3dMidZ(e);
   if(!z) return null;
   const D = f3dEyeD(), k = D/Math.max(D*0.05, D - z);

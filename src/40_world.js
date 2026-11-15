@@ -2490,17 +2490,26 @@ function astBreaks(a){
   spawnDebris(a.x, a.y, 10, 190,175,150, 120,100,80, false);
 }
 
+// F104 (v291): the rock as a shot for the hull tests, one object reused
+const AST_PROBE = {x:0, y:0, w:0, h:0, vx:0, vy:0};
+function astProbe(a, r){
+  AST_PROBE.x = a.x; AST_PROBE.y = a.y; AST_PROBE.w = AST_PROBE.h = r*2;
+  AST_PROBE.vx = a.vx; AST_PROBE.vy = a.vy;
+  return AST_PROBE;
+}
 function updateAsteroidImpacts(){
+  let pb = null;      // F104 (v291): the player's box once per step, not per rock
   for(let i=enemies.length-1;i>=0;i--){
     const a = enemies[i];
     if(a.type!=='asteroid' || a.dead) continue;
     const r = 16*a.sc;
-    const probe = {x:a.x, y:a.y, w:r*2, h:r*2, vx:a.vx, vy:a.vy};
+    // F104 (v291): one probe for all rocks, filled only when a box is touched
     let struck = false;
 
     if(GS==='playing' && player.hp>0){
-      const pb = pBox();
-      if(overlap(a.x-r,a.y-r,r*2,r*2,pb[0],pb[1],pb[2],pb[3]) && bulletOnPlayer(probe)){
+      if(!pb) pb = pBox();
+      if(overlap(a.x-r,a.y-r,r*2,r*2,pb[0],pb[1],pb[2],pb[3]) && bulletOnPlayer(astProbe(a, r))){
+        pb = null;    // she may be thrown back (playerDie)
         const d = astRamDmg(a, player.maxHp);
         plogSrc('rock');
         if(player.sh>0){
@@ -2516,7 +2525,7 @@ function updateAsteroidImpacts(){
     if(!struck) for(const t of allies){
       if(t.dead || t.warp>0 || t.warpOut>0) continue;
       const tb = eBox(t);
-      if(overlap(a.x-r,a.y-r,r*2,r*2,tb[0],tb[1],tb[2],tb[3]) && bulletOnHull(t, probe)){
+      if(overlap(a.x-r,a.y-r,r*2,r*2,tb[0],tb[1],tb[2],tb[3]) && bulletOnHull(t, astProbe(a, r))){
         t.hp -= astRamDmg(a, t.maxHp); hullHit(a.x, a.y);
         struck = true; break;
       }
@@ -2524,7 +2533,7 @@ function updateAsteroidImpacts(){
     if(!struck) for(const t of enemies){
       if(t===a || t.type==='asteroid' || t.dead || t.warp>0) continue;
       const tb = eBox(t);
-      if(overlap(a.x-r,a.y-r,r*2,r*2,tb[0],tb[1],tb[2],tb[3]) && bulletOnHull(t, probe)){
+      if(overlap(a.x-r,a.y-r,r*2,r*2,tb[0],tb[1],tb[2],tb[3]) && bulletOnHull(t, astProbe(a, r))){
         damageEnemy(t, astRamDmg(a, t.maxHp), a.x, a.y, false, 'bolt');
         struck = true; break;
       }

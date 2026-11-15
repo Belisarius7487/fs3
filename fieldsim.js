@@ -6282,6 +6282,24 @@ scenario('v290 F106: a jumping ship is not in the batch of a larger hull', 'm=15
   r.notWithPinnacle = bS.indexOf(P) < 0;
   r.pinnacleFirst = batches.findIndex(function(b){ return b.indexOf(P)>=0; }) < batches.indexOf(bS);
   return r;`);
+// F104 (v291): a ship's box is worked out once and reused while she stays
+// put - and follows her as soon as she moves or turns.
+scenario('v291 F104: the hit box is reused, and follows the ship', 'm=6', `
+  const r = {};
+  FS.step(60);
+  const e = enemies.concat(allies).find(function(o){ return o.type !== 'asteroid' && IMGS[o.img]; });
+  r.ship = !!e;
+  if(!e) return r;
+  const b1 = eBox(e), b2 = eBox(e);
+  r.reused = b1 === b2;
+  const x0 = b1[0];
+  e.x += 50;
+  r.followsMove = Math.abs(eBox(e)[0] - x0 - 50*((e._hv && e._hv.k) || 1)) < 0.01;
+  e.x -= 50;
+  const w0 = eBox(e)[2]; e.ang = (e.ang || 0) + 0.5;
+  r.followsTurn = eBox(e)[2] !== w0;
+  e.ang -= 0.5;
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

@@ -708,14 +708,38 @@ function rotExtent(pw, ph, ang){
   const c=Math.abs(Math.cos(ang)), s=Math.abs(Math.sin(ang));
   return [pw*c+ph*s, pw*s+ph*c];
 }
+// F104 (v291): the box is kept on the ship and reused while nothing it
+// depends on has changed (step, place, angle, scale, turn, camera). It was
+// worked out afresh for every pair of shot and ship, two new arrays each
+// time - a third of all the memory the game took per second (M6), and the
+// clean-ups of that memory were the stutter. The array returned is the
+// ship's own: read it, do not change it.
 function eBox(e){
-  if(e.type==='asteroid'){const r=16*e.sc;return[e.x-r,e.y-r,r*2,r*2];}
-  const img=IMGS[e.img];if(!img)return[e.x-20,e.y-20,40,40];
-  const bx=rotExtent(img.width*e.sc*(e.turnSq?Math.abs(e.turnSq):1), img.height*e.sc, e.ang||0);   // v211: turnSq
+  const f = (typeof fc !== 'undefined') ? fc : 0, a = e.ang || 0;
+  const cx = (typeof CAM !== 'undefined') ? CAM.x : 0, cy = (typeof CAM !== 'undefined') ? CAM.y : 0, cz = (typeof CAM !== 'undefined') ? CAM.z : 0;
+  // the key in a typed array: plain fields would box each number anew
+  let c = e._eb;
+  const ts = e.turnSq == null ? -9 : e.turnSq;
+  if(c){
+    const k = c.k;
+    if(k[0] === f && k[1] === e.x && k[2] === e.y && k[3] === a && k[4] === e.sc && k[5] === ts &&
+       k[6] === cx && k[7] === cy && k[8] === cz && c.img === e.img) return c.b;
+  } else c = e._eb = {k: new Float64Array(9), b: new Float64Array(4), img: null};
+  const k = c.k;
+  k[0] = f; k[1] = e.x; k[2] = e.y; k[3] = a; k[4] = e.sc; k[5] = ts; k[6] = cx; k[7] = cy; k[8] = cz; c.img = e.img;
+  const b = c.b;
+  if(e.type==='asteroid'){ const r=16*e.sc; b[0]=e.x-r; b[1]=e.y-r; b[2]=b[3]=r*2; return b; }
+  const img=IMGS[e.img];
+  if(!img){ b[0]=e.x-20; b[1]=e.y-20; b[2]=b[3]=40; return b; }
+  // rotExtent() without its array (v211: turnSq)
+  const pw = img.width*e.sc*(e.turnSq?Math.abs(e.turnSq):1), ph = img.height*e.sc;
+  let w = pw, h = ph;
+  if(a){ const ca=Math.abs(Math.cos(a)), sa=Math.abs(Math.sin(a)); w = pw*ca+ph*sa; h = pw*sa+ph*ca; }
   // v210: where her hull is drawn (hullView), the box around that
   const v=(typeof hullView==='function')?hullView(e):null;
-  if(v){ const cx=v.cx+(e.x-v.cx)*v.k, cy=v.cy+(e.y-v.cy)*v.k, w=bx[0]*v.k, h=bx[1]*v.k; return[cx-w*.5,cy-h*.5,w,h]; }
-  return[e.x-bx[0]*.5,e.y-bx[1]*.5,bx[0],bx[1]];}   // full extent, the mask handles the detail
+  if(v){ const vx=v.cx+(e.x-v.cx)*v.k, vy=v.cy+(e.y-v.cy)*v.k; w*=v.k; h*=v.k; b[0]=vx-w*.5; b[1]=vy-h*.5; b[2]=w; b[3]=h; return b; }
+  b[0]=e.x-w*.5; b[1]=e.y-h*.5; b[2]=w; b[3]=h; return b;   // full extent, the mask handles the detail
+}
 function pBox(){
   const img=IMGS[player.ship];
   if(!img) return[player.x-20,player.y-14,40,28];
@@ -1308,7 +1332,7 @@ function update(){
           if(o.type==='asteroid' || playerOnly(o)) continue;
           if(!o.faction || o.faction===b.faction) continue;
         }
-        const[ox,oy,ow,oh]=eBox(o);
+        const _ob=eBox(o), ox=_ob[0], oy=_ob[1], ow=_ob[2], oh=_ob[3];
         if(!overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ox,oy,ow,oh)) continue;
         if(!bulletOnHull(o,b)) continue;
         const _hp = hullUnPt(o, b.x, b.y);    // v210: her outline under the shot
@@ -1335,7 +1359,7 @@ function update(){
       for(let ai=allies.length-1;ai>=0;ai--){
         const a=allies[ai];
         if(a.dead || a.warp>0 || a.warpOut>0) continue;
-        const[ax,ay,aw,ah]=eBox(a);
+        const _ab=eBox(a), ax=_ab[0], ay=_ab[1], aw=_ab[2], ah=_ab[3];
         if(!overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ax,ay,aw,ah)) continue;
         if(!bulletOnHull(a,b)) continue;      // impact landed on empty space
         const _hp=hullUnPt(a, b.x, b.y), hx=_hp.x, hy=_hp.y;   // v210: her outline under the shot
@@ -1432,7 +1456,7 @@ function update(){
     // that marked nothing).
     if(b.sec) continue;
     for(let j=enemies.length-1;j>=0;j--){
-      const e=enemies[j];const[ex,ey,ew,eh]=eBox(e);
+      const e=enemies[j];const _eb=eBox(e), ex=_eb[0], ey=_eb[1], ew=_eb[2], eh=_eb[3];
       if(overlap(b.x-b.w/2,b.y-b.h/2,b.w,b.h,ex,ey,ew,eh)){
         if(!bulletOnHull(e,b)) continue;   // impact landed on empty space
         if(b.ally && playerOnly(e)) continue;   // allied fire passes through
