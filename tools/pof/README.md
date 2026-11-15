@@ -14,6 +14,7 @@ loads from `models/<key>/`. Python 3 with Pillow (`pip install pillow`).
 | `buildfull201.py` | Capital ships with moving parts kept apart (turrets, dishes), gzipped `full.bin.gz`. |
 | `builddebtex.py` | Maps of the debris pieces (dead, damage, debris textures). |
 | `mkdocks.py` | Dock points of the models (name, position and depth, facing, approach path, height map of the hull around each) → `docks` in the mount JSON; every dock in the game runs on these (v283, F99). |
+| `mkoutline.py` | Frame and outline of every hull's side view, read off her model (len, height, aspect, hit map) → `hlp_outlines.json`; replaces what the sprites still supplied (v286, F103 stage 2). |
 | `mkthrusters.py` | Thruster points of all hulls → `thrusters.json`. |
 | `mkwarp.py` | The warp disc from MediaVP `Warp.pof` → JSON. |
 | `mkfxsheets.py` | MediaVP explosion/smoke/trail animations (`.dds` frames) → sprite sheets (v216). |
@@ -32,6 +33,7 @@ python3 -I buildmodels.py ../../models fimyrmidon,codeimos   # only these
 python3 -I buildfull201.py ../../models codeimos,deravana
 python3 -I builddebtex.py ../../models codeimos,deravana
 python3 -I webmodel.py <file.pof> '<skin json>' <out dir>   # one model by hand
+python3 mkoutline.py <mvps>:<fsport>:<ntf>:<bp> ../../hlp_outlines.json   # frames and outlines
 python3 -I mkwarp.py . <Warp.pof> warp.json
 python3 -I mkfxsheets.py <MV_Effects_1/data/effects> <out dir>
 ```

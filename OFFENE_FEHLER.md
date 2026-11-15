@@ -2514,7 +2514,7 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
-### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B; Etappe 1 (Messen) erledigt, noch nichts gebaut
+### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B; Etappe 1 (Messen) und 2 (Daten aus dem Modell) erledigt, am Spiel noch nichts geändert
 
 **Wunsch (Silvio, 12.11.2026):** „Wir haben immer noch die 2D Sprites der
 Schiffe im Spiel, obwohl wir bereits auf 3D Modelle umgestellt haben. Mein
@@ -2675,6 +2675,38 @@ gegengeprüft (82/359/363 gegen 80/355/356 — die Karte des Spiels hat 2 % Rand
   `ter_fighters` (`30_waves.js`).
 - **`inknossos`** steht in `F3D_KEYS`, hat aber kein eigenes Sprite (nur
   `inknossosfront` und `inknossos45deg`).
+
+**Etappe 2 — Daten aus dem Modell (15.11.2026, am Spiel nichts geändert).**
+Neues Werkzeug `tools/pof/mkoutline.py`, Ergebnis `hlp_outlines.json`
+(129 Einträge: die 121 Sprite-Bilder plus die Rümpfe aus `HULLS` ohne
+Sprite: `fiangel`, `scimhotep`, `inkarnak`, `inpolaris`, `inpolarispylon`,
+`incheops`, `inastbase`, `inknossos`). Gerechnet aus den POFs von Silvios
+Rechner (MVPS 5.0.2, FSPort-MediaVPs 4.7.2, NTF-Texturen 2.1.2, Blue-Planet-
+Daten für die Phidias), mit der Geometrie, die das Feld selbst nimmt (Stufe
+`full`, bewegliche Teile in Ruhelage, ohne Trümmerteile; wie `L.cpu`), in
+der Seitenansicht von `f3dMat`/`f3dBuildMask` (Blickrichtung aus der
+Mount-Datei, `F3D_VIEW` und `F3D_ALIAS` liest das Werkzeug aus
+`59_field3d.js`).
+
+- Je Bild: `len` (Breite quer übers Bild, Meter), `h` (Höhe), `d` (Tiefe),
+  `ratio` = `h/len` (ersetzt künftig das Seitenverhältnis von `IMGS`),
+  `facing`, `view` (nur bei den fünf `F3D_VIEW`-Bildern), `sprite` =
+  alte Sprite-Maße `[W, H]` (für die Umrechnung der Mounts in Etappe 3) und
+  `map`: die Umrisskarte, genau so groß wie der Rahmen, längste Kante 256
+  Zellen (wie `MASK_MAX`), Zeile 0 oben, je Zeile Läufe `[x0, x1, …]`.
+- **Gegenprobe:** das Seitenverhältnis stimmt bei allen 120 gemessenen
+  Bildern auf 3 % mit Etappe 1 überein (`Hm/W` aus `rahmen_v286.csv`).
+- Die fünf `F3D_VIEW`-Bilder (Knossos von vorn und schräg, Arcadia,
+  Unbekanntes Gerät, Meson, SC 5) haben jetzt eine eigene Karte aus der
+  gedrehten Ansicht. Die gerollten Karten der kleinen Schiffe
+  (`f3dRollMask`) rechnet das Spiel weiter selbst aus dem Modell.
+- **Phidias:** `models/suphidias/full.bin.gz` mit `buildfull201.py` gebaut
+  (8226 Dreiecke, 98 KB). Liegt als `phidias_full_v286.zip` (Pfad
+  `models/suphidias/full.bin.gz`) in `fs3-claude-export\v286-F103`; muss
+  auf den Server, dann hat die Drohne im Feld ihr Modell statt des Sprites.
+- Noch offen für Etappe 3: `FS.fakeImages()` (`fieldsim.js`,
+  `tools/shot.js`) kann die echten Rahmen aus `hlp_outlines.json` nehmen
+  statt grauer Flächen fester Größe.
 
 **Bildverwendungen einzeln (im Code nachgelesen, v286):**
 

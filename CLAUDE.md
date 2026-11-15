@@ -347,6 +347,10 @@ Was seit v240 an Einheiten, Auslösern und Wirkungen dazukam (`escHit`,
   Modelle in `hlp_mounts_final.json`. Ein neuer Rumpf, der andockt oder an
   dem angedockt wird, braucht sie, sonst fährt er den alten Weg und
   `docksim` meldet ihn.
+- **`tools/pof/mkoutline.py`** (F103, Etappe 2) schreibt je Bild Rahmen
+  (Länge, Höhe, Seitenverhältnis) und Umrisskarte aus dem Modell in
+  `hlp_outlines.json`. Ein neuer Rumpf bekommt dort seinen Eintrag, sobald
+  die Sprites wegfallen (Etappe 3).
 - **`missions_read.py`** liest die Originalmissionen in `fs1/`, `str/`,
   `fs2/`. **Keine 1:1-Übersetzung** — genommen wird, was in einer Mission
   passiert. `--klassen` zeigt Schiffsklassen und ihren FS3-Rumpf.
