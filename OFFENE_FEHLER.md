@@ -2757,6 +2757,12 @@ denn je" — 61 Hänger 50–233 ms (v301 ohne Schalter: 9). Ohne Explosionsbild
 also mehr statt weniger: die Explosionen sind es nicht. Nächster Schritt:
 v302 ohne Schalter noch einmal, um zu sehen, ob es am Schalter oder am
 Zustand des PCs lag.
+v302 ohne Schalter (Silvio, Brave, M6): 7 Hänger (Start 117 ms, im Gefecht
+6× 83–167 ms). Silvio: „Der Befund dürfte ziemlich eindeutig sein." Weniger
+zu zeichnen macht es in Brave also schlimmer, nicht besser — das passt zu
+einer Grafikkarte, die bei wenig Last heruntertaktet, und nicht zu zu viel
+Arbeit des Spiels. Edge auf demselben PC hatte schon mit v295 im Gefecht
+keinen Hänger.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
