@@ -403,7 +403,16 @@ function shotUnder(b){
 // while the shots are drawn, and shotUnder() tests that point.
 function drawShots(under){
   if(typeof shotsView === 'function') shotsView(true);
-  try{ drawShotsAt(under); } finally { if(typeof shotsView === 'function') shotsView(false); }
+  // F104 (v305): the bolts' glows are collected (drawLaser, FXB.live) and
+  // drawn in one call. A missile or bomb is still drawn in 2D: what was
+  // collected before it is put out first (fxbFlush), so the order on the
+  // screen stays the order of the lists.
+  const gl = typeof fxbOn === 'function' && fxbOn();
+  if(gl){ fxbBegin(); FXB.live = true; }
+  try{ drawShotsAt(under); } finally {
+    if(gl){ FXB.live = false; try{ fxbFlush(); }catch(eg){ FXB.ok = false; } }
+    if(typeof shotsView === 'function') shotsView(false);
+  }
 }
 function drawShotsAt(under){
   for(const b of pBullets){
@@ -420,6 +429,7 @@ function drawShotsAt(under){
       // The race's colour around the ordnance: an escort's by its side,
       // the player's by the hull he flies (Silvio, v161).
       const oc = raceCol(b.ally ? b.fac : shipFac(player.ship));
+      if(typeof FXB !== 'undefined' && FXB.live) fxbFlush();   // F104 (v305): the bolts before it first
       if(b.type==='missile'){
         // v216: the FS trail behind it (drawTrail, 63_fxanim.js)
         if(typeof drawTrail==='function') try{ drawTrail(b, (b.w||10)*0.5*ordG()); }catch(et){}
@@ -478,6 +488,7 @@ function drawShotsAt(under){
     if(!camSees(b.x, b.y, 220)) continue;     // F104 (v298): off the screen
         const bx=b.x|0, by=b.y|0;
     if(b.kind){
+      if(typeof FXB !== 'undefined' && FXB.live) fxbFlush();   // F104 (v305): the bolts before it first
       const ang=Math.atan2(b.vy,b.vx), G=ordG();   // v209: see ordG()
       // Missiles and bombs in the colour of the race (Silvio, v161):
       // Shivans red, Terrans - the NTF among them - blue, Vasudans yellow.

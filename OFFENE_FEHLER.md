@@ -2839,15 +2839,53 @@ anderes Abtasten beim Verkleinern; Lichtmenge 100,9 %). Andere
 Texturfilter waren schlechter (ohne Mipmaps größte Abweichung 100).
 Szenario „v304 F104" (schlägt gegen v303 fehl; headless 0,036).
 
+Lag-Log v304 (Silvio, Brave, M6, 15.11.2026): „Es ruckelt nach wie vor.
+Also wirst du wohl weiterbauen müssen" — 11 Hänger in 73 s, alle
+„elsewhere": Start 167 ms, 0:05–0:06 nach „warp in boshaitan x2" 50/233/50/67,
+0:08 **383 ms** nach „explosion asteroid", 0:27 183 ms nach „explosion
+asteroid x2", dann 67/84/100 ms ohne Ereignis, 1:13 133 ms beim Absprung.
+Kein „fx atlas tile" vor einem Hänger (die Bilder waren also vorab in der
+Textur). Ein Schritt allein ist im Lag-Log nicht zu sehen (v301: 9,
+v302: 7, v303: 8 Hänger). → Schritt 2.
+
+**v305 (Schritt 2, 15.11.2026):** die Laser (`drawLaser()`: fünf Leuchten
+je Schuss) gehen in den Sammelzeichner, solange `drawShots()` sammelt
+(`FXB.live`); je `drawShots()` ein Befehl. Raketen und Bomben bleiben 2D;
+vor jeder wird das bis dahin Gesammelte ausgegeben, damit die Reihenfolge
+der Listen bleibt. Lange, dünne Leuchten werden anisotrop abgetastet
+(größte Abweichung 14 statt 34).
+**Wichtiger Nebenbefund (gemessen, eingebauter Browser):** `drawImage()` aus
+einer WebGL-Fläche in die 2D-Fläche kostet **jedes Mal fest ~3 ms**, egal ob
+der ganze Schirm oder 200×150 Punkte kopiert werden, mit und ohne
+`preserveDrawingBuffer`, auch bei einer Fläche wie der der 3D-Schiffe
+(Tiefe, Stencil, Kantenglättung): 5,3 ms gegen 2,3 ms für einen einzelnen
+2D-Befehl. Eine `OffscreenCanvas`, die ihr Bild mit
+`transferToImageBitmap()` übergibt, kostet nichts Messbares (2,4–2,6 ms)
+und hinterlässt eine leere Fläche. Der Sammelzeichner übergibt deshalb so
+(`FXB.bmp`; ohne `OffscreenCanvas`-WebGL wie bisher). Auf der echten
+Grafikkarte geprüft: Lage richtig, additives Licht (Alpha 0) kommt an.
+**Die 3D-Schiffe kopieren weiter mit `drawImage()`** (`f3dRender()`, je
+Schiffsgruppe einmal, dazu `f3dPlayer`) — Kandidat für denselben Umbau;
+berührt den Durchgang, in dem auch die Beams geprüft werden, also vorher
+Silvio fragen.
+Gemessen (eingebauter Browser, v304 auf dem Dev-Server mit eingespieltem
+v305-Code, M6, 49 Gegner, 450 Partikel, 57 Schüsse, 1200×750, dasselbe
+eingefrorene Bild, Median aus 15, 5 Durchgänge; der PC war dabei langsamer
+als bei der v304-Messung, Messaufwand ~2,2 ms in allen): alles 2D 19,8 ms,
+nur Partikel gesammelt 17,1 ms, Partikel und Laser gesammelt **15,1 ms**.
+Bildvergleich alt/neu (Schüsse und Partikel): mittlere Abweichung 0,0097
+von 255, größte 48 (einzelne Funken), Lichtmenge 100,0 %. Szenario
+„v305 F104" (schlägt gegen v304 fehl).
+
 **Weg für den nächsten Chat (15.11.2026):**
-- Stand: **v304**, Schritt 1 von 4 gebaut; Lag-Log aus Brave dazu steht aus.
-  Schritt 2: Laser (`drawLaser()`, 57_turrets.js — je Schuss fünf `glowAt`
-  mit Drehung: direkt als `fxbGlow(..., ang)` mit selbst gedrehten Orten)
-  und Schüsse (`drawShotsAt()`, 70_ui.js; Raketen/Bomben sind Formen und
-  Verläufe, keine Sprites). Ausgeben (`fxbFlush()`) an denselben Stellen wie
-  heute: nach `drawShots(true)` vor den Schiffen, nach `drawShots(false)` vor
-  dem Spieler. Die Funken, die `drawLaser()` beim Zeichnen in `PARTS` legt,
-  bleiben.
+- Stand: **v305**, Schritt 1 und 2 von 4 gebaut; Lag-Log aus Brave zu v305
+  steht aus. Offen: Schritt 3 (übrige Leuchtpunkte: `glowAt` in
+  20_render.js, 63_fxanim.js, 64_repair.js; die 5000 im Pausebildschirm),
+  Schritt 4 (Randlicht, `rockLightBake()`), und der Kandidat oben (3D-Kopien
+  ohne `drawImage()`).
+- Einspielen ohne viel Text: eine Funktion der laufenden Seite mit
+  `fn.toString()` holen, die Stelle ersetzen und als `<script>` wieder
+  einsetzen (Funktionen sind global).
 - Messen im eingebauten Browser: die Seite pausiert, sobald das Fenster den
   Fokus verliert, und Silvio klickt mit — deshalb `launchGame()`, dann
   `update()` selbst in einer Schleife aufrufen (mit `player.invT=999`), dann

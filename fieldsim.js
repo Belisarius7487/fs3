@@ -6472,6 +6472,45 @@ scenario('v304 F104: particles in one WebGL call look like the 2D ones', 'm=6', 
   r.stillOn = FXB.ok === true;
   r.diff = (s/A.px.length).toFixed(3) + ' max ' + mx + ' calls ' + A.n + ' -> ' + B.n;
   return r;`);
+// F104 (v305): the bolts' glows are collected too; a missile between them
+// keeps its place in the order
+scenario('v305 F104: bolts in one WebGL call look like the 2D ones', 'm=6', `
+  const r = {};
+  FS.step(20);
+  r.helpers = typeof fxbOn === 'function' && 'live' in FXB;
+  if(!r.helpers) return r;
+  r.webgl = fxbOn();
+  if(!r.webgl) return r;
+  const keepP = pBullets.slice(), keepE = eBullets.slice();
+  pBullets.length = 0; eBullets.length = 0;
+  const cx = CAM.x, cy = CAM.y;
+  for(let i=0;i<24;i++){ const a = i*0.61; pBullets.push({x:cx-110+(i%8)*30, y:cy-70+((i/8)|0)*30, vx:Math.cos(a)*9, vy:Math.sin(a)*9, w:14+(i%3)*5, h:3+(i%2), ally:i%2===0, fac:'terran', _ls:1}); }
+  for(let i=0;i<16;i++){ const a = 2+i*0.37; eBullets.push({x:cx-100+(i%8)*28, y:cy+30+((i/8)|0)*30, vx:Math.cos(a)*7, vy:Math.sin(a)*7, w:12+(i%4)*4, h:3, faction:(i%2?'shivan':'vasudan'), _ls:1}); }
+  const one = function(off, withMissile){
+    FXB.off = off;
+    const bx = Math.round((w2sX(cx)-160)*RES_X), by = Math.round((w2sY(cy)-110)*RES_Y), bw = Math.round(320*RES_X), bh = Math.round(220*RES_Y);
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#202830'; ctx.fillRect(bx, by, bw, bh); ctx.restore();
+    let calls = 0; const d0 = ctx.drawImage; ctx.drawImage = function(){ calls++; return d0.apply(this, arguments); };
+    camOn(); ctx.globalAlpha = 1;
+    try{ drawShots(false); } finally { delete ctx.drawImage; FXB.off = false; camScreen(); }
+    return {n: calls, px: ctx.getImageData(bx, by, bw, bh).data};
+  };
+  const diff = function(A, B){ let s = 0; for(let i = 0; i < A.px.length; i++) s += Math.abs(A.px[i] - B.px[i]); return s/A.px.length; };
+  one(false);
+  const A = one(true), B = one(false);
+  let lit = 0; for(let i = 0; i < B.px.length; i += 4) if(B.px[i] > 60 || B.px[i+2] > 80) lit++;
+  r.drawn = lit > 500;
+  r.oneCopy = B.n === 1 && A.n >= 200;
+  r.same = diff(A, B) < 0.5;
+  // a bomb of the enemy in the middle of the list: bolts, bomb, bolts
+  eBullets.splice(8, 0, {x:cx-20, y:cy+45, vx:3, vy:1, w:16, h:16, kind:'bomb', faction:'shivan'});
+  const C = one(true), D = one(false);
+  r.bombKeepsOrder = D.n > 1 && D.n < 12 && diff(C, D) < 0.5;
+  r.stillOn = FXB.ok === true && FXB.live === false;
+  r.handedOver = FXB.bmp === true;      // no copy out of a WebGL canvas
+  r.diff = diff(A, B).toFixed(3) + ' / ' + diff(C, D).toFixed(3) + ' calls ' + A.n + ' -> ' + B.n + ', with bomb ' + C.n + ' -> ' + D.n;
+  pBullets.length = 0; eBullets.length = 0; for(const b of keepP) pBullets.push(b); for(const b of keepE) eBullets.push(b);
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

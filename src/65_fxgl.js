@@ -5,7 +5,7 @@
 // process on its own - some 500 a frame. Effects made of many like parts
 // are collected here instead and drawn by the graphics card in ONE call:
 // each part is a small textured rectangle, all pictures sit in one texture
-// (the atlas), and the result is copied into the 2D canvas once.
+// (the atlas), and the result is put into the 2D canvas once.
 //
 // Additive light and solid parts share the one pass, in the order they are
 // put: colours are premultiplied, and a part that only adds light writes an
@@ -15,7 +15,7 @@
 // The pictures are the very sprites the 2D path draws (glowSprite,
 // fbSprite), so the look is the same. Without WebGL, or with &fxgl=0, the
 // 2D path draws as before.
-const FXB = {ok: null, off: false, can: null, gl: null, uX: null, n: 0, gen: 1, dirty: false,
+const FXB = {ok: null, off: false, live: false, bmp: false, can: null, gl: null, uX: null, n: 0, gen: 1, dirty: false,
              cell: 0, sub: null, disc: null, x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9, flushes: 0};
 const FXB_MAXQ = 4096;            // rectangles in one call
 const FXB_AT = 1024;              // the atlas, pixels square
@@ -28,9 +28,21 @@ function fxbInit(){
   FXB.ok = false;
   try{
     if(typeof document === 'undefined' || !document.createElement || typeof CVS === 'undefined') return false;
-    const can = document.createElement('canvas');
-    const gl = can.getContext('webgl', {alpha: true, premultipliedAlpha: true, antialias: false,
-                                        depth: false, stencil: false, preserveDrawingBuffer: false});
+    // v305: measured in the built-in browser - drawImage() from a WebGL
+    // canvas into the 2D canvas costs a fixed ~3 ms each time, whatever the
+    // size of the part copied (the browser copies the whole drawing buffer
+    // and switches between its two graphics contexts). An OffscreenCanvas
+    // hands its picture over without a copy (transferToImageBitmap) and
+    // starts the next one empty: no measurable cost. Where a browser has no
+    // WebGL on an OffscreenCanvas, the plain canvas is used as before.
+    const opt = {alpha: true, premultipliedAlpha: true, antialias: false,
+                 depth: false, stencil: false, preserveDrawingBuffer: false};
+    let can = null, gl = null;
+    if(typeof OffscreenCanvas !== 'undefined' && OffscreenCanvas.prototype.transferToImageBitmap){
+      try{ can = new OffscreenCanvas(2, 2); gl = can.getContext('webgl', opt); }catch(eo){ gl = null; }
+      FXB.bmp = !!gl;
+    }
+    if(!gl){ can = document.createElement('canvas'); gl = can.getContext('webgl', opt); }
     if(!gl) return false;
     const sh = function(type, src){
       const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
@@ -75,11 +87,15 @@ function fxbInit(){
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    // a bolt's glow is drawn long and thin: sampled along its length too,
+    // it matches the 2D picture best (largest deviation 14 instead of 34)
+    const an = gl.getExtension('EXT_texture_filter_anisotropic');
+    if(an) gl.texParameterf(gl.TEXTURE_2D, an.TEXTURE_MAX_ANISOTROPY_EXT, 4);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     gl.disable(gl.DEPTH_TEST); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
     // a lost context: the 2D path takes over for good
-    can.addEventListener('webglcontextlost', function(){ FXB.ok = false; FXB.n = 0; });
+    if(can.addEventListener) can.addEventListener('webglcontextlost', function(){ FXB.ok = false; FXB.n = 0; });
     // a solid dot (debris cores), white, tinted by the part that uses it
     const d = document.createElement('canvas'); d.width = d.height = 64;
     const g = d.getContext('2d'); g.fillStyle = '#fff'; g.beginPath(); g.arc(32, 32, FXB_DISC_R, 0, Math.PI*2); g.fill();
@@ -163,8 +179,8 @@ function fxbFlush(){
   if(px1 <= px0 || py1 <= py0) return;
   if(can.width !== pw || can.height !== ph){ can.width = pw; can.height = ph; }
   gl.viewport(0, 0, pw, ph);
-  gl.enable(gl.SCISSOR_TEST); gl.scissor(px0, ph - py1, px1 - px0, py1 - py0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  // a picture handed over (FXB.bmp) leaves an empty buffer behind: nothing to clear
+  if(!FXB.bmp){ gl.enable(gl.SCISSOR_TEST); gl.scissor(px0, ph - py1, px1 - px0, py1 - py0); gl.clear(gl.COLOR_BUFFER_BIT); }
   if(FXB.dirty){ gl.generateMipmap(gl.TEXTURE_2D); FXB.dirty = false; }
   gl.uniform4f(FXB.uX, z*2/W, ox*2/W - 1, -z*2/H, 1 - oy*2/H);
   gl.bufferSubData(gl.ARRAY_BUFFER, 0, FXB_V.subarray(0, n*4*FXB_FL));
@@ -172,7 +188,11 @@ function fxbFlush(){
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
-  ctx.drawImage(can, px0, py0, px1 - px0, py1 - py0, px0, py0, px1 - px0, py1 - py0);
+  if(FXB.bmp){
+    const bm = can.transferToImageBitmap();
+    ctx.drawImage(bm, px0, py0, px1 - px0, py1 - py0, px0, py0, px1 - px0, py1 - py0);
+    bm.close();
+  } else ctx.drawImage(can, px0, py0, px1 - px0, py1 - py0, px0, py0, px1 - px0, py1 - py0);
   ctx.restore();
   FXB.flushes++;
 }

@@ -217,6 +217,16 @@ function drawLaser(b, core, glow, hot){
   // v213 (Silvio: the glows were visible rims of light): soft sprites
   // only (glowAt, 61_glow.js) - a fading trail, the glowing body, a
   // white-hot core - no filled ellipse with an edge
+  if(typeof FXB !== 'undefined' && FXB.live){
+    // F104 (v305): the same five glows, collected (65_fxgl.js) and drawn
+    // with all the other bolts in one call - each at its place along the
+    // bolt, turned with it
+    const co = Math.cos(ang), si = Math.sin(ang), a0 = ctx.globalAlpha;
+    for(let k=2;k>=1;k--) fxbGlow(bx - co*len*0.6*k, by - si*len*0.6*k, len*0.8, wid*0.9, glow, a0*0.32*(3-k)/2, 0, ang);
+    fxbGlow(bx, by, len*0.95, wid*1.7, glow, a0*0.95, 0, ang);
+    fxbGlow(bx, by, len*0.62, wid*0.85, core, a0, 0.5, ang);
+    fxbGlow(bx + co*len*0.08, by + si*len*0.08, len*0.34, wid*0.42, hot, a0, 1, ang);
+  } else {
   ctx.save();
   ctx.translate(bx, by);
   ctx.rotate(ang);
@@ -226,6 +236,7 @@ function drawLaser(b, core, glow, hot){
   glowAt(0, 0, len*0.62, wid*0.85, core, 1, 0.5);
   glowAt(len*0.08, 0, len*0.34, wid*0.42, hot, 1, 1);
   ctx.restore();
+  }
   // A spark now and then, thrown back off the bolt.
   if((fc + b._ls) % 6 === 0 && PARTS.length < LASER_SPARK_CAP){
     const a = ang + Math.PI + (Math.random()-0.5)*0.9, s = 0.4 + Math.random()*0.9;
