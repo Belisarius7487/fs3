@@ -4549,7 +4549,7 @@ function idPending(id){
 // the mission gave it to us to guard. Returns whether it was counted.
 function cargoOurs(c, by){
   const o = by || c.carrier || c.resBy;
-  return o ? o.side === 'ally' : !!c.guard;
+  return o ? (o.side === 'ally' || allies.indexOf(o) >= 0) : !!c.guard;
 }
 function cargoLost(c, by){
   if(!c || c.lostCounted) return false;
@@ -4594,7 +4594,7 @@ function leaveEmpty(e, wasCargo){
     e.emptyRun = true;
     // F107 (v292): an enemy leaving empty is good news
     SUB_MSGS.push({x:e.x, y:e.y-28, txt:'NO CARGO', life:150, ml:150,
-                   ally:false, tone:e.side==='ally' ? 'bad' : 'good'});
+                   ally:false, tone:(e.side==='ally' || allies.indexOf(e) >= 0) ? 'bad' : 'good'});
   }
   if(e.crossAfter){ e.crossing = e.crossAfter; faceTurn(e, e.crossAfter < 0); }
   if(e.escaping) faceTurn(e, false);
