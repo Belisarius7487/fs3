@@ -2738,6 +2738,9 @@ Missionsende. Jetzt wird aus dem Bogen (und dem Leuchten) einmal im
 Hintergrund ein festes Bild gemacht (`imgBmp()`, `createImageBitmap`): 1–4 ms
 je Bild, kein Hänger. Aussehen unverändert. Szenario „v300 F104" (schlägt
 gegen v299 fehl). warpsim 4–6: dieselben zwei Befunde in M4 wie v299.
+Lag-Log v300 (Silvio, Brave, M6): **am Missionsende kein Hänger mehr**
+(Absprung 1:16–1:19 frei). Übrig: Missionsstart 2× (150/250 ms, nach
+„warp in deorionright"), im Gefecht 6 Hänger 67–133 ms, alle „elsewhere".
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
