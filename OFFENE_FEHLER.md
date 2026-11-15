@@ -2608,6 +2608,10 @@ Auspacken; `hullView()` vergleicht Zahlen statt einen Text zu bauen;
 Kasten des Spielers einmal je Schritt. `tools/heapprof.js` M6, 600 Schritte:
 **469 → 237 MB** (`eBox` 147 → 35 MB, `next` 38 MB → weg). Szenario
 „v291 F104" (schlägt gegen v290 fehl).
+Im echten Spiel (eingebauter Browser, M6, v291, 25 s, 32 Gegner): **37 MB/s**
+(v287: 52 MB/s bei 48 Gegnern), ein Bild über 40 ms (74 ms). Besser, nicht
+weg. Größte Posten danach laut heapprof: `update()` selbst 51 MB,
+`updateAsteroidImpacts()` 21 MB, `tickParts()` 18 MB je 600 Schritte.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
