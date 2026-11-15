@@ -2664,6 +2664,9 @@ Browser (ebenfalls Chromium, derselbe PC) keine solchen Hänger. Vermutung:
 etwas an Brave (Shields/Fingerabdruck-Schutz verfälscht und verlangsamt
 Zeichenflächen-Auslesen; das Spiel liest beim Schadensbild, bei Trümmern und
 Masken aus). Nächster Schritt: Silvio testet mit Shields aus.
+Mit Shields aus (Silvio, v295): gleiches Bild, 12 Hänger 100–233 ms. Shields
+sind es nicht. Eingebauter Browser mit Ton an (v295, M6, 30 s): kein Bild
+über 45 ms. Nächster Schritt: Silvio testet M6 in Edge auf demselben PC.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
