@@ -2635,6 +2635,8 @@ Im echten Spiel (eingebauter Browser, M6, v291, 25 s, 32 Gegner): **37 MB/s**
 (v287: 52 MB/s bei 48 Gegnern), ein Bild über 40 ms (74 ms). Besser, nicht
 weg. Größte Posten danach laut heapprof: `update()` selbst 51 MB,
 `updateAsteroidImpacts()` 21 MB, `tickParts()` 18 MB je 600 Schritte.
+Silvio zu v291: „Bisher hab ich keine Ruckler mehr festgestellt." Zu v293
+(15.11.2026): „Ich hab wieder Ruckler in M6".
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
