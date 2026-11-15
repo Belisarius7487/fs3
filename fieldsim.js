@@ -6348,6 +6348,21 @@ scenario('v295 F104: particles drawn with one blend switch, fireball sprite', 'm
   r.switches = sw;
   r.fireballSprite = typeof FB_SPR !== 'undefined' && Object.keys(FB_SPR).length > 0;
   return r;`);
+// F104 (v296): a 3D batch is cleared and copied only where its ships are
+scenario('v296 F104: 3D batch box, not the whole screen', 'm=6', `
+  const r = {};
+  FS.step(60);
+  const e = enemies.concat(allies).find(function(o){ return o.type !== 'asteroid' && IMGS[o.img] && /^fi/.test(o.img); });
+  r.ship = !!e;
+  if(!e) return r;
+  const b = f3dBox([{e: e}], false);
+  r.boxSmall = !!b && b.w*b.h < 0.2*W*H;
+  r.boxHoldsShip = !!b && w2sX(e.x) >= b.x && w2sX(e.x) <= b.x + b.w;
+  F3D_BEAMS.push({e: e, b: {}});
+  r.beamsWholeScreen = f3dBox([{e: e}], true) === null;
+  F3D_BEAMS.length = 0;
+  r.hulkWholeScreen = f3dBox([{hulk: 1}], false) === null;
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

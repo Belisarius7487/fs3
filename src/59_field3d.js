@@ -958,11 +958,44 @@ function f3dVP(){
 }
 // Draws the given ships into the field canvas and copies it into the
 // field. items: {e, L, x, y, a (alpha), clip (screen half-plane or null)}.
+// F104 (v296): the part of the screen a batch covers, in screen units, or
+// null for the whole screen. A batch was cleared and copied over the whole
+// screen every time - with every small craft a batch of its own (F92) that
+// was a dozen full-screen copies per picture, and Brave choked on it
+// (hitches of 100-250 ms in M6, Edge fine). Generous margins: the model may
+// reach past her box (the Sathanas' claws, shields, a turn).
+function f3dBox(items, beams){
+  if(beams && typeof F3D_BEAMS !== 'undefined' && F3D_BEAMS.length) return null;   // beams cross the screen
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for(const it of items){
+    const e = it && it.e;
+    if(!e || !IMGS[e.img] || typeof eBox !== 'function') return null;
+    const b = eBox(e), m = Math.max(b[2], b[3])*0.45 + 30/Math.max(0.05, CAM.z);
+    x0 = Math.min(x0, b[0] - m); y0 = Math.min(y0, b[1] - m);
+    x1 = Math.max(x1, b[0] + b[2] + m); y1 = Math.max(y1, b[1] + b[3] + m);
+  }
+  if(x1 < x0) return null;
+  const sx0 = Math.max(0, w2sX(x0)), sy0 = Math.max(0, w2sY(y0)), sx1 = Math.min(W, w2sX(x1)), sy1 = Math.min(H, w2sY(y1));
+  if(sx1 <= sx0 || sy1 <= sy0) return {x: 0, y: 0, w: 0, h: 0};
+  if((sx1 - sx0)*(sy1 - sy0) > 0.6*W*H) return null;   // nearly all of it anyway
+  return {x: sx0, y: sy0, w: sx1 - sx0, h: sy1 - sy0};
+}
 function f3dRender(items, warm, beams){
   const gl = F3D.gl, can = F3D.can, loc = F3D.loc;
   const pw = (typeof CVS !== 'undefined' && CVS.width) || Math.round(W), ph = (typeof CVS !== 'undefined' && CVS.height) || Math.round(H);
   if(can.width !== pw || can.height !== ph){ can.width = pw; can.height = ph; }
   gl.viewport(0, 0, pw, ph);
+  // F104 (v296): only the part the batch covers is cleared and copied
+  let bx = null;
+  if(!warm){ try{ bx = f3dBox(items, beams); }catch(eb){ bx = null; } }
+  if(bx && !(bx.w > 0 && bx.h > 0)) return;            // nothing of it on the screen
+  let px0 = 0, py0 = 0, pxw = pw, pxh = ph;
+  if(bx){
+    const kx = pw/W, ky = ph/H;
+    px0 = Math.max(0, Math.floor(bx.x*kx)); py0 = Math.max(0, Math.floor(bx.y*ky));
+    pxw = Math.min(pw - px0, Math.ceil(bx.w*kx) + 2); pxh = Math.min(ph - py0, Math.ceil(bx.h*ky) + 2);
+    gl.enable(gl.SCISSOR_TEST); gl.scissor(px0, ph - py0 - pxh, pxw, pxh);
+  }
   gl.clearColor(0, 0, 0, 0); gl.clearStencil(0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
@@ -1059,10 +1092,12 @@ function f3dRender(items, warm, beams){
   gl.useProgram(F3D.prog);
   gl.disable(gl.BLEND);
   // v208: the picture is the screen's, whatever transform the field has
+  if(bx) gl.disable(gl.SCISSOR_TEST);
   if(!warm){
     ctx.save();
     if(typeof camScreen === 'function') camScreen();
-    ctx.drawImage(can, 0, 0, W, H);
+    if(bx) ctx.drawImage(can, px0, py0, pxw, pxh, px0*W/pw, py0*H/ph, pxw*W/pw, pxh*H/ph);
+    else ctx.drawImage(can, 0, 0, W, H);
     ctx.restore();
   }
 }
@@ -2439,6 +2474,16 @@ function f3dWarp(px, py, fx, fy, WS, wS, alpha, seed, knossos, pz){
   const pw = (typeof CVS !== 'undefined' && CVS.width) || Math.round(W), ph = (typeof CVS !== 'undefined' && CVS.height) || Math.round(H);
   if(can.width !== pw || can.height !== ph){ can.width = pw; can.height = ph; }
   gl.viewport(0, 0, pw, ph);
+  // F104 (v296): only the vortex's square of the screen, not all of it
+  // at her depth the camera shows it shrunk towards the middle (hullView)
+  const Dz = f3dEyeD(), kz = Dz/Math.max(Dz*0.05, Dz - (pz || 0));
+  const mcx = s2wX(W/2), mcy = s2wY(H/2), qcx = mcx + (px - mcx)*kz, qcy = mcy + (py - mcy)*kz;
+  const half = kz*Math.max(WS/2*wS, WS*wS*(typeof WARP_GLOW_SIZE !== 'undefined' ? WARP_GLOW_SIZE : 1)*0.5)*1.4 + 20/Math.max(0.05, CAM.z);
+  const qx0 = Math.max(0, w2sX(qcx - half)), qy0 = Math.max(0, w2sY(qcy - half)), qx1 = Math.min(W, w2sX(qcx + half)), qy1 = Math.min(H, w2sY(qcy + half));
+  if(qx1 <= qx0 || qy1 <= qy0) return true;              // off the screen: nothing to draw
+  const kx = pw/W, ky = ph/H;
+  const ux0 = Math.floor(qx0*kx), uy0 = Math.floor(qy0*ky), uw = Math.min(pw - ux0, Math.ceil((qx1 - qx0)*kx) + 2), uh = Math.min(ph - uy0, Math.ceil((qy1 - qy0)*ky) + 2);
+  gl.enable(gl.SCISSOR_TEST); gl.scissor(ux0, ph - uy0 - uh, uw, uh);
   gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.disable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE); gl.enable(gl.BLEND);
   const cam = f3dVP();
@@ -2463,11 +2508,12 @@ function f3dWarp(px, py, fx, fy, WS, wS, alpha, seed, knossos, pz){
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   f3dFxDraw(F3D_WP.arr, F3D_WP.n, ts, M, cam, null, alpha, true, [(wF % WARP_COLS)*cs, Math.floor(wF/WARP_COLS)*cs, cs, cs]);
   gl.disable(gl.BLEND); gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
+  gl.disable(gl.SCISSOR_TEST);
   gl.useProgram(F3D.prog);
   ctx.save();
   if(typeof camScreen === 'function') camScreen();
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
-  ctx.drawImage(can, 0, 0, W, H);
+  ctx.drawImage(can, ux0, uy0, uw, uh, ux0/kx, uy0/ky, uw/kx, uh/ky);
   ctx.restore();
   return true;
 }

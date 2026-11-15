@@ -2678,6 +2678,14 @@ Brave-Einstellungen (Silvio, Bild): Grafikbeschleunigung an, kein
 Energiesparmodus vorhanden. Privates Fenster (ohne Erweiterungen, v295, M6):
 18 Hänger, im Gefecht 67–183 ms bei 220–565 Partikeln. Erweiterungen sind es
 also auch nicht; es bleibt Brave selbst.
+Silvio: „Ich will, dass das Game bei so vielen Nutzern wie möglich
+funktioniert, wenn es mal live geht." → keine Browser-Einstellungen, das
+Spiel muss damit klarkommen. Befund im Code: jede 3D-Gruppe (und jeder
+Sprungwirbel) löschte und kopierte die ganze Bildschirmfläche; seit F92 ist
+jedes Kleinschiff neben Großschiffen eine eigene Gruppe, also ein Dutzend
+Vollbild-Kopien je Bild. **v296:** nur noch das Rechteck, das die Gruppe
+(`f3dBox()`, großzügiger Rand, mit Beams im Feld weiter ganzer Schirm) bzw.
+der Wirbel bedeckt, wird gelöscht und kopiert. Szenario „v296 F104".
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
