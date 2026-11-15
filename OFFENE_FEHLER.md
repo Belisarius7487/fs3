@@ -2526,6 +2526,14 @@ mitnehmen können, gilt dies als gescheitertes Missionsziel."
 die Warpanimation des Elysium-Transporters, der direkt am Heck der Pinnacle
 schwebt, hinter der Pinnacle obwohl der Transporter davor schwebt."
 
+Im echten Spiel nachgestellt (v289, angehalten beim Absprung der Sigma am
+Heck): der Wirbel steht hinter dem Rumpf der Pinnacle. Ursache: Schiffe mit
+Modell werden in Gruppen gezeichnet, erst alle Wirbel der Gruppe, dann alle
+Rümpfe; Sigma und Pinnacle lagen in derselben Gruppe. **v290:** ein Schiff,
+dessen Wirbel gerade zu sehen ist, bekommt eine eigene Gruppe nach den
+größeren Rümpfen (wie die Kleinschiffe seit F92). Szenario „v290 F106"
+(schlägt gegen v289 fehl).
+
 ### F105 — M18: die beiden später kommenden Frachter springen ohne Wirbel ein (v289) — offen
 
 **Befund (Silvio, 15.11.2026):** „In M18 ist mir aufgefallen, dass die beiden
@@ -2534,6 +2542,8 @@ Auf Nachfrage: gemeint sind die feindlichen Taurus. „Bei der Beobachtung in
 deinem Browser jetzt hatten sie Warpanimationen. Beim Spielen in Brave vorhin
 hatten sie keine." (Im eingebauten Browser angehalten mitten im Sprung: alle
 sechs Frachter, Taurus und Kappa, haben einen Wirbel.)
+Brave lief unter Windows (derselbe Rechner). Nicht nachgestellt; zurückgestellt,
+bis Silvio es wieder sieht (dann: waren die Taurus beim Eintreffen im Bild?).
 
 ### F104 — Mikroruckler alle paar Sekunden, besonders in M6 (v287) — offen
 

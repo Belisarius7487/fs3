@@ -6262,6 +6262,26 @@ scenario('v276 F92: small craft vortex drawn after the capital hulls of its batc
   r.galateaDrawn = bGA.length>0;
   r.noSmallInHerBatch = !bGA.some(small);
   return r;`);
+// F106 (v290): a capital-sized ship whose vortex shows starts a batch of
+// her own, after the larger hulls - M15: Sigma's vortex at the Pinnacle's
+// stern was drawn before the batch, under the Pinnacle.
+scenario('v290 F106: a jumping ship is not in the batch of a larger hull', 'm=15', `
+  const r = {};
+  FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('B1'); FS.killId('E2'); return byId('P1').length>0; }, 6000, false);
+  const P = byId('P1')[0], S = byId('T2')[0];
+  r.both = !!P && !!S;
+  if(!r.both) return r;
+  S.warpOut = 60; S.warpMax = S.warpMax || 160;
+  const batches = [];
+  window.f3dFieldPrep = function(list){ const m = new Map(); for(const e of list) m.set(e, {e:e}); return m; };
+  window.f3dFront = function(e){ return !!e && (e.c==='fi' || e.c==='bo'); };
+  window.f3dFlush = function(seg){ batches.push(seg.filter(function(s){ return s.e; }).map(function(s){ return s.e; })); };
+  try{ draw(); }catch(ex){ r.err = String(ex); }
+  const bS = batches.find(function(b){ return b.indexOf(S)>=0; }) || [];
+  r.sigmaDrawn = bS.length>0;
+  r.notWithPinnacle = bS.indexOf(P) < 0;
+  r.pinnacleFirst = batches.findIndex(function(b){ return b.indexOf(P)>=0; }) < batches.indexOf(bS);
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);
