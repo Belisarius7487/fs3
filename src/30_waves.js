@@ -1502,7 +1502,9 @@ function tickCrossGuards(){
       { const _fi = allies.indexOf(a); if(_fi>=0) allies.splice(_fi,1); }
       SUB_MSGS.push({x:a.x, y:a.y,
                      txt: (hullClass(a.img)==='ep') ? 'RESCUED'
-                          : (a.emptyRun ? 'LEFT EMPTY' : 'DELIVERED'),
+                          : (a.emptyRun ? 'LEFT EMPTY'
+                          // F110 (v293): only a ship that carried something delivered it
+                          : ((a.dockedTo || a.hasCargo || a.dockTo) ? 'DELIVERED' : 'ESCAPED')),
                      life:150, ml:150, ally:true, tone:'good'});
     }
   }
@@ -2549,9 +2551,8 @@ const SCRIPT_WAVES = {
        {t:'da', a:'E3', d:30, w:'einwarpen', a2:'E4'},
        {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'einwarpen', a2:'S1'},
        {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'meldung', a2:'A Vasudan ace is coming for you'},
-       {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'ziel', a2:'Destroy all Vasudans - bonus: the ace'},
-       {t:'vernichtet', a:'S1', w:'meldung', a2:'Bonus: the ace is down'},
-       {t:'vernichtet', a:'S1', w:'ziel', a2:'Destroy all Vasudan fighters'},
+       {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'bonus', a2:'Shoot down the ace'},
+       {t:'vernichtet', a:'S1', w:'bonusOk', a2:'The ace is down'},
        {t:'alleZerstoert', a:'E1+E2+E3+E4+S1', w:'zielerfuellt', a2:'All Vasudans destroyed'}
      ]},
 
@@ -2698,12 +2699,12 @@ const SCRIPT_WAVES = {
        {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'S0'},
        {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'S1'},
        {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'X1'},
-       {t:'da', a:'S0', w:'ziel', a2:'Scan an unknown - protect the Plato'},
+       {t:'da', a:'S0', w:'nebenziel', a2:'Scan an unknown'},
        {t:'da', a:'S0', d:20, w:'einwarpen', a2:'S2'},
        {t:'da', a:'S0', d:20, w:'einwarpen', a2:'X2'},
-       {t:'gescannt', a:'S0', w:'meldung', a2:'Unknown scanned'},
-       {t:'gescannt', a:'S0', w:'ziel', a2:'Protect the Plato - bonus: shoot one down'},
-       {t:'anzahlUnter', a:'S0+S1+X1', b:4, w:'meldung', a2:'Bonus: an unknown is down'},
+       {t:'gescannt', a:'S0', w:'nebenOk', a2:'Unknown scanned'},
+       {t:'gescannt', a:'S0', w:'bonus', a2:'Shoot down an unknown'},
+       {t:'anzahlUnter', a:'S0+S1+X1', b:4, w:'bonusOk', a2:'An unknown is down'},
        // under 20 %, or gone at once: the escape pod
        {t:'rumpfUnter', a:'P1', b:20, w:'einwarpen', a2:'H1'},
        {t:'rumpfUnter', a:'P1', b:20, w:'meldung', a2:'The Plato launches an escape pod'},
@@ -2723,7 +2724,7 @@ const SCRIPT_WAVES = {
   // jumps. She is the home ship - the first mission with a rearm (F22).
   6: {name:'Paving the Way', era:'fs1', orig:6, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       stillRocks:true,
-      ziel:'Protect the Galatea - bonus: keep her above half hull', u:[
+      ziel:'Protect the Galatea', u:[
        {id:'R1', c:'ast', n:60, spread:1},
        {id:'G1', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally', guard:true, home:true,
         crossSecs:170, y:270, label:'GTD Galatea'},
@@ -2742,7 +2743,8 @@ const SCRIPT_WAVES = {
        {t:'da', a:'B2', d:30, w:'einwarpen', a2:'J2'},
        {t:'alleZerstoert', a:'J2', w:'einwarpen', a2:'B3'},
        {t:'da', a:'J2', d:30, w:'einwarpen', a2:'B3'},
-       {t:'rumpfUnter', a:'G1', b:50, w:'meldung', a2:'Bonus lost - the Galatea is below half hull'},
+       {t:'sek', a:1, w:'bonus', a2:'Keep the Galatea above half hull', keep:true},
+       {t:'rumpfUnter', a:'G1', b:50, w:'bonusFail', a2:'The Galatea is below half hull'},
        {t:'alleZerstoert', a:'B1+J1+B2+J2+B3', d:2, w:'raus', a2:'G1'},
        {t:'verlaesst', a:'G1', w:'zielerfuellt', a2:'The Galatea has jumped'},
        {t:'verlaesst', a:'G1', w:'abzug', a2:''},
@@ -3208,7 +3210,7 @@ const SCRIPT_WAVES = {
   // Asimov blows herself up, and her blast hurts everything near (bigBang).
   // Replaces the old mission 16 (Silvio, 22.10.2026).
   16:{name:'The Big Bang', era:'fs1', orig:12, ship:'fiapollo', fac:'hol', o:'clear', live:6, huntShare:1,
-      ziel:'Get the scientists off the Asimov - bonus: keep the Ravage', u:[
+      ziel:'Get the scientists off the Asimov', u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
        {id:'W2', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
        {id:'AS', mark:'protect', c:'cr', n:1, spr:'scfaustus', side:'ally', x:330, y:220, still:true, noWarp:true,
@@ -3251,7 +3253,8 @@ const SCRIPT_WAVES = {
        {t:'angedockt', a:'T1', w:'zielerfuellt', a2:'The scientists are safe'},
        {t:'angedockt', a:'T2', w:'zielerfuellt', a2:'The scientists are safe'},
        {t:'vernichtet', a:'T1+T2', w:'zielverfehlt', a2:'Spomer and Stull destroyed'},
-       {t:'vernichtet', a:'RV', w:'meldung', a2:'Bonus lost - GTC Ravage destroyed'}
+       {t:'sek', a:1, w:'bonus', a2:'Protect the Ravage', keep:true},
+       {t:'vernichtet', a:'RV', w:'bonusFail', a2:'GTC Ravage destroyed'}
        // The rest ends on its own: the last Shivan down, nothing left to come.
      ]},
 
@@ -3273,7 +3276,7 @@ const SCRIPT_WAVES = {
   // Lilith and Cain. Replaces the old mission 17 (Silvio, 23.10.2026).
   17:{name:'La Ruota della Fortuna', era:'fs1', orig:13, ship:'bomedusa', fac:'hol', o:'clear', live:6,
       wreck3d:{key:'inkarnak', n:5},
-      ziel:'Destroy all Shivans - bonus: keep the Galatea above half hull', u:[
+      ziel:'Destroy all Shivans', u:[
        {id:'W1', c:'bo', n:1, size:3, spr:'bomedusa', side:'ally'},
        // already there when Alpha arrives, worn from the fight with the outpost
        {id:'E1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:560, y:170, noWarp:true, hurt:0.8},
@@ -3300,7 +3303,8 @@ const SCRIPT_WAVES = {
        {t:'da', a:'R1', w:'jagd', a2:'GA'},
        // help: two Valkyries against the bombers
        {t:'da', a:'LI', d:15, w:'einwarpen', a2:'D1'},
-       {t:'rumpfUnter', a:'GA', b:50, w:'meldung', a2:'Bonus lost - Galatea below half hull'},
+       {t:'da', a:'GA', w:'bonus', a2:'Keep the Galatea above half hull', keep:true},
+       {t:'rumpfUnter', a:'GA', b:50, w:'bonusFail', a2:'The Galatea is below half hull'},
        {t:'vernichtet', a:'GA', w:'zielverfehlt', a2:'The Galatea is lost'},
        {t:'vernichtet', a:'GA', d:6, w:'abzug', a2:''}
        // The rest ends on its own: the last Shivan down, nothing left to come.
@@ -3369,9 +3373,10 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'TA'},
        {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'KA'},
        {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'IO'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'ziel', a2:'Cover the Kappa freighters - stop the Taurus'},
-       {t:'verlaesst', a:'TA', w:'meldung', a2:'A Taurus freighter got away with cargo'},
-       {t:'vernichtet', a:'TA', w:'meldung', a2:'All Taurus freighters stopped'},
+       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'ziel', a2:'Cover the Kappa freighters'},
+       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'nebenziel', a2:'Stop the Taurus freighters'},
+       {t:'verlaesst', a:'TA', wenn:{t:'angedockt', a:'TA'}, w:'nebenFail', a2:'A Taurus freighter got away with cargo'},
+       {t:'vernichtet', a:'TA', w:'nebenOk', a2:'All Taurus freighters stopped'},
        {t:'leer', a:'KA', w:'meldung', a2:'A Kappa freighter found no cargo left'},
        {t:'verlaesst', a:'KA', wenn:{t:'angedockt', a:'KA'}, w:'zielerfuellt', a2:'The Kappa freighters are away with the cargo'},
        {t:'vernichtet', a:'KA', w:'zielverfehlt', a2:'The Kappa freighters are lost'},
@@ -5033,7 +5038,16 @@ function evFire(ev){
       objAnnounce(ev.w==='zielerfuellt' ? 'OBJECTIVE COMPLETE' : 'OBJECTIVE FAILED',
                   String(arg || '').toUpperCase(),
                   ev.w==='zielerfuellt' ? 'done' : 'fail');
+      if(ev.w==='zielerfuellt' && typeof mlogKeepBonus === 'function') mlogKeepBonus();
       break;
+    // F112 (v293): a bonus or a second objective of its own, beside the
+    // main one (keep:true - a bonus that is won with the main objective)
+    case 'bonus':      mlogSide('bonus', arg, ev.keep); break;
+    case 'bonusOk':    mlogSideResult('bonus', 'done', arg); break;
+    case 'bonusFail':  mlogSideResult('bonus', 'fail', arg); break;
+    case 'nebenziel':  mlogSide('neben', arg); break;
+    case 'nebenOk':    mlogSideResult('neben', 'done', arg); break;
+    case 'nebenFail':  mlogSideResult('neben', 'fail', arg); break;
     // v249: a partial success, in yellow (the Plato lost, her crew
     // away - FS1 M5).
     case 'zielteil':

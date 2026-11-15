@@ -2527,6 +2527,17 @@ Ravage", M17 „Destroy all Shivans - Bonus: keep the Galatea above half hull",
 M18 „Cover the Kappa freighters - stop the Taurus". Im Code: es gibt immer
 nur einen offenen Auftrag (`mlogObjective()`); ein neuer schließt den
 vorigen als erfüllt. Zwei gleichzeitige Aufträge brauchen also etwas Neues.
+Nachtrag Silvio zu M6: „Das könnten auch 2 Objectives sein. Einmal die
+Galatea zu beschützen und Bonus Objective ihre Hülle über 50% zu halten."
+**v293:** neue Wirkungen `bonus` / `bonusOk` / `bonusFail` (eigene Zeile
+„BONUS: …", `keep:true` = mit dem Hauptauftrag gewonnen) und `nebenziel` /
+`nebenOk` / `nebenFail` (zweiter Auftrag daneben). Ein neuer Hauptauftrag
+schließt sie nicht. Umgestellt: M2 (Ass als Bonus), M5 (Scan als zweiter
+Auftrag, Abschuss als Bonus), M6, M16 („Protect the Ravage"), M17 (Bonus
+erst, wenn die Galatea da ist), M18 („Cover the Kappa freighters" und
+„Stop the Taurus freighters"; Fehlschlag nur, wenn ein Taurus mit Ladung
+entkommt). Szenario „v293 F112". „FS1 M6 Paving … backToFs2" ist schon in
+v292 rot (alte Mission danach), nicht angefasst.
 
 ### F111 — M15: nur ein Teil der Transporter und Frachter ist zu beschützen (v290) — offen
 
@@ -2539,6 +2550,8 @@ nur ein Teil der Transporter und Frachter protected werden müssen."
 erfolgreich entkommt, steht Delivered anstelle von Escaped als erfolgreiches
 Missionsobjective im Pause-Log." (Bild: „0:30 THE TRANSPORT GOT AWAY",
 „0:31 DELIVERED".)
+**v293:** „DELIVERED" nur noch, wenn das Schiff etwas trug oder abholen
+sollte; sonst „ESCAPED" (grün).
 
 ### F109 — M8: Fracht-Container springen in die falsche Richtung (v290) — offen
 

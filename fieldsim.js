@@ -6314,6 +6314,18 @@ scenario('v292 F107: enemy cargo left behind is not a failed objective', 'm=3', 
   r.notBad = lines.every(function(l){ return l.tone !== 'bad'; });
   r.noLossCounted = protLost === p0;
   return r;`);
+// F112 (v293): objective and bonus as two rows (M6), the bonus failed on
+// its own when the Galatea drops below half hull.
+scenario('v293 F112: bonus is a row of its own', 'm=6', `
+  const r = {};
+  FS.step(120);
+  r.rows = JSON.stringify(MLOG.objs.map(function(o){ return o.txt + ':' + o.st; }));
+  r.twoRows = MLOG.objs.length === 2 && MLOG.objs[0].txt === 'PROTECT THE GALATEA' && /^BONUS: /.test(MLOG.objs[1].txt);
+  const G = byId('G1')[0];
+  if(G) G.hp = G.maxHp*0.4;
+  FS.step(30);
+  r.bonusFailed = MLOG.objs.length === 2 && MLOG.objs[1].st === 'fail' && MLOG.objs[0].st === 'open';
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

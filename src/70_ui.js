@@ -917,7 +917,29 @@ function mlogLine(txt, tone){
   MLOG.log.push({t:MLOG.t, txt:txt.toUpperCase(), tone:tone||'info'});
   if(MLOG.log.length > MLOG_MAX) MLOG.log.shift();
 }
-function mlogOpen(){ for(let i=MLOG.objs.length-1;i>=0;i--) if(MLOG.objs[i].st==='open') return MLOG.objs[i]; return null; }
+function mlogOpen(){ for(let i=MLOG.objs.length-1;i>=0;i--) if(MLOG.objs[i].st==='open' && !MLOG.objs[i].side) return MLOG.objs[i]; return null; }
+// F112 (v293, Silvio: "Statt zwei Objectives in eines zu packen, mach doch
+// zwei draus"): a second objective beside the main one - a bonus
+// ('bonus', listed as BONUS: ...) or a second task ('nebenziel'). Neither
+// is closed by a new main objective; each takes its own result.
+function mlogSide(kind, txt, keep){
+  txt = String(txt||'').trim().toUpperCase(); if(!txt) return;
+  if(kind === 'bonus') txt = 'BONUS: ' + txt;
+  for(const o of MLOG.objs) if(o.side === kind && o.txt === txt && o.st === 'open') return;
+  MLOG.objs.push({txt:txt, st:'open', side:kind, keep:!!keep});
+}
+function mlogSideResult(kind, st, txt){
+  for(let i=MLOG.objs.length-1;i>=0;i--){
+    const o = MLOG.objs[i];
+    if(o.side === kind && o.st === 'open'){ o.st = st; break; }
+  }
+  if(txt) mlogLine(txt, st==='done'?'good':'bad');
+}
+// A bonus that only has to hold ("keep her above half hull") is won when
+// the main objective is.
+function mlogKeepBonus(){
+  for(const o of MLOG.objs) if(o.side === 'bonus' && o.keep && o.st === 'open') o.st = 'done';
+}
 // a new objective; one still open is done with, as the mission moves on
 // only once a step is taken
 function mlogObjective(txt){

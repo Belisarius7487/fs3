@@ -1008,7 +1008,7 @@ function drawSubsystems(e){
 // is seen on the field (scan ring, tag, explosion, hull bar, the icons in
 // the bar); the results go to the log in the pause screen. The messages are
 // still made where they were and run out here, unseen.
-const SUB_MSG_LOG = /^(RESCUED|DELIVERED|LEFT EMPTY|CARGO LEFT BEHIND|TARGET ESCAPED|NO CARGO)\b/;
+const SUB_MSG_LOG = /^(RESCUED|DELIVERED|ESCAPED|LEFT EMPTY|CARGO LEFT BEHIND|TARGET ESCAPED|NO CARGO)\b/;
 function drawSubMsgs(){
   for(let i=SUB_MSGS.length-1;i>=0;i--){
     const m=SUB_MSGS[i];
