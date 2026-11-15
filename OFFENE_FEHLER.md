@@ -2723,6 +2723,11 @@ Bilder werden nach dem Laden im Hintergrund entpackt (`img.decode()`), und im
 Scheitel der Verdunkelung wird alles Neue einmal unsichtbar gezeichnet
 (`sceneWarm()`). Szenario „v299 F104". (Die Modell-Entpackung aus der
 Aufzeichnung lag beim Laden und beim Missionsstart, nicht am Ende.)
+Lag-Log v299 (Silvio, Brave): im Gefecht nur noch **ein** Hänger (83 ms) in
+78 s. Am Missionsende weiter 1:19–1:21 (Ausblenden zum Absprung): ein Bild
+105 ms „draw", drei Bilder je 100 ms. Silvio: „So ganz weg sind die Ruckler
+beim Missionsende noch nicht". Im eingebauten Browser über zwei
+Missionswechsel (Ton aus und an) nicht nachgestellt. Offen.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
