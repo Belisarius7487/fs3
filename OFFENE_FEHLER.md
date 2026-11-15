@@ -2771,6 +2771,14 @@ Bild): 4 Kopien aus der 3D-Fläche in die 2D-Fläche, 74 neue Farbverläufe,
 19 Ausschneide-Formen, 174 Zeichnungen mit anderem Mischmodus. Nächster
 Schritt: der Grafikbericht aus Brave und Edge (brave://gpu, edge://gpu),
 um zu sehen, worin sich die beiden auf demselben PC unterscheiden.
+Grafikberichte (Silvio, 15.11.2026): Brave und Edge gleich — RTX 2080 Ti,
+Treiber 32.0.16.1088, ANGLE über D3D11, Skia GaneshGL, dieselben Schalter und
+Umgehungen; Unterschied nur die ANGLE-Revisionsnummer. Im eingebauten Browser
+nachgestellt mit Brave-Auflösung (1722×1077, M6, 42 Gegner, 25 s): kein
+langes Bild; selbst bei 3985×2490 nur 1–2 in 15 s, mit und ohne 3D gleich.
+Während der Mission keine Netzanfragen. In Brave also nicht nachstellbar.
+Nächster Schritt: eine gespeicherte Leistungsaufzeichnung aus Brave (Datei),
+um die Aufgaben im Grafikprozess bei einem Hänger einzeln auszuwerten.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
