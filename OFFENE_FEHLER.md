@@ -2746,6 +2746,12 @@ Wirbelbogens auf die Grafikkarte kostet 119 ms und geschah beim ersten
 Einspringen eines Schiffs. Jetzt geschieht es hinter dem Ladebalken
 (`f3dWarmFx()`, mit Wirbelmodell, Shader und Triebwerksbild). Szenario
 „v301 F104".
+Lag-Log v301 (Silvio, Brave, M6): Start nur noch ein Hänger (133 ms statt
+150 + 250). Im Gefecht 9 Hänger 67–150 ms, teils nach Explosionen, teils
+nach „damage picture", teils ohne Ereignis. Silvio: „Wenn ich raten müsste
+haben die restlichen Ruckler Explosionen zur Ursache." **v302:** Testschalter
+`&lag=1` (Explosionsbilder nicht gezeichnet), `&lag=2` (Schadensbild nicht
+auf die Modelle geladen), `&lag=3` (beides) — nur zum Messen in Brave.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es

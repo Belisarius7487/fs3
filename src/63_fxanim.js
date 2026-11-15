@@ -112,7 +112,11 @@ function fxFrame(k, f, x, y, d, rot){
   else ctx.drawImage(im, sx, sy, c, c, x - d/2, y - d/2, d, d);
 }
 const FX_MIN_PX = 12;           // an explosion is never smaller on the screen
+// F104 (v302): test switch &lag=1 (or 3) - explosion pictures not drawn,
+// to see in Brave whether the hitches come from them. Not for play.
+const LAG_TEST = (typeof urlNum === 'function') ? Math.round(urlNum('lag', 0, 0, 3)) : 0;
 function drawFxAnims(){
+  if(LAG_TEST & 1) return;
   if(!FX_ANIMS.length || !fxReady()) return;
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';

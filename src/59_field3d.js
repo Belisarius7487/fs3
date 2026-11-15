@@ -1496,7 +1496,8 @@ function f3dDmgTex(old, src){
 function f3dDmgBind(e, L){
   const gl = F3D.gl, loc = F3D.loc;
   const D = e && e.dm, img = e && IMGS[e.img];
-  if(!D || !D.can || !D.gl3 || !img || !img.width || !L.head || F3D_ROLL[e.img]){
+  // F104 (v302): &lag=2 (or 3) - no damage picture on the models, test only
+  if(!D || !D.can || !D.gl3 || !img || !img.width || !L.head || F3D_ROLL[e.img] || (typeof LAG_TEST !== 'undefined' && (LAG_TEST & 2))){
     gl.uniform4f(loc.uDP, 0, 0, 0, 0); return;
   }
   // the marks: uploaded again when they were drawn again
