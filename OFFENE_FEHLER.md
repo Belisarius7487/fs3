@@ -2667,6 +2667,13 @@ Masken aus). Nächster Schritt: Silvio testet mit Shields aus.
 Mit Shields aus (Silvio, v295): gleiches Bild, 12 Hänger 100–233 ms. Shields
 sind es nicht. Eingebauter Browser mit Ton an (v295, M6, 30 s): kein Bild
 über 45 ms. Nächster Schritt: Silvio testet M6 in Edge auf demselben PC.
+**Edge (Silvio, v295, M6):** im Gefecht (0:02–1:17) kein einziger Hänger;
+nur beim Start (3×, 250–284 ms, Modelle/erstes Schadensbild) und nach dem
+Absprung (1:20, 4× 100 ms), die gibt es in Brave ebenso. Die Ruckler im
+Gefecht kommen also von Brave. Vorschlag an Silvio: in Brave unter
+Einstellungen → System die Grafikbeschleunigung prüfen und unter Leistung den
+Energiesparmodus ausschalten. Offen fürs Spiel: Hänger beim Missionsstart
+und nach dem Absprung (alle Browser).
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
