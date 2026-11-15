@@ -2657,6 +2657,13 @@ Umschalten für jeden einzelnen; Feuerball aus vorgemaltem Bild statt neuem
 Verlauf je Bild (`fbSprite`, auf dem Titelbild vorab). Headless-Vergleich
 v294/v295 mit gleichen Partikeln: Bild gleich (mittlere Abweichung 0,2 von
 255). Beams unberührt. Szenario „v295 F104" (60 → 2 Umschaltungen).
+Lag-Log v295 (Silvio, Brave, M6): kaum anders, 12 Bilder über 50 ms, fast
+alles „elsewhere". Bei 1:19–1:20 (nach dem Absprung, 10–18 Partikel) vier
+Bilder je 100 ms hintereinander: also nicht die Effekte. Im eingebauten
+Browser (ebenfalls Chromium, derselbe PC) keine solchen Hänger. Vermutung:
+etwas an Brave (Shields/Fingerabdruck-Schutz verfälscht und verlangsamt
+Zeichenflächen-Auslesen; das Spiel liest beim Schadensbild, bei Trümmern und
+Masken aus). Nächster Schritt: Silvio testet mit Shields aus.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
