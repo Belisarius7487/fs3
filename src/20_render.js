@@ -1323,6 +1323,11 @@ function fbSprite(a){
   g.fillStyle = gr; g.beginPath(); g.arc(r, r, r, 0, Math.PI*2); g.fill();
   return (FB_SPR[k] = c);
 }
+// F104 (v298): is a particle where the camera sees it?
+function partSeen(p){
+  const m = Math.max(p.maxR || 0, (p.type === 'smoke' ? (p.sz || 4)*3 : 0)) + 60/Math.max(0.05, CAM.z);
+  return camSees(p.x, p.y, m);
+}
 function drawParts(){
   ctx.save();
   // v209: sparks, debris and trails at their v207 size on the screen
@@ -1334,6 +1339,7 @@ function drawParts(){
     p=PARTS[pi];
     if(p.type!=='fb') continue;
     if(!p.ml||p.ml===0) p.ml=p.life;
+    if(!partSeen(p)) continue;
     a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
       var prog=1-(p.life/p.ml);
       var r=Math.max(2, FBm*(0.4+0.6*prog), p.maxR*(0.4+0.6*prog));
@@ -1348,6 +1354,7 @@ function drawParts(){
   for(pi=0;pi<PARTS.length;pi++){
     p=PARTS[pi];
     if(!p.ml||p.ml===0) p.ml=p.life;
+    if(!partSeen(p)) continue;
     a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
     if(p.type==='mag'){
       // v213: a soft glow (61_glow.js) instead of stacked circles
@@ -1366,6 +1373,7 @@ function drawParts(){
   // pass 2: the solid parts
   for(pi=0;pi<PARTS.length;pi++){
     p=PARTS[pi];
+    if(!partSeen(p)) continue;
     a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
     if(p.type==='fb'){
       // drawn in pass 0

@@ -165,6 +165,11 @@ function draw(){
     // No damage blink. The hull bar already carries that information.
     if(e.type==='asteroid'){
       const r=16*e.sc;
+      // F104 (v298): nothing is drawn that the camera does not see - every
+      // rock (with its clipped light) and ship used to be drawn wherever it
+      // was, and the browser's graphics side was busy 70-95 % of the time
+      // (Silvio's Brave trace, M6)
+      if(!camSees(e.x, e.y, r*1.6 + 12)){ ctx.globalAlpha=1; continue; }
       if(e.tex==null) e.tex=(Math.random()*AST_VARIANTS)|0;
       const t=AST_TEX[e.tex];
       if(t){
@@ -176,6 +181,8 @@ function draw(){
         drawRockLight(e, r);
       }
     }else{
+      { const im=IMGS[e.img], rr=im ? Math.max(im.width, im.height)*e.sc*0.9 + 80 : 240;
+        if(!camSees(e.x, e.y, rr)){ ctx.globalAlpha=1; continue; } }   // F104 (v298)
       drawThrusters(e.img,e.x|0,e.y|0,e.sc,e.flip,e.faction,e.warp>0?0.35:1,e.ang||0,e);
       drawShipE(e,e.x|0,e.y|0,e.sc,e.flip,e.ang||0);
       drawShipTop(e);
@@ -401,6 +408,7 @@ function drawShots(under){
 function drawShotsAt(under){
   for(const b of pBullets){
     if(shotUnder(b) !== under) continue;
+    if(!camSees(b.x, b.y, 220)) continue;     // F104 (v298): off the screen
     if(!b.sec){
       // Laser: the weapon's own colours (v161: every side, every gun),
       // drawn with trail, core and sparks, see drawLaser().
@@ -467,6 +475,7 @@ function drawShotsAt(under){
 
   for(const b of eBullets){
     if(shotUnder(b) !== under) continue;
+    if(!camSees(b.x, b.y, 220)) continue;     // F104 (v298): off the screen
         const bx=b.x|0, by=b.y|0;
     if(b.kind){
       const ang=Math.atan2(b.vy,b.vx), G=ordG();   // v209: see ordG()

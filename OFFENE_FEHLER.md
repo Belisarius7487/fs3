@@ -2695,6 +2695,18 @@ etwas weniger" — 14 Hänger, im Gefecht 67–167 ms bei ~160 Partikeln. Die
 Partikel sind es also nicht. Alle Hänger sind Vielfache von 16,7 ms und
 liegen außerhalb des Spielcodes. Nächster Schritt: eine Leistungsaufzeichnung
 aus Brave (F12 → Performance), die zeigt, was der Browser in der Zeit tut.
+**Aufzeichnung aus Brave (Silvio, 15.11.2026, ~95 s):** die Grafik-Seite des
+Browsers (GPU-Prozess, Hauptfaden) ist während der Mission **70–96 % jeder
+Sekunde beschäftigt** (vorher auf dem Titelbild ~5 %); die langen Bilder
+fallen mit einzelnen Aufgaben dort von 120–195 ms zusammen. Das Spiel gibt dem
+Browser also zu viele Zeichenbefehle. Gezählt (headless, M6): **~2050
+Zeichenbefehle je Bild**, davon Partikel 690, Asteroiden-Randlicht 300 (je
+Brocken eine Ausschneide-Form), Leiste 280, Schüsse 270, Rahmen/Balken an
+Schiffen 220, Triebwerke 130 — und **nichts wurde außerhalb des Bildes
+weggelassen**. **v298:** Brocken, Sprite-Schiffe, Schüsse und Partikel
+außerhalb der Kamera werden nicht mehr gezeichnet: **2057 → 977** Befehle je
+Bild. Szenario „v298 F104". Nächster großer Posten: die obere Leiste (280,
+jedes Bild komplett neu gezeichnet).
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es

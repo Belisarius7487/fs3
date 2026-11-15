@@ -6363,6 +6363,20 @@ scenario('v296 F104: 3D batch box, not the whole screen', 'm=6', `
   F3D_BEAMS.length = 0;
   r.hulkWholeScreen = f3dBox([{hulk: 1}], false) === null;
   return r;`);
+// F104 (v298): what the camera does not see is not drawn
+scenario('v298 F104: off-screen rocks and particles are not drawn', 'm=6', `
+  const r = {};
+  for(let k=0;k<300;k++){ if(player) player.invT=999; FS.step(1); }
+  const rocks = enemies.filter(function(e){ return e.type==='asteroid'; });
+  const off = rocks.filter(function(e){ return !camSees(e.x, e.y, 16*e.sc*1.6 + 12); });
+  const on = rocks.length - off.length;
+  r.someOff = off.length > 0;
+  let lit = 0; const f = window.drawRockLight; window.drawRockLight = function(){ lit++; return f.apply(this, arguments); };
+  try{ draw(); }catch(e){ r.err = String(e); }
+  window.drawRockLight = f;
+  r.onlySeenLit = lit <= on;
+  r.lit = lit + ' of ' + rocks.length;
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);
