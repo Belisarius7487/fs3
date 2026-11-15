@@ -2686,6 +2686,10 @@ jedes Kleinschiff neben Großschiffen eine eigene Gruppe, also ein Dutzend
 Vollbild-Kopien je Bild. **v296:** nur noch das Rechteck, das die Gruppe
 (`f3dBox()`, großzügiger Rand, mit Beams im Feld weiter ganzer Schirm) bzw.
 der Wirbel bedeckt, wird gelöscht und kopiert. Szenario „v296 F104".
+Lag-Log v296 (Silvio, Brave): „ruckelt immer noch", 18 Hänger, im Gefecht
+67–133 ms (etwas kürzer als vorher), jeweils bei 150–420 Partikeln.
+**v297:** Testschalter `&pmax=N` für die Partikel-Obergrenze (Standard 650),
+um in Brave zu prüfen, ob es an der Zahl der Partikel liegt.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es

@@ -1274,11 +1274,14 @@ function boom(x,y,n,big){
       clr:[P.eA,P.eB,P.eC,'#ffffff'][Math.floor(Math.random()*4)]});
   }
 }
+// F104 (v297): the cap as a test switch (&pmax=N) - is it the number of
+// particles that makes Brave stutter? 650 stays the default.
+const PARTS_MAX = (typeof urlNum === 'function') ? Math.round(urlNum('pmax', 650, 20, 2000)) : 650;
 function tickParts(){
   // v215: 650 (900 before) - in the lag log the long frames came with ~900
   // particles, the time spent outside the game's code (drawing them on the
   // graphics card, each a soft additive glow since v213)
-  if(PARTS.length>650)PARTS.splice(0,PARTS.length-650);
+  if(PARTS.length>PARTS_MAX)PARTS.splice(0,PARTS.length-PARTS_MAX);
   for(var i=PARTS.length-1;i>=0;i--){
     var p=PARTS[i];
     if(p.ml===0) p.ml=p.life;
