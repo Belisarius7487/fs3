@@ -2809,6 +2809,35 @@ Schüsse, Laser, Partikel, Leuchtpunkte, Randlicht — gesammelt über die
 3D-Fläche (WebGL) zeichnen, je Art ein Befehl statt Hunderte; Aussehen
 gleich.
 
+**Weg für den nächsten Chat (15.11.2026):**
+- Stand: v303. Testschalter `&lag=1/2/3` (Explosionsbilder aus /
+  Schadensbild aus / beides) und `&pmax=N` sind noch drin, nur zum Messen.
+- `ctx` ist seit v303 `let` (10_core.js), damit `uiMemo()` (20_render.js)
+  ihn kurz auf eine kleine Fläche umlenken kann. Randlicht: `rockLightBake()`
+  (50_combat.js), 48 Richtungen × 12 Formen, je Richtung zwei kleine Flächen
+  — ein Bogen je Form wäre für den Browser günstiger (weniger Texturwechsel).
+- Messen im eingebauten Browser auf Silvios PC (Dev-Server, v303 ist dort):
+  `Object.defineProperty(window,'devicePixelRatio',{get:()=>2.16});
+  applyResolution(); launchGame()` gibt Braves Bildgröße. Kosten eines Bildes:
+  `window.update=function(){}` (friert ein, Pause zeichnet anders!), dann
+  `draw()` mit `ctx.getImageData(0,0,1,1)` davor und danach, Median aus 25;
+  einzelne Teile durch Leerfunktionen ersetzen und vergleichen. Einzelne
+  Aufrufe: Wartezeit nach einer Schleife von 2000 Aufrufen bis zum
+  `getImageData` = Arbeit im Grafikprozess.
+- Brave-Aufzeichnung auswerten (Datei .json.gz): Prozess „GPU Process",
+  Faden `CrGpuMain`, Aufgaben `GPUTask` je Sekunde aufsummieren = Auslastung;
+  lange Bilder über die Abstände von `FireAnimationFrame` im `CrRendererMain`.
+  Ohne Zusatzkategorien steht nicht drin, *welche* Befehle teuer sind.
+- Reihenfolge beim Zeichnen beachten (`draw()` in 70_ui.js): Schiffe in
+  3D-Gruppen (`_f3seg`, `f3dRender` kopiert je Gruppe aus der WebGL-Fläche in
+  die 2D-Fläche), dazwischen 2D-Teile; danach Schüsse, Spieler, Partikel,
+  Explosionsbilder, Reparaturstrahlen. Ein gesammelter WebGL-Durchgang für
+  Partikel/Schüsse/Leuchtpunkte muss an derselben Stelle liegen und die
+  Mischmodi (`lighter`) gleich behandeln.
+- Silvios Vorgaben: keine künstliche Last, keine Browser-Einstellungen,
+  Aussehen gleich, Beams möglichst nicht anfassen. Jede Änderung mit
+  Bildvergleich (alt/neu, mittlere Abweichung) und Lag-Log aus Brave prüfen.
+
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
 nicht vorher schon da war. Aufgefallen ist es mir besonders bei Mission 6
