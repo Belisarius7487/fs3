@@ -2514,6 +2514,23 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
+### F107 — Feindliche Frachter ohne Ladung zählen als verfehltes Ziel (v289) — offen
+
+**Befund (Silvio, 15.11.2026):** „Ebenso habe ich einige Fehler bei den
+Missionsobjectives gesehen. Wenn bspw. feindliche Frachter ihre Ladung nicht
+mitnehmen können, gilt dies als gescheitertes Missionsziel."
+
+### F106 — M15: Sprungwirbel der Elysium hinter der Pinnacle (v289) — offen
+
+**Befund (Silvio, 15.11.2026):** „In der Mission mit der PVD Pinnacle liegt
+die Warpanimation des Elysium-Transporters, der direkt am Heck der Pinnacle
+schwebt, hinter der Pinnacle obwohl der Transporter davor schwebt."
+
+### F105 — M18: die beiden später kommenden Frachter springen ohne Wirbel ein (v289) — offen
+
+**Befund (Silvio, 15.11.2026):** „In M18 ist mir aufgefallen, dass die beiden
+Frachter, die im Laufe der Mission hereinwarpen, keine Warpanimation haben."
+
 ### F104 — Mikroruckler alle paar Sekunden, besonders in M6 (v287) — offen
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
