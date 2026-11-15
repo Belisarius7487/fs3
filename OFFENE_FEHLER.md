@@ -2783,6 +2783,20 @@ Schiffe (`cr`, `co`, `de`, `ca`, `sd`, `gm`, `in`, `nt…`).
 in Ordnung aus, in denen Schiffe docken." Auf dem Server geprüft: v288 live,
 Chronos-Rahmen 228×88 aus dem Modell, Aten noch Sprite.
 
+**v289 (15.11.2026):** die großen Schiffe dazu (`cr`, `co`, `de`, `ca`,
+`sd`, `gm`, `in`, `nt`), alle in einer Version (Silvio: „Weiter mit F103,
+die großen Schiffe"). Im Code nachgesehen, was an der Höhe hängt: Türme,
+Triebwerke und Schadensbild aus dem Modell rechnen mit dem Seitenverhältnis
+des Rahmens und sitzen jetzt genauer auf dem Modell; die Hangar-Anflugwege
+(`mkbays.py`) sind auf die Modellbox normiert und passen jetzt ebenso; die
+Trefferkarte der großen Schiffe (`MASKS3D`) kommt weiter aus dem Modell;
+Editor-Positionen (Subsysteme, alte Andockpunkte) bleiben über
+`f103Mounts()` an ihrem Platz. Rümpfe ohne Sprite (Karnak, Knossos ohne
+Zusatz, Polaris, Cheops, Asteroidenbasis) ändern sich nicht. Neues
+Szenario „F103 stage 3: capital ships" (schlägt gegen v288 fehl).
+Kapseln in die Galatea (M90), F99, F100 grün. Im echten Spiel noch nicht
+angesehen.
+
 **Nächster Schritt:** die großen Schiffe — `F103_CLASSES` in
 `20_render.js` um ihre Schlüssel erweitern. Dort ändert sich viel (Aten
 +32 %, Iceni +16 %, Mentu +16 %, Aeolus +12 %, Orion +8 %): die

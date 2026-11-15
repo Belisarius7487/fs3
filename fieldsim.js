@@ -6444,8 +6444,6 @@ scenario('F103 stage 3: small hulls framed by their model', 'm=1', `
   const sp = document.createElement('canvas'); sp.width = W; sp.height = H;
   const fr = (typeof f103Canvas === 'function') ? f103Canvas(k, sp) : sp;
   r.frameHasModelHeight = fr.width === W && fr.height === Math.round(W*o.ratio) && fr.height !== H;
-  const big = (typeof f103Canvas === 'function') ? f103Canvas('craten', sp) : sp;
-  r.capitalShipsKeepSprite = big === sp;
   // v288: the other small hulls too (freighters, containers, transports...)
   const fo = OUTLINES.frchronos, sp2 = document.createElement('canvas');
   sp2.width = fo.sprite[0]; sp2.height = fo.sprite[1];
@@ -6459,7 +6457,6 @@ scenario('F103 stage 3: small hulls framed by their model', 'm=1', `
   r.gunStaysPut = Math.abs(now.dy*Math.round(W*o.ratio) - raw.dy*H) < 0.01*H && now.dx === raw.dx;
   const rt = MOUNTS[k].thrusters[0], nt = mountsFor(k).thrusters[0];
   r.thrusterWidthStays = Math.abs(nt.w*Math.round(W*o.ratio) - rt.w*H) < 0.01*H;
-  r.capitalMountsUntouched = mountsFor('craten').subs[0].dy === MOUNTS.craten.subs[0].dy;
   // in the mission: her fighters fly, take hits and place their subsystems
   FS.step(600);
   const sm = enemies.concat(allies).filter(e => /^(fi|bo)/.test(e.img));
@@ -6475,6 +6472,25 @@ scenario('F103 stage 3: small hulls framed by their model', 'm=1', `
   };
   r.subs = JSON.stringify(ps.map(p => [p.id, +p.dx.toFixed(2), +p.dy.toFixed(2), on(p)]));
   r.subsystemsOnModelOutline = ps.length === 5 && ps.every(on);
+  r.err = String(F3D.err || '');
+  return r;`);
+// F103 stage 3, v289: the capital ships too. The Aten's sprite is a third
+// lower than her model: her frame takes the model's height, her editor
+// subsystems stay where they were on the field, and the Hecate's bay paths
+// (normalised to the model's box by mkbays.py) now land on the model.
+scenario('F103 stage 3: capital ships framed by their model', 'm=1', `
+  const r = {};
+  const k = 'craten', o = OUTLINES[k], W = o.sprite[0], H = o.sprite[1];
+  const sp = document.createElement('canvas'); sp.width = W; sp.height = H;
+  const fr = (typeof f103Canvas === 'function') ? f103Canvas(k, sp) : sp;
+  r.atenFramed = fr !== sp && fr.height === Math.round(W*o.ratio) && fr.height !== H;
+  const raw = MOUNTS[k].subs[0], now = f103Mounts(k, MOUNTS[k]).subs[0];
+  r.atenSubStaysPut = Math.abs(now.dy*Math.round(W*o.ratio) - raw.dy*H) < 0.01*H && now.dx === raw.dx;
+  r.allClassesFramed = ['coiceni', 'crmentu', 'deorionleft', 'dehecate', 'sdsathanas', 'gmrahu', 'inarcadia', 'ntfdehecate', 'cacharybdis']
+    .every(function(q){ return !!f103Frame(q); });
+  delete MASKS[k];
+  const m = buildMask(k);
+  r.atenMaskIsModelOutline = !!m && m.w === o.map.w && m.h === o.map.h;
   r.err = String(F3D.err || '');
   return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
