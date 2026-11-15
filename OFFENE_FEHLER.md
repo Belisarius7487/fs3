@@ -2690,6 +2690,11 @@ Lag-Log v296 (Silvio, Brave): „ruckelt immer noch", 18 Hänger, im Gefecht
 67–133 ms (etwas kürzer als vorher), jeweils bei 150–420 Partikeln.
 **v297:** Testschalter `&pmax=N` für die Partikel-Obergrenze (Standard 650),
 um in Brave zu prüfen, ob es an der Zahl der Partikel liegt.
+Ergebnis (Silvio, Brave, `&pmax=150`): „Sind immer noch Ruckler da, wenn auch
+etwas weniger" — 14 Hänger, im Gefecht 67–167 ms bei ~160 Partikeln. Die
+Partikel sind es also nicht. Alle Hänger sind Vielfache von 16,7 ms und
+liegen außerhalb des Spielcodes. Nächster Schritt: eine Leistungsaufzeichnung
+aus Brave (F12 → Performance), die zeigt, was der Browser in der Zeit tut.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
