@@ -2877,6 +2877,47 @@ Bildvergleich alt/neu (Schüsse und Partikel): mittlere Abweichung 0,0097
 von 255, größte 48 (einzelne Funken), Lichtmenge 100,0 %. Szenario
 „v305 F104" (schlägt gegen v304 fehl).
 
+Lag-Log v305 (Silvio, Brave, M6, 15.11.2026): „ruckelt gerade anfangs der
+Mission einige male" — 9 Hänger in 80 s, längster 250 ms, alle „elsewhere":
+0:00 133 ms nach „warp in deorionright"; 0:06 150 ms und 100 ms **bei
+0 Partikeln und 0 Schüssen**, nichts protokolliert; 0:07 250 ms nach
+„damage picture deorionright x4; explosion asteroid"; danach 0:56, 1:06,
+1:12, 1:15 (nach „damage picture deorionright"), 1:23 je 83–117 ms.
+
+Danach gemessen (eingebauter Browser auf Silvios PC, v305 vom Dev-Server,
+M6, 1200×750, jeder Schritt einzeln: `update()`, `draw()`, dann Abgleich mit
+dem Grafikprozess über die 1×1-Hilfsfläche):
+- **Ein Stocken im Sekundentakt, auch wenn nichts los ist.** In den ersten
+  10 s der Mission (0 Partikel, 0 Schüsse) alle ~1 s ein Bild mit +25–40 ms
+  Wartezeit auf den Grafikprozess (normal 12,7 ms; das Spiel selbst ~1 ms).
+  Mit eingefrorenem `update()` (also `fc` fest) bleibt es: die Spitzen
+  liegen auf einem **festen Raster von ~1024 ms Wanduhrzeit** (z. B. 3421,
+  4445, 5479, 6498 ms), nicht in jedem Rasterpunkt, oft mehrere Sekunden
+  hintereinander. Zeichnet die Seite nur ein einzelnes Rechteck, gibt es in
+  7 s keine. Mit und ohne 3D (`f3dRender` leer), mit und ohne
+  Sammelzeichner (`FXB.off`) treten sie auf (je 3,4 s × 2: voll 5, ohne 3D 3,
+  3D ohne Kopie 1, ohne Sammelzeichner 5 — zu wenig für einen Unterschied).
+  Im Spiel folgt nichts der Wanduhr im Sekundentakt (nachgesehen:
+  `performance.now()` nur für Animationen, FPS-Zähler, Upload-Schlange).
+  **Ursache offen.** Vermutung, ungeprüft: eine Aufräumaufgabe im
+  Grafikprozess des Browsers (läuft 1 s nach ihrem Ende wieder, daher
+  ~1024 ms), deren Dauer davon abhängt, wie viele Bilder/Texturen das Spiel
+  dort hält. Passt zu Silvios Hängern bei 0:06 ohne Partikel und Schüsse und
+  zum ursprünglichen Befund „alle paar Sekunden Mikroruckler".
+- **Erstes Bild der Mission: 117 ms**, davon 66 ms im `draw()` des Spiels.
+- **Die 3D-Kopien kosten ~4 ms je Bild:** Median voll 17,1 ms, ohne 3D
+  12,5 ms, 3D gezeichnet aber nicht kopiert 13,0 ms — bei drei Kopien je
+  Bild (`ctx.drawImage(F3D.can, …)`).
+- „damage picture" + drei neue Leuchtfarben + sechs „fx atlas tile" in einem
+  Bild: 47 ms (davon 31 ms im Spiel). Die Leuchtfarben dieser Mission fehlen
+  also zum Teil in `GLOW_WARM`.
+Nächste Schritte: (a) die 3D-Kopien wie beim Sammelzeichner übergeben
+(`OffscreenCanvas`, `transferToImageBitmap`) — Silvio gefragt; (b) das
+Sekundenraster eingrenzen: je Variante mindestens 8 Rasterpunkte, Teile von
+`draw()` weglassen (Nebel/Planeten/Sterne, Leiste, Asteroiden mit Randlicht,
+Schiffe), und prüfen, ob es mit weniger gehaltenen Flächen verschwindet
+(Randlicht: 48 Richtungen × 12 Formen × 2 kleine Flächen).
+
 **Weg für den nächsten Chat (15.11.2026):**
 - Stand: **v305**, Schritt 1 und 2 von 4 gebaut; Lag-Log aus Brave zu v305
   steht aus. Offen: Schritt 3 (übrige Leuchtpunkte: `glowAt` in
