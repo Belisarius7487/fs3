@@ -2514,11 +2514,58 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
+### F112 — M16, M17, M18: Auftragstexte zu lang, zwei Ziele in einem (v290) — offen
+
+**Befund (Silvio, 15.11.2026):** „Mission 16. Die Objective-Texte sind zu
+lang. Statt zwei Objectives in eines zu packen, mach doch zwei draus. Und was
+heißt Keep the Ravage? Keep her from what?" — „Mission 17. Selbes Problem. Zu
+lange Texte. Zumal die Galatea zu diesem Zeitpunkt noch gar nicht im
+Spielfeld ist, sie kommt erst einige Sekunden später." — „Mission 18.
+Gleiches Problem mit zu langen [...] Missionszielen".
+Texte heute: M16 „Get the scientists off the Asimov - Bonus: keep the
+Ravage", M17 „Destroy all Shivans - Bonus: keep the Galatea above half hull",
+M18 „Cover the Kappa freighters - stop the Taurus". Im Code: es gibt immer
+nur einen offenen Auftrag (`mlogObjective()`); ein neuer schließt den
+vorigen als erfüllt. Zwei gleichzeitige Aufträge brauchen also etwas Neues.
+
+### F111 — M15: nur ein Teil der Transporter und Frachter ist zu beschützen (v290) — offen
+
+**Befund (Silvio, 15.11.2026):** „Mission 15. Es macht keinen Sinn, dass hier
+nur ein Teil der Transporter und Frachter protected werden müssen."
+
+### F110 — M14: „Delivered" statt „Escaped" im Pause-Log (v290) — offen
+
+**Befund (Silvio, 15.11.2026):** „Mission 14. Wenn der Elysium-Transporter
+erfolgreich entkommt, steht Delivered anstelle von Escaped als erfolgreiches
+Missionsobjective im Pause-Log." (Bild: „0:30 THE TRANSPORT GOT AWAY",
+„0:31 DELIVERED".)
+
+### F109 — M8: Fracht-Container springen in die falsche Richtung (v290) — offen
+
+**Befund (Silvio, 15.11.2026):** „Desweiteren, wenn der Frachter dann
+gekapert wurde, warpen die Frachtcontainer in die entgegengesetzte Richtung
+zur Flugrichtung des Frachters und des kapernden Elysium-Transporters raus."
+
+### F108 — M8: Asmodeus vor dem Scan lahmgelegt → Auftragsrahmen vertauscht (v290) — offen
+
+**Befund (Silvio, 15.11.2026):** „Mission 8. Wenn man den Asmodeus Frachter
+disabled, bevor man die Fracht darauf gescannt hat, vertauschen sich die Ziele
+für den Frachter. Sinn ist ja, erstmal den richtigen Frachter bzw. die
+richtigen Frachtcontainer zu finden, dann den Frachter zu disablen, damit man
+ihn kapern kann. Disabled man den Frachter bevor man die Frachtcontainer
+gescannt hat, wechselt die Umrandung des Frachters zu blau für Protect.
+Scannt man dann die Frachtcontainer, wechselt die Umrandung zu gelb für
+Disable, obwohl man ihn schon disabled hat."
+
 ### F107 — Feindliche Frachter ohne Ladung zählen als verfehltes Ziel (v289) — offen
 
 **Befund (Silvio, 15.11.2026):** „Ebenso habe ich einige Fehler bei den
 Missionsobjectives gesehen. Wenn bspw. feindliche Frachter ihre Ladung nicht
 mitnehmen können, gilt dies als gescheitertes Missionsziel."
+Auf Nachfrage: „In Mission 3." Später auch zu M18: „Gleiches Problem mit zu
+langen UND gefailten Missionszielen, weil Taurus seine Fracht nicht mitnehmen
+konnte." Bildschirmfotos (Pause-Log): M3 und M18 zeigen „CARGO LEFT BEHIND"
+rot, in M18 dazu zweimal „NO CARGO" rot.
 
 ### F106 — M15: Sprungwirbel der Elysium hinter der Pinnacle (v289) — offen
 
@@ -2548,6 +2595,9 @@ Brave lief unter Windows (derselbe Rechner). Nicht nachgestellt; zurückgestellt
 bis Silvio es wieder sieht (dann: waren die Taurus beim Eintreffen im Bild?).
 
 ### F104 — Mikroruckler alle paar Sekunden, besonders in M6 (v287) — offen
+
+Silvio, 15.11.2026: „Und über allem liegt immer noch das Problem mit den
+Rucklern."
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
