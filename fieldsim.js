@@ -6388,6 +6388,20 @@ scenario('v299 F104: the new scene is warmed in the blackout', 'm=6', `
   r.exists = typeof sceneWarm === 'function';
   r.drewEach = n === ((NEBS[nebCur]?1:0) + ((nebNxt && NEBS[nebNxt])?1:0) + bodies.filter(function(b){ return BODY_IMG[b.key]; }).length);
   return r;`);
+scenario('v300 F104: the player vortex draws from a bitmap, not the big sheet', 'm=6', `
+  const r = {};
+  FS.step(30);
+  r.helper = typeof imgBmp === 'function';
+  // the headless page may have no createImageBitmap: hand it a stand-in
+  const fake = {fake: true, width: WARP_IMG.naturalWidth, height: WARP_IMG.naturalHeight};
+  if(r.helper){ IMG_BMP.set(WARP_IMG, fake); IMG_BMP.set(WARP_GLOW_IMG, fake); }
+  let fromImg = 0, fromBmp = 0; const f = Object.getPrototypeOf(ctx).drawImage;
+  ctx.drawImage = function(src){ if(src === WARP_IMG || src === WARP_GLOW_IMG) fromImg++; if(src === fake) fromBmp++; return src === fake ? undefined : f.apply(this, arguments); };
+  try{ ctx.save(); drawWarpFrame(0, 150, false); ctx.restore(); }catch(e){ r.err = String(e); }
+  delete ctx.drawImage;
+  r.noSheet = fromImg === 0;
+  r.usedBitmap = !imgReady(WARP_IMG) || fromBmp > 0;
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

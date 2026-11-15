@@ -2728,6 +2728,16 @@ Lag-Log v299 (Silvio, Brave): im Gefecht nur noch **ein** Hänger (83 ms) in
 105 ms „draw", drei Bilder je 100 ms. Silvio: „So ganz weg sind die Ruckler
 beim Missionsende noch nicht". Im eingebauten Browser über zwei
 Missionswechsel (Ton aus und an) nicht nachgestellt. Offen.
+**v300 (15.11.2026):** gemessen im eingebauten Browser auf Silvios PC: das
+Bild des Sprungwirbels ist ein Bogen von 2304 × 2304 Punkten. Direkt auf die
+Zeichenfläche gemalt, entpackt der Browser ihn beim ersten Mal (239 ms) und
+wirft die entpackte Fassung bald wieder weg (kurz darauf noch einmal 116 ms).
+Gemalt wird er so nur beim **eigenen Absprung und der Ankunft des Spielers**
+(alle anderen Wirbel laufen über 3D) — darum die Hänger genau am
+Missionsende. Jetzt wird aus dem Bogen (und dem Leuchten) einmal im
+Hintergrund ein festes Bild gemacht (`imgBmp()`, `createImageBitmap`): 1–4 ms
+je Bild, kein Hänger. Aussehen unverändert. Szenario „v300 F104" (schlägt
+gegen v299 fehl). warpsim 4–6: dieselben zwei Befunde in M4 wie v299.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es

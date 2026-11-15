@@ -381,6 +381,31 @@ function knossosWarpOk(){
 const WARP_GLOW_IMG=document.getElementById('warp_glow_img');
 const KNOSSOS_GLOW_IMG=document.getElementById('warp_glow_knossos_img');
 function imgReady(im){ return !!im && im.complete && im.naturalWidth>0; }
+// F104 (v300): the vortex sheet is 2304 x 2304. Drawn straight from the
+// <img> on the 2D canvas, the browser unpacks it on first use and may throw
+// the unpacked copy away again - measured on Silvio's PC: 239 ms the first
+// time, 116 ms again a moment later. Only the player's own jump draws it
+// on the 2D canvas (every other vortex is drawn in 3D), which is why the
+// hitches sat at the end of each mission. A bitmap made once, in the
+// background, stays unpacked: 1-4 ms per draw.
+const IMG_BMP = new Map();
+function imgBmp(im){
+  if(!imgReady(im)) return null;
+  const b = IMG_BMP.get(im);
+  if(b) return b === 'wait' ? null : b;
+  if(typeof createImageBitmap !== 'function'){ IMG_BMP.set(im, 'wait'); return null; }
+  IMG_BMP.set(im, 'wait');
+  try{ createImageBitmap(im).then(function(bm){ IMG_BMP.set(im, bm); }, function(){}); }catch(e){}
+  return null;
+}
+function warpBmpPrep(){
+  for(const im of [WARP_IMG, WARP_GLOW_IMG, KNOSSOS_WARP_IMG, KNOSSOS_GLOW_IMG]){
+    if(!im) continue;
+    if(imgReady(im)) imgBmp(im);
+    else if(im.addEventListener) im.addEventListener('load', function(){ imgBmp(im); }, {once: true});
+  }
+}
+if(typeof document !== 'undefined') warpBmpPrep();
 // One vortex frame at the current transform, centred, WS across, with
 // its glow behind it. knossos: the turquoise one of the portal.
 const WARP_GLOW_SIZE = 2.0;     // glow width as a multiple of the vortex
@@ -624,7 +649,7 @@ function drawWarpFrame(seed, WS, knossos){
   if(imgReady(glow)){
     const G = WS*WARP_GLOW_SIZE, op = ctx.globalCompositeOperation;
     ctx.globalCompositeOperation = 'lighter';
-    ctx.drawImage(glow, -G/2, -G/2, G, G);
+    ctx.drawImage(imgBmp(glow) || glow, -G/2, -G/2, G, G);
     ctx.globalCompositeOperation = op;
   }
   if(!imgReady(sheet)) return;
@@ -632,10 +657,11 @@ function drawWarpFrame(seed, WS, knossos){
   ctx.save();
   ctx.rotate(fc*WARP_SPIN/TICK_HZ + (seed||0));
   // A single picture rather than a sheet is drawn whole.
-  if(sheet.naturalWidth < WARP_COLS*40) ctx.drawImage(sheet, -WS/2, -WS/2, WS, WS);
+  const src = imgBmp(sheet) || sheet;      // F104 (v300)
+  if(sheet.naturalWidth < WARP_COLS*40) ctx.drawImage(src, -WS/2, -WS/2, WS, WS);
   else {
     const C = sheet.naturalWidth/WARP_COLS;
-    ctx.drawImage(sheet, (wF%WARP_COLS)*C, ((wF/WARP_COLS)|0)*C, C, C, -WS/2, -WS/2, WS, WS);
+    ctx.drawImage(src, (wF%WARP_COLS)*C, ((wF/WARP_COLS)|0)*C, C, C, -WS/2, -WS/2, WS, WS);
   }
   ctx.restore();
 }
