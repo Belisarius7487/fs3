@@ -2794,8 +2794,9 @@ Editor-Positionen (Subsysteme, alte Andockpunkte) bleiben über
 `f103Mounts()` an ihrem Platz. Rümpfe ohne Sprite (Karnak, Knossos ohne
 Zusatz, Polaris, Cheops, Asteroidenbasis) ändern sich nicht. Neues
 Szenario „F103 stage 3: capital ships" (schlägt gegen v288 fehl).
-Kapseln in die Galatea (M90), F99, F100 grün. Im echten Spiel noch nicht
-angesehen.
+Kapseln in die Galatea (M90), F99, F100 grün. Im echten Spiel (M6,
+Galatea, Rahmen 1000×356 statt 330) angesehen: die Trefferfläche liegt auf
+dem Modell, Subsysteme unverändert. Silvios Urteil steht aus.
 
 **Nächster Schritt:** die großen Schiffe — `F103_CLASSES` in
 `20_render.js` um ihre Schlüssel erweitern. Dort ändert sich viel (Aten
