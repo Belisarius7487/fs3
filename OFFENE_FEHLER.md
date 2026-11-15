@@ -2725,6 +2725,16 @@ Neues `fieldsim`-Szenario „F103 stage 3" (schlägt gegen v286 dreimal fehl).
 `v203: small craft…`/`aiFs2` war schon in v286 rot (alte Mission, nicht
 angefasst).
 
+**Befund zu v287 (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
+Mikroruckler. Die Treffersilhouette scheint aber soweit zu stimmen."
+Gemessen im eingebauten Browser (M1, v287, Fenster sichtbar, je 25 s): mit
+den neuen Rahmen 2 Bilder über 40 ms (41, 44 ms), nach Abschalten der neuen
+Rahmen zur Laufzeit 1 Bild (55 ms). Das Spiel legt in beiden Fällen rund
+17 MB Speicher je Sekunde neu an (Kandidat für Ruckler durch Aufräumen des
+Speichers). `mountsFor()` läuft rund 4000-mal je Sekunde; der neue Teil darin
+kostet zusammen unter 0,5 % der Bildzeit. Ruckler im eingebauten Browser
+nicht nachgestellt; offen, ob sie mit v286 auch auftraten.
+
 **Bildverwendungen einzeln (im Code nachgelesen, v286):**
 
 | Stelle | läuft bei einem Schiff, das aus dem Modell gezeichnet wird? | Ersatz bei B |
