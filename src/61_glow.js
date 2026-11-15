@@ -94,6 +94,7 @@ function glowWarm(){
     else if(typeof fbSprite === 'function') try{   // v295: the fireballs too
       for(let k = 0; k <= 10; k++){ const f = fbSprite(k/10); if(f){ const a0 = ctx.globalAlpha; ctx.globalAlpha = 0.004; ctx.drawImage(f, 0, 0, 1, 1); ctx.globalAlpha = a0; } }
     }catch(e){}
+    if(i >= GLOW_WARM.length && typeof fxbWarm === 'function') fxbWarm();   // F104 (v304): and the collected effects
   })();
 }
 if(typeof window !== 'undefined' && typeof setTimeout !== 'undefined') setTimeout(glowWarm, 800);

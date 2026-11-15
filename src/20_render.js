@@ -1421,6 +1421,11 @@ function partSeen(p){
   return camSees(p.x, p.y, m);
 }
 function drawParts(){
+  // F104 (v304): collected and drawn by the graphics card in one call
+  // (65_fxgl.js); this 2D path stays for a browser without WebGL
+  if(typeof fxbOn === 'function' && fxbOn()){
+    try{ drawPartsGL(); return; }catch(eg){ FXB.ok = false; ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
+  }
   ctx.save();
   // v209: sparks, debris and trails at their v207 size on the screen
   // (fxG), a fireball at least FB_MIN_PX across; smoke clouds keep the
@@ -1462,14 +1467,20 @@ function drawParts(){
     }
   }
   ctx.globalCompositeOperation='source-over';
-  // pass 2: the solid parts
+  drawPartsSolid(G, false);
+  ctx.restore(); // stellt globalAlpha, lineWidth, etc. wieder her
+}
+// pass 2: the solid parts. gl: the debris cores are already drawn
+// (drawPartsGL), only rings, damage parts and smoke are left
+function drawPartsSolid(G, gl){
+  var pi, p, a;
   for(pi=0;pi<PARTS.length;pi++){
     p=PARTS[pi];
+    if(p.type==='fb' || (gl && p.type==='deb')) continue;   // fireballs: pass 0
+    if(gl && p.type!=='ring' && p.type!=='smoke' && !p.free) continue;
     if(!partSeen(p)) continue;
     a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
-    if(p.type==='fb'){
-      // drawn in pass 0
-    } else if(p.type==='ring'){
+    if(p.type==='ring'){
       var rp=Math.pow(1-(p.life/p.ml),0.5);
       var rr=p.r+(p.maxR-p.r)*rp;
       ctx.globalAlpha=Math.min(1,a*1.2);
@@ -1495,7 +1506,56 @@ function drawParts(){
       ctx.beginPath();ctx.arc(p.x,p.y,sr2,0,Math.PI*2);ctx.fill();
     }
   }
-  ctx.restore(); // stellt globalAlpha, lineWidth, etc. wieder her
+}
+// F104 (v304): the same three passes as drawParts(), but fireballs, glows
+// and debris cores are collected (fxbPut, 65_fxgl.js) and drawn in one
+// call. Sizes, colours and strengths are those of the 2D path, line by
+// line. Rings, damage parts and smoke follow in 2D, as before.
+function drawPartsGL(){
+  var G=fxG(), FBm=FB_MIN_PX/CAM.z, pi, p, a, n=PARTS.length, rest=0, DK=32/FXB_DISC_R;
+  fxbBegin();
+  for(pi=0;pi<n;pi++){
+    p=PARTS[pi];
+    if(!p.ml||p.ml===0) p.ml=p.life;
+    if(p.type!=='fb') continue;
+    if(!partSeen(p)) continue;
+    a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
+    var prog=1-(p.life/p.ml);
+    var r=Math.max(2, FBm*(0.4+0.6*prog), p.maxR*(0.4+0.6*prog));
+    fxbPut(fbSprite(a), p.x, p.y, r, r, 0, 1, false);
+    p.r=r;
+  }
+  for(pi=0;pi<n;pi++){
+    p=PARTS[pi];
+    if(!partSeen(p)) continue;
+    if(p.type!=='fb' && p.type!=='deb' && (p.type==='ring' || p.type==='smoke' || p.free)) rest++;
+    a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
+    if(p.type==='mag'){
+      fxbGlow(p.x, p.y, (p.sz||1.5)*2.6*G, (p.sz||1.5)*2.6*G, p.clr||'#ffffff', a, 0.8);
+    } else if(p.type==='deb'){
+      var tp=1-(p.life/p.ml), sz=Math.max(0.8,p.sz*(1-tp*0.4))*G;
+      fxbGlow(p.x, p.y, sz*2.2, sz*2.2, lerpRGB(255,220,100,200,80,0,tp*0.7), a*0.6, 0);
+    } else if(p.type==='ring' || p.type==='smoke' || p.free){
+      // 2D, below
+    } else if(p.type!=='fb'){
+      var sz2=(p.sz||2)*G;
+      if(a > 0.04) fxbGlow(p.x, p.y, sz2*1.6, sz2*1.6, p.clr||'#ffffff', a, 0.7);
+    }
+  }
+  for(pi=0;pi<n;pi++){
+    p=PARTS[pi];
+    if(p.type!=='deb' || !partSeen(p)) continue;
+    a=p.ml>0?Math.max(0,Math.min(1,p.life/p.ml)):1;
+    var tq=1-(p.life/p.ml), sq=Math.max(0.8,p.sz*(1-tq*0.4))*G*0.55*DK;
+    fxbPut(FXB.disc, p.x, p.y, sq, sq, 0, a, false,
+           Math.round(p.sr+(p.er-p.sr)*tq)/255, Math.round(p.sg+(p.eg-p.sg)*tq)/255, Math.round(p.sb+(p.eb-p.sb)*tq)/255);
+  }
+  fxbFlush();
+  if(rest){
+    ctx.save();
+    drawPartsSolid(G, true);
+    ctx.restore();
+  }
 }
 
 let GS='title';

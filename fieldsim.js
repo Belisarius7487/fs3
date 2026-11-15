@@ -6437,6 +6437,41 @@ scenario('v303 F104: baked plates and rock lights look like the drawn ones', 'm=
   r.rockClose = diff(c, d) < 0.5;
   r.diffs = [diff(a, b).toFixed(3), diff(c, d).toFixed(3)].join(' ');
   return r;`);
+// F104 (v304): fireballs, glows and debris cores are collected and drawn by
+// the graphics card in one call, and look like the 2D ones
+scenario('v304 F104: particles in one WebGL call look like the 2D ones', 'm=6', `
+  const r = {};
+  FS.step(20);
+  r.helpers = typeof fxbOn === 'function' && typeof drawPartsGL === 'function';
+  if(!r.helpers) return r;
+  r.webgl = fxbOn();
+  if(!r.webgl) return r;
+  PARTS.length = 0;
+  const cx = CAM.x, cy = CAM.y, cols = ['#ffcc66', '#88c8ff', '#ff7744', '#ffffff'];
+  PARTS.push({type:'fb', x:cx-60, y:cy, life:20, ml:40, maxR:50, r:0});
+  for(let i=0;i<40;i++) PARTS.push({x:cx-90+i*5, y:cy-40+(i%7)*12, life:10+i%20, ml:40, sz:1+(i%4), clr:cols[i%4]});
+  for(let i=0;i<20;i++) PARTS.push({type:'deb', x:cx-80+i*9, y:cy+50, life:10+i, ml:40, sz:1.5+(i%3), sr:255, sg:200, sb:80, er:255, eg:120, eb:0});
+  for(let i=0;i<6;i++) PARTS.push({type:'mag', x:cx+40+i*8, y:cy-60, tx:0, ty:0, life:20, ml:40, sz:1.5, clr:'#80d0ff'});
+  const bx = Math.round((w2sX(cx)-140)*RES_X), by = Math.round((w2sY(cy)-110)*RES_Y), bw = Math.round(280*RES_X), bh = Math.round(220*RES_Y);
+  const grab = function(off){
+    FXB.off = off;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#202830'; ctx.fillRect(bx, by, bw, bh); ctx.restore();
+    let calls = 0; const d0 = ctx.drawImage; ctx.drawImage = function(){ calls++; return d0.apply(this, arguments); };
+    camOn();
+    try{ drawParts(); } finally { delete ctx.drawImage; FXB.off = false; camScreen(); }
+    return {n: calls, px: ctx.getImageData(bx, by, bw, bh).data};
+  };
+  grab(false);                                   // the pictures go into the atlas
+  const A = grab(true), B = grab(false);
+  let s = 0, mx = 0, lit = 0;
+  for(let i = 0; i < A.px.length; i++){ const d = Math.abs(A.px[i] - B.px[i]); s += d; if(d > mx) mx = d; }
+  for(let i = 0; i < B.px.length; i += 4) if(B.px[i] > 60) lit++;
+  r.drawn = lit > 500;
+  r.oneCopy = B.n === 1 && A.n > 50;
+  r.same = s/A.px.length < 0.5;
+  r.stillOn = FXB.ok === true;
+  r.diff = (s/A.px.length).toFixed(3) + ' max ' + mx + ' calls ' + A.n + ' -> ' + B.n;
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

@@ -2809,8 +2809,53 @@ Schüsse, Laser, Partikel, Leuchtpunkte, Randlicht — gesammelt über die
 3D-Fläche (WebGL) zeichnen, je Art ein Befehl statt Hunderte; Aussehen
 gleich.
 
+**Entschieden (Silvio, 15.11.2026):** der Vorschlag wird gebaut — „Schüsse,
+Laser, Partikel, Leuchtpunkte und das Asteroiden-Randlicht gesammelt über
+WebGL zeichnen statt Hunderter einzelner 2D-Befehle. Aussehen gleich, Beams
+nicht anfassen." In vier Schritten, je eine Version mit Bildvergleich,
+Messung und Lag-Log aus Brave: (1) Grundgerüst + Partikel, (2) Laser und
+Schüsse, (3) übrige Leuchtpunkte (auch die 5000 im Pausebildschirm),
+(4) Asteroiden-Randlicht.
+**v304 (Schritt 1):** der Sammelzeichner (`src/65_fxgl.js`, `fxbPut()`,
+`fxbGlow()`, `fxbFlush()`): eine eigene kleine WebGL-Fläche ohne Tiefe und
+Kantenglättung, alle Bilder in einer Textur (1024², Zellen 128, kleine Bilder
+zu viert in einer Zelle; es sind dieselben Sprites wie im 2D-Weg:
+`glowSprite()`, `fbSprite()`, dazu ein weißer Punkt für Trümmerkerne), ein
+Zeichenbefehl, eine Kopie des belegten Ausschnitts in die 2D-Fläche.
+Leuchten (additiv) und Deckendes laufen in **einem** Durchgang in ihrer
+Reihenfolge: Farben vormultipliziert, Leuchten schreibt Alpha 0. Partikel
+(`drawPartsGL()`, 20_render.js): Feuerbälle, Leuchten und Trümmerkerne
+gesammelt; Ringe, Schadensteile und Rauch danach weiter in 2D
+(`drawPartsSolid()`). Ohne WebGL, bei verlorenem Kontext oder mit `&fxgl=0`
+zeichnet der alte 2D-Weg. Die Bilder kommen hinter dem Titelbild in die
+Textur (`fxbWarm()`).
+Gemessen (eingebauter Browser auf Silvios PC, v303 mit eingespieltem
+v304-Code, M6, 48 Gegner, 460–480 Partikel, 1200×750, Bild eingefroren,
+Median aus 25, 4 Durchgänge): Partikel allein 5,0 → 1,5 ms (davon 0,8 ms
+Messaufwand in beiden), ganzes Bild ~17,0 → ~14,5 ms. Bildvergleich alt/neu
+im echten Spiel: mittlere Abweichung 0,0075 von 255 über das Bild (2,5 auf
+den belegten Punkten, größte 42 an einzelnen 3–4 Punkte großen Funken —
+anderes Abtasten beim Verkleinern; Lichtmenge 100,9 %). Andere
+Texturfilter waren schlechter (ohne Mipmaps größte Abweichung 100).
+Szenario „v304 F104" (schlägt gegen v303 fehl; headless 0,036).
+
 **Weg für den nächsten Chat (15.11.2026):**
-- Stand: v303. Testschalter `&lag=1/2/3` (Explosionsbilder aus /
+- Stand: **v304**, Schritt 1 von 4 gebaut; Lag-Log aus Brave dazu steht aus.
+  Schritt 2: Laser (`drawLaser()`, 57_turrets.js — je Schuss fünf `glowAt`
+  mit Drehung: direkt als `fxbGlow(..., ang)` mit selbst gedrehten Orten)
+  und Schüsse (`drawShotsAt()`, 70_ui.js; Raketen/Bomben sind Formen und
+  Verläufe, keine Sprites). Ausgeben (`fxbFlush()`) an denselben Stellen wie
+  heute: nach `drawShots(true)` vor den Schiffen, nach `drawShots(false)` vor
+  dem Spieler. Die Funken, die `drawLaser()` beim Zeichnen in `PARTS` legt,
+  bleiben.
+- Messen im eingebauten Browser: die Seite pausiert, sobald das Fenster den
+  Fokus verliert, und Silvio klickt mit — deshalb `launchGame()`, dann
+  `update()` selbst in einer Schleife aufrufen (mit `player.invT=999`), dann
+  `window.update=function(){}`. Abgleich mit dem Grafikprozess nicht über
+  `getImageData` der Spielfläche, sondern über eine 1×1-Hilfsfläche
+  (`drawImage(CVS,0,0,1,1,0,0,1,1)` und dort `getImageData`). Neuen Code als
+  `<script>`-Text einspielen; `FXB.off=true/false` schaltet alt/neu um.
+- Davor galt (v303): Testschalter `&lag=1/2/3` (Explosionsbilder aus /
   Schadensbild aus / beides) und `&pmax=N` sind noch drin, nur zum Messen.
 - `ctx` ist seit v303 `let` (10_core.js), damit `uiMemo()` (20_render.js)
   ihn kurz auf eine kleine Fläche umlenken kann. Randlicht: `rockLightBake()`
