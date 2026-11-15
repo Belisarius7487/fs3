@@ -2674,6 +2674,10 @@ Gefecht kommen also von Brave. Vorschlag an Silvio: in Brave unter
 Einstellungen → System die Grafikbeschleunigung prüfen und unter Leistung den
 Energiesparmodus ausschalten. Offen fürs Spiel: Hänger beim Missionsstart
 und nach dem Absprung (alle Browser).
+Brave-Einstellungen (Silvio, Bild): Grafikbeschleunigung an, kein
+Energiesparmodus vorhanden. Privates Fenster (ohne Erweiterungen, v295, M6):
+18 Hänger, im Gefecht 67–183 ms bei 220–565 Partikeln. Erweiterungen sind es
+also auch nicht; es bleibt Brave selbst.
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
