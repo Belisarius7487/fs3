@@ -6438,7 +6438,7 @@ for(const rRight of [false, true]) scenario('v285 F101: M11 the Elysium docks an
 // F103 stage 3 (Silvio, 15.11.2026: "fangen wir klein an"): fighters and
 // bombers take frame and outline from their model (hlp_outlines.json); the
 // mounts are scaled so every point stays where it was. Other classes stay.
-scenario('F103 stage 3: fighters and bombers framed by their model', 'm=1', `
+scenario('F103 stage 3: small hulls framed by their model', 'm=1', `
   const r = {};
   const k = 'fihercmk2', o = OUTLINES[k], W = o.sprite[0], H = o.sprite[1];
   const sp = document.createElement('canvas'); sp.width = W; sp.height = H;
@@ -6446,6 +6446,11 @@ scenario('F103 stage 3: fighters and bombers framed by their model', 'm=1', `
   r.frameHasModelHeight = fr.width === W && fr.height === Math.round(W*o.ratio) && fr.height !== H;
   const big = (typeof f103Canvas === 'function') ? f103Canvas('craten', sp) : sp;
   r.capitalShipsKeepSprite = big === sp;
+  // v288: the other small hulls too (freighters, containers, transports...)
+  const fo = OUTLINES.frchronos, sp2 = document.createElement('canvas');
+  sp2.width = fo.sprite[0]; sp2.height = fo.sprite[1];
+  const ff = (typeof f103Canvas === 'function') ? f103Canvas('frchronos', sp2) : sp2;
+  r.freighterFramed = ff !== sp2 && ff.height === Math.round(fo.sprite[0]*fo.ratio);
   delete MASKS[k];
   const m = buildMask(k), row = o.map.rows[o.map.h >> 1];
   r.maskIsModelOutline = !!m && m.w === o.map.w && m.h === o.map.h &&

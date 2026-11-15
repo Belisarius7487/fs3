@@ -2770,6 +2770,16 @@ Neues `fieldsim`-Szenario „F103 stage 3" (schlägt gegen v286 dreimal fehl).
 `v203: small craft…`/`aiFs2` war schon in v286 rot (alte Mission, nicht
 angefasst).
 
+**v287 im echten Spiel (Silvio, 15.11.2026):** „Die Treffersilhouette
+scheint aber soweit zu stimmen." — Jäger und Bomber abgenommen.
+
+**v288 (15.11.2026):** die übrigen kleinen Rümpfe dazu — Frachter `fr`,
+Container `fc`, Transporter `tr`, Versorger `su`, Geschützplattformen `sg`,
+Rettungskapseln `ep`, `sc`, `me`. Andocken rechnet nur mit der Breite
+(`dkHalf()`, Andockdaten in Modellmaß), bleibt also unberührt; die
+Andock-Szenarien M3, M14, M16, M18 (F97, F99) laufen grün. Offen: die großen
+Schiffe (`cr`, `co`, `de`, `ca`, `sd`, `gm`, `in`, `nt…`).
+
 **Befund zu v287 (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler. Die Treffersilhouette scheint aber soweit zu stimmen."
 Gemessen im eingebauten Browser (M1, v287, Fenster sichtbar, je 25 s): mit

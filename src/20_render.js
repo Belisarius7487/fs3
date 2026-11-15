@@ -290,11 +290,12 @@ const IMGS={},NEBS={},ICONS={};
 let imgsLoaded=0,nebsLoaded=0,iconsLoaded=0;
 for(const [k,src] of Object.entries(ICON_DATA)){
   const img=new Image();img.onload=()=>{ICONS[k]=img;iconsLoaded++;};img.src=src;}
-// F103 stage 3 (Silvio, 15.11.2026: "fangen wir klein an"): for these hull
+// F103 stage 3 (Silvio, 15.11.2026: "fangen wir klein an"; first fi/bo in
+// v287, then the other small hulls in v288): for these hull
 // classes the frame and the outline come from the model (OUTLINES, injected
 // by the packer from hlp_outlines.json), not from the sprite. The frame keeps
 // the sprite's width (so every scale stays) and takes the model's height.
-const F103_CLASSES = ['fi', 'bo'];
+const F103_CLASSES = ['fi', 'bo', 'fr', 'fc', 'tr', 'su', 'sg', 'ep', 'sc', 'me'];
 function f103Frame(key){
   const o = (typeof OUTLINES !== 'undefined' && key) ? OUTLINES[key] : null;
   return (o && o.ratio && o.sprite && o.map && F103_CLASSES.indexOf(String(key).slice(0, 2)) >= 0) ? o : null;
