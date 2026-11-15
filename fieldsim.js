@@ -6402,6 +6402,13 @@ scenario('v300 F104: the player vortex draws from a bitmap, not the big sheet', 
   r.noSheet = fromImg === 0;
   r.usedBitmap = !imgReady(WARP_IMG) || fromBmp > 0;
   return r;`);
+scenario('v301 F104: the vortex sheet is on the graphics card before the first warp', 'm=6', `
+  const r = {};
+  r.helper = typeof f3dWarmFx === 'function';
+  if(typeof F3D_FXTEX !== 'undefined'){ for(const k in F3D_FXTEX) delete F3D_FXTEX[k]; }
+  if(r.helper && F3D.gl){ f3dWarmFx(); r.uploaded = !imgReady(WARP_IMG) || !!(F3D_FXTEX.warp && F3D_FXTEX.warp.t); }
+  else r.uploaded = r.helper && !F3D.gl;
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

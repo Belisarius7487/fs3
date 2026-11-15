@@ -2741,6 +2741,11 @@ gegen v299 fehl). warpsim 4–6: dieselben zwei Befunde in M4 wie v299.
 Lag-Log v300 (Silvio, Brave, M6): **am Missionsende kein Hänger mehr**
 (Absprung 1:16–1:19 frei). Übrig: Missionsstart 2× (150/250 ms, nach
 „warp in deorionright"), im Gefecht 6 Hänger 67–133 ms, alle „elsewhere".
+**v301:** gemessen (eingebauter Browser): das erste Hochladen des
+Wirbelbogens auf die Grafikkarte kostet 119 ms und geschah beim ersten
+Einspringen eines Schiffs. Jetzt geschieht es hinter dem Ladebalken
+(`f3dWarmFx()`, mit Wirbelmodell, Shader und Triebwerksbild). Szenario
+„v301 F104".
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es

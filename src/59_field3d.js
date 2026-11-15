@@ -599,9 +599,27 @@ function f3dWarm(){
         f3dRender([{e: e, L: L, x: W/2, y: H/2, a: 1, clip: null}], true);
       }
     }catch(er){}
-    if(ks.length) setTimeout(one, 15); else { F3D_PRE.warm = true; f3dLoadBoxShow(); }
+    if(ks.length) setTimeout(one, 15); else { f3dWarmFx(); F3D_PRE.warm = true; f3dLoadBoxShow(); }
   };
   one();
+}
+// F104 (v301): the vortex sheet (2304 x 2304) and its glow went onto the
+// graphics card with the first ship that warped in - 119 ms measured on
+// Silvio's PC, at the start of the first mission. Done here, behind the
+// loading bar, together with the vortex model and its shader.
+function f3dWarmFx(){
+  if(!F3D.gl) return;
+  try{
+    f3dFxProg(); f3dWarpLoad();
+    const pairs = [['warp', WARP_IMG], ['glow', WARP_GLOW_IMG],
+                   ['warp_knossos', KNOSSOS_WARP_IMG], ['glow_knossos', KNOSSOS_GLOW_IMG]];
+    for(const p of pairs){
+      if(!p[1]) continue;
+      if(imgReady(p[1])) f3dFxTex(p[0], p[1]);
+      else if(p[1].addEventListener) p[1].addEventListener('load', function(){ if(F3D.gl) f3dFxTex(p[0], p[1]); }, {once: true});
+    }
+    f3dFxTex(M3D_BASE + 'fx/thrusters.webp');
+  }catch(e){}
 }
 // ── ONE LOADING BAR (v201) ───────────────────────────────────
 // Silvio: one bar from start to finish. The loading page fetches the game
