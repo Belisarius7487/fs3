@@ -2658,10 +2658,16 @@ gegengeprüft (82/359/363 gegen 80/355/356 — die Karte des Spiels hat 2 % Rand
   Installationen, Container) bekommen sie aus dem Sprite-Umriss
   (`hullRay()`, `hullRayNear()`, `maskCentre()`); mit B kommen sie aus dem
   Modell-Umriss.
-- **Phidias:** ihr Modell fehlt auf dem Dev-Server
-  (`models/suphidias/full.bin.gz` → 404, Zustand `failed`), sie hat auch
-  keine Mount-Daten. Sie wird dort also gerade als Sprite gezeichnet. Vor
-  Etappe 3 klären (ZIP `phidias_v275.zip` neu einspielen?).
+- **Phidias — korrigiert (Silvio, 15.11.2026): „Die Phidias liegt auf dem
+  Server."** Stimmt. Nachgesehen am 15.11. (eingebauter Browser):
+  `models/suphidias/lo.bin` ist da (84 KB, vom 23.10.). Es fehlt nur
+  `models/suphidias/full.bin.gz` (404) — die einzige Datei, die das Feld
+  seit v201 lädt; daher Zustand `failed`, und die Drohne wird im Feld aus
+  ihrem Sprite gezeichnet. Ursache: `buildmodels.py` schreibt `lo.bin` und
+  `hi.bin`, `full.bin.gz` schreibt erst `buildfull201.py`; der Schritt ist
+  in v275 für die Phidias nicht gelaufen. Claudes Satz vom 12.11. („ihr
+  Modell fehlt auf dem Dev-Server") war zu grob. Nachliefern, sobald das
+  Modell von Silvios Rechner da ist (Etappe 2). Mount-Daten hat sie keine.
 - **Rümpfe ohne Sprite und ohne Eintrag in `F3D_KEYS`:** `fiangel`,
   `scimhotep`, `inkarnak`, `inpolaris`, `inpolarispylon`, `incheops`,
   `inastbase`. Auf dem Server liegt davon nur das Modell der Karnak (200),
