@@ -584,9 +584,9 @@ def main():
     block = find_block(html, "const SPR_DATA=")
     if not block:
         sys.exit("Abbruch: SPR_DATA nicht in der Spieldatei gefunden.")
-    html = html[:block[0]] + render_sprites(sprites) + "\n\n" + render_mounts(mounts)
+    html = (html[:block[0]] + render_sprites(sprites) + "\n\n" + render_mounts(mounts)
             + "\nconst OUTLINES=" + json.dumps(outlines, separators=(",", ":"), sort_keys=True) + ";"
-            + html[block[1]:]
+            + html[block[1]:])
 
     # --- ICON_DATA ersetzen, falls der Platzhalter in der Spieldatei steht ---
     block = find_block(html, "const ICON_DATA=")
