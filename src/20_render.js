@@ -329,7 +329,11 @@ function nebLoad(name){
   if(!src || NEBS[name] || NEB_WANTED[name]) return;
   NEB_WANTED[name] = true;
   const img = new Image();
-  img.onload = function(){ NEBS[name] = img; nebsLoaded++; };
+  // F104 (v299): unpacked off the game's thread before it counts as here
+  img.onload = function(){
+    const done = function(){ NEBS[name] = img; nebsLoaded++; };
+    if(img.decode) img.decode().then(done, done); else done();
+  };
   // Let it be asked for again - a background that never arrives leaves the
   // field black, which is survivable, but one that failed once should not be
   // written off for the rest of the evening.
@@ -346,10 +350,12 @@ function nebDropOthers(keep1, keep2){
   }
 }
 const BODY_IMG={};
+// F104 (v299): decoded off the game's thread before use
+function bodyLoaded(k, img){ const d = function(){ BODY_IMG[k] = img; }; if(img.decode) img.decode().then(d, d); else d(); }
 for(const [k,b] of Object.entries(PLANET_DATA)){
-  const img=new Image();img.onload=()=>{BODY_IMG[k]=img;};img.src=b.src;}
+  const img=new Image();img.onload=()=>bodyLoaded(k, img);img.src=b.src;}
 for(const [k,b] of Object.entries(SUN_DATA)){
-  const img=new Image();img.onload=()=>{BODY_IMG[k]=img;};img.src=b.src;}
+  const img=new Image();img.onload=()=>bodyLoaded(k, img);img.src=b.src;}
 // The sprites alone (v229). The backgrounds come over the network now, and
 // twelve of them at the size they want to be would hold the loading screen
 // for a long time over anything but a fast line. They arrive while the title
@@ -940,6 +946,24 @@ function nebSwap(){
   nebDropOthers(nebCur, nebNxt);
 }
 
+// F104 (v299, Silvio: "Zwischen den Missionen färbt sich der Bildschirm kurz
+// dunkel [...] Wäre das ein guter Moment?"): the new sky and planets are
+// unpacked and handed to the graphics card at the vertex of the blackout,
+// by drawing each once, all but invisibly. Before, the first picture after
+// the fade-in did it (106 ms in drawing, then 100 ms frames - every browser).
+function sceneWarm(){
+  if(typeof ctx === 'undefined' || typeof document === 'undefined') return;
+  const list = [];
+  if(NEBS[nebCur]) list.push(NEBS[nebCur]);
+  if(nebNxt && NEBS[nebNxt]) list.push(NEBS[nebNxt]);
+  for(const b of (bodies || [])){ const im = BODY_IMG[b.key]; if(im) list.push(im); }
+  ctx.save();
+  try{
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 0.004; ctx.globalCompositeOperation = 'source-over';
+    for(const im of list) ctx.drawImage(im, 0, 0, 2, 2);
+  }catch(e){}
+  ctx.restore();
+}
 function tickNebula(){
   tickBodies();
 }

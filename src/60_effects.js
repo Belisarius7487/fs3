@@ -822,6 +822,7 @@ function nextWave(){
   // uebrig: beide zeichnen hier gar nichts.
   rollBodies();
   nebSwap();
+  if(typeof sceneWarm === 'function') sceneWarm();   // F104 (v299): in the dark
   // Second half of the jump: the ship comes out at the field edge.
   arriveT = TRANS_IN; transFog = 0;
   player.x = 80; player.y = H/2; mouseHold();

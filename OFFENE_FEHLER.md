@@ -2714,6 +2714,15 @@ Gefecht 4 Hänger (67–133 ms) in 75 s, vorher 8–13. Weiter offen: (1) Leiste
 Zeichnen, dann 3× 100 ms); in der Aufzeichnung lagen Hänger von 90–130 ms
 auf dem Hauptfaden beim Entpacken von Modellen („DecompressionStream
 Inflate").
+Silvio zum Missionsende: „Zwischen den Missionen färbt sich der Bildschirm
+kurz dunkel, um bspw Hintergrund zu ändern und Planetenbilder auszutauschen.
+Wäre das ein guter Moment?" Im Code: der neue Himmel und die neuen Planeten
+wurden geladen, aber erst beim ersten Zeichnen nach dem Aufhellen entpackt
+und an die Grafikkarte gegeben (das eine Bild mit 106 ms „draw"). **v299:**
+Bilder werden nach dem Laden im Hintergrund entpackt (`img.decode()`), und im
+Scheitel der Verdunkelung wird alles Neue einmal unsichtbar gezeichnet
+(`sceneWarm()`). Szenario „v299 F104". (Die Modell-Entpackung aus der
+Aufzeichnung lag beim Laden und beim Missionsstart, nicht am Ende.)
 
 **Befund (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler." Auf Nachfrage: „ich kann nicht mit Sicherheit sagen, ob es
