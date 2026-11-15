@@ -36,7 +36,7 @@ function constObj(name){
 
 const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','idPending','cargoLost','claimCargo',
   'leaveEmpty','cargoStillWanted','carryCargo','cargoDockUp','cargoSeat','dropCargo','tickCarry','tickDocking',
-  'tickCrossGuards','killEnemy','byId','evSeen','mountsFor','hullClass',
+  'tickCrossGuards','killEnemy','byId','evSeen','mountsFor','f103Mounts','hullClass',
   'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns',
   // F99 (v283): docking from the models' dock data (31_dock.js)
   'dkList','dkHas','dkHalf','dkIsCargo','dkInPlane','dkPick','dkRideIndex','dkRight','dkPose','dkGrid',

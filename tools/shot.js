@@ -9,6 +9,8 @@ const [logic, query, out, setup, size, clip] = process.argv.slice(2);
 let html = fs.readFileSync(logic, 'utf8');
 const M = fs.readFileSync(path.join(__dirname, '..', 'hlp_mounts_final.json'), 'utf8');
 html = html.replace(/<script([^>]*)>/, '<script$1>\nconst MOUNTS=' + JSON.stringify(JSON.parse(M)) + ';\n');
+// F103: frames and outlines from the models, as build_game.py adds them
+html = html.replace(/<script([^>]*)>/, '<script$1>\nconst OUTLINES=' + JSON.stringify(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'hlp_outlines.json'), 'utf8'))) + ';\n');
 const tmp = path.join(os.tmpdir(), 'shot_' + process.pid + '.html');
 fs.writeFileSync(tmp, html);
 // the helpers of fieldsim.js, taken from there so both stay the same

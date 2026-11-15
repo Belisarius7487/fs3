@@ -2946,8 +2946,29 @@ function playerSc(key){
   return Math.min(0.6, target/img.width);
 }
 
+// F103 stage 3: the mount offsets are shares of the frame (dy x half its
+// height, a thruster's w as well). The frame now has the model's height, so
+// they are scaled once by old height / new height - every point stays where
+// it was on the field.
+const F103_MNT = {};
+function f103Mounts(key, m){
+  const o = m && typeof f103Frame === 'function' ? f103Frame(key) : null;
+  if(!o) return m;
+  if(F103_MNT[key]) return F103_MNT[key];
+  const k = o.sprite[1]/f103H(o, o.sprite[0]), c = {};
+  for(const a in m){
+    const v = m[a];
+    c[a] = !Array.isArray(v) ? v : v.map(function(q){
+      if(!q || typeof q !== 'object' || typeof q.dy !== 'number') return q;
+      const n = Object.assign({}, q, {dy: q.dy*k});
+      if(typeof q.w === 'number') n.w = q.w*k;
+      return n;
+    });
+  }
+  return (F103_MNT[key] = c);
+}
 function mountsFor(key){
-  const m = (typeof MOUNTS !== 'undefined' && key && MOUNTS[key]) ? MOUNTS[key] : null;
+  const m = f103Mounts(key, (typeof MOUNTS !== 'undefined' && key && MOUNTS[key]) ? MOUNTS[key] : null);
   // v198: hulls with a model have their guns on its turrets (59_field3d.js)
   return (m && typeof f3dMounts === 'function') ? f3dMounts(key, m) : m;
 }

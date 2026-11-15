@@ -25,6 +25,8 @@ const M = fs.readFileSync(mounts, 'utf8');
 // Same shape as build_game.py's render_mounts(), placed first so it exists
 // before anything asks for it.
 html = html.replace(/<script([^>]*)>/, '<script$1>\nconst MOUNTS=' + JSON.stringify(JSON.parse(M)) + ';\n');
+// F103: frames and outlines from the models, as build_game.py adds them
+html = html.replace(/<script([^>]*)>/, '<script$1>\nconst OUTLINES=' + JSON.stringify(JSON.parse(fs.readFileSync(path.join(__dirname, 'hlp_outlines.json'), 'utf8'))) + ';\n');
 const tmp = path.join(os.tmpdir(), 'fieldsim_' + process.pid + '.html');
 fs.writeFileSync(tmp, html);
 
@@ -36,6 +38,8 @@ const HELPERS = `
         const small = /^(fi|bo|sg|fc|ep)/.test(k) && HULL_LEN[k] < 80;
         const c = document.createElement('canvas');
         c.width = small ? 60 : 320; c.height = small ? 40 : 90;
+        // F103: a hull whose frame comes from her model has its shape
+        if(typeof f103Frame === 'function' && f103Frame(k)) c.height = f103H(f103Frame(k), c.width);
         const g = c.getContext('2d'); g.fillStyle = '#888'; g.fillRect(0,0,c.width,c.height);
         IMGS[k] = c;
       }
@@ -6430,6 +6434,43 @@ for(const rRight of [false, true]) scenario('v285 F101: M11 the Elysium docks an
   r.turnedFirst = ${rRight} ? true : turned;
   r.jumpsTogether = !!t && t.warpOut > 0 && ra.warpOut > 0 && t._wLead === ra;
   r.bothSameWay = !!t && faceR(t) === faceR(ra);
+  return r;`);
+// F103 stage 3 (Silvio, 15.11.2026: "fangen wir klein an"): fighters and
+// bombers take frame and outline from their model (hlp_outlines.json); the
+// mounts are scaled so every point stays where it was. Other classes stay.
+scenario('F103 stage 3: fighters and bombers framed by their model', 'm=1', `
+  const r = {};
+  const k = 'fihercmk2', o = OUTLINES[k], W = o.sprite[0], H = o.sprite[1];
+  const sp = document.createElement('canvas'); sp.width = W; sp.height = H;
+  const fr = (typeof f103Canvas === 'function') ? f103Canvas(k, sp) : sp;
+  r.frameHasModelHeight = fr.width === W && fr.height === Math.round(W*o.ratio) && fr.height !== H;
+  const big = (typeof f103Canvas === 'function') ? f103Canvas('craten', sp) : sp;
+  r.capitalShipsKeepSprite = big === sp;
+  delete MASKS[k];
+  const m = buildMask(k), row = o.map.rows[o.map.h >> 1];
+  r.maskIsModelOutline = !!m && m.w === o.map.w && m.h === o.map.h &&
+    m.bits[(o.map.h >> 1)*m.w + row[0]] === 1 && m.bits[(o.map.h >> 1)*m.w + row[0] - 1] === 0;
+  const raw = MOUNTS[k].primary[0], now = mountsFor(k).primary[0];
+  r.gunStaysPut = Math.abs(now.dy*Math.round(W*o.ratio) - raw.dy*H) < 0.01*H && now.dx === raw.dx;
+  const rt = MOUNTS[k].thrusters[0], nt = mountsFor(k).thrusters[0];
+  r.thrusterWidthStays = Math.abs(nt.w*Math.round(W*o.ratio) - rt.w*H) < 0.01*H;
+  r.capitalMountsUntouched = mountsFor('craten').subs[0].dy === MOUNTS.craten.subs[0].dy;
+  // in the mission: her fighters fly, take hits and place their subsystems
+  FS.step(600);
+  const sm = enemies.concat(allies).filter(e => /^(fi|bo)/.test(e.img));
+  r.smallCraftInMission = sm.length > 0;
+  // her subsystems are placed on the model's outline now
+  delete SUB_POS[k];
+  const mk = getMask(k), ps = subPositions(k);
+  const on = function(p){
+    const cx = Math.round((p.dx + 1)/2*(mk.w - 1)), cy = Math.round((p.dy + 1)/2*(mk.h - 1));
+    for(let y = cy - 2; y <= cy + 2; y++) for(let x = cx - 2; x <= cx + 2; x++)
+      if(x >= 0 && y >= 0 && x < mk.w && y < mk.h && mk.bits[y*mk.w + x]) return true;
+    return false;
+  };
+  r.subs = JSON.stringify(ps.map(p => [p.id, +p.dx.toFixed(2), +p.dy.toFixed(2), on(p)]));
+  r.subsystemsOnModelOutline = ps.length === 5 && ps.every(on);
+  r.err = String(F3D.err || '');
   return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 (async()=>{

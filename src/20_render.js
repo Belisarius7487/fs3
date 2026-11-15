@@ -290,8 +290,32 @@ const IMGS={},NEBS={},ICONS={};
 let imgsLoaded=0,nebsLoaded=0,iconsLoaded=0;
 for(const [k,src] of Object.entries(ICON_DATA)){
   const img=new Image();img.onload=()=>{ICONS[k]=img;iconsLoaded++;};img.src=src;}
+// F103 stage 3 (Silvio, 15.11.2026: "fangen wir klein an"): for these hull
+// classes the frame and the outline come from the model (OUTLINES, injected
+// by the packer from hlp_outlines.json), not from the sprite. The frame keeps
+// the sprite's width (so every scale stays) and takes the model's height.
+const F103_CLASSES = ['fi', 'bo'];
+function f103Frame(key){
+  const o = (typeof OUTLINES !== 'undefined' && key) ? OUTLINES[key] : null;
+  return (o && o.ratio && o.sprite && o.map && F103_CLASSES.indexOf(String(key).slice(0, 2)) >= 0) ? o : null;
+}
+// The frame's height for a given width
+function f103H(o, w){ return Math.max(1, Math.round(w*o.ratio)); }
+// Until stage 4 the sprite is still drawn in a few places (list cells, the
+// fallback): it is stretched onto a canvas of the new frame, so every reader
+// of IMGS gets the model's frame.
+function f103Canvas(k, img){
+  const o = f103Frame(k);
+  if(!o || typeof document === 'undefined') return img;
+  try{
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = f103H(o, img.width);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c;
+  }catch(err){ return img; }
+}
 for(const [k,src] of Object.entries(SPR_DATA)){
-  const img=new Image();img.onload=()=>{IMGS[k]=img;imgsLoaded++;if(typeof buildMask==='function')buildMask(k);};img.src=src;}
+  const img=new Image();img.onload=()=>{IMGS[k]=f103Canvas(k, img);imgsLoaded++;if(typeof buildMask==='function')buildMask(k);};img.src=src;}
 // The backgrounds are fetched when they are wanted, not all at once (v229).
 // Twelve of 3000x1500 are 33 MB over the wire, and once decoded a picture
 // that size holds about 18 MB of memory whether it is on screen or not - so
@@ -624,6 +648,16 @@ const MASK_MIN_A = 24;   // alpha threshold above which a point counts as hull
 function buildMask(key){
   const img = IMGS[key];
   if(!img || !img.width) return null;
+  // F103: the model's outline, already a map of the frame
+  const fo = f103Frame(key);
+  if(fo){
+    const mw = fo.map.w, mh = fo.map.h, bits = new Uint8Array(mw*mh);
+    for(let y = 0; y < mh; y++){
+      const r = fo.map.rows[y] || [];
+      for(let i = 0; i + 1 < r.length; i += 2) bits.fill(1, y*mw + r[i], y*mw + Math.min(mw, r[i+1]));
+    }
+    return (MASKS[key] = {w:mw, h:mh, bits:bits});
+  }
   try{
     const f = Math.min(1, MASK_MAX/Math.max(img.width, img.height));
     const mw = Math.max(1, Math.round(img.width*f));

@@ -34,6 +34,8 @@ for(const n of ['warp_img', 'warp_knossos', 'warp_glow', 'warp_glow_knossos'])
   html = html.split('@@FS3_ASSET:images/' + n + '.webp@@').join(DOT);
 html = html.replace(/<script([^>]*)>/, '<script$1>\nconst MOUNTS=' +
   JSON.stringify(JSON.parse(fs.readFileSync(mounts, 'utf8'))) + ';\n');
+// F103: frames and outlines from the models, as build_game.py adds them
+html = html.replace(/<script([^>]*)>/, '<script$1>\nconst OUTLINES=' + JSON.stringify(JSON.parse(fs.readFileSync(path.join(__dirname, 'hlp_outlines.json'), 'utf8'))) + ';\n');
 const tmp = path.join(os.tmpdir(), 'warpsim_' + process.pid + '.html');
 fs.writeFileSync(tmp, html);
 

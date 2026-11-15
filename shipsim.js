@@ -67,7 +67,7 @@ const names = [
   'setShipMenu','toggleShipMenu','swapShip','drawSwapIcon','statPips','drawShipMenu','pointerConsumed',
   'resetPlayerShield','playerSc','setCallMenu',
   'hullFac','shipFac','hangarServes','isHangarShip','hangarFacs','colossusOnField','shipOffered',
-  'mountsFor','spriteFacing','drawHullBg','drawHullCell','volleyDmg','volleyTotal','primaryCount','syncPause',
+  'mountsFor','f103Mounts','spriteFacing','drawHullBg','drawHullCell','volleyDmg','volleyTotal','primaryCount','syncPause',
   'hangarGroups','hangarLayout','drawMissileIcon','drawBombIcon','drawKeyChip',
   'hangarOrder','insidePanel','cycleAt','enterCycle','cycleTabs','facShips','shipIsOpen',
   'hangarTabOpen','callTabOpen','pickTab','nextTab','drawFleetTabs','allyFacOn','titleFsHit','forceShip','releaseShip',

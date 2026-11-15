@@ -22,7 +22,7 @@ const api = new Function(`
   // State the lifted functions read: no disguised wave is running here, so
   // coverHolds() is false and nearestOf() treats every side as it looks.
   let waveDisguise = false, disguiseBlown = false;
-  ${['playerOnly','freighterArmed','mountsFor','escortSpares','coverHolds','nearestEnemy','nearestOf','isLargeShip','isSmallShip'].map(fn).join('\n')}
+  ${['playerOnly','freighterArmed','mountsFor','f103Mounts','escortSpares','coverHolds','nearestEnemy','nearestOf','isLargeShip','isSmallShip'].map(fn).join('\n')}
   return { set(e, a){ enemies = e; allies = a; }, get enemies(){ return enemies; }, get allies(){ return allies; },
            playerOnly, nearestEnemy, nearestOf };`)();
 let pass = 0, fail = 0;

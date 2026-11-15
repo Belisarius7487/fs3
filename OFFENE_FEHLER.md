@@ -2711,6 +2711,20 @@ Mount-Datei, `F3D_VIEW` und `F3D_ALIAS` liest das Werkzeug aus
 **Etappe 3 — Reihenfolge (Silvio, 15.11.2026):** „fangen wir klein an" —
 zuerst Jäger und Bomber (Schlüssel `fi…`, `bo…`), dann die übrigen Klassen.
 
+**Etappe 3, Jäger und Bomber — gebaut in v287 (15.11.2026), im echten Spiel
+noch nicht angesehen.** Der Packer legt `hlp_outlines.json` als `OUTLINES`
+in die Seite (ebenso `fieldsim`, `warpsim`, `tools/shot.js`). Für `fi…`/`bo…`
+(`F103_CLASSES`, `f103Frame()` in `20_render.js`): der Rahmen behält die
+Sprite-Breite und bekommt die Höhe des Modells (`IMGS[key]` ist eine
+Leinwand in diesem Maß, das Sprite darauf gestreckt — nur noch für
+Listenbilder und den Rückfall), die Umrisskarte kommt aus `OUTLINES`
+(`buildMask()`), und `mountsFor()` rechnet `dy` (Triebwerke auch `w`) mit
+alter durch neue Höhe um (`f103Mounts()`), damit Geschütze und Triebwerke
+bleiben, wo sie waren. Subsysteme liegen damit auf dem Modell-Umriss.
+Neues `fieldsim`-Szenario „F103 stage 3" (schlägt gegen v286 dreimal fehl).
+`v203: small craft…`/`aiFs2` war schon in v286 rot (alte Mission, nicht
+angefasst).
+
 **Bildverwendungen einzeln (im Code nachgelesen, v286):**
 
 | Stelle | läuft bei einem Schiff, das aus dem Modell gezeichnet wird? | Ersatz bei B |

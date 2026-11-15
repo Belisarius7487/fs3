@@ -53,7 +53,7 @@ const names = [
   
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thButton','btnState','btnText','thBevel','thGlow','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','allyFacOn', 'eraAllows', 'callCols', 'allyTicket', 'canRefine', 'drawCallMenu', 'callAlly',
-  'mountsFor', 'spriteFacing', 'drawHullBg',
+  'mountsFor','f103Mounts', 'spriteFacing', 'drawHullBg',
   'TH','thLabel','thValue','thBevel','thGlow','thPanel','UI','uiHLP','uiLabel','uiValue','uiCell','uiDialog'];
 const menuBgDecl = decl(/const MENU_BG_ALPHA[\s\S]*?const MENU_BG_PAD\s*=\s*[\d.]+;/);
 // The support menu's own measurements, from CM_W down to the faction headings.

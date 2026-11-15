@@ -513,6 +513,7 @@ def main():
     ap.add_argument("--planets", default="planets", help="Ordner mit Planeten (optional)")
     ap.add_argument("--suns", default="suns", help="Ordner mit Sonnen (optional)")
     ap.add_argument("--mounts", default="hlp_mounts_final.json", help="Mount-JSON aus dem Editor")
+    ap.add_argument("--outlines", default="hlp_outlines.json", help="Rahmen und Umrisse aus den Modellen (F103)")
     ap.add_argument("--game", default="hlp_shooter_v3.html", help="Eingabe-Spieldatei")
     ap.add_argument("--out", default="hlp_shooter_v4.html", help="Ausgabe-Spieldatei")
     ap.add_argument("--loader", default=None,
@@ -553,6 +554,12 @@ def main():
     with open(args.mounts, encoding="utf-8") as fh:
         mounts = json.load(fh)
     print("Mounts gelesen: %d Schiffe" % len(mounts))
+    # F103: frames and outlines from the models (tools/pof/mkoutline.py)
+    outlines = {}
+    if os.path.exists(args.outlines):
+        with open(args.outlines, encoding="utf-8") as fh:
+            outlines = json.load(fh)
+    print("Umrisse gelesen: %d Bilder" % len(outlines))
 
     with open(args.game, encoding="utf-8") as fh:
         html = fh.read()
@@ -577,7 +584,9 @@ def main():
     block = find_block(html, "const SPR_DATA=")
     if not block:
         sys.exit("Abbruch: SPR_DATA nicht in der Spieldatei gefunden.")
-    html = html[:block[0]] + render_sprites(sprites) + "\n\n" + render_mounts(mounts) + html[block[1]:]
+    html = html[:block[0]] + render_sprites(sprites) + "\n\n" + render_mounts(mounts)
+            + "\nconst OUTLINES=" + json.dumps(outlines, separators=(",", ":"), sort_keys=True) + ";"
+            + html[block[1]:]
 
     # --- ICON_DATA ersetzen, falls der Platzhalter in der Spieldatei steht ---
     block = find_block(html, "const ICON_DATA=")
