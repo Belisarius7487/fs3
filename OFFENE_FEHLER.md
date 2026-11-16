@@ -2963,6 +2963,59 @@ dasselbe Raster hat und ob es dort damit verschwindet** — Silvio vergleicht
 mit und ohne `&ka=0`. Die Sperre misst auch in Brave (Konsole), falls der
 Augenschein nicht reicht.
 
+**Lag-Log v306 (Silvio, M6, 16.11.2026):** „Gerade anfangs von M6 vernehme
+ich noch Ruckler." 11 Hänger in 85 s, längster 183 ms, zehn davon in den
+ersten 16 s: 0:00 183/117/83 ms nach „warp in deorionright", 0:01 83 ms,
+0:04 150 ms (draw 25) und 50 ms, 0:08 100 und 117 ms (22–24 Schüsse,
+112–130 Partikel), 0:13 117 ms, 0:16 50 ms nach „explosion asteroid;
+explosion boshaitan". Danach nichts mehr bis 1:28 (50 ms, nach dem Sprung);
+in v305 waren es zwischen 0:56 und 1:23 noch fünf. Das Sekundenraster ist in
+diesem Lauf also nicht mehr zu sehen (Browser und `&ka` des Laufs hat Silvio
+nicht genannt).
+
+**Gemessen dazu (16.11.2026, eingebauter Browser auf Silvios PC, Chrome 156,
+v306 vom Dev-Server, M6, 1200×750):**
+- **Das Lag-Log liest sich um ein Bild versetzt:** `perfFrame()` bekommt als
+  Länge den Abstand zum *vorigen* Bild, als update/draw aber die Zeiten des
+  *laufenden*. Ein teures Bild des Spiels steht deshalb erst in der Zeile
+  danach, und dort unter „elsewhere". „elsewhere" heißt also nicht
+  zwingend „Browser".
+- Im echten Bildtakt (Schleife des Spiels, 20 s, Spieler schießt nicht): ein
+  Hänger von 167 ms bei 0:00, sonst nur 33/50/33 ms. Die übrigen aus Silvios
+  Log entstehen hier nicht in dieser Größe.
+- Schritt für Schritt (`update()`, `draw()`, Abgleich; Spieler schießt) ist
+  alles Auffällige Arbeit, die **zum ersten Mal** anfällt:
+  - **Erstes Bild:** `draw()` 62–76 ms (davon ~33 ms der Sprungwirbel der
+    Galatea, `drawFsPortals`/`f3dWarp`, und ~16 ms `f3dBuildMask`), danach
+    32–37 ms Grafikprozess; davor 23–28 ms für das Entpacken der Klänge
+    (`sndUnlock()`: alle 97 Dateien beim ersten Klick). Im Bild danach werden
+    die Wirbelbilder (2304×2304 und 512×512, `drawWarpFrame`) erstmals benutzt.
+  - **Randlicht der Asteroiden:** 540–630 neue kleine Flächen (64×64,
+    `drawRockLight`) in den ersten 7 s — 208 / 174 / 148 / 42 / 34 / 14 / 13
+    je Sekunde. Grafikprozess in der ersten Sekunde 12,5 statt 9 ms je Bild.
+  - **Erster Treffer auf der Galatea** (hier bei 2,6 s): `draw()` 21–27 ms,
+    im Bild danach `update()` bis 54 ms (`dmgInfo`/`dmgState`/`dmgPreset`,
+    Fläche 1000×356, `dmgStamp`). Das ist Silvios Paar bei 0:04 („draw 25").
+  - 7–9 s: einmal `update()` 15–30 ms und einmal 15–19 ms zwischen zwei
+    Bildern (nicht eingegrenzt).
+  - 12 s: erste Raketenspur (`drawTrail`, 256×128) und erster Rauch
+    (`fxFrame` aus `drawFxSmoke`, 768×384).
+- **Nicht geklärt:** warum dieselben Stellen bei Silvio 80–180 ms kosten und
+  hier 20–80 ms.
+- Messweg: `window.requestAnimationFrame=function(){return 0}` hält die
+  Schleife des Spiels an; dann je Bild 1–2 × `update()` (100 Schritte/s bei
+  60 Bildern), `draw()`, Abgleich über die 1×1-Hilfsfläche. Erstbenutzung:
+  `CanvasRenderingContext2D.prototype.drawImage` umhüllen und jede neue
+  Quelle mit Aufrufer notieren — `ImageBitmap` (aus `fxbFlush`, jedes Bild
+  neu) und `drawRockLight` ausfiltern, sonst flutet die Ausgabe.
+
+**Vorschlag v307 (Silvio gefragt, noch nicht gebaut):** alles oben im dunklen
+Moment des Missionsbeginns einmal ausführen, so wie `sceneWarm()` es für
+Himmel und Planeten tut (60_effects.js, „in the dark"): Sprungwirbel samt
+Bildern, Masken und Schadensbilder der großen Schiffe der Mission, Randlicht
+der Asteroiden, Raketenspur und Rauch. Preis: die Mission beginnt einmalig
+etwa 0,2–0,4 s später.
+
 **Weg für den nächsten Chat (16.11.2026):**
 - Stand: **v306** (Sekundenraster, siehe oben), davor Schritt 1 und 2 von 4
   gebaut; Silvios Vergleich in Brave mit und ohne `&ka=0` steht aus.
