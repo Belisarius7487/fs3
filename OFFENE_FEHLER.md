@@ -3100,8 +3100,14 @@ bei 0:00 im dunklen Bild — 217 ms (update 6 / draw 148 / elsewhere 63, nach
 „warm-up 93 ms: 1 hulls, 12 rock sheets, 29 pictures; warp in deorionright")
 und 100 ms. Danach in M6 (1:20) keiner, in M7 (1:29) keiner, in M8 (erste 3 s)
 keiner. Der 2,1-s-Hänger aus dem Chrome-Lauf von v307 trat nicht auf.
-Browser: **Brave** (Silvio, 16.11.2026). Stand: ein Lauf; in Chrome
-nicht nachgemessen, dort war in v307 der 2,1-s-Hänger.
+Browser: **Brave** (Silvio, 16.11.2026).
+**Zweites Log v308, Chrome (16:19, Silvio: „Das hier ist von Chrome"):** M6
+ebenfalls nur 2 Hänger, beide bei 0:00 im dunklen Bild (217 ms mit draw 155,
+267 ms mit elsewhere 265; warm-up 96 ms, 12 rock sheets, 29 pictures),
+danach in M6 (1:11) keiner, M7 (erste 3 s) keiner. **Der 2,1-s-Hänger beim
+ersten Schadensbild der Galatea ist in Chrome nicht wiedergekommen**; seine
+Ursache bleibt unbekannt (Vermutungen oben). Damit ist F104 in beiden
+Browsern bei Silvio ruhig — **behoben**, solange keine neue Meldung kommt.
 
 **Weg für den nächsten Chat (16.11.2026):**
 - Stand: **v308** (Randlicht als Sammelbild, Lag-Log berichtigt; Silvio hört
