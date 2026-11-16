@@ -40,7 +40,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht |
 |---|---|
-| F103 | Die 2D-Sprites sollen verschwinden. Etappe 1 (Messen), 2 (Daten aus den Modellen) und 3 (Rahmen und Trefferflächen aus dem Modell: v287 Jäger/Bomber, v288 übrige kleine Rümpfe, v289 große Schiffe) sind gebaut — v287/v288 abgenommen, **Urteil zu v289 offen**. **Etappe 4 (Aufräumen) ist nicht begonnen:** `SPR_DATA` mit 121 Sprites (13,8 MB), der Sprite-Teil des Packers, die Sprite-Zeichenwege und `&f3d=0` stecken noch im Spiel. Bis dahin baut `build.sh` die Sprites weiter ein. |
+| F103 | Die 2D-Sprites sollen verschwinden. Etappe 1 bis 3 sind gebaut und **abgenommen** (Silvio, 16.11.2026, zu den großen Schiffen aus v289: „Bisher hab ich nichts gesehen, was schief sitzt"). **Nächster großer Posten: Etappe 4, das Aufräumen** — `SPR_DATA` mit 121 Sprites (13,8 MB von 31 MB Spieldatei), der Sprite-Teil des Packers, die Sprite-Zeichenwege, `&f3d=0` und am Ende der Sprite-Ordner auf dem Server. Bis dahin baut `build.sh` die Sprites weiter ein. Eigener Bauzyklus, am besten ein eigener Chat. |
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -3282,7 +3282,7 @@ Windows."
 - Die 3D-Zeichnung (`f3dRender()` 8 MB/s im echten Spiel) misst das
   Werkzeug nicht, weil die Modelle dort fehlen.
 
-### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B; Etappe 1 und 2 erledigt, Etappe 3 gebaut (v287–v289; v287/v288 abgenommen, Urteil zu v289 offen), Etappe 4 nicht begonnen
+### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — Weg B; Etappe 1 bis 3 erledigt und **abgenommen** (v287–v289; Silvio, 16.11.2026: „Bisher hab ich nichts gesehen, was schief sitzt"), Etappe 4 (Aufräumen) nicht begonnen
 
 **Wunsch (Silvio, 12.11.2026):** „Wir haben immer noch die 2D Sprites der
 Schiffe im Spiel, obwohl wir bereits auf 3D Modelle umgestellt haben. Mein
