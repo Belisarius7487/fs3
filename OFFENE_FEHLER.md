@@ -3009,16 +3009,36 @@ v306 vom Dev-Server, M6, 1200×750):**
   Quelle mit Aufrufer notieren — `ImageBitmap` (aus `fxbFlush`, jedes Bild
   neu) und `drawRockLight` ausfiltern, sonst flutet die Ausgabe.
 
-**Vorschlag v307 (Silvio gefragt, noch nicht gebaut):** alles oben im dunklen
-Moment des Missionsbeginns einmal ausführen, so wie `sceneWarm()` es für
-Himmel und Planeten tut (60_effects.js, „in the dark"): Sprungwirbel samt
-Bildern, Masken und Schadensbilder der großen Schiffe der Mission, Randlicht
-der Asteroiden, Raketenspur und Rauch. Preis: die Mission beginnt einmalig
-etwa 0,2–0,4 s später.
+**v307 (gebaut 16.11.2026, Silvio: „F104: v307 bauen“):** alles oben wird im
+dunklen Moment des Missionsbeginns einmal ausgeführt (`missionWarm()`, neue
+Datei `src/66_warm.js`): Treffermaske und Schadenstabellen (`dmgInfo`) der
+großen Schiffe der Mission (auch der später kommenden, aus `SCRIPT_WAVES[..].u`,
+Klassen cr/co/de/sd/ic/in mit `spr`), der Sprungwirbel einmal durch den
+3D-Weg (`f3dWarp`, Deckkraft 1/255) und seine zwei Bilder für den 2D-Weg,
+Raketenspur und Rauch, und in Missionen mit Asteroiden alle 12 Formen mit
+ihrem Randlicht aus allen 48 Richtungen (1152 kleine Flächen). Von jeder
+Fläche wird eine 2×2-Kopie mit 1/255 Deckkraft in die Ecke gezeichnet.
+- `nextWave()` meldet es nur an (`missionWarmAsk()`); ausgeführt wird im
+  nächsten `draw()` direkt nach dem Löschen des Bildes. Grund: `draw()`
+  beginnt mit einem deckenden `fillRect` über die ganze Fläche, und Chrome
+  darf alles verwerfen, was im selben Bild davor gezeichnet wurde. Deshalb
+  ruft `missionWarm()` auch `sceneWarm()` noch einmal auf (dessen Kopien aus
+  `nextWave()` liegen vor dem Löschen). **Vermutung, nicht gemessen**, ob
+  Chrome sie bisher wirklich verworfen hat.
+- Nicht vorgewärmt, weil es am einzelnen Schiff hängt: das Schadensbild
+  selbst (`dmgBuild`, Fläche je Schiff) beim ersten Treffer.
+- Vergleichen: `&warm=0` lässt es weg. Im Lag-Protokoll steht die Zeile
+  „warm-up N ms: …“. Szenario „v307 F104“ (schlägt gegen v306 fehl): läuft
+  im dunkelsten Bild, nur einmal, alle 576 Randlichter da, danach zeichnet
+  kein Asteroid mehr aus einer neuen Fläche, Bild mit und ohne gleich (0 von
+  255). Ohne Fenster: erstes Mal 109 ms, jede weitere Mission 4 ms.
+- **Offen:** auf Silvios PC messen, ob die ersten Sekunden von M6 damit ruhig
+  sind (v307 gegen `&warm=0`, je frisch geladen) und wie lang das dunkle
+  Bild dort wird. Erst danach gilt es als behoben.
 
 **Weg für den nächsten Chat (16.11.2026):**
-- Stand: **v306** (Sekundenraster, siehe oben), davor Schritt 1 und 2 von 4
-  gebaut; Silvios Vergleich in Brave mit und ohne `&ka=0` steht aus.
+- Stand: **v307** (Vorwärmen beim Missionsbeginn, Messung bei Silvio offen),
+  davor v306 (Sekundenraster) und Schritt 1 und 2 von 4 gebaut; Silvios Vergleich in Brave mit und ohne `&ka=0` steht aus.
 - Messen des Rasters: `launchGame()`, 60 × `update()`, dann einfrieren und
   in einer Schleife `draw()` + Rücklesen über die 1×1-Hilfsfläche; ein
   Rasterpunkt ist ein Bild mit > Median + 12 ms. Zum Vergleich Funktionen

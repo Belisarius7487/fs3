@@ -6539,6 +6539,51 @@ scenario('v306 F104: a quiet frame still draws one small copy from the explosion
   r.diff = 'corner differs by ' + dmax + ' of 255';
   for(const a of keepA) FX_ANIMS.push(a); for(const q of keepP) PARTS.push(q);
   return r;`);
+scenario('v307 F104: the first-time work of a mission is done in the dark picture of the fade-in', 'm=6', `
+  const r = {};
+  r.helper = typeof missionWarm === 'function';
+  if(!r.helper) return r;
+  r.asked = WARM_DUE === true && WARM_LAST === null;      // nextWave() asked, nothing drawn yet
+  r.tablesBefore = DMG_INFO.deorionright === undefined;
+  // everything the 2D canvas is asked to draw from, per picture
+  const watch = function(fn){
+    const seen = new Set(), d0 = ctx.drawImage;
+    ctx.drawImage = function(im){ seen.add(im); return d0.apply(this, arguments); };
+    try{ fn(); } finally { delete ctx.drawImage; }
+    return seen;
+  };
+  const dark = arriveT === TRANS_IN;
+  const first = watch(draw);
+  const L = WARM_LAST;
+  r.ran = !!L && WARM_DUE === false;
+  if(!r.ran) return r;
+  r.inTheDark = dark;
+  r.galateaTables = L.hulls === 1 && DMG_INFO.deorionright !== undefined;
+  const lights = function(){ return AST_TEX.reduce(function(a, t){ return a + Object.keys(t.light || {}).length; }, 0); };
+  r.allRimLights = L.lights === AST_TEX.length*AST_LQ && lights() === AST_TEX.length*AST_LQ;
+  r.trailAndSmoke = first.has(FX_IMG.trail) && first.has(FX_IMG.smoke);
+  draw();
+  r.onlyOnce = WARM_LAST === L;
+  // the fight goes on: nothing a rock is drawn from is new to the canvas
+  const rockSrc = new Set();
+  for(const t of AST_TEX){ rockSrc.add(t.c); for(const k in t.light){ rockSrc.add(t.light[k].d); rockSrc.add(t.light[k].m); } }
+  let fresh = 0, used = 0;
+  for(let i = 0; i < 12; i++){
+    FS.step(40); player.invT = 999;
+    for(const im of watch(draw)) if(rockSrc.has(im)){ used++; if(!first.has(im)) fresh++; }
+  }
+  r.rocksDrawn = used > 50;
+  r.noneNewLater = fresh === 0 && lights() === AST_TEX.length*AST_LQ;
+  // the same picture with and without it
+  const px = function(){ return ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height).data; };
+  const dmax = function(a, b){ let m = 0; for(let i = 0; i < a.length; i++){ const d = Math.abs(a[i] - b[i]); if(d > m) m = d; } return m; };
+  draw(); const A = px(); draw(); const B = px();
+  WARM_DUE = true; draw(); const C = px();
+  r.samePicture = WARM_DUE === false && dmax(B, C) <= Math.max(1, dmax(A, B));
+  r.diff = 'two plain pictures differ by ' + dmax(A, B) + ', with the warm-up by ' + dmax(B, C) + ' of 255; warm-up ' + L.ms.toFixed(0) + ' ms, ' + L.srcs + ' pictures, then ' + WARM_LAST.ms.toFixed(1) + ' ms';
+  // &warm=0: nothing is asked for
+  r.switch = typeof WARM_ON !== 'undefined' && WARM_ON === 1;
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);

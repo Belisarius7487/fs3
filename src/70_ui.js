@@ -26,6 +26,8 @@ function draw(){
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
   // F104 (v306): keeps the browser's graphics process from stalling once a second
   if(GS==='playing' && typeof fxKeepAlive==='function') fxKeepAlive();
+  // F104 (v307): first-time work of a mission, in the dark picture of the fade-in
+  if(GS==='playing' && typeof WARM_DUE !== 'undefined' && WARM_DUE) missionWarm();
   if(GS==='playing' && subspaceOn()) drawSubspace();
   else { drawNebula(); drawStars(); drawBodies(); }   // v213: the stars behind the planets
 
