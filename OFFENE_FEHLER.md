@@ -3243,7 +3243,7 @@ Windows."
 - Die 3D-Zeichnung (`f3dRender()` 8 MB/s im echten Spiel) misst das
   Werkzeug nicht, weil die Modelle dort fehlen.
 
-### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B; Etappe 1 (Messen) und 2 (Daten aus dem Modell) erledigt, am Spiel noch nichts geändert
+### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — entschieden: Weg B; Etappe 1 und 2 erledigt, Etappe 3 gebaut (v287–v289; v287/v288 abgenommen, Urteil zu v289 offen), Etappe 4 nicht begonnen
 
 **Wunsch (Silvio, 12.11.2026):** „Wir haben immer noch die 2D Sprites der
 Schiffe im Spiel, obwohl wir bereits auf 3D Modelle umgestellt haben. Mein
@@ -3481,14 +3481,6 @@ Szenario „F103 stage 3: capital ships" (schlägt gegen v288 fehl).
 Kapseln in die Galatea (M90), F99, F100 grün. Im echten Spiel (M6,
 Galatea, Rahmen 1000×356 statt 330) angesehen: die Trefferfläche liegt auf
 dem Modell, Subsysteme unverändert. Silvios Urteil steht aus.
-
-**Nächster Schritt:** die großen Schiffe — `F103_CLASSES` in
-`20_render.js` um ihre Schlüssel erweitern. Dort ändert sich viel (Aten
-+32 %, Iceni +16 %, Mentu +16 %, Aeolus +12 %, Orion +8 %): die
-Editor-Positionen (Subsysteme, Geschütze, Strahlen) rechnet `f103Mounts()`
-schon um; prüfen, was sonst an der Höhe hängt (`dmgBuild()`-Schadensbild,
-`F3D_VIEW`, Schilde, Zerstörer-Hangar `$bay`, Container-Tiefe beim Andocken
-an großen Schiffen). Einzelne Klasse zuerst, im echten Spiel ansehen.
 
 **Befund zu v287 (Silvio, 15.11.2026):** „Jetzt habe ich alle paar Sekunden
 Mikroruckler. Die Treffersilhouette scheint aber soweit zu stimmen."
