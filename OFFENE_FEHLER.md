@@ -3094,9 +3094,17 @@ Kraft mehr"):** Schritt 4, Randlicht der Asteroiden.
   in v306 oder kürzer. Ob die ersten Sekunden ruhiger werden, ist nicht
   gemessen.
 
+**Lag-Log v308 (Silvio, 16.11.2026, Browser nicht genannt):** „Gute
+Nachrichten. Ich habe nicht einen Ruckler vernommen." M6: 2 Hänger, beide
+bei 0:00 im dunklen Bild — 217 ms (update 6 / draw 148 / elsewhere 63, nach
+„warm-up 93 ms: 1 hulls, 12 rock sheets, 29 pictures; warp in deorionright")
+und 100 ms. Danach in M6 (1:20) keiner, in M7 (1:29) keiner, in M8 (erste 3 s)
+keiner. Der 2,1-s-Hänger aus dem Chrome-Lauf von v307 trat nicht auf.
+Stand: ein Lauf; ob Brave oder Chrome, ist nicht bekannt.
+
 **Weg für den nächsten Chat (16.11.2026):**
-- Stand: **v308** (Randlicht als Sammelbild, Lag-Log berichtigt; Silvios Log
-  dazu offen), davor v307 (Vorwärmen beim Missionsbeginn),
+- Stand: **v308** (Randlicht als Sammelbild, Lag-Log berichtigt; Silvio hört
+  in M6–M8 keinen Ruckler mehr), davor v307 (Vorwärmen beim Missionsbeginn),
   davor v306 (Sekundenraster) und Schritt 1 und 2 von 4 gebaut; Silvios Vergleich in Brave mit und ohne `&ka=0` steht aus.
 - Messen des Rasters: `launchGame()`, 60 × `update()`, dann einfrieren und
   in einer Schleife `draw()` + Rücklesen über die 1×1-Hilfsfläche; ein
