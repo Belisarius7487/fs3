@@ -34,13 +34,14 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
 | F111 | M15: nur ein Teil der Transporter und Frachter war zu beschützen | v309 |
+| — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
 
 | Punkt | Worum es geht |
 |---|---|
 | F103 | Die 2D-Sprites sollen verschwinden. Etappe 1 (Messen), 2 (Daten aus den Modellen) und 3 (Rahmen und Trefferflächen aus dem Modell: v287 Jäger/Bomber, v288 übrige kleine Rümpfe, v289 große Schiffe) sind gebaut — v287/v288 abgenommen, **Urteil zu v289 offen**. **Etappe 4 (Aufräumen) ist nicht begonnen:** `SPR_DATA` mit 121 Sprites (13,8 MB), der Sprite-Teil des Packers, die Sprite-Zeichenwege und `&f3d=0` stecken noch im Spiel. Bis dahin baut `build.sh` die Sprites weiter ein. |
-| — | Ausgabe von `build.sh` auf das Wesentliche kürzen (Silvio, 16.11.2026; Entwurf abgestimmt: Dateilisten raus, Warnungen bleiben, Sprite-Zeile raus. Zeile „geändert seit dem letzten Bau“ noch zu entscheiden) |
+
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
 Brave gesehen, im eingebauten Browser nicht nachstellbar; wartet, bis Silvio

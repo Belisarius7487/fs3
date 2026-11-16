@@ -43,6 +43,84 @@ import os
 import re
 import sys
 
+
+# --- Output (Silvio, 16.11.2026: the build spelled out every single file;
+# he wants the essentials and what changed). Lists go to detail(), which
+# only speaks with --laut; the numbers land in STATS and are printed as a
+# short block at the end; warnings are collected and always printed. ---
+LOUD = False
+STATS = {}
+WARN = []
+STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".build_state.json")
+
+
+def detail(msg):
+    """One line of the long list - only with --laut."""
+    if LOUD:
+        print(msg)
+
+
+def warn(msg):
+    """A warning. Always printed, after the numbers."""
+    WARN.append(msg)
+
+
+def read_state():
+    try:
+        with open(STATE_FILE, encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return None
+
+
+def write_state(state):
+    try:
+        with open(STATE_FILE, "w", encoding="utf-8") as fh:
+            json.dump(state, fh, separators=(",", ":"), sort_keys=True)
+    except Exception as exc:
+        warn("WARNUNG: Zustand fuer den Vergleich nicht geschrieben (%s)" % exc)
+
+
+def _diff_line(label, old, new, limit=6):
+    """What came and what went between two name lists, in one line."""
+    add, gone = sorted(set(new) - set(old)), sorted(set(old) - set(new))
+    if not add and not gone:
+        return None
+    bits = []
+    for word, names in (("neu", add), ("weg", gone)):
+        if not names:
+            continue
+        shown = ", ".join(names[:limit])
+        if len(names) > limit:
+            shown += " und %d weitere" % (len(names) - limit)
+        bits.append("%d %s: %s" % (len(names), word, shown))
+    return "    %-9s %s" % (label, "; ".join(bits))
+
+
+def print_changes(old, new):
+    """Changed since the last build - the line Silvio asked for."""
+    if not old:
+        print("\n  Erster Bau mit dieser Fassung - kein Vergleich moeglich.")
+        return
+    lines = []
+    if old.get("version") != new.get("version"):
+        lines.append("    %-9s %s -> %s" % ("Version", old.get("version") or "?", new.get("version")))
+    for label, key in (("Sprites", "sprites"), ("Modelle", "models"),
+                       ("Musik", "music"), ("Planeten", "planets"), ("Sonnen", "suns"),
+                       ("Icons", "icons")):
+        line = _diff_line(label, old.get(key) or [], new.get(key) or [])
+        if line:
+            lines.append(line)
+    for label, key in (("Sounds", "sounds"), ("Mounts", "mounts"), ("Umrisse", "outlines")):
+        a, b = old.get(key), new.get(key)
+        if a is not None and b is not None and a != b:
+            lines.append("    %-9s %d -> %d" % (label, a, b))
+    print("\n  Geaendert seit dem letzten Bau:")
+    if lines:
+        print("\n".join(lines))
+    else:
+        print("    nur die Spieldatei selbst - sonst alles unveraendert")
+
 # 'an' sind die Ancients. Der Knossos gehoert weder den Terranern noch den
 # Shivanern; ihn unter eine bestehende Fraktion zu zwingen waere eine
 # Notluege, die spaeter jemand fuer einen Fehler haelt.
@@ -280,7 +358,7 @@ def collect_bodies(folder, label, force_png=False):
     """Planeten oder Sonnen. Fehlt der Ordner, gibt es eben keine."""
     out = {}
     if not folder or not os.path.isdir(folder):
-        print("Kein %s-Ordner (%s) - der Hintergrund bleibt leer" % (label, folder))
+        warn("WARNUNG: kein %s-Ordner (%s) - der Hintergrund bleibt leer" % (label, folder))
         return out
     if not HAVE_PIL:
         sys.exit("Abbruch: fuer %s wird Pillow gebraucht. sudo apt install python3-pil" % label)
@@ -294,7 +372,7 @@ def collect_bodies(folder, label, force_png=False):
         try:
             url, cx, cy, r, q = encode_body(path, force_png)
         except Exception as exc:
-            print("  UEBERSPRUNGEN %s: %s" % (name, exc))
+            warn("WARNUNG: %s uebersprungen: %s" % (name, exc))
             continue
         total_raw += os.path.getsize(path)
         total_out += len(url) * 3 // 4
@@ -303,11 +381,13 @@ def collect_bodies(folder, label, force_png=False):
         else:
             n_png += 1
             if not force_png:
-                print("  %s: Alpha ist keine Kreisscheibe (%.3f) - bleibt PNG" % (name, q))
+                detail("  %s: Alpha ist keine Kreisscheibe (%.3f) - bleibt PNG" % (name, q))
         out[key] = {"src": url, "cx": cx, "cy": cy, "r": r}
-    print("%s: %d Dateien, %d als JPEG mit gerechneter Maske, %d als PNG"
-          % (label, len(out), n_jpeg, n_png))
-    print("  %.1f MB Quelle -> %.2f MB eingebettet" % (total_raw / 1048576, total_out / 1048576))
+    detail("%s: %d Dateien, %d als JPEG mit gerechneter Maske, %d als PNG"
+           % (label, len(out), n_jpeg, n_png))
+    detail("  %.1f MB Quelle -> %.2f MB eingebettet" % (total_raw / 1048576, total_out / 1048576))
+    STATS[label] = len(out)
+    STATS["names:" + label] = sorted(out)
     return out
 
 
@@ -431,7 +511,7 @@ def inline_assets(html):
         return "data:%s;base64,%s" % (ASSET_MIME[ext], base64.b64encode(data).decode("ascii"))
     html, n = re.subn(r"@@FS3_ASSET:([A-Za-z0-9_./-]+)@@", repl, html)
     if n:
-        print("Bilddateien eingebettet: %d" % n)
+        STATS["Bilddateien"] = n
     return inline_sounds(html)
 
 
@@ -454,15 +534,17 @@ def inline_sounds(html):
         return "data:%s;base64,%s" % (SOUND_MIME[ext], base64.b64encode(data).decode("ascii"))
     html, n = re.subn(r"@@FS3_SOUND:([A-Za-z0-9_./-]+)@@", repl, html)
     if n:
-        print("Sounddateien eingebettet: %d von %d" % (n - len(missing), n))
+        STATS["Sounds"] = n - len(missing)
     if missing:
-        print("Sounds fehlen (bleiben stumm): %s" % ", ".join(os.path.basename(p) for p in missing))
+        warn("WARNUNG: Sounds fehlen (bleiben stumm): %s"
+             % ", ".join(os.path.basename(p) for p in missing))
     # Music is not put into the page: only the names of the pieces in
     # music/, which build.sh copies next to the page.
     tracks = sorted(n for n in os.listdir("music") if n.lower().endswith(".mp3")) if os.path.isdir("music") else []
     if "@@FS3_MUSIC_LIST@@" in html:
         html = html.replace("@@FS3_MUSIC_LIST@@", ",".join(tracks))
-        print("Musikstuecke: %d" % len(tracks))
+        STATS["Musik"] = len(tracks)
+        STATS["names:Musik"] = tracks
     return html
 
 
@@ -484,7 +566,10 @@ def model_files(root="models"):
             if fn == "full.bin.gz" or fn.endswith("512.webp" if small else "1024.webp"):
                 st = os.stat(os.path.join(d, fn))
                 out.append(["models/%s/%s" % (key, fn), st.st_size, "%d-%d" % (int(st.st_mtime), st.st_size)])
-    print("Modelle fuer die Ladeseite: %d Dateien, %.1f MB" % (len(out), sum(f[1] for f in out) / 1048576.0))
+    STATS["Modelldateien"] = len(out)
+    STATS["ModellMB"] = sum(f[1] for f in out) / 1048576.0
+    STATS["names:Modelle"] = sorted(k for k in os.listdir(root)
+                                    if os.path.isfile(os.path.join(root, k, "full.bin.gz")))
     return out
 
 
@@ -503,7 +588,7 @@ def write_loader(path, game):
                .replace("@@MODELS@@", json.dumps(model_files())))
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(page)
-    print("Ladeseite: %s" % path)
+    STATS["Ladeseite"] = path
 
 
 def main():
@@ -518,48 +603,59 @@ def main():
     ap.add_argument("--out", default="hlp_shooter_v4.html", help="Ausgabe-Spieldatei")
     ap.add_argument("--loader", default=None,
                     help="Ladeseite (index.html), die die Spieldatei mit Fortschrittsbalken laedt")
+    ap.add_argument("--laut", action="store_true",
+                    help="die alte, ausfuehrliche Ausgabe: jede Datei einzeln")
     ap.add_argument("--hz", type=int, default=None,
                     help="Spieltempo in Logikschritten pro Sekunde (ueberschreibt TICK_HZ, Standard 100)")
     args = ap.parse_args()
+    global LOUD
+    LOUD = args.laut
 
     for path, label in ((args.sprites, "Sprite-Ordner"), (args.mounts, "Mount-JSON"), (args.game, "Spieldatei")):
         if not os.path.exists(path):
             sys.exit("Abbruch: %s nicht gefunden: %s" % (label, path))
 
-    print("Sprites lesen aus %s ..." % args.sprites)
+    detail("Sprites lesen aus %s ..." % args.sprites)
     sprites, skipped, collisions, shrunk = collect_sprites(args.sprites)
     if not sprites:
         sys.exit("Abbruch: keine gueltigen Sprites gefunden.")
-    print("  %d Sprites eingelesen" % len(sprites))
+    # The sprites are the old 2D pictures, on their way out with F103
+    # stage 4. Until then they are still built in, but there is nothing to
+    # report about them any more (Silvio, 16.11.2026) - only warnings.
+    STATS["Sprites"] = len(sprites)
+    STATS["names:Sprites"] = sorted(sprites)
+    detail("  %d Sprites eingelesen" % len(sprites))
     for name in skipped:
-        print("  uebersprungen (Namensschema passt nicht): %s" % name)
+        detail("  uebersprungen (Namensschema passt nicht): %s" % name)
     for key, first, second in collisions:
-        print("  KOLLISION: %s und %s ergeben beide den Key '%s' - zweite Datei ignoriert" % (first, second, key))
+        warn("WARNUNG: %s und %s ergeben beide den Key '%s' - zweite Datei ignoriert" % (first, second, key))
     for name, limit, a, b in shrunk:
-        print("  verkleinert auf %4d px: %-26s %5.0f KB -> %4.0f KB" % (limit, name, a / 1024, b / 1024))
-    for name in sorted(n for n in os.listdir(args.sprites) if n.startswith("ntf-")):
-        k = key_from_filename(name, {hull_id(x) for x in os.listdir(args.sprites)
-                                     if x.startswith("te-") and hull_id(x)})
-        print("  NTF: %-24s -> %s" % (name, k))
+        detail("  verkleinert auf %4d px: %-26s %5.0f KB -> %4.0f KB" % (limit, name, a / 1024, b / 1024))
+    if LOUD:
+        for name in sorted(n for n in os.listdir(args.sprites) if n.startswith("ntf-")):
+            k = key_from_filename(name, {hull_id(x) for x in os.listdir(args.sprites)
+                                         if x.startswith("te-") and hull_id(x)})
+            detail("  NTF: %-24s -> %s" % (name, k))
 
     icons = collect_icons(args.icons)
     if icons:
-        print("Icons gelesen: %d aus %s" % (len(icons), args.icons))
+        STATS["Icons"] = len(icons)
+        STATS["names:Icons"] = sorted(icons)
     else:
-        print("Keine Icons gefunden (%s) - das Spiel nutzt die gezeichneten Symbole" % args.icons)
+        warn("WARNUNG: keine Icons gefunden (%s) - das Spiel nutzt die gezeichneten Symbole" % args.icons)
 
     planets = collect_bodies(args.planets, "Planeten")
     suns = collect_bodies(args.suns, "Sonnen", force_png=True)
 
     with open(args.mounts, encoding="utf-8") as fh:
         mounts = json.load(fh)
-    print("Mounts gelesen: %d Schiffe" % len(mounts))
+    STATS["Mounts"] = len(mounts)
     # F103: frames and outlines from the models (tools/pof/mkoutline.py)
     outlines = {}
     if os.path.exists(args.outlines):
         with open(args.outlines, encoding="utf-8") as fh:
             outlines = json.load(fh)
-    print("Umrisse gelesen: %d Bilder" % len(outlines))
+    STATS["Umrisse"] = len(outlines)
 
     with open(args.game, encoding="utf-8") as fh:
         html = fh.read()
@@ -568,17 +664,15 @@ def main():
     only_sprite = sorted(set(sprites) - set(mounts))
     only_mount = sorted(set(mounts) - set(sprites))
     for key in only_sprite:
-        print("  WARNUNG: Sprite '%s' (%s) hat keine Mounts" % (key, sprites[key][1]))
+        warn("WARNUNG: Sprite '%s' (%s) hat keine Mounts" % (key, sprites[key][1]))
     for key in only_mount:
-        print("  WARNUNG: Mounts fuer '%s' vorhanden, aber kein Sprite" % key)
+        warn("WARNUNG: Mounts fuer '%s' vorhanden, aber kein Sprite" % key)
 
     # --- Abgleich Spielcode <-> Sprites ---
     dangling = sorted(referenced_keys(html) - set(sprites))
     if dangling:
-        print("\n  Diese Keys stehen noch im Spielcode, es gibt aber kein Sprite dazu:")
-        for key in dangling:
-            print("    %s" % key)
-        print("  (ROLES und BEAM_DEFS muessen darauf angepasst werden.)")
+        warn("WARNUNG: diese Keys stehen im Spielcode, haben aber kein Sprite: %s"
+             % ", ".join(dangling) + " (ROLES und BEAM_DEFS anpassen)")
 
     # --- SPR_DATA ersetzen ---
     block = find_block(html, "const SPR_DATA=")
@@ -593,7 +687,7 @@ def main():
     if block:
         html = html[:block[0]] + render_icons(icons) + html[block[1]:]
     elif icons:
-        print("  WARNUNG: ICON_DATA nicht in der Spieldatei gefunden, Icons wurden nicht eingebaut")
+        warn("WARNUNG: ICON_DATA nicht in der Spieldatei gefunden, Icons wurden nicht eingebaut")
 
     # --- PLANET_DATA und SUN_DATA ersetzen ---
     for name, data in (("PLANET_DATA", planets), ("SUN_DATA", suns)):
@@ -601,8 +695,8 @@ def main():
         if block:
             html = html[:block[0]] + render_bodies(name, data) + html[block[1]:]
         elif data:
-            print("  WARNUNG: %s nicht in der Spieldatei gefunden, %d Bilder wurden nicht eingebaut"
-                  % (name, len(data)))
+            warn("WARNUNG: %s nicht in der Spieldatei gefunden, %d Bilder wurden nicht eingebaut"
+                 % (name, len(data)))
 
     # --- vorhandenen MOUNTS-Block aus einem frueheren Lauf entfernen ---
     tail = html.find("const MOUNTS=", html.find("const MOUNTS=") + 1)
@@ -616,19 +710,21 @@ def main():
     if ver:
         html, n = re.subn(r"const GAME_VERSION='[^']*'",
                           "const GAME_VERSION='%s'" % ver, html, count=1)
-        print("Version: %s%s" % (ver, "" if n else "  (GAME_VERSION nicht gefunden!)"))
+        STATS["Version"] = ver
+        if not n:
+            warn("WARNUNG: GAME_VERSION nicht in der Spieldatei gefunden!")
     else:
-        print("  WARNUNG: aus '%s' laesst sich keine Version lesen, es bleibt bei 'dev'"
-              % os.path.basename(args.game))
+        warn("WARNUNG: aus '%s' laesst sich keine Version lesen, es bleibt bei 'dev'"
+             % os.path.basename(args.game))
 
     # --- Spieltempo ueberschreiben ---
     if args.hz is not None:
         hz = max(30, min(200, args.hz))
         html, n = re.subn(r"const TICK_HZ = \d+", "const TICK_HZ = %d" % hz, html, count=1)
         if n:
-            print("Spieltempo auf %d Hz gesetzt" % hz)
+            STATS["Hz"] = hz
         else:
-            print("  WARNUNG: TICK_HZ nicht gefunden, --hz wurde ignoriert")
+            warn("WARNUNG: TICK_HZ nicht gefunden, --hz wurde ignoriert")
 
     html = inline_assets(html)  # resolve @@FS3_ASSET@@ tokens
 
@@ -636,9 +732,44 @@ def main():
         fh.write(html)
 
     size = os.path.getsize(args.out) / (1024 * 1024)
-    print("\nGeschrieben: %s (%.1f MB)" % (args.out, size))
     if args.loader:
         write_loader(args.loader, args.out)
+
+    # --- the short report (Silvio, 16.11.2026) ---
+    print("\nFS3 build %s" % STATS.get("Version", "ohne Versionsnummer"))
+    print("")
+    print("  %-9s %d Planeten, %d Sonnen, %d Icons, %d Dateien"
+          % ("Bilder", STATS.get("Planeten", 0), STATS.get("Sonnen", 0),
+             STATS.get("Icons", 0), STATS.get("Bilddateien", 0)))
+    print("  %-9s %d Sounds, %d Musikstuecke"
+          % ("Klaenge", STATS.get("Sounds", 0), STATS.get("Musik", 0)))
+    print("  %-9s %d Schiffe, %d Dateien, %.0f MB"
+          % ("Modelle", len(STATS.get("names:Modelle", [])),
+             STATS.get("Modelldateien", 0), STATS.get("ModellMB", 0.0)))
+    print("  %-9s %d Mounts, %d Umrisse"
+          % ("Daten", STATS.get("Mounts", 0), STATS.get("Umrisse", 0)))
+    if "Hz" in STATS:
+        print("  %-9s %d Hz" % ("Tempo", STATS["Hz"]))
+
+    if WARN:
+        print("")
+        for line in WARN:
+            print("  " + line)
+
+    state = {"version": STATS.get("Version"),
+             "sprites": STATS.get("names:Sprites", []),
+             "models": STATS.get("names:Modelle", []),
+             "music": STATS.get("names:Musik", []),
+             "planets": STATS.get("names:Planeten", []),
+             "suns": STATS.get("names:Sonnen", []),
+             "icons": STATS.get("names:Icons", []),
+             "sounds": STATS.get("Sounds"), "mounts": STATS.get("Mounts"),
+             "outlines": STATS.get("Umrisse")}
+    print_changes(read_state(), state)
+    write_state(state)
+
+    print("\n  Fertig: %s (%.1f MB)%s"
+          % (args.out, size, ", Ladeseite geschrieben" if STATS.get("Ladeseite") else ""))
 
 
 if __name__ == "__main__":

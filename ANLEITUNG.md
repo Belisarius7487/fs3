@@ -53,7 +53,17 @@ sudo ./build.sh
 ```
 
 **Erwartete Ausgabe:** `git pull` nennt die geänderten Dateien. `build.sh`
-läuft ein bis zwei Minuten und endet ohne das Wort `error`.
+läuft ein bis zwei Minuten und endet mit einer kurzen Übersicht: Version,
+Zahlen zu Bildern, Klängen, Modellen und Daten, dann etwaige Warnungen,
+dann „Geändert seit dem letzten Bau" und zuletzt „Fertig: …".
+
+Zwei Dinge sind es wert, dort hinzusehen: ob die **Version** die ist, die
+ich dir genannt habe, und was unter **„Geändert seit dem letzten Bau"**
+steht — daran siehst du, ob wirklich angekommen ist, was ich geliefert
+habe. Jede Zeile mit `WARNUNG` schickst du mir.
+
+Brauchst du einmal die alte, ausführliche Ausgabe mit jeder einzelnen
+Datei: `sudo ./build.sh --laut`.
 
 **Stopp-Punkt:** Kommt bei `git pull` das Wort `conflict`, **abbrechen und
 mir die Ausgabe schicken.** Nicht weitermachen.

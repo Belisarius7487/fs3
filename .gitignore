@@ -22,3 +22,4 @@ checks.fieldsim.log
 checks.warpsim.log
 checks.full.*.log
 v2*.log
+.build_state.json
