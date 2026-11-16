@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-Stand: Silvio hat v230 im Browser getestet; v231 liegt zum Test bereit.
+Stand: v308 ausgeliefert und getestet; F104 erledigt. Offen zum Bauen: F108, F109, F110, F111, F112. F106 und F107 sind gebaut (v292), Silvios Urteil steht aus.
 
 ---
 
@@ -2617,7 +2617,9 @@ sechs Frachter, Taurus und Kappa, haben einen Wirbel.)
 Brave lief unter Windows (derselbe Rechner). Nicht nachgestellt; zurückgestellt,
 bis Silvio es wieder sieht (dann: waren die Taurus beim Eintreffen im Bild?).
 
-### F104 — Mikroruckler alle paar Sekunden, besonders in M6 (v287) — offen
+### F104 — Mikroruckler alle paar Sekunden, besonders in M6 (v287) — ERLEDIGT (v308)
+
+**Status (Silvio, 16.11.2026): „F104 scheint gelöst zu sein.“** Behoben mit v308; die Schritte 3 und 4 der Optimierung (siehe „Weg für den nächsten Chat“ unten) wurden nicht mehr gebraucht und bleiben liegen, bis eine neue Meldung kommt.
 
 Silvio, 15.11.2026: „Und über allem liegt immer noch das Problem mit den
 Rucklern."
