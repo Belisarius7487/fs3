@@ -2918,9 +2918,64 @@ Sekundenraster eingrenzen: je Variante mindestens 8 Rasterpunkte, Teile von
 Schiffe), und prüfen, ob es mit weniger gehaltenen Flächen verschwindet
 (Randlicht: 48 Richtungen × 12 Formen × 2 kleine Flächen).
 
-**Weg für den nächsten Chat (15.11.2026):**
-- Stand: **v305**, Schritt 1 und 2 von 4 gebaut; Lag-Log aus Brave zu v305
-  steht aus. Offen: Schritt 3 (übrige Leuchtpunkte: `glowAt` in
+**Sekundenraster eingegrenzt (16.11.2026, eingebauter Browser auf Silvios PC,
+Chrome 156, v305 vom Dev-Server, M6, 1196×747):**
+- Wiederholbar: Mission starten, 60 Schritte, `update()` einfrieren → jeder
+  Rasterpunkt trifft (7 von 7, Abstand 1008–1017 ms, +20–27 ms Wartezeit auf
+  den Grafikprozess bei sonst 6–8 ms). Das Raster läuft über alle Messungen
+  einer Sitzung als **eine** durchgehende Reihe weiter.
+- **Kein Zeitgeber der Seite:** es tritt auch in einer Schleife auf, die den
+  Hauptfaden nie freigibt. Es entsteht im Grafikprozess des Browsers, jeweils
+  1 s nach dem Ende des letzten Stockens.
+- **Echt, nicht nur ein Messfehler:** im echten Bildtakt (60 Hz, die Schleife
+  des Spiels, ohne Rücklesen; gemessen mit einer WebGL2-Sperre `fenceSync`,
+  die nichts blockiert) braucht der Grafikprozess an 8 von 10 Rasterpunkten
+  16–22 ms statt 6,7 ms — also etwa ein verlorenes Bild je Sekunde.
+- **Nicht schuld** (jeweils weggelassen, Raster bleibt, 6 von 6): Nebel/
+  Sterne/Planeten, obere Leiste, 3D-Schiffe (`f3dFlush`), Randlicht der
+  Asteroiden, Wirbel und Triebwerke, alle Einblendungen über dem Feld.
+- **Es gibt es nur in ruhigen Bildern.** Sobald Explosionsbilder
+  (`drawFxAnims`) oder Partikel/Schüsse gezeichnet werden, ist es weg (fc 300
+  und 680: 0 in 27 s); lässt man dort genau diese drei weg, ist es sofort
+  wieder da (6 von 6), viermal hin und her geschaltet. Das passt zu Silvios
+  Hängern „bei 0 Partikeln und 0 Schüssen“ und zu „gerade anfangs der Mission“.
+- **Was es abstellt:** ein einziges, stark verkleinertes Stück aus dem
+  Explosionsbogen je Bild (`FX_IMG.exp05`, 128 → 8 Punkte), egal ob normal
+  oder additiv gemischt: 0–1 von 6. **Was nicht hilft:** dasselbe Stück
+  vergrößert (128 → 200), ein kleines eigenes Bild verkleinert (64 → 8),
+  200 additive Kopien eines kleinen Bildes, der Sammelzeichner mit 50
+  Leuchten je Bild (527 Ausgaben). Vermutung, ungeprüft: der Grafikprozess
+  hält die Zeichenfläche für untätig und räumt nach 1 s seine Vorräte weg,
+  die das nächste Bild neu anlegen muss; das stark verkleinerte Zeichnen aus
+  einer großen Fläche (Verkleinerungsstufen) zählt bei ihm als Benutzung.
+- Nebenbefund derselben Messung (Wartezeit je Bild, alles 17,2 ms): ohne
+  Randlicht 10,2 ms, ohne Leiste 12,8 ms, ohne 3D 14,7 ms. Das Randlicht ist
+  also der größte Einzelposten im Grafikprozess (Schritt 4).
+
+**v306 (16.11.2026):** `fxKeepAlive()` (63_fxanim.js) zeichnet in jedem Bild
+des Spiels direkt nach dem Löschen ein solches Stück in die Ecke oben links
+(8×8 Gerätepunkte, 1/255 der Helligkeit, von der Leiste überdeckt). Gemessen
+(eingespielt in v305): Schleife ohne Bildtakt 0 von 6 gegen 3 von 5, zweimal;
+im Bildtakt mit der Sperre 0 Rasterpunkte in 8 s gegen 8 von 10. Schalter zum
+Vergleichen: `&ka=0` lässt es weg. Szenario „v306 F104“ (schlägt gegen v305
+fehl; ein Stück je Bild, als Erstes, Ecke unverändert). **Offen: ob Brave
+dasselbe Raster hat und ob es dort damit verschwindet** — Silvio vergleicht
+mit und ohne `&ka=0`. Die Sperre misst auch in Brave (Konsole), falls der
+Augenschein nicht reicht.
+
+**Weg für den nächsten Chat (16.11.2026):**
+- Stand: **v306** (Sekundenraster, siehe oben), davor Schritt 1 und 2 von 4
+  gebaut; Silvios Vergleich in Brave mit und ohne `&ka=0` steht aus.
+- Messen des Rasters: `launchGame()`, 60 × `update()`, dann einfrieren und
+  in einer Schleife `draw()` + Rücklesen über die 1×1-Hilfsfläche; ein
+  Rasterpunkt ist ein Bild mit > Median + 12 ms. Zum Vergleich Funktionen
+  durch Leerfunktionen ersetzen (globale Funktionen: `window.name = …`).
+  Nach einem Wechsel läuft das Raster noch einen Punkt nach bzw. braucht
+  einige Sekunden, bis es wieder anläuft — je Variante mindestens 6 s.
+  Im Bildtakt nur messen, solange die Seite sichtbar ist
+  (`document.visibilityState`); liegt ein anderes Fenster über der
+  Claude-App, steht `requestAnimationFrame` still.
+- Offen: Schritt 3 (übrige Leuchtpunkte: `glowAt` in
   20_render.js, 63_fxanim.js, 64_repair.js; die 5000 im Pausebildschirm),
   Schritt 4 (Randlicht, `rockLightBake()`), und der Kandidat oben (3D-Kopien
   ohne `drawImage()`).

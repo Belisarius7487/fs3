@@ -115,6 +115,28 @@ const FX_MIN_PX = 12;           // an explosion is never smaller on the screen
 // F104 (v302): test switch &lag=1 (or 3) - explosion pictures not drawn,
 // to see in Brave whether the hitches come from them. Not for play.
 const LAG_TEST = (typeof urlNum === 'function') ? Math.round(urlNum('lag', 0, 0, 3)) : 0;
+// F104 (v306): measured in the built-in browser (Chromium), real frame
+// loop: while a frame draws nothing from an explosion sheet - a quiet field,
+// the start of a mission - the browser's graphics process stalls for
+// 15-25 ms about once a second (a grid of ~1010 ms; it seems to take the
+// canvas for idle and to drop what it keeps for it). That is a dropped
+// frame every second. One tiny, strongly reduced copy from the explosion
+// sheet per frame stops it (0 of 6 grid points against 6 of 6, three
+// times). It is drawn right after the frame is cleared, in the corner the
+// bar covers, at 1/255 of its brightness. Other small copies do not help:
+// not from a small canvas, not enlarged, not through WebGL.
+// Switch for comparing in the browser: &ka=0 leaves it out.
+const FX_KEEP = (typeof urlNum === 'function') ? urlNum('ka', 1, 0, 1) : 1;
+function fxKeepAlive(){
+  if(!FX_KEEP || FX_OK !== true) return;
+  const im = FX_IMG.exp05;
+  if(!im || !im.width) return;
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 0.004;
+  ctx.drawImage(im, 0, 0, 128, 128, 0, 0, 8, 8);
+  ctx.restore();
+}
 function drawFxAnims(){
   if(LAG_TEST & 1) return;
   if(!FX_ANIMS.length || !fxReady()) return;

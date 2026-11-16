@@ -24,6 +24,8 @@ function draw(){
   ctx.setLineDash([]);
   if(DIAG_TRACE) diagTraceStart();
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  // F104 (v306): keeps the browser's graphics process from stalling once a second
+  if(GS==='playing' && typeof fxKeepAlive==='function') fxKeepAlive();
   if(GS==='playing' && subspaceOn()) drawSubspace();
   else { drawNebula(); drawStars(); drawBodies(); }   // v213: the stars behind the planets
 

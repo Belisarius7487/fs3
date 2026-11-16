@@ -6511,6 +6511,34 @@ scenario('v305 F104: bolts in one WebGL call look like the 2D ones', 'm=6', `
   r.diff = diff(A, B).toFixed(3) + ' / ' + diff(C, D).toFixed(3) + ' calls ' + A.n + ' -> ' + B.n + ', with bomb ' + C.n + ' -> ' + D.n;
   pBullets.length = 0; eBullets.length = 0; for(const b of keepP) pBullets.push(b); for(const b of keepE) eBullets.push(b);
   return r;`);
+scenario('v306 F104: a quiet frame still draws one small copy from the explosion sheet', 'm=6', `
+  const r = {};
+  FS.step(20);
+  r.helper = typeof fxKeepAlive === 'function';
+  if(!r.helper) return r;
+  r.sheets = fxReady() && !!FX_IMG.exp05;
+  if(!r.sheets) return r;
+  const keepA = FX_ANIMS.slice(), keepP = PARTS.slice();
+  FX_ANIMS.length = 0; PARTS.length = 0;
+  const count = function(){
+    let n = 0, first = -1, all = 0; const d0 = ctx.drawImage;
+    ctx.drawImage = function(im){ if(im === FX_IMG.exp05 && arguments[7] === 8 && arguments[8] === 8){ n++; if(first < 0) first = all; } all++; return d0.apply(this, arguments); };
+    try{ draw(); } finally { delete ctx.drawImage; }
+    return {n: n, first: first};
+  };
+  const A = count();
+  r.oncePerFrame = A.n === 1;
+  r.beforeAllElse = A.first === 0;       // right after the clear, under everything
+  // the corner it is drawn in belongs to the bar: the picture is the same without it
+  const px = function(){ return Array.from(ctx.getImageData(0, 0, 12, 12).data); };
+  const withIt = px();
+  const keepFn = fxKeepAlive; window.fxKeepAlive = function(){};
+  let without; try{ draw(); without = px(); } finally { window.fxKeepAlive = keepFn; }
+  let dmax = 0; for(let i = 0; i < withIt.length; i++) dmax = Math.max(dmax, Math.abs(withIt[i] - without[i]));
+  r.invisible = dmax === 0;
+  r.diff = 'corner differs by ' + dmax + ' of 255';
+  for(const a of keepA) FX_ANIMS.push(a); for(const q of keepP) PARTS.push(q);
+  return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);
