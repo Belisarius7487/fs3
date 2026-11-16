@@ -3100,7 +3100,8 @@ bei 0:00 im dunklen Bild — 217 ms (update 6 / draw 148 / elsewhere 63, nach
 „warm-up 93 ms: 1 hulls, 12 rock sheets, 29 pictures; warp in deorionright")
 und 100 ms. Danach in M6 (1:20) keiner, in M7 (1:29) keiner, in M8 (erste 3 s)
 keiner. Der 2,1-s-Hänger aus dem Chrome-Lauf von v307 trat nicht auf.
-Stand: ein Lauf; ob Brave oder Chrome, ist nicht bekannt.
+Browser: **Brave** (Silvio, 16.11.2026). Stand: ein Lauf; in Chrome
+nicht nachgemessen, dort war in v307 der 2,1-s-Hänger.
 
 **Weg für den nächsten Chat (16.11.2026):**
 - Stand: **v308** (Randlicht als Sammelbild, Lag-Log berichtigt; Silvio hört
