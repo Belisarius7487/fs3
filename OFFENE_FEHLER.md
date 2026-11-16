@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 16.11.2026, v309)
+## Lage — als Erstes lesen (Stand 16.11.2026, v310)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -39,7 +39,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht |
 |---|---|
-| F103 | Die 2D-Sprites sollen verschwinden. Etappe 1 bis 3 sind gebaut und **abgenommen** (Silvio, 16.11.2026, zu den großen Schiffen aus v289: „Bisher hab ich nichts gesehen, was schief sitzt"). **Nächster großer Posten: Etappe 4, das Aufräumen** — `SPR_DATA` mit 121 Sprites (13,8 MB von 31 MB Spieldatei), der Sprite-Teil des Packers, die Sprite-Zeichenwege, `&f3d=0` und am Ende der Sprite-Ordner auf dem Server. Bis dahin baut `build.sh` die Sprites weiter ein. Eigener Bauzyklus, am besten ein eigener Chat. |
+| F103 | **Etappe 4 läuft** (Silvio, 16.11.2026: „Du kannst gerne die Aufräumetappe starten“). Schritt 1 gebaut in v310: die Bilder in Schiffsliste, Infokarte und Rufmenü kommen aus dem Modell. Noch offen: Schadensbeschnitt (`dmgBuild`) auf die Umrisskarte, dann die Sprite-Zeichenwege und `&f3d=0` weg, zuletzt `SPR_DATA` (13,8 MB von 31 MB), der Sprite-Teil des Packers und der Sprite-Ordner. Etappe 1 bis 3 sind **abgenommen** (Silvio, 16.11.2026, zu den großen Schiffen aus v289: „Bisher hab ich nichts gesehen, was schief sitzt"). **Nächster großer Posten: Etappe 4, das Aufräumen** — `SPR_DATA` mit 121 Sprites (13,8 MB von 31 MB Spieldatei), der Sprite-Teil des Packers, die Sprite-Zeichenwege, `&f3d=0` und am Ende der Sprite-Ordner auf dem Server. Bis dahin baut `build.sh` die Sprites weiter ein. Eigener Bauzyklus, am besten ein eigener Chat. |
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -55,7 +55,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v309 gebaut und ausgeliefert.
+Stand: v310 gebaut (F103 Etappe 4, Schritt 1).
 
 ---
 
@@ -3476,6 +3476,29 @@ Mount-Datei, `F3D_VIEW` und `F3D_ALIAS` liest das Werkzeug aus
 - Noch offen für Etappe 3: `FS.fakeImages()` (`fieldsim.js`,
   `tools/shot.js`) kann die echten Rahmen aus `hlp_outlines.json` nehmen
   statt grauer Flächen fester Größe.
+
+**Etappe 4 — Schritt 1 gebaut in v310 (16.11.2026).** Gemessen in v309
+(fieldsim M6, jeder Lesezugriff auf `IMGS` mitgeschrieben): die Sprites
+werden fast nur noch als **Maß** gelesen (`onHull`, `hullScale`, `eBox`,
+`pBox`, `halfH`, `shipBound`, `mountList`, `updateItems`), und diese Maße
+sind seit Etappe 3 schon die des Modells — `f103Canvas()` streckt das Sprite
+auf eine Leinwand im Modellrahmen. Wirklich **gezeichnet** wird das Sprite
+nur noch in den Listenzellen (`drawHullCell`: Schiffsliste, Infokarte,
+Rufmenü), im Rückfall (`drawShip`, `drawRimLight`, nur ohne Modell oder mit
+`&f3d=0`) und als Beschnitt der Schadensmarken (`dmgBuild`).
+
+- **v310:** `m3dStill(key, w, h)` in `58_model3d.js` rendert ein Standbild
+  des Modells (Steuerbord, Bug rechts, wie die Infokarte in Ruhe), einmal je
+  Rumpf und Größe, und behält es. `m3dDraw` bekommt dafür `still:true` und
+  nimmt dann die Overlay-Ebene nicht (die gehört dem einen Fenster mit dem
+  drehenden Modell). `drawHullCell` zeichnet dieses Standbild; nur solange
+  ein Modell fehlt oder noch lädt, tritt das alte Sprite ein. Szenario
+  „v310 F103 stage4“ (schlägt gegen v309 fehl). **In der Cloud nicht
+  sichtbar prüfbar** — dort liegen keine Modelle; Silvio sieht es im Spiel.
+- **Nächste Schritte:** (2) `dmgBuild()` mit der Umrisskarte aus `OUTLINES`
+  beschneiden statt mit dem Sprite-Bild; (3) Sprite-Zeichenwege und `&f3d=0`
+  entfernen, Rümpfe ohne Modell vorher prüfen; (4) `SPR_DATA`, Sprite-Teil
+  des Packers und der Sprite-Ordner auf dem Server.
 
 **Etappe 3 — Reihenfolge (Silvio, 15.11.2026):** „fangen wir klein an" —
 zuerst Jäger und Bomber (Schlüssel `fi…`, `bo…`), dann die übrigen Klassen.
