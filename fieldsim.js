@@ -6911,6 +6911,25 @@ scenario('v309 F111: all transports and freighters marked protect', 'm=15', `
   r.allProtect = ['N1','T1','T2','T3','F1'].every(function(id){ return EV_MARK[id] === 'protect'; });
   return r;`);
 
+// F103 stage 4 (v310): the cells of the ship list, the info card and the
+// call menu take their picture from the model, not from the 2D sprite
+scenario('v310 F103 stage4: list cells take the model picture', 'm=6', `
+  const r = {};
+  FS.step(5);
+  const fake = document.createElement('canvas'); fake.width = 8; fake.height = 8;
+  const proto = Object.getPrototypeOf(ctx), d0 = proto.drawImage;
+  let drawn = null;
+  proto.drawImage = function(im){ drawn = im; return d0.apply(this, arguments); };
+  window.m3dStill = function(){ return fake; };
+  try{ drawHullCell('fimyrmidon', 10, 10, 60, 40, true); }catch(e){ r.err = String(e).slice(0,100); }
+  r.fromModel = drawn === fake;
+  window.m3dStill = function(){ return null; };
+  drawn = null;
+  try{ drawHullCell('fimyrmidon', 10, 10, 60, 40, true); }catch(e){ r.err2 = String(e).slice(0,100); }
+  r.spriteWhileNoModel = !!drawn && drawn !== fake;
+  proto.drawImage = d0;
+  return r;`);
+
 (async()=>{
   const browser = await chromium.launch();
   let fails = 0;

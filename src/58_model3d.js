@@ -200,7 +200,10 @@ function m3dDraw(key, x, y, w, h, o){
   if(L.state !== 'ready') return false;
   const gl = M3D.gl, can = M3D.can, loc = M3D.loc;
   let pw, ph;
-  if(M3D.overlay && typeof CVS !== 'undefined' && CVS.getBoundingClientRect){
+  // F103 stage 4: a still picture (m3dStill) is rendered into M3D.can and
+  // copied out by the caller - it must not take the overlay layer, which
+  // belongs to the one window that shows a turning model.
+  if(M3D.overlay && !o.still && typeof CVS !== 'undefined' && CVS.getBoundingClientRect){
     // place the layer over the box, in CSS pixels, sharp on a HiDPI screen
     const r = CVS.getBoundingClientRect(), sx = r.width / W, sy = r.height / H;
     const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
@@ -251,8 +254,28 @@ function m3dDraw(key, x, y, w, h, o){
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.idx);
     gl.drawElements(gl.TRIANGLES, p.n, p.big ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT, 0);
   }
-  if(!M3D.overlay) ctx.drawImage(can, x, y, w, h);
+  if(!M3D.overlay && !o.still) ctx.drawImage(can, x, y, w, h);
   return true;
+}
+// F103 stage 4 (v310): a still picture of a hull from its model, for the
+// cells of the ship list, the info card and the call menu - where the 2D
+// sprite was drawn until now. Rendered once per hull and size and kept, so
+// a list of nine costs nine renderings once and nothing afterwards. Null
+// while the model is still loading or without WebGL: the caller then falls
+// back to the sprite, until the sprites go with the rest of stage 4.
+const M3D_STILL = {};
+function m3dStill(key, w, h){
+  if(!key || !(w > 0) || !(h > 0) || typeof document === 'undefined') return null;
+  const id = key + '|' + Math.round(w) + 'x' + Math.round(h);
+  if(M3D_STILL[id] !== undefined) return M3D_STILL[id];
+  if(!m3dDraw(key, 0, 0, w, h, {still:true, yaw:M3D_YAW0, pitch:M3D_PITCH0})) return null;
+  try{
+    const c = document.createElement('canvas');
+    c.width = M3D.can.width; c.height = M3D.can.height;
+    c.getContext('2d').drawImage(M3D.can, 0, 0);
+    M3D_STILL[id] = c;
+    return c;
+  }catch(err){ return null; }
 }
 // Called once per frame after everything is drawn: a model that was not
 // drawn this frame (its window closed) takes its layer away.

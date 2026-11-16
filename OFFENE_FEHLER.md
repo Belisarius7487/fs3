@@ -33,7 +33,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F112 | M16–M18: Auftragstexte zu lang, zwei Ziele in einem | v293 |
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
-| F111 | M15: nur ein Teil der Transporter und Frachter war zu beschützen | v309 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
@@ -48,7 +47,9 @@ Brave gesehen, im eingebauten Browser nicht nachstellbar; wartet, bis Silvio
 es wieder sieht).
 
 **Erledigt:** F104 (Mikroruckler, v308 — Silvio 16.11.2026: „F104 scheint
-gelöst zu sein“) und alles andere in dieser Datei. **F1 bis F102 sind
+gelöst zu sein“) und F111 (v309 — Silvio 16.11.2026: „In M15 haben alle
+schutzbedürftigen Schiffe einen blauen Schutzrahmen, wie gewünscht“), und
+alles andere in dieser Datei. **F1 bis F102 sind
 abgeschlossen**; ihre Abschnitte bleiben als Nachweis stehen, sie sind keine
 Arbeitsliste.
 
@@ -2578,7 +2579,7 @@ erst, wenn die Galatea da ist), M18 („Cover the Kappa freighters" und
 entkommt). Szenario „v293 F112". „FS1 M6 Paving … backToFs2" ist schon in
 v292 rot (alte Mission danach), nicht angefasst.
 
-### F111 — M15: nur ein Teil der Transporter und Frachter ist zu beschützen (v290) — behoben in v309, wartet auf Silvios Test
+### F111 — M15: nur ein Teil der Transporter und Frachter ist zu beschützen (v290) — ERLEDIGT (v309; Silvio 16.11.2026: „In M15 haben alle schutzbedürftigen Schiffe einen blauen Schutzrahmen, wie gewünscht“)
 
 **Befund (Silvio, 15.11.2026):** „Mission 15. Es macht keinen Sinn, dass hier
 nur ein Teil der Transporter und Frachter protected werden müssen."

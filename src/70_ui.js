@@ -2760,9 +2760,22 @@ function hangarLayout(tight){
 // stays a column. A sprite that has not loaded leaves the cell empty instead
 // of throwing.
 function drawHullCell(key, x, y, w, h, lit){
+  const p  = 3;
+  // F103 stage 4 (v310): the picture comes from the model. It is already
+  // fitted to the cell and faces starboard, bow to the right, so it is
+  // drawn as it is - no scaling and no mirroring by spriteFacing. Only
+  // while a model is missing or still loading does the old sprite step in.
+  const still = (typeof m3dStill === 'function') ? m3dStill(key, w - p*2, h - p*2) : null;
+  if(still){
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+    ctx.globalAlpha = lit ? HG_PIC_ALPHA : HG_PIC_ALPHA_OFF;
+    ctx.drawImage(still, x + p, y + p, w - p*2, h - p*2);
+    ctx.restore();
+    return;
+  }
   const img = IMGS[key];
   if(!img || !img.width || !img.height) return;
-  const p  = 3;
   const sc = Math.min((w-p*2)/img.width, (h-p*2)/img.height);
   if(!(sc > 0)) return;
   const dw = img.width*sc, dh = img.height*sc;
