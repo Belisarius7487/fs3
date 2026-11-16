@@ -142,7 +142,10 @@ jemand auf sie schießt), `fac` auch an Fracht und Geschützen. Kaperziele
 wie beschossen), `opfer` (die eigene Seite will sie tot; deren Feuer kommt
 an der Kapersperre vorbei). Auslöser: `genommen` (gekapert); `gescannt` und
 `verlaesst` nehmen mehrere Kennungen mit `+`. Ereignisfeld `wenn:{t,a}`: eine
-zweite Bedingung, die zugleich gelten muss.
+zweite Bedingung, die zugleich gelten muss. Ereignisfeld `solange:{t,a}`
+(F108, v309): eine Bedingung, die **nicht** gelten darf — das Ereignis
+bleibt aus, sobald sie zutrifft (M8: der Scan verlangt kein Lahmlegen mehr
+an einem Frachter, der schon lahmgelegt ist).
 
 Seit v254: ein Andockender kann halb um seine Längsachse rollen und unter
 dem Ziel andocken (`rollV`/`rollC` drehen Andockpunkt, Geschütze, Subsysteme

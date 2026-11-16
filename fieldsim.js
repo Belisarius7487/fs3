@@ -6872,6 +6872,45 @@ scenario('F103 stage 3: capital ships framed by their model', 'm=1', `
   r.err = String(F3D.err || '');
   return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
+// F109 (v309): cargo riding on a freighter jumps through her vortex, not
+// through one of its own in front of its own nose (M8, the taken Asmodeus)
+scenario('v309 F109: riding cargo jumps through its freighter vortex', 'm=8', `
+  const r = {};
+  FS.step(60);
+  const F = byId('F1')[0], K1 = byId('K1')[0], K2 = byId('K2')[0];
+  evFire({w:'kapern', a:'F1'});
+  FS.step(8);
+  const g = fsWarp(F), g1 = fsWarp(K1), g2 = fsWarp(K2);
+  r.allJumping = !!(g && g1 && g2);
+  r.oneVortex = r.allJumping && g1.px === g.px && g1.py === g.py && g2.px === g.px;
+  r.sameWay = r.allJumping && g1.fx === g.fx && g2.fx === g.fx;
+  r.led = !!K1._wLead && !!K2._wLead;
+  return r;`);
+// F108 (v309): disabled before the scan, her mark stays on protect
+scenario('v309 F108: scan after the disable keeps the protect mark', 'm=8', `
+  const r = {};
+  FS.step(40);
+  const F = byId('F1')[0];
+  for(const s of F.subs) if(s.id === 'engines' || s.id === 'weapons') s.dead = true;
+  FS.step(10);
+  r.protectFirst = EV_MARK['F1'] === 'protect';
+  r.objCover = /COVER THE ELYSIUM/.test(MLOG.objs.map(function(o){ return o.txt; }).join('|'));
+  for(const k of byId('K2')) k.scanned = true;
+  FS.step(15);
+  r.stillProtect = EV_MARK['F1'] === 'protect';
+  r.objKept = /COVER THE ELYSIUM/.test(MLOG.objs[MLOG.objs.length-1].txt);
+  r.noDisableAsked = !/DISABLE THE ASMODEUS/.test(MLOG.objs.map(function(o){ return o.txt; }).join('|'));
+  r.mark = String(EV_MARK['F1']);
+  r.objs = JSON.stringify(MLOG.objs.map(function(o){ return o.txt + ':' + o.st; }));
+  return r;`);
+// F111 (v309, Silvio): every transport and freighter of M15 is to be protected
+scenario('v309 F111: all transports and freighters marked protect', 'm=15', `
+  const r = {};
+  FS.step(30);
+  r.marks = JSON.stringify(['N1','T1','T2','T3','F1'].map(function(id){ return id + ':' + EV_MARK[id]; }));
+  r.allProtect = ['N1','T1','T2','T3','F1'].every(function(id){ return EV_MARK[id] === 'protect'; });
+  return r;`);
+
 (async()=>{
   const browser = await chromium.launch();
   let fails = 0;

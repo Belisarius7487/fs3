@@ -109,6 +109,12 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
       else if(!TRIG_NO_ID.has(e.wenn.t))
         for(const id of String(e.wenn.a).split('+')) if(!ids.has(id)) bad.push(where + ': wenn points at missing id ' + id);
     }
+    // F108 (v309): solange, a condition that must not hold - checked like wenn.
+    if(e.solange){
+      if(!TRIGGERS.has(e.solange.t)) bad.push(where + ': unknown trigger in solange "' + e.solange.t + '"');
+      else if(!TRIG_NO_ID.has(e.solange.t))
+        for(const id of String(e.solange.a).split('+')) if(!ids.has(id)) bad.push(where + ': solange points at missing id ' + id);
+    }
     // v253: ships told to run, several with '+'.
     if(e.w === 'fliehen')
       for(const id of String(arg).split('+')) if(!ids.has(id)) bad.push(where + ': fliehen points at missing id ' + id);

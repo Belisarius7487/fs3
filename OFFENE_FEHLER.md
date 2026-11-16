@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-Stand: v308 ausgeliefert und getestet; F104 erledigt. Offen zum Bauen: F108, F109, F110, F111, F112. F106 und F107 sind gebaut (v292), Silvios Urteil steht aus.
+Stand: v309 gebaut (F108, F109, F111). Silvios Urteil steht aus zu F106 und F107 (gebaut in v290/v292), F110 und F112 (gebaut in v293) und zu v309. Zurückgestellt: F105 (nicht nachstellbar), F103 Etappe 3.
 
 ---
 
@@ -2539,10 +2539,17 @@ erst, wenn die Galatea da ist), M18 („Cover the Kappa freighters" und
 entkommt). Szenario „v293 F112". „FS1 M6 Paving … backToFs2" ist schon in
 v292 rot (alte Mission danach), nicht angefasst.
 
-### F111 — M15: nur ein Teil der Transporter und Frachter ist zu beschützen (v290) — offen
+### F111 — M15: nur ein Teil der Transporter und Frachter ist zu beschützen (v290) — behoben in v309, wartet auf Silvios Test
 
 **Befund (Silvio, 15.11.2026):** „Mission 15. Es macht keinen Sinn, dass hier
 nur ein Teil der Transporter und Frachter protected werden müssen."
+
+Im Code nachgesehen: nur die Iota trug `mark:'protect'`. Sigma, Omega, die
+Nelson und die drei Pi-Frachter trugen keine Markierung — in M9 tragen alle
+Frachter und ihre Ladung sie. **v309:** alle sechs bekommen sie dazu. Die
+Markierung ist nur der Auftragsrahmen (`EV_MARK`), sie ändert die
+Auswertung der Mission nicht: Hauptauftrag bleibt die Iota. Szenario
+„v309 F111" (schlägt gegen v308 fehl).
 
 ### F110 — M14: „Delivered" statt „Escaped" im Pause-Log (v290) — offen
 
@@ -2553,13 +2560,27 @@ Missionsobjective im Pause-Log." (Bild: „0:30 THE TRANSPORT GOT AWAY",
 **v293:** „DELIVERED" nur noch, wenn das Schiff etwas trug oder abholen
 sollte; sonst „ESCAPED" (grün).
 
-### F109 — M8: Fracht-Container springen in die falsche Richtung (v290) — offen
+### F109 — M8: Fracht-Container springen in die falsche Richtung (v290) — behoben in v309, wartet auf Silvios Test
 
 **Befund (Silvio, 15.11.2026):** „Desweiteren, wenn der Frachter dann
 gekapert wurde, warpen die Frachtcontainer in die entgegengesetzte Richtung
 zur Flugrichtung des Frachters und des kapernden Elysium-Transporters raus."
 
-### F108 — M8: Asmodeus vor dem Scan lahmgelegt → Auftragsrahmen vertauscht (v290) — offen
+**Ursache (gemessen, nicht vermutet)** in M8 beim Kapern (v308): die
+Asmodeus 2 hat ihre Nase rechts, ihr Wirbel steht bei x=1780 — die beiden
+Container haben ihre Nase links, ihre Wirbel stehen bei x=1519 und x=1570,
+also auf der anderen Seite. `dockPartner()` kennt nur getragene
+(`carrier`) und angedockte (`dockedOn`) Ladung; Ladung, die von Anfang an
+auf einem Frachter reitet (`ride`), stand nicht darin. Sie bekam deshalb
+keinen gemeinsamen Wirbel (`_wLead`) und öffnete einen eigenen vor ihrer
+eigenen Nase.
+
+**v309:** `dockPartner()` gibt für ein reitendes Stück Ladung ihren
+Frachter zurück. Damit springt sie durch dessen Wirbel, auf dessen Uhr —
+dieselbe Regel, die F100 für aufgenommene Ladung festgelegt hat. Szenario
+„v309 F109" (schlägt gegen v308 fehl).
+
+### F108 — M8: Asmodeus vor dem Scan lahmgelegt → Auftragsrahmen vertauscht (v290) — behoben in v309, wartet auf Silvios Test
 
 **Befund (Silvio, 15.11.2026):** „Mission 8. Wenn man den Asmodeus Frachter
 disabled, bevor man die Fracht darauf gescannt hat, vertauschen sich die Ziele
@@ -2569,6 +2590,19 @@ ihn kapern kann. Disabled man den Frachter bevor man die Frachtcontainer
 gescannt hat, wechselt die Umrandung des Frachters zu blau für Protect.
 Scannt man dann die Frachtcontainer, wechselt die Umrandung zu gelb für
 Disable, obwohl man ihn schon disabled hat."
+
+**Ursache (im Code nachgesehen):** zwei Ereignisse setzen die Markierung,
+und der Spieler kann ihre Reihenfolge umdrehen. Der Scan setzt
+`F1:disable`, das Lahmlegen setzt `F1:protect`. Gemessen in v308: nach dem
+Scan steht die Markierung auf `disable`, und die Auftragsliste öffnet
+„DISABLE THE ASMODEUS 2" neu und zählt „COVER THE ELYSIUM" als erledigt.
+
+**v309:** neues Ereignisfeld `solange:{t,a}` — eine Bedingung, die nicht
+gelten darf, damit das Ereignis feuert (Gegenstück zu `wenn`). In M8 tragen
+der Scan-Auftrag und die Scan-Markierung `solange:{t:'subsystem', a:'F1',
+b:'engines+weapons'}`: ist sie schon lahmgelegt, bleiben beide aus, der
+Scan meldet nur noch den Fund. Szenario „v309 F108" (schlägt gegen v308
+fehl).
 
 ### F107 — Feindliche Frachter ohne Ladung zählen als verfehltes Ziel (v289) — offen
 

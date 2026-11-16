@@ -949,6 +949,14 @@ function dropCargo(c){
 function dockPartner(e){
   if(e.carrier && unitAlive(e.carrier)) return e.carrier;
   if(e.dockedOn && unitAlive(e.dockedOn)) return e.dockedOn;
+  // F109 (v309): cargo that rides on a freighter from the start (ride) is
+  // in her jump as well. Without this it opened a vortex of its own, in
+  // front of its own nose - which points the other way than hers, so the
+  // containers of the captured Asmodeus jumped out backwards (M8, Silvio).
+  if(e.rideId){
+    const f = byId(e.rideId).find(function(o){ return !o.dead; });
+    if(f) return f;
+  }
   return null;
 }
 function tickDockWarp(){
@@ -2845,8 +2853,13 @@ const SCRIPT_WAVES = {
        {t:'beschossen', a:'F3', w:'fliehen', a2:'F1+F2+F3'},
        // the scans
        {t:'gescannt', a:'K2', w:'meldung', a2:'Shield prototypes found'},
-       {t:'gescannt', a:'K2', w:'ziel', a2:'Disable the Asmodeus 2 - engines and weapons'},
-       {t:'gescannt', a:'K2', w:'markieren', a2:'F1:disable'},
+       // F108 (v309, Silvio): disable her before the scan and these two
+       // must not come - the objective would ask for what is already done,
+       // and her mark would go back from protect to disable.
+       {t:'gescannt', a:'K2', w:'ziel', a2:'Disable the Asmodeus 2 - engines and weapons',
+        solange:{t:'subsystem', a:'F1', b:'engines+weapons'}},
+       {t:'gescannt', a:'K2', w:'markieren', a2:'F1:disable',
+        solange:{t:'subsystem', a:'F1', b:'engines+weapons'}},
        {t:'gescannt', a:'K1', w:'meldung', a2:'Container scanned - nothing'},
        {t:'gescannt', a:'K3', w:'meldung', a2:'Container scanned - nothing'},
        {t:'gescannt', a:'K4', w:'meldung', a2:'Container scanned - nothing'},
@@ -3151,15 +3164,15 @@ const SCRIPT_WAVES = {
   15:{name:'The Aftermath', era:'fs1', orig:11, ship:'fivalyrie', pri:['avenger','avenger'], fac:'hol', o:'clear', live:6,
       hunt:'N1', ziel:'Escort Iota to the Pinnacle', u:[
        {id:'A1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
-       {id:'N1', c:'fr', n:1, spr:'frchronos', side:'ally', x:300, y:140, cross:0.15, label:'GTFr Nelson'},
+       {id:'N1', c:'fr', n:1, spr:'frchronos', side:'ally', x:300, y:140, cross:0.15, mark:'protect', label:'GTFr Nelson'},
        // They wait where they are until the Pinnacle is there (tickDocking
        // holds a dock whose target has not arrived yet), then meet her.
        {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:150, y:200,
         dockTo:'P1', dockBeside:-90, dockHold:4, dockLabel:'TRANSFER', mark:'protect', label:'Iota'},
        {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:110, y:300,
-        dockTo:'P1', dockBeside:0, dockHold:4, dockLabel:'TRANSFER', label:'Sigma'},
+        dockTo:'P1', dockBeside:0, dockHold:4, dockLabel:'TRANSFER', mark:'protect', label:'Sigma'},
        {id:'T3', c:'tr', n:1, spr:'trisis', side:'ally', x:150, y:400,
-        dockTo:'P1', dockBeside:90, dockHold:4, dockLabel:'TRANSFER', label:'Omega'},
+        dockTo:'P1', dockBeside:90, dockHold:4, dockLabel:'TRANSFER', mark:'protect', label:'Omega'},
        {id:'E1', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', wait:true},
        {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
        {id:'E2', c:'fi', n:1, size:4, spr:'fibasilisk', fac:'shivan', wait:true},
@@ -3167,9 +3180,9 @@ const SCRIPT_WAVES = {
        {id:'P1', c:'de', n:1, spr:'detyphon', side:'ally', noKill:true, still:true, x:670, y:270,
         wait:true, label:'PVD Pinnacle'},
        {id:'K1', c:'fi', n:1, size:2, spr:'fianubis', side:'ally', wait:true, at:'P1'},
-       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:600, y:110, still:true, warpIn:true, wait:true, label:'Pi 1'},
-       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:740, y:120, still:true, warpIn:true, wait:true, label:'Pi 2'},
-       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:690, y:430, still:true, warpIn:true, wait:true, label:'Pi 3'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:600, y:110, still:true, warpIn:true, wait:true, mark:'protect', label:'Pi 1'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:740, y:120, still:true, warpIn:true, wait:true, mark:'protect', label:'Pi 2'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:690, y:430, still:true, warpIn:true, wait:true, mark:'protect', label:'Pi 3'},
        {id:'S1', c:'fi', n:1, size:4, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'L1', c:'fi', n:1, size:4, spr:'fibasilisk', fac:'shivan', wait:true},
        {id:'L2', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true}
@@ -5295,7 +5308,12 @@ function tickEvents(){
     // d: fire this many seconds after the trigger came true (v177).
     if(ev.at==null){
       // v253: wenn - a second condition that must hold as well.
+      // F108 (v309): solange - a condition that must NOT hold. It keeps an
+      // event from firing once something else has already happened (M8: the
+      // scan no longer asks for a disable on a freighter already dead in
+      // space, which swapped her mission mark back to yellow).
       if(!evTrig(ev) || (ev.wenn && !evTrig(ev.wenn))) continue;
+      if(ev.solange && evTrig(ev.solange)) continue;
       if(ev.d){ ev.at = spawnT + ev.d*TICK_HZ; continue; }
     } else if(spawnT < ev.at) continue;
     ev.done = true;
@@ -5542,7 +5560,7 @@ function buildScripted(def){
     if(u.replace) EV_REPL[u.id] = {u:u, mul:u.replace, hp:u.hp||1};
   }
   EV = (def.ev||[]).map(function(e){
-    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, d:e.d, wenn:e.wenn, hold:e.hold,
+    return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, d:e.d, wenn:e.wenn, solange:e.solange, hold:e.hold,
             at:null, done:false}; });
   return q.sort(function(a,b){ return a.time-b.time; });
 }
