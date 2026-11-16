@@ -3036,6 +3036,30 @@ Fläche wird eine 2×2-Kopie mit 1/255 Deckkraft in die Ecke gezeichnet.
   sind (v307 gegen `&warm=0`, je frisch geladen) und wie lang das dunkle
   Bild dort wird. Erst danach gilt es als behoben.
 
+**Lag-Logs v307 (Silvio, 16.11.2026):** „Zwei Practice Logs. Eins aus Brave,
+das ältere, und eins aus Chrome, das jüngere." Beide M6, danach M7 angespielt.
+- **Brave (15:48):** 13 Hänger, längster 717 ms. 0:00 200 und 717 ms (nach
+  „warp in deorionright; warm-up 101 ms: 1 hulls, 576 rock lights, 1169
+  pictures"), 0:01 67 und 117, 0:04 267, 0:06 250, 0:07 67 und 283 (nach
+  „explosion asteroid"), 0:12 133, dann 0:37 100, 0:39 183, 0:42 67, 0:45 117
+  (nach „damage picture deorionright x3"). Überall update 0–3 / draw 2–4,
+  der Rest „elsewhere".
+- **Chrome (15:51):** 6 Hänger, längster 2100 ms. 0:00 267, 683, 283, 167
+  (warm-up 141 ms, 1169 pictures), dann Ruhe bis 0:12 (117, „explosion
+  asteroid") und **0:13 2100 ms nach „damage picture deorionright"**
+  (update 1 / draw 6).
+- **M7 (keine Asteroiden, warm-up 50–51 ms, 5 pictures):** Brave 67, 167,
+  100, 133 ms in der ersten Sekunde; Chrome 83 und 117 ms.
+- **Was daraus folgt (Claude):** v307 hat das Ziel nicht erreicht. Der
+  dunkle Halt am Anfang von M6 ist rund 0,9 s (Brave) bis 1,4 s (Chrome)
+  statt der angekündigten 0,2–0,4 s; der Unterschied zu M7 sind die 1152
+  kleinen Randlicht-Flächen (rund 0,6 ms je Fläche im Grafikprozess). In
+  Brave sind die ersten Sekunden nicht ruhiger als in v306 (dort 150/100/117
+  ms, jetzt 267/250/283). In Chrome ist 0:01–0:12 ruhig, dafür der
+  2,1-s-Hänger beim ersten Schadensbild der Galatea. **Ursache der 2,1 s
+  nicht bekannt** (in v306 im eingebauten Browser 21–27 + 54 ms, in Brave
+  v307 117 ms); nicht im Spiel nachgestellt.
+
 **Weg für den nächsten Chat (16.11.2026):**
 - Stand: **v307** (Vorwärmen beim Missionsbeginn, Messung bei Silvio offen),
   davor v306 (Sekundenraster) und Schritt 1 und 2 von 4 gebaut; Silvios Vergleich in Brave mit und ohne `&ka=0` steht aus.
