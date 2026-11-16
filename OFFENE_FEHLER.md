@@ -15,7 +15,45 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-Stand: v309 gebaut (F108, F109, F111). Silvios Urteil steht aus zu F106 und F107 (gebaut in v290/v292), F110 und F112 (gebaut in v293) und zu v309. Zurückgestellt: F105 (nicht nachstellbar), F103 Etappe 3.
+## Lage — als Erstes lesen (Stand 16.11.2026, v309)
+
+**Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
+16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
+einem neuen Chat direkt bemerkt werden“). Wer hier etwas einträgt, trägt
+es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
+
+**Gebaut und ausgeliefert, Silvios Urteil fehlt noch:**
+
+| Punkt | Worum es geht | gebaut in |
+|---|---|---|
+| F101 | M11: die Elysium springt rückwärts mit der Ramses heraus | v285 |
+| F106 | M15: Sprungwirbel der Elysium hinter der Pinnacle | v290 |
+| F107 | Feindliche Frachter ohne Ladung zählten als verfehltes Ziel | v292 |
+| F110 | M14: „Delivered“ statt „Escaped“ im Pause-Log | v293 |
+| F112 | M16–M18: Auftragstexte zu lang, zwei Ziele in einem | v293 |
+| F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
+| F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
+| F111 | M15: nur ein Teil der Transporter und Frachter war zu beschützen | v309 |
+
+**Offen, noch nicht gebaut:**
+
+| Punkt | Worum es geht |
+|---|---|
+| F103 | Die 2D-Sprites sollen verschwinden. Etappe 1 (Messen), 2 (Daten aus den Modellen) und 3 (Rahmen und Trefferflächen aus dem Modell: v287 Jäger/Bomber, v288 übrige kleine Rümpfe, v289 große Schiffe) sind gebaut — v287/v288 abgenommen, **Urteil zu v289 offen**. **Etappe 4 (Aufräumen) ist nicht begonnen:** `SPR_DATA` mit 121 Sprites (13,8 MB), der Sprite-Teil des Packers, die Sprite-Zeichenwege und `&f3d=0` stecken noch im Spiel. Bis dahin baut `build.sh` die Sprites weiter ein. |
+| — | Ausgabe von `build.sh` auf das Wesentliche kürzen (Silvio, 16.11.2026; Entwurf abgestimmt: Dateilisten raus, Warnungen bleiben, Sprite-Zeile raus. Zeile „geändert seit dem letzten Bau“ noch zu entscheiden) |
+
+**Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
+Brave gesehen, im eingebauten Browser nicht nachstellbar; wartet, bis Silvio
+es wieder sieht).
+
+**Erledigt:** F104 (Mikroruckler, v308 — Silvio 16.11.2026: „F104 scheint
+gelöst zu sein“) und alles andere in dieser Datei. **F1 bis F102 sind
+abgeschlossen**; ihre Abschnitte bleiben als Nachweis stehen, sie sind keine
+Arbeitsliste.
+
+---
+
+Stand: v309 gebaut und ausgeliefert.
 
 ---
 
@@ -970,7 +1008,7 @@ Mündung schaut auch dort um 180 Grad zurück auf das Schiff.
 
 - Status: gebaut, wartet auf Silvios Test im Browser
 
-### F15 — Das Radar in der Leiste zeigt nicht das ganze Spielfeld
+### F15 — Das Radar in der Leiste zeigt nicht das ganze Spielfeld — ERLEDIGT (v233: das Radar rechnet mit der Welt, WX0/WX1)
 
 **Befund (Silvio, v232):** „Ich hab übrigens noch einen Fehler beim Radar
 oben in der Leiste entdeckt. Das Radar zeigt scheinbar nur den gerade auf dem
@@ -1860,7 +1898,7 @@ der Fall ist."
   500 Welteinheiten (sonst schoss die Galatea mit 29 px je Schritt hinein).
   Gilt für alle Aussprünge; der Einsprung ist unverändert.
 
-### F39 — Die Ersatzwaffen für die Beams im FS1-Strang (v251)
+### F39 — Die Ersatzwaffen für die Beams im FS1-Strang (v251) — ERLEDIGT (geklärt, die Railgun ist bewusst unser Ersatz)
 
 **Befund (Silvio, v251):** „Was mich aber verwirrt sind die Waffeneffekte der
 Waffen, die im FS1Ark die Beams ersetzen. Die scheinen weder Sounds noch
@@ -2514,7 +2552,7 @@ angedocktem Container: „Was soll das?"
   schon in ihrer Tiefe und wird mit ihr gezeichnet (`f3dCargoHost` über
   `_boardBy`).
 
-### F112 — M16, M17, M18: Auftragstexte zu lang, zwei Ziele in einem (v290) — offen
+### F112 — M16, M17, M18: Auftragstexte zu lang, zwei Ziele in einem (v290) — gebaut in v293, wartet auf Silvios Test
 
 **Befund (Silvio, 15.11.2026):** „Mission 16. Die Objective-Texte sind zu
 lang. Statt zwei Objectives in eines zu packen, mach doch zwei draus. Und was
@@ -2551,7 +2589,7 @@ Markierung ist nur der Auftragsrahmen (`EV_MARK`), sie ändert die
 Auswertung der Mission nicht: Hauptauftrag bleibt die Iota. Szenario
 „v309 F111" (schlägt gegen v308 fehl).
 
-### F110 — M14: „Delivered" statt „Escaped" im Pause-Log (v290) — offen
+### F110 — M14: „Delivered" statt „Escaped" im Pause-Log (v290) — gebaut in v293, wartet auf Silvios Test
 
 **Befund (Silvio, 15.11.2026):** „Mission 14. Wenn der Elysium-Transporter
 erfolgreich entkommt, steht Delivered anstelle von Escaped als erfolgreiches
@@ -2604,7 +2642,7 @@ b:'engines+weapons'}`: ist sie schon lahmgelegt, bleiben beide aus, der
 Scan meldet nur noch den Fund. Szenario „v309 F108" (schlägt gegen v308
 fehl).
 
-### F107 — Feindliche Frachter ohne Ladung zählen als verfehltes Ziel (v289) — offen
+### F107 — Feindliche Frachter ohne Ladung zählen als verfehltes Ziel (v289) — gebaut in v292, wartet auf Silvios Test
 
 **Befund (Silvio, 15.11.2026):** „Ebenso habe ich einige Fehler bei den
 Missionsobjectives gesehen. Wenn bspw. feindliche Frachter ihre Ladung nicht
@@ -2621,7 +2659,7 @@ bewachte Ladung); feindliche Ladung, die liegen bleibt, und ein feindlicher
 Frachter ohne Ladung stehen grün im Protokoll. Szenario „v292 F107"
 (schlägt gegen v291 fehl).
 
-### F106 — M15: Sprungwirbel der Elysium hinter der Pinnacle (v289) — offen
+### F106 — M15: Sprungwirbel der Elysium hinter der Pinnacle (v289) — gebaut in v290, wartet auf Silvios Test
 
 **Befund (Silvio, 15.11.2026):** „In der Mission mit der PVD Pinnacle liegt
 die Warpanimation des Elysium-Transporters, der direkt am Heck der Pinnacle
@@ -2640,7 +2678,7 @@ der gemeinsam springt, in einer Gruppe.
 Nach Silvios Bau im echten Spiel angesehen (v290, M15): der Wirbel der Sigma
 steht vor der Pinnacle. Silvios Urteil steht aus.
 
-### F105 — M18: die beiden später kommenden Frachter springen ohne Wirbel ein (v289) — offen
+### F105 — M18: die beiden später kommenden Frachter springen ohne Wirbel ein (v289) — zurückgestellt, nicht nachstellbar
 
 **Befund (Silvio, 15.11.2026):** „In M18 ist mir aufgefallen, dass die beiden
 Frachter, die im Laufe der Mission hereinwarpen, keine Warpanimation haben."
@@ -3541,7 +3579,7 @@ Darstellung auf Windows".
   beleuchtet." — v286 auf cachyOS/Brave mit eingeschalteter
   Hardwarebeschleunigung.
 
-### F101 — M11: die Elysium springt rückwärts mit der Ramses heraus (v284)
+### F101 — M11: die Elysium springt rückwärts mit der Ramses heraus (v284) — gebaut in v285, wartet auf Silvios Test
 
 **Befund (Silvio, 24.10.2026):** „In Mission 11, wenn man es schafft die
 Ramses zu disablen und die Elysium dran andockt, dann kann es je nach
@@ -3771,7 +3809,7 @@ weiter, wenn sie herausgewarpt ist."
 - **Abgenommen (Silvio, 23.10.2026):** „In Mission 8 warpt die Elysium raus,
   wenn der Transporter zerstört wurde."
 
-### F90 — Aspect-Lock zeigt auf die Rumpfmitte statt aufs Subsystem (v270)
+### F90 — Aspect-Lock zeigt auf die Rumpfmitte statt aufs Subsystem (v270) — ERLEDIGT (v272–v275, von Silvio abgenommen)
 
 **Befund (Silvio, 23.10.2026):** „Wenn der Spieler ein Subsystem anvisiert,
 sollte der Aspect-Lock einer Rakete auch aufs Subsystem gehen und nicht auf

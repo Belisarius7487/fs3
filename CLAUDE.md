@@ -13,7 +13,16 @@ und Abbruchpunkt.
 
 **Offene Fehler stehen in `OFFENE_FEHLER.md`.** Das ist die einzige Quelle,
 die eine Cloud-Sitzung dafür hat: sie sieht nur das Repository, keinen
-Chatverlauf und kein Gedächtnis aus früheren Sitzungen. **Meldet Silvio einen
+Chatverlauf und kein Gedächtnis aus früheren Sitzungen.
+
+**Ganz oben in dieser Datei steht der Abschnitt „Lage" — er wird als Erstes
+gelesen und bei jeder Änderung mitgeführt** (Silvio, 16.11.2026: „Bitte
+Änderungen in Zukunft immer so hinterlegen, dass sie in einem neuen Chat
+direkt bemerkt werden"). Dort steht in drei Tabellen, was gebaut und noch
+nicht beurteilt ist, was offen ist und was zurückgestellt wurde. Wer einen
+Punkt baut, abschließt oder neu aufnimmt, ändert die Lage **und** den
+Abschnitt des Punktes, im selben Commit. Alles ohne Eintrag in der Lage ist
+Historie — die alten Abschnitte sind keine Arbeitsliste. **Meldet Silvio einen
 Fehler, wird er dort eingetragen, bevor gebaut wird** — mit seinen eigenen
 Worten, nicht mit einer Deutung davon. Sonst ist er in der nächsten Sitzung
 verloren.
