@@ -2,8 +2,10 @@
 // Silvio's lag log of v306: the first seconds of M6 stutter, later the same
 // mission is smooth. Everything that stuttered was work done for the first
 // time: the jump vortex of the Galatea, her hit map and damage tables, the
-// rim light of every rock that came into view (540-630 new small canvases
-// in seven seconds), the missile trail and the smoke sheet.
+// rim light of the rocks, the missile trail and the smoke sheet.
+// v308: the rim light is one sheet per rock shape (rockLightSheet). In v307
+// it was 1152 small canvases, and handing those to the graphics card took
+// 0.7 s on Silvio's PC - a black second at the start of M6.
 // All of that is done here once, in the darkest picture of the fade-in
 // (arriveT = TRANS_IN, the field is 92 % black), where a longer picture is
 // not seen.
@@ -71,18 +73,15 @@ function missionWarm(){
     }
   }catch(err){}
 
-  // 4. rocks in this mission: every shape with its rim light from every
-  //    side. A rock turns, so all of them are needed within seconds.
+  // 4. rocks in this mission: every shape and its sheet of rim lights
   let rocks = us.some(function(u){ return u.c === 'ast'; });
   if(!rocks && typeof spawnQ !== 'undefined') rocks = spawnQ.some(function(s){ return s.type === 'ast'; });
   if(rocks){
     try{
       for(const t of AST_TEX){
         srcs.push(t.c);
-        for(let q = 0; q < AST_LQ; q++){
-          const L = rockLightBake(t, q);
-          if(L){ srcs.push(L.d, L.m); R.lights++; }
-        }
+        const S = rockLightSheet(t);
+        if(S){ srcs.push(S); R.lights++; }
       }
     }catch(err){}
   }
@@ -105,6 +104,6 @@ function missionWarm(){
   R.ms = ((typeof performance !== 'undefined') ? performance.now() : 0) - t0;
   WARM_LAST = R;
   if(typeof perfNote === 'function')
-    perfNote('warm-up ' + R.ms.toFixed(0) + ' ms: ' + R.hulls + ' hulls, ' + R.lights + ' rock lights, ' + R.srcs + ' pictures');
+    perfNote('warm-up ' + R.ms.toFixed(0) + ' ms: ' + R.hulls + ' hulls, ' + R.lights + ' rock sheets, ' + R.srcs + ' pictures');
   return R;
 }

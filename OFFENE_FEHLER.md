@@ -3060,8 +3060,43 @@ das ältere, und eins aus Chrome, das jüngere." Beide M6, danach M7 angespielt.
   nicht bekannt** (in v306 im eingebauten Browser 21–27 + 54 ms, in Brave
   v307 117 ms); nicht im Spiel nachgestellt.
 
+**v308 (gebaut 16.11.2026; Silvio: „ich verliere langsam jeden Glauben daran,
+dass wir das Problem je gelöst bekommen, also mach einfach. Ich hab keine
+Kraft mehr"):** Schritt 4, Randlicht der Asteroiden.
+- **Ein Sammelbild je Asteroidenform** (`rockLightSheet()`, 528×792, 48
+  Richtungen × Schatten/Rand) statt 1152 Einzelflächen. Jede Zelle ist das
+  Einzelbild von bisher, auf einer 64×64-Fläche gemalt und in die Zelle
+  kopiert — Bit für Bit gleich. (Direkt auf das Sammelbild gemalt weicht
+  derselbe Bogen je nach Zelle um bis zu 4/255 an einem Randpixel ab: der
+  Maler rastet auf 1/64 Pixel.) `rockLightBake(t, q)` gibt jetzt
+  `{s, x, yd, ym}` zurück; `drawRockLight()` zeichnet zwei Ausschnitte.
+- Das Vorwärmen übergibt damit in M6 27 Bilder statt 1169 (ohne Fenster 71 ms
+  beim ersten Mal, 0,2 ms danach).
+- **Lag-Log berichtigt:** `perfFrame()` schreibt zu einem langen Bild jetzt
+  update/draw des Bildes **davor** (das es lang gemacht hat). „elsewhere"
+  heißt ab v308 wirklich „nicht im Code des Spiels". Logs bis v307 sind um
+  ein Bild versetzt zu lesen.
+- Szenario „v308 F104" (schlägt gegen v307 fehl): 192 Zellen gegen das
+  Einzelbild alter Art, Abweichung 0; nichts zwischen den Zellen; ein
+  Sammelbild je Form; Vorwärmen < 40 Bilder; Lag-Log mit den Zeiten des
+  richtigen Bildes. „v303 F104" (Bild gegen die gezeichnete Fassung)
+  unverändert grün.
+- **Nicht nachgestellt:** der 2,1-s-Hänger in Chrome beim ersten Schadensbild
+  der Galatea. Im eingebauten Browser kostete diese Stelle in v306 21–27 +
+  54 ms; ein Nachstellen dort hätte ihn voraussichtlich nicht gezeigt.
+  **Vermutungen, ungeprüft:** (a) die 1152 zusätzlichen Texturen von v307
+  (mit v308 weg), (b) Chrome hatte die Grafikprogramme des Spiels noch nie
+  übersetzt (erster Lauf in diesem Browser), dann wäre er beim zweiten Lauf
+  weg. Mit dem berichtigten Lag-Log zeigt das nächste Log, ob so ein Hänger
+  in `draw()` des Spiels liegt (z. B. Warten auf die Grafikkarte beim
+  Übergeben des Schadensbilds, `f3dDmgBind`) oder außerhalb.
+- **Offen:** Silvios Log von v308 (M6). Erwartet: Halt am Anfang wieder wie
+  in v306 oder kürzer. Ob die ersten Sekunden ruhiger werden, ist nicht
+  gemessen.
+
 **Weg für den nächsten Chat (16.11.2026):**
-- Stand: **v307** (Vorwärmen beim Missionsbeginn, Messung bei Silvio offen),
+- Stand: **v308** (Randlicht als Sammelbild, Lag-Log berichtigt; Silvios Log
+  dazu offen), davor v307 (Vorwärmen beim Missionsbeginn),
   davor v306 (Sekundenraster) und Schritt 1 und 2 von 4 gebaut; Silvios Vergleich in Brave mit und ohne `&ka=0` steht aus.
 - Messen des Rasters: `launchGame()`, 60 × `update()`, dann einfrieren und
   in einer Schleife `draw()` + Rücklesen über die 1×1-Hilfsfläche; ein

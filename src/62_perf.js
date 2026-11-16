@@ -8,6 +8,7 @@ const PERF_LAG_MS = 50;           // a frame longer than this counts as a lag
 const PERF_LOOK_MS = 1000;        // what happened this long before it is listed with it
 const PERF_EV_MAX = 300;          // recent events kept
 let PERF_EV = [];
+let PERF_PREV = null;             // update and draw times of the frame before
 function perfNow(){ return (typeof performance !== 'undefined') ? performance.now() : Date.now(); }
 // never lets an error out: it is called from the loaders, and a throw
 // there left a model "loading" for good (the field test caught it)
@@ -20,6 +21,11 @@ function perfNote(txt){
 // Called once per frame by the main loop: the frame's length and how much
 // of it went to the steps (update) and to drawing.
 function perfFrame(dt, updMs, drawMs, steps){
+  // F104 (v308): dt is the distance to the frame BEFORE this one, so what
+  // made it long is that frame's update and draw, not this one's. Listed
+  // with this frame's times a costly frame of the game read as "elsewhere".
+  const pv = PERF_PREV; PERF_PREV = {upd: updMs, draw: drawMs};
+  if(pv){ updMs = pv.upd; drawMs = pv.draw; }
   if(!(dt > PERF_LAG_MS)) return;
   if(typeof GS !== 'undefined' && GS !== 'playing') return;
   if(typeof paused !== 'undefined' && paused) return;

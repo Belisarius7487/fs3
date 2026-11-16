@@ -87,30 +87,63 @@ buildAsteroids();
 // 73 us a rock and frame (measured; the clip to the outline is most of it).
 // It is now baked once per rock shape and light direction - AST_LQ steps
 // round the circle - and drawn as two pictures turned with the rock.
+// F104 (v308): the 1152 small canvases (12 shapes x 48 directions x 2) are
+// one sheet per shape now. Every one of them was a texture of its own for
+// the graphics card - handed over one by one, 0.6 ms each on Silvio's PC
+// (lag logs of v307: 0.7 s for all of them). A sheet is handed over once.
+// The cells are the single canvases of before, copied side by side.
 const AST_LQ = 48, AST_LPX = 64;
+const AST_LCOLS = 8, AST_LCELL = AST_LPX + 2;     // a transparent pixel round every cell
+const AST_LROWS = Math.ceil(AST_LQ/AST_LCOLS);
+// one light picture of shape t from direction q, its top left at g's origin:
+// kind 0 the shadow on the far side, kind 1 the rim towards the light
+function rockLightPaint(g, t, q, kind){
+  const b = AST_LPX/t.S, la = q/AST_LQ*Math.PI*2, c = t.S/2*b, R = t.R*b;
+  g.save();
+  g.beginPath(); g.moveTo(t.pts[0][0]*b, t.pts[0][1]*b);
+  for(let i=1;i<t.pts.length;i++) g.lineTo(t.pts[i][0]*b, t.pts[i][1]*b);
+  g.closePath(); g.clip();
+  if(kind === 0){ g.strokeStyle = 'rgba(16,13,10,0.50)'; g.lineWidth = R*0.34;
+                  g.beginPath(); g.arc(c, c, R*0.88, la-1.05, la+1.05); g.stroke(); }
+  else          { g.strokeStyle = 'rgba(212,196,164,'+AST_RIM+')'; g.lineWidth = R*0.20;
+                  g.beginPath(); g.arc(c, c, R*0.86, la+Math.PI-1.0, la+Math.PI+1.0); g.stroke(); }
+  g.restore();
+}
+// where a picture lies on the sheet: the shadows in the upper half, the rims below
+function rockLightCellX(q){ return (q % AST_LCOLS)*AST_LCELL + 1; }
+function rockLightCellY(q, kind){ return (((q/AST_LCOLS)|0) + (kind ? AST_LROWS : 0))*AST_LCELL + 1; }
+function rockLightSheet(t){
+  if(t.sheet !== undefined) return t.sheet;
+  let cv = null;
+  try{
+    if(typeof document !== 'undefined'){
+      cv = document.createElement('canvas');
+      cv.width = AST_LCOLS*AST_LCELL; cv.height = 2*AST_LROWS*AST_LCELL;
+      // willReadFrequently: kept in main memory like the small canvases were
+      const g = cv.getContext('2d', {willReadFrequently: true});
+      // Each picture is painted on a canvas of its own size, as before, and
+      // copied to its cell. Painted straight onto the sheet the same arc
+      // comes out up to 4/255 different at an edge pixel, depending on the
+      // cell (the painter snaps to 1/64 pixel) - copied it is the same bit
+      // for bit.
+      const one = document.createElement('canvas'); one.width = AST_LPX; one.height = AST_LPX;
+      const og = one.getContext('2d');
+      for(let q = 0; q < AST_LQ; q++) for(let kind = 0; kind < 2; kind++){
+        og.clearRect(0, 0, AST_LPX, AST_LPX);
+        rockLightPaint(og, t, q, kind);
+        g.drawImage(one, rockLightCellX(q), rockLightCellY(q, kind));
+      }
+    }
+  }catch(er){ cv = null; }
+  t.sheet = cv;
+  return cv;
+}
+// {s: the sheet, x, yd, ym: the two cells} or null (then drawn the old way)
 function rockLightBake(t, q){
   if(!t.light) t.light = [];
   if(t.light[q] !== undefined) return t.light[q];
-  let L = null;
-  try{
-    if(typeof document !== 'undefined'){
-      const b = AST_LPX/t.S, la = q/AST_LQ*Math.PI*2, c = t.S/2*b, R = t.R*b;
-      const mk = function(draw){
-        const cv = document.createElement('canvas'); cv.width = AST_LPX; cv.height = AST_LPX;
-        const g = cv.getContext('2d');
-        g.beginPath(); g.moveTo(t.pts[0][0]*b, t.pts[0][1]*b);
-        for(let i=1;i<t.pts.length;i++) g.lineTo(t.pts[i][0]*b, t.pts[i][1]*b);
-        g.closePath(); g.clip();
-        draw(g); return cv;
-      };
-      L = {
-        d: mk(function(g){ g.strokeStyle = 'rgba(16,13,10,0.50)'; g.lineWidth = R*0.34;
-                           g.beginPath(); g.arc(c, c, R*0.88, la-1.05, la+1.05); g.stroke(); }),
-        m: mk(function(g){ g.strokeStyle = 'rgba(212,196,164,'+AST_RIM+')'; g.lineWidth = R*0.20;
-                           g.beginPath(); g.arc(c, c, R*0.86, la+Math.PI-1.0, la+Math.PI+1.0); g.stroke(); })
-      };
-    }
-  }catch(er){ L = null; }
+  const S = rockLightSheet(t);
+  const L = S ? {s: S, x: rockLightCellX(q), yd: rockLightCellY(q, 0), ym: rockLightCellY(q, 1)} : null;
   t.light[q] = L;
   return L;
 }
@@ -127,9 +160,9 @@ function drawRockLight(e, r){
       const d = r/t.R*t.S;
       ctx.save();
       ctx.translate(e.x, e.y); ctx.rotate(e.rot);
-      ctx.drawImage(L.d, -d/2, -d/2, d, d);
+      ctx.drawImage(L.s, L.x, L.yd, AST_LPX, AST_LPX, -d/2, -d/2, d, d);
       ctx.globalCompositeOperation = 'lighter';
-      ctx.drawImage(L.m, -d/2, -d/2, d, d);
+      ctx.drawImage(L.s, L.x, L.ym, AST_LPX, AST_LPX, -d/2, -d/2, d, d);
       ctx.restore();
       return;
     }

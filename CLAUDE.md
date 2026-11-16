@@ -140,7 +140,7 @@ Datei mit einem Skriptblock, wie alles flussabwärts sie erwartet.
 | `63_fxanim.js` | 222 | Effektbilder (FreeSpace-Animationen, base64) |
 | `64_repair.js` | 309 | Phidias-Reparaturdrohnen (v275) |
 | `65_fxgl.js` | 190 | Sammelzeichner: viele gleiche Effekte in einem WebGL-Befehl (F104, v304) |
-| `66_warm.js` | 110 | Vorwärmen beim Missionsbeginn: erstmalige Arbeit im dunklen Bild (F104, v307) |
+| `66_warm.js` | 109 | Vorwärmen beim Missionsbeginn: erstmalige Arbeit im dunklen Bild (F104, v307) |
 | `70_ui.js` | 4450 | `draw()`, Leiste, alle Fenster, Titel, Waffentabellen |
 | `71_radar_icons.js` | 30 | Radarsymbole |
 | `72_target.js` | 439 | Zielerfassung, Zielkasten |

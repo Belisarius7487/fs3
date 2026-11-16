@@ -6559,21 +6559,20 @@ scenario('v307 F104: the first-time work of a mission is done in the dark pictur
   if(!r.ran) return r;
   r.inTheDark = dark;
   r.galateaTables = L.hulls === 1 && DMG_INFO.deorionright !== undefined;
-  const lights = function(){ return AST_TEX.reduce(function(a, t){ return a + Object.keys(t.light || {}).length; }, 0); };
-  r.allRimLights = L.lights === AST_TEX.length*AST_LQ && lights() === AST_TEX.length*AST_LQ;
+  r.allRimLights = L.lights === AST_TEX.length && AST_TEX.every(function(t){ return !!t.sheet; });
   r.trailAndSmoke = first.has(FX_IMG.trail) && first.has(FX_IMG.smoke);
   draw();
   r.onlyOnce = WARM_LAST === L;
   // the fight goes on: nothing a rock is drawn from is new to the canvas
   const rockSrc = new Set();
-  for(const t of AST_TEX){ rockSrc.add(t.c); for(const k in t.light){ rockSrc.add(t.light[k].d); rockSrc.add(t.light[k].m); } }
+  for(const t of AST_TEX){ rockSrc.add(t.c); rockSrc.add(t.sheet); }
   let fresh = 0, used = 0;
   for(let i = 0; i < 12; i++){
     FS.step(40); player.invT = 999;
     for(const im of watch(draw)) if(rockSrc.has(im)){ used++; if(!first.has(im)) fresh++; }
   }
   r.rocksDrawn = used > 50;
-  r.noneNewLater = fresh === 0 && lights() === AST_TEX.length*AST_LQ;
+  r.noneNewLater = fresh === 0;
   // the same picture with and without it
   const px = function(){ return ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height).data; };
   const dmax = function(a, b){ let m = 0; for(let i = 0; i < a.length; i++){ const d = Math.abs(a[i] - b[i]); if(d > m) m = d; } return m; };
@@ -6583,6 +6582,63 @@ scenario('v307 F104: the first-time work of a mission is done in the dark pictur
   r.diff = 'two plain pictures differ by ' + dmax(A, B) + ', with the warm-up by ' + dmax(B, C) + ' of 255; warm-up ' + L.ms.toFixed(0) + ' ms, ' + L.srcs + ' pictures, then ' + WARM_LAST.ms.toFixed(1) + ' ms';
   // &warm=0: nothing is asked for
   r.switch = typeof WARM_ON !== 'undefined' && WARM_ON === 1;
+  return r;`);
+scenario('v308 F104: the rim light of a rock shape is one sheet, its cells as the single pictures were', 'm=6', `
+  const r = {};
+  r.helper = typeof rockLightSheet === 'function';
+  if(!r.helper) return r;
+  // a single picture painted the way v303 to v307 did it
+  const ref = function(t, q, kind){
+    const cv = document.createElement('canvas'); cv.width = AST_LPX; cv.height = AST_LPX;
+    const g = cv.getContext('2d');
+    const b = AST_LPX/t.S, la = q/AST_LQ*Math.PI*2, c = t.S/2*b, R = t.R*b;
+    g.beginPath(); g.moveTo(t.pts[0][0]*b, t.pts[0][1]*b);
+    for(let i = 1; i < t.pts.length; i++) g.lineTo(t.pts[i][0]*b, t.pts[i][1]*b);
+    g.closePath(); g.clip();
+    if(kind === 0){ g.strokeStyle = 'rgba(16,13,10,0.50)'; g.lineWidth = R*0.34; g.beginPath(); g.arc(c, c, R*0.88, la-1.05, la+1.05); g.stroke(); }
+    else { g.strokeStyle = 'rgba(212,196,164,'+AST_RIM+')'; g.lineWidth = R*0.20; g.beginPath(); g.arc(c, c, R*0.86, la+Math.PI-1.0, la+Math.PI+1.0); g.stroke(); }
+    return g.getImageData(0, 0, AST_LPX, AST_LPX).data;
+  };
+  let worst = 0, cells = 0, painted = 0, leak = 0;
+  for(let ti = 0; ti < AST_TEX.length; ti++){
+    const t = AST_TEX[ti], S = rockLightSheet(t), g = S.getContext('2d');
+    for(const q of [0, 6, 7, 8, 23, 24, 40, 47]) for(const kind of [0, 1]){
+      const L = rockLightBake(t, q), x = L.x, y = kind ? L.ym : L.yd;
+      const a = g.getImageData(x, y, AST_LPX, AST_LPX).data, b = ref(t, q, kind);
+      let sum = 0;
+      // compared as the screen gets them: colour times opacity. (A pixel
+      // that is 1/255 opaque has no colour to speak of; read back plainly
+      // its colour jumps by half the scale for nothing.)
+      for(let i = 0; i < a.length; i += 4){
+        const aa = a[i+3], ba = b[i+3];
+        for(let k = 0; k < 3; k++){ const d = Math.abs(a[i+k]*aa - b[i+k]*ba)/255; if(d > worst) worst = d; }
+        if(Math.abs(aa - ba) > worst) worst = Math.abs(aa - ba);
+        sum += ba;
+      }
+      if(sum > 0) painted++;
+      cells++;
+      // the pixel round the cell stays empty
+      const ring = g.getImageData(x - 1, y - 1, AST_LPX + 2, AST_LPX + 2).data, n = AST_LPX + 2;
+      for(let yy = 0; yy < n; yy++) for(let xx = 0; xx < n; xx++)
+        if(yy === 0 || xx === 0 || yy === n - 1 || xx === n - 1) leak += ring[(yy*n + xx)*4 + 3];
+    }
+  }
+  // (a shape with a deep dent can have a direction in which the arc misses
+  // it altogether: an empty picture, then and now)
+  r.cellsAsBefore = cells === AST_TEX.length*16 && painted > cells*0.9 && worst === 0;
+  r.nothingBetweenCells = leak === 0;
+  r.oneSheetPerShape = AST_TEX[0].sheet !== AST_TEX[5].sheet && rockLightBake(AST_TEX[0], 3).s === rockLightBake(AST_TEX[0], 30).s;
+  // the warm-up hands over a dozen sheets, not 1152 pictures
+  WARM_DUE = true; draw();
+  r.fewPictures = WARM_LAST.lights === AST_TEX.length && WARM_LAST.srcs < 40;
+  // the lag log: a long frame is listed with the times of the frame that made it long
+  if(!PL.lags) PL.lags = [];
+  const n0 = PL.lags.length;
+  perfFrame(16, 1, 90, 1); perfFrame(130, 2, 3, 6);
+  const rec = PL.lags[PL.lags.length - 1];
+  r.lagLogOwnFrame = PL.lags.length === n0 + 1 && rec.ms === 130 && rec.draw === 90 && rec.upd === 1;
+  PL.lags.length = n0;
+  r.diff = cells + ' cells (' + painted + ' not empty) differ by at most ' + worst.toFixed(2) + ' of 255, warm-up ' + WARM_LAST.srcs + ' pictures';
   return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
