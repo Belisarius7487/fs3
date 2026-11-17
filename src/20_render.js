@@ -717,6 +717,41 @@ function rnd(arr){return arr[Math.floor(Math.random()*arr.length)];}
 // recording only where the ship is opaque. That lets
 // us restrict hits to visible hull rather than the
 // bounding rectangle. Die Abfrage danach ist ein Feldzugriff.
+// F103 stage 4 (v311): the hull's outline as a picture, built from the
+// model's outline map (OUTLINES). It cuts the damage marks to the hull -
+// the job the 2D sprite did until now (dmgBuild, dmgFx). One canvas per
+// hull in the map's own size; it is stretched where it is used, with
+// smoothing off, so the edge stays hard and nothing bleeds past the hull.
+const OUTLINE_CAN = {};
+function outlineCanvas(key){
+  if(OUTLINE_CAN[key] !== undefined) return OUTLINE_CAN[key];
+  const fo = (typeof f103Frame === 'function') ? f103Frame(key) : null;
+  if(!fo || typeof document === 'undefined') return (OUTLINE_CAN[key] = null);
+  try{
+    const mw = fo.map.w, mh = fo.map.h, c = document.createElement('canvas');
+    c.width = mw; c.height = mh;
+    const g = c.getContext('2d');
+    g.fillStyle = '#fff';
+    for(let y = 0; y < mh; y++){
+      const r = fo.map.rows[y] || [];
+      for(let i = 0; i + 1 < r.length; i += 2){
+        const x0 = r[i], x1 = Math.min(mw, r[i+1]);
+        if(x1 > x0) g.fillRect(x0, y, x1 - x0, 1);
+      }
+    }
+    return (OUTLINE_CAN[key] = c);
+  }catch(err){ return (OUTLINE_CAN[key] = null); }
+}
+// Cut what is on ctx g to the hull's outline, over the box w x h.
+function clipToHull(g, key, img, w, h){
+  const oc = outlineCanvas(key);
+  g.globalCompositeOperation = 'destination-in';
+  const sm = g.imageSmoothingEnabled;
+  if(oc) g.imageSmoothingEnabled = false;
+  g.drawImage(oc || img, 0, 0, w, h);
+  g.imageSmoothingEnabled = sm;
+}
+
 const MASKS = {};
 const MASK_MAX = 256;    // largest edge length of a map
 const MASK_MIN_A = 24;   // alpha threshold above which a point counts as hull
@@ -2122,7 +2157,7 @@ function dmgBuild(e, D){
     g.closePath(); g.fill();
     g.strokeStyle = 'rgba(205,198,186,0.45)'; g.lineWidth = unit; g.stroke();
   }
-  if(gl3){ g.globalCompositeOperation = 'destination-in'; g.drawImage(img, 0, 0, w, h); }
+  if(gl3) clipToHull(g, e.img, img, w, h);
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.globalCompositeOperation = 'source-over';
   D.dirty = false; D.built = fc;
@@ -2251,8 +2286,9 @@ function dmgFx(e, D, cx, cy, w, h, flipX, ang, only){
     gl.setTransform(cw/fw, 0, 0, ch/fh, -x0*cw/fw, -y0*ch/fh);
     dmgFxDraw(gl, e, D, w, h);
     // Glow only where there is hull: cut to the damaged picture.
-    gl.globalCompositeOperation = 'destination-in'; gl.globalAlpha = 1;
-    gl.drawImage(D.gl3 ? IMGS[e.img] : D.can, 0, 0, w, h);
+    gl.globalAlpha = 1;
+    if(D.gl3) clipToHull(gl, e.img, IMGS[e.img], w, h);
+    else { gl.globalCompositeOperation = 'destination-in'; gl.drawImage(D.can, 0, 0, w, h); }
     gl.globalCompositeOperation = 'source-over'; gl.globalAlpha = 1;
     D.fxT = fc;
   }

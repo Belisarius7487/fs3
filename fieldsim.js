@@ -6930,6 +6930,33 @@ scenario('v310 F103 stage4: list cells take the model picture', 'm=6', `
   proto.drawImage = d0;
   return r;`);
 
+// F103 stage 4 (v311): the damage marks are cut to the model's outline, not
+// to the 2D sprite
+scenario('v311 F103 stage4: damage cut by the model outline', 'm=6', `
+  const r = {};
+  FS.step(30);
+  const key = 'crfenris';
+  const oc = outlineCanvas(key);
+  r.hasOutline = !!(oc && oc.width > 1);
+  r.notTheSprite = r.hasOutline && oc !== IMGS[key];
+  // a real hull with a real damage state, pretending she is drawn from her
+  // model (no WebGL in here, so _gl3 is never set by itself)
+  const e = {img:key, sc:0.3, x:400, y:300, hp:50, hp0:100};
+  const D = dmgState(e);
+  r.gotState = !!D;
+  e._gl3 = true; D.dirty = true;
+  const proto = Object.getPrototypeOf(ctx), d0 = proto.drawImage;
+  let cutWith = null;
+  proto.drawImage = function(im){
+    if(this.globalCompositeOperation === 'destination-in') cutWith = im;
+    return d0.apply(this, arguments);
+  };
+  try{ dmgBuild(e, D); }catch(err){ r.err = String(err).slice(0,110); }
+  proto.drawImage = d0;
+  r.cutByOutline = cutWith === oc;
+  r.notCutBySprite = cutWith !== IMGS[key];
+  return r;`);
+
 (async()=>{
   const browser = await chromium.launch();
   let fails = 0;

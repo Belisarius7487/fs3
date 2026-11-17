@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 16.11.2026, v310)
+## Lage — als Erstes lesen (Stand 17.11.2026, v311)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -39,7 +39,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht |
 |---|---|
-| F103 | **Etappe 4 läuft** (Silvio, 16.11.2026: „Du kannst gerne die Aufräumetappe starten“). Schritt 1 gebaut in v310: die Bilder in Schiffsliste, Infokarte und Rufmenü kommen aus dem Modell. Noch offen: Schadensbeschnitt (`dmgBuild`) auf die Umrisskarte, dann die Sprite-Zeichenwege und `&f3d=0` weg, zuletzt `SPR_DATA` (13,8 MB von 31 MB), der Sprite-Teil des Packers und der Sprite-Ordner. Etappe 1 bis 3 sind **abgenommen** (Silvio, 16.11.2026, zu den großen Schiffen aus v289: „Bisher hab ich nichts gesehen, was schief sitzt"). **Nächster großer Posten: Etappe 4, das Aufräumen** — `SPR_DATA` mit 121 Sprites (13,8 MB von 31 MB Spieldatei), der Sprite-Teil des Packers, die Sprite-Zeichenwege, `&f3d=0` und am Ende der Sprite-Ordner auf dem Server. Bis dahin baut `build.sh` die Sprites weiter ein. Eigener Bauzyklus, am besten ein eigener Chat. |
+| F103 | **Etappe 4 läuft** (Silvio, 16.11.2026: „Du kannst gerne die Aufräumetappe starten“). Schritt 1 gebaut in v310 (Bilder in Schiffsliste, Infokarte und Rufmenü aus dem Modell), Schritt 2 in v311 (Schadensspuren am Modellumriss beschnitten). Noch offen: die Sprite-Zeichenwege und `&f3d=0` weg, zuletzt `SPR_DATA` (13,8 MB von 31 MB), der Sprite-Teil des Packers und der Sprite-Ordner. Etappe 1 bis 3 sind **abgenommen** (Silvio, 16.11.2026, zu den großen Schiffen aus v289: „Bisher hab ich nichts gesehen, was schief sitzt"). **Nächster großer Posten: Etappe 4, das Aufräumen** — `SPR_DATA` mit 121 Sprites (13,8 MB von 31 MB Spieldatei), der Sprite-Teil des Packers, die Sprite-Zeichenwege, `&f3d=0` und am Ende der Sprite-Ordner auf dem Server. Bis dahin baut `build.sh` die Sprites weiter ein. Eigener Bauzyklus, am besten ein eigener Chat. |
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -55,7 +55,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v310 gebaut (F103 Etappe 4, Schritt 1).
+Stand: v311 gebaut (F103 Etappe 4, Schritte 1 und 2).
 
 ---
 
@@ -3495,10 +3495,20 @@ Rufmenü), im Rückfall (`drawShip`, `drawRimLight`, nur ohne Modell oder mit
   ein Modell fehlt oder noch lädt, tritt das alte Sprite ein. Szenario
   „v310 F103 stage4“ (schlägt gegen v309 fehl). **In der Cloud nicht
   sichtbar prüfbar** — dort liegen keine Modelle; Silvio sieht es im Spiel.
-- **Nächste Schritte:** (2) `dmgBuild()` mit der Umrisskarte aus `OUTLINES`
-  beschneiden statt mit dem Sprite-Bild; (3) Sprite-Zeichenwege und `&f3d=0`
-  entfernen, Rümpfe ohne Modell vorher prüfen; (4) `SPR_DATA`, Sprite-Teil
-  des Packers und der Sprite-Ordner auf dem Server.
+- **v311 (Schritt 2):** `outlineCanvas(key)` und `clipToHull()` in
+  `20_render.js`. Der Umriss des Modells wird einmal je Rumpf aus
+  `OUTLINES[key].map` als Leinwand gezeichnet (Zeilenspannen, Kartengröße)
+  und beim Beschneiden ohne Weichzeichnen gestreckt, damit die Kante hart
+  bleibt und nichts über den Rumpf hinausläuft. `dmgBuild()` und die
+  Glut-/Feuerschicht in `dmgFx` schneiden damit statt mit dem Sprite.
+  Szenario „v311 F103 stage4“ (gegen v310 rot). Die alten Szenarien in
+  M62 (v182 `emitted`, `enoughPartsToRead`, `inherits`) sind in v310 und
+  v311 **gleich** rot — alte Mission, nicht von Etappe 4.
+- **Nächste Schritte:** (3) Sprite-Zeichenwege (`drawShip`, `drawRimLight`,
+  `buildGlint`) und `&f3d=0` entfernen, Rümpfe ohne Modell vorher prüfen;
+  (4) `SPR_DATA`, Sprite-Teil des Packers und der Sprite-Ordner auf dem
+  Server. Danach ist der Sprite-Rückfall in `drawHullCell` ebenfalls
+  hinfällig.
 
 **Etappe 3 — Reihenfolge (Silvio, 15.11.2026):** „fangen wir klein an" —
 zuerst Jäger und Bomber (Schlüssel `fi…`, `bo…`), dann die übrigen Klassen.
