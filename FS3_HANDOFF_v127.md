@@ -42,7 +42,7 @@ Korvette. Tatsächlich war der Knopf nie an die Klickauswertung angeschlossen.
 
 **Server:** `hlp-dev-01`, Verzeichnis `/home/belisarius/fs3-build`
 **Repo:** `github.com/Belisarius7487/fs3` (Silvio lädt über die GitHub-Weboberfläche hoch)
-**Test-URL:** `http://dev.hard-light.org/fs3/?v=NNN`
+**Test-URL:** `https://dev.hard-light.org/fs3/?v=NNN`
 
 ### Der Ablauf pro Änderung
 
@@ -206,7 +206,7 @@ An die URL anhängen:
 | `&fs1=N` | Übungsmodus (Rest der verworfenen FS1-Kampagne) |
 
 Übliche Testadresse:
-`http://dev.hard-light.org/fs3/?v=127&ui=1&ships=8&wpn=1`
+`https://dev.hard-light.org/fs3/?v=127&ui=1&ships=8&wpn=1`
 
 Wichtig: **Das Rearm-Fenster braucht eine verbündete KORVETTE** im Feld, nicht
 irgendein Großkampfschiff. Der Hangar braucht einen **Zerstörer**.

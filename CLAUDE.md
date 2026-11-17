@@ -49,7 +49,8 @@ Silvio hat **keine Programmiererfahrung.**
   Bauzyklus.
 - Missionen beschreibt Silvio in Prosa, Claude setzt sie um.
 - Bei jeder Lieferung die **vollständige Test-URL** mitgeben, mit Versions-
-  und nötigen Modusparametern.
+  und nötigen Modusparametern. **Immer `https://`** (Silvio, 17.11.2026:
+  „http funktioniert auf dev nicht").
 
 **Sichtbare Fehler im echten Spiel prüfen (Silvio, 24.10.2026).** v280 und
 v281 sollten den Container an der Poseidon (F97) beheben und taten es nicht:
@@ -251,7 +252,7 @@ An die URL anhängen. Geprüft gegen den Code in v216:
 | `&warm=0` | ohne das Vorwärmen beim Missionsbeginn (F104, v307), zum Vergleichen |
 
 Übliche Testadresse:
-`http://dev.hard-light.org/fs3/?v=217&ui=1&ships=9&wpn=1`
+`https://dev.hard-light.org/fs3/?v=217&ui=1&ships=9&wpn=1`
 
 **Das Rearm-Fenster braucht das Trägerschiff der Mission** im Feld
 (Einheit mit `home:true`, F22, seit v240) — keine Korvette, nicht irgendein

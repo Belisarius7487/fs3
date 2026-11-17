@@ -72,7 +72,7 @@ Danach schaust du dir das Spiel an, unter der Adresse, die ich dir mitgebe.
 Sie sieht so aus:
 
 ```
-http://dev.hard-light.org/fs3/?v=218&ui=1&ships=9&wpn=1
+https://dev.hard-light.org/fs3/?v=218&ui=1&ships=9&wpn=1
 ```
 
 Die Nummer hinter `v=` ist nur dafür da, dass dein Browser nicht die alte
