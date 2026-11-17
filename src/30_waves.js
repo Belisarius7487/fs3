@@ -190,7 +190,7 @@ const FS1_SHIPS = [
 ];
 function fs1ShipsUpTo(w){
   const out=[];
-  for(const s of FS1_SHIPS) if(w>=s.wave && SPR_DATA[s.key]) out.push(s.key);
+  for(const s of FS1_SHIPS) if(w>=s.wave && IMGS[s.key]) out.push(s.key);   // F103 stage 4: the frames, not the sprites
   return out;
 }
 

@@ -345,21 +345,28 @@ function f103Frame(key){
 }
 // The frame's height for a given width
 function f103H(o, w){ return Math.max(1, Math.round(w*o.ratio)); }
-// Until stage 4 the sprite is still drawn in a few places (list cells, the
-// fallback): it is stretched onto a canvas of the new frame, so every reader
-// of IMGS gets the model's frame.
-function f103Canvas(k, img){
+// F103 stage 4 (v313): the sprites are gone. IMGS[key] is an empty canvas
+// in the model's frame. Everything that read a sprite for a measure keeps
+// its value (hullScale, eBox, pBox, halfH, shipBound, mountList,
+// updateItems, onHull): the width is the width the old sprite had, so every
+// scale written into a mission still means the same size, and the height is
+// the model's, exactly as f103Canvas() stretched it from v287 on. The hull
+// itself is drawn from the model (59_field3d.js), the silhouette for hits
+// and for the subsystem points comes from the model's outline map
+// (buildMask below).
+function f103Blank(k){
   const o = f103Frame(k);
-  if(!o || typeof document === 'undefined') return img;
+  if(!o || !o.sprite || typeof document === 'undefined') return null;
   try{
     const c = document.createElement('canvas');
-    c.width = img.width; c.height = f103H(o, img.width);
-    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    c.width = Math.max(1, o.sprite[0]|0); c.height = f103H(o, c.width);
     return c;
-  }catch(err){ return img; }
+  }catch(err){ return null; }
 }
-for(const [k,src] of Object.entries(SPR_DATA)){
-  const img=new Image();img.onload=()=>{IMGS[k]=f103Canvas(k, img);imgsLoaded++;if(typeof buildMask==='function')buildMask(k);};img.src=src;}
+if(typeof OUTLINES !== 'undefined') for(const k of Object.keys(OUTLINES)){
+  const c = f103Blank(k);
+  if(c){ IMGS[k] = c; imgsLoaded++; }
+}
 // The backgrounds are fetched when they are wanted, not all at once (v229).
 // Twelve of 3000x1500 are 33 MB over the wire, and once decoded a picture
 // that size holds about 18 MB of memory whether it is on screen or not - so
@@ -402,7 +409,7 @@ for(const [k,b] of Object.entries(SUN_DATA)){
 // twelve of them at the size they want to be would hold the loading screen
 // for a long time over anything but a fast line. They arrive while the title
 // screen is up and drawNebula() simply draws nothing until one is there.
-const TOTAL=Object.keys(SPR_DATA).length;
+const TOTAL=imgsLoaded;   // F103 stage 4: the frames are there at once
 const WARP_IMG=document.getElementById('warp_img');
 // The vortex used to be an animated WebP. Whether a browser advances the
 // frames of an image it is not showing is up to the browser, and it is
@@ -809,7 +816,7 @@ function onHull(key, cx, cy, sc, flip, wx, wy, ang, o){
   // v204: a small craft on the outline of her model as it is drawn, rolled
   // and banked (f3dRollMask, 59_field3d.js)
   const mr = (o && typeof f3dRollMask === 'function') ? f3dRollMask(key, o) : null;
-  const m3 = mr || ((typeof MASKS3D !== 'undefined' && !(typeof F3D !== 'undefined' && F3D.off)) ? MASKS3D[key] : null);
+  const m3 = mr || ((typeof MASKS3D !== 'undefined') ? MASKS3D[key] : null);
   const m = m3 || getMask(key);
   if(!m) return true;                   // no map available, do not block
   const pw = img.width*sc, ph = img.height*sc*(m.ky || 1);
@@ -881,138 +888,14 @@ function bulletOnPlayer(b){
 }
 
 // ── DRAW SHIP ─────────────────────────────────────────────────
-// ── METALLISCHER LOOK ─────────────────────────────────────────
-// Die Sprites sind vorgerendert, das Licht ist eingebacken und dreht sich
-// beim Fliegen mit dem Rumpf mit. Genau das ist bei Metall falsch: der
-// Glanzpunkt muss stehen bleiben, waehrend sich das Objekt dreht. Beide
-// Ebenen hier arbeiten deshalb gegen die Rotation.
-const GLINT={};            // je Sprite eine gebackene Glanzkarte
-const GLINT_CUT = 168;     // ab dieser Helligkeit zaehlt ein Pixel als Glanz
-const GLINT_BASE = 0.10;   // Grundschimmer, auch im ungünstigsten Winkel
-const GLINT_SWING = 0.42;  // Zuwachs, wenn die Breitseite ins Licht kommt
-const RIM_STRENGTH = 0.55; // Helligkeit der Lichtkante
-const RIM_MIN_W = 90;      // erst ab dieser Darstellungsbreite lohnt sie sich
-
-function buildGlint(key){
-  const img = IMGS[key];
-  if(!img || !img.width){ return null; }
-  try{
-    const c = document.createElement('canvas');
-    c.width = img.width; c.height = img.height;
-    const g = c.getContext('2d', {willReadFrequently:true});
-    g.drawImage(img, 0, 0);
-    const d = g.getImageData(0, 0, c.width, c.height);
-    const p = d.data;
-    for(let i=0; i<p.length; i+=4){
-      const a = p[i+3];
-      if(a < 8){ p[i+3] = 0; continue; }
-      const lum = p[i]*0.299 + p[i+1]*0.587 + p[i+2]*0.114;
-      let t = (lum-GLINT_CUT)/(255-GLINT_CUT);
-      if(t < 0) t = 0;
-      // Quadratisch, damit nur die wirklich hellen Stellen stehen bleiben
-      // und nicht die halbe Lackierung mitleuchtet.
-      p[i]=255; p[i+1]=250; p[i+2]=238; p[i+3] = (a*t*t)|0;
-    }
-    g.putImageData(d, 0, 0);
-    // Weichzeichnen, sonst ist es kein Glanz sondern ein Ausschnitt.
-    const c2 = document.createElement('canvas');
-    c2.width = c.width; c2.height = c.height;
-    const g2 = c2.getContext('2d');
-    if('filter' in g2) g2.filter = 'blur(1.2px)';
-    g2.drawImage(c, 0, 0);
-    GLINT[key] = c2;
-    return c2;
-  }catch(err){
-    GLINT[key] = false;   // einmal gescheitert, nicht noch einmal versuchen
-    return null;
-  }
-}
-
-// Ein einziger wiederverwendeter Puffer fuer alle Lichtkanten. Ein Puffer
-// je Schiff und Bild waere auf einem Tablet nicht zu bezahlen.
-const RIM_C = document.createElement('canvas');
-RIM_C.width = 640; RIM_C.height = 640;
-const RIM_G = RIM_C.getContext('2d');
-
-// Die Lichtkante wird gegen die Rotation gerechnet: das Sprite wird ein
-// zweites Mal versetzt abgezogen, und was uebrig bleibt, ist eine Sichel
-// auf der Lichtseite. Nur fuer Kreuzer und groesser - an einem Jaeger von
-// 58 px sind zwei Pixel Kante nicht zu sehen, kosten aber dasselbe.
-function drawRimLight(key, cx, cy, scale, flipX, ang){
-  const img = IMGS[key];
-  if(!img || !img.width) return;
-  const w = img.width*scale, h = img.height*scale;
-  if(w < RIM_MIN_W) return;
-  const span = Math.hypot(w, h);
-  if(span > RIM_C.width) return;          // zu gross fuer den Puffer
-  const la = lightAngleAt(cx, cy);
-  const d = Math.max(1.5, w*0.022);
-  const bx = RIM_C.width/2, by = RIM_C.height/2;
-
-  RIM_G.setTransform(1,0,0,1,0,0);
-  RIM_G.clearRect(0,0,RIM_C.width,RIM_C.height);
-  RIM_G.globalCompositeOperation = 'source-over';
-  RIM_G.save();
-  RIM_G.translate(bx, by);
-  if(ang) RIM_G.rotate(ang);
-  if(flipX) RIM_G.scale(-1,1);
-  RIM_G.drawImage(img, -w/2, -h/2, w, h);
-  RIM_G.restore();
-
-  // Dieselbe Silhouette, vom Licht weg versetzt, wieder abziehen.
-  RIM_G.globalCompositeOperation = 'destination-out';
-  RIM_G.save();
-  RIM_G.translate(bx + Math.cos(la)*d, by + Math.sin(la)*d);
-  if(ang) RIM_G.rotate(ang);
-  if(flipX) RIM_G.scale(-1,1);
-  RIM_G.drawImage(img, -w/2, -h/2, w, h);
-  RIM_G.restore();
-
-  // Die Sichel traegt noch die Rumpffarben. Einfarbig einfaerben.
-  RIM_G.globalCompositeOperation = 'source-in';
-  RIM_G.fillStyle = 'rgba(226,236,255,1)';
-  RIM_G.fillRect(0,0,RIM_C.width,RIM_C.height);
-  RIM_G.globalCompositeOperation = 'source-over';
-
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = RIM_STRENGTH;
-  ctx.drawImage(RIM_C, bx-span/2, by-span/2, span, span,
-                (cx-span/2)|0, (cy-span/2)|0, span, span);
-  ctx.restore();
-}
-
-function drawShip(key,cx,cy,scale,flipX,ang){
-  ctx.save();
-  const img=IMGS[key];
-  if(!img){ctx.restore();return;}
-  const w=img.width*scale,h=img.height*scale;
-  ctx.translate(cx|0,cy|0);
-  // Rotation comes before the mirror, which fixes the order every other
-  // helper has to invert. Sprites that face right need no mirror at all
-  // once they can rotate, so for flying ships flipX stays false.
-  if(ang)ctx.rotate(ang);
-  if(flipX)ctx.scale(-1,1);
-  ctx.drawImage(img,-w/2,-h/2,w,h);
-  // Glanzlicht. Ein langer Rumpf faengt das Licht auf der Breitseite, also
-  // zweimal je Umdrehung - daher der doppelte Winkel.
-  // Bei abgeschaltetem Glanz wird die Karte gar nicht erst gebacken.
-  // buildGlint liest das ganze Sprite per getImageData und legt zwei
-  // Puffer an - genau der Ruck beim ersten Auftauchen eines neuen
-  // Rumpftyps kommt von dort.
-  const gl = ECO.glint ? null
-           : ((GLINT[key]!==undefined) ? GLINT[key] : buildGlint(key));
-  if(gl){
-    const rel = (ang||0) - lightAngleAt(cx, cy);
-    const inten = GLINT_BASE + GLINT_SWING*(0.5-0.5*Math.cos(rel*2));
-    ctx.globalCompositeOperation='lighter';
-    ctx.globalAlpha = inten;
-    ctx.drawImage(gl,-w/2,-h/2,w,h);
-    ctx.globalAlpha = 1;
-  }
-  ctx.restore();
-  if(!ECO.rim && w >= RIM_MIN_W) drawRimLight(key,cx,cy,scale,flipX,ang);
-}
+// F103 stage 4 (v313): the ships are drawn from their models
+// (59_field3d.js). What follows the sprites here is gone with them:
+// drawShip() (the sprite on the field), drawRimLight() (the light edge,
+// subtracted from the sprite's silhouette a second time) and buildGlint()
+// (the baked gloss map, read out of the sprite's pixels). All three were
+// only ever reached when a ship was NOT drawn from her model, and with no
+// sprite left there is nothing for them to draw.
+const ECO_GLINT_GONE = true;   // kept as a marker for the eco settings
 
 // ── NEBULA BACKGROUND ─────────────────────────────────────────
 let nebCur=NEB_NAMES[0],nebNxt=NEB_NAMES[1];
@@ -2181,8 +2064,8 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
   const D = e.dm;
   if(!D || !dmgEligible(e) || (!D.scorch.length && !D.gashes.length && !D.craters.length && !D.dead && !D.dying.length)){
     if(D) dmgTick(e, D);
-    if(!e._gl3) drawShip(e.img, cx, cy, scale, flipX, ang);
-    return;
+    return;   // F103 stage 4: undamaged, she is the model and nothing else
+
   }
   dmgTick(e, D);
   if(!!D.gl3 !== !!e._gl3){ D.dirty = true; D.built = -99; }   // drawn the other way last time (v196)
@@ -2198,48 +2081,12 @@ function drawShipE(e, cx, cy, scale, flipX, ang){
   if(D.dirty && (fc - (D.built||-99) >= DMG_REBUILD_STEPS || !D.can || D.k !== dmgK(e))) dmgBuild(e, D);
   const img = IMGS[e.img];
   const w = img.width*scale, h = img.height*scale;
-  // v204: drawn from her model the marks lie on the model (f3dDmgBind,
-  // 59_field3d.js); here only the pictures are kept up to date
-  if(e._gl3 === 2){ dmgFx(e, D, cx, cy, w, h, flipX, ang, true); return; }
-  ctx.save();
-  ctx.translate(cx|0, cy|0);
-  if(ang) ctx.rotate(ang);
-  if(flipX) ctx.scale(-1, 1);
-  // The gloss as on any hull, laid on the damaged picture, in a frame
-  // canvas of her own.
-  const gl = (ECO.glint || e._gl3) ? null : ((GLINT[e.img]!==undefined) ? GLINT[e.img] : buildGlint(e.img));
-  if(gl){
-    const cw = D.can.width, ch = D.can.height;
-    if(!D.frame || D.frame.width!==cw || D.frame.height!==ch){
-      D.frame = cacheCanvas(cw, ch);
-    }
-    // Recomposed only when the picture or the light on it has changed.
-    const rel = (ang||0) - lightAngleAt(cx, cy);
-    const gi = Math.round((GLINT_BASE + GLINT_SWING*(0.5-0.5*Math.cos(rel*2)))*50)/50;
-    if(D.fBuilt !== D.built || D.fGi !== gi){
-      const g = D.frame.getContext('2d');
-      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
-      g.clearRect(0, 0, cw, ch);
-      g.drawImage(D.can, 0, 0);
-      g.globalCompositeOperation = 'lighter';
-      g.globalAlpha = gi;
-      g.drawImage(gl, 0, 0, cw, ch);
-      g.globalAlpha = 1;
-      g.globalCompositeOperation = 'source-over';
-      D.fBuilt = D.built; D.fGi = gi;
-    }
-    ctx.drawImage(D.frame, -w/2, -h/2, w, h);
-  } else ctx.drawImage(D.can, -w/2, -h/2, w, h);
-  // the lights on their way out: flickering
-  for(const d of (e._gl3 ? [] : D.dying)){
-    if(dmgSeed(fc*0.37 + d.i) < 0.5) continue;
-    const z = D.inf.zones[d.i]; if(!z) continue;
-    const kx = w/img.width, ky = h/img.height;
-    ctx.drawImage(D.inf.dark, z.sx, z.sy, z.sw, z.sh, -w/2+z.sx*kx, -h/2+z.sy*ky, z.sw*kx, z.sh*ky);
-  }
-  ctx.restore();
-  if(!ECO.rim && w >= RIM_MIN_W && !e._gl3) drawRimLight(e.img, cx, cy, scale, flipX, ang);
-  dmgFx(e, D, cx, cy, w, h, flipX, ang);
+  // v204: drawn from her model, the marks lie on the model (f3dDmgBind,
+  // 59_field3d.js); here only the pictures are kept up to date.
+  // F103 stage 4 (v313): with the sprites gone this is the only way left.
+  // What stood here - the damaged picture with the gloss laid over it and
+  // the dying lights stamped out of it - needed the sprite's pixels.
+  dmgFx(e, D, cx, cy, w, h, flipX, ang, true);
 }
 // One soft glow, drawn once and stamped: cheaper than a gradient a frame.
 let DMG_GLOW = null;

@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v312)
+## Lage — als Erstes lesen (Stand 17.11.2026, v313)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -31,15 +31,12 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F107 | Feindliche Frachter ohne Ladung zählten als verfehltes Ziel | v292 |
 | F110 | M14: „Delivered“ statt „Escaped“ im Pause-Log | v293 |
 | F112 | M16–M18: Auftragstexte zu lang, zwei Ziele in einem | v293 |
+| F103 | **Etappe 4 fertig**: keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell (13,8 MB weniger Spieldatei). `&f3d=0`, Lichtkante, Metallglanz, Schildhaut und der Sprite-Teil des Packers sind weg; in den Einstellungen fallen die zwei Schalter RIM LIGHT und METAL GLINT weg. Der Sprite-Ordner auf dem Server wird nicht mehr gelesen | v313 |
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
-**Offen, noch nicht gebaut:**
-
-| Punkt | Worum es geht |
-|---|---|
-| F103 | **Etappe 4 läuft** (Silvio, 16.11.2026: „Du kannst gerne die Aufräumetappe starten“). Schritt 1 gebaut in v310 (Bilder in Schiffsliste, Infokarte und Rufmenü aus dem Modell), Schritt 2 in v311 (Schadensspuren am Modellumriss beschnitten), Schritt 3a in v312 (kein Rumpf fällt mehr auf ein Sprite zurück; v310 bis v312 von Silvio abgenommen, 17.11.2026: „Bisher stelle ich keine Probleme fest“). Noch offen: `SPR_DATA` leeren, die toten Sprite-Zeichenwege und `&f3d=0` weg, zuletzt `SPR_DATA` (13,8 MB von 31 MB), der Sprite-Teil des Packers und der Sprite-Ordner. Etappe 1 bis 3 sind **abgenommen** (Silvio, 16.11.2026, zu den großen Schiffen aus v289: „Bisher hab ich nichts gesehen, was schief sitzt"). **Nächster großer Posten: Etappe 4, das Aufräumen** — `SPR_DATA` mit 121 Sprites (13,8 MB von 31 MB Spieldatei), der Sprite-Teil des Packers, die Sprite-Zeichenwege, `&f3d=0` und am Ende der Sprite-Ordner auf dem Server. Bis dahin baut `build.sh` die Sprites weiter ein. Eigener Bauzyklus, am besten ein eigener Chat. |
+**Offen, noch nicht gebaut:** nichts.
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -55,7 +52,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v312 gebaut (F103 Etappe 4, Schritte 1 bis 3a).
+Stand: v313 gebaut (F103 Etappe 4 fertig).
 
 ---
 
@@ -3283,7 +3280,7 @@ Windows."
 - Die 3D-Zeichnung (`f3dRender()` 8 MB/s im echten Spiel) misst das
   Werkzeug nicht, weil die Modelle dort fehlen.
 
-### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — Weg B; Etappe 1 bis 3 erledigt und **abgenommen** (v287–v289; Silvio, 16.11.2026: „Bisher hab ich nichts gesehen, was schief sitzt"), Etappe 4 (Aufräumen) nicht begonnen
+### F103 — Die 2D-Sprites der Schiffe sollen als Altlast verschwinden (v286) — Weg B; Etappe 1 bis 3 erledigt und **abgenommen** (v287–v289; Silvio, 16.11.2026: „Bisher hab ich nichts gesehen, was schief sitzt"), Etappe 4 (Aufräumen) fertig in v313
 
 **Wunsch (Silvio, 12.11.2026):** „Wir haben immer noch die 2D Sprites der
 Schiffe im Spiel, obwohl wir bereits auf 3D Modelle umgestellt haben. Mein
@@ -3515,16 +3512,48 @@ Rufmenü), im Rückfall (`drawShip`, `drawRimLight`, nur ohne Modell oder mit
   Jeder Rumpf, den eine Mission zeichnet, kommt damit aus dem Modell.
   Alle Umrisse stammen aus den Modellen (`mkoutline.py`), es gibt also zu
   jedem Schlüssel ein Modell. Szenario „v312 F103 stage4“ (gegen v311 rot).
-- **Nächster Schritt (3b/4), der große:** `SPR_DATA` leer lassen und
-  `IMGS[key]` beim Start als **leere Leinwand im Modellrahmen** anlegen
-  (Breite aus `OUTLINES[key].sprite[0]`, Höhe aus `ratio`) — dann behalten
-  alle Maßleser ihre Werte, und die Spieldatei verliert rund 14 der 31 MB.
-  Vorher prüfen, was beim Erzeugen noch Bildpunkte liest, vor allem
-  `dmgInfo()` (dunkle Fenster aus dem Sprite; bei 3D-Schiffen nicht
-  gezeichnet, darf aber nicht stolpern), `buildGlint` und `shieldSkin`.
-  Danach `&f3d=0` und die toten Sprite-Zeichenwege entfernen und den
-  Sprite-Teil des Packers samt Ordner auf dem Server. Eigener Chat
-  empfohlen — dafür ist viel Code zu lesen.
+- **v313 (Schritt 3b/4, der große — Etappe 4 ist damit fertig):** `SPR_DATA`
+  wird nicht mehr gefüllt. `f103Blank(key)` legt beim Start je Rumpf eine
+  **leere Leinwand im Modellrahmen** an (Breite = `OUTLINES[key].sprite[0]`,
+  also die Breite des alten Sprites, Höhe = `f103H` aus `ratio`), für alle
+  121 Schlüssel, die eine `sprite`-Angabe haben. Damit behält jeder
+  Maßleser seinen Wert (`hullScale`, `eBox`, `pBox`, `halfH`, `shipBound`,
+  `mountList`, `updateItems`, `onHull`), und jede in einer Mission
+  geschriebene Skalierung bedeutet dieselbe Größe wie vorher. `buildMask()`
+  nahm den Umriss schon seit Etappe 3 aus `OUTLINES[key].map`, die
+  Subsystem-Punkte (`subPositions` → `hullRay`) sitzen also unverändert —
+  im `fieldsim`-Szenario „F103 stage 3" kommen dieselben fünf Punkte heraus
+  wie in v312. Vorher geprüft, was noch Bildpunkte liest: `dmgInfo()`
+  (dunkle Fenster), `buildGlint` und `shieldSkin` lagen alle hinter „wird
+  **nicht** aus dem Modell gezeichnet" und sind mit entfernt.
+  - **Weg**: `drawShip()`, `drawRimLight()` samt 640er-Puffer, `buildGlint()`
+    samt `GLINT`, `shieldSkin()`/`SHIELD_SKINS` und die Schildhaut-Hälfte von
+    `drawLuciShield()`, der 2D-Aufbau des beschädigten Sprites in
+    `drawShipE()` (dort bleibt nur noch der Modellweg), `f103Canvas()`,
+    `F3D.off` und der Schalter `&f3d=0`.
+  - **Einstellungen**: die zwei Schalter **RIM LIGHT** und **METAL GLINT**
+    (Seite 1) sind weg — sie hätten nichts mehr geschaltet. `ECO.rim` und
+    `ECO.glint` sind aus `ECO` entfernt, ein gespeicherter Stand mit diesen
+    Feldern stört nicht.
+  - **Packer** (`build_game.py`): kein `--sprites` mehr (auch aus `build.sh`
+    entfernt), kein Lesen des Sprite-Ordners, keine Namensschema- und
+    Deckel-Logik (`key_from_filename`, `hull_id`, `split_name`,
+    `sprite_limit`, `hull_width`, `hull_lengths`). An die Stelle von
+    `SPR_DATA` setzt er `MOUNTS` und `OUTLINES`. Der Abgleich „steht im
+    Spielcode, hat aber kein Sprite" prüft jetzt gegen die Umrisse.
+  - **Noch zu tun, einmalig und von Hand:** der Ordner
+    `/home/belisarius/fs3-build/sprites` auf dem Server wird nicht mehr
+    gelesen und kann gelöscht werden. Nichts bricht, wenn er liegen bleibt.
+  - Szenario „v313 F103 stage4" (gegen v312 rot: `f103Blank` gibt es dort
+    nicht). Die drei Zusicherungen der Etappe-3-Szenarien, die `f103Canvas`
+    benutzten, prüfen jetzt `f103Blank` — gleiche Aussage ohne Sprite. In
+    M62 (v180 `breach`, `repairFades`) sind v312 und v313 **gleich** rot,
+    alte Mission, nicht von Etappe 4. `warpsim 1-3` gibt in beiden Fassungen
+    dieselben drei Befunde.
+  - **In der Cloud nicht sichtbar prüfbar** — dort liegen keine Modelle;
+    Silvio sieht es im Spiel. Wo bisher ein Sprite einsprang, solange ein
+    Modell noch lud, ist das Schiff jetzt kurz **nicht** zu sehen (auch das
+    eigene Schiff); ohne WebGL wäre gar kein Schiff zu sehen.
 
 **Etappe 3 — Reihenfolge (Silvio, 15.11.2026):** „fangen wir klein an" —
 zuerst Jäger und Bomber (Schlüssel `fi…`, `bo…`), dann die übrigen Klassen.

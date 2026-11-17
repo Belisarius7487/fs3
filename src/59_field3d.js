@@ -86,9 +86,9 @@ const F3D_FOV = 40*Math.PI/180;
 // key light from the upper left and in front, a weak fill from below
 // right - the same as the previews
 const F3D_L1 = [-0.45, 0.65, 0.62], F3D_L2 = [0.7, -0.25, 0.4];
-const F3D = {ok: null, gl: null, can: null, prog: null, loc: null, models: {}, white: null, black: null, flatN: null,
-             // &f3d=0 in the address draws every ship as a sprite, to compare
-             off: (typeof location !== 'undefined' && /[?&]f3d=0(&|$)/.test(location.search||''))};
+// F103 stage 4 (v313): the sprites are gone, and with them the &f3d=0
+// switch that drew every ship as one for comparison.
+const F3D = {ok: null, gl: null, can: null, prog: null, loc: null, models: {}, white: null, black: null, flatN: null};
 
 // ── TURRETS FROM THE MODELS (v198, v199) ─────────────────────
 // Silvio: the guns of a capital ship with a model are the turrets of that
@@ -575,7 +575,7 @@ function f3dPump(){
 // is. A ship not ready by the time she appears loads as before.
 const F3D_PRE = {on: false, done: false, n: 0, of: 0};
 function f3dPreload(){
-  if(F3D_PRE.on || F3D.off || typeof document === 'undefined' || !f3dInit()) return;
+  if(F3D_PRE.on || typeof document === 'undefined' || !f3dInit()) return;
   F3D_PRE.on = true; F3D_PRE.of = F3D_KEYS.length;
   const tick = function(){
     if(!F3D.gl){ F3D_PRE.done = true; return; }      // context lost: as before
@@ -638,7 +638,7 @@ function f3dLoadBoxShow(){
   if(typeof window === 'undefined' || typeof document === 'undefined' || !document.body) return;
   const lb = window.FS3_LOADBOX;
   if(!lb) return;
-  const ready = F3D.off || F3D.ok === false || (F3D_PRE.done && F3D_PRE.warm) || f3dNow() - (lb.t0 || (lb.t0 = f3dNow())) > 30000;
+  const ready = F3D.ok === false || (F3D_PRE.done && F3D_PRE.warm) || f3dNow() - (lb.t0 || (lb.t0 = f3dNow())) > 30000;
   if(ready){
     if(F3D_BOX && F3D_BOX.parentNode) F3D_BOX.parentNode.removeChild(F3D_BOX);
     F3D_BOX = null; window.FS3_LOADBOX = null;
@@ -700,7 +700,7 @@ function f3dModel(key){
   return m;
 }
 function f3dReadyLevel(key){
-  if(F3D.off || !f3dInit()) return null;
+  if(!f3dInit()) return null;
   const m = f3dModel(key);
   return (m.full && m.full.state === 'ready') ? m.full : null;
 }
@@ -783,7 +783,7 @@ function f3dTurnRoll(e){
 // sprite.
 const F3D_PL = {img: null, sc: 1, flip: false, ang: 0, x: 0, y: 0, faction: 'terran', player: true};
 function f3dPlayer(key, x, y, sc, flip, ang, a){
-  if(F3D.off || typeof document === 'undefined') return false;
+  if(typeof document === 'undefined') return false;
   const k = f3dKey({img: key}); if(!k) return false;
   const L = f3dReadyLevel(k); if(!L) return false;
   const P = F3D_PL;
@@ -1143,7 +1143,7 @@ function f3dBeamFrame(){ F3D_BEAMS.length = 0; F3D_BEAM_BG = false; }
 function f3dBeam3D(e, b){
   if(!b || b.state !== 'firing' || !b.anc || !b.anc.o) return false;
   // without a stencil the hull on top is unknown: then the flat beam
-  if(F3D.off || !F3D.ok || !F3D.gl || !F3D.stencil || !f3dOn(e) || !f3dOn(b.anc.o)) return false;
+  if(!F3D.ok || !F3D.gl || !F3D.stencil || !f3dOn(e) || !f3dOn(b.anc.o)) return false;
   const k = f3dKey(b.anc.o);
   return !!(k && f3dReadyLevel(k));
 }
@@ -1743,7 +1743,7 @@ function f3dBuildMask(L, img, sg, rl){
 const F3D_RSTEPS = 16;
 const F3D_RMASK = {};
 function f3dRollMask(key, o){
-  if(!o || F3D.off || !f3dFresh(o)) return null;     // v216: pictures, not steps
+  if(!o || !f3dFresh(o)) return null;     // v216: pictures, not steps
   const k = F3D_ALIAS[key] || key;
   if(!f3dSmall(k) || F3D_VIEW[key]) return null;
   const m = F3D.models[k], L = m && m.lo;
@@ -1794,7 +1794,7 @@ function f3dMask(skey, mkey){
 function f3dFieldPrep(list){
   const done = new Map();
   F3D_FRAME++;                          // v216: one per picture (f3dFresh)
-  if(F3D.off || typeof document === 'undefined') return done;
+  if(typeof document === 'undefined') return done;
   for(const e of list){
     const key = f3dKey(e); if(!key) continue;
     const L = f3dReadyLevel(key); if(!L) continue;
@@ -2033,7 +2033,7 @@ function f3dHulkItem(P){
                               P.x - q[0], -P.y - q[1], P.z - q[2], 1]);
   return {e: null, L: P.L, deb: P.j, M: M, a: 1, clip: null, burn: P.wreck ? 1 : 0};
 }
-function f3dHulksOn(){ return F3D_HULKS.length > 0 && !F3D.off && f3dInit(); }
+function f3dHulksOn(){ return F3D_HULKS.length > 0 && f3dInit(); }
 // all of them at once (tests, older callers)
 function f3dDrawHulks(){
   if(!f3dHulksOn()) return;
@@ -2160,7 +2160,7 @@ function f3dPlayerOn(){
       && typeof player !== 'undefined' && F3D_PL.img === player.ship;
 }
 function f3dShieldHit(e, x, y){
-  if(!e || F3D.off) return;
+  if(!e) return;
   const q = e._shq || (e._shq = []);
   if(q.length >= F3D_SH_MAX) q.shift();
   q.push({wx: x == null ? null : x - e.x, wy: x == null ? null : y - e.y, t: f3dNow()/1000, p: null});
@@ -2366,7 +2366,7 @@ function f3dQuad(arr, k, c, a, b, r, al){
 // gives them (mv_effects-sdf.tbm): 1 Terran, 2 Vasudan, 3 Shivan. Drawn in
 // her 3D pass, so they roll, turn and bank with her and her hull hides
 // what is behind it. They replace the old flames (drawThrusters), which
-// stay for the ships drawn as sprites (&f3d=0).
+// stay for a ship that is not drawn from her model.
 // Data: models/fx/thrusters.json.gz (mkthrusters.py), models/fx/thrusters.webp
 // (3 columns by species; rows: glow, flare, flame).
 const F3D_TH = {state: null, data: null};
@@ -2385,7 +2385,7 @@ function f3dThLoad(){
 // Drawn from her model this frame, flames and all (drawThrusters leaves
 // her alone then).
 function f3dDrawsThr(key){
-  if(F3D.off || typeof document === 'undefined' || !F3D.ok) return false;
+  if(typeof document === 'undefined' || !F3D.ok) return false;
   const k = f3dKey({img: key}); if(!k) return false;
   return !!f3dReadyLevel(k);
 }
@@ -2487,7 +2487,7 @@ const F3D_WP_GLOW = new Float32Array(36);
 // her bow beyond the disc wherever it looked at her from the side. At her
 // own depth the disc stands where she is cut.
 function f3dWarp(px, py, fx, fy, WS, wS, alpha, seed, knossos, pz){
-  if(F3D.off || typeof document === 'undefined' || !F3D.ok || !F3D.gl) return false;
+  if(typeof document === 'undefined' || !F3D.ok || !F3D.gl) return false;
   if(!f3dWarpLoad() || !f3dFxProg()) return false;
   const sheetImg = (knossos && imgReady(KNOSSOS_WARP_IMG)) ? KNOSSOS_WARP_IMG : WARP_IMG;
   const glowImg = (knossos && imgReady(KNOSSOS_GLOW_IMG)) ? KNOSSOS_GLOW_IMG : WARP_GLOW_IMG;

@@ -4138,8 +4138,8 @@ scenario('v204: hit on the model as drawn, damage on the model, debris in its la
   const m0 = f3dBuildMask(L, img, 1, 0), m90 = f3dBuildMask(L, img, 1, Math.PI/2);
   r.rolledTaller = m90.ky > m0.ky * 2;
   // the roll picks the map: a point above the sprite's box hits only rolled
-  const key = 'fimyrmidon', keep = IMGS[key], keepM = F3D.models[key], keepOff = F3D.off;
-  IMGS[key] = img; F3D.models[key] = {lo: L, full: L}; F3D.off = false;
+  const key = 'fimyrmidon', keep = IMGS[key], keepM = F3D.models[key];
+  IMGS[key] = img; F3D.models[key] = {lo: L, full: L};
   const o = {img:key, x:300, y:200, sc:1, flip:false, ang:0, _f3fc: fc, _f3df: F3D_FRAME, _f3r: {r:0, b:0}};   // v216: drawn = counted in pictures (_f3df)
   const hitFlat = onHull(key, 300, 200, 1, false, 300, 200 - 25, 0, o);
   o._f3r = {r:Math.PI/2, b:0};
@@ -4148,7 +4148,7 @@ scenario('v204: hit on the model as drawn, damage on the model, debris in its la
   const hitStale = onHull(key, 300, 200, 1, false, 300, 200 - 25, 0, o);
   r.rollMask = hitFlat === false && hitRolled === true && hitStale === false;
   r.stages = (F3D_RMASK[key] || []).filter(Boolean).length >= 2;
-  IMGS[key] = keep; if(keepM) F3D.models[key] = keepM; else delete F3D.models[key]; F3D.off = keepOff; delete F3D_RMASK[key];
+  IMGS[key] = keep; if(keepM) F3D.models[key] = keepM; else delete F3D.models[key]; delete F3D_RMASK[key];
   // damage of a ship drawn from her model: kept up to date, not painted in 2D
   const cap = enemies.find(e => !e.small && e.type !== 'asteroid') || allies.find(a => !a.small);
   if(cap){
@@ -6818,15 +6818,13 @@ for(const rRight of [false, true]) scenario('v285 F101: M11 the Elysium docks an
 // mounts are scaled so every point stays where it was. Other classes stay.
 scenario('F103 stage 3: small hulls framed by their model', 'm=1', `
   const r = {};
+  // v313: there is no sprite any more, f103Blank() makes the frame itself
   const k = 'fihercmk2', o = OUTLINES[k], W = o.sprite[0], H = o.sprite[1];
-  const sp = document.createElement('canvas'); sp.width = W; sp.height = H;
-  const fr = (typeof f103Canvas === 'function') ? f103Canvas(k, sp) : sp;
+  const fr = f103Blank(k);
   r.frameHasModelHeight = fr.width === W && fr.height === Math.round(W*o.ratio) && fr.height !== H;
   // v288: the other small hulls too (freighters, containers, transports...)
-  const fo = OUTLINES.frchronos, sp2 = document.createElement('canvas');
-  sp2.width = fo.sprite[0]; sp2.height = fo.sprite[1];
-  const ff = (typeof f103Canvas === 'function') ? f103Canvas('frchronos', sp2) : sp2;
-  r.freighterFramed = ff !== sp2 && ff.height === Math.round(fo.sprite[0]*fo.ratio);
+  const fo = OUTLINES.frchronos, ff = f103Blank('frchronos');
+  r.freighterFramed = ff.width === fo.sprite[0] && ff.height === Math.round(fo.sprite[0]*fo.ratio);
   delete MASKS[k];
   const m = buildMask(k), row = o.map.rows[o.map.h >> 1];
   r.maskIsModelOutline = !!m && m.w === o.map.w && m.h === o.map.h &&
@@ -6859,9 +6857,8 @@ scenario('F103 stage 3: small hulls framed by their model', 'm=1', `
 scenario('F103 stage 3: capital ships framed by their model', 'm=1', `
   const r = {};
   const k = 'craten', o = OUTLINES[k], W = o.sprite[0], H = o.sprite[1];
-  const sp = document.createElement('canvas'); sp.width = W; sp.height = H;
-  const fr = (typeof f103Canvas === 'function') ? f103Canvas(k, sp) : sp;
-  r.atenFramed = fr !== sp && fr.height === Math.round(W*o.ratio) && fr.height !== H;
+  const fr = f103Blank(k);
+  r.atenFramed = fr.width === W && fr.height === Math.round(W*o.ratio) && fr.height !== H;
   const raw = MOUNTS[k].subs[0], now = f103Mounts(k, MOUNTS[k]).subs[0];
   r.atenSubStaysPut = Math.abs(now.dy*Math.round(W*o.ratio) - raw.dy*H) < 0.01*H && now.dx === raw.dx;
   r.allClassesFramed = ['coiceni', 'crmentu', 'deorionleft', 'dehecate', 'sdsathanas', 'gmrahu', 'inarcadia', 'ntfdehecate', 'cacharybdis']
@@ -6976,6 +6973,42 @@ scenario('v312 F103 stage4: every hull is drawn from a model', 'm=6', `
   r.leftOver = JSON.stringify(miss.sort());
   r.onlyUnused = miss.every(function(k){ return allowed.indexOf(k) >= 0; });
   r.angelHasModel = !!have['fiangel'];
+  return r;`);
+
+scenario('v313 F103 stage4: no sprites left, the frames come from the models', 'm=6', `
+  const r = {};
+  // The frame of a hull: an empty canvas, the width the sprite had (so every
+  // scale in the missions still means the same size) and the model's height.
+  // FS.fakeImages() has overwritten IMGS by now, so the maker is asked
+  // directly.
+  const probe = ['boamun', 'fimyrmidon', 'dehatshepsut', 'crfenris'];
+  r.frames = probe.every(function(k){
+    const o = OUTLINES[k], c = (typeof f103Blank === 'function') ? f103Blank(k) : null;
+    return !!c && c.width === o.sprite[0] && c.height === f103H(o, o.sprite[0]);
+  });
+  // and it is empty: no picture, so nothing to read out of it
+  const c0 = f103Blank('dehatshepsut');
+  const px = c0.getContext('2d').getImageData(0, 0, c0.width, c0.height).data;
+  let ink = 0; for(let i = 3; i < px.length; i += 4) if(px[i] > 0) ink++;
+  r.blank = ink === 0;
+  // the silhouette for hits and for the subsystem points comes from the
+  // model's outline map, not from a picture
+  const m = getMask('dehatshepsut');
+  r.maskFromModel = !!m && m.w === OUTLINES['dehatshepsut'].map.w && m.bits.some(function(b){ return b === 1; });
+  // what only ever served the sprites is gone
+  r.gone = typeof drawShip === 'undefined' && typeof drawRimLight === 'undefined'
+        && typeof buildGlint === 'undefined' && typeof shieldSkin === 'undefined'
+        && typeof hullShieldSkin === 'function' && F3D.off === undefined;
+  // and the field still runs: a hurt capital ship keeps her marks
+  FS.step(30);
+  const cap = enemies.concat(allies).find(function(e){ return !e.small && e.type !== 'asteroid'; });
+  if(cap){
+    cap.hp = cap.maxHp * 0.4; cap.dm = null;
+    try{ dmgPreset(cap); }catch(ex){}
+    r.marks = !!(cap.dm && (cap.dm.scorch.length || cap.dm.gashes.length));
+  }
+  FS.step(60);
+  r.alive = enemies.length + allies.length > 0;
   return r;`);
 
 (async()=>{

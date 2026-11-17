@@ -215,9 +215,10 @@ function draw(){
       // A Ptah nobody can see is drawn faint (v170). Not a Mara in
       // disguise: she is in plain sight, only taken for one of theirs.
       if(player.ship===PTAH_HULL && !playerSeen()) ctx.globalAlpha = 0.45 + 0.1*Math.sin(fc*0.1);
-      // v203: her model, when it has loaded (59_field3d.js)
-      if(!(typeof f3dPlayer === 'function' && f3dPlayer(player.ship,player.x|0,player.y|0,playerSc()*_js,_pf,player.ang||0)))
-        drawShip(player.ship,player.x|0,player.y|0,playerSc()*_js,_pf,player.ang||0);
+      // v203: her model (59_field3d.js). F103 stage 4 (v313): there is no
+      // sprite to fall back on any more - until her model is there she is
+      // not drawn.
+      if(typeof f3dPlayer === 'function') f3dPlayer(player.ship,player.x|0,player.y|0,playerSc()*_js,_pf,player.ang||0);
       ctx.globalAlpha = 1;
       if(_js>=1) drawPlayerShield();
       drawJumpVortex();
@@ -361,7 +362,7 @@ function drawDiag(){
            + '  cur ' + n(nebCur) + ' ' + sz(NEBS[nebCur])
            + '  nxt ' + n(nebNxt) + ' ' + sz(NEBS[nebNxt]));
     L.push('f3d        ok ' + (F3D.ok === null ? '?' : (F3D.ok ? 'Y' : 'n'))
-           + ' off ' + (F3D.off ? 'Y' : 'n') + '  can ' + sz(F3D.can)
+           + '  can ' + sz(F3D.can)
            + (F3D.err ? ('  err ' + String(F3D.err).slice(0, 40)) : ''));
     L.push('state      ' + GS + '  wave ' + n(wave) + '  waveCd ' + n(waveCd)
            + '  mod ' + n(waveMod));
@@ -1642,11 +1643,7 @@ function settingsRows(){
     {label:'RESOLUTION', hint:'canvas scale, lower is cooler but softer',
      value:ECO.res+'x', on:ECO.res!==3, act:'res', enabled:true},
     {label:'BEAM GLOW', hint:'blur around beams, priciest canvas op',
-     value:ECO.blur?'OFF':'ON', on:!ECO.blur, act:'blur', enabled:true},
-    {label:'RIM LIGHT', hint:'light edge on cruisers and larger',
-     value:ECO.rim?'OFF':'ON', on:!ECO.rim, act:'rim', enabled:true},
-    {label:'METAL GLINT', hint:'baked highlight map per hull',
-     value:ECO.glint?'OFF':'ON', on:!ECO.glint, act:'glint', enabled:true}
+     value:ECO.blur?'OFF':'ON', on:!ECO.blur, act:'blur', enabled:true}
   ];
   const avail = fullscreenAvailable();
   return [
@@ -1766,8 +1763,6 @@ function settingsClick(mx,my){
         const q = r.act.split(':'), e2 = {id:q[1], slot:+q[2]};
         ctlEdit = (ctlEdit && ctlEdit.id===e2.id && ctlEdit.slot===e2.slot) ? null : e2; ctlSwap=null; ctlMsgT=0; }
       else if(r.act==='keyreset'){ bindReset(); }
-      else if(r.act==='rim'){ ECO.rim=!ECO.rim; ecoSave(); }
-      else if(r.act==='glint'){ ECO.glint=!ECO.glint; ecoSave(); }
       return true;
     }
   }

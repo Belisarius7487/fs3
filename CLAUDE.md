@@ -248,7 +248,6 @@ An die URL anhängen. Geprüft gegen den Code in v216:
 | `&fs1=N` | Übungsmodus (Rest der verworfenen FS1-Kampagne) |
 | `&practice=1` | Übungsmodus |
 | `&warp=oval\|rund\|alt` | Form des Sprungtors |
-| `&f3d=0` | jedes Schiff als Sprite statt als Modell, zum Vergleichen |
 | `&warm=0` | ohne das Vorwärmen beim Missionsbeginn (F104, v307), zum Vergleichen |
 
 Übliche Testadresse:
@@ -377,8 +376,10 @@ Alles Weitere (Hilfsskripte, Tabelle `HULL`): `CLAUDE_DETAILS.md`, Abschnitt C.
 - Der Bereich zwischen `<!-- AUTO:START -->` und `<!-- AUTO:END -->` in
   `CODEMAP.md` — erzeugt `codemap.py`.
 - `patch_v*.py`, `split_*.py` — Historie.
-- Bilddaten: `SPR_DATA`, `ICON_DATA`, `PLANET_DATA`, `SUN_DATA`, `MOUNTS`
-  bleiben in der Logikdatei **leer**. Der Packer `build_game.py` füllt sie
-  beim Bauen aus den Ordnern auf dem Server.
+- Bilddaten: `ICON_DATA`, `PLANET_DATA`, `SUN_DATA` bleiben in der
+  Logikdatei **leer**. Der Packer `build_game.py` füllt sie beim Bauen aus
+  den Ordnern auf dem Server. `SPR_DATA` ist seit v313 (F103 Etappe 4) nur
+  noch die Stelle, an die der Packer `MOUNTS` und `OUTLINES` setzt — es gibt
+  keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell.
 - Logikdateien älterer Versionen — sie bleiben als Stand liegen. Beim Suchen
   im Code also `src/` durchsuchen, nicht das Verzeichnis: `grep -rn "x" src/`.

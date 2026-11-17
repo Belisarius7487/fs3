@@ -2339,7 +2339,8 @@ function beamCol(faction, large) {
 // type: 'static' | 'slash'
 // large: true = main gun, false = anti fighter
 // ── MOUNT SYSTEM ──────────────────────────────────────────────
-// MOUNTS is injected by the packer (build_game.py) right after SPR_DATA.
+// MOUNTS is injected by the packer (build_game.py) in place of SPR_DATA
+// (F103 stage 4: the sprites that stood there are gone).
 // Per ship: {facing, thrusters:[{dx,dy,len,w,dir}], primary:[{dx,dy}],
 //                    secondary:[{dx,dy}], beams:[{dx,dy,large,type,...}]}
 // dx/dy are fractions of half the sprite extent, measured in sprite space.

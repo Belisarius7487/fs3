@@ -1,3 +1,6 @@
+// F103 stage 4 (v313): the 121 ship sprites are gone (13.8 of 31 MB). This
+// stays as the packer's anchor only: build_game.py replaces this line with
+// MOUNTS and OUTLINES, both made from the models. Nothing reads SPR_DATA.
 const SPR_DATA={};
 
 // v229: the backgrounds are fetched from the server, not built into the
@@ -204,11 +207,8 @@ function worldSet(k, need){
 //          Geraetepixelverhaeltnis 2 ergibt 3 eine Flaeche von 2400x1500,
 //          also 3,6 Millionen Bildpunkte je Bild. 1.5 sind 0,9 Millionen.
 //   blur   shadowBlur im Strahlenzeichner, je Strahl je Bild.
-//   rim    drawRimLight, 640er Puffer mit drei Kompositdurchgaengen je
-//          Grosskampfschiff je Bild.
-//   glint  gebackene Glanzkarten und Schildhaeute. Wachsen mit jedem neuen
-//          Rumpftyp, den man zu Gesicht bekommt - passt zum Muster
-//          "erst in spaeteren Wellen".
+// F103 stage 4 (v313): rim light and metal glint are gone with the
+// sprites they were made from, and so are their two switches.
 // Der Stand wird gemerkt, damit nach einem Schwarzwerden nicht alles neu
 // gestellt werden muss. Uebungsmodus und Anzeigen bewusst nicht.
 const ECO_RES_STEPS = [3, 2, 1.5];
@@ -218,14 +218,14 @@ const ECO_RES_STEPS = [3, 2, 1.5];
 // bei 1.5 sind es 0,9 Millionen. true heisst hier AUS.
 // Wer schon einmal gespielt hat, behaelt seine eigene Wahl - der
 // gespeicherte Stand ueberschreibt diese Zeile weiter unten.
-let ECO = {res:1.5, blur:true, rim:true, glint:true, scheme:'fire'};
+let ECO = {res:1.5, blur:true, scheme:'fire'};
 try{
   const _es = localStorage.getItem('fs3_eco');
   if(_es){
     const _eo = JSON.parse(_es);
     if(_eo && typeof _eo === 'object'){
       if(ECO_RES_STEPS.indexOf(_eo.res) >= 0) ECO.res = _eo.res;
-      ECO.blur = !!_eo.blur; ECO.rim = !!_eo.rim; ECO.glint = !!_eo.glint;
+      ECO.blur = !!_eo.blur;
       if(_eo.scheme==='fire' || _eo.scheme==='void') ECO.scheme = _eo.scheme;
     }
   }

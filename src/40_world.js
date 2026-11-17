@@ -712,38 +712,6 @@ function hullShield(key, fac, x, y, sc, flip, ang, frac, hit){
 // The shield is the ship's own outline, not an ellipse laid over it. The
 // sprite is drawn into an offscreen canvas, filled with the shield colour
 // through source-in so only its solid pixels survive, then blurred outward
-// in a few passes. Built once per hull and kept, because blurring a sprite
-// this size every frame would not hold sixty frames on a tablet.
-const SHIELD_SKINS = {};
-const SHIELD_PAD = 14;
-function shieldSkin(key){
-  if(SHIELD_SKINS[key]) return SHIELD_SKINS[key];
-  const img = IMGS[key];
-  if(!img) return null;
-  const w = img.width + SHIELD_PAD*2, h = img.height + SHIELD_PAD*2;
-  const cv = document.createElement('canvas');
-  cv.width = w; cv.height = h;
-  const c = cv.getContext('2d');
-  c.drawImage(img, SHIELD_PAD, SHIELD_PAD);
-  c.globalCompositeOperation = 'source-in';
-  c.fillStyle = '#6fd8ff';
-  c.fillRect(0,0,w,h);
-  c.globalCompositeOperation = 'source-over';
-  // Spread the silhouette outwards so the skin sits around the hull
-  // rather than exactly on it.
-  const sp = document.createElement('canvas');
-  sp.width = w; sp.height = h;
-  const s = sp.getContext('2d');
-  s.shadowColor = '#6fd8ff';
-  s.shadowOffsetX = 0; s.shadowOffsetY = 0;
-  for(let p=0;p<3;p++){
-    s.shadowBlur = 4 + p*4;
-    s.drawImage(cv, 0, 0);
-  }
-  SHIELD_SKINS[key] = {cv:sp, pad:SHIELD_PAD, w:w, h:h};
-  return SHIELD_SKINS[key];
-}
-
 function addShieldFlare(e, x, y, str){
   if(!e.shieldFlares) e.shieldFlares = [];
   if(e.shieldFlares.length > 14) e.shieldFlares.shift();
@@ -753,77 +721,14 @@ function addShieldFlare(e, x, y, str){
   if(e.bShield > 0) f3dShieldHit(e, x, y);
 }
 
-// Small scratch canvas for the flares. One flare is a piece of the skin cut
-// to a soft circle, so the flash stays inside the silhouette instead of
-// sitting on top of it as a disc.
-const FL_SIZE = 120;
-let FL_CV = null;
-function flareCanvas(){
-  if(!FL_CV){ FL_CV = document.createElement('canvas'); FL_CV.width = FL_SIZE; FL_CV.height = FL_SIZE; }
-  return FL_CV;
-}
-
 function drawLuciShield(e){
   if(!(e.bShield > 0)) return;
-  // v205/v206: drawn from her model, her shield is her shield mesh (f3dShDraw)
-  if(f3dOn(e)){
-    if(e.shieldFlares) for(let i=e.shieldFlares.length-1;i>=0;i--) if(--e.shieldFlares[i].life <= 0) e.shieldFlares.splice(i,1);
-    return;
-  }
-  const skin = shieldSkin(e.img);
-  if(!skin) return;
-  const frac = e.bShield/e.bShieldMax;
-  const pulse = 0.5 + 0.5*Math.sin(fc*0.045);
-  // A weakening shield thins out, which doubles as the readout for which
-  // phase of the fight this is.
-  const base = (0.14 + 0.34*frac) * (0.82 + 0.18*pulse);
-  const sc = e.sc;
-  const dw = skin.w*sc, dh = skin.h*sc;
-  ctx.save();
-  ctx.translate(e.x, e.y);
-  if(e.ang) ctx.rotate(e.ang);
-  if(e.flip) ctx.scale(-1,1);
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = base;
-  ctx.drawImage(skin.cv, -dw/2, -dh/2, dw, dh);
-  ctx.restore();
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = 'source-over';
-
-  if(!e.shieldFlares || !e.shieldFlares.length) return;
-  const fcv = flareCanvas();
-  const fx = fcv.getContext('2d');
-  for(let i=e.shieldFlares.length-1;i>=0;i--){
-    const f = e.shieldFlares[i];
-    if(--f.life <= 0){ e.shieldFlares.splice(i,1); continue; }
-    const t = f.life/f.ml;
-    const wx = e.x+f.lx, wy = e.y+f.ly;
-    fx.setTransform(1,0,0,1,0,0);
-    fx.clearRect(0,0,FL_SIZE,FL_SIZE);
-    // Copy the piece of skin that lies under the impact.
-    fx.save();
-    fx.translate(FL_SIZE/2, FL_SIZE/2);
-    fx.translate(-f.lx, -f.ly);
-    if(e.ang) fx.rotate(e.ang);
-    if(e.flip) fx.scale(-1,1);
-    fx.drawImage(skin.cv, -dw/2, -dh/2, dw, dh);
-    fx.restore();
-    // Cut it to a soft circle.
-    fx.globalCompositeOperation = 'destination-in';
-    const g = fx.createRadialGradient(FL_SIZE/2,FL_SIZE/2,0,FL_SIZE/2,FL_SIZE/2,FL_SIZE/2);
-    g.addColorStop(0,'rgba(255,255,255,1)');
-    g.addColorStop(0.45,'rgba(255,255,255,0.55)');
-    g.addColorStop(1,'rgba(255,255,255,0)');
-    fx.fillStyle = g;
-    fx.fillRect(0,0,FL_SIZE,FL_SIZE);
-    fx.globalCompositeOperation = 'source-over';
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = Math.min(1, t*1.5) * 0.85 * f.str;
-    ctx.drawImage(fcv, wx-FL_SIZE/2, wy-FL_SIZE/2);
-    ctx.restore();
-    ctx.globalAlpha = 1;
-  }
+  // v205/v206: drawn from her model, her shield IS her shield mesh
+  // (f3dShDraw, 59_field3d.js).
+  // F103 stage 4 (v313): there is no second way any more. The skin that used
+  // to be laid around her and the flares cut out of it were both made from
+  // her sprite. Only the flares' own clocks still run here.
+  if(e.shieldFlares) for(let i=e.shieldFlares.length-1;i>=0;i--) if(--e.shieldFlares[i].life <= 0) e.shieldFlares.splice(i,1);
 }
 
 // Reactors are only worth marking while the shield is up, since after that
@@ -1118,7 +1023,7 @@ function spriteBox(key){
   // Faellt die Maske aus, gilt das ganze Bild - lieber zu grosszuegig als
   // gar keine Pruefung.
   let box = {cx:0, cy:0, hw:img.width*0.5, hh:img.height*0.5};
-  const m3 = (typeof MASKS3D !== 'undefined' && !(typeof F3D !== 'undefined' && F3D.off)) ? MASKS3D[key] : null;
+  const m3 = (typeof MASKS3D !== 'undefined') ? MASKS3D[key] : null;
   const m = m3 || getMask(key);
   const ky = (m && m.ky) || 1;
   if(m){

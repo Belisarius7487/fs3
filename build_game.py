@@ -4,14 +4,14 @@ HLP Space Shooter - Asset Packer
 =================================
 
 Baut die Spieldatei neu auf:
-  - liest alle Sprites aus dem Sprite-Ordner und ersetzt SPR_DATA
   - liest HUD-Icons aus dem Icon-Ordner und ersetzt ICON_DATA
   - liest Planeten und Sonnen und ersetzt PLANET_DATA und SUN_DATA
-  - haengt die Mount-Definitionen als MOUNTS an
-  - meldet jeden Key, der im Spielcode vorkommt aber kein Sprite mehr hat
+  - haengt die Mount-Definitionen als MOUNTS an, dazu die Rahmen und
+    Umrisse aus den Modellen als OUTLINES (F103)
+  - meldet jeden Key, der im Spielcode vorkommt, aber keinen Umriss hat
 
 Aufruf:
-    python3 build_game.py --sprites ./sprites --mounts hlp_mounts_final.json \
+    python3 build_game.py --mounts hlp_mounts_final.json \
                           --game hlp_shooter_v3.html --out hlp_shooter_v4.html
 
 Kurzform, wenn alles im selben Ordner liegt und Standardnamen hat:
@@ -30,9 +30,6 @@ Neu gegenueber der Fassung von v68:
     als JPEG rein und das Spiel rechnet die Maske; das spart rund 90 %.
     Alles andere, etwa der Ringplanet und die Sonnen mit ihrer weichen
     Korona, bleibt PNG.
-  - Uebergrosse Sprites werden auf SPRITE_PX heruntergerechnet. Ein
-    Kreuzer wird im Spiel auf 100 px gezogen, ein Sprite mit 1100 px
-    Breite kostet nur Platz.
 """
 
 import argparse
@@ -105,7 +102,7 @@ def print_changes(old, new):
     lines = []
     if old.get("version") != new.get("version"):
         lines.append("    %-9s %s -> %s" % ("Version", old.get("version") or "?", new.get("version")))
-    for label, key in (("Sprites", "sprites"), ("Modelle", "models"),
+    for label, key in (("Modelle", "models"),
                        ("Musik", "music"), ("Planeten", "planets"), ("Sonnen", "suns"),
                        ("Icons", "icons")):
         line = _diff_line(label, old.get(key) or [], new.get(key) or [])
@@ -121,145 +118,16 @@ def print_changes(old, new):
     else:
         print("    nur die Spieldatei selbst - sonst alles unveraendert")
 
-# 'an' sind die Ancients. Der Knossos gehoert weder den Terranern noch den
-# Shivanern; ihn unter eine bestehende Fraktion zu zwingen waere eine
-# Notluege, die spaeter jemand fuer einen Fehler haelt.
-FACTIONS = {"te", "ntf", "va", "sh", "an"}
 
-# Kampfschiffe, dann Hilfsschiffe, dann Unbewegliches. Muss mit CLS_NAME im
-# Mount-Editor uebereinstimmen - laufen die beiden auseinander, passen die
-# Mounts nachher nicht mehr zu den Sprites.
-CLASSES = {
-    "fi", "bo", "cr", "co", "de", "sd",          # Kampfschiffe
-    "fr", "tr", "ca", "sc", "me", "gm", "su", "ep",   # Hilfsschiffe
-    "sg", "in", "fc",                            # unbeweglich
-}
+# ── SPRITES, GONE ────────────────────────────────────────────
+# F103 stage 4 (v313): the 121 ship sprites and everything that served them
+# are no longer here - the filename scheme (te-/ntf- prefix, class, hull),
+# the per-hull width cap that shrank an oversized picture, and the reading
+# of the sprite folder itself. A hull's frame and silhouette now come from
+# her model (tools/pof/mkoutline.py -> hlp_outlines.json), and the hull is
+# drawn from the model in the game. The sprite folder on the server is not
+# read any more and can go.
 
-# ── HOECHSTBREITE JE SCHIFF ──────────────────────────────────
-# Bis v82 stand hier ein Deckel je KLASSE, geschaetzt aus der ungefaehren
-# Darstellungsgroesse. Seit v81 rechnet das Spiel die Breite jedes Rumpfs
-# aus seiner kanonischen Laenge aus, also kann der Packer denselben Wert
-# benutzen statt ihn zu raten.
-#
-# ACHTUNG, ZWEITE KOPIE EINER KURVE: die folgenden fuenf Konstanten muessen
-# mit hullWidth() in der Spieldatei uebereinstimmen. Laufen sie
-# auseinander, werden Sprites still weich oder still zu gross. Der Packer
-# gibt den angewandten Deckel deshalb mit aus.
-#
-# Die Klassentabelle bleibt als Rueckfall fuer alles, was keine Laenge hat.
-HULL_LEN_FILE = "fs3_hull_lengths.json"
-SIZE_K, SIZE_E = 2.880, 0.641
-SIZE_MAX = 400
-SIZE_REF_L, SIZE_REF_W = 20.0, 60.0      # Jaegerlaenge, Jaegerbreite
-SIZE_FIXED = {"sdcolossus": 556}
-SIZE_CLASS_FIXED = {"fi": 60, "bo": 65, "ep": 60}
-MAX_RES = 3                              # Deckel der Zeichenflaeche im Spiel
-SPRITE_PX_MIN = 128                      # nichts unter dieser Breite packen
-
-_HULL_LEN = None
-def hull_lengths():
-    global _HULL_LEN
-    if _HULL_LEN is None:
-        try:
-            with open(HULL_LEN_FILE, "r", encoding="utf-8") as fh:
-                _HULL_LEN = json.load(fh)["len"]
-        except Exception:
-            _HULL_LEN = {}
-    return _HULL_LEN
-
-def hull_class(key):
-    return key[3:5] if key.startswith("ntf") else key[:2]
-
-def hull_width(key):
-    """Muss exakt dasselbe liefern wie hullWidth() in der Spieldatei."""
-    if key in SIZE_FIXED:
-        return SIZE_FIXED[key]
-    c = hull_class(key)
-    if c in SIZE_CLASS_FIXED:
-        return SIZE_CLASS_FIXED[c]
-    L = hull_lengths().get(key)
-    if not L:
-        return None
-    curve = SIZE_K * (L ** SIZE_E)
-    floor = min(SIZE_REF_W, SIZE_REF_W * ((L / SIZE_REF_L) ** SIZE_E))
-    return int(round(min(SIZE_MAX, max(floor, curve))))
-
-def sprite_limit(key, cls):
-    """Deckel fuer dieses eine Sprite. Faellt auf die Klassentabelle
-    zurueck, wenn der Rumpf keine Laenge hat."""
-    w = hull_width(key)
-    if w is None:
-        return SPRITE_PX.get(cls, SPRITE_PX_DEFAULT)
-    return max(SPRITE_PX_MIN, w * MAX_RES)
-
-# Rueckfalltabelle. Massgeblich ist, wie gross das Schiff im Spiel
-# tatsaechlich gezogen wird, mal MAX_RES 3:
-#   Jaeger/Bomber 58-65 -> 195   Kreuzer 100 -> 300
-#   Korvette 130-140    -> 420   Zerstoerer 380 -> 1140   Boss 320-360 -> 1080
-# Eine pauschale Grenze von 400 px hat die Zerstoerer und den Boss knapp
-# dreifach hochskaliert und sichtbar weich gemacht.
-SPRITE_PX = {
-    "fi": 256, "bo": 256, "cr": 320, "co": 448, "de": 1152, "sd": 1152,
-    # Die Hilfsschiffe werden noch nicht gerendert, es gibt also keine
-    # gemessene Darstellungsgroesse. 448 ist die Korvettengrenze und damit
-    # eine Schaetzung nach oben; nachziehen, sobald sie im Spiel stehen.
-    "fr": 448, "tr": 448, "ca": 448, "sc": 448, "me": 448,
-    "gm": 448, "su": 320, "ep": 256,
-    "sg": 256, "fc": 256,
-    "in": 1152,      # Arcadia und Knossos sind riesig
-}
-SPRITE_PX_DEFAULT = 448
-BODY_PX = 512        # Kantenlaenge fuer Planeten und Sonnen
-JPEG_Q = 82
-CIRCLE_MIN = 0.97    # ab dieser Kreisguete reicht JPEG plus gerechnete Maske
-
-try:
-    from PIL import Image
-    HAVE_PIL = True
-except ImportError:
-    HAVE_PIL = False
-
-
-# ── NAMENSSCHEMA ─────────────────────────────────────────────
-
-def split_name(filename):
-    """te-fi-hercmk2.png -> ('te','fi',['hercmk2'])  |  None wenn unpassend."""
-    base = os.path.splitext(filename)[0].lower()
-    parts = [p for p in base.split("-") if p]
-    if len(parts) < 3:
-        return None
-    faction, cls = parts[0], parts[1]
-    if faction not in FACTIONS or cls not in CLASSES:
-        return None
-    rest = [p for p in parts[2:] if p != "bonus"]
-    if not rest:
-        return None
-    return faction, cls, rest
-
-
-def hull_id(filename):
-    """Rumpfkennung ohne Fraktion: Klasse plus erster Namensteil.
-    te-de-orion-left.png und ntf-de-orion.png ergeben beide ('de','orion'),
-    obwohl ihre Keys sich unterscheiden. Genau darum geht es."""
-    p = split_name(filename)
-    return None if p is None else (p[1], p[2][0])
-
-
-def key_from_filename(filename, te_hulls=frozenset()):
-    """te-fi-hercmk2.png -> fihercmk2 | te-de-orion-left.png -> deorionleft
-    ntf-cr-aeolus.png -> ntfcraeolus, weil te-cr-aeolus.png existiert
-    ntf-fi-loki.png   -> filoki,      weil es keine te-fi-loki.png gibt"""
-    p = split_name(filename)
-    if p is None:
-        return None
-    faction, cls, rest = p
-    key = cls + "".join(rest)
-    if faction == "ntf" and hull_id(filename) in te_hulls:
-        return "ntf" + key
-    return key
-
-
-# ── SPRITES ──────────────────────────────────────────────────
 
 def shrink_png(raw, max_px):
     """Verkleinert ein PNG, wenn es breiter als max_px ist. Ohne Pillow
@@ -275,35 +143,6 @@ def shrink_png(raw, max_px):
     im.save(buf, "PNG", optimize=True)
     return buf.getvalue(), True
 
-
-def collect_sprites(folder):
-    """Liest alle PNGs ein und gibt {key: (dataurl, dateiname)} zurueck."""
-    names = [n for n in sorted(os.listdir(folder)) if n.lower().endswith(".png")]
-    te_hulls = {hull_id(n) for n in names if n.startswith("te-") and hull_id(n)}
-
-    sprites, skipped, collisions, shrunk = {}, [], [], []
-    for name in names:
-        key = key_from_filename(name, te_hulls)
-        if key is None:
-            skipped.append(name)
-            continue
-        if key in sprites:
-            collisions.append((key, sprites[key][1], name))
-            continue
-        with open(os.path.join(folder, name), "rb") as fh:
-            raw = fh.read()
-        before = len(raw)
-        cls = split_name(name)[1]
-        limit = sprite_limit(key, cls)
-        raw, did = shrink_png(raw, limit)
-        if did:
-            shrunk.append((name, limit, before, len(raw)))
-        b64 = base64.b64encode(raw).decode("ascii")
-        sprites[key] = ("data:image/png;base64," + b64, name)
-    return sprites, skipped, collisions, shrunk
-
-
-# ── PLANETEN UND SONNEN ──────────────────────────────────────
 
 def circle_of(alpha):
     """Mittelpunkt, Radius und Guete der Alphascheibe, alles normiert.
@@ -406,6 +245,7 @@ def render_bodies(name, bodies):
 
 # ── ICONS UND MOUNTS ─────────────────────────────────────────
 
+
 def collect_icons(folder):
     """HUD-Icons. Anders als Sprites brauchen die kein Namensschema, der
     Dateiname ohne Endung ist der Key. Fehlt der Ordner, gibt es keine
@@ -456,15 +296,6 @@ def find_block(html, declaration):
         return None
     end = html.find(";", j)
     return (start, end + 1) if end > 0 else None
-
-
-def render_sprites(sprites):
-    lines = ["const SPR_DATA={"]
-    for key in sorted(sprites):
-        lines.append("  '%s':'%s'," % (key, sprites[key][0]))
-    lines[-1] = lines[-1].rstrip(",")
-    lines.append("};")
-    return "\n".join(lines)
 
 
 def render_mounts(mounts):
@@ -592,8 +423,7 @@ def write_loader(path, game):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Packt Sprites, Mounts und Hintergrundkoerper in die Spieldatei.")
-    ap.add_argument("--sprites", default="sprites", help="Ordner mit den PNG-Dateien")
+    ap = argparse.ArgumentParser(description="Packt Mounts, Umrisse, Icons und Hintergrundkoerper in die Spieldatei.")
     ap.add_argument("--icons", default="icons", help="Ordner mit HUD-Icons (optional)")
     ap.add_argument("--planets", default="planets", help="Ordner mit Planeten (optional)")
     ap.add_argument("--suns", default="suns", help="Ordner mit Sonnen (optional)")
@@ -611,31 +441,9 @@ def main():
     global LOUD
     LOUD = args.laut
 
-    for path, label in ((args.sprites, "Sprite-Ordner"), (args.mounts, "Mount-JSON"), (args.game, "Spieldatei")):
+    for path, label in ((args.mounts, "Mount-JSON"), (args.game, "Spieldatei")):
         if not os.path.exists(path):
             sys.exit("Abbruch: %s nicht gefunden: %s" % (label, path))
-
-    detail("Sprites lesen aus %s ..." % args.sprites)
-    sprites, skipped, collisions, shrunk = collect_sprites(args.sprites)
-    if not sprites:
-        sys.exit("Abbruch: keine gueltigen Sprites gefunden.")
-    # The sprites are the old 2D pictures, on their way out with F103
-    # stage 4. Until then they are still built in, but there is nothing to
-    # report about them any more (Silvio, 16.11.2026) - only warnings.
-    STATS["Sprites"] = len(sprites)
-    STATS["names:Sprites"] = sorted(sprites)
-    detail("  %d Sprites eingelesen" % len(sprites))
-    for name in skipped:
-        detail("  uebersprungen (Namensschema passt nicht): %s" % name)
-    for key, first, second in collisions:
-        warn("WARNUNG: %s und %s ergeben beide den Key '%s' - zweite Datei ignoriert" % (first, second, key))
-    for name, limit, a, b in shrunk:
-        detail("  verkleinert auf %4d px: %-26s %5.0f KB -> %4.0f KB" % (limit, name, a / 1024, b / 1024))
-    if LOUD:
-        for name in sorted(n for n in os.listdir(args.sprites) if n.startswith("ntf-")):
-            k = key_from_filename(name, {hull_id(x) for x in os.listdir(args.sprites)
-                                         if x.startswith("te-") and hull_id(x)})
-            detail("  NTF: %-24s -> %s" % (name, k))
 
     icons = collect_icons(args.icons)
     if icons:
@@ -660,25 +468,25 @@ def main():
     with open(args.game, encoding="utf-8") as fh:
         html = fh.read()
 
-    # --- Abgleich Sprites <-> Mounts ---
-    only_sprite = sorted(set(sprites) - set(mounts))
-    only_mount = sorted(set(mounts) - set(sprites))
-    for key in only_sprite:
-        warn("WARNUNG: Sprite '%s' (%s) hat keine Mounts" % (key, sprites[key][1]))
-    for key in only_mount:
-        warn("WARNUNG: Mounts fuer '%s' vorhanden, aber kein Sprite" % key)
-
-    # --- Abgleich Spielcode <-> Sprites ---
-    dangling = sorted(referenced_keys(html) - set(sprites))
+    # --- Abgleich Spielcode <-> Umrisse (F103 stage 4) ---
+    # The sprites are gone; a hull's frame and silhouette come from her
+    # model (tools/pof/mkoutline.py -> hlp_outlines.json). A key the game
+    # names but no model covers would have no frame at all, so it is
+    # worth saying.
+    for key in sorted(set(mounts) - set(outlines)):
+        warn("WARNUNG: Mounts fuer '%s' vorhanden, aber kein Umriss aus dem Modell" % key)
+    dangling = sorted(referenced_keys(html) - set(outlines))
     if dangling:
-        warn("WARNUNG: diese Keys stehen im Spielcode, haben aber kein Sprite: %s"
+        warn("WARNUNG: diese Keys stehen im Spielcode, haben aber keinen Umriss: %s"
              % ", ".join(dangling) + " (ROLES und BEAM_DEFS anpassen)")
 
     # --- SPR_DATA ersetzen ---
     block = find_block(html, "const SPR_DATA=")
     if not block:
         sys.exit("Abbruch: SPR_DATA nicht in der Spieldatei gefunden.")
-    html = (html[:block[0]] + render_sprites(sprites) + "\n\n" + render_mounts(mounts)
+    # F103 stage 4: MOUNTS and OUTLINES take the place the 121 sprites used
+    # to hold (13.8 of 31 MB). Both are made from the models.
+    html = (html[:block[0]] + render_mounts(mounts)
             + "\nconst OUTLINES=" + json.dumps(outlines, separators=(",", ":"), sort_keys=True) + ";"
             + html[block[1]:])
 
@@ -757,7 +565,6 @@ def main():
             print("  " + line)
 
     state = {"version": STATS.get("Version"),
-             "sprites": STATS.get("names:Sprites", []),
              "models": STATS.get("names:Modelle", []),
              "music": STATS.get("names:Musik", []),
              "planets": STATS.get("names:Planeten", []),

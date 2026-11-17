@@ -506,7 +506,7 @@ function drawBarRadar(x, y, w, h){
 // the target's model, drawn by the field renderer through a camera of its
 // own (f3dRender with warm: no flames, no shield hits, no copy to the field)
 function barTargetModel(e, x, y, w, h){
-  if(typeof f3dReadyLevel !== 'function' || F3D.off) return false;
+  if(typeof f3dReadyLevel !== 'function') return false;
   const k = f3dKey(e), L = k ? f3dReadyLevel(k) : null; if(!L) return false;
   const img = IMGS[e.img]; if(!img) return false;
   const a = e.ang || 0, lw = img.width*e.sc, lh = img.height*e.sc;
