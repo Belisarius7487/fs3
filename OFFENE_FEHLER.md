@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v319)
+## Lage — als Erstes lesen (Stand 17.11.2026, v320)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -37,16 +37,13 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F116 | M19 neuer Ablauf: erst die Sperrgeschütze, dann kommt die Galatea, dann die Wellen | v317 |
 | F117 | M19: Gegner warpten zu nah an der Galatea ein, Kamikaze nicht aufzuhalten | v318 |
 | F118 | **Spielfeld schrumpfte**, wenn das größte Schiff einer Mission erst später einsprang (Ursache von F117) | v319 |
+| F119 | **Ein festes Spielfeld für alle Missionen**, zugeschnitten auf die Colossus (6827 breit). M1–M19 darauf neu ausgelegt, mit unveränderten Abständen | v320 |
 | F103 | **Etappe 4 fertig**: keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell (13,8 MB weniger Spieldatei). `&f3d=0`, Lichtkante, Metallglanz, Schildhaut und der Sprite-Teil des Packers sind weg; in den Einstellungen fallen die zwei Schalter RIM LIGHT und METAL GLINT weg. Der Sprite-Ordner auf dem Server wird nicht mehr gelesen | v313 |
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
-**Offen, noch nicht gebaut:**
-
-| Punkt | Worum es geht |
-|---|---|
-| F119 | **Spielfeldgröße grundsätzlich falsch**: sie hängt am längsten Schiff der Mission, statt fest und groß genug für eine Colossus zu sein. Entscheidung steht aus |
+**Offen, noch nicht gebaut:** nichts.
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -62,7 +59,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v319 gebaut (F118: Spielfeldgröße zählt wartende Schiffe mit).
+Stand: v320 gebaut (F119: ein festes Spielfeld, M1–M19 neu ausgelegt).
 
 ---
 
@@ -257,7 +254,36 @@ Flugzeiten ebenso länger. Jede bestehende Mission müsste danach neu
 ausgelegt werden — enger auf dem größeren Raster, nach Silvios Regel
 „Die Mission passt sich an, nicht die Fläche".
 
-**Entscheidung steht aus.**
+**Gebaut in v320.**
+
+`worldForWave()` liest die Welle nicht mehr. Die Fläche wird **einmal**
+auf die Colossus zugeschnitten: `FIELD_K` 8,534, `MW` **6827** in jeder
+Mission. Die Colossus wird mit ihren vollen 4745 gezeichnet und hat auf
+jeder Seite über 1000 Einheiten für ihren Anlauf in den Wirbel. Damit ist
+auch das Scale jedes Rumpfes in jeder Mission dasselbe — die Regel
+„kein Schiff breiter als das Feld" greift nie mehr.
+
+Das war von Anfang an so gemeint: der Kommentar über `WORLD_W0` hält
+fest, dass die Fläche bis v232 in fast jeder Mission 7118 × 3968 war —
+aber nur zufällig, weil der Platz für eine gerufene Colossus der größte
+Posten in der Formel war. v233 zeichnete sie nur noch so breit wie das
+Feld (F15), und damit fiel dieser Posten weg.
+
+**M1–M19 neu ausgelegt.** Jede Position wurde mit dem Verhältnis
+„alter Maßstab der Mission zu 8,534" zur Startposition des Spielers (80)
+und zur Mitte der Höhe (277) hin eingezogen. Jede Mission behält damit
+**genau die Abstände, mit denen sie abgenommen wurde**, nur auf dem
+richtigen Feld. Nachgemessen an M19: Spieler → Sperrgeschütze 2074
+Einheiten (6,0 s), Anubis → Galatea 2766 (8,0 s), Anfahrt der Mauler
+2692 (20,7 s) — dieselben Werte wie in v319.
+
+Neue Prüfung in `fieldsim`: „One field for every mission, and the same
+ship scale in all of them". Gegen v319 zeigt sie **31 verschiedene
+Spielflächen** von 1000 bis 7338 und eine auf 2100 gestauchte Colossus.
+
+**Noch offen:** Die Missionen nutzen jetzt nur einen Teil des Feldes. Ob
+eine davon mehr davon nutzen soll, entscheidet Silvio Mission für
+Mission beim Testen.
 
 
 ## Wichtig für die Reihenfolge (Silvio, v225)

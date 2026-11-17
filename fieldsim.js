@@ -601,22 +601,35 @@ scenario('The radar shows the whole world, and nothing is longer than the field'
 // ran from 1151x679 (M12) to 10090x6367 (M55) - 76 of 80 missions below the
 // floor - and a mission's play field depended on which hull happened to be
 // the longest in it.
-// F118: ... and the size must not depend on WHEN a ship arrives. M19's
-// Galatea only jumps in once the gun platforms are down; sized from the
-// start of the wave alone, the mission got a third of its field.
-scenario('A ship that only jumps in later still counts for the field', 'm=19', `
+// F119: one field for every mission, cut for the Colossus. Up to v319 the
+// field came from the longest hull of the mission and ran from 1000 to
+// 7338; a hull wider than its mission's field was squeezed to fit, which
+// is how the Galatea came out at 61% of her size in M19.
+scenario('One field for every mission, and the same ship scale in all of them', 'm=19', `
   const r = {};
-  const q = getWaveDef(19);
-  worldForWave(q);
-  const withHeld = Math.round(MW);
-  const keep = EV_HELD;
-  EV_HELD = {};
-  worldForWave(q);
-  const without = Math.round(MW);
-  EV_HELD = keep;
-  r.field = withHeld + ' with held ships, ' + without + ' without';
-  r.heldShipsSizeTheField = withHeld > without;
-  r.theGalateaFitsHerField = withHeld >= 3000;
+  const ms = Object.keys(SCRIPT_WAVES).map(Number).sort((a,b)=>a-b);
+  const areas = {}, drawn = {};
+  const probes = ['sdcolossus','deorionright','craten','fiherc'];
+  for(const n of ms){
+    worldForWave(getWaveDef(n));
+    (areas[Math.round(MW)] = areas[Math.round(MW)] || []).push(n);
+    for(const h of probes){
+      const w = Math.round(hullWidthIn(h, MW));
+      (drawn[h] = drawn[h] || {})[w] = true;
+    }
+  }
+  const sizes = Object.keys(areas);
+  r.missions = ms.length;
+  r.theOneField = sizes.join(' / ');
+  r.everyMissionTheSameField = sizes.length === 1;
+  r.sameShipScaleEverywhere = probes.every(h => Object.keys(drawn[h]).length === 1);
+  // The Colossus has to fit WITH her run-up into the vortex on either side,
+  // not fill the field from edge to edge.
+  worldForWave(getWaveDef(ms[0]));
+  const col = hullWidthIn('sdcolossus', MW);
+  r.colossus = Math.round(col) + ' in ' + Math.round(MW);
+  r.colossusIsNotSqueezed = col >= hullWidth('sdcolossus', true) - 1;
+  r.colossusHasRoomToWarp = MW - col >= 2*FS_OUT_LEAD_MAX;
   return r;`);
 
 scenario('Every mission gets a play field of the same size', 'm=31', `

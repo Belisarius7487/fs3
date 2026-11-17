@@ -2524,7 +2524,7 @@ const SCRIPT_WAVES = {
   1: {name:'Eve of Destruction', era:'fs1', orig:1, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       ziel:'Protect the GTC Orff - destroy all attackers', u:[
        {id:'A1', mark:'protect', c:'cr', n:1, spr:'crfenris', side:'ally', guard:true, still:true,
-        x:400, y:280, label:'GTC Orff'},
+        x:178, y:278, label:'GTC Orff'},
        {id:'W1', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', label:'Alpha 2'},
        {id:'E1', c:'fi', n:1, size:2, spr:'fianubis', t:5},
        {id:'E2', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
@@ -2549,8 +2549,8 @@ const SCRIPT_WAVES = {
       ziel:'Destroy all Vasudan fighters', u:[
        {id:'R1', c:'ast', n:70, spread:1},
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
-       {id:'E1', c:'fi', n:1, size:3, spr:'fianubis', t:5, x:620, y:110},
-       {id:'E2', c:'fi', n:1, size:3, spr:'fianubis', t:5, x:620, y:420},
+       {id:'E1', c:'fi', n:1, size:3, spr:'fianubis', t:5, x:171, y:249},
+       {id:'E2', c:'fi', n:1, size:3, spr:'fianubis', t:5, x:171, y:301},
        {id:'E3', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
        {id:'E4', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
        {id:'S1', c:'fi', n:1, size:1, spr:'fiseth', wait:true, label:'Vasudan ace'}
@@ -2577,17 +2577,17 @@ const SCRIPT_WAVES = {
   3: {name:'Small Deadly Space', era:'fs1', orig:3, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       ziel:'Intercept the Bast and the Ma\'at', u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
-       {id:'K1', c:'fc', n:1, spr:'fcvc3', x:330, y:250},
-       {id:'C1', c:'fc', n:1, spr:'fcvc3', x:470, y:140},
-       {id:'C2', c:'fc', n:1, spr:'fcvc3', x:470, y:370},
-       {id:'P1', c:'fc', n:1, spr:'fcvc3', scan:true, x:580, y:250},
-       {id:'X1', c:'fc', n:1, spr:'fcvc3', x:640, y:430},
-       {id:'F1', mark:'destroy', c:'fr', n:1, spr:'frbast', t:2, x:720, y:110, dockTo:'C1', escape:0.25, label:'PVFr Bast'},
-       {id:'F2', mark:'destroy', c:'fr', n:1, spr:'frmaat', t:2, x:720, y:400, dockTo:'C2', escape:0.25, label:'PVFr Ma\'at'},
+       {id:'K1', c:'fc', n:1, spr:'fcvc3', x:159, y:268},
+       {id:'C1', c:'fc', n:1, spr:'fcvc3', x:203, y:234},
+       {id:'C2', c:'fc', n:1, spr:'fcvc3', x:203, y:306},
+       {id:'P1', c:'fc', n:1, spr:'fcvc3', scan:true, x:238, y:268},
+       {id:'X1', c:'fc', n:1, spr:'fcvc3', x:257, y:325},
+       {id:'F1', mark:'destroy', c:'fr', n:1, spr:'frbast', t:2, x:282, y:224, dockTo:'C1', escape:0.25, label:'PVFr Bast'},
+       {id:'F2', mark:'destroy', c:'fr', n:1, spr:'frmaat', t:2, x:282, y:316, dockTo:'C2', escape:0.25, label:'PVFr Ma\'at'},
        {id:'E1', c:'fi', n:1, size:3, spr:'fianubis', t:4},
        {id:'E2', c:'fi', n:1, size:2, spr:'fianubis', t:4},
        {id:'E3', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
-       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:250, warpIn:true,
+       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally', x:112, y:268, warpIn:true,
         dockTo:'K1', dockHold:20, dockLabel:'LOADING', wait:true, jumpIfEmpty:true, label:'GTT Omega'},
        {id:'E4', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
        {id:'E5', c:'fi', n:1, size:3, spr:'fianubis', wait:true}
@@ -2631,18 +2631,18 @@ const SCRIPT_WAVES = {
   4: {name:'Avenging Angels', era:'fs1', orig:4, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Disable the Omega - engines and weapons', u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
-       {id:'O1', mark:'disable', c:'tr', n:1, spr:'trelysium', x:430, y:190, escape:0.15, escWarp:true,
+       {id:'O1', mark:'disable', c:'tr', n:1, spr:'trelysium', x:175, y:253, escape:0.15, escWarp:true,
         escHit:true, escDelay:60, subs:'engines+weapons', capture:true, label:'GTT Omega'},
-       {id:'R1', c:'tr', n:1, spr:'trisis', x:430, y:350, escape:0.15, escWarp:true,
+       {id:'R1', c:'tr', n:1, spr:'trisis', x:175, y:297, escape:0.15, escWarp:true,
         escHit:true, escDelay:75, subs:'engines+weapons', capture:true, label:'PVT Rasputin'},
-       {id:'E1', c:'fi', n:1, size:4, spr:'fiapollo', fac:'ntf', t:2, x:560, y:180},
-       {id:'E2', c:'fi', n:1, size:2, spr:'fihorus', t:2, x:560, y:360},
-       {id:'B1', c:'bo', n:1, size:1, spr:'boosiris', t:3, x:600, y:270},
-       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:270, warpIn:true,
+       {id:'E1', c:'fi', n:1, size:4, spr:'fiapollo', fac:'ntf', t:2, x:210, y:251},
+       {id:'E2', c:'fi', n:1, size:2, spr:'fihorus', t:2, x:210, y:299},
+       {id:'B1', c:'bo', n:1, size:1, spr:'boosiris', t:3, x:221, y:275},
+       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally', x:107, y:275, warpIn:true,
         dockTo:'O1', dockHold:8, dockLabel:'BOARDING', wait:true, label:'GTT Comet'},
        {id:'E3', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
        {id:'E4', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
-       {id:'T2', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:330, warpIn:true,
+       {id:'T2', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally', x:107, y:291, warpIn:true,
         dockTo:'R1', dockHold:8, dockLabel:'BOARDING', wait:true, label:'GT Intelligence 1'}
      ], ev:[
        {t:'sek', a:4, w:'meldung', a2:'Bonus: disable the Rasputin as well'},
@@ -2679,7 +2679,7 @@ const SCRIPT_WAVES = {
       feud:true, ziel:'Protect the Plato', u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
        {id:'P1', mark:'protect', c:'cr', n:1, spr:'scfaustus', side:'ally', guard:true, crossSecs:120,
-        y:270, label:'GTSC Plato'},
+        y:274, label:'GTSC Plato'},
        {id:'E1', c:'fi', n:1, size:3, spr:'fianubis', t:4},
        {id:'B1', c:'bo', n:1, size:1, spr:'boosiris', t:4},
        {id:'E2', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
@@ -2739,7 +2739,7 @@ const SCRIPT_WAVES = {
       ziel:'Protect the Galatea', u:[
        {id:'R1', c:'ast', n:60, spread:1},
        {id:'G1', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally', guard:true, home:true,
-        crossSecs:170, y:270, label:'GTD Galatea'},
+        crossSecs:170, y:273, label:'GTD Galatea'},
        {id:'W1', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', label:'Alpha 2'},
        {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', t:5, fac:'shivan'},
        {id:'J1', c:'fi', n:1, size:3, spr:'fiscorpion', wait:true, fac:'shivan'},
@@ -2773,15 +2773,15 @@ const SCRIPT_WAVES = {
   7: {name:"Pandora's Box", era:'fs1', orig:7, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Scan the three marked containers', u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fivalyrie', side:'ally'},
-       {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:430, y:160},
-       {id:'K2', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:520, y:245},
-       {id:'K3', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:450, y:340},
-       {id:'K4', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:610, y:150},
-       {id:'K5', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:630, y:310},
-       {id:'K6', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:560, y:420},
-       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:540, y:110},
-       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:700, y:240},
-       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:540, y:390},
+       {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:190, y:240},
+       {id:'K2', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:218, y:267},
+       {id:'K3', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:196, y:297},
+       {id:'K4', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:246, y:237},
+       {id:'K5', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:253, y:287},
+       {id:'K6', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:231, y:322},
+       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:224, y:225},
+       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:275, y:265},
+       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:224, y:312},
        {id:'M1', c:'fi', n:1, size:2, spr:'fimanticore', fac:'shivan', wait:true},
        {id:'C1', c:'cr', n:1, spr:'crcain', fac:'shivan', wait:true, label:'SC Taranis'},
        {id:'J1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
@@ -2826,11 +2826,11 @@ const SCRIPT_WAVES = {
   8: {name:'Shieldbreaker', era:'fs1', orig:7, ship:'fiapollo', pri:'dadv', fac:'hol', o:'clear', live:6,
       ziel:'Scan the cargo - find the shield prototypes', u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
-       {id:'F1', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:480, y:265, escape:0.04, escWarp:true,
+       {id:'F1', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:238, y:272, escape:0.04, escWarp:true,
         escHit:true, escDelay:90, subs:'engines+weapons', capture:true, label:'SFr Asmodeus 2'},
-       {id:'F2', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:580, y:140, escape:0.04, escWarp:true,
+       {id:'F2', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:277, y:223, escape:0.04, escWarp:true,
         escHit:true, escDelay:90, label:'SFr Asmodeus 1', spare:true},
-       {id:'F3', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:580, y:395, escape:0.04, escWarp:true,
+       {id:'F3', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:277, y:324, escape:0.04, escWarp:true,
         escHit:true, escDelay:90, label:'SFr Asmodeus 3', spare:true},
        {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F1', slot:0, scan:true},
        {id:'K2', c:'fc', n:1, spr:'fcsc5', fac:'shivan', ride:'F1', slot:1, scan:true, scanFirst:true},
@@ -2841,9 +2841,9 @@ const SCRIPT_WAVES = {
        {id:'E1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', t:3},
        // F91 (v275): with the Asmodeus gone the Elysium jumps at once (jumpIfEmpty),
        // instead of a slow drive to the edge that held the mission open.
-       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:360, y:265, warpIn:true,
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:191, y:272, warpIn:true,
         dockTo:'F1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium 1', jumpIfEmpty:true},
-       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:360, y:265, warpIn:true,
+       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:191, y:272, warpIn:true,
         dockTo:'F1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium 2', jumpIfEmpty:true},
        {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'S2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
@@ -2917,9 +2917,9 @@ const SCRIPT_WAVES = {
   9: {name:'The Hammer and the Anvil: Breakout', era:'fs1', orig:8, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Protect the Theta freighters and their cargo', u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
-       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:160, y:150, cross:0.08, mark:'protect', label:'GTFr Theta 1'},
-       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:190, y:265, cross:0.08, mark:'protect', label:'GTFr Theta 2'},
-       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:160, y:380, cross:0.08, mark:'protect', label:'GTFr Theta 3'},
+       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:107, y:235, cross:0.08, mark:'protect', label:'GTFr Theta 1'},
+       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:117, y:273, cross:0.08, mark:'protect', label:'GTFr Theta 2'},
+       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:107, y:311, cross:0.08, mark:'protect', label:'GTFr Theta 3'},
        {id:'K1', mark:'protect', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T1', label:'Cargo Alpha'},
        {id:'K2', mark:'protect', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T2', label:'Cargo Beta'},
        {id:'K3', mark:'protect', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T3', label:'Cargo Gamma'},
@@ -2953,9 +2953,9 @@ const SCRIPT_WAVES = {
        {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
        {id:'A1', c:'fi', n:1, size:3, spr:'fianubis', side:'ally'},
        {id:'A2', c:'fi', n:1, size:2, spr:'fiseth', side:'ally'},
-       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:160, y:150, cross:0.08, mark:'protect', label:'GTFr Theta 1'},
-       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:190, y:265, cross:0.08, mark:'protect', label:'GTFr Theta 2'},
-       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:160, y:380, cross:0.08, mark:'protect', label:'GTFr Theta 3'},
+       {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:107, y:235, cross:0.08, mark:'protect', label:'GTFr Theta 1'},
+       {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:117, y:273, cross:0.08, mark:'protect', label:'GTFr Theta 2'},
+       {id:'T3', c:'fr', n:1, spr:'frposeidon', side:'ally', x:107, y:311, cross:0.08, mark:'protect', label:'GTFr Theta 3'},
        {id:'K1', mark:'protect', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T1', label:'Cargo Alpha'},
        {id:'K2', mark:'protect', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T2', label:'Cargo Beta'},
        {id:'K3', mark:'protect', c:'fc', n:1, spr:'fctsc2', side:'ally', ride:'T3', label:'Cargo Gamma'},
@@ -2998,27 +2998,27 @@ const SCRIPT_WAVES = {
   11:{name:'The Darkness and the Light', era:'fs1', orig:9, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       feud:true, ziel:'Destroy the depot - disable the Ramses', u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fivalyrie', side:'ally'},
-       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvc3', x:560, y:120},
-       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvac4', x:620, y:170},
-       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvc3', x:680, y:120},
-       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvc3', x:560, y:400},
-       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvac4', x:620, y:350},
-       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvc3', x:680, y:400},
-       {id:'R1', c:'cr', n:1, spr:'craten', x:470, y:265, subs:'engines+weapons', capture:true,
+       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvc3', x:268, y:216},
+       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvac4', x:291, y:235},
+       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvc3', x:315, y:216},
+       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvc3', x:268, y:325},
+       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvac4', x:291, y:306},
+       {id:'D1', mark:'destroy', c:'fc', n:1, spr:'fcvc3', x:315, y:325},
+       {id:'R1', c:'cr', n:1, spr:'craten', x:233, y:272, subs:'engines+weapons', capture:true,
         mark:'disable', label:'PVC Ramses'},
-       {id:'F1', c:'fr', n:1, spr:'frsatis', x:640, y:220, escape:0.3, escWarp:true, escHit:true, escDelay:40, label:'PVFr Satis 1'},
-       {id:'F2', c:'fr', n:1, spr:'frsatis', x:640, y:310, escape:0.3, escWarp:true, escHit:true, escDelay:50, label:'PVFr Satis 2'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', x:299, y:255, escape:0.3, escWarp:true, escHit:true, escDelay:40, label:'PVFr Satis 1'},
+       {id:'F2', c:'fr', n:1, spr:'frsatis', x:299, y:290, escape:0.3, escWarp:true, escHit:true, escDelay:50, label:'PVFr Satis 2'},
        {id:'E1', c:'fi', n:1, size:3, spr:'fiseth', t:2},
        {id:'E2', c:'fi', n:1, size:2, spr:'fianubis', wait:true},
        // v254 (F49): she comes in further off, and only her guns can be shot
        // away - the hull holds (noKill), so she cannot be taken out early
        // and the Ramses lives longer.
        {id:'C1', c:'cr', n:1, spr:'crcain', fac:'shivan', wait:true, label:'SC Taranis',
-        x:760, y:265, subs:'weapons', noKill:true},
+        x:346, y:272, subs:'weapons', noKill:true},
        {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'X1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
        {id:'X2', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
-       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:330, y:265, warpIn:true,
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:178, y:272, warpIn:true,
         dockTo:'R1', dockHold:12, dockLabel:'BOARDING', wait:true, mark:'protect', label:'GTT Elysium'}
      ], ev:[
        {t:'sek', a:1, w:'opfer', a2:'R1'},
@@ -3061,7 +3061,7 @@ const SCRIPT_WAVES = {
       ziel:'Disable the Taranis - engines and weapons', u:[
        {id:'W1', c:'bo', n:1, size:3, spr:'boathena', side:'ally'},
        {id:'W2', c:'fi', n:1, size:4, spr:'fivalyrie', side:'ally'},
-       {id:'R1', c:'cr', n:1, spr:'crcain', fac:'shivan', x:540, y:265, subs:'engines+weapons', capture:true,
+       {id:'R1', c:'cr', n:1, spr:'crcain', fac:'shivan', x:224, y:273, subs:'engines+weapons', capture:true,
         mark:'disable', label:'SC Taranis'},
        {id:'E1', c:'bo', n:1, size:3, spr:'boshaitan', fac:'shivan', t:3},
        {id:'E2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', t:3},
@@ -3080,13 +3080,13 @@ const SCRIPT_WAVES = {
       ziel:'Protect the Halkins while she takes the Taranis', u:[
        {id:'W1', c:'bo', n:1, size:3, spr:'boathena', side:'ally'},
        {id:'W2', c:'fi', n:1, size:4, spr:'fivalyrie', side:'ally'},
-       {id:'R1', c:'cr', n:1, spr:'crcain', fac:'shivan', x:540, y:265, subs:'engines+weapons',
+       {id:'R1', c:'cr', n:1, spr:'crcain', fac:'shivan', x:252, y:273, subs:'engines+weapons',
         subsDown:'engines+weapons', capture:true, label:'SC Taranis'},
        // v254 (F51): she jumps in to the right of the Taranis and so faces her
        // way (left) on the approach, rolls half round and docks under her.
        // F99 (v283): the roll is no longer a switch here - her dock and the
        // Taranis' both face down in the models, so she must (31_dock.js).
-       {id:'H1', c:'fr', n:1, spr:'frchronos', side:'ally', x:760, y:330, warpIn:true,
+       {id:'H1', c:'fr', n:1, spr:'frchronos', side:'ally', x:335, y:297, warpIn:true,
         dockTo:'R1', dockHold:25, dockLabel:'DOCKING', wait:true, mark:'protect', label:'GTFr Halkins'},
        {id:'B1', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true},
        {id:'S1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
@@ -3115,13 +3115,13 @@ const SCRIPT_WAVES = {
   14:{name:'Rain on Ribos IV', era:'fs1', orig:10, ship:'fivalyrie', pri:['avenger','avenger'], fac:'hol', o:'clear', live:6,
       planet:{x:200, y:190, w:400},
       ziel:'Cover the transport until she gets away', u:[
-       {id:'ST', c:'in', n:1, spr:'inarcadia', ally:'ter_tombaugh', side:'ally', x:200, y:150, still:true, noWarp:true},
-       {id:'R1', c:'cr', n:1, spr:'crcain', ally:'ter_taranis', side:'ally', x:450, y:300, still:true, noWarp:true},
-       {id:'H1', c:'cr', n:1, spr:'frchronos', ally:'ter_halkins', side:'ally', x:360, y:400, still:true, noWarp:true},
-       {id:'F1', c:'cr', n:1, spr:'scfaustus', side:'ally', x:390, y:130, still:true, noWarp:true},
-       {id:'F2', c:'cr', n:1, spr:'scfaustus', side:'ally', x:240, y:440, still:true, noWarp:true},
+       {id:'ST', c:'in', n:1, spr:'inarcadia', ally:'ter_tombaugh', side:'ally', x:184, y:167, still:true, noWarp:true},
+       {id:'R1', c:'cr', n:1, spr:'crcain', ally:'ter_taranis', side:'ally', x:401, y:297, still:true, noWarp:true},
+       {id:'H1', c:'cr', n:1, spr:'frchronos', ally:'ter_halkins', side:'ally', x:323, y:384, still:true, noWarp:true},
+       {id:'F1', c:'cr', n:1, spr:'scfaustus', side:'ally', x:349, y:149, still:true, noWarp:true},
+       {id:'F2', c:'cr', n:1, spr:'scfaustus', side:'ally', x:219, y:419, still:true, noWarp:true},
        {id:'A1', c:'fi', n:2, size:3, spr:'fivalyrie', side:'ally'},
-       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:300, y:300, warpIn:true, wait:true,
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:271, y:297, warpIn:true, wait:true,
         dockTo:'R1', dockStay:true, cross:-0.45, mark:'protect', label:'GTT Ptolemy'},
        {id:'E1', c:'fi', n:1, size:4, fac:'shivan', wait:true},
        {id:'E2', c:'fi', n:1, size:4, fac:'shivan', wait:true},
@@ -3130,9 +3130,9 @@ const SCRIPT_WAVES = {
        // one, the station last.
        // F64 (v258): she jumps in further right and slows to a stop at stopX.
        // F66: hits on her only make her shield flare (shieldShow).
-       {id:'L1', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, shieldShow:true, x:790, stopX:690, y:280, wait:true,
+       {id:'L1', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, shieldShow:true, x:697, stopX:690, y:280, wait:true,
         beamFocus:'R1>H1>F1>F2>O1>ST', beamMul:15},
-       {id:'O1', c:'de', n:1, spr:'deorionright', side:'ally', x:140, y:320, still:true, wait:true}
+       {id:'O1', c:'de', n:1, spr:'deorionright', side:'ally', x:132, y:314, still:true, wait:true}
      ], ev:[
        {t:'sek', a:1, w:'einwarpen', a2:'T1'},
        {t:'sek', a:5, w:'einwarpen', a2:'E1'},
@@ -3168,25 +3168,25 @@ const SCRIPT_WAVES = {
   15:{name:'The Aftermath', era:'fs1', orig:11, ship:'fivalyrie', pri:['avenger','avenger'], fac:'hol', o:'clear', live:6,
       hunt:'N1', ziel:'Escort Iota to the Pinnacle', u:[
        {id:'A1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
-       {id:'N1', c:'fr', n:1, spr:'frchronos', side:'ally', x:300, y:140, cross:0.15, mark:'protect', label:'GTFr Nelson'},
+       {id:'N1', c:'fr', n:1, spr:'frchronos', side:'ally', x:194, y:206, cross:0.15, mark:'protect', label:'GTFr Nelson'},
        // They wait where they are until the Pinnacle is there (tickDocking
        // holds a dock whose target has not arrived yet), then meet her.
-       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:150, y:200,
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:116, y:237,
         dockTo:'P1', dockBeside:-90, dockHold:4, dockLabel:'TRANSFER', mark:'protect', label:'Iota'},
-       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:110, y:300,
+       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:95, y:289,
         dockTo:'P1', dockBeside:0, dockHold:4, dockLabel:'TRANSFER', mark:'protect', label:'Sigma'},
-       {id:'T3', c:'tr', n:1, spr:'trisis', side:'ally', x:150, y:400,
+       {id:'T3', c:'tr', n:1, spr:'trisis', side:'ally', x:116, y:340,
         dockTo:'P1', dockBeside:90, dockHold:4, dockLabel:'TRANSFER', mark:'protect', label:'Omega'},
        {id:'E1', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', wait:true},
        {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
        {id:'E2', c:'fi', n:1, size:4, spr:'fibasilisk', fac:'shivan', wait:true},
        // She cannot die: the last wave is fought at her side.
-       {id:'P1', c:'de', n:1, spr:'detyphon', side:'ally', noKill:true, still:true, x:670, y:270,
+       {id:'P1', c:'de', n:1, spr:'detyphon', side:'ally', noKill:true, still:true, x:384, y:273,
         wait:true, label:'PVD Pinnacle'},
        {id:'K1', c:'fi', n:1, size:2, spr:'fianubis', side:'ally', wait:true, at:'P1'},
-       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:600, y:110, still:true, warpIn:true, wait:true, mark:'protect', label:'Pi 1'},
-       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:740, y:120, still:true, warpIn:true, wait:true, mark:'protect', label:'Pi 2'},
-       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:690, y:430, still:true, warpIn:true, wait:true, mark:'protect', label:'Pi 3'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:348, y:191, still:true, warpIn:true, wait:true, mark:'protect', label:'Pi 1'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:421, y:196, still:true, warpIn:true, wait:true, mark:'protect', label:'Pi 2'},
+       {id:'F1', c:'fr', n:1, spr:'frsatis', side:'ally', x:395, y:356, still:true, warpIn:true, wait:true, mark:'protect', label:'Pi 3'},
        {id:'S1', c:'fi', n:1, size:4, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'L1', c:'fi', n:1, size:4, spr:'fibasilisk', fac:'shivan', wait:true},
        {id:'L2', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true}
@@ -3230,18 +3230,18 @@ const SCRIPT_WAVES = {
       ziel:'Get the scientists off the Asimov', u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
        {id:'W2', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
-       {id:'AS', mark:'protect', c:'cr', n:1, spr:'scfaustus', side:'ally', x:330, y:220, still:true, noWarp:true,
+       {id:'AS', mark:'protect', c:'cr', n:1, spr:'scfaustus', side:'ally', x:174, y:255, still:true, noWarp:true,
         hurt:0.92, bigBang:true, label:'GTSC Asimov'},
-       {id:'RV', c:'cr', n:1, spr:'crfenris', side:'ally', x:500, y:370, still:true, noWarp:true, label:'GTC Ravage'},
+       {id:'RV', c:'cr', n:1, spr:'crfenris', side:'ally', x:238, y:312, still:true, noWarp:true, label:'GTC Ravage'},
        // F86 (Silvio): more of them than in the original's numbers would
        // suggest, and every one of the first two groups after the Asimov.
        {id:'E1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
        {id:'E3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'B3', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', wait:true},
-       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:130, warpIn:true, wait:true,
+       {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:118, y:222, warpIn:true, wait:true,
         dockTo:'AS', dockHold:10, dockLabel:'EVACUATING', mark:'protect', label:'GTT Spomer'},
-       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:180, y:130, warpIn:true, wait:true,
+       {id:'T2', c:'tr', n:1, spr:'trelysium', side:'ally', x:118, y:222, warpIn:true, wait:true,
         dockTo:'AS', dockHold:10, dockLabel:'EVACUATING', mark:'protect', label:'GTT Stull'},
        {id:'E2', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'B2', c:'bo', n:1, size:3, spr:'boshaitan', fac:'shivan', wait:true}
@@ -3296,14 +3296,14 @@ const SCRIPT_WAVES = {
       ziel:'Destroy all Shivans', u:[
        {id:'W1', c:'bo', n:1, size:3, spr:'bomedusa', side:'ally'},
        // already there when Alpha arrives, worn from the fight with the outpost
-       {id:'E1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:560, y:170, noWarp:true, hurt:0.8},
-       {id:'E2', c:'fi', n:1, size:1, spr:'fibasilisk', fac:'shivan', x:620, y:300, noWarp:true, hurt:0.8},
-       {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', x:580, y:400, noWarp:true, hurt:0.85},
+       {id:'E1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:323, y:223, noWarp:true, hurt:0.8},
+       {id:'E2', c:'fi', n:1, size:1, spr:'fibasilisk', fac:'shivan', x:354, y:289, noWarp:true, hurt:0.8},
+       {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', x:333, y:339, noWarp:true, hurt:0.85},
        {id:'V1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
-       {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally', x:150, y:270, still:true, wait:true,
+       {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally', x:115, y:273, still:true, wait:true,
         home:true, label:'GTD Galatea'},
-       {id:'LI', c:'cr', n:1, spr:'crlilith', fac:'shivan', x:430, y:160, still:true, wait:true, label:'SC Lilith'},
-       {id:'CA', c:'cr', n:1, spr:'crcain', fac:'shivan', x:450, y:390, still:true, wait:true, label:'SC Cain'},
+       {id:'LI', c:'cr', n:1, spr:'crlilith', fac:'shivan', x:257, y:218, still:true, wait:true, label:'SC Lilith'},
+       {id:'CA', c:'cr', n:1, spr:'crcain', fac:'shivan', x:267, y:334, still:true, wait:true, label:'SC Cain'},
        {id:'A1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'R1', c:'bo', n:1, size:2, spr:'bonephilim', fac:'shivan', wait:true},
        {id:'R2', c:'fi', n:1, size:1, spr:'fiscorpion', fac:'shivan', wait:true},
@@ -3345,37 +3345,37 @@ const SCRIPT_WAVES = {
        // F99 (v283): as large as still fits the Chronos' deck between her
        // end blocks (docksim 12) - any of them may be hers. Was VC3 x3 and
        // VAC4 x1.4 (F94); those rested on her end blocks.
-       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:520, y:130},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:600, y:190},
-       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:540, y:250},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:600, y:300},
-       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:540, y:360},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:600, y:410},
-       {id:'G1', c:'sg', n:1, spr:'sgankh', x:470, y:250},
-       {id:'G1', c:'sg', n:1, spr:'sgankh', x:660, y:120},
-       {id:'G1', c:'sg', n:1, spr:'sgankh', x:660, y:410},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:252, y:220},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:283, y:243},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:260, y:266},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:283, y:286},
+       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:260, y:309},
+       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:283, y:329},
+       {id:'G1', c:'sg', n:1, spr:'sgankh', x:233, y:266},
+       {id:'G1', c:'sg', n:1, spr:'sgankh', x:307, y:216},
+       {id:'G1', c:'sg', n:1, spr:'sgankh', x:307, y:329},
        {id:'E1', c:'fi', n:1, size:4, spr:'fiseth', t:2},
        // the Gemini: two freighters, a transport alongside each. They lie
        // well short of the jump node (right) so they can be caught.
-       {id:'F1', mark:'destroy', c:'fr', n:1, spr:'frsatis', x:380, y:190, escape:0.25, escWarp:true,
+       {id:'F1', mark:'destroy', c:'fr', n:1, spr:'frsatis', x:197, y:243, escape:0.25, escWarp:true,
         escHit:true, escDelay:10, label:'PVFr Gemini 2'},
-       {id:'F2', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:380, y:340, escape:0.25, escWarp:true,
+       {id:'F2', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:197, y:302, escape:0.25, escWarp:true,
         escHit:true, escDelay:10, label:'PVFr Gemini 3'},
-       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:385, y:145, escape:0.3, escWarp:true,
+       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:199, y:225, escape:0.3, escWarp:true,
         escHit:true, escDelay:10, label:'PVT Gemini 4'},
-       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:385, y:385, escape:0.3, escWarp:true,
+       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:199, y:319, escape:0.3, escWarp:true,
         escHit:true, escDelay:10, label:'PVT Gemini 1'},
        {id:'E2', c:'fi', n:1, size:3, spr:'fiseth', wait:true},
        {id:'E3', c:'fi', n:1, size:4, spr:'fianubis', wait:true},
        // the race for the containers
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:150, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 1'},
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:265, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:760, y:380, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 3'},
-       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:200, y:160, warpIn:true, wait:true,
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:227, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 1'},
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:272, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
+       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:317, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 3'},
+       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:127, y:231, warpIn:true, wait:true,
         dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 1'},
-       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frchronos', side:'ally', x:200, y:265, warpIn:true, wait:true,
+       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frchronos', side:'ally', x:127, y:272, warpIn:true, wait:true,
         dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 2'},
-       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:200, y:370, warpIn:true, wait:true,
+       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:127, y:313, warpIn:true, wait:true,
         dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 3'},
        {id:'IO', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', wait:true}
      ], ev:[
@@ -3426,6 +3426,12 @@ const SCRIPT_WAVES = {
   // stay short. Replaces the old mission 19.
   19:{name:'Tenderizer', era:'fs1', orig:15, ship:'fiherc', fac:'hol', o:'clear', live:6,
       huntShare:1,
+      // F119 (v320): laid out again for the one fixed field. It went from
+      // 3458 to 6827 wide, so every place in M1-M19 was pulled in by that
+      // mission's old scale over the new one, around the player's start at
+      // 80 and the middle of the height. Each mission keeps exactly the
+      // distances it was tested with; it now uses a part of the field and
+      // leaves the rest, which is the mission's business, not the field's.
       ziel:'Destroy the gun platforms', u:[
        // Silvio, 17.11.2026: at least two of the wing fly what the player
        // flies. The Hercules comes free exactly here (FS1_ALLY_INTRO), so
@@ -3436,30 +3442,30 @@ const SCRIPT_WAVES = {
        // the Galatea only jumps in once they are down, and the Vasudan
        // waves start with her. Ankh, not the Cerberus of the original:
        // these are Vasudan now.
-       {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:560, y:140},
-       {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:620, y:270},
-       {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:560, y:400},
+       {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:323, y:208},
+       {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:354, y:273},
+       {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:323, y:339},
        {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally',
-        x:150, y:270, still:true, wait:true, home:true, label:'GTD Galatea'},
+        x:115, y:273, still:true, wait:true, home:true, label:'GTD Galatea'},
        // x on every wave: without it a wave takes the default spawn, and
        // Silvio saw them come in on top of the Galatea (17.11.2026). The
        // far edge is the longest run-in the field has.
-       {id:'E1', c:'fi', n:1, size:4, spr:'fianubis', x:790, wait:true},
+       {id:'E1', c:'fi', n:1, size:4, spr:'fianubis', x:440, wait:true},
        // bombers for the Galatea
-       {id:'B1', c:'bo', n:1, size:3, spr:'boosiris', x:790, wait:true},
+       {id:'B1', c:'bo', n:1, size:3, spr:'boosiris', x:440, wait:true},
        // Seths loaded with explosives - they ram instead of shooting. One
        // at a time, six seconds apart: three at once could not be caught
        // ("So ist es unmoeglich die Kamikazeschiffe aufzuhalten").
-       {id:'K1', c:'fi', n:1, size:1, spr:'fiseth', ram:true, x:790, wait:true},
-       {id:'K2', c:'fi', n:1, size:1, spr:'fiseth', ram:true, x:790, wait:true},
-       {id:'K3', c:'fi', n:1, size:1, spr:'fiseth', ram:true, x:790, wait:true},
+       {id:'K1', c:'fi', n:1, size:1, spr:'fiseth', ram:true, x:440, wait:true},
+       {id:'K2', c:'fi', n:1, size:1, spr:'fiseth', ram:true, x:440, wait:true},
+       {id:'K3', c:'fi', n:1, size:1, spr:'fiseth', ram:true, x:440, wait:true},
        // The Mauler comes in at the far edge, a long way off: a cruiser is
        // much faster than a destroyer (Silvio, 17.11.2026), so close in she
        // would be on the Galatea before the player could do anything.
        // hp: a cruiser at her stock hull was shot off the field in eight
        // seconds by the Galatea and the wing, before she was ever a threat.
        {id:'MA', mark:'destroy', c:'cr', n:1, spr:'craten', capRam:1.3, hp:3.5,
-        x:790, y:270, wait:true, label:'PVC Mauler'}
+        x:440, y:273, wait:true, label:'PVC Mauler'}
      ], ev:[
        {t:'alleZerstoert', a:'G1', w:'zielerfuellt', a2:'The gun platforms are down'},
        {t:'alleZerstoert', a:'G1', d:3, w:'einwarpen', a2:'GA'},

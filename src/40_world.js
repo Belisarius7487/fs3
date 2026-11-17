@@ -126,36 +126,29 @@ function smallWidth(key, klasse){
 // now - the mission's places are scaled by it, so its ships keep their
 // distances to one another. need: the longest ship of the mission or on
 // call (the Colossus), which the world must hold.
+// The ship the play field is cut for - the largest there will ever be.
+const COLOSSUS_HULL = 'sdcolossus';
 function worldForWave(q){
-  let k = 1, need = 0;
-  const look = function(key, mission){
-    const L = key && HULL_LEN[key]; if(!L) return;
-    const nw = hullWidth(key, true);
-    need = Math.max(need, nw);
-    if(mission) k = Math.max(k, nw/Math.max(1, hullWidthOld(key)));
-  };
-  // F118: a mission's field must not depend on WHEN a ship arrives. Ships
-  // held back (wait:true) sit in EV_HELD at this point, not in the queue,
-  // so a mission whose destroyer only jumps in later was sized from the
-  // small craft standing at the start: M19 got a 1000-wide mission area
-  // instead of 3458, and every wave came in on top of the Galatea.
-  const all = (q || []).slice();
-  if(typeof EV_HELD !== 'undefined' && EV_HELD)
-    for(const key in EV_HELD) for(const h of (EV_HELD[key] || [])) all.push(h);
-  for(const s of all){
-    if(s.spr) look(s.spr, true);
-    else { let pool = null; try{ pool = poolFor(s.type); }catch(e){ pool = null; }
-           for(const p of (pool || [])) look(p, true); }
-  }
-  // What can only be CALLED is drawn no wider than the field, so that is
-  // all the world has to hold for it - not its full length. k is final
-  // here: the loop above is the only one that sets it.
-  const mw = W*k;
-  for(const id of ALLY_ORDER.concat([ALLY_SPECIAL])){
-    const d = ALLY_DEFS[id];
-    if(d && allyFacOn(d.fac) && eraAllows(d) && d.spr && HULL_LEN[d.spr])
-      need = Math.max(need, hullWidthIn(d.spr, mw));
-  }
+  // Silvio, 17.11.2026: "Ich habe in der Vergangenheit immer wieder gesagt,
+  // dass die Spielflaeche die gesamte nutzbare Flaeche sein muss. Ob man sie
+  // wirklich voll ausnutzt in einer Mission, ist unerheblich. [...] Ich
+  // moechte zum Beispiel nicht, dass sich das Scale der Schiffe von Mission
+  // zu Mission unterscheidet, weil die Spielflaeche ploetzlich eine andere
+  // Groesse hat."
+  //
+  // So the field is ONE size for every mission, and the mission decides how
+  // much of it to use - not the other way round. It is cut for the largest
+  // ship there will ever be, the Colossus: she is drawn 4745 wide and needs
+  // her run-up into the vortex clear on either side, which the margin of
+  // worldSet() provides. Nothing about the wave is read any more.
+  //
+  // Before this (up to v319) k came from the longest hull of the mission,
+  // and the field ran from 1000 (M19 once the Galatea only jumped in later)
+  // to 7338. Every mission's distances scaled with it, and a hull wider than
+  // its mission's field was squeezed to fit: the Galatea was drawn at 1000
+  // instead of 1643 in M19, 61% of her size (F118/F119).
+  const need = hullWidth(COLOSSUS_HULL, true);
+  const k = need/Math.max(1, hullWidthOld(COLOSSUS_HULL));
   worldSet(k, need);
 }
 // No hull is drawn longer than the mission area is wide (Silvio, v232:
