@@ -29,7 +29,12 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
-**Offen, noch nicht gebaut:** nichts.
+**Offen, noch nicht gebaut:**
+
+| Punkt | Worum es geht | Stand |
+|---|---|---|
+| F123 | M21: die Charon hält beim Andocken viel zu weit vom Dragon weg | gemeldet 17.11.2026, mit Bild |
+| F124 | M21: die Frachtcontainer haben FS2-Modelle, es müssten FS1-Modelle sein | gemeldet 17.11.2026 |
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -54,6 +59,42 @@ Arbeitsliste.
 Stand: v323 gebaut (F122: M21 „Enter the Dragon“; F121: M20s Ziele getrennt).
 
 ---
+
+---
+
+## F123 — M21: die Charon hält zu weit vom Dragon weg, v323
+
+**Silvio, 17.11.2026** (mit Bild: Dragon links im gelben Auftragsrahmen,
+Charon rechts im blauen, dazwischen eine ganze Schiffsbreite Luft):
+„das auf dem Bild ist die Entfernung, die die Charon zum Dragon hat, wenn
+sie an ihm andockt. Das ist unrealistisch viel und müssen wir morgen mal
+angehen."
+
+**Vermutung, noch nicht nachgewiesen:** Die Charon fährt nicht an einen
+Andockpunkt, sondern legt sich längsseits (`dockBeside`), weil das
+Dragon-Modell keine Andockdaten hat. Der Abstand dafür wird in
+`tickDocking` gerechnet als halbe Breite des Ziels mal 0,8, plus halbe
+Breite der Charon, plus 12 Rasterpunkte mal `FIELD_K`. Der letzte Teil ist
+ein fester Zuschlag und fällt bei zwei so kleinen Schiffen viel zu groß
+aus — er war für ein Schiff am Zerstörer gedacht (M15). Zu prüfen, bevor
+daran etwas geändert wird: ob der Dragon im Originalmodell doch einen
+Andockpunkt hat (`tools/pof/mkdocks.py`, Modell von Silvios Rechner). Dann
+wäre der richtige Weg der gemeinsame Andockablauf statt `dockBeside`.
+
+---
+
+## F124 — M21: die Frachtcontainer haben FS2-Modelle, v323
+
+**Silvio, 17.11.2026:** „Zudem haben die Frachtcontainer in derselben
+Mission das falsche Modell. Das sind FS2 Ära Modelle wo es FS1 Ära Modelle
+sein müssten."
+
+**Nachgesehen:** Die Mission nutzt `fcsac3`, und der Rumpf ist in
+`hlp_mounts_final.json` nur für `fs2` eingetragen. Die Shivaner-Fracht der
+FS1-Ära ist `fcsc5` (so in M7 und M20). Zu bauen: Tausch in M21.
+
+**Dazu vorzuschlagen:** `swtest` könnte jede FS1-Mission gegen die
+`eras`-Angaben der Modelle prüfen, damit so etwas nicht wieder durchrutscht.
 
 ---
 
