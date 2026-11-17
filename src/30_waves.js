@@ -3496,29 +3496,86 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'GA', d:6, w:'abzug', a2:''}
      ]},
 
+  // Shell Game (fs1/sm2-06a). Alpha jumps to the Antares-Vega node after
+  // the Shivan destroyer Eva. Her escort down, the Eva pulls out and
+  // leaves her freighters behind (Silvio, 17.11.2026: she warps out only
+  // once the first three Scorpions are destroyed, and the Terran
+  // transports only come in after she is gone). New orders: kill the
+  // freighters, but leave their cargo whole - the fleet wants Shivan
+  // technology to look at. The cargo lies free beside the freighters, not
+  // riding on them: cargo on a freighter dies with her (dropCargo), and
+  // this mission is about keeping it whole.
+  // Both containers are scanned before the transports will go in (in the
+  // original one transport refuses the order until Alpha has scanned).
+  // scanFirst keeps them alive until then, so the transports can never be
+  // gated behind a container the player has already shot.
+  // Left out: two of the four freighters, the Shivan transports, the
+  // Medusa and Valkyrie reinforcements.
+  20:{name:'Shell Game', era:'fs1', orig:16, ship:'fiherc', fac:'hol', o:'clear', live:6,
+      ziel:'Destroy the Shivan escort', u:[
+       {id:'W1', c:'fi', n:1, size:3, spr:'fiherc', side:'ally'},
+       // the Eva: she never fires and cannot be touched - the threat, not
+       // the fight. invuln also keeps her out of everyone's target keys.
+       {id:'EV', c:'de', n:1, spr:'dedemon', fac:'shivan', invuln:true, noFire:true,
+        still:true, x:620, y:140, label:'SD Eva'},
+       {id:'F1', mark:'destroy', c:'fr', n:1, spr:'frmephisto', fac:'shivan',
+        x:248, y:232, label:'SFr Lucifuge'},
+       {id:'F2', mark:'destroy', c:'fr', n:1, spr:'frmephisto', fac:'shivan',
+        x:248, y:316, label:'SFr Moloch'},
+       // the cargo: hostile, so it can be scanned (tickScan runs over
+       // enemies), and player-only like all cargo - our own wing cannot
+       // hit it, only the player can.
+       {id:'K', mark:'protect', c:'fc', n:1, spr:'fcsc5', fac:'shivan',
+        scan:true, scanFirst:true, x:312, y:246},
+       {id:'K', mark:'protect', c:'fc', n:1, spr:'fcsc5', fac:'shivan',
+        scan:true, scanFirst:true, x:312, y:302},
+       {id:'S1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:330, y:274},
+       // they come in left of the freighters and have to pass them to
+       // reach the cargo - the freighters are still alive and firing
+       // (Silvio, choice A)
+       {id:'TR', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
+        x:190, y:246, warpIn:true, wait:true, dockTo:'K', dockHold:12,
+        dockLabel:'LOADING', jumpIfEmpty:true, label:'GTT Stern'},
+       {id:'TR', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
+        x:190, y:302, warpIn:true, wait:true, dockTo:'K', dockHold:12,
+        dockLabel:'LOADING', jumpIfEmpty:true, label:'GTT Harmon'},
+       {id:'S2', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:440, wait:true},
+       {id:'S3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', x:440, wait:true}
+     ], ev:[
+       // anzahlUnter, not alleZerstoert: it waits until nothing of this id
+       // is still queued, so the first kill cannot fire it while the rest
+       // of the wing is still coming in.
+       {t:'anzahlUnter', a:'S1', b:1, w:'zielerfuellt', a2:'The Shivan escort is down'},
+       {t:'anzahlUnter', a:'S1', b:1, d:2, w:'meldung', a2:'The Eva is leaving her freighters behind'},
+       {t:'anzahlUnter', a:'S1', b:1, d:3, w:'raus', a2:'EV'},
+       // one objective from here on, so nothing marks another one done
+       // early: the freighters and the cargo are the same job.
+       {t:'verlaesst', a:'EV', w:'ziel', a2:'Destroy the freighters, bring the cargo home'},
+       {t:'verlaesst', a:'EV', w:'nebenziel', a2:'Scan the Shivan cargo'},
+       {t:'verlaesst', a:'EV', d:1, w:'meldung', a2:'The transports will not go in until the cargo is cleared'},
+       {t:'verlaesst', a:'EV', d:14, w:'einwarpen', a2:'S2'},
+       {t:'gescannt', a:'K', w:'nebenOk', a2:'Normal readings on the Shivan cargo'},
+       {t:'gescannt', a:'K', d:2, w:'einwarpen', a2:'TR'},
+       {t:'gescannt', a:'K', d:2, w:'meldung', a2:'The transports are moving in to dock'},
+       {t:'gescannt', a:'K', d:22, w:'einwarpen', a2:'S3'},
+       {t:'da', a:'S3', w:'jagd', a2:'TR'},
+       {t:'vernichtet', a:'F1+F2', w:'meldung', a2:'Both Shivan freighters destroyed'},
+       {t:'leer', a:'TR', w:'meldung', a2:'A transport found her container gone'},
+       // the ends - order counts
+       {t:'verlaesst', a:'TR', wenn:{t:'angedockt', a:'TR'}, w:'zielerfuellt', a2:'The Shivan cargo is on its way to base'},
+       {t:'vernichtet', a:'TR', w:'zielverfehlt', a2:'Both transports are lost'},
+       {t:'alleZerstoert', a:'TR', wenn:{t:'leer', a:'TR'}, solange:{t:'angedockt', a:'TR'},
+        w:'zielverfehlt', a2:'The cargo is gone'},
+       // whatever is still lying there is scenery, so the wave can close
+       {t:'alleZerstoert', a:'TR', hold:true, w:'kulisse', a2:'K'}
+     ]},
+
   22:{name:'The Fugitive', fac:'hol', o:'clear', live:5, u:[
        // Er faehrt nach rechts und du kommst nicht an ihn heran, solange
        // die Geschuetze stehen. Genau das ist die Mission.
        {id:'V1', c:'de', n:1, spr:'detyphon', escape:0.22, x:-60},
        {id:'G1', c:'sg', n:8, spr:'sgankh'},
        {id:'E1', c:'fi', n:2}
-     ]},
-
-  20:{name:'The Survivors', fac:'hol', o:'clear', live:6, hunt:'K1', u:[
-       // Er steht brennend im Feld und wird bereits beschossen. Zu retten
-       // ist er nicht: solange er lebt, kommt Nachschub, und jeder frueh
-       // getoetete Jaeger verlaengert nur sein Leben - und damit die Zahl
-       // der Kapseln, die es herausschaffen.
-       {id:'K1', c:'cr', n:1, spr:'craten', side:'ally', hp:0.22},
-       {id:'E1', c:'fi', n:2},
-       {id:'P1', c:'ep', n:4, spr:'epra', side:'ally', cross:0.34, wait:true, at:'K1'}
-     ], ev:[
-       {t:'sek', a:1, w:'nachschub', a2:'an'},
-       {t:'zerstoert', a:'K1', w:'nachschub', a2:'aus'},
-       {t:'zerstoert', a:'K1', w:'einwarpen', a2:'P1'},
-       {t:'zerstoert', a:'K1', w:'meldung', a2:'escape pods away'},
-       {t:'zerstoert', a:'K1', w:'auftrag', a2:'protect'},
-       {t:'zerstoert', a:'K1', w:'jagd', a2:'P1'}
      ]},
 
   24:{name:'The Ambush', fac:'hol', o:'clear', live:6, u:[
@@ -5480,6 +5537,11 @@ function scriptUnit(u, fac, q){
              noKill:u.noKill, noWarp:u.noWarp, viaPortal:u.viaPortal,
              scan:u.scan?1:0, scanFirst:u.scanFirst,
              still:u.still, noFlak:u.noFlak, fixY:(u.y!=null),
+             // v321: a capital ship could not be told to hold her fire -
+             // noFire was carried for a super destroyer (the Lucifer) but
+             // dropped here, so the Eva in M20 would have opened up on the
+             // player instead of standing off and leaving.
+             noFire:u.noFire,
              subs:u.subs, subsDown:u.subsDown, escHit:u.escHit, escDelay:u.escDelay,
              capIndex:(n>1)? i : 0});
       }

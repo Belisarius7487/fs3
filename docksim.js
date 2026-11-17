@@ -282,13 +282,13 @@ function rider(uid, ride, slot, side){
   check('a rider of ours sits on her too', Math.abs(a.x - s4.x) < 0.01 && Math.abs(a.y - s4.y) < 0.01);
 }
 
-// ── 12. F99 (v283): every dock of missions 1-18 against the real hulls ──
+// ── 12. F99 (v283): every dock of missions 1-20 against the real hulls ──
 // Silvio (24.10.2026): docking from the models' own dock data, for every
 // mission. A container must sit on its freighter's dock - between the
 // Poseidon's arms, between the Chronos' end blocks - not rest on top of
 // them: what keeps it off her dock (dkMeet, from both hulls' height maps)
 // may be at most half its own height. Sizes as the game draws them.
-begin('12 F99: every container fits its freighter (missions 1-18)');
+begin('12 F99: every container fits its freighter (missions 1-20)');
 const SIZE = new Function('hullClass', [
   (src.match(/^const HULL_LEN = .*$/m) || [''])[0], (src.match(/^const SIZE_KEY_MUL = .*$/m) || [''])[0],
   (src.match(/^const SIZE_DRAW_CLASS_MUL = .*$/m) || [''])[0], (src.match(/^const CAP_L0 = .*$/m) || [''])[0],
@@ -296,7 +296,7 @@ const SIZE = new Function('hullClass', [
 const realWidth = SIZE(api.hullClassFn);
 function realSized(k){ if(!api.IMGS[k] || !api.IMGS[k]._real) api.IMGS[k] = {width: realWidth(k), height: realWidth(k)/3, _real: true}; }
 const pairs = new Map();
-for(let m = 1; m <= 18; m++){
+for(let m = 1; m <= 20; m++){
   const d = api.SCRIPT_WAVES[m]; if(!d) continue;
   for(const u of d.u){
     if(!u.dockTo || u.dockBeside != null || !u.spr) continue;

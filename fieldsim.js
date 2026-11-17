@@ -6899,6 +6899,53 @@ scenario('F103 stage 3: capital ships framed by their model', 'm=1', `
   r.atenMaskIsModelOutline = !!m && m.w === o.map.w && m.h === o.map.h;
   r.err = String(F3D.err || '');
   return r;`);
+// ── v321: M20 Shell Game (FS1 original 16) ──
+scenario('FS1 M20 v321 Shell Game: escort down, the Eva leaves, cargo scanned, transports away, end', 'm=20', `
+  const r = {};
+  const W = SCRIPT_WAVES[20] || {};
+  const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
+  r.name = W.name;
+  FS.step(50);
+  const ev = byId('EV')[0];
+  r.evaStandsOff = !!ev && ev.invuln===true && ev.noFire===true;
+  r.freighters = byId('F1').length===1 && byId('F2').length===1;
+  r.cargo = byId('K').length===2;
+  r.escort = byId('S1').length===3;
+  r.noTransportsYet = byId('TR').length===0;
+  // the cargo cannot be shot off before it has been scanned
+  for(const k of byId('K')){ k.hp = 0; damageEnemy(k, 99999, k.x, k.y, true, 'bolt'); }
+  FS.step(10);
+  r.cargoHoldsUntilScanned = byId('K').length===2;
+  // escort down: the Eva pulls out and the transports still stay away
+  FS.until(()=>{ player.invT = 999; FS.killId('S1'); return byId('EV').length===0; }, 4000, false);
+  r.evaGone = byId('EV').length===0 && !!EV_LEFT.EV;
+  r.stillNoTransports = byId('TR').length===0;
+  // both containers scanned: only then do the transports come in
+  FS.until(()=>{ player.invT = 999; for(const k of byId('K')) k.scanned = true; return byId('TR').length===2; }, 4000, false);
+  r.transportsCame = byId('TR').length===2;
+  r.scanReported = fired('Normal readings on the Shivan cargo');
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('S2'); FS.killId('S3');
+                 return fired('The Shivan cargo is on its way to base'); }, 16000, false);
+  r.cargoAway = fired('The Shivan cargo is on its way to base');
+  FS.until(()=>{ player.invT = 999; FS.killId('S2'); FS.killId('S3'); return waveOver || wave>20; }, 8000, false);
+  r.ends = waveOver || wave>20;
+  return r;`);
+
+scenario('FS1 M20 v321 Shell Game: both transports lost, the cargo stays, the mission still ends', 'm=20', `
+  const r = {};
+  const W = SCRIPT_WAVES[20] || {};
+  const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
+  FS.until(()=>byId('S1').length===3, 2000, false);
+  FS.until(()=>{ player.invT = 999; FS.killId('S1'); return byId('EV').length===0; }, 4000, false);
+  FS.until(()=>{ player.invT = 999; for(const k of byId('K')) k.scanned = true; return byId('TR').length===2; }, 4000, false);
+  FS.until(()=>{ player.invT = 999; return byId('TR').length===2 && byId('TR').every(function(t){ return !(t.warp>0); }); }, 3000, false);
+  for(const t of byId('TR')){ t.hp = 0; damageEnemy(t, 99999, t.x, t.y, false, 'bolt'); }
+  FS.until(()=>fired('Both transports are lost'), 800, false);
+  r.transportsLost = fired('Both transports are lost');
+  r.cargoStillThere = byId('K').length + enemies.filter(function(e){ return e.uid==='K' && e.scenery; }).length > 0;
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('S2'); FS.killId('S3'); return waveOver || wave>20; }, 10000, false);
+  r.ends = waveOver || wave>20;
+  return r;`);
 // ── Runner ─────────────────────────────────────────────────────────────
 // F109 (v309): cargo riding on a freighter jumps through her vortex, not
 // through one of its own in front of its own nose (M8, the taken Asmodeus)

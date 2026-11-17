@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:** nichts.
@@ -50,9 +51,68 @@ Arbeitsliste.
 
 ---
 
-Stand: v320 gebaut (F119: ein festes Spielfeld, M1–M19 neu ausgelegt).
+Stand: v321 gebaut (F120: M20 „Shell Game“).
 
 ---
+
+---
+
+## F120 — M20 „Shell Game" (FS1-Original 16), v321
+
+Ersetzt die alte Mission 20 „The Survivors". Silvios Vorgaben aus dem
+Gespräch vom 17.11.2026:
+
+1. „Frachter sind nicht zwangläufig unbewaffnet, shivanische erst recht
+   nicht." — Der Mephisto hat zwei Geschütztürme in seinem Modell, gilt
+   also als bewaffnet und ist ein normales Kampfziel.
+2. „Frachtcontainer explodieren, soweit ich weiß, sobald der Trägerfrachter
+   zerstört wird." — Stimmt (`dropCargo`). Deshalb liegt die Fracht frei
+   neben den Frachtern und hängt an keinem (kein `ride`).
+3. „Warum soll nur ich die Frachter treffen können, wenn sie eh zerstört
+   werden sollen?" — Sie sind bewaffnet, also schießt die eigene Staffel
+   mit. Nur die Container sind `playerOnly`, wie jede Fracht.
+4. „Wenn die Eva direkt zu Beginn heraus warpt, hat sie keinen Effekt."
+5. „Sie sollte erst herauswarpen, wenn die ersten 3 Scorpions zerstört
+   wurden."
+6. „Erst nachdem die Eva weggesprungen ist, sollten die verbündeten
+   Frachter reinwarpen."
+
+Weiter festgelegt: Die Transporter kommen herein, während die beiden
+Shivaner-Frachter noch leben und schießen (Silvio: Möglichkeit A). Wird
+ein Transporter abgeschossen, ist sein Container verloren und die Mission
+läuft weiter; beide verloren heißt Auftrag verfehlt. **Kein Ersatz wird
+nachgeschickt** (Silvio: „ja, passt").
+
+**Die Mission.** Die Eva steht von Anfang an rechts im Feld, feuert nicht
+und ist nicht angreifbar (`invuln`, `noFire`) — sie ist die Drohung, nicht
+der Gegner. Drei Scorpions als Wache, zwei Mephisto-Frachter, daneben zwei
+Shivaner-Container. Wache zerstört → die Eva springt ab und lässt ihre
+Frachter zurück. Neuer Auftrag: Frachter zerstören, Fracht heil lassen.
+Nebenauftrag: die Fracht scannen — die Transporter gehen nicht hinein,
+bevor sie gescannt ist (im Original weigert sich die GTT Stern, bis Alpha
+gescannt hat). Beide Container gescannt → zwei Elysium springen links ein
+und müssen an den noch lebenden Frachtern vorbei. Danach zwei weitere
+Scorpion-Wellen, die zweite jagt die Transporter.
+
+**Weggelassen:** zwei der vier Frachter des Originals, die Shivaner-
+Transporter, die Medusa- und Valkyrie-Verstärkung.
+
+**Zwei Dinge am gemeinsamen Code, nicht an der Mission:**
+
+- Ein Großkampfschiff konnte bisher nicht angewiesen werden, das Feuer
+  einzustellen: `noFire` wurde für den Superzerstörer (Lucifer)
+  weitergereicht, für Zerstörer und Kreuzer aber verworfen. Jetzt für
+  beide.
+- Der Auslöser „alle zerstört" feuert schon, wenn das erste Schiff einer
+  Staffel fällt, solange der Rest noch eingesetzt wird. Für die Wache
+  steht deshalb `anzahlUnter` da, das auf die Warteschlange wartet.
+
+**Geprüft:** alle 14 schnellen Stufen grün; `docksim` Teil 12 reicht jetzt
+bis Mission 20 und bestätigt Elysium + SC 5; zwei neue `fieldsim`-Szenarien
+(Normalweg und beide Transporter verloren) laufen durch und fallen gegen
+v320 durch; `warpsim 20-20` meldet nur dieselbe Art Hinweise wie M18/M19.
+
+**Offen:** Silvios Urteil im Spiel.
 
 ---
 
