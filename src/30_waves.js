@@ -3419,8 +3419,9 @@ const SCRIPT_WAVES = {
   // fighters, then Osiris bombers on the Galatea, then Seths packed with
   // explosives that ram her - and last the cruiser Mauler on a ram course
   // of her own. In the original her engines can be shot out instead of
-  // killing her; since v314 a dead engine stops a ram course, so both ways
-  // work. The sentry guns of the original and their inspection are left
+  // killing her; since v314 a dead engine stops a ram course, so shooting
+  // them out takes the ram away - she still has to be cleared like the
+  // rest before the Galatea jumps. The sentry guns of the original and their inspection are left
   // out: scanning only works on non-allied objects, and the mission is to
   // stay short. Replaces the old mission 19.
   19:{name:'Tenderizer', era:'fs1', orig:15, ship:'fiherc', fac:'hol', o:'clear', live:6,
@@ -3449,7 +3450,7 @@ const SCRIPT_WAVES = {
        // would be on the Galatea before the player could do anything.
        // hp: a cruiser at her stock hull was shot off the field in eight
        // seconds by the Galatea and the wing, before she was ever a threat.
-       {id:'MA', mark:'disable', c:'cr', n:1, spr:'craten', capRam:1.3, hp:3.5,
+       {id:'MA', mark:'destroy', c:'cr', n:1, spr:'craten', capRam:1.3, hp:3.5,
         x:770, y:270, wait:true, label:'PVC Mauler'}
      ], ev:[
        {t:'anzahlUnter', a:'E1', b:3, w:'einwarpen', a2:'B1'},
@@ -3462,18 +3463,15 @@ const SCRIPT_WAVES = {
        {t:'da', a:'MA', w:'meldung', a2:'The Mauler is on a ram course for the Galatea'},
        // Engines out: she drifts and is out of the fight (v314). Destroyed
        // does the same job, so both paths carry the same four events.
+       // Silvio, 17.11.2026: the Galatea leaves when the field is clear, not
+       // the moment the Mauler is stopped. Nothing is then left lying in
+       // front of her bow, so neither her jump-out run-up nor the
+       // left-to-right of the game has to be bent for this mission. A
+       // crippled Mauler stays an ordinary target: killing her engines
+       // takes the ram away, not the kill.
        {t:'subsystem', a:'MA', b:'engines', w:'meldung', a2:'The Mauler is dead in space'},
-       {t:'subsystem', a:'MA', b:'engines', d:1, w:'kulisse', a2:'MA'},
        {t:'subsystem', a:'MA', b:'engines', w:'zielerfuellt', a2:'The Mauler is stopped'},
-       {t:'subsystem', a:'MA', b:'engines', d:3, w:'raus', a2:'K1'},
-       {t:'subsystem', a:'MA', b:'engines', d:6, w:'raus', a2:'GA'},
-       {t:'subsystem', a:'MA', b:'engines', d:6, w:'kulisse', a2:'G1'},
-       {t:'subsystem', a:'MA', b:'engines', d:6, w:'ende', a2:''},
        {t:'vernichtet', a:'MA', w:'zielerfuellt', a2:'The Mauler is stopped'},
-       {t:'vernichtet', a:'MA', d:3, w:'raus', a2:'K1'},
-       {t:'vernichtet', a:'MA', d:6, w:'raus', a2:'GA'},
-       {t:'vernichtet', a:'MA', d:6, w:'kulisse', a2:'G1'},
-       {t:'vernichtet', a:'MA', d:6, w:'ende', a2:''},
        {t:'vernichtet', a:'GA', w:'zielverfehlt', a2:'The Galatea is lost'},
        {t:'vernichtet', a:'GA', d:6, w:'abzug', a2:''}
      ]},

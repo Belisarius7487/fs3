@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v315)
+## Lage — als Erstes lesen (Stand 17.11.2026, v316)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -33,6 +33,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F112 | M16–M18: Auftragstexte zu lang, zwei Ziele in einem | v293 |
 | F113 | **M19 „Tenderizer" neu gebaut** (FS1-Original 15). Dazu eine allgemeine Regel: zerschossene Triebwerke stoppen jetzt auch einen Rammkurs | v314 |
 | F114 | M19 nachgebessert: Flügel fliegt Hercules, drei feindliche Sperrgeschütze dazu | v315 |
+| F115 | M19: Galatea springt erst, wenn das Feld leer ist | v316 |
 | F103 | **Etappe 4 fertig**: keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell (13,8 MB weniger Spieldatei). `&f3d=0`, Lichtkante, Metallglanz, Schildhaut und der Sprite-Teil des Packers sind weg; in den Einstellungen fallen die zwei Schalter RIM LIGHT und METAL GLINT weg. Der Sprite-Ordner auf dem Server wird nicht mehr gelesen | v313 |
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
@@ -54,7 +55,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v315 gebaut (F114: M19 nachgebessert).
+Stand: v316 gebaut (F115: Galatea springt zuletzt).
 
 ---
 
@@ -125,6 +126,37 @@ die Apollos und Walküren daneben kommen aus dem allgemeinen Vorrat.
 auf vasudanischer Seite. Weil ein Geschützturm nicht springen kann, wird
 er am Missionsende zu `kulisse`, sonst hielte ein übersehener Turm die
 Welle offen.
+
+
+---
+
+## F115 — M19: die Galatea springt zuletzt, v316
+
+**Silvio, 17.11.2026:** „Hä? Ich sehe doch wie die Galatea nach vorne
+herauswarpt? Was erzählst du?"
+
+**Claude hatte falsch behauptet**, ein abspringendes Schiff bewege sich
+nicht. Richtig ist: der Wirbel öffnet sich **vor dem Bug**
+(`FS_OUT_LEAD` = 0,6 Schiffslängen, höchstens `FS_OUT_LEAD_MAX` = 500
+Einheiten), und das Schiff fährt im **Bild** mit Anlauf hinein —
+`fsWarp` in `20_render.js` gibt dafür einen Versatz `dx`/`dy` zurück. Die
+Position des Schiffes selbst bleibt stehen, es nimmt keinen Schaden und
+schiebt nichts weg; es sieht aber falsch aus, wenn etwas auf dieser Linie
+liegt. **Wer hier etwas behauptet, liest `fsWarp`, nicht `tickAllies`.**
+
+**Zwei Vorschläge abgelehnt (Silvio, 17.11.2026):** „Beide Lösungen sind
+falsch. Warum sollte ein Schiff plötzlich einen kürzeren Warpout haben
+oder warum sollten wir hier plötzlich den von links nach rechts Aspekt
+aufbrechen?" — Also **kein** verkürzter Anlauf vor Hindernissen und
+**kein** nach links schauendes Schiff.
+
+**Gebaut.** Der Fehler lag in der Mission: die Galatea sprang ab, sobald
+die Mauler gestoppt war, und deshalb konnte überhaupt noch etwas vor ihr
+liegen. Jetzt springt sie erst, wenn das Feld leer ist (von selbst am
+Wellenende). Eine lahmgelegte Mauler bleibt ein gewöhnliches Ziel —
+Triebwerke zerschießen nimmt den Rammstoß, nicht den Abschuss. Damit
+fällt auch die `kulisse` für die Sperrgeschütze weg: sie werden
+abgeschossen wie alles andere.
 
 
 ## Wichtig für die Reihenfolge (Silvio, v225)
