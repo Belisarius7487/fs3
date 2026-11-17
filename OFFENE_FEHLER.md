@@ -42,7 +42,11 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
-**Offen, noch nicht gebaut:** nichts.
+**Offen, noch nicht gebaut:**
+
+| Punkt | Worum es geht |
+|---|---|
+| F119 | **Spielfeldgröße grundsätzlich falsch**: sie hängt am längsten Schiff der Mission, statt fest und groß genug für eine Colossus zu sein. Entscheidung steht aus |
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -221,6 +225,39 @@ field"), die gegen v318 durchfällt.
 **kein** fester Abstand. Sie wird mit `FIELD_K` auf die Spielfläche
 gerechnet (`MW = 800 * FIELD_K`). Wer Abstände beurteilt, liest erst
 `FIELD_K` und `MW` der Mission.
+
+
+---
+
+## F119 — Spielfeldgröße grundsätzlich: offen
+
+**Silvio, 17.11.2026:** „Das mit der Feldgröße war so aber nie abgemacht.
+Es sollte immer so groß sein, dass eine Colossus problemlos herein und
+heraus warpen kann. Das was du gerade beschreibst, sagt mir, dass das nie
+möglich sein wird und dass jede bisherige Mission an fehlerhaften
+Größendefinitionen kränkelt"
+
+**Gemessene Lage (v319).** `worldForWave()` setzt `FIELD_K` nach dem
+längsten Schiff der Mission; die Spielfläche ist `MW = 800 * FIELD_K`.
+Über alle geschriebenen Missionen reicht `MW` von **1000 bis 7338**.
+M1 = 2100, M5 = 2576, M9 = 2270, M13 = 2558, M17 = 3458, M18 = 2670,
+M19 = 3458.
+
+Die Colossus wird roh **4745** Einheiten breit gezeichnet. In M19 (3458)
+wird sie auf die Feldbreite gestaucht — sie füllt das Feld von Rand zu
+Rand und kann dort nicht sauber ein- und ausspringen. Nach derselben
+Formel verlangt sie `FIELD_K` 8,53, also **MW 6827**.
+
+**Der Preis einer festen Fläche.** Missionspositionen stehen auf einem
+Raster 0–800 und werden mit `FIELD_K` auf die Fläche gerechnet.
+Schiffsgeschwindigkeiten hängen **nicht** an `FIELD_K` (sie kommen über
+`SMALL_SPD_ANCHOR` aus echten m/s). Eine feste Fläche von 6827 macht
+also jede bestehende Mission um das 2- bis 3-Fache größer und ihre
+Flugzeiten ebenso länger. Jede bestehende Mission müsste danach neu
+ausgelegt werden — enger auf dem größeren Raster, nach Silvios Regel
+„Die Mission passt sich an, nicht die Fläche".
+
+**Entscheidung steht aus.**
 
 
 ## Wichtig für die Reihenfolge (Silvio, v225)
