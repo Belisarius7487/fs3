@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v320)
+## Lage — als Erstes lesen (Stand 17.11.2026, v320, M1–M19 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,21 +26,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F101 | M11: die Elysium springt rückwärts mit der Ramses heraus | v285 |
-| F106 | M15: Sprungwirbel der Elysium hinter der Pinnacle | v290 |
-| F107 | Feindliche Frachter ohne Ladung zählten als verfehltes Ziel | v292 |
-| F110 | M14: „Delivered“ statt „Escaped“ im Pause-Log | v293 |
-| F112 | M16–M18: Auftragstexte zu lang, zwei Ziele in einem | v293 |
-| F113 | **M19 „Tenderizer" neu gebaut** (FS1-Original 15). Dazu eine allgemeine Regel: zerschossene Triebwerke stoppen jetzt auch einen Rammkurs | v314 |
-| F114 | M19 nachgebessert: Flügel fliegt Hercules, drei feindliche Sperrgeschütze dazu | v315 |
-| F115 | M19: Galatea springt erst, wenn das Feld leer ist | v316 |
-| F116 | M19 neuer Ablauf: erst die Sperrgeschütze, dann kommt die Galatea, dann die Wellen | v317 |
-| F117 | M19: Gegner warpten zu nah an der Galatea ein, Kamikaze nicht aufzuhalten | v318 |
-| F118 | **Spielfeld schrumpfte**, wenn das größte Schiff einer Mission erst später einsprang (Ursache von F117) | v319 |
-| F119 | **Ein festes Spielfeld für alle Missionen**, zugeschnitten auf die Colossus (6827 breit). M1–M19 darauf neu ausgelegt, mit unveränderten Abständen | v320 |
-| F103 | **Etappe 4 fertig**: keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell (13,8 MB weniger Spieldatei). `&f3d=0`, Lichtkante, Metallglanz, Schildhaut und der Sprite-Teil des Packers sind weg; in den Einstellungen fallen die zwei Schalter RIM LIGHT und METAL GLINT weg. Der Sprite-Ordner auf dem Server wird nicht mehr gelesen | v313 |
-| F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
-| F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:** nichts.
@@ -49,6 +34,12 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
 Brave gesehen, im eingebauten Browser nicht nachstellbar; wartet, bis Silvio
 es wieder sieht).
+
+**Abgenommen am 17.11.2026** (Silvio, nach v320: „Hab jetzt mehrere
+Durchläufe durch die bisherigen 19 Missionen und bin sehr zufrieden.“):
+F101, F103, F106, F107, F108, F109, F110, F112, F113, F114, F115, F116,
+F117, F118, F119 — also die ganze Arbeit an M19, das feste Spielfeld und
+alles, was in M1–M19 zu sehen ist.
 
 **Erledigt:** F104 (Mikroruckler, v308 — Silvio 16.11.2026: „F104 scheint
 gelöst zu sein“) und F111 (v309 — Silvio 16.11.2026: „In M15 haben alle
