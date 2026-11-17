@@ -601,6 +601,24 @@ scenario('The radar shows the whole world, and nothing is longer than the field'
 // ran from 1151x679 (M12) to 10090x6367 (M55) - 76 of 80 missions below the
 // floor - and a mission's play field depended on which hull happened to be
 // the longest in it.
+// F118: ... and the size must not depend on WHEN a ship arrives. M19's
+// Galatea only jumps in once the gun platforms are down; sized from the
+// start of the wave alone, the mission got a third of its field.
+scenario('A ship that only jumps in later still counts for the field', 'm=19', `
+  const r = {};
+  const q = getWaveDef(19);
+  worldForWave(q);
+  const withHeld = Math.round(MW);
+  const keep = EV_HELD;
+  EV_HELD = {};
+  worldForWave(q);
+  const without = Math.round(MW);
+  EV_HELD = keep;
+  r.field = withHeld + ' with held ships, ' + without + ' without';
+  r.heldShipsSizeTheField = withHeld > without;
+  r.theGalateaFitsHerField = withHeld >= 3000;
+  return r;`);
+
 scenario('Every mission gets a play field of the same size', 'm=31', `
   const r = {};
   const ms = Object.keys(SCRIPT_WAVES).map(Number).sort((a,b)=>a-b);

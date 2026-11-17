@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v318)
+## Lage — als Erstes lesen (Stand 17.11.2026, v319)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -36,6 +36,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F115 | M19: Galatea springt erst, wenn das Feld leer ist | v316 |
 | F116 | M19 neuer Ablauf: erst die Sperrgeschütze, dann kommt die Galatea, dann die Wellen | v317 |
 | F117 | M19: Gegner warpten zu nah an der Galatea ein, Kamikaze nicht aufzuhalten | v318 |
+| F118 | **Spielfeld schrumpfte**, wenn das größte Schiff einer Mission erst später einsprang (Ursache von F117) | v319 |
 | F103 | **Etappe 4 fertig**: keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell (13,8 MB weniger Spieldatei). `&f3d=0`, Lichtkante, Metallglanz, Schildhaut und der Sprite-Teil des Packers sind weg; in den Einstellungen fallen die zwei Schalter RIM LIGHT und METAL GLINT weg. Der Sprite-Ordner auf dem Server wird nicht mehr gelesen | v313 |
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
@@ -57,7 +58,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v318 gebaut (F117: Einsprungweite und Kamikaze in M19).
+Stand: v319 gebaut (F118: Spielfeldgröße zählt wartende Schiffe mit).
 
 ---
 
@@ -191,6 +192,35 @@ Vor allem aber kamen die drei Seth **gleichzeitig**: drei Rammer auf
 einmal sind nicht zu fangen. Sie kommen jetzt einzeln, mit sechs
 Sekunden Abstand (3 s / 9 s / 15 s nach den Bombern), die Mauler
 danach bei 20 s.
+
+
+---
+
+## F118 — Das Spielfeld schrumpfte, wenn das große Schiff später kam, v319
+
+**Silvio, 17.11.2026:** „Die Schiffe warpen nun gefühlt noch näher an der
+Galatea rein. Kann es sein, dass du die tatsächliche Größe des
+Spielfelds nicht kennst?" — Ja, genau das war es.
+
+**Die Ursache.** `worldForWave()` bemisst die Spielfläche nach dem
+längsten Schiff der Mission, aber es bekam nur die **Startaufstellung**
+zu sehen. Schiffe mit `wait:true` stehen zu diesem Zeitpunkt in
+`EV_HELD`, nicht in `spawnQ`, und zählten nicht mit. Seit v317 springt
+die Galatea erst ein, wenn die Sperrgeschütze zerstört sind — damit fiel
+das größte Schiff aus der Rechnung, und M19 bekam `FIELD_K` 1,25 statt
+4,32: eine Spielfläche von **1000 statt 3458** Einheiten Breite. Alle
+Abstände der Mission schrumpfen mit, also kamen die Wellen der Galatea
+immer näher, je mehr an der Mission „verbessert" wurde.
+
+**Behoben** in `worldForWave()`: die zurückgehaltenen Schiffe zählen für
+die Größe genauso wie die, die zu Beginn dastehen. Neue Prüfung in
+`fieldsim` („A ship that only jumps in later still counts for the
+field"), die gegen v318 durchfällt.
+
+**Lehre für die nächste Sitzung:** Eine Missionsposition wie `x:790` ist
+**kein** fester Abstand. Sie wird mit `FIELD_K` auf die Spielfläche
+gerechnet (`MW = 800 * FIELD_K`). Wer Abstände beurteilt, liest erst
+`FIELD_K` und `MW` der Mission.
 
 
 ## Wichtig für die Reihenfolge (Silvio, v225)

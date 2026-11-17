@@ -134,7 +134,15 @@ function worldForWave(q){
     need = Math.max(need, nw);
     if(mission) k = Math.max(k, nw/Math.max(1, hullWidthOld(key)));
   };
-  for(const s of (q || [])){
+  // F118: a mission's field must not depend on WHEN a ship arrives. Ships
+  // held back (wait:true) sit in EV_HELD at this point, not in the queue,
+  // so a mission whose destroyer only jumps in later was sized from the
+  // small craft standing at the start: M19 got a 1000-wide mission area
+  // instead of 3458, and every wave came in on top of the Galatea.
+  const all = (q || []).slice();
+  if(typeof EV_HELD !== 'undefined' && EV_HELD)
+    for(const key in EV_HELD) for(const h of (EV_HELD[key] || [])) all.push(h);
+  for(const s of all){
     if(s.spr) look(s.spr, true);
     else { let pool = null; try{ pool = poolFor(s.type); }catch(e){ pool = null; }
            for(const p of (pool || [])) look(p, true); }
