@@ -3505,10 +3505,11 @@ const SCRIPT_WAVES = {
   // technology to look at. The cargo lies free beside the freighters, not
   // riding on them: cargo on a freighter dies with her (dropCargo), and
   // this mission is about keeping it whole.
-  // Both containers are scanned before the transports will go in (in the
-  // original one transport refuses the order until Alpha has scanned).
-  // scanFirst keeps them alive until then, so the transports can never be
-  // gated behind a container the player has already shot.
+  // Each container is scanned on its own and has a transport of its own
+  // (Silvio, 17.11.2026, choice B), and every finished scan also brings a
+  // Shivan wing with it. scanFirst keeps a container alive until it has
+  // been scanned, so its transport can never be gated behind a container
+  // the player has already shot.
   // Left out: two of the four freighters, the Shivan transports, the
   // Medusa and Valkyrie reinforcements.
   20:{name:'Shell Game', era:'fs1', orig:16, ship:'fiherc', fac:'hol', o:'clear', live:6,
@@ -3516,8 +3517,9 @@ const SCRIPT_WAVES = {
        {id:'W1', c:'fi', n:1, size:3, spr:'fiherc', side:'ally'},
        // the Eva: she never fires and cannot be touched - the threat, not
        // the fight. invuln also keeps her out of everyone's target keys.
+       // Silvio, 17.11.2026: closer to the containers than she was.
        {id:'EV', c:'de', n:1, spr:'dedemon', fac:'shivan', invuln:true, noFire:true,
-        still:true, x:620, y:140, label:'SD Eva'},
+        still:true, x:520, y:165, label:'SD Eva'},
        {id:'F1', mark:'destroy', c:'fr', n:1, spr:'frmephisto', fac:'shivan',
         x:248, y:232, label:'SFr Lucifuge'},
        {id:'F2', mark:'destroy', c:'fr', n:1, spr:'frmephisto', fac:'shivan',
@@ -3525,22 +3527,23 @@ const SCRIPT_WAVES = {
        // the cargo: hostile, so it can be scanned (tickScan runs over
        // enemies), and player-only like all cargo - our own wing cannot
        // hit it, only the player can.
-       {id:'K', mark:'protect', c:'fc', n:1, spr:'fcsc5', fac:'shivan',
+       {id:'KA', mark:'protect', c:'fc', n:1, spr:'fcsc5', fac:'shivan',
         scan:true, scanFirst:true, x:312, y:246},
-       {id:'K', mark:'protect', c:'fc', n:1, spr:'fcsc5', fac:'shivan',
+       {id:'KB', mark:'protect', c:'fc', n:1, spr:'fcsc5', fac:'shivan',
         scan:true, scanFirst:true, x:312, y:302},
        {id:'S1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:330, y:274},
        // they come in left of the freighters and have to pass them to
        // reach the cargo - the freighters are still alive and firing
-       // (Silvio, choice A)
-       {id:'TR', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
-        x:190, y:246, warpIn:true, wait:true, dockTo:'K', dockHold:12,
+       // (Silvio, choice A). One transport per container.
+       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
+        x:190, y:246, warpIn:true, wait:true, dockTo:'KA', dockHold:12,
         dockLabel:'LOADING', jumpIfEmpty:true, label:'GTT Stern'},
-       {id:'TR', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
-        x:190, y:302, warpIn:true, wait:true, dockTo:'K', dockHold:12,
+       {id:'T2', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
+        x:190, y:302, warpIn:true, wait:true, dockTo:'KB', dockHold:12,
         dockLabel:'LOADING', jumpIfEmpty:true, label:'GTT Harmon'},
-       {id:'S2', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:440, wait:true},
-       {id:'S3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', x:440, wait:true}
+       {id:'S2', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', x:440, wait:true},
+       {id:'S3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', x:440, wait:true},
+       {id:'S4', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', x:440, wait:true}
      ], ev:[
        // anzahlUnter, not alleZerstoert: it waits until nothing of this id
        // is still queued, so the first kill cannot fire it while the rest
@@ -3548,26 +3551,39 @@ const SCRIPT_WAVES = {
        {t:'anzahlUnter', a:'S1', b:1, w:'zielerfuellt', a2:'The Shivan escort is down'},
        {t:'anzahlUnter', a:'S1', b:1, d:2, w:'meldung', a2:'The Eva is leaving her freighters behind'},
        {t:'anzahlUnter', a:'S1', b:1, d:3, w:'raus', a2:'EV'},
-       // one objective from here on, so nothing marks another one done
-       // early: the freighters and the cargo are the same job.
+       // one main objective from here on, so nothing marks another one
+       // done early: the freighters and the cargo are the same job.
        {t:'verlaesst', a:'EV', w:'ziel', a2:'Destroy the freighters, bring the cargo home'},
        {t:'verlaesst', a:'EV', w:'nebenziel', a2:'Scan the Shivan cargo'},
-       {t:'verlaesst', a:'EV', d:1, w:'meldung', a2:'The transports will not go in until the cargo is cleared'},
+       {t:'verlaesst', a:'EV', d:1, w:'meldung', a2:'No transport will go in until the cargo is cleared'},
        {t:'verlaesst', a:'EV', d:14, w:'einwarpen', a2:'S2'},
-       {t:'gescannt', a:'K', w:'nebenOk', a2:'Normal readings on the Shivan cargo'},
-       {t:'gescannt', a:'K', d:2, w:'einwarpen', a2:'TR'},
-       {t:'gescannt', a:'K', d:2, w:'meldung', a2:'The transports are moving in to dock'},
-       {t:'gescannt', a:'K', d:22, w:'einwarpen', a2:'S3'},
-       {t:'da', a:'S3', w:'jagd', a2:'TR'},
+       // each scan brings its own transport and a Shivan wing with it
+       {t:'gescannt', a:'KA', w:'meldung', a2:'GTT Stern moving in to dock'},
+       {t:'gescannt', a:'KA', w:'einwarpen', a2:'T1'},
+       {t:'gescannt', a:'KA', d:2, w:'einwarpen', a2:'S3'},
+       {t:'da', a:'S3', w:'jagd', a2:'T1'},
+       {t:'gescannt', a:'KB', w:'meldung', a2:'GTT Harmon moving in to dock'},
+       {t:'gescannt', a:'KB', w:'einwarpen', a2:'T2'},
+       {t:'gescannt', a:'KB', d:2, w:'einwarpen', a2:'S4'},
+       {t:'da', a:'S4', w:'jagd', a2:'T2'},
+       {t:'gescannt', a:'KA+KB', w:'nebenOk', a2:'Both containers read clean'},
        {t:'vernichtet', a:'F1+F2', w:'meldung', a2:'Both Shivan freighters destroyed'},
-       {t:'leer', a:'TR', w:'meldung', a2:'A transport found her container gone'},
-       // the ends - order counts
-       {t:'verlaesst', a:'TR', wenn:{t:'angedockt', a:'TR'}, w:'zielerfuellt', a2:'The Shivan cargo is on its way to base'},
-       {t:'vernichtet', a:'TR', w:'zielverfehlt', a2:'Both transports are lost'},
-       {t:'alleZerstoert', a:'TR', wenn:{t:'leer', a:'TR'}, solange:{t:'angedockt', a:'TR'},
-        w:'zielverfehlt', a2:'The cargo is gone'},
+       {t:'leer', a:'T1', w:'meldung', a2:'The Stern found her container gone'},
+       {t:'leer', a:'T2', w:'meldung', a2:'The Harmon found her container gone'},
+       // The ends, settled once both transports are off the field however
+       // they went. Exactly one of these four can fire: see the solange
+       // on the two partial ones.
+       {t:'alleZerstoert', a:'T1+T2', d:2, wenn:{t:'verlaesst', a:'KA+KB'},
+        w:'zielerfuellt', a2:'Both containers are on their way to base'},
+       {t:'alleZerstoert', a:'T1+T2', d:2, wenn:{t:'vernichtet', a:'T1+T2'},
+        w:'zielverfehlt', a2:'Both transports are lost'},
+       {t:'alleZerstoert', a:'T1+T2', d:3, wenn:{t:'verlaesst', a:'T1'},
+        solange:{t:'verlaesst', a:'KA+KB'}, w:'zielteil', a2:'Not all of the cargo got away'},
+       {t:'alleZerstoert', a:'T1+T2', d:3, wenn:{t:'verlaesst', a:'T2'},
+        solange:{t:'verlaesst', a:'T1'}, w:'zielteil', a2:'Not all of the cargo got away'},
        // whatever is still lying there is scenery, so the wave can close
-       {t:'alleZerstoert', a:'TR', hold:true, w:'kulisse', a2:'K'}
+       {t:'alleZerstoert', a:'T1+T2', hold:true, w:'kulisse', a2:'KA'},
+       {t:'alleZerstoert', a:'T1+T2', hold:true, w:'kulisse', a2:'KB'}
      ]},
 
   22:{name:'The Fugitive', fac:'hol', o:'clear', live:5, u:[

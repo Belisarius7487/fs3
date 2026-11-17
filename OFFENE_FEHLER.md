@@ -51,7 +51,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v321 gebaut (F120: M20 „Shell Game“).
+Stand: v322 gebaut (F120: M20 „Shell Game“, Nachbesserung).
 
 ---
 
@@ -111,6 +111,26 @@ Transporter, die Medusa- und Valkyrie-Verstärkung.
 bis Mission 20 und bestätigt Elysium + SC 5; zwei neue `fieldsim`-Szenarien
 (Normalweg und beide Transporter verloren) laufen durch und fallen gegen
 v320 durch; `warpsim 20-20` meldet nur dieselbe Art Hinweise wie M18/M19.
+
+**Nachbesserung v322 (Silvio, 17.11.2026).** „Die Eva sollte etwas näher
+an den Containern sein." — steht jetzt bei 520/165 statt 620/140.
+
+Auf die Frage „Wann sind die Elysiums beabsichtigt hereinzuwarpen?" kam
+heraus, dass in v321 **beide** Container gescannt werden mussten, bevor
+überhaupt ein Transporter kam — besprochen war ein Scan. Silvio wählte
+Möglichkeit B: „Ich würde gerne auf B gehen und zudem eine Gegnerstaffel
+je abgeschlossenem Scan hinzufügen."
+
+Also seit v322: jeder Container hat seine eigene Kennung (KA, KB) und
+seinen festen Transporter (Stern holt KA, Harmon holt KB). Jeder fertige
+Scan bringt sofort seinen Transporter **und** eine Scorpion-Staffel, die
+genau diesen Transporter jagt. Die Staffel nach dem Absprung der Eva
+bleibt. Vier Staffeln insgesamt: Wache 3, nach der Eva 2, je Scan 2.
+
+Der Ausgang wird beurteilt, sobald beide Transporter vom Feld sind: beide
+Container weg = erfüllt, keiner von beiden Transportern zurück = verfehlt,
+alles dazwischen = teilweise. Genau eine Meldung kann feuern; ein
+`fieldsim`-Szenario prüft das für den Teilerfolg.
 
 **Offen:** Silvios Urteil im Spiel.
 
