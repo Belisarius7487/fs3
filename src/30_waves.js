@@ -3441,18 +3441,25 @@ const SCRIPT_WAVES = {
        {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:560, y:400},
        {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally',
         x:150, y:270, still:true, wait:true, home:true, label:'GTD Galatea'},
-       {id:'E1', c:'fi', n:1, size:4, spr:'fianubis', wait:true},
+       // x on every wave: without it a wave takes the default spawn, and
+       // Silvio saw them come in on top of the Galatea (17.11.2026). The
+       // far edge is the longest run-in the field has.
+       {id:'E1', c:'fi', n:1, size:4, spr:'fianubis', x:790, wait:true},
        // bombers for the Galatea
-       {id:'B1', c:'bo', n:1, size:3, spr:'boosiris', wait:true},
-       // Seths loaded with explosives - they ram instead of shooting
-       {id:'K1', c:'fi', n:1, size:3, spr:'fiseth', ram:true, wait:true},
+       {id:'B1', c:'bo', n:1, size:3, spr:'boosiris', x:790, wait:true},
+       // Seths loaded with explosives - they ram instead of shooting. One
+       // at a time, six seconds apart: three at once could not be caught
+       // ("So ist es unmoeglich die Kamikazeschiffe aufzuhalten").
+       {id:'K1', c:'fi', n:1, size:1, spr:'fiseth', ram:true, x:790, wait:true},
+       {id:'K2', c:'fi', n:1, size:1, spr:'fiseth', ram:true, x:790, wait:true},
+       {id:'K3', c:'fi', n:1, size:1, spr:'fiseth', ram:true, x:790, wait:true},
        // The Mauler comes in at the far edge, a long way off: a cruiser is
        // much faster than a destroyer (Silvio, 17.11.2026), so close in she
        // would be on the Galatea before the player could do anything.
        // hp: a cruiser at her stock hull was shot off the field in eight
        // seconds by the Galatea and the wing, before she was ever a threat.
        {id:'MA', mark:'destroy', c:'cr', n:1, spr:'craten', capRam:1.3, hp:3.5,
-        x:770, y:270, wait:true, label:'PVC Mauler'}
+        x:790, y:270, wait:true, label:'PVC Mauler'}
      ], ev:[
        {t:'alleZerstoert', a:'G1', w:'zielerfuellt', a2:'The gun platforms are down'},
        {t:'alleZerstoert', a:'G1', d:3, w:'einwarpen', a2:'GA'},
@@ -3461,8 +3468,10 @@ const SCRIPT_WAVES = {
        {t:'anzahlUnter', a:'E1', b:3, w:'einwarpen', a2:'B1'},
        {t:'da', a:'B1', w:'jagd', a2:'GA'},
        {t:'da', a:'B1', w:'meldung', a2:'Vasudan bombers are going for the Galatea'},
-       {t:'alleZerstoert', a:'B1', d:3, w:'einwarpen', a2:'K1'},
-       {t:'alleZerstoert', a:'B1', d:5, w:'einwarpen', a2:'MA'},
+       {t:'alleZerstoert', a:'B1', d:3,  w:'einwarpen', a2:'K1'},
+       {t:'alleZerstoert', a:'B1', d:9,  w:'einwarpen', a2:'K2'},
+       {t:'alleZerstoert', a:'B1', d:15, w:'einwarpen', a2:'K3'},
+       {t:'alleZerstoert', a:'B1', d:20, w:'einwarpen', a2:'MA'},
        {t:'da', a:'K1', w:'meldung', a2:'The Seths are trying to ram the Galatea'},
        {t:'da', a:'MA', w:'ziel', a2:'Stop the Mauler'},
        {t:'da', a:'MA', w:'meldung', a2:'The Mauler is on a ram course for the Galatea'},

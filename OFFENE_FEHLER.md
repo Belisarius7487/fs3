@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v317)
+## Lage — als Erstes lesen (Stand 17.11.2026, v318)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -35,6 +35,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F114 | M19 nachgebessert: Flügel fliegt Hercules, drei feindliche Sperrgeschütze dazu | v315 |
 | F115 | M19: Galatea springt erst, wenn das Feld leer ist | v316 |
 | F116 | M19 neuer Ablauf: erst die Sperrgeschütze, dann kommt die Galatea, dann die Wellen | v317 |
+| F117 | M19: Gegner warpten zu nah an der Galatea ein, Kamikaze nicht aufzuhalten | v318 |
 | F103 | **Etappe 4 fertig**: keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell (13,8 MB weniger Spieldatei). `&f3d=0`, Lichtkante, Metallglanz, Schildhaut und der Sprite-Teil des Packers sind weg; in den Einstellungen fallen die zwei Schalter RIM LIGHT und METAL GLINT weg. Der Sprite-Ordner auf dem Server wird nicht mehr gelesen | v313 |
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
@@ -56,7 +57,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v317 gebaut (F116: neuer Ablauf in M19).
+Stand: v318 gebaut (F117: Einsprungweite und Kamikaze in M19).
 
 ---
 
@@ -173,6 +174,23 @@ sie zerstört, springt die Galatea ein (und damit gibt es erst ab da
 Nachladen, `home:true`); vier Sekunden später kommen die Anubis, und von
 dort läuft die Steigerung wie vorher weiter. Auftrag am Anfang „Destroy
 the gun platforms", mit der Galatea „Protect the Galatea".
+
+
+---
+
+## F117 — M19: Einsprungweite und Kamikaze, v318
+
+**Silvio, 17.11.2026:** „Gegner warpen viel zu nah an der Galatea rein.
+So ist es unmöglich die Kamikazeschiffe aufzuhalten"
+
+Die Wellen hatten kein eigenes `x` und nahmen den Standard-Einsprung.
+Jetzt steht auf jeder Welle `x:790`, also der rechte Rand — der längste
+Anflug, den das Feld hergibt, die Galatea steht links auf 150.
+
+Vor allem aber kamen die drei Seth **gleichzeitig**: drei Rammer auf
+einmal sind nicht zu fangen. Sie kommen jetzt einzeln, mit sechs
+Sekunden Abstand (3 s / 9 s / 15 s nach den Bombern), die Mauler
+danach bei 20 s.
 
 
 ## Wichtig für die Reihenfolge (Silvio, v225)
