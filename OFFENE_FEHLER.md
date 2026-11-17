@@ -29,7 +29,11 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
-**Offen, noch nicht gebaut:** nichts.
+**Offen, noch nicht gebaut:**
+
+| Punkt | Worum es geht | Stand |
+|---|---|---|
+| F121 | M20: zwei Missionsziele in einem; „bring the cargo home“ zu lässig | wird mit dem nächsten Missionsbau gebaut (Silvios Wunsch) |
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -54,6 +58,43 @@ Arbeitsliste.
 Stand: v322 gebaut (F120: M20 „Shell Game“, Nachbesserung).
 
 ---
+
+---
+
+## F121 — M20: zwei Ziele in einem, und die Wortwahl
+
+**Silvio, 17.11.2026** (mit Bild des Pausebildschirms, Missionszeit 0:23):
+„Du fängst schon wieder an 2 verschiedenen Missionsziele in eins zu
+packen. Die Frachter sind zum Zeitpunkt dieser Aufnahme schon zerstört.
+Und „bring the Cargo home" ist viel zu casual. Es müsste „Capture the
+Cargo" heißen."
+
+„Um aber auch gleich mit der nächsten Mission weitermachen zu können,
+würde ich dich bitten diesen Fix in den nächsten Missionsbuild mit
+einzubauen." — **Also nicht einzeln ausliefern, sondern zusammen mit der
+nächsten Mission.**
+
+Im Bild: „DESTROY THE FREIGHTERS, BRING THE CARGO HOME" steht offen,
+obwohl im Protokoll bei 0:06 schon „BOTH SHIVAN FREIGHTERS DESTROYED"
+steht.
+
+**Warum es so gebaut war.** Ein neues Hauptziel zählt das noch offene
+vorige als erfüllt (`mlogObjective`). Zwei Ziele nacheinander hätten das
+Frachterziel fälschlich auf „erfüllt" gesetzt, falls die Transporter vor
+den Frachtern durch sind. Deshalb waren beide in einer Zeile. Das ist
+nicht die Lösung, die Silvio will.
+
+**Was zu bauen ist:**
+
+1. Eigenes Ziel „Destroy the Shivan freighters", erfüllt, sobald beide
+   zerstört sind — auch wenn das schon vor der Ansage passiert ist.
+2. Danach eigenes Ziel **„Capture the Shivan cargo"** (nicht „bring the
+   cargo home").
+3. Damit die Reihenfolge nie durcheinander kommt, brauchen `wenn` und
+   `solange` eine Liste statt nur eines Auslösers (alle müssen gelten /
+   einer genügt). Dann hängt jeder Ausgang zusätzlich daran, dass die
+   Frachter zerstört sind, und genau eine Schlussmeldung kann feuern.
+   Das ist eine allgemeine Erweiterung, keine Sonderlocke für M20.
 
 ---
 
