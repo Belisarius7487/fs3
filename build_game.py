@@ -129,6 +129,18 @@ def print_changes(old, new):
 # read any more and can go.
 
 
+# ── PLANETEN UND SONNEN ──────────────────────────────────────
+BODY_PX = 512        # Kantenlaenge fuer Planeten und Sonnen
+JPEG_Q = 82
+CIRCLE_MIN = 0.97    # ab dieser Kreisguete reicht JPEG plus gerechnete Maske
+
+try:
+    from PIL import Image
+    HAVE_PIL = True
+except ImportError:
+    HAVE_PIL = False
+
+
 def shrink_png(raw, max_px):
     """Verkleinert ein PNG, wenn es breiter als max_px ist. Ohne Pillow
     bleibt die Datei wie sie ist, der Build wird dann nur groesser."""

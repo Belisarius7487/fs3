@@ -3541,6 +3541,14 @@ Rufmenü), im Rückfall (`drawShip`, `drawRimLight`, nur ohne Modell oder mit
     `sprite_limit`, `hull_width`, `hull_lengths`). An die Stelle von
     `SPR_DATA` setzt er `MOUNTS` und `OUTLINES`. Der Abgleich „steht im
     Spielcode, hat aber kein Sprite" prüft jetzt gegen die Umrisse.
+  - **v313a (Nachbesserung, 17.11.2026):** beim Aufräumen des Packers waren
+    der `PIL`-Import samt `HAVE_PIL` und die drei Planeten-Konstanten
+    (`BODY_PX`, `JPEG_Q`, `CIRCLE_MIN`) mit entfernt worden — `build.sh`
+    brach bei den Planeten ab (`NameError: HAVE_PIL`). Wieder eingesetzt.
+    Der Probelauf in der Cloud hatte es nicht gezeigt, weil dort kein
+    Planeten-Ordner liegt und `collect_bodies()` vorher zurückkommt;
+    seitdem wird der Packer mit Dummy-Ordnern für Planeten, Sonnen und
+    Icons geprüft, einmal normal und einmal mit `--laut`.
   - **Noch zu tun, einmalig und von Hand:** der Ordner
     `/home/belisarius/fs3-build/sprites` auf dem Server wird nicht mehr
     gelesen und kann gelöscht werden. Nichts bricht, wenn er liegen bleibt.
