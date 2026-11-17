@@ -3426,12 +3426,20 @@ const SCRIPT_WAVES = {
   19:{name:'Tenderizer', era:'fs1', orig:15, ship:'fiherc', fac:'hol', o:'clear', live:6,
       huntShare:1,
       ziel:'Protect the Galatea', u:[
-       {id:'W1', c:'fi', n:1, size:2, spr:'fiherc', side:'ally'},
-       {id:'W2', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
+       // Silvio, 17.11.2026: at least two of the wing fly what the player
+       // flies. The Hercules comes free exactly here (FS1_ALLY_INTRO), so
+       // the pool hands out Apollos and Valkyries beside them on its own -
+       // the wing itself is named Hercules so there are always three.
+       {id:'W1', c:'fi', n:1, size:3, spr:'fiherc', side:'ally'},
        {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally',
         x:150, y:270, still:true, noWarp:true, home:true, label:'GTD Galatea'},
        // the patrol runs into Anubis first
        {id:'E1', c:'fi', n:1, size:4, spr:'fianubis'},
+       // Silvio, 17.11.2026: three hostile gun platforms for more to do.
+       // Ankh, not the Cerberus of the original: these are Vasudan now.
+       {id:'G1', c:'sg', n:1, spr:'sgankh', x:560, y:140},
+       {id:'G1', c:'sg', n:1, spr:'sgankh', x:620, y:270},
+       {id:'G1', c:'sg', n:1, spr:'sgankh', x:560, y:400},
        // bombers for the Galatea
        {id:'B1', c:'bo', n:1, size:3, spr:'boosiris', wait:true},
        // Seths loaded with explosives - they ram instead of shooting
@@ -3459,10 +3467,12 @@ const SCRIPT_WAVES = {
        {t:'subsystem', a:'MA', b:'engines', w:'zielerfuellt', a2:'The Mauler is stopped'},
        {t:'subsystem', a:'MA', b:'engines', d:3, w:'raus', a2:'K1'},
        {t:'subsystem', a:'MA', b:'engines', d:6, w:'raus', a2:'GA'},
+       {t:'subsystem', a:'MA', b:'engines', d:6, w:'kulisse', a2:'G1'},
        {t:'subsystem', a:'MA', b:'engines', d:6, w:'ende', a2:''},
        {t:'vernichtet', a:'MA', w:'zielerfuellt', a2:'The Mauler is stopped'},
        {t:'vernichtet', a:'MA', d:3, w:'raus', a2:'K1'},
        {t:'vernichtet', a:'MA', d:6, w:'raus', a2:'GA'},
+       {t:'vernichtet', a:'MA', d:6, w:'kulisse', a2:'G1'},
        {t:'vernichtet', a:'MA', d:6, w:'ende', a2:''},
        {t:'vernichtet', a:'GA', w:'zielverfehlt', a2:'The Galatea is lost'},
        {t:'vernichtet', a:'GA', d:6, w:'abzug', a2:''}

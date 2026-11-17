@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v314)
+## Lage — als Erstes lesen (Stand 17.11.2026, v315)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -32,6 +32,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F110 | M14: „Delivered“ statt „Escaped“ im Pause-Log | v293 |
 | F112 | M16–M18: Auftragstexte zu lang, zwei Ziele in einem | v293 |
 | F113 | **M19 „Tenderizer" neu gebaut** (FS1-Original 15). Dazu eine allgemeine Regel: zerschossene Triebwerke stoppen jetzt auch einen Rammkurs | v314 |
+| F114 | M19 nachgebessert: Flügel fliegt Hercules, drei feindliche Sperrgeschütze dazu | v315 |
 | F103 | **Etappe 4 fertig**: keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell (13,8 MB weniger Spieldatei). `&f3d=0`, Lichtkante, Metallglanz, Schildhaut und der Sprite-Teil des Packers sind weg; in den Einstellungen fallen die zwei Schalter RIM LIGHT und METAL GLINT weg. Der Sprite-Ordner auf dem Server wird nicht mehr gelesen | v313 |
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
@@ -53,7 +54,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v314 gebaut (F113: M19 neu, Rammkurs ohne Triebwerke).
+Stand: v315 gebaut (F114: M19 nachgebessert).
 
 ---
 
@@ -93,6 +94,37 @@ bleiben.
 Triebwerksprüfung vorbei: ein lahmgelegtes Großkampfschiff fuhr weiter.
 `tickCapRam` prüft jetzt dasselbe wie jede andere Fahrt. Zwei neue
 Prüfungen in `ramsim` halten es fest; beide fallen gegen v313 durch.
+
+
+---
+
+## F114 — M19 nachgebessert, v315
+
+**Silvio, 17.11.2026:** „die Galatea ist schon da, wenn die Mission
+losgeht. Zudem haben alle anderen Geschwaderkollegen eine Apollo.
+Mindestens 2 davon sollten dasselbe Schiff fliegen wie der Spieler, die
+Hercules. Was passiert außerdem, wenn der Mauler ihre Antriebe
+deaktiviert werden und sie so nah bei der Galatea liegt, dass die
+Galatea sie beim Warpout rammen würde? Zudem finde ich die Mission etwas
+zu kurz. Mein Vorschlag: Bring die 3 Sperrgeschütze rein, mach sie
+feindlich, sodass etwas mehr Action dabei ist. Scannable müssen sie
+dafür nicht sein."
+
+**Die Rammfrage — nachgesehen, kann nicht passieren.** Ein abspringendes
+Schiff fährt nicht: `tickAllies` setzt `warpX`/`warpY` auf den Standplatz
+und zählt `warpOut` herunter, und die Ausweichprüfung der
+Großkampfschiffe (`40_world.js`) überspringt jedes Schiff mit
+`warpOut>0`. Die Galatea löst sich auf, wo sie steht.
+
+**Flügel.** Die Hercules wird nach `FS1_ALLY_INTRO` genau bei Original 15
+frei, also hier. Der Flügel heißt jetzt Hercules und ist drei Mann stark;
+die Apollos und Walküren daneben kommen aus dem allgemeinen Vorrat.
+
+**Sperrgeschütze.** Drei Stück, feindlich, rechts im Feld
+(x 560–620). **Ankh statt der Cerberus des Originals** — sie stehen jetzt
+auf vasudanischer Seite. Weil ein Geschützturm nicht springen kann, wird
+er am Missionsende zu `kulisse`, sonst hielte ein übersehener Turm die
+Welle offen.
 
 
 ## Wichtig für die Reihenfolge (Silvio, v225)
