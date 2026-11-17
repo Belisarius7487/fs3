@@ -1214,6 +1214,10 @@ function tickCapRam(){
   for(let i=enemies.length-1;i>=0;i--){
     const e = enemies[i];
     if(!e.capRam || e.dead || e.warp>0 || e.rollT!=null) continue;
+    // No engines, no drive. A ram course is a drive like any other, so the
+    // engine subsystem stops it too - it used to run past this check, and a
+    // crippled capital ship kept closing in (M19: the Mauler).
+    if(hasSubsystems(e) && !subOK(e,'engines')) continue;
     let t=null, bd=1e9;
     for(const a of allies){
       if(a.dead || a.small) continue;
@@ -3410,16 +3414,58 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'A1', w:'nachschub', a2:'aus'}
      ]},
 
-  19:{name:'The Temple', fac:'hol', o:'clear', live:5, u:[
-       // Hier ist die Installation das Ziel, also verwundbar.
-       {id:'S1', c:'in', n:1, spr:'inarcadia', hp:2.2, x:560},
-       {id:'G1', c:'sg', n:8, spr:'sgankh'},
-       {id:'E1', c:'fi', n:3},
-       {id:'E2', c:'fi', n:2, wait:true}
+  // Tenderizer (fs1/sm2-05a). Alpha patrols the Antares-Beta Aquilae jump
+  // node while the Galatea passes through. The Vasudans escalate: Anubis
+  // fighters, then Osiris bombers on the Galatea, then Seths packed with
+  // explosives that ram her - and last the cruiser Mauler on a ram course
+  // of her own. In the original her engines can be shot out instead of
+  // killing her; since v314 a dead engine stops a ram course, so both ways
+  // work. The sentry guns of the original and their inspection are left
+  // out: scanning only works on non-allied objects, and the mission is to
+  // stay short. Replaces the old mission 19.
+  19:{name:'Tenderizer', era:'fs1', orig:15, ship:'fiherc', fac:'hol', o:'clear', live:6,
+      huntShare:1,
+      ziel:'Protect the Galatea', u:[
+       {id:'W1', c:'fi', n:1, size:2, spr:'fiherc', side:'ally'},
+       {id:'W2', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
+       {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally',
+        x:150, y:270, still:true, noWarp:true, home:true, label:'GTD Galatea'},
+       // the patrol runs into Anubis first
+       {id:'E1', c:'fi', n:1, size:4, spr:'fianubis'},
+       // bombers for the Galatea
+       {id:'B1', c:'bo', n:1, size:3, spr:'boosiris', wait:true},
+       // Seths loaded with explosives - they ram instead of shooting
+       {id:'K1', c:'fi', n:1, size:3, spr:'fiseth', ram:true, wait:true},
+       // The Mauler comes in at the far edge, a long way off: a cruiser is
+       // much faster than a destroyer (Silvio, 17.11.2026), so close in she
+       // would be on the Galatea before the player could do anything.
+       // hp: a cruiser at her stock hull was shot off the field in eight
+       // seconds by the Galatea and the wing, before she was ever a threat.
+       {id:'MA', mark:'disable', c:'cr', n:1, spr:'craten', capRam:1.3, hp:3.5,
+        x:770, y:270, wait:true, label:'PVC Mauler'}
      ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
-       {t:'rumpfUnter', a:'S1', b:50, w:'nachschub', a2:'an'},
-       {t:'zerstoert', a:'S1', w:'nachschub', a2:'aus'}
+       {t:'anzahlUnter', a:'E1', b:3, w:'einwarpen', a2:'B1'},
+       {t:'da', a:'B1', w:'jagd', a2:'GA'},
+       {t:'da', a:'B1', w:'meldung', a2:'Vasudan bombers are going for the Galatea'},
+       {t:'alleZerstoert', a:'B1', d:3, w:'einwarpen', a2:'K1'},
+       {t:'alleZerstoert', a:'B1', d:5, w:'einwarpen', a2:'MA'},
+       {t:'da', a:'K1', w:'meldung', a2:'The Seths are trying to ram the Galatea'},
+       {t:'da', a:'MA', w:'ziel', a2:'Stop the Mauler'},
+       {t:'da', a:'MA', w:'meldung', a2:'The Mauler is on a ram course for the Galatea'},
+       // Engines out: she drifts and is out of the fight (v314). Destroyed
+       // does the same job, so both paths carry the same four events.
+       {t:'subsystem', a:'MA', b:'engines', w:'meldung', a2:'The Mauler is dead in space'},
+       {t:'subsystem', a:'MA', b:'engines', d:1, w:'kulisse', a2:'MA'},
+       {t:'subsystem', a:'MA', b:'engines', w:'zielerfuellt', a2:'The Mauler is stopped'},
+       {t:'subsystem', a:'MA', b:'engines', d:3, w:'raus', a2:'K1'},
+       {t:'subsystem', a:'MA', b:'engines', d:6, w:'raus', a2:'GA'},
+       {t:'subsystem', a:'MA', b:'engines', d:6, w:'ende', a2:''},
+       {t:'vernichtet', a:'MA', w:'zielerfuellt', a2:'The Mauler is stopped'},
+       {t:'vernichtet', a:'MA', d:3, w:'raus', a2:'K1'},
+       {t:'vernichtet', a:'MA', d:6, w:'raus', a2:'GA'},
+       {t:'vernichtet', a:'MA', d:6, w:'ende', a2:''},
+       {t:'vernichtet', a:'GA', w:'zielverfehlt', a2:'The Galatea is lost'},
+       {t:'vernichtet', a:'GA', d:6, w:'abzug', a2:''}
      ]},
 
   22:{name:'The Fugitive', fac:'hol', o:'clear', live:5, u:[

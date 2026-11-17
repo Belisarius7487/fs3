@@ -38,7 +38,8 @@ function decl(re){
 
 const names = ['ramsOnContact', 'tickRamming', 'tickCapRam', 'ramBlast', 'impactBase',
                'applySpawnOpts', 'dkPlaceCargo', 'dkHas', 'dkList', 'halfW', 'halfH',
-               'spriteBox', 'hullBox', 'hullsTouch', 'hullDepth', 'hullsBite'];
+               'spriteBox', 'hullBox', 'hullsTouch', 'hullDepth', 'hullsBite',
+               'hasSubsystems', 'subOK'];
 const consts = [
   decl(/const RAM_PCT_CAPITAL = [\d.]+;/),
   decl(/const IMPACT_CAP_HULL = [\d.]+;/),
@@ -240,6 +241,31 @@ console.log('\nNothing that blows itself up stays in the list');
   set('allies', [t]); set('enemies', [e]);
   run('tickCapRam()');
   ok('the ramming cruiser leaves the field on impact', get('enemies').length===0);
+}
+{
+  // Dead engines stop a ram course, the same way they stop every other drive.
+  // tickCapRam used to run past the engine check, so a crippled capital ship
+  // kept closing in and could not be stopped short of destroying it.
+  const t = {uid:'A1', img:'dehatshepsut', x:200, y:250, sc:1, small:false,
+             dead:false, hp:6500, maxHp:6500, vy:0};
+  const e = {uid:'V1', img:'crmentu', x:800, y:250, sc:1, capRam:0.9, type:'cruiser',
+             dead:false, warp:0, rollT:null, minY:64, maxY:490,
+             subs:[{id:'engines', dead:true}]};
+  set('allies', [t]); set('enemies', [e]);
+  run('tickCapRam()');
+  ok('a ram course with dead engines does not move', get('enemies')[0].x===800);
+}
+{
+  // ... and with the engines intact it still does, so the guard is not a stop
+  // sign for every ram course.
+  const t = {uid:'A1', img:'dehatshepsut', x:200, y:250, sc:1, small:false,
+             dead:false, hp:6500, maxHp:6500, vy:0};
+  const e = {uid:'V1', img:'crmentu', x:800, y:250, sc:1, capRam:0.9, type:'cruiser',
+             dead:false, warp:0, rollT:null, minY:64, maxY:490,
+             subs:[{id:'engines', dead:false}]};
+  set('allies', [t]); set('enemies', [e]);
+  run('tickCapRam()');
+  ok('a ram course with live engines still moves', get('enemies')[0].x<800);
 }
 {
   // A bomber that has NOT hit anything must of course stay.

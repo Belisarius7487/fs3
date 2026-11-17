@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v313)
+## Lage — als Erstes lesen (Stand 17.11.2026, v314)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -31,6 +31,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F107 | Feindliche Frachter ohne Ladung zählten als verfehltes Ziel | v292 |
 | F110 | M14: „Delivered“ statt „Escaped“ im Pause-Log | v293 |
 | F112 | M16–M18: Auftragstexte zu lang, zwei Ziele in einem | v293 |
+| F113 | **M19 „Tenderizer" neu gebaut** (FS1-Original 15). Dazu eine allgemeine Regel: zerschossene Triebwerke stoppen jetzt auch einen Rammkurs | v314 |
 | F103 | **Etappe 4 fertig**: keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell (13,8 MB weniger Spieldatei). `&f3d=0`, Lichtkante, Metallglanz, Schildhaut und der Sprite-Teil des Packers sind weg; in den Einstellungen fallen die zwei Schalter RIM LIGHT und METAL GLINT weg. Der Sprite-Ordner auf dem Server wird nicht mehr gelesen | v313 |
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
@@ -52,9 +53,47 @@ Arbeitsliste.
 
 ---
 
-Stand: v313 gebaut (F103 Etappe 4 fertig).
+Stand: v314 gebaut (F113: M19 neu, Rammkurs ohne Triebwerke).
 
 ---
+
+---
+
+## F113 — M19 „Tenderizer" (FS1-Original 15), v314
+
+**Silvio, 17.11.2026:** „lass die Mauler nicht zu nah bei der Galatea
+reinwarpen, denn ein Kreuzer ist deutlich schneller als ein Zerstörer."
+
+**Silvio, 17.11.2026:** „Deine Zeitangaben sind übrigens immer daneben.
+Keine Mission dauerte bisher länger als 2 - 3 Minuten." — Also keine
+geschätzten Zeiten mehr nennen, und Missionen auf diese Länge bauen.
+
+**Die Mission.** Alpha patrouilliert am Sprungknoten, während die Galatea
+durchkommt. Steigerung: vier Anubis, dann drei Osiris-Bomber auf die
+Galatea, dann drei Seth als Rammer (`ram:true`), zuletzt der Kreuzer
+Mauler auf eigenem Rammkurs. Die Mauler springt am rechten Rand ein,
+rund zwanzig Sekunden Anfahrt. Ist sie gestoppt — zerstört **oder**
+Triebwerke zerschossen — springt die Galatea ab und die Mission ist
+gewonnen. Stirbt die Galatea, ist sie verloren. Ersetzt die alte
+Mission 19 („The Temple").
+
+**Weggelassen:** die Geschützplattformen des Originals und ihr
+Scan-Nebenauftrag. Gescannt werden kann nur, was nicht auf unserer Seite
+steht (`tickScan` läuft über `enemies`), und die Mission soll kurz
+bleiben.
+
+**Zwei Werte, die aus dem Spiel kommen, nicht geraten sind:**
+
+- `capRam:1.3` — bei 0,65 brauchte sie vierzig Sekunden für die Anfahrt.
+- `hp:3.5` — mit dem Rumpf einer gewöhnlichen Korvette war sie nach acht
+  Sekunden von der Galatea und dem Flügel heruntergeschossen, bevor sie
+  überhaupt eine Gefahr war.
+
+**Die allgemeine Regel dazu.** Ein Rammkurs lief bisher an der
+Triebwerksprüfung vorbei: ein lahmgelegtes Großkampfschiff fuhr weiter.
+`tickCapRam` prüft jetzt dasselbe wie jede andere Fahrt. Zwei neue
+Prüfungen in `ramsim` halten es fest; beide fallen gegen v313 durch.
+
 
 ## Wichtig für die Reihenfolge (Silvio, v225)
 
