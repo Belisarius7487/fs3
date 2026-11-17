@@ -3426,21 +3426,22 @@ const SCRIPT_WAVES = {
   // stay short. Replaces the old mission 19.
   19:{name:'Tenderizer', era:'fs1', orig:15, ship:'fiherc', fac:'hol', o:'clear', live:6,
       huntShare:1,
-      ziel:'Protect the Galatea', u:[
+      ziel:'Destroy the gun platforms', u:[
        // Silvio, 17.11.2026: at least two of the wing fly what the player
        // flies. The Hercules comes free exactly here (FS1_ALLY_INTRO), so
        // the pool hands out Apollos and Valkyries beside them on its own -
        // the wing itself is named Hercules so there are always three.
        {id:'W1', c:'fi', n:1, size:3, spr:'fiherc', side:'ally'},
+       // Silvio, 17.11.2026: the gun platforms come first and stand alone -
+       // the Galatea only jumps in once they are down, and the Vasudan
+       // waves start with her. Ankh, not the Cerberus of the original:
+       // these are Vasudan now.
+       {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:560, y:140},
+       {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:620, y:270},
+       {id:'G1', mark:'destroy', c:'sg', n:1, spr:'sgankh', x:560, y:400},
        {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally',
-        x:150, y:270, still:true, noWarp:true, home:true, label:'GTD Galatea'},
-       // the patrol runs into Anubis first
-       {id:'E1', c:'fi', n:1, size:4, spr:'fianubis'},
-       // Silvio, 17.11.2026: three hostile gun platforms for more to do.
-       // Ankh, not the Cerberus of the original: these are Vasudan now.
-       {id:'G1', c:'sg', n:1, spr:'sgankh', x:560, y:140},
-       {id:'G1', c:'sg', n:1, spr:'sgankh', x:620, y:270},
-       {id:'G1', c:'sg', n:1, spr:'sgankh', x:560, y:400},
+        x:150, y:270, still:true, wait:true, home:true, label:'GTD Galatea'},
+       {id:'E1', c:'fi', n:1, size:4, spr:'fianubis', wait:true},
        // bombers for the Galatea
        {id:'B1', c:'bo', n:1, size:3, spr:'boosiris', wait:true},
        // Seths loaded with explosives - they ram instead of shooting
@@ -3453,6 +3454,10 @@ const SCRIPT_WAVES = {
        {id:'MA', mark:'destroy', c:'cr', n:1, spr:'craten', capRam:1.3, hp:3.5,
         x:770, y:270, wait:true, label:'PVC Mauler'}
      ], ev:[
+       {t:'alleZerstoert', a:'G1', w:'zielerfuellt', a2:'The gun platforms are down'},
+       {t:'alleZerstoert', a:'G1', d:3, w:'einwarpen', a2:'GA'},
+       {t:'da', a:'GA', w:'ziel', a2:'Protect the Galatea'},
+       {t:'da', a:'GA', d:4, w:'einwarpen', a2:'E1'},
        {t:'anzahlUnter', a:'E1', b:3, w:'einwarpen', a2:'B1'},
        {t:'da', a:'B1', w:'jagd', a2:'GA'},
        {t:'da', a:'B1', w:'meldung', a2:'Vasudan bombers are going for the Galatea'},

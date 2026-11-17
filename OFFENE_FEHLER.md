@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v316)
+## Lage — als Erstes lesen (Stand 17.11.2026, v317)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -34,6 +34,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F113 | **M19 „Tenderizer" neu gebaut** (FS1-Original 15). Dazu eine allgemeine Regel: zerschossene Triebwerke stoppen jetzt auch einen Rammkurs | v314 |
 | F114 | M19 nachgebessert: Flügel fliegt Hercules, drei feindliche Sperrgeschütze dazu | v315 |
 | F115 | M19: Galatea springt erst, wenn das Feld leer ist | v316 |
+| F116 | M19 neuer Ablauf: erst die Sperrgeschütze, dann kommt die Galatea, dann die Wellen | v317 |
 | F103 | **Etappe 4 fertig**: keine Schiffs-Sprites mehr, jedes Schiff kommt aus seinem Modell (13,8 MB weniger Spieldatei). `&f3d=0`, Lichtkante, Metallglanz, Schildhaut und der Sprite-Teil des Packers sind weg; in den Einstellungen fallen die zwei Schalter RIM LIGHT und METAL GLINT weg. Der Sprite-Ordner auf dem Server wird nicht mehr gelesen | v313 |
 | F108 | M8: Auftragsrahmen vertauscht, wenn vor dem Scan lahmgelegt | v309 |
 | F109 | M8: Fracht-Container sprangen in die falsche Richtung | v309 |
@@ -55,7 +56,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v316 gebaut (F115: Galatea springt zuletzt).
+Stand: v317 gebaut (F116: neuer Ablauf in M19).
 
 ---
 
@@ -157,6 +158,21 @@ Wellenende). Eine lahmgelegte Mauler bleibt ein gewöhnliches Ziel —
 Triebwerke zerschießen nimmt den Rammstoß, nicht den Abschuss. Damit
 fällt auch die `kulisse` für die Sperrgeschütze weg: sie werden
 abgeschossen wie alles andere.
+
+
+---
+
+## F116 — M19 neuer Ablauf, v317
+
+**Silvio, 17.11.2026:** „Zuerst sollte der Spieler die feindlichen
+Sperrgeschütze zerstören. Sind diese zerstört warpt die Galatea ins Feld.
+Mit ihr beginnen die gegnerischen Wellen wie bisher"
+
+Gebaut: zu Beginn stehen nur die drei Ankh im Feld, sonst nichts. Sind
+sie zerstört, springt die Galatea ein (und damit gibt es erst ab da
+Nachladen, `home:true`); vier Sekunden später kommen die Anubis, und von
+dort läuft die Steigerung wie vorher weiter. Auftrag am Anfang „Destroy
+the gun platforms", mit der Galatea „Protect the Galatea".
 
 
 ## Wichtig für die Reihenfolge (Silvio, v225)
