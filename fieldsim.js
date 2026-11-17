@@ -6246,7 +6246,10 @@ scenario('FS1 M18 v276 Where Eagles Dare: Gemini docked then stopped, the race, 
   r.sentries = byId('G1').length===3;
   r.containers = byId('K').length===6;
   FS.until(()=>{ player.invT = 999; return fc > 1200; }, 1500, false);
-  r.geminiRun = byId('F1').concat(byId('F2'), byId('GT')).every(function(t){ return t.x > 420*FIELD_K; });
+  // v323: they have run well right of where the mission puts them -
+  // a fixed number here was from before the one field (F119, v320).
+  const _gx = (SCRIPT_WAVES[18].u.filter(function(u){ return u.id==='F1'; })[0].x + 20)*FIELD_K;
+  r.geminiRun = byId('F1').concat(byId('F2'), byId('GT')).every(function(t){ return t.x > _gx; });
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return fired('All Gemini stopped'); }, 1500, false);
   r.geminiStopped = fired('All Gemini stopped');
   FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); return evSeen('KA') && evSeen('TA'); }, 4000, false);
@@ -6678,7 +6681,10 @@ scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   r.arrived = T.length>0;
   r.jumping = T.length>0 && T.every(function(t){ return t.warp>0; });
   FS.until(()=>byId('TA').every(function(t){ return !(t.warp>0); }), 1500, false);
-  r.nearPlace = byId('TA').every(function(t){ return t.x > 600*FIELD_K; });
+  // v323: against the mission's own place for them, not a number from
+  // before the one fixed field (F119, v320) moved every unit inwards.
+  const want = (SCRIPT_WAVES[18].u.filter(function(u){ return u.id==='TA'; })[0].x)*FIELD_K;
+  r.nearPlace = byId('TA').every(function(t){ return Math.abs(t.x - want) < 60*FIELD_K; });
   return r;`);
 scenario('FS1 M18 v278 F94 F95: containers drawn larger, no Satis comes for one', 'm=18', `
   const r = {};
@@ -6930,9 +6936,9 @@ scenario('FS1 M20 v322 Shell Game: escort down, the Eva leaves, each scan brings
   r.secondScanBringsHarmon = evSeen('T2') && evSeen('S4');
   r.scanReported = fired('Both containers read clean');
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('S2'); FS.killId('S3'); FS.killId('S4');
-                 return fired('Both containers are on their way to base'); }, 20000, false);
-  r.bothContainersAway = fired('Both containers are on their way to base');
-  r.noPartial = !fired('Not all of the cargo got away');
+                 return fired('Both containers captured'); }, 20000, false);
+  r.bothContainersAway = fired('Both containers captured');
+  r.noPartial = !fired('Not all of the cargo was captured');
   FS.until(()=>{ player.invT = 999; FS.killId('S2'); FS.killId('S3'); FS.killId('S4'); return waveOver || wave>20; }, 8000, false);
   r.ends = waveOver || wave>20;
   return r;`);
@@ -6951,7 +6957,7 @@ scenario('FS1 M20 v322 Shell Game: both transports lost, the cargo stays, the mi
   for(const t of byId('T1').concat(byId('T2'))){ t.hp = 0; damageEnemy(t, 99999, t.x, t.y, false, 'bolt'); }
   FS.until(()=>fired('Both transports are lost'), 800, false);
   r.transportsLost = fired('Both transports are lost');
-  r.noSuccessCard = !fired('Both containers are on their way to base') && !fired('Not all of the cargo got away');
+  r.noSuccessCard = !fired('Both containers captured') && !fired('Not all of the cargo was captured');
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('S2'); FS.killId('S3'); FS.killId('S4');
                  return waveOver || wave>20; }, 12000, false);
   r.ends = waveOver || wave>20;
@@ -6971,12 +6977,90 @@ scenario('FS1 M20 v322 Shell Game: one container shot after the scan - partial, 
   FS.step(10);
   r.oneContainerGone = byId('KA').length===0 && byId('KB').length===1;
   FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('S2'); FS.killId('S3'); FS.killId('S4');
-                 return count('Not all of the cargo got away')>0; }, 20000, false);
-  r.partialOnce = count('Not all of the cargo got away')===1;
-  r.noSuccess = count('Both containers are on their way to base')===0;
+                 return count('Not all of the cargo was captured')>0; }, 20000, false);
+  r.partialOnce = count('Not all of the cargo was captured')===1;
+  r.noSuccess = count('Both containers captured')===0;
   r.noTotalFailure = count('Both transports are lost')===0;
   FS.until(()=>{ player.invT = 999; FS.killId('S2'); FS.killId('S3'); FS.killId('S4'); return waveOver || wave>20; }, 8000, false);
   r.ends = waveOver || wave>20;
+  return r;`);
+
+// ── v323: F121 - M20 has two objectives of its own, not one line ──
+scenario('FS1 M20 v323 F121: freighters dead before the Eva goes - own objective, then Capture the Shivan cargo', 'm=20', `
+  const r = {};
+  const W = SCRIPT_WAVES[20] || {};
+  const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
+  const objs = function(){ return MLOG.objs.map(function(o){ return o.txt + '/' + o.st; }); };
+  FS.until(()=>byId('S1').length===3 && byId('F1').length===1, 2000, false);
+  // the freighters go first, while the escort objective is still open
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); return byId('F1').length===0 && byId('F2').length===0; }, 3000, false);
+  r.freightersDeadFirst = byId('EV').length===1;
+  r.escortStillOpen = objs().indexOf('DESTROY THE SHIVAN ESCORT/open') >= 0;
+  FS.until(()=>{ player.invT = 999; FS.killId('S1'); return fired('Both Shivan freighters destroyed'); }, 6000, false);
+  r.freighterObjectiveDone = objs().indexOf('DESTROY THE SHIVAN FREIGHTERS/done') >= 0;
+  r.escortDone = objs().indexOf('DESTROY THE SHIVAN ESCORT/done') >= 0;
+  FS.until(()=>objs().indexOf('CAPTURE THE SHIVAN CARGO/open') >= 0, 1000, false);
+  r.cargoObjectiveOpen = objs().indexOf('CAPTURE THE SHIVAN CARGO/open') >= 0;
+  r.noCombinedLine = !objs().some(function(t){ return t.indexOf('BRING THE CARGO HOME') >= 0; });
+  FS.until(()=>{ player.invT = 999; FS.killId('S2'); FS.killId('S3'); FS.killId('S4');
+                 for(const k of byId('KA').concat(byId('KB'))) k.scanned = true;
+                 return fired('Both containers captured'); }, 20000, false);
+  r.captured = fired('Both containers captured');
+  FS.until(()=>{ player.invT = 999; FS.killId('S2'); FS.killId('S3'); FS.killId('S4'); return waveOver || wave>20; }, 8000, false);
+  r.ends = waveOver || wave>20;
+  return r;`);
+
+// ── v323: M21 Enter the Dragon (FS1 original 17) ──
+scenario('FS1 M21 v323 Enter the Dragon: Shakti down, the Dragon held at the hull floor, the Charon takes her, end', 'm=21', `
+  const r = {};
+  const W = SCRIPT_WAVES[21] || {};
+  const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
+  r.name = W.name;
+  r.ship = player.ship === 'fiulysses';
+  FS.until(()=>byId('SH').length===1 && byId('DR').length===1, 2000, false);
+  const dr = byId('DR')[0];
+  r.dragonLocked = !!dr && dr.captureLock === true;
+  r.depot = byId('K1').length===3 && byId('G1').length===2;
+  // the Dragon cannot be shot down, however hard the player tries
+  for(let k=0;k<40;k++){ player.invT = 999; const d = byId('DR')[0];
+    if(d){ d.hp = -1000; damageEnemy(d, 99999, d.x, d.y, true, 'bolt'); } FS.step(5); }
+  r.dragonAlive = byId('DR').length===1;
+  r.dragonAtFloor = byId('DR')[0].hp > 0 && byId('DR')[0].hp <= byId('DR')[0].maxHp*0.16;
+  // the Charon waits until the Shakti is gone
+  r.noCharonYet = byId('CH').length===0;
+  FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); FS.killId('SH'); return byId('CH').length===1; }, 8000, false);
+  r.charonCame = byId('CH').length===1;
+  r.shaktiReported = fired('The Shakti is destroyed');
+  // abzug marks every event done, so EV_TAKEN is the honest reading here
+  FS.until(()=>{ player.invT = 999; FS.killId('E3'); return !!EV_TAKEN.DR; }, 20000, false);
+  // abzug marks every event done, so EV_TAKEN is the honest reading here
+  r.dragonTaken = !!EV_TAKEN.DR;
+  r.dragonGone = byId('DR').length===0 || byId('DR')[0].warpOut > 0;
+  FS.until(()=>{ player.invT = 999; FS.killId('E3'); return waveOver || wave>21; }, 8000, false);
+  r.ends = waveOver || wave>21;
+  return r;`);
+
+scenario('FS1 M21 v323 Enter the Dragon: the Charon is lost, the mission still ends', 'm=21', `
+  const r = {};
+  const W = SCRIPT_WAVES[21] || {};
+  const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
+  FS.until(()=>byId('DR').length===1 && byId('SH').length===1, 2000, false);
+  for(let k=0;k<40;k++){ player.invT = 999; const d = byId('DR')[0];
+    if(d){ d.hp = -1000; damageEnemy(d, 99999, d.x, d.y, true, 'bolt'); } FS.step(5); }
+  FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); FS.killId('E3'); FS.killId('SH');
+                 return byId('CH').length===1; }, 14000, false);
+  // shot down on her way in, before she ever reaches the Dragon
+  for(let k=0;k<400 && byId('CH').length;k++){
+    player.invT = 999;
+    for(const c of byId('CH')) if(!(c.warp>0)){ c.hp = 0; damageEnemy(c, 99999, c.x, c.y, false, 'bolt'); }
+    FS.step(1);
+  }
+  FS.until(()=>MLOG.objs.some(function(o){ return o.st==='fail'; }), 400, false);
+  r.charonLost = !!EV_SEEN.CH && byId('CH').length===0 && !EV_LEFT.CH;
+  r.notTaken = !EV_TAKEN.DR;
+
+  FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); FS.killId('E3'); return waveOver || wave>21; }, 10000, false);
+  r.ends = waveOver || wave>21;
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

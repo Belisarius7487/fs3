@@ -1303,6 +1303,10 @@ function runPoint(e, t){
 }
 function flySmall(e){
   const t=smallTarget(e);
+  // v323 (M21): a small craft taken out of the fight (kulisse) stays where
+  // she is. Scenery only stopped her firing, not her flying, so the
+  // captured Dragon kept dogfighting and the Charon chased her about.
+  if(e.scenery){ e.cs = 0; e.vx = 0; e.vy = 0; return t; }
   const big = bigTarget(t) && !ramsOnContact(e);
   if(big && e.role!=='attack'){ e.role='attack'; e.passT=0; e.runU=null; }
   if(big && e.runU==null) e.runU = (Math.random()*2-1)*BIG_RUN_U;

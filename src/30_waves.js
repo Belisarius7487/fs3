@@ -3553,7 +3553,7 @@ const SCRIPT_WAVES = {
        {t:'anzahlUnter', a:'S1', b:1, d:3, w:'raus', a2:'EV'},
        // one main objective from here on, so nothing marks another one
        // done early: the freighters and the cargo are the same job.
-       {t:'verlaesst', a:'EV', w:'ziel', a2:'Destroy the freighters, bring the cargo home'},
+       {t:'verlaesst', a:'EV', w:'ziel', a2:'Destroy the Shivan freighters'},
        {t:'verlaesst', a:'EV', w:'nebenziel', a2:'Scan the Shivan cargo'},
        {t:'verlaesst', a:'EV', d:1, w:'meldung', a2:'No transport will go in until the cargo is cleared'},
        {t:'verlaesst', a:'EV', d:14, w:'einwarpen', a2:'S2'},
@@ -3567,23 +3567,106 @@ const SCRIPT_WAVES = {
        {t:'gescannt', a:'KB', d:2, w:'einwarpen', a2:'S4'},
        {t:'da', a:'S4', w:'jagd', a2:'T2'},
        {t:'gescannt', a:'KA+KB', w:'nebenOk', a2:'Both containers read clean'},
-       {t:'vernichtet', a:'F1+F2', w:'meldung', a2:'Both Shivan freighters destroyed'},
+       // F121 (v323, Silvio 17.11.2026): two objectives of its own, not one
+       // line holding both. wenn: the freighters may be dead before the Eva
+       // goes, and this must not close the escort objective early.
+       // d: an objective is written into the log by the frame that sees it
+       // (objAnnounce in 70_ui.js), so setting one and closing it in the
+       // same step loses the line altogether. One second apart.
+       {t:'vernichtet', a:'F1+F2', wenn:{t:'verlaesst', a:'EV'}, d:1,
+        w:'zielerfuellt', a2:'Both Shivan freighters destroyed'},
+       {t:'vernichtet', a:'F1+F2', wenn:{t:'verlaesst', a:'EV'}, d:2,
+        w:'ziel', a2:'Capture the Shivan cargo'},
        {t:'leer', a:'T1', w:'meldung', a2:'The Stern found her container gone'},
        {t:'leer', a:'T2', w:'meldung', a2:'The Harmon found her container gone'},
        // The ends, settled once both transports are off the field however
        // they went. Exactly one of these four can fire: see the solange
        // on the two partial ones.
-       {t:'alleZerstoert', a:'T1+T2', d:2, wenn:{t:'verlaesst', a:'KA+KB'},
-        w:'zielerfuellt', a2:'Both containers are on their way to base'},
-       {t:'alleZerstoert', a:'T1+T2', d:2, wenn:{t:'vernichtet', a:'T1+T2'},
+       {t:'alleZerstoert', a:'T1+T2', d:2,
+        wenn:[{t:'verlaesst', a:'KA+KB'}, {t:'vernichtet', a:'F1+F2'}],
+        w:'zielerfuellt', a2:'Both containers captured'},
+       {t:'alleZerstoert', a:'T1+T2', d:2,
+        wenn:[{t:'vernichtet', a:'T1+T2'}, {t:'vernichtet', a:'F1+F2'}],
         w:'zielverfehlt', a2:'Both transports are lost'},
-       {t:'alleZerstoert', a:'T1+T2', d:3, wenn:{t:'verlaesst', a:'T1'},
-        solange:{t:'verlaesst', a:'KA+KB'}, w:'zielteil', a2:'Not all of the cargo got away'},
-       {t:'alleZerstoert', a:'T1+T2', d:3, wenn:{t:'verlaesst', a:'T2'},
-        solange:{t:'verlaesst', a:'T1'}, w:'zielteil', a2:'Not all of the cargo got away'},
+       {t:'alleZerstoert', a:'T1+T2', d:2,
+        wenn:[{t:'vernichtet', a:'KA+KB'}, {t:'vernichtet', a:'F1+F2'}],
+        solange:[{t:'vernichtet', a:'T1+T2'}],
+        w:'zielverfehlt', a2:'The Shivan cargo is destroyed'},
+       {t:'alleZerstoert', a:'T1+T2', d:3, wenn:[{t:'vernichtet', a:'F1+F2'}],
+        solange:[{t:'verlaesst', a:'KA+KB'}, {t:'vernichtet', a:'T1+T2'}, {t:'vernichtet', a:'KA+KB'}],
+        w:'zielteil', a2:'Not all of the cargo was captured'},
        // whatever is still lying there is scenery, so the wave can close
        {t:'alleZerstoert', a:'T1+T2', hold:true, w:'kulisse', a2:'KA'},
        {t:'alleZerstoert', a:'T1+T2', hold:true, w:'kulisse', a2:'KB'}
+     ]},
+
+
+  // Enter the Dragon (fs1/sm2-07a). A Shivan repair station in Deneb: the
+  // Cain cruiser Shakti with her supply containers and sentry guns, and
+  // around her fighters that are damaged and out of power - easy targets.
+  // Two jobs: kill the Shakti, and take the Dragon Arjuna 1 for research.
+  // Silvio, 17.11.2026: fighters and bombers have no subsystems in FS3
+  // (hasSubsystems covers cruisers upward, and no fighter model carries
+  // any), so the Dragon cannot be disabled by her engines as in the
+  // original; and left destructible she would simply be shot. capture
+  // holds her hull at DISABLE_HULL_FLOOR (15%), so the player beats her
+  // down to that floor, she is dead in space from there, and the Charon
+  // comes for her.
+  // The player flies the Ulysses, which comes free exactly here
+  // (FS1_ALLY_INTRO), with the D-Advanced of the original.
+  // Left out: the Azrael transport, the Asmodeus freighter, the Shaitan
+  // bombers, most of the cargo, and Delta wing.
+  21:{name:'Enter the Dragon', era:'fs1', orig:17, ship:'fiulysses', pri:'dadv',
+      fac:'hol', o:'clear', live:6,
+      ziel:'Destroy the cruiser Shakti', u:[
+       {id:'W1', c:'fi', n:1, size:2, spr:'fiulysses', side:'ally'},
+       {id:'W2', c:'bo', n:1, size:2, spr:'bomedusa', side:'ally'},
+       {id:'SH', mark:'destroy', c:'cr', n:1, spr:'crcain', fac:'shivan',
+        x:300, y:274, still:true, label:'SC Shakti'},
+       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:248, y:222},
+       {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:248, y:326},
+       {id:'K1', c:'fc', n:1, spr:'fcsac3', fac:'shivan', x:360, y:228},
+       {id:'K1', c:'fc', n:1, spr:'fcsac3', fac:'shivan', x:360, y:274},
+       {id:'K1', c:'fc', n:1, spr:'fcsac3', fac:'shivan', x:360, y:320},
+       // damaged and out of power: they go down easily (hp scales the hull)
+       {id:'E1', c:'fi', n:1, size:2, spr:'fibasilisk', fac:'shivan', hp:0.4, x:285, y:205},
+       {id:'E2', c:'fi', n:1, size:1, spr:'fiscorpion', fac:'shivan', hp:0.4, x:285, y:345},
+       {id:'DR', mark:'disable', c:'fi', n:1, size:1, spr:'fidragon', fac:'shivan',
+        hp:0.6, capture:true, x:320, y:274, label:'SF Arjuna 1'},
+       // the Dragon model has no dock point of its own, so the Charon comes
+       // up alongside her (dockBeside) as the Iota does in M15
+       {id:'CH', mark:'protect', c:'tr', n:1, spr:'sucentaur', side:'ally',
+        x:205, y:274, warpIn:true, wait:true, dockTo:'DR', dockBeside:0,
+        dockHold:8, dockLabel:'SECURING', jumpIfEmpty:true, label:'GTS Charon'},
+       {id:'E3', c:'fi', n:1, size:2, spr:'fibasilisk', fac:'shivan', x:440, wait:true}
+     ], ev:[
+       {t:'sek', a:4, w:'nebenziel', a2:'Destroy the supply containers'},
+       {t:'alleZerstoert', a:'K1', w:'nebenOk', a2:'The depot is gone'},
+       {t:'vernichtet', a:'SH', w:'zielerfuellt', a2:'The Shakti is destroyed'},
+       {t:'vernichtet', a:'SH', d:1, w:'ziel', a2:'Disable the Dragon Arjuna 1'},
+       {t:'vernichtet', a:'SH', d:1, w:'meldung', a2:'Arjuna 1 is the Dragon - beat her hull down, she cannot be destroyed'},
+       {t:'vernichtet', a:'SH', d:12, w:'einwarpen', a2:'E3'},
+       // wenn: she may be at the floor long before the Shakti is gone -
+       // the Charon only comes once the orders are in that order.
+       {t:'rumpfUnter', a:'DR', b:20, wenn:{t:'vernichtet', a:'SH'}, w:'kulisse', a2:'DR'},
+       {t:'rumpfUnter', a:'DR', b:20, wenn:{t:'vernichtet', a:'SH'},
+        w:'meldung', a2:'Arjuna 1 is dead in space - the Charon is on her way'},
+       {t:'rumpfUnter', a:'DR', b:20, wenn:{t:'vernichtet', a:'SH'}, w:'einwarpen', a2:'CH'},
+       {t:'da', a:'CH', w:'ziel', a2:'Capture Arjuna 1'},
+       {t:'da', a:'E3', w:'jagd', a2:'CH'},
+       {t:'angedockt', a:'CH', w:'kapern', a2:'DR'},
+       // the ends - order counts: an abzug closes every later event
+       {t:'genommen', a:'DR', w:'zielerfuellt', a2:'Arjuna 1 is ours'},
+       // what is left of the depot is scenery, so the wave can close even
+       // when the containers were left standing (they are only a bonus)
+       {t:'genommen', a:'DR', w:'kulisse', a2:'K1'},
+       {t:'genommen', a:'DR', w:'abzug', a2:''},
+       // solange: shot down after she already had the Dragon, the mission
+       // is still won - no second card on top of the first.
+       {t:'vernichtet', a:'CH', solange:{t:'genommen', a:'DR'}, w:'zielverfehlt', a2:'The Charon is lost'},
+       {t:'vernichtet', a:'CH', solange:{t:'genommen', a:'DR'}, w:'kulisse', a2:'K1'},
+       {t:'vernichtet', a:'CH', solange:{t:'genommen', a:'DR'}, w:'freigeben', a2:'DR'},
+       {t:'vernichtet', a:'CH', solange:{t:'genommen', a:'DR'}, w:'abzug', a2:''}
      ]},
 
   22:{name:'The Fugitive', fac:'hol', o:'clear', live:5, u:[
@@ -3665,11 +3748,6 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'B2'},
        {t:'sek', a:3, w:'nachschub', a2:'an'},
        {t:'angedockt', a:'T3', w:'nachschub', a2:'aus'}
-     ]},
-
-  21:{name:'The Barricade', fac:'hol', o:'clear', live:4, u:[
-       {id:'K1', c:'cr', n:3, spr:'craten', lanes:true},
-       {id:'E1', c:'fi', n:2}
      ]},
 
   29:{name:'The Blockade', fac:'hol', o:'guard', live:5, u:[
@@ -4986,6 +5064,21 @@ function byId(id){
   for(const a of allies)  if(a.uid===id && !a.dead) out.push(a);
   return out;
 }
+// v323: wenn and solange may each name one trigger or a list of them.
+// wenn: every one of them has to hold. solange: any one of them holds the
+// event back. One condition each was not enough for M20, where the end of
+// the mission depends on the cargo, the transports and the freighters at
+// the same time.
+function evTrigAll(c){
+  if(!Array.isArray(c)) return evTrig(c);
+  for(const x of c) if(!evTrig(x)) return false;
+  return true;
+}
+function evTrigAny(c){
+  if(!Array.isArray(c)) return evTrig(c);
+  for(const x of c) if(evTrig(x)) return true;
+  return false;
+}
 function evSeen(id){ return !!EV_SEEN[id]; }
 // A trigger may name several ids joined with '+'.
 function evIds(a){ return String(a||'').split('+'); }
@@ -5176,6 +5269,11 @@ function evFire(ev){
           continue;
         }
         u.captureLock = false; u.captured = true; u.fleeFree = true;
+        // v323: a ship stopped dead in space (kulisse) before she was
+        // taken is scenery, and scenery does not jump - the Dragon of M21
+        // stayed lying in the field after her captors had her. Taken, she
+        // is a ship again.
+        u.scenery = false; u.invuln = false; u.noTarget = false;
         u.escaping = 0; u.fleeT = 0;
         u.warpMax = u.warpMax > 1 ? u.warpMax : 160; u.warpOut = u.warpMax;
         u.warpX = u.x; u.warpY = u.y;
@@ -5459,8 +5557,8 @@ function tickEvents(){
       // event from firing once something else has already happened (M8: the
       // scan no longer asks for a disable on a freighter already dead in
       // space, which swapped her mission mark back to yellow).
-      if(!evTrig(ev) || (ev.wenn && !evTrig(ev.wenn))) continue;
-      if(ev.solange && evTrig(ev.solange)) continue;
+      if(!evTrig(ev) || (ev.wenn && !evTrigAll(ev.wenn))) continue;
+      if(ev.solange && evTrigAny(ev.solange)) continue;
       if(ev.d){ ev.at = spawnT + ev.d*TICK_HZ; continue; }
     } else if(spawnT < ev.at) continue;
     ev.done = true;
@@ -5532,7 +5630,12 @@ function scriptUnit(u, fac, q){
           put({time:t0 + w*110 + k*WING_STAGGER,
                type: ally ? (u.c==='bo' ? 'allybo' : 'allyfi') : ty, spr:hull, wing:ally?0:wid,
                y: yy + (k-(sz-1)/2)*WING_SPACING*0.5, x:u.x, rammer:u.ram,
-               disguised:u.disguised, scan:u.scan?1:0, scanFirst:u.scanFirst, hurt:u.hurt, noWarp:u.noWarp});
+               disguised:u.disguised, scan:u.scan?1:0, scanFirst:u.scanFirst, hurt:u.hurt, noWarp:u.noWarp,
+               // v323: a fighter can be a capture target too (M21, the
+               // Dragon). capture was carried for capital ships and for
+               // freighters, but not here, so the lock never reached her
+               // and she was simply shot down.
+               capture:u.capture, noFlee:u.noFlee});
       }
     } else {
       // Mehrere Grosskampfschiffe derselben Kennung stehen sonst

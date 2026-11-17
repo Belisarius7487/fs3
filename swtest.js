@@ -105,15 +105,20 @@ for(const key of Object.keys(SCRIPT_WAVES).sort((a, b) => a - b)){
     }
     // v253: wenn, a second condition on the same event.
     if(e.wenn){
-      if(!TRIGGERS.has(e.wenn.t)) bad.push(where + ': unknown trigger in wenn "' + e.wenn.t + '"');
-      else if(!TRIG_NO_ID.has(e.wenn.t))
-        for(const id of String(e.wenn.a).split('+')) if(!ids.has(id)) bad.push(where + ': wenn points at missing id ' + id);
+      // v323: one condition or a list of them
+      for(const w of [].concat(e.wenn)){
+      if(!TRIGGERS.has(w.t)) bad.push(where + ': unknown trigger in wenn "' + w.t + '"');
+      else if(!TRIG_NO_ID.has(w.t))
+        for(const id of String(w.a).split('+')) if(!ids.has(id)) bad.push(where + ': wenn points at missing id ' + id);
+      }
     }
     // F108 (v309): solange, a condition that must not hold - checked like wenn.
     if(e.solange){
-      if(!TRIGGERS.has(e.solange.t)) bad.push(where + ': unknown trigger in solange "' + e.solange.t + '"');
-      else if(!TRIG_NO_ID.has(e.solange.t))
-        for(const id of String(e.solange.a).split('+')) if(!ids.has(id)) bad.push(where + ': solange points at missing id ' + id);
+      for(const w of [].concat(e.solange)){
+      if(!TRIGGERS.has(w.t)) bad.push(where + ': unknown trigger in solange "' + w.t + '"');
+      else if(!TRIG_NO_ID.has(w.t))
+        for(const id of String(w.a).split('+')) if(!ids.has(id)) bad.push(where + ': solange points at missing id ' + id);
+      }
     }
     // v253: ships told to run, several with '+'.
     if(e.w === 'fliehen')

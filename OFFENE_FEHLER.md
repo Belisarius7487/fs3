@@ -29,11 +29,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
-**Offen, noch nicht gebaut:**
-
-| Punkt | Worum es geht | Stand |
-|---|---|---|
-| F121 | M20: zwei Missionsziele in einem; „bring the cargo home“ zu lässig | wird mit dem nächsten Missionsbau gebaut (Silvios Wunsch) |
+**Offen, noch nicht gebaut:** nichts.
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -55,9 +51,56 @@ Arbeitsliste.
 
 ---
 
-Stand: v322 gebaut (F120: M20 „Shell Game“, Nachbesserung).
+Stand: v323 gebaut (F122: M21 „Enter the Dragon“; F121: M20s Ziele getrennt).
 
 ---
+
+---
+
+## F122 — M21 „Enter the Dragon" (FS1-Original 17), v323
+
+Ersetzt die alte Mission 21 „The Barricade".
+
+**Die Mission.** Eine Shivaner-Reparaturstation: der Cain-Kreuzer Shakti,
+zwei Geschützplattformen, drei Vorratscontainer, dazu angeschlagene
+Shivaner-Jäger. Der Spieler fliegt die Ulysses (wird genau bei Original 17
+freigeschaltet) mit dem D-Advanced des Originals, zwei Ulysses und zwei
+Medusa fliegen mit. Auftrag 1: die Shakti zerstören. Danach Auftrag 2: den
+Dragon Arjuna 1 kampfunfähig schießen. Dann kommt die Charon, legt sich
+längsseits und nimmt ihn mit. Nebenauftrag: die drei Vorratscontainer.
+
+**Silvios zwei Einwände vom 17.11.2026, beide bestätigt:**
+
+1. „Wenn der Dragon zerstört werden kann, dann wird er zerstört werden.
+   Das Ding ist viel zu empfindlich." — Er trägt jetzt `capture`, und
+   damit hält sein Rumpf bei 15 % (`DISABLE_HULL_FLOOR`); er ist nicht
+   zerstörbar, wie die Omega in M3 und die Asmodeus in M8.
+2. „Ich weiß nicht, ob Subsysteme bei Kleinschiffen wie Jägern und Bombern
+   jemals eingelesen wurden aus den Modellen." — Richtig: `hasSubsystems`
+   gibt sie nur Kreuzern aufwärts, und kein einziges Jäger- oder
+   Bombermodell hat welche. Statt der Triebwerke zählt also der Rumpf:
+   `rumpfUnter` auf 20 % bringt die Charon.
+
+**Vier Dinge am gemeinsamen Code, nicht an der Mission:**
+
+- `capture` wurde für Großkampfschiffe und Frachter weitergereicht, für
+  Jäger und Bomber nicht — der Dragon wäre ohne Schutz gewesen.
+- Ein Kleinschiff, das aus dem Gefecht genommen ist (`kulisse`), flog
+  weiter. Es hörte nur auf zu schießen. Die Charon jagte dem gekaperten
+  Dragon hinterher. Jetzt bleibt es stehen.
+- Ein so stehendes Schiff ist Kulisse, und Kulisse springt nicht: der
+  gekaperte Dragon blieb im Feld liegen. `kapern` macht wieder ein Schiff
+  daraus.
+- `wenn` und `solange` nehmen jetzt auch eine Liste von Auslösern (alle
+  müssen gelten / einer genügt). Ohne das ließ sich der Ausgang von M20
+  nicht sauber auf genau eine Meldung bringen.
+
+**Zwei alte Prüfungen in M18 korrigiert:** `nearPlace` und `geminiRun`
+verglichen gegen feste Zahlen von vor dem einen festen Spielfeld (F119,
+v320) und waren seitdem rot. Sie vergleichen jetzt gegen die Werte, die
+in der Mission selbst stehen.
+
+**Offen:** Silvios Urteil im Spiel.
 
 ---
 
@@ -71,8 +114,7 @@ Cargo" heißen."
 
 „Um aber auch gleich mit der nächsten Mission weitermachen zu können,
 würde ich dich bitten diesen Fix in den nächsten Missionsbuild mit
-einzubauen." — **Also nicht einzeln ausliefern, sondern zusammen mit der
-nächsten Mission.**
+einzubauen." — **Gebaut in v323, zusammen mit M21.**
 
 Im Bild: „DESTROY THE FREIGHTERS, BRING THE CARGO HOME" steht offen,
 obwohl im Protokoll bei 0:06 schon „BOTH SHIVAN FREIGHTERS DESTROYED"
