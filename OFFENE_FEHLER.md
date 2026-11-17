@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v311)
+## Lage — als Erstes lesen (Stand 17.11.2026, v312)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -39,7 +39,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht |
 |---|---|
-| F103 | **Etappe 4 läuft** (Silvio, 16.11.2026: „Du kannst gerne die Aufräumetappe starten“). Schritt 1 gebaut in v310 (Bilder in Schiffsliste, Infokarte und Rufmenü aus dem Modell), Schritt 2 in v311 (Schadensspuren am Modellumriss beschnitten). Noch offen: die Sprite-Zeichenwege und `&f3d=0` weg, zuletzt `SPR_DATA` (13,8 MB von 31 MB), der Sprite-Teil des Packers und der Sprite-Ordner. Etappe 1 bis 3 sind **abgenommen** (Silvio, 16.11.2026, zu den großen Schiffen aus v289: „Bisher hab ich nichts gesehen, was schief sitzt"). **Nächster großer Posten: Etappe 4, das Aufräumen** — `SPR_DATA` mit 121 Sprites (13,8 MB von 31 MB Spieldatei), der Sprite-Teil des Packers, die Sprite-Zeichenwege, `&f3d=0` und am Ende der Sprite-Ordner auf dem Server. Bis dahin baut `build.sh` die Sprites weiter ein. Eigener Bauzyklus, am besten ein eigener Chat. |
+| F103 | **Etappe 4 läuft** (Silvio, 16.11.2026: „Du kannst gerne die Aufräumetappe starten“). Schritt 1 gebaut in v310 (Bilder in Schiffsliste, Infokarte und Rufmenü aus dem Modell), Schritt 2 in v311 (Schadensspuren am Modellumriss beschnitten), Schritt 3a in v312 (kein Rumpf fällt mehr auf ein Sprite zurück; v310 bis v312 von Silvio abgenommen, 17.11.2026: „Bisher stelle ich keine Probleme fest“). Noch offen: `SPR_DATA` leeren, die toten Sprite-Zeichenwege und `&f3d=0` weg, zuletzt `SPR_DATA` (13,8 MB von 31 MB), der Sprite-Teil des Packers und der Sprite-Ordner. Etappe 1 bis 3 sind **abgenommen** (Silvio, 16.11.2026, zu den großen Schiffen aus v289: „Bisher hab ich nichts gesehen, was schief sitzt"). **Nächster großer Posten: Etappe 4, das Aufräumen** — `SPR_DATA` mit 121 Sprites (13,8 MB von 31 MB Spieldatei), der Sprite-Teil des Packers, die Sprite-Zeichenwege, `&f3d=0` und am Ende der Sprite-Ordner auf dem Server. Bis dahin baut `build.sh` die Sprites weiter ein. Eigener Bauzyklus, am besten ein eigener Chat. |
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -55,7 +55,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v311 gebaut (F103 Etappe 4, Schritte 1 und 2).
+Stand: v312 gebaut (F103 Etappe 4, Schritte 1 bis 3a).
 
 ---
 
@@ -3504,11 +3504,27 @@ Rufmenü), im Rückfall (`drawShip`, `drawRimLight`, nur ohne Modell oder mit
   Szenario „v311 F103 stage4“ (gegen v310 rot). Die alten Szenarien in
   M62 (v182 `emitted`, `enoughPartsToRead`, `inherits`) sind in v310 und
   v311 **gleich** rot — alte Mission, nicht von Etappe 4.
-- **Nächste Schritte:** (3) Sprite-Zeichenwege (`drawShip`, `drawRimLight`,
-  `buildGlint`) und `&f3d=0` entfernen, Rümpfe ohne Modell vorher prüfen;
-  (4) `SPR_DATA`, Sprite-Teil des Packers und der Sprite-Ordner auf dem
-  Server. Danach ist der Sprite-Rückfall in `drawHullCell` ebenfalls
-  hinfällig.
+- **v312 (Schritt 3a):** Geprüft, welcher Rumpf noch vom Sprite gezeichnet
+  würde. Von den 129 Bildschlüsseln standen zehn nicht in den Feldlisten;
+  drei davon haben einen Alias (`deorionleft`, `inknossos45deg`,
+  `inknossosfront`), fünf kommen in keiner Mission vor (`inastbase`,
+  `incheops`, `inpolaris`, `inpolarispylon`, `scimhotep`), der Karnak nur
+  als Wrack (`wreck3d` nimmt die Trümmerteile direkt aus dem Modell).
+  Blieb die **Angel** (`fiangel`, in der alten Zufallsliste
+  `ter_fighters`): jetzt in `F3D_SMALL`, also aus ihrem Modell gezeichnet.
+  Jeder Rumpf, den eine Mission zeichnet, kommt damit aus dem Modell.
+  Alle Umrisse stammen aus den Modellen (`mkoutline.py`), es gibt also zu
+  jedem Schlüssel ein Modell. Szenario „v312 F103 stage4“ (gegen v311 rot).
+- **Nächster Schritt (3b/4), der große:** `SPR_DATA` leer lassen und
+  `IMGS[key]` beim Start als **leere Leinwand im Modellrahmen** anlegen
+  (Breite aus `OUTLINES[key].sprite[0]`, Höhe aus `ratio`) — dann behalten
+  alle Maßleser ihre Werte, und die Spieldatei verliert rund 14 der 31 MB.
+  Vorher prüfen, was beim Erzeugen noch Bildpunkte liest, vor allem
+  `dmgInfo()` (dunkle Fenster aus dem Sprite; bei 3D-Schiffen nicht
+  gezeichnet, darf aber nicht stolpern), `buildGlint` und `shieldSkin`.
+  Danach `&f3d=0` und die toten Sprite-Zeichenwege entfernen und den
+  Sprite-Teil des Packers samt Ordner auf dem Server. Eigener Chat
+  empfohlen — dafür ist viel Code zu lesen.
 
 **Etappe 3 — Reihenfolge (Silvio, 15.11.2026):** „fangen wir klein an" —
 zuerst Jäger und Bomber (Schlüssel `fi…`, `bo…`), dann die übrigen Klassen.

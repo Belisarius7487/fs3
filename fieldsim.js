@@ -6957,6 +6957,27 @@ scenario('v311 F103 stage4: damage cut by the model outline', 'm=6', `
   r.notCutBySprite = cutWith !== IMGS[key];
   return r;`);
 
+// F103 stage 4 (v312): no hull is left that would be drawn from a sprite -
+// every picture key of the game is in the model lists (or aliased to one)
+scenario('v312 F103 stage4: every hull is drawn from a model', 'm=6', `
+  const r = {};
+  FS.step(5);
+  const have = {};
+  for(const k of F3D_KEYS) have[k] = 1;
+  for(const k of F3D_SMALL) have[k] = 1;
+  const miss = [];
+  for(const k of Object.keys(OUTLINES)){
+    const a = F3D_ALIAS[k] || k;
+    if(!have[a] && !have[k]) miss.push(k);
+  }
+  // the five unused station pictures and the Karnak (her wreck only, from
+  // the model itself) are the ones left - nothing a mission draws
+  const allowed = ['inastbase', 'incheops', 'inkarnak', 'inpolaris', 'inpolarispylon', 'scimhotep'];
+  r.leftOver = JSON.stringify(miss.sort());
+  r.onlyUnused = miss.every(function(k){ return allowed.indexOf(k) >= 0; });
+  r.angelHasModel = !!have['fiangel'];
+  return r;`);
+
 (async()=>{
   const browser = await chromium.launch();
   let fails = 0;

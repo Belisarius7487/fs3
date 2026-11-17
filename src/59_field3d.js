@@ -36,6 +36,11 @@ const F3D_KEYS = ['crcain', 'crlilith', 'crrakshasa', 'comoloch', 'dedemon', 'de
 const F3D_SMALL = ['boamun', 'boartemisdh', 'boboanerges', 'bonahema', 'bonephilim', 'boseraphim', 'boshaitan', 'botaurvi', 'bozeus',
   'ephermes', 'epra', 'fcmeson', 'fcsac3', 'fcsc5', 'fctac1', 'fctc2', 'fctctri', 'fctsc2', 'fcttc1', 'fcvac4', 'fcvac5', 'fcvc3',
   'fiaeshma', 'fianubis', 'fiastaroth', 'fibasilisk', 'fidragon', 'filoki', 'fimanticore', 'fiscorpion',
+  // F103 stage 4 (v312): the Angel was the one hull that could still turn
+  // up in the field (the old random waves, ter_fighters) and was drawn
+  // from her sprite - she has a model like every other hull, so she is
+  // drawn from it. After this no hull falls back to a sprite.
+  'fiangel',
   'sgalastor', 'sgankh', 'sgbelial', 'sgcerberus', 'sgtrident', 'sgwatchdog', 'sucentaur', 'suhygeia', 'sunephthys', 'suscarab',
   // v275 (F89): the Phidias repair drone (Mike's model, his OK given)
   'suphidias',
