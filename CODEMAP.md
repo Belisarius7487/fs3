@@ -56,7 +56,7 @@ git add CODEMAP.md
 ## Full index
 
 <!-- AUTO:START -->
-Generated from `hlp_shooter_v328_logic.html` by `codemap.py` — do not edit by hand.
+Generated from `hlp_shooter_v329_logic.html` by `codemap.py` — do not edit by hand.
 
 ### (file start) (line 1)
 - data: `SPR_DATA`, `NEB_DATA`, `ROLES`, `NEB_NAMES`, `CVS`, `ctx`, `W`
@@ -420,1232 +420,1232 @@ Generated from `hlp_shooter_v328_logic.html` by `codemap.py` — do not edit by 
 ### SPAWN OPTIONS (line 5376)
 - `applySpawnOpts()` 5380 — Anything a queue entry wants to say about the ship it produces, appli…
 
-### TEST WAVES (line 5625)
-- `testShip()` 5643
-- `testWing()` 5661
-- `buildTestWave()` 5670
+### TEST WAVES (line 5640)
+- `testShip()` 5658
+- `testWing()` 5676
+- `buildTestWave()` 5685
 - data: `UI_SHIPS_MATCH`, `TEST_SHIP_MATCH`, `UI_SHIPS`, `UI_TICKETS`, `UI_START_PTS`, `UI_WEAPONS`, `TEST_MATCH`, `TEST_MODE`, `TEST_FIRST`, `bossAlive`
 
-### SMALL CRAFT VALUES (v185) (line 5790)
-- `aiSpd()` 5848
-- `aiTurn()` 5849
-- `smallSpd()` 5852 — Top speed of a small craft in points per step, TEMPO_K included; null
-- `smallStats()` 5861 — One small craft's starting values. kind is 'fighter' or 'bomber'; a h…
+### SMALL CRAFT VALUES (v185) (line 5805)
+- `aiSpd()` 5863
+- `aiTurn()` 5864
+- `smallSpd()` 5867 — Top speed of a small craft in points per step, TEMPO_K included; null
+- `smallStats()` 5876 — One small craft's starting values. kind is 'fighter' or 'bomber'; a h…
 - data: `SMALL_TBL`, `SMALL_VEL`, `SMALL_SPD_ANCHOR`, `AI_SPD_K`, `SMALL_ROT`, `AI_TURN_ANCHOR`, `SMALL_SH_RE`
 
-### PLAYER SHIPS (line 5866)
+### PLAYER SHIPS (line 5881)
 - data: `PLAYER_SHIPS`
 
-### CYCLES (line 5886)
-- `cycleTabs()` 5939
-- `facShips()` 5941 — Roster indices of one fleet, in its unlock order.
-- `shipIsOpen()` 5948 — Is this roster entry open? Without tabs the roster opens from the top;
-- `cycleAt()` 5953
-- `enterCycle()` 5960 — Puts the run into a cycle: its roster, its support columns, and its
+### CYCLES (line 5901)
+- `cycleTabs()` 5954
+- `facShips()` 5956 — Roster indices of one fleet, in its unlock order.
+- `shipIsOpen()` 5963 — Is this roster entry open? Without tabs the roster opens from the top;
+- `cycleAt()` 5968
+- `enterCycle()` 5975 — Puts the run into a cycle: its roster, its support columns, and its
 - data: `ROSTER_HOL`, `ROSTER_NTF`, `ROSTER_FS1`, `CYCLES`, `cycleNow`, `cycleBase`, `shipUnlockedFac`
 
-### WAVE ARCHETYPES (line 5977)
+### WAVE ARCHETYPES (line 5992)
 - data: `WAVE_LIVE_SHIVAN`, `WAVE_TIER_WINGS`, `WAVE_TIER_LIVE`, `waveLive`, `allyWingWanted`, `waveObj`, `waveHunt`, `astStill`, `objSeenOnce`, `HUNT_SHARE`, `waveHuntShare`, `fleeTotal`
 
-### STATISTIK (line 6016)
-- `statsReset()` 6038
-- `statKill()` 6039
+### STATISTIK (line 6031)
+- `statsReset()` 6053
+- `statKill()` 6054
 - data: `STATS_ZERO`, `STATS`, `ICENI_HULL`, `ICENI_GROWTH`, `icenEscapes`, `WAVE_CYCLE`
 
-### ACHSE 1: KOMPOSITION — wer kommt, sonst nichts (line 6078)
+### ACHSE 1: KOMPOSITION — wer kommt, sonst nichts (line 6093)
 - data: `COMPOS`
 
-### ACHSE 2: AUFTRAG — was zu tun ist (line 6132)
+### ACHSE 2: AUFTRAG — was zu tun ist (line 6147)
 - data: `OBJ`
 
-### VERTRAEGLICHKEITSMATRIX (line 6147)
-- `objFits()` 6176
+### VERTRAEGLICHKEITSMATRIX (line 6162)
+- `objFits()` 6191
 - data: `ALL_K`, `OBJ_OK`
 
-### HANDGESETZTE FOLGE (line 6178)
+### HANDGESETZTE FOLGE (line 6193)
 - data: `WAVE_SEQ`, `SEQ_LEN`
 
-### BOSSFENSTER (line 6211)
-- `rollNextBoss()` 6217
-- `factionOf()` 6224 — Fraktion. Der Hammer of Light kommt mit v83; bis dahin faellt er auf…
-- `rollWave()` 6229
+### BOSSFENSTER (line 6226)
+- `rollNextBoss()` 6232
+- `factionOf()` 6239 — Fraktion. Der Hammer of Light kommt mit v83; bis dahin faellt er auf…
+- `rollWave()` 6244
 - data: `BOSS_GAP_MIN`, `lastBossWave`, `lastK`
 
-### HAMMER OF LIGHT (line 6242)
+### HAMMER OF LIGHT (line 6257)
 - data: `SCRIPT_WAVES`
 
-### GESCHRIEBENE WELLEN (line 8759)
+### GESCHRIEBENE WELLEN (line 8839)
 - data: `ALLY_ID`, `NTF_HULL`, `INSTALLATIONS`, `CAT_FIX`, `CAT_FAC`
 
-### Zustand der benannten Einheiten (line 8798)
-- `missionTimerLeft()` 8826
-- `evReset()` 8838
-- `byId()` 8846
-- `evTrigAll()` 8857 — wenn: every one of them has to hold. solange: any one of them holds t…
-- `evTrigAny()` 8862
-- `evSeen()` 8867
-- `evIds()` 8869 — A trigger may name several ids joined with '+'.
-- `evWillDefect()` 8872 — Ist fuer diese Kennung ein Seitenwechsel vorgesehen? Dann bekommt sie
+### Zustand der benannten Einheiten (line 8878)
+- `missionTimerLeft()` 8906
+- `evReset()` 8918
+- `byId()` 8926
+- `evTrigAll()` 8937 — wenn: every one of them has to hold. solange: any one of them holds t…
+- `evTrigAny()` 8942
+- `evSeen()` 8947
+- `evIds()` 8949 — A trigger may name several ids joined with '+'.
+- `evWillDefect()` 8952 — Ist fuer diese Kennung ein Seitenwechsel vorgesehen? Dann bekommt sie
 - data: `EV`, `EV_REPAIRED`, `EV_TAKEN`, `EV_HIT`, `EV_POS`, `EV_LABEL`, `EV_MARK`, `evReinf`, `evReinfFac`, `missionTimer`, `MISSED_JUMP_PENALTY`, `missedJumps`, `EV_REPL`, `EV_REINF_GAP`, `evReinfGap`, `EV_REINF_GAP_MIN`
 
-### Ausloeser (line 8878)
-- `evTrig()` 8879
+### Ausloeser (line 8958)
+- `evTrig()` 8959
 
-### Wirkungen (line 8967)
-- `evFire()` 8968
-- `tickRamming()` 9233 — Geprueft wird gegen das Ziel, das es sich gesucht hat - nicht gegen
-- `ramBlast()` 9273 — Eigene Explosion: da geht ein Schiff mit Bomben an Bord hoch. Groesser
-- `tickReplace()` 9291 — A replaced unit is sent in again once it has been destroyed - not whe…
-- `tickEvents()` 9309
+### Wirkungen (line 9051)
+- `evFire()` 9052
+- `tickRamming()` 9322 — Geprueft wird gegen das Ziel, das es sich gesucht hat - nicht gegen
+- `ramBlast()` 9362 — Eigene Explosion: da geht ein Schiff mit Bomben an Bord hoch. Groesser
+- `tickReplace()` 9380 — A replaced unit is sent in again once it has been destroyed - not whe…
+- `tickEvents()` 9398
 - data: `EV_LOST_GUARDS`
 
-### Aus einer geschriebenen Welle eine Warteschlange machen (line 9377)
-- `scriptUnit()` 9378
-- `scriptUnitsResolved()` 9517 — Containers someone is sent to fetch are marked as pickups, so one tha…
-- `buildScripted()` 9528
-- `scriptFoe()` 9614
-- `getWaveDef()` 9627
-- `typeRole()` 9813
-- `typeFac()` 9814
+### Aus einer geschriebenen Welle eine Warteschlange machen (line 9466)
+- `scriptUnit()` 9467
+- `scriptUnitsResolved()` 9611 — Containers someone is sent to fetch are marked as pickups, so one tha…
+- `buildScripted()` 9622
+- `scriptFoe()` 9708
+- `getWaveDef()` 9721
+- `typeRole()` 9907
+- `typeFac()` 9908
 - data: `missionFoe`, `SMALL_TYPES`, `WING_TYPES`, `WING_MIN`, `WING_STAGGER`, `WING_SPACING`, `wingSeq`, `FAC_SFX`, `FAC_TAG`, `ROLE_KEY`
 
-### FS1 SHIVANS WITH THE LUCIFER (v175) (line 9815)
-- `wingExtra()` 9827
+### FS1 SHIVANS WITH THE LUCIFER (v175) (line 9909)
+- `wingExtra()` 9921
 - data: `waveFs1`, `FS1_SHIVAN`, `FS1_SWARM_EXTRA`
 
-### DISGUISE (M78, v177) (line 9828)
-- `coverHolds()` 9834 — Still in disguise, ours included: nobody fires, nobody is shot at.
-- `blowCover()` 9835
-- `poolFor()` 9841
-- `smallCap()` 9865
-- `liveSmallCount()` 9867 — Ships still in their warp vortex count: they are already committed.
+### DISGUISE (M78, v177) (line 9922)
+- `coverHolds()` 9928 — Still in disguise, ours included: nobody fires, nobody is shot at.
+- `blowCover()` 9929
+- `poolFor()` 9935
+- `smallCap()` 9959
+- `liveSmallCount()` 9961 — Ships still in their warp vortex count: they are already committed.
 - data: `waveDisguise`, `waveNoSupport`, `LIVE_SMALL_MAX`, `LIVE_SMALL_RETRY`
 
-### DOCKING FROM THE MODELS (F99, v283) (line 9873)
-- `dkOut()` 9917 — Only a hull of fighter size counts: there her depth is of the same or…
-- `dkList()` 9924
-- `dkHas()` 9926 — Has this hull dock data from its model (the new form)?
-- `dkHalf()` 9927
-- `dkIsCargo()` 9928
-- `dkInPlane()` 9931 — A dock facing straight into or out of the picture (the Faustus' port…
-- `dkPick()` 9934 — Which of her docks a ship uses: a container is taken on her cargo doc…
-- `dkRideIndex()` 9945 — Cargo riding from the start (ride/slot): slot n is her n-th cargo doc…
-- `dkRight()` 9952 — Is she drawn facing right (the 3D model's yaw, f3dMat)?
-- `dkAngDiff()` 9957 — Shortest way round from one angle to another.
-- `dkFlies()` 9970
-- `dkFly()` 9976 — True once she is there.
-- `dkPose()` 9984
-- `dkGrid()` 10006
-- `dkClear()` 10013 — How far the hull reaches out beyond the dock's plane (field units).
-- `dkMeet()` 10027
-- `dkDepthOf()` 10082 — A hull's own height along the way its dock faces (field units): a
-- `dkMustRoll()` 10090 — Must she roll half round to meet this dock? Her dock and the target's
-- `dkNeedsUpsideDown()` 10101
-- `dkPlanFor()` 10108
-- `dkPlaceCargo()` 10128 — A container as it is placed: upside down if its plan says so.
-- `dkSeat()` 10136 — Where carried cargo sits: its dock on hers, as far off as their two
-- `dkApproach()` 10149 — One step of her way to the dock. True once she is in contact.
-- `dkCastOff()` 10255 — Casting off (abdocken): she slides back out along the dock path before
-- `dkCastOffStep()` 10262
-- `dkPairInfo()` 10273 — For the checks (docksim): how a freighter of key dk and a container of
+### DOCKING FROM THE MODELS (F99, v283) (line 9967)
+- `dkOut()` 10011 — Only a hull of fighter size counts: there her depth is of the same or…
+- `dkList()` 10018
+- `dkHas()` 10020 — Has this hull dock data from its model (the new form)?
+- `dkHalf()` 10021
+- `dkIsCargo()` 10022
+- `dkInPlane()` 10025 — A dock facing straight into or out of the picture (the Faustus' port…
+- `dkPick()` 10028 — Which of her docks a ship uses: a container is taken on her cargo doc…
+- `dkRideIndex()` 10039 — Cargo riding from the start (ride/slot): slot n is her n-th cargo doc…
+- `dkRight()` 10046 — Is she drawn facing right (the 3D model's yaw, f3dMat)?
+- `dkAngDiff()` 10051 — Shortest way round from one angle to another.
+- `dkFlies()` 10064
+- `dkFly()` 10070 — True once she is there.
+- `dkPose()` 10078
+- `dkGrid()` 10100
+- `dkClear()` 10107 — How far the hull reaches out beyond the dock's plane (field units).
+- `dkMeet()` 10121
+- `dkDepthOf()` 10176 — A hull's own height along the way its dock faces (field units): a
+- `dkMustRoll()` 10184 — Must she roll half round to meet this dock? Her dock and the target's
+- `dkNeedsUpsideDown()` 10195
+- `dkPlanFor()` 10202
+- `dkPlaceCargo()` 10222 — A container as it is placed: upside down if its plan says so.
+- `dkSeat()` 10230 — Where carried cargo sits: its dock on hers, as far off as their two
+- `dkApproach()` 10243 — One step of her way to the dock. True once she is in contact.
+- `dkCastOff()` 10349 — Casting off (abdocken): she slides back out along the dock path before
+- `dkCastOffStep()` 10356
+- `dkPairInfo()` 10367 — For the checks (docksim): how a freighter of key dk and a container of
 - data: `DK_SLIDE`, `DK_MARGIN`, `DK_AIR`, `DK_PERSP`, `DK_DEPTH_STEPS`, `DK_TURN`, `DK_FLY_LEN`, `DK_WALL`, `DK_PLAN`
 
-### GROESSE UND ZAEHIGKEIT AUS DER RUMPFLAENGE (line 10288)
-- `hullClass()` 10361 — Die NTF-Praefixregel schlaegt bis hierher durch: ntfdeorion traegt se…
-- `hullWidth()` 10370 — v208: real size. The length in metres times SIZE_UPM (10_core.js); the
-- `hullWidthOld()` 10385
-- `smallWidth()` 10403 — Breite eines Jaegers oder Bombers. Klassenwert, sofern kein eigener
-- `worldForWave()` 10415
-- `hullWidthIn()` 10454 — mw: the mission area to measure against, for the one caller that know…
-- `hullScale()` 10458
-- `hullPoints()` 10478
-- `mkEnemy()` 10484
+### GROESSE UND ZAEHIGKEIT AUS DER RUMPFLAENGE (line 10382)
+- `hullClass()` 10455 — Die NTF-Praefixregel schlaegt bis hierher durch: ntfdeorion traegt se…
+- `hullWidth()` 10464 — v208: real size. The length in metres times SIZE_UPM (10_core.js); the
+- `hullWidthOld()` 10479
+- `smallWidth()` 10497 — Breite eines Jaegers oder Bombers. Klassenwert, sofern kein eigener
+- `worldForWave()` 10509
+- `hullWidthIn()` 10548 — mw: the mission area to measure against, for the one caller that know…
+- `hullScale()` 10552
+- `hullPoints()` 10572
+- `mkEnemy()` 10578
 - data: `HULL_LEN`, `HULL_LEN_EST`, `SIZE_K`, `SIZE_CLASS_MUL`, `SIZE_REF_L`, `SIZE_FIXED`, `SIZE_KEY_MUL`, `SIZE_CLASS_FIXED`, `SIZE_CLASS_MIN`, `SIZE_DRAW_CLASS_MUL`, `CAP_L0`, `COLOSSUS_HULL`, `NC_K`
 
-### DAMAGE (line 10692)
+### DAMAGE (line 10786)
 - data: `DMG_F`
 
-### POINTS (v202, Silvio) (line 10704)
-- `awardPts()` 10712
-- `payShieldPts()` 10719 — Her shield points, once, as she dies.
-- `hullLockFloor()` 10728
-- `damageEnemy()` 10732
-- `hullCol()` 10878 — One reading for hull condition everywhere: the player's bar in the HUD
+### POINTS (v202, Silvio) (line 10798)
+- `awardPts()` 10806
+- `payShieldPts()` 10813 — Her shield points, once, as she dies.
+- `hullLockFloor()` 10822
+- `damageEnemy()` 10826
+- `hullCol()` 10972 — One reading for hull condition everywhere: the player's bar in the HUD
 - data: `SCORE_FRAC`, `PREY_HIT`, `HULL_CRIT`
 
-### SHIELD BUBBLE (line 10888)
-- `shieldBubble()` 10895 — Draws a shield bubble around a point. frac is the remaining
-- `hullShieldCol()` 10940
-- `hullShieldSkin()` 10945
-- `hullShield()` 10979 — Draws it; false if there is no skin (then the old bubble is drawn).
-- `addShieldFlare()` 11000 — The shield is the ship's own outline, not an ellipse laid over it. The
-- `drawLuciShield()` 11009
-- `drawReactors()` 11021 — Reactors are only worth marking while the shield is up, since after t…
+### SHIELD BUBBLE (line 10982)
+- `shieldBubble()` 10989 — Draws a shield bubble around a point. frac is the remaining
+- `hullShieldCol()` 11034
+- `hullShieldSkin()` 11039
+- `hullShield()` 11073 — Draws it; false if there is no skin (then the old bubble is drawn).
+- `addShieldFlare()` 11094 — The shield is the ship's own outline, not an ellipse laid over it. The
+- `drawLuciShield()` 11103
+- `drawReactors()` 11115 — Reactors are only worth marking while the shield is up, since after t…
 - data: `SH_FLASH`, `HULL_SH`, `HULL_SH_W`
 
-### RUMPFANZEIGE (line 11044)
-- `hullSegCount()` 11049
+### RUMPFANZEIGE (line 11138)
+- `hullSegCount()` 11143
 - data: `HB_SEG_W`
 
-### HULL BAND (line 11053)
-- `hullBandCol()` 11061 — Green through yellow to red, smoothly rather than in steps.
-- `hullBandPath()` 11068
-- `drawHullBlocks()` 11074
-- `toggleSubMarks()` 11131
-- `drawSubName()` 11133 — The name over a bracket.
-- `drawSubsystems()` 11159 — Now the picked one carries its name wherever the player is and wherev…
-- `drawSubMsgs()` 11202
-- `drawShield()` 11210
-- `drawHoldRing()` 11225
-- `drawPlayerShield()` 11255
+### HULL BAND (line 11147)
+- `hullBandCol()` 11155 — Green through yellow to red, smoothly rather than in steps.
+- `hullBandPath()` 11162
+- `drawHullBlocks()` 11168
+- `toggleSubMarks()` 11225
+- `drawSubName()` 11227 — The name over a bracket.
+- `drawSubsystems()` 11253 — Now the picked one carries its name wherever the player is and wherev…
+- `drawSubMsgs()` 11296
+- `drawShield()` 11304
+- `drawHoldRing()` 11319
+- `drawPlayerShield()` 11349
 - data: `HB_H`, `SUB_CORNERS`, `subMarksOn`, `SUB_MSG_LOG`, `HOLD_RING_MIN`
 
-### STATION KEEPING (line 11267)
-- `clampToField()` 11279 — Nothing should ever slide off the top or bottom edge. The old per cla…
-- `isCapital()` 11291
-- `spriteBox()` 11304
-- `hullBox()` 11339 — Der sichtbare Rumpf eines Schiffs in Weltkoordinaten. Der Mittelpunkt…
-- `hullsTouch()` 11349 — ein Kreis laesst ein Schiff hoch ueber einem anderen explodieren, weil
-- `hullDepth()` 11356 — Wie tief zwei Rumpfe ineinander stehen, in Punkten, je Achse. Negativ
-- `hullsBite()` 11367 — Steckt a wirklich in b? Ein Rechteck um ein Schiff, das nicht
-- `halfH()` 11371
-- `halfW()` 11375
-- `capitalsOnField()` 11385
-- `assignStation()` 11393 — Pick the height with the largest clearance to everyone else.
-- `separateCapitals()` 11428 — Gentle mutual push so drifting ships do not slide into each other.
+### STATION KEEPING (line 11361)
+- `clampToField()` 11373 — Nothing should ever slide off the top or bottom edge. The old per cla…
+- `isCapital()` 11385
+- `spriteBox()` 11398
+- `hullBox()` 11433 — Der sichtbare Rumpf eines Schiffs in Weltkoordinaten. Der Mittelpunkt…
+- `hullsTouch()` 11443 — ein Kreis laesst ein Schiff hoch ueber einem anderen explodieren, weil
+- `hullDepth()` 11450 — Wie tief zwei Rumpfe ineinander stehen, in Punkten, je Achse. Negativ
+- `hullsBite()` 11461 — Steckt a wirklich in b? Ein Rechteck um ein Schiff, das nicht
+- `halfH()` 11465
+- `halfW()` 11469
+- `capitalsOnField()` 11479
+- `assignStation()` 11487 — Pick the height with the largest clearance to everyone else.
+- `separateCapitals()` 11522 — Gentle mutual push so drifting ships do not slide into each other.
 - data: `CAPITAL_GAP`, `SEPARATE_FORCE`, `SPR_BOX`, `CAPITAL_MIN_GAP`
 
-### VASUDAN PRESENCE (line 11486)
-- `inJump()` 11531 — True while the player is in the middle of a jump and not flying.
-- `jumpDark()` 11538 — Wie dunkel das Feld gerade ist, 0 bis 1. Die Blende selbst und der
-- `jumpScale()` 11544
-- `spawnGuardShip()` 11551
-- `spawnVasReinforcement()` 11578
-- `updateVasudan()` 11591
+### VASUDAN PRESENCE (line 11580)
+- `inJump()` 11625 — True while the player is in the middle of a jump and not flying.
+- `jumpDark()` 11632 — Wie dunkel das Feld gerade ist, 0 bis 1. Die Blende selbst und der
+- `jumpScale()` 11638
+- `spawnGuardShip()` 11645
+- `spawnVasReinforcement()` 11672
+- `updateVasudan()` 11685
 - data: `guardWanted`, `reinfAt`, `GUARD_HULL_FRAC`, `GUARD_PENALTY`, `ESCAPE_PENALTY`, `PROTECT_CROSS_SPD`, `guardClass`, `astAim`, `TRANS_EDGE_PAD`, `AST_STREAM_MEAN`, `AST_STREAM_JIT`, `transitSecs`, `TRANS_CLEAR`, `TRANS_OUT`, `TRANS_IN`, `arriveT`, `transFog`, `REINF_SIZE`
 
-### SUPPORT TICKETS (line 11637)
-- `spawnTicket()` 11691
-- `maybeDropTicket()` 11697 — Called the moment an enemy dies, from both kill paths.
-- `updateItems()` 11718
-- `drawTicketMsgs()` 11770 — F89: the ticket texts ("+1 ...") are gone; the score box in the bar
-- `drawGlowIcon()` 11778 — The shadow follows the silhouette, so repeated draws build a rim that
-- `drawItems()` 11791
+### SUPPORT TICKETS (line 11731)
+- `spawnTicket()` 11785
+- `maybeDropTicket()` 11791 — Called the moment an enemy dies, from both kill paths.
+- `updateItems()` 11812
+- `drawTicketMsgs()` 11864 — F89: the ticket texts ("+1 ...") are gone; the score box in the bar
+- `drawGlowIcon()` 11872 — The shadow follows the silhouette, so repeated draws build a rim that
+- `drawItems()` 11885
 - data: `tickets`, `TICKET_START`, `TICKET_ORDER`, `TICKET_ABBR`, `TICKET_ICON`, `REPAIR_COL`, `TICKET_SHARE`, `BOMBER_TICKET_CHANCE`, `REPAIR_DROP_BOMBER`, `REPAIR_DROP_FIGHTER`, `REPAIR_PCT`, `LIFE_DROP_BOMBER`, `LIFE_DROP_FIGHTER`, `LIVES_MAX`, `ITEMS`, `ITEM_LIFE`, `ITEM_DRIFT`, `ITEM_R`, `MAGNET_R`, `MAGNET_PULL`, `MAGNET_MAX`, `ITEM_MARGIN`, `ticketFlash`, `TICKET_MSGS`, `TICKET_NAME`
 
-### ESCORTS (line 11856)
-- `allyLabel()` 11866 — The Vasudan fleet is GTVA (GV) in the FS2 era and was Parliamentary (…
-- `allyFacOn()` 11933
-- `eraAllows()` 11945 — v237, Silvio: "Im FS1-Block kommen auch nur FS1-Aera Schiffe vor. Die
-- `callCols()` 11952 — One column per active faction, in ALLY_ORDER order. With a single
-- `allyTicket()` 11969 — Which ticket a menu entry spends.
-- `canRefine()` 11979 — v202: gone with the tickets.
-- `refineTicket()` 11980
-- `allyCost()` 11993 — v202 (Silvio): a ship is called with points - as many as her hull. Wh…
-- `allyAffordable()` 11997
-- `allyRefunds()` 12001 — The hull the called ships still have, back as points as the wave is w…
-- `allyReady()` 12018 — Only capital escorts count towards the one at a time rule. Fighter and
-- `anyTicket()` 12032 — v202: anything the points can pay for
-- `allyHull()` 12038 — What an escort's hull is, for the ship and for the support menu alike.
-- `mkAlly()` 12041
-- `countAllySmall()` 12112
-- `countEnemyBombers()` 12115
-- `hasAllyCapital()` 12118
-- `mkAllySmall()` 12125 — One escort fighter or bomber. Same flight model as the enemy small
-- `launchAllyWing()` 12165 — A destroyer launches fighters to cover the player and bombers to go
-- `sendCapBombers()` 12181 — Enemy bombers sent in answer to a called capital ship.
-- `sendInterceptors()` 12205
-- `liveEnemySmall()` 12229
-- `bossCallWing()` 12236
-- `updateBossCalls()` 12251
-- `capResponseHost()` 12273 — v241 (F23): in the FS1 strand the mission's own capital ships are par…
-- `updateCapResponse()` 12277
-- `callAlly()` 12301
-- `playerOnly()` 12342 — Only the player may damage these. Allied weapons never pick them as a
-- `neutralLike()` 12355 — In the FS1 strand a freighter is the enemy: the Bast (no guns) was pi…
-- `escortSpares()` 12364 — scanned first, disabled, or boarded (the Faustus, the Arcadia). Before
-- `nearestEnemy()` 12373
-- `allyFire()` 12390
-- `updateAllies()` 12431
-- `fleePenalty()` 12568
-- `checkDisarmFlee()` 12584 — Weapons gone means the ship has no reason left to stay. The clock only
-- `runFlee()` 12601
-- `fleeingEnemies()` 12635 — Every capital ship still counting down. Two can run at once, and one
-- `fleeingEnemy()` 12641
-- `reapEnemies()` 12648 — Safety net: enemies killed by escort beams are not
+### ESCORTS (line 11950)
+- `allyLabel()` 11960 — The Vasudan fleet is GTVA (GV) in the FS2 era and was Parliamentary (…
+- `allyFacOn()` 12027
+- `eraAllows()` 12039 — v237, Silvio: "Im FS1-Block kommen auch nur FS1-Aera Schiffe vor. Die
+- `callCols()` 12046 — One column per active faction, in ALLY_ORDER order. With a single
+- `allyTicket()` 12063 — Which ticket a menu entry spends.
+- `canRefine()` 12073 — v202: gone with the tickets.
+- `refineTicket()` 12074
+- `allyCost()` 12087 — v202 (Silvio): a ship is called with points - as many as her hull. Wh…
+- `allyAffordable()` 12091
+- `allyRefunds()` 12095 — The hull the called ships still have, back as points as the wave is w…
+- `allyReady()` 12112 — Only capital escorts count towards the one at a time rule. Fighter and
+- `anyTicket()` 12126 — v202: anything the points can pay for
+- `allyHull()` 12132 — What an escort's hull is, for the ship and for the support menu alike.
+- `mkAlly()` 12135
+- `countAllySmall()` 12206
+- `countEnemyBombers()` 12209
+- `hasAllyCapital()` 12212
+- `mkAllySmall()` 12219 — One escort fighter or bomber. Same flight model as the enemy small
+- `launchAllyWing()` 12259 — A destroyer launches fighters to cover the player and bombers to go
+- `sendCapBombers()` 12275 — Enemy bombers sent in answer to a called capital ship.
+- `sendInterceptors()` 12299
+- `liveEnemySmall()` 12323
+- `bossCallWing()` 12330
+- `updateBossCalls()` 12345
+- `capResponseHost()` 12367 — v241 (F23): in the FS1 strand the mission's own capital ships are par…
+- `updateCapResponse()` 12371
+- `callAlly()` 12395
+- `playerOnly()` 12436 — Only the player may damage these. Allied weapons never pick them as a
+- `neutralLike()` 12449 — In the FS1 strand a freighter is the enemy: the Bast (no guns) was pi…
+- `escortSpares()` 12458 — scanned first, disabled, or boarded (the Faustus, the Arcadia). Before
+- `nearestEnemy()` 12467
+- `allyFire()` 12484
+- `updateAllies()` 12525
+- `fleePenalty()` 12662
+- `checkDisarmFlee()` 12678 — Weapons gone means the ship has no reason left to stay. The clock only
+- `runFlee()` 12695
+- `fleeingEnemies()` 12729 — Every capital ship still counting down. Two can run at once, and one
+- `fleeingEnemy()` 12735
+- `reapEnemies()` 12742 — Safety net: enemies killed by escort beams are not
 - data: `ALLY_DEFS`, `COLOSSUS_TIME`, `COLOSSUS_HULL_MULT`, `ALLY_ORDER`, `ALLY_KEYS`, `ALLY_TER_N`, `ALLY_SPECIAL`, `ALLY_SPECIAL_KEY`, `ALLY_FAC_ON`, `REFINE_COST`, `REFINE_UP`, `allyCd`, `callMenu`, `ALLY_WING_SIZE`, `ALLY_WING_MAX`, `ALLY_WING_CD`, `CAP_BOMBER_WAVES`, `CAP_BOMBER_SIZE`, `CAP_BOMBER_DELAY`, `capBomberLeft`, `capBomberCd`, `INTERCEPT_SIZE`, `INTERCEPT_DELAY`, `BOSS_CALL_GAP`, `BOSS_CALL_FI`, `BOSS_CALL_BO`, `FLEE_PENALTY`, `DISARM_FLEE`
 
-### ASTEROID IMPACTS (line 12663)
-- `astRamDmg()` 12673
-- `astBreaks()` 12678
-- `astProbe()` 12685
-- `updateAsteroidImpacts()` 12690
+### ASTEROID IMPACTS (line 12757)
+- `astRamDmg()` 12767
+- `astBreaks()` 12772
+- `astProbe()` 12779
+- `updateAsteroidImpacts()` 12784
 - data: `AST_SC_MIN`, `AST_PCT_MIN`, `AST_PROBE`
 
-### WRECKAGE (line 12735)
-- `rollWaveMod()` 12771
-- `nebulaOn()` 12782 — An EMP storm no longer happens in clear space: it is a nebula
-- `fireRange()` 12785 — Sight and lock range. The nebula is the reason this is a function.
-- `ambushX()` 12797 — Normally small craft arrive at the right edge. Under an ambush a share
+### WRECKAGE (line 12829)
+- `rollWaveMod()` 12865
+- `nebulaOn()` 12876 — An EMP storm no longer happens in clear space: it is a nebula
+- `fireRange()` 12879 — Sight and lock range. The nebula is the reason this is a function.
+- `ambushX()` 12891 — Normally small craft arrive at the right edge. Under an ambush a share
 - data: `MOD_NONE`, `MOD_LIST`, `MOD_LABEL`, `MOD_FIRST_WAVE`, `MOD_CHANCE`, `NEB_TINTS`, `nebTint`, `waveMod`, `empOut`, `EMP_WARN`, `empWarn`, `empBolts`, `debris`, `DEBRIS_MAX`, `DEBRIS_HP`, `DEB_PCT_MIN`, `DEB_SMALL_PX`
 
-### SUBSPACE BOMB RAIDS (line 12802)
-- `launchBombRaid()` 12823
-- `portalBomb()` 12840 — Gleiche Werte wie eine abgefeuerte Bombe: 26 Schaden, 1 Trefferpunkt,
+### SUBSPACE BOMB RAIDS (line 12896)
+- `launchBombRaid()` 12917
+- `portalBomb()` 12934 — Gleiche Werte wie eine abgefeuerte Bombe: 26 Schaden, 1 Trefferpunkt,
 - data: `BOMB_PORTALS`, `bombRaidLeft`, `BOMB_RAID_MAX`, `BOMB_RAID_FIRST_WAVE`, `BOMB_RAID_FIRST`, `BOMB_RAID_JIT`, `BOMB_RAID_GAP`, `PORTAL_LIFE`, `PORTAL_BOMBS`, `PORTAL_MIN`, `PORTAL_X_MIN`, `PORTAL_STAGGER`
 
-### SETEKH (v169) (line 12849)
-- `jammerAlive()` 12859
-- `ssbSpot()` 12864
-- `tickSetekhBombs()` 12875
-- `updateBombPortals()` 12887
-- `drawBombPortals()` 12919 — Dasselbe Frame-Blatt und dieselbe Auf/Halte/Zu-Kurve wie beim Wirbel
+### SETEKH (v169) (line 12943)
+- `jammerAlive()` 12953
+- `ssbSpot()` 12958
+- `tickSetekhBombs()` 12969
+- `updateBombPortals()` 12981
+- `drawBombPortals()` 13013 — Dasselbe Frame-Blatt und dieselbe Auf/Halte/Zu-Kurve wie beim Wirbel
 - data: `SSB_MIN_D`, `SSB_GAP`, `SSB_DMG`, `ssbOn`
 
-### ASTEROIDEN (line 12942)
-- `buildAsteroids()` 12954
-- `rockLightPaint()` 13041 — kind 0 the shadow on the far side, kind 1 the rim towards the light
-- `rockLightCellX()` 13054 — where a picture lies on the sheet: the shadows in the upper half, the…
-- `rockLightCellY()` 13055
-- `rockLightSheet()` 13056
-- `rockLightBake()` 13083 — {s: the sheet, x, yd, ym: the two cells} or null (then drawn the old…
-- `drawRockLight()` 13091
-- `debSpan()` 13134
-- `impactBase()` 13143
-- `debRamDmg()` 13147
-- `debBox()` 13154 — Rotation safe coarse box: a piece tumbles, so the long side is used on
-- `onDebris()` 13162 — Mask lookup restricted to one cut out. The parent mask is reused with
-- `pushDebris()` 13182
-- `tornOutline()` 13192 — A rectangular cut reads as a rectangle, which is the one thing a torn
-- `inOutline()` 13203
-- `cutCoverage()` 13224 — How much solid hull sits inside a candidate rectangle. A rectangle ov…
-- `cutPiece()` 13236
-- `spawnWreck()` 13266 — Fed from triggerExpl, so every death path leaves a wreck without each
-- `seedWreckField()` 13290 — A field that was fought over before the player ever arrived.
-- `breakDebris()` 13302
-- `updateDebris()` 13325
-- `debrisEatsBolt()` 13399 — Bolts from either side stop at wreckage. It is cover, and it is cover
-- `outlinePath()` 13413
-- `drawEmpHudGlitch()` 13437
+### ASTEROIDEN (line 13036)
+- `buildAsteroids()` 13048
+- `rockLightPaint()` 13135 — kind 0 the shadow on the far side, kind 1 the rim towards the light
+- `rockLightCellX()` 13148 — where a picture lies on the sheet: the shadows in the upper half, the…
+- `rockLightCellY()` 13149
+- `rockLightSheet()` 13150
+- `rockLightBake()` 13177 — {s: the sheet, x, yd, ym: the two cells} or null (then drawn the old…
+- `drawRockLight()` 13185
+- `debSpan()` 13228
+- `impactBase()` 13237
+- `debRamDmg()` 13241
+- `debBox()` 13248 — Rotation safe coarse box: a piece tumbles, so the long side is used on
+- `onDebris()` 13256 — Mask lookup restricted to one cut out. The parent mask is reused with
+- `pushDebris()` 13276
+- `tornOutline()` 13286 — A rectangular cut reads as a rectangle, which is the one thing a torn
+- `inOutline()` 13297
+- `cutCoverage()` 13318 — How much solid hull sits inside a candidate rectangle. A rectangle ov…
+- `cutPiece()` 13330
+- `spawnWreck()` 13360 — Fed from triggerExpl, so every death path leaves a wreck without each
+- `seedWreckField()` 13384 — A field that was fought over before the player ever arrived.
+- `breakDebris()` 13396
+- `updateDebris()` 13419
+- `debrisEatsBolt()` 13493 — Bolts from either side stop at wreckage. It is cover, and it is cover
+- `outlinePath()` 13507
+- `drawEmpHudGlitch()` 13531
 - data: `AST_VARIANTS`, `AST_BAKE_PX`, `AST_RIM`, `AST_TEX`, `AST_LQ`, `AST_LCOLS`, `AST_LROWS`, `IMPACT_CAP_HULL`, `DEB_AMB_VX`, `DEB_DRAG`, `DEB_MAX_PX`, `EMP_RIGHT_KEEP`, `EMP_TIME_Y`, `EMP_TIME_X`, `SHOCKS`, `SHOCK_DECAY`, `shakeT`, `SHAKE_ON`
 
-### THE LUCIFER'S END (v170) (line 13497)
-- `luciFinale()` 13503
-- `tickFinale()` 13512
-- `addShake()` 13530
-- `bombBlast()` 13540 — Every bomb detonation, wherever it happens. This used to be written o…
+### THE LUCIFER'S END (v170) (line 13591)
+- `luciFinale()` 13597
+- `tickFinale()` 13606
+- `addShake()` 13624
+- `bombBlast()` 13634 — Every bomb detonation, wherever it happens. This used to be written o…
 - data: `WHITEOUT_T`, `whiteOut`, `FINALE`, `SHOCK_LIFE`, `SHOCK_SPARK_PER`
 
-### DANGER ZONES (v170) (line 13558)
-- `addDanger()` 13565
-- `tickDanger()` 13566
-- `dangerNear()` 13567
-- `spawnShock()` 13574
-- `shockPush()` 13590
-- `updateShocks()` 13603
-- `applyPush()` 13628 — The shove itself: a decaying offset, so the push reads as being thrown
-- `updatePushes()` 13634
-- `drawShocks()` 13644 — The wave was only ever a rule before: it pushed things and did damage
-- `drawJumpVortex()` 13692
-- `drawNebulaFog()` 13739
-- `makeEmpBolt()` 13780 — Ein Bogen. Die Richtung wird frei ueber den vollen Kreis gewuerfelt u…
-- `tickEmpBolts()` 13814
-- `drawEmpWarn()` 13828 — Announcement. Yellow-orange discharges run through the haze for
-- `drawEmpFX()` 13868 — The storm is visible on the glass as well as in the instruments: a
-- `drawDebris()` 13892
+### DANGER ZONES (v170) (line 13652)
+- `addDanger()` 13659
+- `tickDanger()` 13660
+- `dangerNear()` 13661
+- `spawnShock()` 13668
+- `shockPush()` 13684
+- `updateShocks()` 13697
+- `applyPush()` 13722 — The shove itself: a decaying offset, so the push reads as being thrown
+- `updatePushes()` 13728
+- `drawShocks()` 13738 — The wave was only ever a rule before: it pushed things and did damage
+- `drawJumpVortex()` 13786
+- `drawNebulaFog()` 13833
+- `makeEmpBolt()` 13874 — Ein Bogen. Die Richtung wird frei ueber den vollen Kreis gewuerfelt u…
+- `tickEmpBolts()` 13908
+- `drawEmpWarn()` 13922 — Announcement. Yellow-orange discharges run through the haze for
+- `drawEmpFX()` 13962 — The storm is visible on the glass as well as in the instruments: a
+- `drawDebris()` 13986
 - data: `DANGER`, `DANGER_MARGIN`
 
-### SHOOTING (line 13934)
-- `pShoot()` 13935
-- `pShootWith()` 13941 — The volley carries the damage a full volley of this hull always carri…
-- `eSmall()` 13984 — With no angle given this behaves as before, which is what capital ship
-- `eBig()` 13994 — The heavy round. With an angle it leaves towards the target like every
-- `eSpread()` 14000
+### SHOOTING (line 14028)
+- `pShoot()` 14029
+- `pShootWith()` 14035 — The volley carries the damage a full volley of this hull always carri…
+- `eSmall()` 14078 — With no angle given this behaves as before, which is what capital ship
+- `eBig()` 14088 — The heavy round. With an angle it leaves towards the target like every
+- `eSpread()` 14094
 
-### SMALL SHIP FLIGHT (line 14006)
-- `isSmallEnemy()` 14013 — Fighters and bombers fly by heading: they turn towards where they want
-- `sideOf()` 14017 — Own side, used for separation and for handing out attack slots.
-- `nearestFoe()` 14023 — Nearest enemy ship of a different faction. Only asked while waveFeud…
-- `nearestOf()` 14035
-- `focusCount()` 14060
-- `claimTarget()` 14072 — Picks target unless it is already crowded, in which case the next best
+### SMALL SHIP FLIGHT (line 14100)
+- `isSmallEnemy()` 14107 — Fighters and bombers fly by heading: they turn towards where they want
+- `sideOf()` 14111 — Own side, used for separation and for handing out attack slots.
+- `nearestFoe()` 14117 — Nearest enemy ship of a different faction. Only asked while waveFeud…
+- `nearestOf()` 14129
+- `focusCount()` 14154
+- `claimTarget()` 14166 — Picks target unless it is already crowded, in which case the next best
 - data: `FOCUS_MAX`
 
-### PTAH (v170) (line 14092)
-- `playerSeen()` 14099
-- `unseenTarget()` 14105
-- `smallTarget()` 14115
-- `assignAttackRoles()` 14169 — Hands out the attack slots. Whoever is closest to its target gets to…
-- `wingLeader()` 14208
-- `wingSlot()` 14216
+### PTAH (v170) (line 14186)
+- `playerSeen()` 14193
+- `unseenTarget()` 14199
+- `smallTarget()` 14209
+- `assignAttackRoles()` 14263 — Hands out the attack slots. Whoever is closest to its target gets to…
+- `wingLeader()` 14302
+- `wingSlot()` 14310
 - data: `PTAH_HULL`, `PTAH_SEEN`, `FLY_TURN_ACC`, `FLY_ACC`, `FLY_CRUISE`, `FLY_PASS`, `FLY_SLIDE`, `RUN_OFF_MIN`, `RUN_SIDE_D`, `JINK_T`, `JINK_P`, `FORM_BACK`
 
-### STRAFING RUNS ON LARGE SHIPS (v179, Silvio) (line 14225)
-- `bigClear()` 14236 — Clear of a hull: half its length and a margin, from its centre.
-- `bigTarget()` 14237
-- `runPoint()` 14240
-- `flySmall()` 14245
-- `noseOnHull()` 14433 — Returns true when the line ahead meets the hull within range.
-- `smallFire()` 14458 — Guns only bear within a cone ahead, and the further out the target si…
+### STRAFING RUNS ON LARGE SHIPS (v179, Silvio) (line 14319)
+- `bigClear()` 14330 — Clear of a hull: half its length and a margin, from its centre.
+- `bigTarget()` 14331
+- `runPoint()` 14334
+- `flySmall()` 14339
+- `noseOnHull()` 14527 — Returns true when the line ahead meets the hull within range.
+- `smallFire()` 14552 — Guns only bear within a cone ahead, and the further out the target si…
 - data: `BIG_RUN_U`, `BIG_BREAK`, `BIG_PASS_FI`, `BIG_TURN_WIDE`, `HULL_AIM_LEN`, `HULL_BURST`
 
-### TARGETING (line 14512)
-- `isSmallShip()` 14522
-- `isLargeShip()` 14525
-- `targetRadius()` 14534 — How large is the target for a beam hit test?
-- `canLockOn()` 14549
+### TARGETING (line 14606)
+- `isSmallShip()` 14616
+- `isLargeShip()` 14619
+- `targetRadius()` 14628 — How large is the target for a beam hit test?
+- `canLockOn()` 14643
 - data: `allies`, `LARGE_BEAM_HOLDS_FIRE`, `STEALTH_HULL`, `LOCKLESS_HULLS`
 
-### AWACS (v165) (line 14568)
-- `awacsSees()` 14574
-- `drawAwacsRings()` 14582
-- `shivanGasSight()` 14598
+### AWACS (v165) (line 14662)
+- `awacsSees()` 14668
+- `drawAwacsRings()` 14676
+- `shivanGasSight()` 14692
 - data: `AWACS_R`, `SHIVAN_GAS_BEAMS`
 
-### TAG (v169) (line 14605)
-- `tagged()` 14610
-- `drawTagMark()` 14611
-- `beamTargets()` 14632
-- `pickBeamTarget()` 14655 — Nearest target to the turret position.
-- `beamCanAim()` 14677
-- `targetAlive()` 14680
-- `beamHits()` 14691
+### TAG (v169) (line 14699)
+- `tagged()` 14704
+- `drawTagMark()` 14705
+- `beamTargets()` 14726
+- `pickBeamTarget()` 14749 — Nearest target to the turret position.
+- `beamCanAim()` 14771
+- `targetAlive()` 14774
+- `beamHits()` 14785
 - data: `TAG_TIME`, `BEAM_REACH`
 
-### SUBSYSTEMS (line 14704)
-- `subRadius()` 14747 — Ohne eigenen Radius bleibt alles wie bisher: 8.5 % der Schiffsbreite,
-- `maskCentre()` 14776
-- `maskSolid()` 14789
-- `hullRay()` 14798 — Outermost solid pixel along a ray, then stepped back inwards until the
-- `hullRayNear()` 14835 — Ranks every point on the rim by how close it lies to the wanted direc…
-- `subPositions()` 14865
-- `hasSubsystems()` 14907
-- `initSubsystems()` 14912
-- `corneredMult()` 14929
-- `subOK()` 14934
-- `subPos()` 14940
-- `subAt()` 14956 — Where two circles overlap, the hit goes to the subsystem whose centre…
-- `subHit()` 14971 — Applies a hit that may have landed on a subsystem. Returns the damage
+### SUBSYSTEMS (line 14798)
+- `subRadius()` 14841 — Ohne eigenen Radius bleibt alles wie bisher: 8.5 % der Schiffsbreite,
+- `maskCentre()` 14870
+- `maskSolid()` 14883
+- `hullRay()` 14892 — Outermost solid pixel along a ray, then stepped back inwards until the
+- `hullRayNear()` 14929 — Ranks every point on the rim by how close it lies to the wanted direc…
+- `subPositions()` 14959
+- `hasSubsystems()` 15001
+- `initSubsystems()` 15006
+- `corneredMult()` 15023
+- `subOK()` 15028
+- `subPos()` 15034
+- `subAt()` 15050 — Where two circles overlap, the hit goes to the subsystem whose centre…
+- `subHit()` 15065 — Applies a hit that may have landed on a subsystem. Returns the damage
 - data: `SUB_HP_FRAC`, `DISABLE_HULL_FLOOR`, `DOCK_SPD`, `DOCK_NEAR`, `DEATH_ROLL`, `DEATH_ROLL_GAP`, `DISABLE_SUB_FRAC`, `SUB_HULL_BLEED`, `SUB_NAME_PX`, `SUB_DEFS`, `SUB_POS`, `MASK_MID`, `SUB_SEP_LEVELS`, `SUB_FAN`, `CORNERED_RATE`, `SUB_MSGS`
 
-### LUCIFER SHIELD (line 14990)
-- `beamDmg()` 15010 — Effective beam damage. Kept as a function rather than baked in because
-- `initLuciShield()` 15026
-- `reactorPos()` 15042 — World position of a reactor, following the hull the same way mounts d…
-- `reactorAt()` 15054 — Returns the reactor an impact landed on, or null.
-- `nearestReactor()` 15067 — The live reactor nearest to a point - where a bomb aimed at her goes.
+### LUCIFER SHIELD (line 15084)
+- `beamDmg()` 15104 — Effective beam damage. Kept as a function rather than baked in because
+- `initLuciShield()` 15120
+- `reactorPos()` 15136 — World position of a reactor, following the hull the same way mounts d…
+- `reactorAt()` 15148 — Returns the reactor an impact landed on, or null.
+- `nearestReactor()` 15161 — The live reactor nearest to a point - where a bomb aimed at her goes.
 - data: `LUCI_HULL`, `LUCI_SHIELD`, `LUCI_BEAM_UNSHIELDED`, `LUCI_FIRE_MUL`, `SATH_HULL`, `SATH_ARM_MULT`, `SATH_ARMS`, `LUCI_REACTORS`, `LUCI_REACTOR_HP`, `LUCI_REACTOR_HP_SUB`, `LUCI_REACTOR_CUT`, `LUCI_REACTOR_R`, `LUCI_REACTOR_MOUNTS`, `SHIELD_MULT`, `LUCI_REACTOR_R_SEC`
 
-### BEAM IMPACTS (line 15078)
-- `hasMask()` 15087
-- `hullTrace()` 15090 — Walks the beam and finds the first and last hull point.
-- `addScorch()` 15111 — Store the scorch in sprite coordinates so it sticks to the hull.
-- `tickScorch()` 15134
-- `heatColor()` 15145 — The colour deliberately does not depend on who fired.
-- `drawScorch()` 15161
-- `beamAnchor()` 15193 — F63 (v258): where a beam from (mx,my) at ang first strikes ship o, ke…
-- `beamAncPt()` 15200 — The anchor now, as a point of her hull outline in the plane.
-- `beamImpact()` 15206
-- `beamImpactAt()` 15210
+### BEAM IMPACTS (line 15172)
+- `hasMask()` 15181
+- `hullTrace()` 15184 — Walks the beam and finds the first and last hull point.
+- `addScorch()` 15205 — Store the scorch in sprite coordinates so it sticks to the hull.
+- `tickScorch()` 15228
+- `heatColor()` 15239 — The colour deliberately does not depend on who fired.
+- `drawScorch()` 15255
+- `beamAnchor()` 15287 — F63 (v258): where a beam from (mx,my) at ang first strikes ship o, ke…
+- `beamAncPt()` 15294 — The anchor now, as a point of her hull outline in the plane.
+- `beamImpact()` 15300
+- `beamImpactAt()` 15304
 - data: `SCORCH_MAX`, `SCORCH_LIFE`
 
-### BEAM SYSTEM (line 15264)
-- `beamCol()` 15267 — Colours by faction and beam type
+### BEAM SYSTEM (line 15358)
+- `beamCol()` 15361 — Colours by faction and beam type
 
-### BALANCE (line 15296)
-- `cycleMult()` 15303
-- `capHull()` 15307 — Small craft grow too since v185 (smallStats), as the player always di…
-- `capHullF()` 15332
+### BALANCE (line 15390)
+- `cycleMult()` 15397
+- `capHull()` 15401 — Small craft grow too since v185 (smallStats), as the player always di…
+- `capHullF()` 15426
 - data: `CYCLE_HULL_GROWTH`, `FS2_CAP_HULL`, `CAP_HULL_F`, `CAP_HULL_MIN`, `HULL`, `SHIELD`
 
-### ENEMY ARMAMENT (line 15370)
-- `freighterArmed()` 15398 — One without stays a target only the player may shoot (playerOnly).
-- `rndR()` 15410
-- `initWeapons()` 15413 — Gives every mount its own timer, randomly offset.
-- `eSecondary()` 15424 — Sluggish but homing secondary weapon.
-- `initSecAmmo()` 15445
-- `fireSecondaries()` 15452 — Fire secondaries, each launcher on its own clock.
-- `aSecondary()` 15491 — The escort version. Same ordnance, but it goes into the player's bull…
-- `capGunTarget()` 15508 — dafuer sind die Geschuetze gebaut. Sonst der Spieler.
-- `flakHas()` 15548
-- `flakBurst()` 15558 — The shrapnel. An allied gun throws it into the player's list so it bi…
-- `flakReach()` 15577 — Where the wall stands: as far out as the target, inside the two limit…
-- `flakFire()` 15588
-- `flakTurrets()` 15623 — v199: every flak turret of the model on its own beat, at the rate and
-- `capitalFire()` 15658
-- `turretTick()` 15722
-- `freighterGuns()` 15773
-- `eVolleyDmg()` 15805
-- `volleyDmg()` 15812
-- `playerInertia()` 15844
-- `playerThrust()` 15851 — How hard the drive burns: with the speed along the nose, for the flam…
-- `ramsOnContact()` 15876 — Both the contact test and the double chevron over the ship read this,…
-- `shipBound()` 15916
-- `poseFor()` 15941 — Turns a heading into a draw angle and a mirror flag. curFlip is the
-- `leadAngle()` 15958 — Where to shoot so a moving target and the bolt arrive together.
-- `playerSc()` 15964
-- `f103Mounts()` 15980
-- `mountsFor()` 15996
-- `spriteFacing()` 16001
-- `needsFlip()` 16007 — wantLeft = true for enemies, false for the player and escorts.
-- `mountList()` 16012 — Returns world coordinates for every mount of one category.
-- `entMounts()` 16023
-- `volley()` 16027 — Picks n points from a mount list, rotating across fire cycles.
+### ENEMY ARMAMENT (line 15464)
+- `freighterArmed()` 15492 — One without stays a target only the player may shoot (playerOnly).
+- `rndR()` 15504
+- `initWeapons()` 15507 — Gives every mount its own timer, randomly offset.
+- `eSecondary()` 15518 — Sluggish but homing secondary weapon.
+- `initSecAmmo()` 15539
+- `fireSecondaries()` 15546 — Fire secondaries, each launcher on its own clock.
+- `aSecondary()` 15585 — The escort version. Same ordnance, but it goes into the player's bull…
+- `capGunTarget()` 15602 — dafuer sind die Geschuetze gebaut. Sonst der Spieler.
+- `flakHas()` 15642
+- `flakBurst()` 15652 — The shrapnel. An allied gun throws it into the player's list so it bi…
+- `flakReach()` 15671 — Where the wall stands: as far out as the target, inside the two limit…
+- `flakFire()` 15682
+- `flakTurrets()` 15717 — v199: every flak turret of the model on its own beat, at the rate and
+- `capitalFire()` 15752
+- `turretTick()` 15816
+- `freighterGuns()` 15867
+- `eVolleyDmg()` 15899
+- `volleyDmg()` 15906
+- `playerInertia()` 15938
+- `playerThrust()` 15945 — How hard the drive burns: with the speed along the nose, for the flam…
+- `ramsOnContact()` 15970 — Both the contact test and the double chevron over the ship read this,…
+- `shipBound()` 16010
+- `poseFor()` 16035 — Turns a heading into a draw angle and a mirror flag. curFlip is the
+- `leadAngle()` 16052 — Where to shoot so a moving target and the bolt arrive together.
+- `playerSc()` 16058
+- `f103Mounts()` 16074
+- `mountsFor()` 16090
+- `spriteFacing()` 16095
+- `needsFlip()` 16101 — wantLeft = true for enemies, false for the player and escorts.
+- `mountList()` 16106 — Returns world coordinates for every mount of one category.
+- `entMounts()` 16117
+- `volley()` 16121 — Picks n points from a mount list, rotating across fire cycles.
 - data: `WPN`, `SEC_AMMO_FIGHTER`, `CAP_NEBULA_SIGHT`, `FLAK_TYPES`, `FLAK_RATE`, `FLAK_SPD`, `FLAK_DIST`, `FLAK_MIN`, `FLAK_EDGE_KEEP`, `FLAK_SHARDS`, `FLAK_SHARD_DMG`, `FLAK_SHARD_SPD`, `FLAK_SHARD_RANGE`, `TURRET_WPN`, `FREIGHTER_GUNS`, `FREIGHTER_GUN_RATE`, `E_VOLLEY_BASE`, `E_VOLLEY_PER_EXTRA`, `VOLLEY_BASE`, `VOLLEY_PER_EXTRA`, `PLAYER_W_FIGHTER`, `PLAYER_W_BOMBER`, `PLAYER_SPD_FIGHTER`, `PLAYER_SPD_BOMBER`, `AIM_DEAD`, `PLAYER_TURN`, `HOLD_R_MULT`, `HOLD_R_MIN`, `HOLD_BAND`, `INERTIA_T_FAST`, `INERTIA_BRAKE`, `EFIGHTER_SPD`, `EFIGHTER_TURN`, `ATTACK_QUOTA`, `RAM_PCT_CAPITAL`, `RAM_PCT_BOMBER`, `RAM_PCT_FIGHTER`, `RAM_OVERLAP`, `CAP_RAM_BITE`, `CAP_RAM_CLIMB`, `ATTACK_BREAK`, `ATTACK_PASS`, `ATTACK_PASS_FI`, `STAND_BAND`, `SEP_R`, `SEP_PUSH`, `EDGE_M`, `EDGE_F`, `BOUND_MIN`, `EFIRE_CONE`, `EFIRE_RANGE`, `EBULLET_SPD`, `ESPREAD_NEAR`, `KEEP_UPRIGHT`, `FLIP_HYST`, `F103_MNT`
 
-### ENGINE PLUMES (line 16034)
-- `thrusterCol()` 16036 — White at the core, faction colour outside.
-- `drawThrusters()` 16059 — e: the ship, when its damage should show in the flames (v180).
-- `boostSathanasArms()` 16113 — The two beams mounted furthest forward on a Sathanas sit at the tips…
-- `initBeams()` 16125
-- `mountPos()` 16166
-- `mountDepth()` 16187 — v209: where the beam turret is drawn - her mount moved through the
-- `mountPosV()` 16192
-- `warpFiring()` 16198 — fireInWarp: once a third of her is out of the vortex she opens fire
-- `updateBeams()` 16201
-- `platformCharging()` 16346 — Is another gun platform on this side early in its charge?
-- `drawBeamRays()` 16364 — own: only the stretch from the mount to the edge of the firing ship's
-- `drawnHullRun()` 16412 — v214: how far a ray from (x,y) at angle a runs over ship e's hull as…
-- `hullRunFine()` 16428
-- `ownRunSmooth()` 16439
-- `ownHullRun()` 16448 — How far a ray from (x,y) at angle a runs before it leaves the box of
-- `drawBeams()` 16464 — Charge glow and muzzle orb, on top of the firing ship, together with
-- `warpBeamOrbs()` 16477 — v198 (Silvio: the Sathanas firing on her way through the Knossos had
-- `drawBeamOrb()` 16484 — The charge glow or the muzzle orb of one beam turret.
+### ENGINE PLUMES (line 16128)
+- `thrusterCol()` 16130 — White at the core, faction colour outside.
+- `drawThrusters()` 16153 — e: the ship, when its damage should show in the flames (v180).
+- `boostSathanasArms()` 16207 — The two beams mounted furthest forward on a Sathanas sit at the tips…
+- `initBeams()` 16219
+- `mountPos()` 16260
+- `mountDepth()` 16281 — v209: where the beam turret is drawn - her mount moved through the
+- `mountPosV()` 16286
+- `warpFiring()` 16292 — fireInWarp: once a third of her is out of the vortex she opens fire
+- `updateBeams()` 16295
+- `platformCharging()` 16440 — Is another gun platform on this side early in its charge?
+- `drawBeamRays()` 16458 — own: only the stretch from the mount to the edge of the firing ship's
+- `drawnHullRun()` 16506 — v214: how far a ray from (x,y) at angle a runs over ship e's hull as…
+- `hullRunFine()` 16522
+- `ownRunSmooth()` 16533
+- `ownHullRun()` 16542 — How far a ray from (x,y) at angle a runs before it leaves the box of
+- `drawBeams()` 16558 — Charge glow and muzzle orb, on top of the firing ship, together with
+- `warpBeamOrbs()` 16571 — v198 (Silvio: the Sathanas firing on her way through the Knossos had
+- `drawBeamOrb()` 16578 — The charge glow or the muzzle orb of one beam turret.
 - data: `AF_CHARGE_MUL`, `HULL_GAP`
 
-### ARMS OF THE OTHER SHIPS (line 16530)
-- `aiLoadout()` 16596
-- `aiBoltSpd()` 16624 — The AI's bolt speed: its own base speed, scaled like the player's gun.
-- `aiWait()` 16639
-- `aiEnCost()` 16640
-- `aiEnergy()` 16642 — The store: filled at the first shot, recharged by the steps gone sinc…
-- `aiGunVolley()` 16652
-- `aiBolt()` 16689 — One bolt. Allied bolts go into the player's list, enemy bolts into th…
-- `eShards()` 16706 — Enemy shrapnel: a star of short lived bolts (Dante, Infyrno).
-- `aiCapTarget()` 16717 — The capital ship a bomb is meant for: the nearest one of the other si…
-- `aiSmallTarget()` 16731 — The nearest target of the other side for a missile.
-- `aiSecondary()` 16746 — One launch of the secondary. false: nothing worth it in sight (a
-- `aiBurstCheck()` 16794
+### ARMS OF THE OTHER SHIPS (line 16624)
+- `aiLoadout()` 16690
+- `aiBoltSpd()` 16718 — The AI's bolt speed: its own base speed, scaled like the player's gun.
+- `aiWait()` 16733
+- `aiEnCost()` 16734
+- `aiEnergy()` 16736 — The store: filled at the first shot, recharged by the steps gone sinc…
+- `aiGunVolley()` 16746
+- `aiBolt()` 16783 — One bolt. Allied bolts go into the player's list, enemy bolts into th…
+- `eShards()` 16800 — Enemy shrapnel: a star of short lived bolts (Dante, Infyrno).
+- `aiCapTarget()` 16811 — The capital ship a bomb is meant for: the nearest one of the other si…
+- `aiSmallTarget()` 16825 — The nearest target of the other side for a missile.
+- `aiSecondary()` 16840 — One launch of the secondary. false: nothing worth it in sight (a
+- `aiBurstCheck()` 16888
 - data: `LOADOUT`, `AI_PRIMARIES`, `AI_SECONDARIES`, `AI_SEC_RATE`, `AI_REF_BEAT`, `AI_BURST_REACH`
 
-### HULLS: armour and traits of the capital ships (line 16804)
-- `armorClass()` 16845
-- `hullMul()` 16852 — The share of a hit that reaches the hull. src: 'gun' (a fighter's or
-- `eSrc()` 16862 — Where an enemy round came from, for hullMul().
-- `hullTraitsOnce()` 16869 — Traits that change how a ship moves, applied once.
+### HULLS: armour and traits of the capital ships (line 16898)
+- `armorClass()` 16939
+- `hullMul()` 16946 — The share of a hit that reaches the hull. src: 'gun' (a fighter's or
+- `eSrc()` 16956 — Where an enemy round came from, for hullMul().
+- `hullTraitsOnce()` 16963 — Traits that change how a ship moves, applied once.
 - data: `ARMOR`, `ARMOR_SHARD`, `HULL_ARMOR`, `ARMOR_BY_TYPE`, `HULL_TRAITS`
 
-### WEAPON BANKS (v186) (line 16876)
-- `pSpd()` 16901
-- `shipBanks()` 17083
+### WEAPON BANKS (v186) (line 16970)
+- `pSpd()` 16995
+- `shipBanks()` 17177
 - data: `MPS_TO_PX`, `PROJ_MIN`, `BLAST_PX_PER_M`, `BOLT_SPD_MAX`, `EN_STORE_K`, `EN_REGEN_K`, `PRI_ANCHOR`, `MIS_ANCHOR`, `BOMB_ANCHOR`, `FR_BASE_STEPS`, `ARSENAL_P`, `ARSENAL_S`, `SHIP_BANKS`, `BANKS_FALLBACK`
 
-### FS1 BANKS (v240, F21) (line 17088)
-- `fs1Arms()` 17126 — Only the written missions of the FS1 strand fly it. The practice mode
-- `fs1Def()` 17130
-- `fs1Out()` 17137 — Is this FS1 weapon out yet, for the player (who 'p') or the computer
-- `fs1Carried()` 17144 — The weapon actually carried for a table entry: the entry, or what sta…
-- `fs1Grown()` 17155
-- `fs1Banks()` 17162 — The banks of a hull in the FS1 strand, for the player. Its default fi…
-- `fs1AiLoadout()` 17179 — The computer's loadout in the FS1 strand (aiLoadout, 55_arms.js): the
+### FS1 BANKS (v240, F21) (line 17182)
+- `fs1Arms()` 17220 — Only the written missions of the FS1 strand fly it. The practice mode
+- `fs1Def()` 17224
+- `fs1Out()` 17231 — Is this FS1 weapon out yet, for the player (who 'p') or the computer
+- `fs1Carried()` 17238 — The weapon actually carried for a table entry: the entry, or what sta…
+- `fs1Grown()` 17249
+- `fs1Banks()` 17256 — The banks of a hull in the FS1 strand, for the player. Its default fi…
+- `fs1AiLoadout()` 17273 — The computer's loadout in the FS1 strand (aiLoadout, 55_arms.js): the
 - data: `FS1_FITS`, `FS1_STANDIN`, `FS1_GROWN`
 
-### BANK STATE (line 17236)
-- `fitKey()` 17252 — FS1 weapons do not go into an FS2 rack and the other way round.
-- `bankAmmoMax()` 17253
-- `priDefP()` 17258
-- `secDefP()` 17259
-- `fitFor()` 17261 — The default fit of a hull, or what the player made of it this run.
-- `setBanks()` 17267 — Puts a fit onto the player. keepSec: fractions of each rack to keep.
-- `bankModes()` 17284 — How many primary modes the fitted banks give: one per bank, plus link…
-- `firingBanks()` 17289 — The banks that fire in the current mode.
-- `selSecBank()` 17295
-- `syncLegacyWeapons()` 17298 — The old single-weapon fields, still read by the practice log, the han…
-- `cyclePrimary()` 17309 — dir -1 (v207): the previous one (FS2: comma)
-- `cycleSecondary()` 17321 — Mouse wheel down / E: the next secondary bank.
-- `weaponNameP()` 17329
-- `bankTick()` 17332 — Every step: the store recharges and the bank clocks run down.
-- `pShootBanks()` 17340 — Returns true when something left the barrels.
-- `bankMounts()` 17355 — Which barrels a bank fires from. With two banks the mounts are shared
+### BANK STATE (line 17330)
+- `fitKey()` 17346 — FS1 weapons do not go into an FS2 rack and the other way round.
+- `bankAmmoMax()` 17347
+- `priDefP()` 17352
+- `secDefP()` 17353
+- `fitFor()` 17355 — The default fit of a hull, or what the player made of it this run.
+- `setBanks()` 17361 — Puts a fit onto the player. keepSec: fractions of each rack to keep.
+- `bankModes()` 17378 — How many primary modes the fitted banks give: one per bank, plus link…
+- `firingBanks()` 17383 — The banks that fire in the current mode.
+- `selSecBank()` 17389
+- `syncLegacyWeapons()` 17392 — The old single-weapon fields, still read by the practice log, the han…
+- `cyclePrimary()` 17403 — dir -1 (v207): the previous one (FS2: comma)
+- `cycleSecondary()` 17415 — Mouse wheel down / E: the next secondary bank.
+- `weaponNameP()` 17423
+- `bankTick()` 17426 — Every step: the store recharges and the bank clocks run down.
+- `pShootBanks()` 17434 — Returns true when something left the barrels.
+- `bankMounts()` 17449 — Which barrels a bank fires from. With two banks the mounts are shared
 - data: `FITS`, `armsNow`, `PMODE_PREF`
 
-### MISSION FITS (line 17361)
-- `missionSec()` 17365 — A mission that needs a certain weapon puts it into a bank, as FS2
-- `missionPri()` 17376 — v253: a gun the mission hands out goes into the first primary bank (t…
-- `arsenalKey()` 17391
+### MISSION FITS (line 17455)
+- `missionSec()` 17459 — A mission that needs a certain weapon puts it into a bank, as FS2
+- `missionPri()` 17470 — v253: a gun the mission hands out goes into the first primary bank (t…
+- `arsenalKey()` 17485
 - data: `OLD_SEC_KEY`
 
-### UNLOCKS (line 17393)
-- `weaponOpenFor()` 17396 — Standard fit always, everything else the hull may carry by points
-- `bankChoices()` 17403 — What a bank may take: the hull's allowed list, plus the game's own gu…
-- `nextChoice()` 17417 — The next weapon a bank can be switched to (rearm list). Skips what is
+### UNLOCKS (line 17487)
+- `weaponOpenFor()` 17490 — Standard fit always, everything else the hull may carry by points
+- `bankChoices()` 17497 — What a bank may take: the hull's allowed list, plus the game's own gu…
+- `nextChoice()` 17511 — The next weapon a bank can be switched to (rearm list). Skips what is
 
-### EMP (line 17425)
-- `empBurst()` 17429
+### EMP (line 17519)
+- `empBurst()` 17523
 - data: `EMP_R`
 
-### BLAST (v190) (line 17437)
-- `boxDist()` 17443 — A bomb goes off over an area, as in FS2: full damage out to the inner
-- `blastFall()` 17447
-- `warheadBlast()` 17448
+### BLAST (v190) (line 17531)
+- `boxDist()` 17537 — A bomb goes off over an area, as in FS2: full damage out to the inner
+- `blastFall()` 17541
+- `warheadBlast()` 17542
 
-### CAPITAL SHIP TURRETS (line 17478)
-- `capGun()` 17501
-- `raceOf()` 17516
-- `raceCol()` 17526
-- `gunCol()` 17533 — The colours of one turret's shot: her race's (kept as its own name for
-- `capGunShot()` 17540 — hidE (v201): fired from the far flank of ship hidE - drawn under her
-- `capShotZ()` 17559 — v260 (F76 step 3): how deep under the play plane a round leaves her
-- `capSeenPt()` 17569 — v263 (F82): where a turret is seen - at her depth, through the view -…
-- `shotsView()` 17584 — The rounds still rising, drawn at their depth (on) and set back (off)…
-- `tickCapBursts()` 17601
-- `capGunBolt()` 17613
+### CAPITAL SHIP TURRETS (line 17572)
+- `capGun()` 17595
+- `raceOf()` 17610
+- `raceCol()` 17620
+- `gunCol()` 17627 — The colours of one turret's shot: her race's (kept as its own name for
+- `capGunShot()` 17634 — hidE (v201): fired from the far flank of ship hidE - drawn under her
+- `capShotZ()` 17653 — v260 (F76 step 3): how deep under the play plane a round leaves her
+- `capSeenPt()` 17663 — v263 (F82): where a turret is seen - at her depth, through the view -…
+- `shotsView()` 17678 — The rounds still rising, drawn at their depth (on) and set back (off)…
+- `tickCapBursts()` 17695
+- `capGunBolt()` 17707
 - data: `CAP_GUNS`, `CAP_HEAVY`, `CAP_TRIPLE`, `RACE_COL`, `FS1_GUN_COL`, `SHOT_RISE`, `CAP_BURST_GAP`, `CAP_BURSTS`
 
-### POINT DEFENCE (line 17627)
-- `pdTarget()` 17632
-- `pdHit()` 17652 — (The escorts' rounds are in the player's list and already stop enemy
+### POINT DEFENCE (line 17721)
+- `pdTarget()` 17726
+- `pdHit()` 17746 — (The escorts' rounds are in the player's list and already stop enemy
 - data: `PD_RANGE`
 
-### LASERS (line 17667)
-- `drawLaser()` 17673
-- `laserSpark()` 17726 — Where a bolt strikes: a small spray in its own colour.
-- `hotOf()` 17736 — White hot centre that goes with a colour, for bolts that bring only
+### LASERS (line 17761)
+- `drawLaser()` 17767
+- `laserSpark()` 17820 — Where a bolt strikes: a small spray in its own colour.
+- `hotOf()` 17830 — White hot centre that goes with a colour, for bolts that bring only
 - data: `LASER_SPARK_CAP`
 
-### CAPITAL SHIP DRIFT (line 17742)
-- `capDrift()` 17747 — Capital ships patrol up and down. Their drift used to flip at the edg…
-- `capSteer()` 17763 — Turn a capital ship's drift towards a side (+1 down, -1 up). v211: a
+### CAPITAL SHIP DRIFT (line 17836)
+- `capDrift()` 17841 — Capital ships patrol up and down. Their drift used to flip at the edg…
+- `capSteer()` 17857 — Turn a capital ship's drift towards a side (+1 down, -1 up). v211: a
 
-### CAPITAL SHIP LANES (v211, Silvio) (line 17769)
-- `capCruise()` 17796
-- `capHalt()` 17827 — The stop itself stays as abrupt as the game has always made it: a hold
-- `capAcc()` 17828
-- `capBow()` 17842
-- `capHolds()` 17844 — held where she is by her task in the mission
-- `capMovers()` 17860
-- `laneBlockers()` 17867 — big things that stand: a ship or installation she must turn before
-- `laneHalf()` 17884 — Her lane is the band she is in when she takes station - no sliding
-- `laneInit()` 17885
-- `laneLimit()` 17892 — where her middle has to stop going in direction d
-- `capLane()` 17906
-- `capTurnSettle()` 17964 — v227 did all of that in ONE frame, and that is what Silvio then saw:…
-- `capTurnStep()` 17985
+### CAPITAL SHIP LANES (v211, Silvio) (line 17863)
+- `capCruise()` 17890
+- `capHalt()` 17921 — The stop itself stays as abrupt as the game has always made it: a hold
+- `capAcc()` 17922
+- `capBow()` 17936
+- `capHolds()` 17938 — held where she is by her task in the mission
+- `capMovers()` 17954
+- `laneBlockers()` 17961 — big things that stand: a ship or installation she must turn before
+- `laneHalf()` 17978 — Her lane is the band she is in when she takes station - no sliding
+- `laneInit()` 17979
+- `laneLimit()` 17986 — where her middle has to stop going in direction d
+- `capLane()` 18000
+- `capTurnSettle()` 18058 — v227 did all of that in ONE frame, and that is what Silvio then saw:…
+- `capTurnStep()` 18079
 - data: `CAP_VEL`, `CAP_VEL_TYPE`, `CAP_TURN_S`, `LANE_GAP`, `LANE_EDGE`, `LANE_SQ_MIN`, `LANE_MIN`, `CAP_ACC_S`
 
-### 3D MODELS (v191) (line 17999)
-- `m3dInit()` 18023
-- `m3dLevel()` 18096 — One detail level: the parts as GPU buffers, plus the textures they us…
-- `m3dModel()` 18141
-- `m3dFree()` 18148 — Gives a level's buffers and textures back to the graphics card.
-- `m3dTrim()` 18158 — Keeps the M3D_KEEP hulls shown last, frees the rest. A hull still
-- `m3dMat()` 18171
-- `m3dPersp()` 18180
-- `m3dDraw()` 18186 — Draws the hull into the box (x, y, w, h) of the 2D screen. False when
-- `m3dStill()` 18265
-- `m3dEndFrame()` 18280 — Called once per frame after everything is drawn: a model that was not
-- `m3dView()` 18291
-- `m3dWheel()` 18311
+### 3D MODELS (v191) (line 18093)
+- `m3dInit()` 18117
+- `m3dLevel()` 18190 — One detail level: the parts as GPU buffers, plus the textures they us…
+- `m3dModel()` 18235
+- `m3dFree()` 18242 — Gives a level's buffers and textures back to the graphics card.
+- `m3dTrim()` 18252 — Keeps the M3D_KEEP hulls shown last, frees the rest. A hull still
+- `m3dMat()` 18265
+- `m3dPersp()` 18274
+- `m3dDraw()` 18280 — Draws the hull into the box (x, y, w, h) of the 2D screen. False when
+- `m3dStill()` 18359
+- `m3dEndFrame()` 18374 — Called once per frame after everything is drawn: a model that was not
+- `m3dView()` 18385
+- `m3dWheel()` 18405
 - data: `M3D_BASE`, `M3D_REV`, `M3D_FOV`, `M3D_SPIN`, `M3D_YAW0`, `M3D_PITCH0`, `M3D_ZOOM_HI`, `M3D_ZOOM_MAX`, `M3D_KEEP`, `M3D`, `M3D_STILL`, `M3D_VIEW`, `M3D_EASE_SPIN`
 
-### CAPITAL SHIPS IN 3D ON THE FIELD (v196) (line 18315)
-- `f3dSmall()` 18367
-- `f3dFront()` 18372 — F97 (v280): not cargo, not sentry guns and nothing held by a ship - a
+### CAPITAL SHIPS IN 3D ON THE FIELD (v196) (line 18409)
+- `f3dSmall()` 18461
+- `f3dFront()` 18466 — F97 (v280): not cargo, not sentry guns and nothing held by a ship - a
 - data: `F3D_KEYS`, `F3D_SMALL`, `F3D_SMALLSET`, `F3D_ALIAS`, `F3D_VIEW`, `F3D_ROLL`, `F3D_GANIM`, `F3D_FOV`, `F3D_L1`, `F3D`
 
-### TURRETS FROM THE MODELS (v198, v199) (line 18407)
-- `fs1Gun()` 18539
-- `beamDpsTick()` 18564
-- `railFor()` 18568
-- `f3dMounts()` 18576
-- `f3dFresh()` 18656
-- `f3dOn()` 18657
-- `f3dBow()` 18659 — Which way the bow points on the screen: +1 right, -1 left.
-- `mountHid()` 18662 — A turret on the flank turned away from the player (Weg 3): it fires,…
-- `mountCanAim()` 18672
-- `f3dKey()` 18683
-- `f3dInit()` 18688
-- `f3dFile()` 18780 — v201: a model file, from what the loading page already fetched
-- `f3dFetchBin()` 18788
-- `f3dLevel()` 18797
+### TURRETS FROM THE MODELS (v198, v199) (line 18501)
+- `fs1Gun()` 18633
+- `beamDpsTick()` 18658
+- `railFor()` 18662
+- `f3dMounts()` 18670
+- `f3dFresh()` 18750
+- `f3dOn()` 18751
+- `f3dBow()` 18753 — Which way the bow points on the screen: +1 right, -1 left.
+- `mountHid()` 18756 — A turret on the flank turned away from the player (Weg 3): it fires,…
+- `mountCanAim()` 18766
+- `f3dKey()` 18777
+- `f3dInit()` 18782
+- `f3dFile()` 18874 — v201: a model file, from what the loading page already fetched
+- `f3dFetchBin()` 18882
+- `f3dLevel()` 18891
 - data: `F3D_WPN`, `F3D_GUNS`, `F3D_MNT`, `FS1_GUN_SWAP`, `FS1_GUN_HULL`, `F3D_GUN_SND`, `BEAM_IDLE_AVG`, `RAIL_ANCHOR_DMG`, `RAIL_ANCHOR_DPS`, `F3D_FRAME`, `F3D_FOV_SLACK`
 
-### UPLOADS AND LOADING UP FRONT (v200) (line 18868)
-- `f3dNow()` 18875
-- `f3dUpload()` 18876
-- `f3dPump()` 18880
-- `f3dPreload()` 18891
-- `f3dWarm()` 18909 — Every loaded ship drawn once, out of sight: the graphics driver sets a
-- `f3dWarmFx()` 18929 — F104 (v301): the vortex sheet (2304 x 2304) and its glow went onto the
+### UPLOADS AND LOADING UP FRONT (v200) (line 18962)
+- `f3dNow()` 18969
+- `f3dUpload()` 18970
+- `f3dPump()` 18974
+- `f3dPreload()` 18985
+- `f3dWarm()` 19003 — Every loaded ship drawn once, out of sight: the graphics driver sets a
+- `f3dWarmFx()` 19023 — F104 (v301): the vortex sheet (2304 x 2304) and its glow went onto the
 - data: `F3D_UPQ`, `F3D_PUMP`, `F3D_UP_MS`, `F3D_PRE`
 
-### ONE LOADING BAR (v201) (line 18943)
-- `f3dLoadBoxShow()` 18951
-- `f3dPreloadBar()` 18988 — The bar on the title screen while the ships load.
-- `f3dModel()` 19008 — v201: the field loads the full level only (it is loaded up front now);
-- `f3dReadyLevel()` 19016
-- `f3dMat()` 19021
-- `f3dTurnRoll()` 19068
-- `f3dPlayer()` 19099
-- `f3dEyeD()` 19118 — v209: the eye's height over the play plane, in world units (f3dVP)
-- `f3dPersp()` 19126 — v209: a world point at height z over the play plane (negative: under
-- `f3dCargoHost()` 19140 — v254 (F47, Silvio: "Frachter und Container stehen hintereinander"): c…
-- `f3dCargoZ()` 19157
-- `f3dMidZ()` 19171
-- `hullPt()` 19186 — v209: a point on a hull (in the plane, as the game has it) moved to
-- `hullView()` 19198 — v210 (Silvio): hits land where the hull is drawn. A capital ship's
-- `hullUnPt()` 19212 — a point in the plane (a shot) -> the point of her 2D outline drawn th…
-- `hullFxBegin()` 19228 — z (v260): a depth of her own for these effects - a point on her surfa…
-- `hullFxBack()` 19237
-- `hullFxEnd()` 19241
-- `hullSurfPt()` 19252 — v260 (F77): the point of her surface the camera looks at, above the p…
-- `hullFxView()` 19269 — on: every hull-bound effect to where the camera shows her depth now;
-- `f3dVP()` 19277
-- `f3dBox()` 19304 — F104 (v296): the part of the screen a batch covers, in screen units,…
-- `f3dRender()` 19320
+### ONE LOADING BAR (v201) (line 19037)
+- `f3dLoadBoxShow()` 19045
+- `f3dPreloadBar()` 19082 — The bar on the title screen while the ships load.
+- `f3dModel()` 19102 — v201: the field loads the full level only (it is loaded up front now);
+- `f3dReadyLevel()` 19110
+- `f3dMat()` 19115
+- `f3dTurnRoll()` 19162
+- `f3dPlayer()` 19193
+- `f3dEyeD()` 19212 — v209: the eye's height over the play plane, in world units (f3dVP)
+- `f3dPersp()` 19220 — v209: a world point at height z over the play plane (negative: under
+- `f3dCargoHost()` 19234 — v254 (F47, Silvio: "Frachter und Container stehen hintereinander"): c…
+- `f3dCargoZ()` 19251
+- `f3dMidZ()` 19265
+- `hullPt()` 19280 — v209: a point on a hull (in the plane, as the game has it) moved to
+- `hullView()` 19292 — v210 (Silvio): hits land where the hull is drawn. A capital ship's
+- `hullUnPt()` 19306 — a point in the plane (a shot) -> the point of her 2D outline drawn th…
+- `hullFxBegin()` 19322 — z (v260): a depth of her own for these effects - a point on her surfa…
+- `hullFxBack()` 19331
+- `hullFxEnd()` 19335
+- `hullSurfPt()` 19346 — v260 (F77): the point of her surface the camera looks at, above the p…
+- `hullFxView()` 19363 — on: every hull-bound effect to where the camera shows her depth now;
+- `f3dVP()` 19371
+- `f3dBox()` 19398 — F104 (v296): the part of the screen a batch covers, in screen units,…
+- `f3dRender()` 19414
 - data: `F3D_BOX`, `F3D_ROLL_RATE`, `F3D_BANK_K`, `F3D_PL`, `HULLFX`
 
-### BEAMS IN 3D (v259, F76) (line 19441)
-- `f3dBeamFrame()` 19454
-- `f3dBeam3D()` 19457 — Is this beam drawn in 3D? Both ships drawn from their models, the beam
-- `f3dInvAff()` 19465 — 4x4 column-major affine: inverse of its 3x3 and the point through it
-- `f3dToLocal()` 19473
-- `f3dFromLocal()` 19477
-- `f3dRayHitLocal()` 19486 — Where the ray from A towards B (world) first meets her hull (L.cpu, t…
-- `f3dRayHitsLocal()` 19492 — v260 (F78): the nearest and the farthest crossing of her hull along t…
-- `f3dBeamEnds()` 19523 — The two ends of a beam in the world (GL: y up), once per picture: S at
-- `f3dCanvasTex()` 19568
-- `f3dBand()` 19584 — A band from P0 to P1 (world), half widths w0 and w1 across the view,
+### BEAMS IN 3D (v259, F76) (line 19535)
+- `f3dBeamFrame()` 19548
+- `f3dBeam3D()` 19551 — Is this beam drawn in 3D? Both ships drawn from their models, the beam
+- `f3dInvAff()` 19559 — 4x4 column-major affine: inverse of its 3x3 and the point through it
+- `f3dToLocal()` 19567
+- `f3dFromLocal()` 19571
+- `f3dRayHitLocal()` 19580 — Where the ray from A towards B (world) first meets her hull (L.cpu, t…
+- `f3dRayHitsLocal()` 19586 — v260 (F78): the nearest and the farthest crossing of her hull along t…
+- `f3dBeamEnds()` 19617 — The two ends of a beam in the world (GL: y up), once per picture: S at
+- `f3dCanvasTex()` 19662
+- `f3dBand()` 19678 — A band from P0 to P1 (world), half widths w0 and w1 across the view,
 - data: `F3D_BEAMS`, `F3D_BEAM_BG`, `F3D_CVTEX`, `F3D_BEAM_ARR`
 
-### WHERE A BEAM STRIKES AND LEAVES, IN 3D (v261, F79, F80) (line 19594)
-- `f3dGlowCanvas()` 19604
-- `f3dRnd()` 19625 — a fixed random number for (i, k)
-- `f3dBandA()` 19627 — A band with its own alpha at each end.
-- `f3dSpot()` 19637 — A glow facing the camera (the camera looks straight down), r its radi…
-- `f3dToEye()` 19642 — A point moved a little towards the eye, so a glow on her surface lies…
-- `f3dBeamHitFx()` 19648 — The entry and exit of one beam into the lists of quads by texture
-- `f3dBeamPass()` 19704 — The beams of this picture into the batch just drawn (f3dRender).
+### WHERE A BEAM STRIKES AND LEAVES, IN 3D (v261, F79, F80) (line 19688)
+- `f3dGlowCanvas()` 19698
+- `f3dRnd()` 19719 — a fixed random number for (i, k)
+- `f3dBandA()` 19721 — A band with its own alpha at each end.
+- `f3dSpot()` 19731 — A glow facing the camera (the camera looks straight down), r its radi…
+- `f3dToEye()` 19736 — A point moved a little towards the eye, so a glow on her surface lies…
+- `f3dBeamHitFx()` 19742 — The entry and exit of one beam into the lists of quads by texture
+- `f3dBeamPass()` 19798 — The beams of this picture into the batch just drawn (f3dRender).
 - data: `F3D_GLOWCV`, `BEAM_EXIT_LEN`, `BEAM_EXIT_OPEN`, `BEAM_EXIT_SPARKS`, `F3D_FXID`
 
-### DAMAGE ON THE MODEL (v204) (line 19795)
-- `f3dDmgTex()` 19802 — Silvio (M38): the damage of a ship drawn from her model lies on her
-- `f3dDmgBind()` 19815
+### DAMAGE ON THE MODEL (v204) (line 19889)
+- `f3dDmgTex()` 19896 — Silvio (M38): the damage of a ship drawn from her model lies on her
+- `f3dDmgBind()` 19909
 
-### MOVING PARTS (v201) (line 19840)
-- `f3dM4()` 19848
-- `f3dRotAbout()` 19855 — turn by a about axis u through point p (column-major)
-- `f3dDot()` 19865
-- `f3dCross()` 19866
-- `f3dRestFw()` 19871 — the base's rest heading: the bow (+z) across the turret's normal, or…
-- `f3dAimPoints()` 19878
-- `f3dAim()` 19895
-- `f3dNodeMats()` 19899
-- `f3dNorm()` 19976
-- `f3dVis()` 19979 — Whether a ship is drawn here this frame, and how: the same decisions…
-- `f3dBuildMask()` 20003 — The model's side view as a hit map, in the sprite's box (as wide as t…
-- `f3dRollMask()` 20059
-- `f3dMask()` 20088
-- `f3dFieldPrep()` 20108 — v202: the field pass in two halves. f3dFieldPrep() picks the ships dr…
-- `f3dFlush()` 20122
-- `f3dFieldPass()` 20166 — All at once (tests and older callers): the ships drawn from a model.
-- `f3dShipTop()` 20174 — After the 3D hulls, in the ship loop's order: what she has taken (the
-- `f3dDamage()` 20189
+### MOVING PARTS (v201) (line 19934)
+- `f3dM4()` 19942
+- `f3dRotAbout()` 19949 — turn by a about axis u through point p (column-major)
+- `f3dDot()` 19959
+- `f3dCross()` 19960
+- `f3dRestFw()` 19965 — the base's rest heading: the bow (+z) across the turret's normal, or…
+- `f3dAimPoints()` 19972
+- `f3dAim()` 19989
+- `f3dNodeMats()` 19993
+- `f3dNorm()` 20070
+- `f3dVis()` 20073 — Whether a ship is drawn here this frame, and how: the same decisions…
+- `f3dBuildMask()` 20097 — The model's side view as a hit map, in the sprite's box (as wide as t…
+- `f3dRollMask()` 20153
+- `f3dMask()` 20182
+- `f3dFieldPrep()` 20202 — v202: the field pass in two halves. f3dFieldPrep() picks the ships dr…
+- `f3dFlush()` 20216
+- `f3dFieldPass()` 20260 — All at once (tests and older callers): the ships drawn from a model.
+- `f3dShipTop()` 20268 — After the 3D hulls, in the ship loop's order: what she has taken (the
+- `f3dDamage()` 20283
 - data: `F3D_TURN_BASE`, `F3D_AIM_HOLD`, `F3D_RSTEPS`, `F3D_RMASK`, `F3D_MASKED`, `MASKS3D`
 
-### BREAKING UP IN 3D (v202) (line 20195)
-- `f3dM3()` 20203
-- `f3dMulV()` 20205 — x' = A * x, A 3x3 column-major
-- `f3dMulA()` 20206
-- `f3dAxisRot()` 20213 — rotation about unit axis u by a, 3x3 column-major
-- `f3dBreakup()` 20221 — She breaks into her debris. False when she has no model on the field…
-- `f3dWreckAsk()` 20263
-- `f3dWreckSeed()` 20268
-- `f3dTickHulks()` 20315
-- `f3dHulkItem()` 20341 — v204: the pieces as items of the ship loop's batches, each at the pla…
-- `f3dHulksOn()` 20350
-- `f3dDrawHulks()` 20352 — all of them at once (tests, older callers)
+### BREAKING UP IN 3D (v202) (line 20289)
+- `f3dM3()` 20297
+- `f3dMulV()` 20299 — x' = A * x, A 3x3 column-major
+- `f3dMulA()` 20300
+- `f3dAxisRot()` 20307 — rotation about unit axis u by a, 3x3 column-major
+- `f3dBreakup()` 20315 — She breaks into her debris. False when she has no model on the field…
+- `f3dWreckAsk()` 20357
+- `f3dWreckSeed()` 20362
+- `f3dTickHulks()` 20409
+- `f3dHulkItem()` 20435 — v204: the pieces as items of the ship loop's batches, each at the pla…
+- `f3dHulksOn()` 20444
+- `f3dDrawHulks()` 20446 — all of them at once (tests, older callers)
 - data: `F3D_HULKS`, `F3D_WRECK`
 
-### SHIELDS AS IN FREESPACE (v205) (line 20358)
-- `f3dShLoad()` 20381
-- `f3dShMesh()` 20444 — The shield mesh of one hull in the model's own space (as its level is
-- `f3dPlayerOn()` 20472 — v205: the player's hull is drawn from her model this frame
-- `f3dShieldHit()` 20476
-- `f3dShRay()` 20487 — Where a hit lies on the mesh (v206): the part of the shield the viewer
-- `f3dShPlace()` 20504
-- `f3dShDraw()` 20533 — The shield of one ship, right after her hull (f3dRender): her hull is…
+### SHIELDS AS IN FREESPACE (v205) (line 20452)
+- `f3dShLoad()` 20475
+- `f3dShMesh()` 20538 — The shield mesh of one hull in the model's own space (as its level is
+- `f3dPlayerOn()` 20566 — v205: the player's hull is drawn from her model this frame
+- `f3dShieldHit()` 20570
+- `f3dShRay()` 20581 — Where a hit lies on the mesh (v206): the part of the shield the viewer
+- `f3dShPlace()` 20598
+- `f3dShDraw()` 20627 — The shield of one ship, right after her hull (f3dRender): her hull is…
 - data: `F3D_SH_DUR`, `F3D_SH_FRAMES`, `F3D_SH_SP`, `F3D_SH_MAX`, `F3D_SH`
 
-### ENGINE FLAMES AND WARP IN 3D (v208) (line 20585)
-- `f3dFxProg()` 20591
-- `f3dFxTex()` 20622
-- `f3dFxDraw()` 20648 — Draws quads (6 corners each: x, y, z, u, v, alpha) with the fx progra…
-- `f3dQuad()` 20666 — One quad into arr at corner k: centre c, half axes a and b (world), t…
-- `f3dThLoad()` 20691
-- `f3dDrawsThr()` 20701 — Drawn from her model this frame, flames and all (drawThrusters leaves
-- `f3dThMag()` 20707 — How hard her engines run, 0..1 and a little over for the player's bur…
-- `f3dThDraw()` 20718
-- `f3dWarpLoad()` 20779
-- `f3dWarp()` 20803 — pz (v258, F68): the depth of the ship going through it. Her model lies
+### ENGINE FLAMES AND WARP IN 3D (v208) (line 20679)
+- `f3dFxProg()` 20685
+- `f3dFxTex()` 20716
+- `f3dFxDraw()` 20742 — Draws quads (6 corners each: x, y, z, u, v, alpha) with the fx progra…
+- `f3dQuad()` 20760 — One quad into arr at corner k: centre c, half axes a and b (world), t…
+- `f3dThLoad()` 20785
+- `f3dDrawsThr()` 20795 — Drawn from her model this frame, flames and all (drawThrusters leaves
+- `f3dThMag()` 20801 — How hard her engines run, 0..1 and a little over for the player's bur…
+- `f3dThDraw()` 20812
+- `f3dWarpLoad()` 20873
+- `f3dWarp()` 20897 — pz (v258, F68): the depth of the ship going through it. Her model lies
 - data: `F3D_FX`, `F3D_ID`, `F3D_FXTEX`, `F3D_TH`, `F3D_TH_SP`, `F3D_TH_GLOW`, `F3D_TH_LEN`, `F3D_TH_ARR`, `F3D_WP`, `F3D_WP_GLOW`
 
-### HIT EFFECTS (line 20859)
-- `shieldHit()` 20865 — They used to set a full-screen flash as well, which is why the screen…
-- `hullHit()` 20876
-- `laserHit()` 20886
-- `secMount()` 20900
-- `liveBurstRound()` 20907 — The one Infyrno in the air, if there is one.
-- `burstRound()` 20911
-- `swarmTargets()` 20936 — Who the missiles of one Tornado salvo go for: the nearest n targets t…
-- `swarmRetarget()` 20949 — A swarm missile whose target is gone looks again: first for the neare…
-- `swarmHolds()` 20964 — A target is still worth flying at while it is on the field, alive and
-- `aspectTarget()` 20974 — bigFirst: Trebuchet, Cyclops, Stiletto II look among the capital ships
-- `fireSecondary()` 20992
-- `secHoldTick()` 21048
-- `updateSecBullets()` 21053
+### HIT EFFECTS (line 20953)
+- `shieldHit()` 20959 — They used to set a full-screen flash as well, which is why the screen…
+- `hullHit()` 20970
+- `laserHit()` 20980
+- `secMount()` 20994
+- `liveBurstRound()` 21001 — The one Infyrno in the air, if there is one.
+- `burstRound()` 21005
+- `swarmTargets()` 21030 — Who the missiles of one Tornado salvo go for: the nearest n targets t…
+- `swarmRetarget()` 21043 — A swarm missile whose target is gone looks again: first for the neare…
+- `swarmHolds()` 21058 — A target is still worth flying at while it is on the field, alive and
+- `aspectTarget()` 21068 — bigFirst: Trebuchet, Cyclops, Stiletto II look among the capital ships
+- `fireSecondary()` 21086
+- `secHoldTick()` 21142
+- `updateSecBullets()` 21147
 - data: `swarmSalvo`, `CLUSTER_CHILD`, `SEC_HOLD`
 
-### EXPLOSIONSSYSTEM (line 21217)
-- `lerpRGB()` 21221 — Helper: RGB interpolation for gradients
-- `spawnFireball()` 21228 — Erweiterte Partikel: sq=Quadrat, ring=Schockwelle, fb=Fireball-Disc
-- `spawnRing()` 21237
-- `spawnDebris()` 21241
-- `spawnSmoke()` 21256
-- `scheduleExpl()` 21277 — H (v227): her hull, as fxHull() gives it - length, beam and the cosin…
-- `tickBlastFuses()` 21295
-- `triggerExpl()` 21306
-- `triggerExplBody()` 21316
-- `fxCapBlast()` 21459
-- `tickExplQueue()` 21489
+### EXPLOSIONSSYSTEM (line 21311)
+- `lerpRGB()` 21315 — Helper: RGB interpolation for gradients
+- `spawnFireball()` 21322 — Erweiterte Partikel: sq=Quadrat, ring=Schockwelle, fb=Fireball-Disc
+- `spawnRing()` 21331
+- `spawnDebris()` 21335
+- `spawnSmoke()` 21350
+- `scheduleExpl()` 21371 — H (v227): her hull, as fxHull() gives it - length, beam and the cosin…
+- `tickBlastFuses()` 21389
+- `triggerExpl()` 21400
+- `triggerExplBody()` 21410
+- `fxCapBlast()` 21553
+- `tickExplQueue()` 21583
 - data: `EXPL_Q`, `EXPL_NOW`, `BIG_BLAST`, `BIG_BLAST_FUSE`, `BLAST_FUSE`, `SUB_DRIFT_X0`, `SUB_DRIFT_EXIT_V`, `BIG_BANG`, `FX_CAP_CFG`, `FX_CAP_LEN`
 
-### COLLISION (line 21557)
-- `overlap()` 21558
-- `rotExtent()` 21564 — A rotated sprite covers more of the screen than its own width and
-- `eBox()` 21575 — F104 (v291): the box is kept on the ship and reused while nothing it
-- `pBox()` 21601
-- `playerDie()` 21608
-- `launchGame()` 21624
-- `nextWave()` 21665
+### COLLISION (line 21651)
+- `overlap()` 21652
+- `rotExtent()` 21658 — A rotated sprite covers more of the screen than its own width and
+- `eBox()` 21669 — F104 (v291): the box is kept on the ship and reused while nothing it
+- `pBox()` 21695
+- `playerDie()` 21702
+- `launchGame()` 21718
+- `nextWave()` 21759
 
-### UPDATE (line 21753)
-- `update()` 21754
+### UPDATE (line 21847)
+- `update()` 21848
 
-### SOFT LIGHT (v213, Silvio: effects package, part 1) (line 22584)
-- `glowRGB()` 22592 — a CSS colour as [r, g, b] (0..255), read once through a 1x1 canvas
-- `glowSprite()` 22620
-- `glowWarm()` 22666
-- `glowAdd()` 22685 — F104 (v295): one glow while the caller holds 'lighter' - no switching
-- `glowAt()` 22692 — Draws one glow, centred, rx by ry (radii), turned by ang. Additive.
+### SOFT LIGHT (v213, Silvio: effects package, part 1) (line 22678)
+- `glowRGB()` 22686 — a CSS colour as [r, g, b] (0..255), read once through a 1x1 canvas
+- `glowSprite()` 22714
+- `glowWarm()` 22760
+- `glowAdd()` 22779 — F104 (v295): one glow while the caller holds 'lighter' - no switching
+- `glowAt()` 22786 — Draws one glow, centred, rx by ry (radii), turned by ang. Additive.
 - data: `GLOW_SPR`, `GLOW_Q`, `GLOW_WARM`
 
-### BEAMS (v213) (line 22705)
-- `beamTex()` 22712
-- `beamFlow()` 22730 — bands along the beam: a strip that repeats, soft light and dark
-- `drawBeamRay()` 22750 — the last stretch (world units) fades out, for the piece over her hull.
-- `drawBeamGlowOrb()` 22780 — The orb at a beam turret: layered soft glows, a white-hot heart and a
+### BEAMS (v213) (line 22799)
+- `beamTex()` 22806
+- `beamFlow()` 22824 — bands along the beam: a strip that repeats, soft light and dark
+- `drawBeamRay()` 22844 — the last stretch (world units) fades out, for the piece over her hull.
+- `drawBeamGlowOrb()` 22874 — The orb at a beam turret: layered soft glows, a white-hot heart and a
 - data: `BEAM_TEX`
 
-### BEAM CHARGE PARTICLES (v213, Silvio) (line 22789)
-- `chargeSpawn()` 22796
-- `chargeTick()` 22802
-- `drawChargeParts()` 22812
+### BEAM CHARGE PARTICLES (v213, Silvio) (line 22883)
+- `chargeSpawn()` 22890
+- `chargeTick()` 22896
+- `drawChargeParts()` 22906
 - data: `CHARGE_PARTS`, `CHARGE_CAP`
 
-### STARS (v213, Silvio) (line 22829)
-- `starLayers()` 22836
+### STARS (v213, Silvio) (line 22923)
+- `starLayers()` 22930
 - data: `STAR_LAYERS`
 
-### LAG LOG (v214, Silvio) (line 22868)
-- `perfNow()` 22879
-- `perfNote()` 22882 — never lets an error out: it is called from the loaders, and a throw
-- `perfFrame()` 22890 — Called once per frame by the main loop: the frame's length and how mu…
-- `perfTick()` 22914 — Once per step: ships starting to warp in or out (no hook needed in the
-- `perfLines()` 22926 — The lines for one wave of the practice log.
+### LAG LOG (v214, Silvio) (line 22962)
+- `perfNow()` 22973
+- `perfNote()` 22976 — never lets an error out: it is called from the loaders, and a throw
+- `perfFrame()` 22984 — Called once per frame by the main loop: the frame's length and how mu…
+- `perfTick()` 23008 — Once per step: ships starting to warp in or out (no hook needed in the
+- `perfLines()` 23020 — The lines for one wave of the practice log.
 - data: `PERF_LAG_MS`, `PERF_LOOK_MS`, `PERF_EV_MAX`, `PERF_EV`, `PERF_PREV`
 
-### FREESPACE EXPLOSIONS AND MISSILE TRAILS (v216, Paket E6/E8) (line 22941)
-- `fxAlphaFromBrightness()` 22981 — The MediaVP originals are not in the repository, so the sheets cannot…
-- `fxLoad()` 22995
-- `fxReady()` 23014
-- `fxFire()` 23022
-- `fxFlash()` 23040 — the flash of B: a white-hot glow that swells fast and dies away
-- `tickFxAnims()` 23043
-- `fxFrame()` 23047 — a frame of a sheet, centred at (x, y), d wide
-- `fxKeepAlive()` 23070
-- `drawFxAnims()` 23080
-- `drawFxSmoke()` 23101 — FS smoke instead of the grey disc: one cloud of PARTS (type 'smoke')
-- `fxCellWorld()` 23125 — Silvio, v230: a destroyer's last blast was still "vergroesserte
-- `fxHull()` 23135 — A ship's length and axis on the field (world units), for blasts that…
-- `fxOnHull()` 23141 — a point on her hull: t along her length (-0.5..0.5), u across (-0.5..…
+### FREESPACE EXPLOSIONS AND MISSILE TRAILS (v216, Paket E6/E8) (line 23035)
+- `fxAlphaFromBrightness()` 23075 — The MediaVP originals are not in the repository, so the sheets cannot…
+- `fxLoad()` 23089
+- `fxReady()` 23108
+- `fxFire()` 23116
+- `fxFlash()` 23134 — the flash of B: a white-hot glow that swells fast and dies away
+- `tickFxAnims()` 23137
+- `fxFrame()` 23141 — a frame of a sheet, centred at (x, y), d wide
+- `fxKeepAlive()` 23164
+- `drawFxAnims()` 23174
+- `drawFxSmoke()` 23195 — FS smoke instead of the grey disc: one cloud of PARTS (type 'smoke')
+- `fxCellWorld()` 23219 — Silvio, v230: a destroyer's last blast was still "vergroesserte
+- `fxHull()` 23229 — A ship's length and axis on the field (world units), for blasts that…
+- `fxOnHull()` 23235 — a point on her hull: t along her length (-0.5..0.5), u across (-0.5..…
 - data: `FX_SHEET_META`, `FX_SHEET_B64`, `FX_IMG`, `FX_OK`, `FX_ANIMS`, `FX_ANIM_CAP`, `FX_FB_K`, `FX_MIN_PX`, `LAG_TEST`, `FX_KEEP`
 
-### missile trails (line 23145)
-- `trailFeed()` 23151
-- `drawTrail()` 23163
+### missile trails (line 23239)
+- `trailFeed()` 23245
+- `drawTrail()` 23257
 - data: `TRAIL_LIFE`, `TRAIL_STEP`
 
-### PHIDIAS REPAIR DRONES (v275, F89) (line 23191)
-- `repairSetup()` 23219
-- `repTarget()` 23224
-- `repAlive()` 23228
-- `repRate()` 23230 — Hull points one beaming drone puts back per step.
-- `repJump()` 23231
-- `repLaunch()` 23236
-- `repairTick()` 23251 — Once a step: the transports with a repair job.
-- `repPickSpot()` 23291 — A place on her hull to work on: a damage mark no other drone has - ne…
-- `repSpotPt()` 23316
-- `repHoldPt()` 23321
-- `repBeam()` 23325
-- `droneTick()` 23331 — One step of a drone. true: it is gone (back aboard, or out at the edg…
-- `flyDrone()` 23383 — arrive: slows down on the last stretch.
-- `droneHover()` 23411 — At its place: almost still, drifting with her, the nose turning onto
+### PHIDIAS REPAIR DRONES (v275, F89) (line 23285)
+- `repairSetup()` 23313
+- `repTarget()` 23318
+- `repAlive()` 23322
+- `repRate()` 23324 — Hull points one beaming drone puts back per step.
+- `repJump()` 23325
+- `repLaunch()` 23330
+- `repairTick()` 23345 — Once a step: the transports with a repair job.
+- `repPickSpot()` 23385 — A place on her hull to work on: a damage mark no other drone has - ne…
+- `repSpotPt()` 23410
+- `repHoldPt()` 23415
+- `repBeam()` 23419
+- `droneTick()` 23425 — One step of a drone. true: it is gone (back aboard, or out at the edg…
+- `flyDrone()` 23477 — arrive: slows down on the last stretch.
+- `droneHover()` 23505 — At its place: almost still, drifting with her, the nose turning onto
 - data: `REP_HULL`, `REP_DRONES`, `REP_GAP`, `REP_HOLD_D`, `REP_ARRIVE`, `REP_LOST`, `REP_FADE_MIN`, `REP_BARE`, `REP_PTS`, `REP_SPREAD`
 
-### the beam on the field (line 23428)
-- `repFxLoad()` 23433
-- `drawRepairBeams()` 23442
-- `repSndTick()` 23492
+### the beam on the field (line 23522)
+- `repFxLoad()` 23527
+- `drawRepairBeams()` 23536
+- `repSndTick()` 23586
 - data: `REP_FX`, `REP_COL`, `REP_LOOP`
 
-### COLLECTED EFFECTS (F104, v304) (line 23501)
-- `fxbInit()` 23526
-- `fxbOn()` 23608
-- `fxbTile()` 23611 — null: the atlas is full.
-- `fxbAtlasReset()` 23631 — The atlas is full (hundreds of glow colours): start it again, empty.
-- `fxbBegin()` 23637
-- `fxbPut()` 23641 — One part: picture c centred on the world point (x, y), rx by ry (half
-- `fxbGlow()` 23666 — A soft glow, as glowAdd() draws it (61_glow.js).
-- `fxbFlush()` 23671 — Draws what was collected - one call - and copies the part of the pict…
-- `fxbWarm()` 23702 — Behind the title screen: the pictures the fights use go into the atlas
+### COLLECTED EFFECTS (F104, v304) (line 23595)
+- `fxbInit()` 23620
+- `fxbOn()` 23702
+- `fxbTile()` 23705 — null: the atlas is full.
+- `fxbAtlasReset()` 23725 — The atlas is full (hundreds of glow colours): start it again, empty.
+- `fxbBegin()` 23731
+- `fxbPut()` 23735 — One part: picture c centred on the world point (x, y), rx by ry (half
+- `fxbGlow()` 23760 — A soft glow, as glowAdd() draws it (61_glow.js).
+- `fxbFlush()` 23765 — Draws what was collected - one call - and copies the part of the pict…
+- `fxbWarm()` 23796 — Behind the title screen: the pictures the fights use go into the atlas
 - data: `FXB`, `FXB_MAXQ`, `FXB_AT`, `FXB_CELL`, `FXB_FL`, `FXB_SWITCH`, `FXB_V`, `FXB_DISC_R`
 
-### MISSION WARM-UP (F104, v307) (line 23713)
-- `missionWarmAsk()` 23734
-- `missionWarm()` 23735
+### MISSION WARM-UP (F104, v307) (line 23807)
+- `missionWarmAsk()` 23828
+- `missionWarm()` 23829
 - data: `WARM_ON`, `WARM_DUE`, `WARM_LAST`, `WARM_BIG`
 
-### DRAW (line 23823)
-- `draw()` 23824
+### DRAW (line 23917)
+- `draw()` 23918
 
-### DIAGNOSTIC READ-OUT (&diag=1) (line 24124)
-- `diagTraceStart()` 24148
-- `drawDiag()` 24170
-- `shotUnder()` 24221 — The shots of both sides (v201: out of draw()). under: only those fired
-- `drawShots()` 24231 — v260 (F76 step 3): rounds still rising from a turret are drawn at the…
-- `drawShotsAt()` 24244
-- `drawShipTop()` 24408
-- `mlogClock()` 24462
-- `drawPaused()` 24463
-- `shipName()` 24556
-- `objectiveText()` 24573 — ein Ziel, das erledigt ist, verschwindet damit von selbst.
-- `drawWaveTitle()` 24611
-- `drawHostileMark()` 24641 — F89 (Silvio, 23.10.2026): the inner brackets say the side - red the
+### DIAGNOSTIC READ-OUT (&diag=1) (line 24218)
+- `diagTraceStart()` 24242
+- `drawDiag()` 24264
+- `shotUnder()` 24315 — The shots of both sides (v201: out of draw()). under: only those fired
+- `drawShots()` 24325 — v260 (F76 step 3): rounds still rising from a turret are drawn at the…
+- `drawShotsAt()` 24338
+- `drawShipTop()` 24502
+- `mlogClock()` 24556
+- `drawPaused()` 24557
+- `shipName()` 24650
+- `objectiveText()` 24667 — ein Ziel, das erledigt ist, verschwindet damit von selbst.
+- `drawWaveTitle()` 24705
+- `drawHostileMark()` 24735 — F89 (Silvio, 23.10.2026): the inner brackets say the side - red the
 - data: `DIAG_ON`, `DIAG_TRACE`, `DIAG_HITS`, `MLOG_COL`, `MLOG_WORD`, `MLOG_TONE`, `NAME_ALT`, `OBJ_DONE_TIME`, `objWasSet`, `protSaved`, `waveTitle`, `TITLE_TIME`, `CHEV_FULL`, `CHEV_FADE`
 
-### OBJECTIVES (line 24674)
-- `objStrip()` 24687
-- `objAnnounce()` 24688
-- `currentObjective()` 24695 — What the player is to do right now, or null. A mission's own words
-- `drawFieldBanner()` 24703
+### OBJECTIVES (line 24768)
+- `objStrip()` 24781
+- `objAnnounce()` 24782
+- `currentObjective()` 24789 — What the player is to do right now, or null. A mission's own words
+- `drawFieldBanner()` 24797
 - data: `OBJ_CARD_TIME`, `OBJ_CARD_FADE`, `OBJ_TONE`, `objCard`, `objPinned`, `missionObj`, `missionObjUsed`
 
-### NOTICES (line 24741)
-- `notice()` 24753 — F89 (Silvio, 23.10.2026): the column is gone. What it said goes to the
+### NOTICES (line 24835)
+- `notice()` 24847 — F89 (Silvio, 23.10.2026): the column is gone. What it said goes to the
 - data: `NOTICE_TIME`, `NOTICE_TONE`, `NOTICES`
 
-### short log - shown only in the pause screen (line 24758)
-- `mlogReset()` 24761
-- `mlogLine()` 24762
-- `mlogOpen()` 24767
-- `mlogSide()` 24772 — F112 (v293, Silvio: "Statt zwei Objectives in eines zu packen, mach d…
-- `mlogSideResult()` 24778
-- `mlogKeepBonus()` 24787 — A bonus that only has to hold ("keep her above half hull") is won when
-- `mlogObjective()` 24792 — a new objective; one still open is done with, as the mission moves on
-- `mlogResult()` 24800 — a result: the open objective takes its state, the words go to the log
-- `drawNotices()` 24806
-- `drawObjLine()` 24832 — The line under the bar: a plate from the kit, a small wedge in the
-- `drawObjCard()` 24849 — Below any jump-out countdowns, so the two never overlap.
+### short log - shown only in the pause screen (line 24852)
+- `mlogReset()` 24855
+- `mlogLine()` 24856
+- `mlogOpen()` 24861
+- `mlogSide()` 24866 — F112 (v293, Silvio: "Statt zwei Objectives in eines zu packen, mach d…
+- `mlogSideResult()` 24872
+- `mlogKeepBonus()` 24881 — A bonus that only has to hold ("keep her above half hull") is won when
+- `mlogObjective()` 24886 — a new objective; one still open is done with, as the mission moves on
+- `mlogResult()` 24894 — a result: the open objective takes its state, the words go to the log
+- `drawNotices()` 24900
+- `drawObjLine()` 24926 — The line under the bar: a plate from the kit, a small wedge in the
+- `drawObjCard()` 24943 — Below any jump-out countdowns, so the two never overlap.
 - data: `MLOG_MAX`, `MLOG`, `FLEE_ROWS`
 
-### OFFSCREEN INDICATORS (v208) (line 24886)
-- `offShows()` 24900
-- `offColour()` 24912
-- `drawOffscreen()` 24920
-- `drawFleeWarning()` 24981
-- `drawMuteButton()` 25024 — A speaker, with waves while the sound is on and a cross when it is of…
-- `muteHit()` 25054 — A tap on it switches the sound and does nothing else (no shot, no sta…
-- `drawGear()` 25060
+### OFFSCREEN INDICATORS (v208) (line 24980)
+- `offShows()` 24994
+- `offColour()` 25006
+- `drawOffscreen()` 25014
+- `drawFleeWarning()` 25075
+- `drawMuteButton()` 25118 — A speaker, with waves while the sound is on and a cross when it is of…
+- `muteHit()` 25148 — A tap on it switches the sound and does nothing else (no shot, no sta…
+- `drawGear()` 25154
 - data: `OFF_NEAR`, `OFF_MARGIN`, `OFF_TRI_B`, `OFF_COL`
 
-### SETTINGS PANEL (line 25075)
-- `tickFps()` 25086
-- `drawReadout()` 25100 — A small plate from the kit, right aligned under the bar.
-- `drawFps()` 25114
-- `drawObjCount()` 25121
-- `setSettings()` 25132 — No need to remember the previous pause any more: closing the panel
-- `setRow()` 25142 — Eine Zeile des Fensters. Alle Zeilen sehen gleich aus, damit eine neue
-- `settingsKeysPage()` 25167
+### SETTINGS PANEL (line 25169)
+- `tickFps()` 25180
+- `drawReadout()` 25194 — A small plate from the kit, right aligned under the bar.
+- `drawFps()` 25208
+- `drawObjCount()` 25215
+- `setSettings()` 25226 — No need to remember the previous pause any more: closing the panel
+- `setRow()` 25236 — Eine Zeile des Fensters. Alle Zeilen sehen gleich aus, damit eine neue
+- `settingsKeysPage()` 25261
 - data: `settingsOpen`, `settingsPage`, `GAME_VERSION`, `showFps`, `fpsVal`, `showObj`, `SETTINGS_PAGES`, `SETTINGS_TITLES`, `SETTINGS_TABS`, `SETTINGS_CONTROLS`, `SETTINGS_TARGETING`
 
-### CONTROLS (v207) (line 25169)
-- `menuKey()` 25227 — w: one window, or any of them
-- `bindDefaults()` 25234
-- `bindLoad()` 25238
-- `bindSave()` 25246
-- `evKey()` 25254 — The key an event stands for, as the table writes it. Extra mouse
-- `bindIs()` 25261 — Does this key press (or extra mouse button) mean that action?
-- `bindHeld()` 25270 — Is one of its keys held? (K[] holds codes and 'Mouse4'/'Mouse5')
-- `keyName()` 25285
-- `bindText()` 25302 — What a row shows: the fixed button and the keys in use.
-- `bindKey()` 25308 — The first key of an action, for the bar's buttons and the hints.
-- `bindKeyShort()` 25313 — The same, short, for the small letters on the bar's buttons.
-- `ctlRows()` 25315 — Rows for the title and the CONTROLS tab: [keys, what it does, row].
-- `controlsList()` 25322
-- `bindClash()` 25327
-- `ctlLabel()` 25336
-- `ctlKey()` 25338 — A key press or mouse button while a slot waits. True when it was used.
-- `bindReset()` 25368
-- `drawCtlRows()` 25373 — The rows as a list (title): keys in the accent, what it does beside.
-- `drawCtlColumn()` 25385 — The CONTROLS tab: what it does, the fixed mouse button, then two key
-- `drawControlsTab()` 25420
-- `settingsRows()` 25449
-- `drawSettings()` 25490
-- `settingsClick()` 25560 — Returns true when the tap was consumed by the panel.
-- `drawPauseIcon()` 25598 — Symbole statt Text in der Leiste, gezeichnet wie drawGear() und in
-- `drawMissileIcon()` 25611 — Schlank, mit Spitze und drei Finnen.
-- `drawBombIcon()` 25628 — Gedrungen, stumpfe Nase, breites Leitwerk. Auf 34 px Breite muss der
+### CONTROLS (v207) (line 25263)
+- `menuKey()` 25321 — w: one window, or any of them
+- `bindDefaults()` 25328
+- `bindLoad()` 25332
+- `bindSave()` 25340
+- `evKey()` 25348 — The key an event stands for, as the table writes it. Extra mouse
+- `bindIs()` 25355 — Does this key press (or extra mouse button) mean that action?
+- `bindHeld()` 25364 — Is one of its keys held? (K[] holds codes and 'Mouse4'/'Mouse5')
+- `keyName()` 25379
+- `bindText()` 25396 — What a row shows: the fixed button and the keys in use.
+- `bindKey()` 25402 — The first key of an action, for the bar's buttons and the hints.
+- `bindKeyShort()` 25407 — The same, short, for the small letters on the bar's buttons.
+- `ctlRows()` 25409 — Rows for the title and the CONTROLS tab: [keys, what it does, row].
+- `controlsList()` 25416
+- `bindClash()` 25421
+- `ctlLabel()` 25430
+- `ctlKey()` 25432 — A key press or mouse button while a slot waits. True when it was used.
+- `bindReset()` 25462
+- `drawCtlRows()` 25467 — The rows as a list (title): keys in the accent, what it does beside.
+- `drawCtlColumn()` 25479 — The CONTROLS tab: what it does, the fixed mouse button, then two key
+- `drawControlsTab()` 25514
+- `settingsRows()` 25543
+- `drawSettings()` 25584
+- `settingsClick()` 25654 — Returns true when the tap was consumed by the panel.
+- `drawPauseIcon()` 25692 — Symbole statt Text in der Leiste, gezeichnet wie drawGear() und in
+- `drawMissileIcon()` 25705 — Schlank, mit Spitze und drei Finnen.
+- `drawBombIcon()` 25722 — Gedrungen, stumpfe Nase, breites Leitwerk. Auf 34 px Breite muss der
 - data: `BINDS`, `BIND_SLOTS`, `BIND_BANNED`, `BIND_AREA`, `WINDOW_KEYS`, `BIND`, `BIND_LAYOUT`, `KEY_NAMES`, `CONTROLS`, `ctlEdit`, `SETTINGS_ROWS_MAX`
 
-### BAR PULSE (line 25639)
-- `barPulse()` 25648
-- `barPulseLevel()` 25651
-- `tickBarAttention()` 25662
-- `drawHUD()` 25669
-- `drawHUDHLP()` 25680 — one palette, a bevel at rest, a glow ring for emphasis, and colour ke…
-- `icoShape()` 25882
-- `drawShipsIcon()` 25888
-- `drawMissilesIcon()` 25893 — Two missiles in the same way.
-- `drawGearSolid()` 25898 — A solid gear with eight teeth and a hole: the thin one read as a sun.
-- `hovering()` 25919
-- `syncCursor()` 25925 — a panel, a held pause, a manual one, the title, the end of a run.
+### BAR PULSE (line 25733)
+- `barPulse()` 25742
+- `barPulseLevel()` 25745
+- `tickBarAttention()` 25756
+- `drawHUD()` 25763
+- `drawHUDHLP()` 25774 — one palette, a bevel at rest, a glow ring for emphasis, and colour ke…
+- `icoShape()` 25976
+- `drawShipsIcon()` 25982
+- `drawMissilesIcon()` 25987 — Two missiles in the same way.
+- `drawGearSolid()` 25992 — A solid gear with eight teeth and a hole: the thin one read as a sun.
+- `hovering()` 26013
+- `syncCursor()` 26019 — a panel, a held pause, a manual one, the title, the end of a run.
 - data: `BAR_PULSE_T`, `BAR_CALL_T`, `BAR_WEAK`, `BAR_PULSE`, `barSwapWas`, `ICO_SHIP`, `ICO_MISSILE`, `HOVER`
 
-### SHIP SWITCH (line 25933)
-- `isBomberHull()` 25936 — Stats for any hull. Hulls outside PLAYER_SHIPS (the FS1 roster) get t…
-- `hullFac()` 25946
-- `shipFac()` 25947
-- `hangarServes()` 25953 — A hangar hands out hulls of its own faction. The Colossus is a joint…
-- `isHangarShip()` 25958 — The Colossus counts as a hangar although her class is sd, no other sd…
-- `hangarFacs()` 25964 — Every friendly hangar out there right now. Two destroyers of different
-- `colossusOnField()` 25973
-- `shipOffered()` 25978 — Is this hull on offer from anything currently on the field?
-- `forceShip()` 26010 — sec: a weapon the mission needs, into the first secondary bank (v186).
-- `releaseShip()` 26020 — The next wave hands the player's own hull back, refitted with its own
-- `shipStats()` 26026
-- `applyShip()` 26039 — Puts the player into a hull. Without keep everything is refilled. With
-- `tickShipUnlocks()` 26066 — Unlocks follow the score within a run. Several thresholds can fall in
-- `shipSwapReady()` 26090 — The switch lands from an allied destroyer's hangar, so one has to be…
-- `setShipMenu()` 26106
-- `toggleShipMenu()` 26117
-- `swapShip()` 26126
+### SHIP SWITCH (line 26027)
+- `isBomberHull()` 26030 — Stats for any hull. Hulls outside PLAYER_SHIPS (the FS1 roster) get t…
+- `hullFac()` 26040
+- `shipFac()` 26041
+- `hangarServes()` 26047 — A hangar hands out hulls of its own faction. The Colossus is a joint…
+- `isHangarShip()` 26052 — The Colossus counts as a hangar although her class is sd, no other sd…
+- `hangarFacs()` 26058 — Every friendly hangar out there right now. Two destroyers of different
+- `colossusOnField()` 26067
+- `shipOffered()` 26072 — Is this hull on offer from anything currently on the field?
+- `forceShip()` 26112 — sec: a weapon the mission needs, into the first secondary bank (v186).
+- `releaseShip()` 26122 — The next wave hands the player's own hull back, refitted with its own
+- `shipStats()` 26128
+- `applyShip()` 26141 — Puts the player into a hull. Without keep everything is refilled. With
+- `tickShipUnlocks()` 26168 — Unlocks follow the score within a run. Several thresholds can fall in
+- `shipSwapReady()` 26192 — The switch lands from an allied destroyer's hangar, so one has to be…
+- `setShipMenu()` 26208
+- `toggleShipMenu()` 26219
+- `swapShip()` 26228
 - data: `HULL_FAC`, `EXTRA_SHIPS`, `forcedPrev`, `forcedSecPrev`
 
-### FLEET TABS (v163) (line 26143)
-- `hangarTabOpen()` 26153
-- `callTabOpen()` 26157
-- `pickTab()` 26163 — The preferred tab if it is open, else the first open one.
-- `nextTab()` 26169 — The other tab, if it is open. Tab and the arrow keys come through her…
-- `drawFleetTabs()` 26174 — Two tabs across the panel. A shut one is drawn dark and takes no tap.
-- `drawSwapIcon()` 26189 — Two arrows passing each other.
-- `statPips()` 26200 — Filled pips for a value against its steps, so players compare hulls
-- `drawHullBg()` 26222
-- `primaryCount()` 26241 — How many primary barrels a hull really fires with. Read from the mount
-- `volleyTotal()` 26247 — volleyDmg() is the damage of a single barrel, which is why more barre…
+### FLEET TABS (v163) (line 26245)
+- `hangarTabOpen()` 26255
+- `callTabOpen()` 26259
+- `pickTab()` 26265 — The preferred tab if it is open, else the first open one.
+- `nextTab()` 26271 — The other tab, if it is open. Tab and the arrow keys come through her…
+- `drawFleetTabs()` 26276 — Two tabs across the panel. A shut one is drawn dark and takes no tap.
+- `drawSwapIcon()` 26291 — Two arrows passing each other.
+- `statPips()` 26302 — Filled pips for a value against its steps, so players compare hulls
+- `drawHullBg()` 26324
+- `primaryCount()` 26343 — How many primary barrels a hull really fires with. Read from the mount
+- `volleyTotal()` 26349 — volleyDmg() is the damage of a single barrel, which is why more barre…
 - data: `FLEET_TABS`, `FLEET_TAB_LABEL`, `FLEET_TAB_H`, `hangarTab`, `MENU_BG_ALPHA`, `MENU_BG_ALPHA_OFF`, `MENU_BG_PAD`
 
-### WEAPONS (line 26248)
-- `shardSpread()` 26295 — How the pieces of one burst fly. A perfect star read as drawn with a
-- `shardBurst()` 26314
-- `subStrike()` 26334
-- `subStrikeRaw()` 26338
-- `priDef()` 26350
-- `secDef()` 26360 — The AI's secondaries first: its rounds carry the old keys, and three…
-- `curPri()` 26365
-- `curSec()` 26366
-- `hullSecCls()` 26367
-- `weaponName()` 26369 — A weapon's name can depend on who is flying it.
-- `weaponOpen()` 26374 — Unlocks follow the score within a run, the same way the hulls do.
-- `waveReached()` 26387
-- `applyLoadout()` 26390 — The one place that puts a fit onto the ship (v186): the banks of the
-- `rearmFull()` 26397 — A refit fills every rack. This is what makes the panel a rearm rather
-- `secRounds()` 26402 — Rounds of every rack of a hull's default fit, for the hangar.
-- `tickWeaponUnlocks()` 26411
-- `homeShipOnField()` 26427 — She has to be on the field and finished warping in.
-- `rearmReady()` 26432
-- `setRearmMenu()` 26437
-- `toggleRearmMenu()` 26445
-- `fitWeapon()` 26455 — 'p0', 'p1', 's0'..'s2'. key: the weapon to fit; without one the bank
+### WEAPONS (line 26350)
+- `shardSpread()` 26397 — How the pieces of one burst fly. A perfect star read as drawn with a
+- `shardBurst()` 26416
+- `subStrike()` 26436
+- `subStrikeRaw()` 26440
+- `priDef()` 26452
+- `secDef()` 26462 — The AI's secondaries first: its rounds carry the old keys, and three…
+- `curPri()` 26467
+- `curSec()` 26468
+- `hullSecCls()` 26469
+- `weaponName()` 26471 — A weapon's name can depend on who is flying it.
+- `weaponOpen()` 26476 — Unlocks follow the score within a run, the same way the hulls do.
+- `waveReached()` 26489
+- `applyLoadout()` 26492 — The one place that puts a fit onto the ship (v186): the banks of the
+- `rearmFull()` 26499 — A refit fills every rack. This is what makes the panel a rearm rather
+- `secRounds()` 26504 — Rounds of every rack of a hull's default fit, for the hangar.
+- `tickWeaponUnlocks()` 26513
+- `homeShipOnField()` 26529 — She has to be on the field and finished warping in.
+- `rearmReady()` 26534
+- `setRearmMenu()` 26539
+- `toggleRearmMenu()` 26547
+- `fitWeapon()` 26557 — 'p0', 'p1', 's0'..'s2'. key: the weapon to fit; without one the bank
 - data: `PLAYER_FR_BASE`, `PRIMARIES`, `SECONDARIES`, `SUB_WARHEAD_MUL`, `WPN_SEEN`, `rearmMenu`
 
-### HANGAR LAYOUT (line 26478)
-- `hangarGroups()` 26519 — Which hull belongs in which group. Read from the hull key, the same w…
-- `hangarOrder()` 26534 — The order the rows appear in, as roster indices. The groups reorder t…
-- `hangarLayout()` 26539
-- `drawHullCell()` 26579 — The sprite in its own cell, fitted whole and always facing right. Eve…
-- `drawKeyChip()` 26610 — fighters 1 to 5, bombers 6 to 8. The key handler reads the same order.
-- `hgName()` 26619 — A long name is set smaller rather than cut off (v192: Hercules Mk II).
-- `closeKeys()` 26635 — v207: ESC is left to the browser altogether (Silvio); a window closes
-- `drawDoneButton()` 26639
-- `drawShipMenu()` 26652
-- `drawResumeHint()` 26772 — A stopped field with nothing on it looks broken, so it says what it is
+### HANGAR LAYOUT (line 26580)
+- `hangarGroups()` 26621 — Which hull belongs in which group. Read from the hull key, the same w…
+- `hangarOrder()` 26636 — The order the rows appear in, as roster indices. The groups reorder t…
+- `hangarLayout()` 26641
+- `drawHullCell()` 26681 — The sprite in its own cell, fitted whole and always facing right. Eve…
+- `drawKeyChip()` 26712 — fighters 1 to 5, bombers 6 to 8. The key handler reads the same order.
+- `hgName()` 26721 — A long name is set smaller rather than cut off (v192: Hercules Mk II).
+- `closeKeys()` 26737 — v207: ESC is left to the browser altogether (Silvio); a window closes
+- `drawDoneButton()` 26741
+- `drawShipMenu()` 26754
+- `drawResumeHint()` 26874 — A stopped field with nothing on it looks broken, so it says what it is
 - data: `HG_W`, `HG_LIST_W`, `HG_MIN_H`, `hgShow`, `HG_PAD`, `HG_ROW`, `HG_ROW_LOCK`, `HG_ROW_TIGHT`, `HG_GAP`, `HG_HEAD`, `HG_TITLE`, `HG_FOOT`, `HG_GROUPGAP`, `HG_NUM`, `HG_NUM_W`, `HG_PIC`, `HG_PIC_W`, `HG_NAME`, `HG_PIC_ALPHA`, `HG_PIC_ALPHA_OFF`, `HG_COLS`
 
-### INFO CARD (v192) (line 26783)
-- `drawInfoCard()` 26790 — The fixed panel on the right of the hangar and the support window, the
-- `hangarCard()` 26849 — What the hangar card says about a hull. Bars against the best hull of…
-- `allyCard()` 26877 — What the support card says. Counts read from the mount data the ships
+### INFO CARD (v192) (line 26885)
+- `drawInfoCard()` 26892 — The fixed panel on the right of the hangar and the support window, the
+- `hangarCard()` 26951 — What the hangar card says about a hull. Bars against the best hull of…
+- `allyCard()` 26979 — What the support card says. Counts read from the mount data the ships
 
-### REARM PANEL (v190) (line 26899)
-- `rmWrap()` 26931 — Word wrap into at most n lines; the last one is cut with an ellipsis
-- `rmPri()` 26950
-- `rmDef()` 26951
-- `rmBankKey()` 26952
-- `rmDps()` 26959 — Damage per second of a gun, or of a whole bank of rounds, against one
-- `rmBankDmg()` 26963
-- `rmValueOf()` 26968
-- `rmReach()` 26971 — How far a round gets, in screen widths: the game has no metres on show
-- `rmFacts()` 26979 — Facts, never verdicts.
-- `rmBars()` 27005 — Bars against the strongest weapon this bank may carry; the mark and t…
-- `rmShipLines()` 27019 — What it means on the hull you fly.
-- `rmSelectBank()` 27034
-- `rmStep()` 27039 — Up / down through the weapons of the bank, the way the pointer would.
-- `rearmLayout()` 27046
-- `drawRearmShip()` 27068
-- `drawRearmMenu()` 27093
-- `drawRearmIcon()` 27209 — Three rounds stacked, the way a rack is loaded.
+### REARM PANEL (v190) (line 27001)
+- `rmWrap()` 27033 — Word wrap into at most n lines; the last one is cut with an ellipsis
+- `rmPri()` 27052
+- `rmDef()` 27053
+- `rmBankKey()` 27054
+- `rmDps()` 27061 — Damage per second of a gun, or of a whole bank of rounds, against one
+- `rmBankDmg()` 27065
+- `rmValueOf()` 27070
+- `rmReach()` 27073 — How far a round gets, in screen widths: the game has no metres on show
+- `rmFacts()` 27081 — Facts, never verdicts.
+- `rmBars()` 27107 — Bars against the strongest weapon this bank may carry; the mark and t…
+- `rmShipLines()` 27121 — What it means on the hull you fly.
+- `rmSelectBank()` 27136
+- `rmStep()` 27141 — Up / down through the weapons of the bank, the way the pointer would.
+- `rearmLayout()` 27148
+- `drawRearmShip()` 27170
+- `drawRearmMenu()` 27195
+- `drawRearmIcon()` 27311 — Three rounds stacked, the way a rack is loaded.
 - data: `RM_W`, `RM_TITLE`, `RM_H`, `RM_PAD`, `RM_C1_W`, `RM_C2_W`, `RM_GAP_COL`, `RM_PIC_H`, `RM_BANK_H`, `RM_ROW_H`, `RM_ROW_GAP`, `RM_GOOD`, `RM_BAD`, `DONE_W`, `DONE_ROOM`, `IC_PIC_H`, `IC_FACT_ROWS`, `M3D_ALIAS`, `RM_NOTE_LINES`, `rmBank`, `RM_BARS`
 
-### SUPPORT MENU LAYOUT (line 27226)
-- `callMenuLayout()` 27251 — Where everything sits, before anything is drawn. Both the drawing and…
-- `drawAllyRow()` 27282 — One ship, on its own plate. Same parts and the same order as a hangar…
-- `drawCallMenu()` 27344
-- `setCallMenu()` 27405
-- `toggleCallMenu()` 27414
-- `insidePanel()` 27428 — A panel outline, as reported by whatever drew it last. Anything landi…
-- `pointerConsumed()` 27431
-- `toTitleOrLaunch()` 27502 — From the title a run starts; from a finished run you go back to the
-- `enterTitle()` 27509 — A fresh sky every time the title comes up: another backdrop, another
-- `titleFsRect()` 27524
-- `drawTitleFullscreen()` 27528
-- `titleFsHit()` 27546 — A click on the button switches full screen and does nothing else - it
-- `drawTitle()` 27551
-- `drawGO()` 27641 — Shown at the end as well, since that is the number a ranking would us…
+### SUPPORT MENU LAYOUT (line 27328)
+- `callMenuLayout()` 27353 — Where everything sits, before anything is drawn. Both the drawing and…
+- `drawAllyRow()` 27384 — One ship, on its own plate. Same parts and the same order as a hangar…
+- `drawCallMenu()` 27446
+- `setCallMenu()` 27507
+- `toggleCallMenu()` 27516
+- `insidePanel()` 27530 — A panel outline, as reported by whatever drew it last. Anything landi…
+- `pointerConsumed()` 27533
+- `toTitleOrLaunch()` 27604 — From the title a run starts; from a finished run you go back to the
+- `enterTitle()` 27611 — A fresh sky every time the title comes up: another backdrop, another
+- `titleFsRect()` 27626
+- `drawTitleFullscreen()` 27630
+- `titleFsHit()` 27648 — A click on the button switches full screen and does nothing else - it
+- `drawTitle()` 27653
+- `drawGO()` 27743 — Shown at the end as well, since that is the number a ranking would us…
 - data: `CM_W`, `CM_LIST_W`, `CM_MIN_H`, `cmShow`, `CM_PAD`, `CM_ROW`, `CM_GAP`, `CM_HEAD`, `CM_TITLE`, `CM_FOOT`, `CM_GROUPGAP`, `CM_NUM`, `CM_NUM_W`, `CM_PIC`, `CM_PIC_W`, `CM_NAME`, `CM_REFINE_W`, `CM_TICKET_W`, `CM_FAC_HEAD`, `TFS_W`
 
-### TOUCH & MAUS STEUERUNG (line 27687)
-- `toGC()` 27690
-- `secBtnDown()` 27838
-- `secBtnUp()` 27839
-- `updateSecBtn()` 27842
-- `windowOpen()` 27857 — a slot of the CONTROLS tab waiting for a key takes it; then the keys
-- `closeWindow()` 27858
-- `inputPress()` 27862 — One press of a key or an extra mouse button. True when it did somethi…
-- `windowKey()` 27895 — The fixed keys inside an open window.
-- `extraBtn()` 27950 — Extra mouse buttons (4, 5): keys like any other. The browser would ta…
+### TOUCH & MAUS STEUERUNG (line 27789)
+- `toGC()` 27792
+- `secBtnDown()` 27940
+- `secBtnUp()` 27941
+- `updateSecBtn()` 27944
+- `windowOpen()` 27959 — a slot of the CONTROLS tab waiting for a key takes it; then the keys
+- `closeWindow()` 27960
+- `inputPress()` 27964 — One press of a key or an extra mouse button. True when it did somethi…
+- `windowKey()` 27997 — The fixed keys inside an open window.
+- `extraBtn()` 28052 — Extra mouse buttons (4, 5): keys like any other. The browser would ta…
 - data: `isFiring`, `wheelT`, `lastErr`
 
-### FIXED TIME STEP (line 27969)
-- `stepUpdate()` 27983
+### FIXED TIME STEP (line 28071)
+- `stepUpdate()` 28085
 - data: `TICK_HZ`, `TICK_MS`, `MAX_CATCHUP`, `_acc`
 
-### PRACTICE LOG (line 28022)
-- `plogTime()` 28035
-- `plogName()` 28039
-- `plogEvent()` 28044
-- `plogSync()` 28048
-- `plogStart()` 28055 — A new wave: the previous one is closed first.
-- `plogEnd()` 28068
-- `plogFinish()` 28075 — The numbers that are read off the game at the end rather than counted.
-- `plogSrc()` 28081 — Where the next damage to the player comes from.
-- `plogLoss()` 28085
-- `plogKill()` 28089
-- `plogAllyLost()` 28094
-- `plogPick()` 28100 — full: the pickup changed nothing (lives already at their maximum).
-- `plogCall()` 28110 — A support call, with what it cost.
-- `plogRefine()` 28118 — Tickets turned into a bigger one: neither used nor earned.
-- `plogHit()` 28126 — v202: one hit per bolt at most, and a bolt that hits in the step it w…
-- `plogSec()` 28132
-- `plogRearm()` 28133
-- `plogDeath()` 28134
-- `plogTick()` 28144 — Every step while a wave is played: what changed since the last one.
-- `plogRows()` 28179
-- `plogSum()` 28184
-- `plogObj()` 28185
-- `plogKills()` 28190
-- `plogText()` 28197 — The whole log as plain text, for copying out of the game.
-- `plogCopy()` 28237
-- `plogSave()` 28253
-- `drawPlogCard()` 28267 — The card at the end of each wave, practice mode only.
-- `drawPlog()` 28295 — The table, opened from the settings.
-- `plogClick()` 28401
-- `drawVortexOf()` 28424 — The vortex of one ship. Drawn just before that ship, not in a pass
-- `warpOutZ()` 28432 — F68 (v258): the depth of a ship jumping out, kept for the last frames…
-- `drawOwnVortex()` 28437
+### PRACTICE LOG (line 28124)
+- `plogTime()` 28137
+- `plogName()` 28141
+- `plogEvent()` 28146
+- `plogSync()` 28150
+- `plogStart()` 28157 — A new wave: the previous one is closed first.
+- `plogEnd()` 28170
+- `plogFinish()` 28177 — The numbers that are read off the game at the end rather than counted.
+- `plogSrc()` 28183 — Where the next damage to the player comes from.
+- `plogLoss()` 28187
+- `plogKill()` 28191
+- `plogAllyLost()` 28196
+- `plogPick()` 28202 — full: the pickup changed nothing (lives already at their maximum).
+- `plogCall()` 28212 — A support call, with what it cost.
+- `plogRefine()` 28220 — Tickets turned into a bigger one: neither used nor earned.
+- `plogHit()` 28228 — v202: one hit per bolt at most, and a bolt that hits in the step it w…
+- `plogSec()` 28234
+- `plogRearm()` 28235
+- `plogDeath()` 28236
+- `plogTick()` 28246 — Every step while a wave is played: what changed since the last one.
+- `plogRows()` 28281
+- `plogSum()` 28286
+- `plogObj()` 28287
+- `plogKills()` 28292
+- `plogText()` 28299 — The whole log as plain text, for copying out of the game.
+- `plogCopy()` 28339
+- `plogSave()` 28355
+- `drawPlogCard()` 28369 — The card at the end of each wave, practice mode only.
+- `drawPlog()` 28397 — The table, opened from the settings.
+- `plogClick()` 28503
+- `drawVortexOf()` 28526 — The vortex of one ship. Drawn just before that ship, not in a pass
+- `warpOutZ()` 28534 — F68 (v258): the depth of a ship jumping out, kept for the last frames…
+- `drawOwnVortex()` 28539
 - data: `PLOG`, `plogOpen`, `PLOG_ROWS`, `PLOG_STAT_KEYS`, `PLOG_STEP`, `RADAR_PNG`, `RADAR_MAP`
 
-### TARGETING (v210) (line 28537)
-- `tgtIsBomb()` 28551
-- `tgtCan()` 28553 — May the player hold this one?
-- `tgtHostile()` 28566
-- `tgtDist()` 28567
-- `tgtSet()` 28568
-- `tgtCycle()` 28573 — the next (dir 1) or previous (-1) of a list, nearest first
-- `tgtShips()` 28580
-- `tgtNearestHostile()` 28586
-- `tgtOff()` 28595 — how far off the player's nose a point lies, rad
-- `tgtDrawn()` 28601 — where a ship is drawn (v210: a capital ship's model sunk below the pl…
-- `tgtSubPos()` 28608
-- `heatSees()` 28614 — v210: heat seekers (FS2 +View Cone). Does a round flying along head s…
-- `heatAcquire()` 28622 — the nearest heat source in its cone and its reach; Stiletto II (bigFi…
-- `tgtKey()` 28638 — The keys. True when the key was one of them.
-- `tgtTick()` 28691 — Once a step: keep the target valid, its motion for the lead, the lock.
-- `tgtLocked()` 28725
-- `tgtPriReach()` 28730 — the reach of the primaries now firing - linked, the shorter one
-- `tgtLead()` 28737 — where to aim so a bolt meets her (her motion as seen, bolt speed s)
-- `fsBrackets()` 28762
+### TARGETING (v210) (line 28639)
+- `tgtIsBomb()` 28653
+- `tgtCan()` 28655 — May the player hold this one?
+- `tgtHostile()` 28668
+- `tgtDist()` 28669
+- `tgtSet()` 28670
+- `tgtCycle()` 28675 — the next (dir 1) or previous (-1) of a list, nearest first
+- `tgtShips()` 28682
+- `tgtNearestHostile()` 28688
+- `tgtOff()` 28697 — how far off the player's nose a point lies, rad
+- `tgtDrawn()` 28703 — where a ship is drawn (v210: a capital ship's model sunk below the pl…
+- `tgtSubPos()` 28710
+- `heatSees()` 28716 — v210: heat seekers (FS2 +View Cone). Does a round flying along head s…
+- `heatAcquire()` 28724 — the nearest heat source in its cone and its reach; Stiletto II (bigFi…
+- `tgtKey()` 28740 — The keys. True when the key was one of them.
+- `tgtTick()` 28793 — Once a step: keep the target valid, its motion for the lead, the lock.
+- `tgtLocked()` 28827
+- `tgtPriReach()` 28832 — the reach of the primaries now firing - linked, the shorter one
+- `tgtLead()` 28839 — where to aim so a bolt meets her (her motion as seen, bolt speed s)
+- `fsBrackets()` 28864
 - data: `TGT`, `TGT_LOCK_CONE`, `TGT_RETICLE_CONE`, `TGT_BOX_MIN`, `FS_SEG_CORNER`
 
-### PROGRESS ON THE BRACKETS (F89, Silvio 23.10.2026) (line 28777)
-- `bracketProgress()` 28788
-- `bracketState()` 28809 — the corner colours and the pulse for o's brackets; null when nothing…
-- `markBox()` 28824
-- `markText()` 28832
+### PROGRESS ON THE BRACKETS (F89, Silvio 23.10.2026) (line 28879)
+- `bracketProgress()` 28890
+- `bracketState()` 28911 — the corner colours and the pulse for o's brackets; null when nothing…
+- `markBox()` 28926
+- `markText()` 28934
 - data: `BRK_BOARD_COL`, `LOCK_RING_R`
 
-### MISSION MARKS (v253, Silvio) (line 28837)
-- `isEscapePod()` 28851 — F89: every escape pod sent off is a ship to protect, without a mark s…
-- `missionMark()` 28852
-- `drawMissionMark()` 28858
-- `drawTargetMarks()` 28891
+### MISSION MARKS (v253, Silvio) (line 28939)
+- `isEscapePod()` 28953 — F89: every escape pod sent off is a ship to protect, without a mark s…
+- `missionMark()` 28954
+- `drawMissionMark()` 28960
+- `drawTargetMarks()` 28993
 - data: `MARK_WORDS`, `MARK_COL`
 
-### RADAR AND TARGET VIEW IN THE BAR (v210, draft of 10.10.) (line 28960)
-- `radarImgs()` 28966
-- `radarIcon()` 28971
-- `radarIconOf()` 28982
-- `drawBarRadar()` 28989
-- `barTargetModel()` 29044 — the target's model, drawn by the field renderer through a camera of i…
+### RADAR AND TARGET VIEW IN THE BAR (v210, draft of 10.10.) (line 29062)
+- `radarImgs()` 29068
+- `radarIcon()` 29073
+- `radarIconOf()` 29084
+- `drawBarRadar()` 29091
+- `barTargetModel()` 29146 — the target's model, drawn by the field renderer through a camera of i…
 - data: `RADAR_IMG`, `RADAR_ICO_K`
 
-### SUBSYSTEM ICONS IN THE TARGET VIEW (F89, Silvio 23.10.2026) (line 29072)
-- `subIconPath()` 29086
-- `drawEngineGlyph()` 29092
-- `drawSubIcon()` 29110
-- `drawBarSubIcons()` 29117 — the icons of e's subsystems in the box x, y, w, h: three on top, two…
-- `drawBarScope()` 29143 — called at the end of drawHUDHLP with the first free x after the ship…
+### SUBSYSTEM ICONS IN THE TARGET VIEW (F89, Silvio 23.10.2026) (line 29174)
+- `subIconPath()` 29188
+- `drawEngineGlyph()` 29194
+- `drawSubIcon()` 29212
+- `drawBarSubIcons()` 29219 — the icons of e's subsystems in the box x, y, w, h: three on top, two…
+- `drawBarScope()` 29245 — called at the end of drawHUDHLP with the first free x after the ship…
 - data: `SUB_ICON_D`, `SUB_ICON_P`, `SUB_ICON_ORDER`, `SUB_DEAD_COL`
 
 <!-- AUTO:END -->

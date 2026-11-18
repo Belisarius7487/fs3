@@ -1123,11 +1123,11 @@ scenario('M23 a crossing freighter is driven by her crossing alone', 'm=23', `
 // Every written mission has to come to an end when its enemies go down,
 // with nothing thrown on the way. Enemy ships are cleared every two seconds
 // once they are out of their vortex - a player who hits everything.
-// Scan missions (23) need the player to fly the scan and are left out.
+// Scan missions (22, 23) need the player to fly the scan and are left out.
 // 61 ends only when the Aeolus is lost; its own scenario covers that.
 // 71 is a scan, flown in its own scenario like 12 and 23.
 // v253: 12 is FS1 First Strike now, no longer a scan - it plays like the rest.
-for(const m of Array.from({length:80},(_,i)=>i+1)) if(m!==23 && m!==61 && m!==71) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
+for(const m of Array.from({length:80},(_,i)=>i+1)) if(m!==22 && m!==23 && m!==61 && m!==71) scenario('M' + String(m).padStart(2,'0') + ' plays to the end', 'm=' + m, `
   // v208: speeds unchanged in a world FIELD_K times larger - more time
   const t = FS.until(()=>waveOver, 40000*Math.max(1, Math.min(4, FIELD_K/2)), false, true);
   ITEMS.length = 0;     // pickups hold the jump open until they expire
@@ -7061,6 +7061,66 @@ scenario('FS1 M21 v323 Enter the Dragon: the Charon is lost, the mission still e
 
   FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); FS.killId('E3'); return waveOver || wave>21; }, 10000, false);
   r.ends = waveOver || wave>21;
+  return r;`);
+
+// ── M22, Playing Judas (v329) ──────────────────────────────────────────
+// The quiet way and the loud way. Both have to reach the same end, and on
+// the quiet way nothing of theirs may fire until the cover is gone.
+scenario('FS1 M22 v329 Playing Judas: the cover holds through every scan, the Lucifer comes, her fighters come, end', 'm=22', `
+  const r = {};
+  const W = SCRIPT_WAVES[22] || {};
+  const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
+  const scan = function(id){ const e = byId(id)[0]; if(!e) return false; FS.hold(e.x, e.y, 280); return !!e.scanned; };
+  // a warship is flown along her hull, one subsystem at a time
+  const scanSubs = function(id){ const e = byId(id)[0]; if(!e) return false;
+    for(const s of e.subs){ const p = subPos(e, s); FS.hold(p.x, p.y, 170); }
+    return !!e.scanned; };
+  r.name = W.name;
+  r.ship = player.ship === 'fidragon';
+  FS.until(()=>byId('LI').length===1 && byId('EV').length===1, 2000, false);
+  r.post = byId('TR').length===1 && byId('FR').length===1 &&
+           byId('KA').length===1 && byId('KB').length===1;
+  r.coverHolds = coverHolds()===true;
+  // In disguise nobody looks for her, so nothing of theirs shoots
+  FS.step(600);
+  r.nobodyFires = eBullets.length===0;
+  r.noLuciferYet = byId('LU').length===0;
+  r.cargoScanned = scan('KA') && scan('KB');
+  r.supplyScanned = scan('TR') && scan('FR');
+  r.warshipsScanned = scanSubs('LI') && scanSubs('EV');
+  r.stillHidden = coverHolds()===true;
+  // both warships logged brings the juggernaut in
+  FS.until(()=>byId('LU').length===1 && !(byId('LU')[0].warp>0), 6000, false);
+  r.luciferCame = byId('LU').length===1;
+  r.luciferHoldsFire = byId('LU')[0].noFire===true;
+  r.luciferAt = Math.round(byId('LU')[0].x / FIELD_K);
+  r.luciferScanned = scanSubs('LU');
+  r.luciferLogged = fired('The Lucifer is logged');
+  // scanning her is what gives the player away
+  FS.until(()=>!coverHolds(), 1000, false);
+  r.coverBlown = !coverHolds();
+  FS.until(()=>byId('RA').length===3, 6000, false);
+  r.fightersCame = byId('RA').length===3;
+  r.luciferStaysSilent = byId('LU')[0].noFire===true;
+  FS.until(()=>{ player.invT = 999; FS.killId('RA'); return waveOver || wave>22; }, 12000, false);
+  r.ends = waveOver || wave>22;
+  return r;`);
+
+scenario('FS1 M22 v329 Playing Judas: one shot gives her away, the fighters come at once, the mission still ends', 'm=22', `
+  const r = {};
+  FS.until(()=>byId('LI').length===1, 2000, false);
+  r.coverHolds = coverHolds()===true;
+  // one hit on one of theirs, the way damageEnemy sees it
+  const li = byId('LI')[0];
+  damageEnemy(li, 1, li.x, li.y, true, 'bolt');
+  r.coverBlown = !coverHolds();
+  r.noLucifer = byId('LU').length===0;
+  FS.until(()=>byId('RA').length===3, 6000, false);
+  r.fightersCame = byId('RA').length===3;
+  FS.until(()=>MLOG.objs.some(function(o){ return o.st==='fail'; }), 800, false);
+  r.scansFailed = MLOG.objs.some(function(o){ return o.st==='fail'; });
+  FS.until(()=>{ player.invT = 999; FS.killId('RA'); return waveOver || wave>22; }, 12000, false);
+  r.ends = waveOver || wave>22;
   return r;`);
 
 // ── Runner ─────────────────────────────────────────────────────────────

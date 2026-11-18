@@ -1680,6 +1680,21 @@ function applySpawnOpts(e, sp){
   if(sp.still && sp.x!=null && !sp.capRam) e.targetX = sp.x;
   // stopX (v258, F64): she jumps in at x and slows to a stop here.
   if(sp.stopX!=null) e.targetX = sp.stopX;
+  // F126 (v329, Silvio 18.11.2026: "einen klitzekleinen Sprung nach
+  // hinten, sobald ihr Warpin abgeschlossen ist"). A capital ship glides
+  // out of her vortex at 0.3 a tick for as long as her vortex lasts, so
+  // she needs that much room in front of her station: reaching it inside
+  // the vortex, she runs past it and is pulled back when the vortex
+  // closes. portalArrive() has held to this rule since v168; an ordinary
+  // arrival never did, and the room a ship needs is her own vortex length
+  // - a juggernaut's is the longest there is (320 ticks, 96 units).
+  // So the arrival point is moved out, never the station.
+  if(e.targetX != null && !sp.capRam && !sp.escape && !e.escaping){
+    // The same room portalArrive() leaves: the glide itself and 60 units
+    // on top, so she still has a stretch to slow down on.
+    const glide = (e.warp || 0)*0.3 + 60;
+    if(e.x - e.targetX < glide){ e.x = e.targetX + glide; e.warpX = e.x; }
+  }
   // shieldShow (v258, F66): untouchable, but she may be locked and fired
   // on - every hit makes her shield flare and none gets through.
   if(sp.shieldShow) e.shieldShow = true;
@@ -3673,12 +3688,77 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'CH', solange:{t:'genommen', a:'DR'}, w:'abzug', a2:''}
      ]},
 
-  22:{name:'The Fugitive', fac:'hol', o:'clear', live:5, u:[
-       // Er faehrt nach rechts und du kommst nicht an ihn heran, solange
-       // die Geschuetze stehen. Genau das ist die Mission.
-       {id:'V1', c:'de', n:1, spr:'detyphon', escape:0.22, x:-60},
-       {id:'G1', c:'sg', n:8, spr:'sgankh'},
-       {id:'E1', c:'fi', n:2}
+  // Playing Judas (fs1/sm2-08a). In the Dragon taken in M21 the player
+  // flies alone into a Shivan staging post. They take her for one of
+  // their own as long as she does not fire, and everything there is to be
+  // scanned: the supply ships, the cargo, the Lilith Genma and the Demon
+  // Eva. Then the Lucifer comes out of subspace and is scanned too - and
+  // from there the cover is gone and their fighters come for her.
+  // disguise: the mechanic from M78 (v177). Nobody fires and nobody looks
+  // for the player until she hits one of theirs (blowCover in
+  // damageEnemy); the auffliegen effect blows the cover from an event, so
+  // both ways into the fight run through the one trigger aufgeflogen.
+  // The ships to be scanned are hostile because tickScan runs over
+  // enemies.
+  // Silvio, 18.11.2026: the Eva and the Lilith may fire along once the
+  // cover is gone. The Lucifer never does (noFire) - her beams reach the
+  // player anywhere on the field and would leave the fight unwinnable.
+  // Left out: the four Arjuna Dragons, the four sentry guns, the
+  // duplicates of every supply ship, two of the four cargo pods, and
+  // three of the six Rama Manticores.
+  22:{name:'Playing Judas', era:'fs1', orig:18, ship:'fidragon', fac:'hol',
+      o:'clear', live:6, disguise:true, noSupport:true,
+      ziel:'Scan the Shivan warships', u:[
+       {id:'TR', c:'tr', n:1, spr:'trazrael', fac:'shivan', still:true,
+        scan:true, x:200, y:210, label:'ST Kali'},
+       {id:'KA', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, x:250, y:300},
+       {id:'KB', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, x:250, y:360},
+       {id:'FR', c:'fr', n:1, spr:'frmephisto', fac:'shivan', still:true,
+        scan:true, x:230, y:430, label:'SFr Durga'},
+       // The warships are scanned over their five subsystems, as in M71:
+       // the plain scan is measured centre to centre, so a hull this long
+       // could never be scanned from outside it at all.
+       {id:'LI', c:'cr', n:1, spr:'crlilith', fac:'shivan', still:true,
+        scanSubs:true, x:370, y:160, label:'SC Genma'},
+       {id:'EV', c:'de', n:1, spr:'dedemon', fac:'shivan', still:true,
+        scanSubs:true, x:380, y:400, label:'SD Eva'},
+       // The Lucifer is scanned over her reactors, the way M71 does it:
+       // a juggernaut carries no subsystems, her reactors are her scan
+       // points. invuln keeps her out of the fight for good, shieldShow
+       // makes a hit on her flare her shield (F66), and she comes to rest
+       // the way M12 brings her in: jumping in right of stopX and slowing
+       // to a stop there (F64). still is wrong for a juggernaut - she
+       // drifts on and is then yanked back off the field edge.
+       {id:'LU', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true,
+        noFire:true, shieldShow:true, scanSubs:true, still:true, wait:true,
+        x:520, y:250, label:'SD Lucifer'},
+       {id:'RA', mark:'destroy', c:'fi', n:1, size:3, spr:'fimanticore',
+        fac:'shivan', wait:true}
+     ], ev:[
+       {t:'sek', a:3, w:'nebenziel', a2:'Scan the Shivan supply ships'},
+       {t:'sek', a:4, w:'bonus', a2:'Scan the Shivan cargo'},
+       {t:'gescannt', a:'TR+FR', w:'nebenOk', a2:'Both supply ships are logged'},
+       {t:'gescannt', a:'KA+KB', w:'bonusOk', a2:'Both cargo pods are logged'},
+       // the two warships of the post bring the juggernaut in
+       {t:'gescannt', a:'LI+EV', d:1, w:'meldung', a2:'A juggernaut is coming out of subspace'},
+       {t:'gescannt', a:'LI+EV', d:4, w:'einwarpen', a2:'LU'},
+       {t:'da', a:'LU', d:1, w:'ziel', a2:'Scan the juggernaut'},
+       {t:'gescannt', a:'LU', w:'zielerfuellt', a2:'The Lucifer is logged'},
+       {t:'gescannt', a:'LU', d:1, w:'auffliegen', a2:''},
+       // blown before the Lucifer was logged: that job is gone with it,
+       // and so is whatever was left unscanned
+       {t:'aufgeflogen', solange:{t:'gescannt', a:'LU'}, w:'zielverfehlt', a2:'They know what you are'},
+       {t:'aufgeflogen', solange:{t:'gescannt', a:'TR+FR'}, w:'nebenFail', a2:'The supply ships stay unlogged'},
+       {t:'aufgeflogen', solange:{t:'gescannt', a:'KA+KB'}, w:'bonusFail', a2:'The cargo stays unlogged'},
+       {t:'aufgeflogen', d:1, w:'ziel', a2:'Destroy the Shivan fighters'},
+       {t:'aufgeflogen', d:2, w:'einwarpen', a2:'RA'},
+       // the end, the same on every way in: their fighters down, and what
+       // is left of the post withdraws. Cargo cannot jump out, so it
+       // becomes scenery and stops holding the wave open.
+       {t:'anzahlUnter', a:'RA', b:1, w:'zielerfuellt', a2:'The Shivan fighters are down'},
+       {t:'anzahlUnter', a:'RA', b:1, d:1, w:'kulisse', a2:'KA'},
+       {t:'anzahlUnter', a:'RA', b:1, d:1, w:'kulisse', a2:'KB'},
+       {t:'anzahlUnter', a:'RA', b:1, d:2, w:'abzug', a2:''}
      ]},
 
   24:{name:'The Ambush', fac:'hol', o:'clear', live:6, u:[
@@ -5128,6 +5208,10 @@ function evTrig(ev){
     case 'genommen':     return evIds(ev.a).every(function(id){ return !!EV_TAKEN[id]; });
     // v249: somebody has fired on her and hit (the Rasputin, FS1 M4).
     case 'beschossen':   return !!EV_HIT[ev.a];
+    // v329 (M22): the player's cover in a disguise mission is gone - by a
+    // hit on one of theirs (blowCover) or by an auffliegen effect. Both
+    // ways into the fight run through this one trigger.
+    case 'aufgeflogen':  return waveDisguise && disguiseBlown;
     // v240: on the field, or was. With d: "at the latest N seconds after
     // she arrived" - the FS1 wings that come when the last one is down,
     // or after 30 s if it is not (Silvio, FS1_MISSIONEN.md).
@@ -5407,6 +5491,11 @@ function evFire(ev){
       waveLive = Math.min(LIVE_SMALL_MAX, waveLive + (parseInt(arg,10) || 1));
       evReinfGap = Math.max(EV_REINF_GAP_MIN, Math.round(evReinfGap*0.8));
       break;
+    case 'auffliegen':
+      // Blows the player's cover from an event (M22): scanning what gives
+      // her away does the same as a hit on one of theirs.
+      blowCover();
+      break;
     case 'abzug':
       // The enemy has what it came for and withdraws: everything still
       // here jumps out where it is. Nothing more comes, nothing held back
@@ -5678,6 +5767,11 @@ function scriptUnit(u, fac, q){
     // u.fac (v257): the Lucifer in an FS1 mission that runs under 'hol'.
     put({time:t0, type:'boss_'+FAC_TAG[u.fac||fac], spr:u.spr, y:(u.y!=null)?u.y:H*0.5, x:u.x,
          invuln:u.invuln, still:u.still, fixY:(u.y!=null), noFlee:true, noFire:u.noFire,
+         // F126 (v329): her subsystems are scanned the way a cruiser's or
+         // a destroyer's are. A juggernaut carries them like any other
+         // capital ship (hasSubsystems), only this branch never passed
+         // the job on, so scanSubs on her did nothing at all.
+         scanSubs:u.scanSubs,
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
          gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
          noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, beamMul:u.beamMul, stopX:u.stopX, shieldShow:u.shieldShow,

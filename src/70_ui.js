@@ -2178,7 +2178,15 @@ const EXTRA_SHIPS = {
               hp:69, sh:51, sec:13},
   fimara:    {key:'fimara', name:'SF Mara', fac:'shivan', spd:3.4,   // v211: FS 75 m/s (terrans)
               turn:0.18,
-              hp:164, sh:179, sec:20}
+              hp:164, sh:179, sec:20},
+  // The Dragon taken in M21, flown by a Terran pilot (M22, v329). FS1's
+  // "SF Dragon#Terrans" keeps the Dragon's own hull and shields (100/700
+  // in ships.tbl) and only loses her reverse and slide, so the numbers
+  // are the AI Dragon's: a glass hull behind the strongest shield of any
+  // fighter. 75 m/s, pitch rotation 2.5 s.
+  fidragon:  {key:'fidragon', name:'SF Dragon', fac:'shivan', spd:3.4,
+              turn:0.17,
+              hp:34, sh:179, sec:20}
 };
 // The player's own hull while a mission lends another, or ''.
 let forcedPrev = '';

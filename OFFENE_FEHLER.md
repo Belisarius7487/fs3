@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v328, M1–M19 und M21 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v329, M1–M19 und M21 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,6 +27,8 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
+| F126 | Juggernauts werden wie jedes andere Großkampfschiff behandelt: `still` und `x` halten sie, `scanSubs` scannt ihre Subsysteme, und beim Einsprung bleibt Platz für die Fahrt aus dem Wirbel — der kleine Sprung nach hinten in M14 ist weg | v329 |
+| F127 | M22 „Playing Judas" (FS1-Original 18) gebaut — ersetzt die alte Mission 22 „The Fugitive" | v329 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
@@ -57,9 +59,83 @@ Arbeitsliste.
 
 ---
 
-Stand: v328, von Silvio abgenommen. Nichts offen.
+Stand: v329. M22 und der Umbau der Juggernauts warten auf Silvios Urteil.
 
 ---
+
+---
+
+## F127 — M22 „Playing Judas" (FS1-Original 18), v329
+
+Gebaut am 18.11.2026, Silvios Urteil fehlt noch. Ersetzt die alte Mission 22
+„The Fugitive".
+
+In der in M21 gekaperten Dragon fliegt der Spieler allein in einen
+Shivaner-Stützpunkt. Solange er nicht schießt, halten sie ihn für einen der
+ihren (die Tarnung aus M78, `disguise`). Gescannt werden der Transporter
+Kali, der Frachter Durga, zwei Container, der Kreuzer Genma und der Zerstörer
+Eva; die Lucifer steht als Hauptziel am Ende. Danach fliegt die Tarnung auf
+und drei Manticore kommen.
+
+**Silvios Festlegungen in diesem Gespräch (18.11.2026):**
+
+- **Weg A:** Schießt der Spieler während der Tarnung auf einen Shivaner,
+  platzt sie sofort. Die noch offenen Scans sind verfehlt.
+- „Wobei die Eva und die Kreuzer gerne mitfeuern dürfen, wenn die Tarnung
+  auffliegt." Die Lucifer bleibt dabei draußen (`noFire`) — ihre Strahlen
+  erreichen den Spieler überall auf dem Feld, der Kampf wäre nicht zu
+  gewinnen.
+- Nur **ein Kreuzer** (Lilith), nicht zwei wie im Original.
+- Der Spieler kann sich nicht selbst herauswarpen (Silvio: „Der Spieler hat
+  doch gar keine Möglichkeit den Zeitpunkt seines Absprungs selbst zu
+  wählen?"), und Sterben beendet eine Mission nicht (Silvio: „man stirbt
+  solange man Leben übrig hat und solange läuft eine Mission doch weiter").
+  Deshalb hat die Mission **einen** Schluss auf jedem Weg: die drei Manticore
+  abschießen. Beide Wege laufen über den einen Auslöser `aufgeflogen`.
+
+**Neu in der Missionssprache:** Auslöser `aufgeflogen` (die Tarnung ist weg,
+egal wodurch) und Wirkung `auffliegen` (ein Ereignis lässt sie platzen).
+
+Der Spieler fliegt die Dragon: FS1 gibt „SF Dragon#Terrans" dieselben Werte
+wie der KI-Dragon (100 Rumpf, 700 Schilde in `ships.tbl`), also 34/179 in
+FS3 — ein Glasrumpf hinter dem stärksten Schild aller Jäger.
+
+---
+
+## F126 — Juggernauts wurden anders behandelt als andere Großkampfschiffe, v329
+
+**Silvio, 18.11.2026:** „Wieso werden Juggernauts überhaupt anders behandelt
+als andere Großkampfschiffe? Sollte es nicht so sein, dass entschieden wird
+ob sie still stehen oder hin und her schweben? In unserem Fall warpt die
+Lucifer einfach nach den Triggern vom rechten Rand rein, bleibt still stehen
+und alle Subsysteme können dann gescannt werden? Das was du beschreibst
+könnte auch erklären weshalb die Lucifer in Reign on Ribos IV einen
+klitzekleinen Sprung nach hinten macht, sobald ihr Warpin abgeschlossen ist."
+
+**Befund, im Code nachgewiesen.** Zwei Dinge liefen auseinander:
+
+1. Der eigene Zweig für ein Schiff der Klasse `sd` (v169, als die Lucifer nur
+   quer durchs Feld fuhr) gab `scanSubs` nicht weiter. Ihre Subsysteme hat
+   sie wie jedes andere Großkampfschiff (`hasSubsystems` zählt `boss` mit),
+   nur kam der Auftrag nie bei ihr an. `scanReactors` gab es dafür — das
+   scannt ihre Reaktoren, und die liegen über ihre ganze Länge verteilt, also
+   teils außerhalb des Feldes, seit die Spielfläche auf die Colossus
+   festgelegt ist (F119, v320). Darum war der Scan einer Lucifer gar nicht
+   zu schaffen.
+2. Ein Großkampfschiff fährt beim Einsprung mit 0,3 je Schritt aus ihrem
+   Wirbel heraus, so lange ihr Wirbel dauert. Steht ihre Halteposition näher
+   als diese Strecke, erreicht sie sie **im** Wirbel, fährt darüber hinaus
+   und wird beim Schließen zurückgeholt — der kleine Sprung nach hinten.
+   `portalArrive()` hält sich seit v168 an diese Regel, ein gewöhnlicher
+   Einsprung nie. Der Wirbel eines Juggernauts ist der längste im Spiel (320
+   Schritte, 96 Einheiten), deshalb fiel es bei ihr auf.
+
+**Gebaut (v329):** Der `sd`-Zweig gibt `scanSubs` weiter, und beim Einsprung
+wird die **Anflugstelle** nach außen gesetzt, nie die Halteposition — um die
+Fahrt aus dem Wirbel plus 60 Einheiten, genau wie `portalArrive()`. Damit
+hält `still` mit `x` einen Juggernaut genauso wie eine Korvette, und
+`warpsim` ist über M14 „Rain on Ribos IV" bei ihr still: der Befund von
+Silvio ist weg (vorher ein Befund an der Lucifer, jetzt keiner).
 
 ---
 
