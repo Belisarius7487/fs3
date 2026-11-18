@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v329, M1–M19 und M21 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v330, M1–M19 und M21 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,7 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | F126 | Juggernauts werden wie jedes andere Großkampfschiff behandelt: `still` und `x` halten sie, `scanSubs` scannt ihre Subsysteme, und beim Einsprung bleibt Platz für die Fahrt aus dem Wirbel — der kleine Sprung nach hinten in M14 ist weg | v329 |
-| F127 | M22 „Playing Judas" (FS1-Original 18) gebaut — ersetzt die alte Mission 22 „The Fugitive" | v329 |
+| F127 | M22 „Playing Judas" (FS1-Original 18) gebaut — ersetzt die alte Mission 22 „The Fugitive" | v329, v330 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
@@ -59,13 +59,13 @@ Arbeitsliste.
 
 ---
 
-Stand: v329. M22 und der Umbau der Juggernauts warten auf Silvios Urteil.
+Stand: v330. M22 und der Umbau der Juggernauts warten auf Silvios Urteil.
 
 ---
 
 ---
 
-## F127 — M22 „Playing Judas" (FS1-Original 18), v329
+## F127 — M22 „Playing Judas" (FS1-Original 18), v329/v330
 
 Gebaut am 18.11.2026, Silvios Urteil fehlt noch. Ersetzt die alte Mission 22
 „The Fugitive".
@@ -86,6 +86,11 @@ und drei Manticore kommen.
   erreichen den Spieler überall auf dem Feld, der Kampf wäre nicht zu
   gewinnen.
 - Nur **ein Kreuzer** (Lilith), nicht zwei wie im Original.
+- „Es ist unnötig alle Subsysteme beim Lilith Kreuzer scannen zu müssen.
+  Den Kreuzer selbst zu scannen sollte ausreichend sein.“ (v330) Der Kreuzer
+  nimmt also den gewöhnlichen Scan; die Eva und die Lucifer behalten den
+  Scan über ihre Subsysteme, weil der gewöhnliche von Mitte zu Mitte
+  gemessen wird und auf einem so langen Rumpf nicht zu fliegen ist.
 - Der Spieler kann sich nicht selbst herauswarpen (Silvio: „Der Spieler hat
   doch gar keine Möglichkeit den Zeitpunkt seines Absprungs selbst zu
   wählen?"), und Sterben beendet eine Mission nicht (Silvio: „man stirbt
