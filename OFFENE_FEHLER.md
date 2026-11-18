@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v330, M1–M19 und M21 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v331, M1–M19 und M21 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -29,6 +29,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | F126 | Juggernauts werden wie jedes andere Großkampfschiff behandelt: `still` und `x` halten sie, `scanSubs` scannt ihre Subsysteme. Der Einsprung ist **abgenommen** (M14); der Subsystem-Scan einer Lucifer wird mit M22 beurteilt | v329 |
 | F127 | M22 „Playing Judas" (FS1-Original 18) gebaut — ersetzt die alte Mission 22 „The Fugitive" | v329, v330 |
+| F128 | Die Ringe der Subsysteme waren nur aus bestimmten Richtungen scannbar: gezeichnet wurden sie auf dem Rumpf, gemessen wurde am rohen Subsystempunkt. Jetzt wird dort gemessen, wo der Ring steht | v331 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
@@ -59,9 +60,35 @@ Arbeitsliste.
 
 ---
 
-Stand: v330. M22 und der Umbau der Juggernauts warten auf Silvios Urteil.
+Stand: v331. M22 und der Umbau der Juggernauts warten auf Silvios Urteil.
 
 ---
+
+---
+
+## F128 — Subsystem-Ringe nur aus bestimmten Richtungen scannbar, v331
+
+**Silvio, 18.11.2026** (nach M22 in v330): „M22 spielt sich gut. Das scannen
+der Subsysteme der Eva und der Lucifer gestaltet sich allerdings etwas
+fummelig, aber nicht unmöglich. Es fällt nur auf, dass die Ringe der
+Subsysteme nur in gewissen Positionen zum Spielerschiff scannbar sind."
+
+**Befund, im Code nachgewiesen.** `drawSubScan()` zeichnet den Ring dort, wo
+die Kamera das Subsystem auf dem Rumpf zeigt (`hullPt`). Die Reichweite wurde
+dagegen am rohen Subsystempunkt gemessen (`subPos`). Das Modell eines
+Großkampfschiffs liegt unter der Spielebene, die Kamera schiebt es zur
+Bildmitte hin — beide Punkte liegen also auseinander, und bei einer
+Scan-Reichweite von nur 60 Einheiten musste der Spieler die Stelle treffen,
+an der der Ring **nicht** steht. Derselbe Fall wie v210 bei den Treffern und
+F90 beim Lock-Ring.
+
+**Gebaut (v331):** Gemessen wird, wo der Ring gezeichnet ist (`hullPt`), und
+die Meldung „… SCANNED" steht ebenfalls dort.
+
+**Nicht in der Prüfung nachweisbar:** Ohne Modelle (`FS.fakeImages()` im
+headless Lauf) liegt das Modell nicht unter der Ebene, `f3dMidZ()` ist
+nichts, und beide Punkte fallen zusammen — der Unterschied zeigt sich nur im
+echten Spiel. Deshalb bleibt es bei Silvios Urteil.
 
 ---
 

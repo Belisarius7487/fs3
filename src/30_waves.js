@@ -475,7 +475,16 @@ function tickSubScan(){
     let best = null, bd = SUB_SCAN_R;
     for(const s of e.subs){
       if(s.scanned) continue;
-      const p = subPos(e, s), d = Math.hypot(player.x-p.x, player.y-p.y);
+      // F128 (v331, Silvio 18.11.2026: "dass die Ringe der Subsysteme nur
+      // in gewissen Positionen zum Spielerschiff scannbar sind"). The ring
+      // is drawn on the hull as the camera shows it (drawSubScan ->
+      // hullPt), while the range was measured at the raw subsystem point.
+      // A capital ship's model lies sunk below the play plane, so the two
+      // are far apart on a long hull and the player had to find the spot
+      // the ring is not at. Measured where the ring is, as hits have been
+      // since v210.
+      const p = hullPt(e, subPos(e, s).x, subPos(e, s).y);
+      const d = Math.hypot(player.x-p.x, player.y-p.y);
       if(d <= bd){ bd = d; best = s; }
     }
     for(const s of e.subs){
@@ -486,7 +495,7 @@ function tickSubScan(){
         s.scanned = true; score += 100;
         sndScanStep(s, 0, 0, false);
         sndPlay('scan_done', e.x, 1, e.y);
-        const p = subPos(e, s);
+        const p0 = subPos(e, s), p = hullPt(e, p0.x, p0.y);
         SUB_MSGS.push({x:p.x, y:p.y-18, txt:s.label+' SCANNED', life:170, ml:170,
                        ally:true, tone:'good'});
       }

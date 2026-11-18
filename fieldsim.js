@@ -7073,7 +7073,8 @@ scenario('FS1 M22 v329 Playing Judas: the cover holds through every scan, the Lu
   const scan = function(id){ const e = byId(id)[0]; if(!e) return false; FS.hold(e.x, e.y, 280); return !!e.scanned; };
   // a warship is flown along her hull, one subsystem at a time
   const scanSubs = function(id){ const e = byId(id)[0]; if(!e) return false;
-    for(const s of e.subs){ const p = subPos(e, s); FS.hold(p.x, p.y, 170); }
+    for(const s of e.subs){ const p0 = subPos(e, s), p = hullPt(e, p0.x, p0.y);
+      FS.hold(p.x, p.y, 170); }
     return !!e.scanned; };
   r.name = W.name;
   r.ship = player.ship === 'fidragon';
@@ -7094,6 +7095,9 @@ scenario('FS1 M22 v329 Playing Judas: the cover holds through every scan, the Lu
   r.luciferCame = byId('LU').length===1;
   r.luciferHoldsFire = byId('LU')[0].noFire===true;
   r.luciferAt = Math.round(byId('LU')[0].x / FIELD_K);
+  // F128 cannot be measured here: with FS.fakeImages() no model is loaded,
+  // f3dMidZ() is nothing, and the drawn ring and the raw subsystem point
+  // fall together. In the real game the model lies sunk and they do not.
   r.luciferScanned = scanSubs('LU');
   r.luciferLogged = fired('The Lucifer is logged');
   // scanning her is what gives the player away
