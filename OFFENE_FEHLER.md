@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v331, M1–M19 und M21 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v331, M1–M19, M21 und M22 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,15 +27,18 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
-| F126 | Juggernauts werden wie jedes andere Großkampfschiff behandelt: `still` und `x` halten sie, `scanSubs` scannt ihre Subsysteme. Der Einsprung ist **abgenommen** (M14); der Subsystem-Scan einer Lucifer wird mit M22 beurteilt | v329 |
-| F127 | M22 „Playing Judas" (FS1-Original 18) gebaut — ersetzt die alte Mission 22 „The Fugitive" | v329, v330 |
-| F128 | Die Ringe der Subsysteme waren nur aus bestimmten Richtungen scannbar: gezeichnet wurden sie auf dem Rumpf, gemessen wurde am rohen Subsystempunkt. Jetzt wird dort gemessen, wo der Ring steht | v331 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
 
 Nichts offen.
 
+
+**Abgenommen am 18.11.2026** (Silvio, nach v330: „M22 spielt sich gut";
+nach v331: „Nein, jetzt passt alles"): **F126, F127, F128** — M22 „Playing
+Judas", der Umbau der Juggernauts und der Subsystem-Scan. Der Einsprung
+eines Juggernauts war schon vorher abgenommen („Bei M14 sehe ich keinen
+Minisprung bei der Lucifer mehr").
 
 **Abgenommen am 18.11.2026** (Silvio, nach v327: „Anflug ist super, genau
 so wollte ich es"; nach v328: „jetzt siehts gut aus"): **F123, F124, F125**
@@ -66,7 +69,7 @@ Stand: v331. M22 und der Umbau der Juggernauts warten auf Silvios Urteil.
 
 ---
 
-## F128 — Subsystem-Ringe nur aus bestimmten Richtungen scannbar, v331
+## F128 — Subsystem-Ringe nur aus bestimmten Richtungen scannbar, v331 (abgenommen)
 
 **Silvio, 18.11.2026** (nach M22 in v330): „M22 spielt sich gut. Das scannen
 der Subsysteme der Eva und der Lucifer gestaltet sich allerdings etwas
@@ -85,6 +88,8 @@ F90 beim Lock-Ring.
 **Gebaut (v331):** Gemessen wird, wo der Ring gezeichnet ist (`hullPt`), und
 die Meldung „… SCANNED" steht ebenfalls dort.
 
+**Abgenommen** (Silvio, 18.11.2026: „Nein, jetzt passt alles").
+
 **Nicht in der Prüfung nachweisbar:** Ohne Modelle (`FS.fakeImages()` im
 headless Lauf) liegt das Modell nicht unter der Ebene, `f3dMidZ()` ist
 nichts, und beide Punkte fallen zusammen — der Unterschied zeigt sich nur im
@@ -92,10 +97,10 @@ echten Spiel. Deshalb bleibt es bei Silvios Urteil.
 
 ---
 
-## F127 — M22 „Playing Judas" (FS1-Original 18), v329/v330
+## F127 — M22 „Playing Judas" (FS1-Original 18), v329/v330 (abgenommen)
 
-Gebaut am 18.11.2026, Silvios Urteil fehlt noch. Ersetzt die alte Mission 22
-„The Fugitive".
+Gebaut am 18.11.2026, von Silvio abgenommen („M22 spielt sich gut"). Ersetzt
+die alte Mission 22 „The Fugitive".
 
 In der in M21 gekaperten Dragon fliegt der Spieler allein in einen
 Shivaner-Stützpunkt. Solange er nicht schießt, halten sie ihn für einen der
@@ -134,7 +139,7 @@ FS3 — ein Glasrumpf hinter dem stärksten Schild aller Jäger.
 
 ---
 
-## F126 — Juggernauts wurden anders behandelt als andere Großkampfschiffe, v329
+## F126 — Juggernauts wurden anders behandelt als andere Großkampfschiffe, v329 (abgenommen)
 
 **Silvio, 18.11.2026:** „Wieso werden Juggernauts überhaupt anders behandelt
 als andere Großkampfschiffe? Sollte es nicht so sein, dass entschieden wird
