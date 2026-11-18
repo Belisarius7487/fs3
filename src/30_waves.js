@@ -3715,11 +3715,14 @@ const SCRIPT_WAVES = {
        {id:'KB', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, x:250, y:360},
        {id:'FR', c:'fr', n:1, spr:'frmephisto', fac:'shivan', still:true,
         scan:true, x:230, y:430, label:'SFr Durga'},
-       // The warships are scanned over their five subsystems, as in M71:
-       // the plain scan is measured centre to centre, so a hull this long
-       // could never be scanned from outside it at all.
+       // Silvio, 18.11.2026: "Es ist unnoetig alle Subsysteme beim Lilith
+       // Kreuzer scannen zu muessen. Den Kreuzer selbst zu scannen sollte
+       // ausreichend sein." So the cruiser takes the plain scan; the two
+       // long hulls keep the subsystem scan, because the plain one is
+       // measured centre to centre and could not be flown on a hull that
+       // long at all.
        {id:'LI', c:'cr', n:1, spr:'crlilith', fac:'shivan', still:true,
-        scanSubs:true, x:370, y:160, label:'SC Genma'},
+        scan:true, x:370, y:160, label:'SC Genma'},
        {id:'EV', c:'de', n:1, spr:'dedemon', fac:'shivan', still:true,
         scanSubs:true, x:380, y:400, label:'SD Eva'},
        // The Lucifer is scanned over her reactors, the way M71 does it:

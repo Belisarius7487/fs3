@@ -7087,7 +7087,7 @@ scenario('FS1 M22 v329 Playing Judas: the cover holds through every scan, the Lu
   r.noLuciferYet = byId('LU').length===0;
   r.cargoScanned = scan('KA') && scan('KB');
   r.supplyScanned = scan('TR') && scan('FR');
-  r.warshipsScanned = scanSubs('LI') && scanSubs('EV');
+  r.warshipsScanned = scan('LI') && scanSubs('EV');
   r.stillHidden = coverHolds()===true;
   // both warships logged brings the juggernaut in
   FS.until(()=>byId('LU').length===1 && !(byId('LU')[0].warp>0), 6000, false);
