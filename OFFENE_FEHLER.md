@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v328, M1–M19 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v328, M1–M19 und M21 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,16 +27,17 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
-| F123 | M21: die Charon dockt am eigenen Andockpunkt des Dragon an, statt sich längsseits zu legen | v324, vollständig erst v325 |
-| F125 | M21: Anflug von Silvio abgenommen; Abstand beim Andocken zuletzt v328 (Perspektive) | v325–v328 |
-| F124 | M21: die Frachtcontainer sind jetzt FS1-Modelle (`fcsc5`) | v324 |
+
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
 
-Nichts offen. (F123 und F124 sind gebaut und stehen oben, Silvios Urteil
-fehlt noch.)
+Nichts offen.
 
+
+**Abgenommen am 18.11.2026** (Silvio, nach v327: „Anflug ist super, genau
+so wollte ich es"; nach v328: „jetzt siehts gut aus"): **F123, F124, F125**
+— das Andocken der Charon an der Dragon in M21 und die FS1-Container.
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
 Brave gesehen, im eingebauten Browser nicht nachstellbar; wartet, bis Silvio
@@ -57,8 +58,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v328 gebaut (F125: der Andockabstand bekommt einen Zuschlag für
-die Perspektive, wenn ein jägergroßer Rumpf tiefer ist als hoch).
+Stand: v328, von Silvio abgenommen. Nichts offen.
 
 ---
 
@@ -191,8 +191,7 @@ Elysium/Aten steht weiter bei 20,8, das ist deren eigene Rumpfform).
 `docksim` Teil 15 prüft es und ist gegen `DK_PERSP = 0` gestellt: dort
 bleibt es bei 6 und die Prüfung fällt durch.
 
-**Noch nicht im echten Spiel gesehen** (Skripte im eingebauten Browser gehen
-weiter nicht) — Silvio sieht es als Erster.
+**Abgenommen (Silvio, 18.11.2026): „jetzt siehts gut aus".**
 
 ---
 
