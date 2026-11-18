@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v331, M1–M19, M21 und M22 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v331, M1 bis M22 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,13 +26,17 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
 
 Nichts offen.
 
+
+**Abgenommen am 18.11.2026** (Silvio, nach einem weiteren Durchlauf in
+v331: „Beschreibung wie auch Ablauf sind stimmig"): **F120, F121** — M20
+„Shell Game" mit den getrennten Zielen. Damit sind **M1 bis M22**
+abgenommen.
 
 **Abgenommen am 18.11.2026** (Silvio, nach v330: „M22 spielt sich gut";
 nach v331: „Nein, jetzt passt alles"): **F126, F127, F128** — M22 „Playing
@@ -433,7 +437,7 @@ in der Mission selbst stehen.
 
 ---
 
-## F121 — M20: zwei Ziele in einem, und die Wortwahl
+## F121 — M20: zwei Ziele in einem, und die Wortwahl (abgenommen)
 
 **Silvio, 17.11.2026** (mit Bild des Pausebildschirms, Missionszeit 0:23):
 „Du fängst schon wieder an 2 verschiedenen Missionsziele in eins zu
@@ -469,7 +473,7 @@ nicht die Lösung, die Silvio will.
 
 ---
 
-## F120 — M20 „Shell Game" (FS1-Original 16), v321
+## F120 — M20 „Shell Game" (FS1-Original 16), v321 (abgenommen)
 
 Ersetzt die alte Mission 20 „The Survivors". Silvios Vorgaben aus dem
 Gespräch vom 17.11.2026:
