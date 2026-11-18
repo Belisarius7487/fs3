@@ -24,7 +24,7 @@ const DK_MARGIN = 6;              // air left before she slides in
 // F125 (v326, Silvio, 18.11.2026: "etwas zu nah an der Dragon ... ein, zwei
 // Pixel Abstand waeren nicht schlimm"): two hulls docked keep a little air
 // between them. Cargo still sits on its dock, where it belongs (F97).
-const DK_AIR = 2;
+const DK_AIR = 6;
 const DK_DEPTH_STEPS = 80;        // a container goes into her depth (0.8 s)
 
 function dkList(o){ const m = o && mountsFor(o.img); return (m && m.docks) || []; }
@@ -67,7 +67,27 @@ function dkAngDiff(to, from){
   return d;
 }
 const DK_TURN = Math.PI/DOCK_ROLL_STEPS;   // F125: same rate as her half roll
-function dkPose(o, i, r, flip, noAng){
+// F125 (v327, Silvio, 18.11.2026: "Sie soll sich auf dem Spielfeld bewegen
+// als waere sie ein Jaeger, sprich auch beim Anflug drehen und ausrichten
+// koennen"). A hull of fighter size does just that on her way in: she looks
+// the way she is going and turns into it, the same poseFor every fighter
+// uses. Larger hulls keep the heading they had (F24, F101).
+const DK_FLY_LEN = 30;     // metres - fighter size (the Elysium, 32 m, is not one)
+function dkFlies(o){
+  const L = (typeof HULL_LEN !== 'undefined') ? HULL_LEN[o.img] : null;
+  return L != null && L < DK_FLY_LEN;
+}
+// Steer her heading towards want, a step at a time, and draw her from it.
+// True once she is there.
+function dkFly(o, want){
+  if(o.head == null) o.head = (o.ang || 0) + (o.flip ? Math.PI : 0);
+  const off = dkAngDiff(want, o.head);
+  o.head += (Math.abs(off) <= DK_TURN ? off : (off > 0 ? DK_TURN : -DK_TURN));
+  const ps = poseFor(o.head, o.flip);
+  o.ang = ps.ang; o.flip = ps.flip;
+  return Math.abs(dkAngDiff(want, o.head)) <= 1e-3;
+}
+function dkPose(o, i, r, flip, noAng, angAt){
   const d = dkList(o)[i], H = dkHalf(o);
   const sx = (flip != null) ? ((flip ? -1 : 1)) : (o.flip ? -1 : 1)*(o.turnC != null ? o.turnC : 1);
   if(r == null) r = (o.rollC != null ? o.rollC : 1);
@@ -79,7 +99,7 @@ function dkPose(o, i, r, flip, noAng){
   // mountPos does the same for the gun mounts. noAng: dkMeet measures the
   // two height maps in the upright frame, which is right because both
   // hulls of a pair end up turned by the same angle.
-  const a = noAng ? 0 : (o.ang || 0);
+  const a = noAng ? 0 : (angAt != null ? angAt : (o.ang || 0));
   if(a){
     const ca = Math.cos(a), sa = Math.sin(a);
     const qx = px*ca - py*sa, qy = px*sa + py*ca;
@@ -254,11 +274,22 @@ function dkApproach(e, t){
     const mt = dkMeet(e, k.iA, k.rEnd, k.flip, t, k.iB, null, toC);
     k.gap = mt.gap + (toC ? 0 : DK_AIR); k.thin = mt.thin;
     k.stand = Math.max(k.gap, dkClear(e, k.iA) + dkClear(t, k.iB)) + DK_MARGIN;
-    const goFlip = needsFlip(e.img, k.left);
-    if(!!e.flip !== goFlip){
-      // F96: one seen arriving turns; one there from the start is set
-      if(!(e.warpMax > 1) && !e._dockFaced){ e.flip = goFlip; }
-      else faceTurn(e, k.left);
+    k.fly = dkFlies(e);
+    // F125 (v327): docked she lies the way the target lies - same angle,
+    // nose the same way. Her standoff is worked out from that pose, not
+    // from the one she is turning through, so it does not wander while
+    // she turns.
+    k.ang = t.ang || 0;
+    if(k.fly){
+      k.flip = !!t.flip;
+      if(e.head == null) e.head = (e.ang || 0) + (e.flip ? Math.PI : 0);
+    } else {
+      const goFlip = needsFlip(e.img, k.left);
+      if(!!e.flip !== goFlip){
+        // F96: one seen arriving turns; one there from the start is set
+        if(!(e.warpMax > 1) && !e._dockFaced){ e.flip = goFlip; }
+        else faceTurn(e, k.left);
+      }
     }
     e._dockFaced = true;
   }
@@ -275,7 +306,7 @@ function dkApproach(e, t){
   // whole way already lying in the docked angle before ("statt sich erst
   // dann in Position auszurichten, wenn sie bei der Dragon angekommen
   // ist"). A target lying upright leaves her exactly as she was.
-  const B = dkPose(t, k.iB), A = dkPose(e, k.iA, k.rEnd, k.flip);
+  const B = dkPose(t, k.iB), A = dkPose(e, k.iA, k.rEnd, k.flip, false, k.ang);
   const ox = A.x - e.x, oy = A.y - e.y;
   if(k.ph === 'go'){
     const hx = B.x + B.vx*k.stand - ox, hy = B.y + B.vy*k.stand - oy;
@@ -288,6 +319,7 @@ function dkApproach(e, t){
       let mx = Math.max(-DOCK_SPD*1.6, Math.min(DOCK_SPD*1.6, dx));
       const my = Math.max(-DOCK_SPD, Math.min(DOCK_SPD, dy));
       if(over && Math.abs(dy) > 2) mx = 0;
+      if(k.fly && (mx || my)) dkFly(e, Math.atan2(my, mx));
       e.x += mx; e.y += my;
       return false;
     }
@@ -296,14 +328,17 @@ function dkApproach(e, t){
     // F101 (v285): at her standoff she turns, visibly, to the way she will
     // face docked - only now, so she never flies backwards on her way here
     k.atStand = true;
-    if(!e._face && !!e.flip !== k.flip) faceTurn(e, k.wantLeft);
-    const aOff = dkAngDiff(t.ang || 0, e.ang || 0);
-    if(Math.abs(aOff) > 1e-3){
-      e.ang = (e.ang || 0) + (Math.abs(aOff) <= DK_TURN ? aOff : (aOff > 0 ? DK_TURN : -DK_TURN));
-      // her dock swings round with her, so her standoff moves: let the way
-      // in work again instead of counting this as getting nowhere
-      k.best = null; k.stall = 0;
-      return false;
+    if(k.fly){
+      // on the spot, into the way the target lies - she held her course
+      // the whole way here
+      if(!dkFly(e, k.ang + (k.flip ? Math.PI : 0))) return false;
+    } else {
+      if(!e._face && !!e.flip !== k.flip) faceTurn(e, k.wantLeft);
+      const aOff = dkAngDiff(k.ang, e.ang || 0);
+      if(Math.abs(aOff) > 1e-3){
+        e.ang = (e.ang || 0) + (Math.abs(aOff) <= DK_TURN ? aOff : (aOff > 0 ? DK_TURN : -DK_TURN));
+        return false;
+      }
     }
     if((k.roll && e.rollV < 1) || e._face) return false;   // turned and rolled first
     k.ph = 'in';

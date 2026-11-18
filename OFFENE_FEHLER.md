@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v326, M1–M19 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v327, M1–M19 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,7 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | F123 | M21: die Charon dockt am eigenen Andockpunkt des Dragon an, statt sich längsseits zu legen | v324, vollständig erst v325 |
-| F125 | M21: die Charon richtet sich nach der schräg liegenden Dragon aus — erst bei Ankunft, und mit etwas Luft | v325, nachgebessert v326 |
+| F125 | M21: die Charon fliegt wie ein Jäger und richtet sich erst bei der Dragon aus | v325, nachgebessert v326 und v327 |
 | F124 | M21: die Frachtcontainer sind jetzt FS1-Modelle (`fcsc5`) | v324 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
@@ -57,8 +57,8 @@ Arbeitsliste.
 
 ---
 
-Stand: v326 gebaut (F125 nachgebessert: die Drehung erst am Haltepunkt,
-und zwei Bildpunkte Luft zwischen zwei angedockten Rümpfen).
+Stand: v327 gebaut (F125: ein Rumpf unter 30 m fliegt beim Andocken wie
+ein Jäger; sechs Bildpunkte Luft zwischen zwei angedockten Rümpfen).
 
 ---
 
@@ -134,6 +134,33 @@ Zwei weitere Prüfungen in `docksim` Teil 15: sie dreht sich erst, wenn sie
 da ist, und zwischen den Rümpfen bleibt Luft. Gegen v325 gestellt: dort
 dreht sie 349 Bildpunkte vom Ziel entfernt (also gleich nach dem Sprung)
 und der Abstand ist 0 — beide Prüfungen fallen durch.
+
+**Silvio nach v326, 18.11.2026:** „Klappt noch nicht mit dem Abstand. Dass
+sich die Charon wie ein kleines Schiff verhalten soll hast du auch noch
+nicht begriffen. Sie soll sich auf dem Spielfeld bewegen als wäre sie ein
+Jäger, sprich auch beim Anflug drehen und ausrichten können."
+
+**Nachgebessert (v327) — das ist die Festlegung:**
+
+- **Ein Rumpf unter 30 m fliegt beim Andocken wie ein Jäger**
+  (`dkFlies`/`dkFly`): er schaut immer dahin, wo er hinfliegt, dreht sich
+  unterwegs in seinen Kurs und wird dabei mit demselben `poseFor`
+  gezeichnet wie jeder Jäger. Erst am Haltepunkt dreht er sich in die Lage
+  des Ziels. Größere Rümpfe bleiben wie bisher (F24, F101). Die Grenze
+  liegt unter der Elysium (32 m, M11), damit die abgenommene Mission 11
+  unberührt bleibt — soll die Elysium auch so fliegen, ist es eine Zahl.
+- Der **Haltepunkt wird aus der Lage gerechnet, die sie angedockt haben
+  wird** (`dkPose` mit festem Winkel), nicht aus der, durch die sie sich
+  gerade dreht. Vorher wanderte er mit und sie lief ihm hinterher.
+- `DK_AIR` von 2 auf **6** Bildpunkte. Fracht sitzt weiter auf.
+
+Zwei Prüfungen dazu in `docksim` Teil 15: sie schaut unterwegs in ihre
+Flugrichtung, und sie nimmt die Andocklage erst am Ziel an. Gegen eine
+Fassung ohne die Jäger-Regel gestellt: dort schaut sie in 84 von 427
+Schritten nicht in ihre Flugrichtung, die Prüfung fällt durch. Gemessen
+wird die **Blickrichtung**, nicht der rohe Winkel: ein nach links
+fliegender Rumpf wird gespiegelt gezeichnet, dabei springt der Winkelwert
+um 180 Grad, das Bild aber nicht.
 
 **Noch nicht im echten Spiel gesehen** (Skripte im eingebauten Browser gehen
 weiter nicht) — Silvio sieht es als Erster.

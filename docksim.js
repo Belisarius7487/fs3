@@ -40,10 +40,10 @@ const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','i
   'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns',
   // F99 (v283): docking from the models' dock data (31_dock.js)
   'dkList','dkHas','dkHalf','dkIsCargo','dkInPlane','dkPick','dkRideIndex','dkRight','dkAngDiff','dkPose','dkGrid',
-  'dkClear','dkMeet','dkDepthOf','dkMustRoll','dkNeedsUpsideDown','dkPlanFor','dkPlaceCargo','dkSeat',
+  'dkClear','dkMeet','dkFlies','dkFly','poseFor','dkDepthOf','dkMustRoll','dkNeedsUpsideDown','dkPlanFor','dkPlaceCargo','dkSeat',
   'dkApproach','dkCastOff','dkCastOffStep','dkPairInfo'];
 // their constants, as the game has them
-const DK_CONSTS = (src.match(/^(?:const|let) (?:DK_\w+|DOCK_ROLL_STEPS|FACE_TURN_STEPS)\b.*$/mg) || []).join('\n');
+const DK_CONSTS = (src.match(/^(?:const|let) (?:DK_\w+|DOCK_ROLL_STEPS|FACE_TURN_STEPS|KEEP_UPRIGHT|FLIP_HYST)\b.*$/mg) || []).join('\n');
 
 const world = `
 let wave=0, enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, EV_TAKEN={}, EV_EMPTY={}, spawnQ=[];
@@ -63,6 +63,7 @@ function startDeathRoll(){ return false; }
 ${DK_CONSTS}
 ${NAMES.map(fn).join('\n')}
 ${constObj('SCRIPT_WAVES')}
+${constObj('HULL_LEN')}
 `;
 const TICK_HZ = 100;
 const api = new Function('TICK_HZ', world + `
@@ -430,15 +431,32 @@ function angledDock(dkey, tkey, deg, fromLeft){
   f.flip = api.needsFlip(dkey, !fromLeft); f.warpMax = 160; f.dockHold = 300; f.holdT = null;
   check('both hulls carry dock data from their models', api.dkHas(f) && api.dkHas(t),
         'she ' + api.dkHas(f) + ', it ' + api.dkHas(t));
-  let phases = [], biggest = 0, moves = 0, tMoved = false, last = f.ang || 0, firstTurnAt = null;
+  let phases = [], biggest = 0, moves = 0, tMoved = false, last = (f.ang || 0) + (f.flip ? Math.PI : 0);
+  let flySteps = 0, flyBad = 0, lastP = null, lastFarAt = null;
   for(let s = 0; s < 12000; s++){
     const k = f._dk, ph = k ? k.ph : '-';
     if(phases[phases.length-1] !== ph) phases.push(ph);
     if(ph === 'on') break;
-    const now = f.ang || 0, d = Math.abs(now - last);
-    if(d > 1e-6){ moves++; if(d > biggest) biggest = d;
-                  if(firstTurnAt == null) firstTurnAt = Math.hypot(f.x - t.x, f.y - t.y); }
-    last = now;
+    // v327: on her way in she looks the way she is going, like a fighter
+    if(ph === 'go' && lastP && !k.atStand){
+      const vx = f.x - lastP.x, vy = f.y - lastP.y, vl = Math.hypot(vx, vy);
+      if(vl > 0.05){
+        const h = (f.ang || 0) + (f.flip ? Math.PI : 0);
+        const dot = (Math.cos(h)*vx + Math.sin(h)*vy)/vl;
+        flySteps++; if(dot < 0.9) flyBad++;
+      }
+    }
+    lastP = {x: f.x, y: f.y};
+    // her heading, not the raw angle: a hull flying left is drawn mirrored
+    // (poseFor), which moves the angle by 180 degrees without moving the
+    // picture - measuring the raw angle would read that as a jump
+    const now = f.ang || 0;
+    const head = now + (f.flip ? Math.PI : 0);
+    const d = Math.abs(api.dkAngDiff(head, last));
+    if(d > 1e-6){ moves++; if(d > biggest) biggest = d; }
+    // the last moment she is not yet lying the way she will lie docked
+    if(Math.abs(api.dkAngDiff(ang, now)) > 5*Math.PI/180) lastFarAt = Math.hypot(f.x - t.x, f.y - t.y);
+    last = head;
     if(Math.abs((t.ang || 0) - ang) > 1e-9) tMoved = true;
     step();
   }
@@ -454,11 +472,14 @@ function angledDock(dkey, tkey, deg, fromLeft){
   {
     const k = f._dk;
     const reach = api.IMGS[dkey].width/2 + api.IMGS[tkey].width/2 + (k ? k.stand : 0) + 12;
-    check('she turns only once she is there, not on her way',
-          firstTurnAt != null && firstTurnAt <= reach,
-          'turned ' + (firstTurnAt == null ? 'never' : firstTurnAt.toFixed(0)) + ' away, there is ' + reach.toFixed(0));
+    check('she takes the docked angle only once she is there',
+          lastFarAt != null && lastFarAt <= reach,
+          'still free ' + (lastFarAt == null ? 'never' : lastFarAt.toFixed(0)) + ' away, there is ' + reach.toFixed(0));
     check('a little air is left between the two hulls', k && k.gap >= 2 - 1e-9,
           'gap ' + (k ? k.gap.toFixed(2) : '-'));
+    check('she flies like a fighter: she looks the way she is going',
+          k && k.fly && flySteps > 50 && flyBad/flySteps < 0.2,
+          'fly ' + (k && k.fly) + ', ' + flyBad + ' of ' + flySteps + ' steps off course');
   }
   // Their two docks end up on each other - worked out here from the model
   // data and the angle the hull is drawn at, not with dkPose, so that this
