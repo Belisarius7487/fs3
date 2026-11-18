@@ -40,7 +40,7 @@ const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','i
   'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns',
   // F99 (v283): docking from the models' dock data (31_dock.js)
   'dkList','dkHas','dkHalf','dkIsCargo','dkInPlane','dkPick','dkRideIndex','dkRight','dkAngDiff','dkPose','dkGrid',
-  'dkClear','dkMeet','dkFlies','dkFly','poseFor','dkDepthOf','dkMustRoll','dkNeedsUpsideDown','dkPlanFor','dkPlaceCargo','dkSeat',
+  'dkClear','dkMeet','dkOut','dkFlies','dkFly','poseFor','dkDepthOf','dkMustRoll','dkNeedsUpsideDown','dkPlanFor','dkPlaceCargo','dkSeat',
   'dkApproach','dkCastOff','dkCastOffStep','dkPairInfo'];
 // their constants, as the game has them
 const DK_CONSTS = (src.match(/^(?:const|let) (?:DK_\w+|DOCK_ROLL_STEPS|FACE_TURN_STEPS|KEEP_UPRIGHT|FLIP_HYST)\b.*$/mg) || []).join('\n');
@@ -77,7 +77,7 @@ return { get enemies(){return enemies;}, set enemies(v){enemies=v;},
     spawnQ.length=0; protSaved=0; protLost=0; guardLost=false; expl=0; },
   tickDocking, tickCrossGuards, tickCarry, killEnemy, dockPoint, cargoSeat, liveThreatCount,
   dockPointN, dkRideIndex, dkSeat, dkHas, dkPose, dkPairInfo, dkPlanFor, dkPick, dkPlaceCargo, needsFlip, IMGS,
-  dkAngDiff, DOCK_ROLL_STEPS, mountsFor,
+  dkAngDiff, DOCK_ROLL_STEPS, mountsFor, dkOut, DK_AIR,
   hullClassFn: hullClass, setWave(w){ wave = w; DK_PLAN = {wave: null, g: {}}; },
   scriptUnitsResolved, SCRIPT_WAVES };`)(TICK_HZ);
 
@@ -413,6 +413,8 @@ function shipDock(dkey, tkey, fromLeft, tRight){
   check('she never flies backwards', back === 0, back + ' steps');
   check('she slides in facing the ' + tkey + '\'s way', inFace === tRight, 'faces ' + (inFace ? 'right' : 'left'));
   check('docked, both face the same way', facesRight(f) === facesRight(t));
+  check('a little air is left between the two hulls', !!f._dk && f._dk.gap >= 2 - 1e-9,
+        'gap ' + (f._dk ? f._dk.gap.toFixed(2) : '-'));
   if(turnFirst) check('she turns round visibly before she slides in', turned);
 }
 for(const fromLeft of [true, false]) for(const tRight of [false, true]) shipDock('trelysium', 'craten', fromLeft, tRight);
@@ -477,6 +479,13 @@ function angledDock(dkey, tkey, deg, fromLeft){
           'still free ' + (lastFarAt == null ? 'never' : lastFarAt.toFixed(0)) + ' away, there is ' + reach.toFixed(0));
     check('a little air is left between the two hulls', k && k.gap >= 2 - 1e-9,
           'gap ' + (k ? k.gap.toFixed(2) : '-'));
+    // v328: the Dragon reaches far out of the picture plane (9.4 m deep,
+    // 4.9 m tall) and the perspective draws that over her neighbour, so
+    // she is given more room than the flat side view asks for.
+    check('the hull deeper than she is tall gets room for the perspective',
+          k && api.dkOut(t) > 0 && api.dkOut(f) === 0 && k.gap > api.DK_AIR + 1,
+          'out it ' + (api.dkOut(t)).toFixed(1) + ', out she ' + (api.dkOut(f)).toFixed(1) +
+          ', gap ' + (k ? k.gap.toFixed(2) : '-') + ' vs plain ' + api.DK_AIR);
     check('she flies like a fighter: she looks the way she is going',
           k && k.fly && flySteps > 50 && flyBad/flySteps < 0.2,
           'fly ' + (k && k.fly) + ', ' + flyBad + ' of ' + flySteps + ' steps off course');

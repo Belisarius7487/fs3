@@ -25,6 +25,28 @@ const DK_MARGIN = 6;              // air left before she slides in
 // Pixel Abstand waeren nicht schlimm"): two hulls docked keep a little air
 // between them. Cargo still sits on its dock, where it belongs (F97).
 const DK_AIR = 6;
+// F125 (v328, Silvio, 18.11.2026: "Ich vermute, dass dies ein Problem der
+// Perspektive ist"). He is right. The docking distance is worked out in the
+// flat side view, but the field draws a real perspective (F3D_FOV): what
+// sticks out of the plane towards the viewer is drawn larger and pushed
+// outwards from the middle of the picture. A hull that reaches far out of
+// the plane therefore covers more of the picture than her side view says -
+// the Dragon is 9.4 m deep and only 4.9 m tall, almost twice as deep as she
+// is high. So the air between two hulls grows with how far the two of them
+// reach out of the plane. It is their models' own number, not a guess.
+const DK_PERSP = 0.5;
+// How far she reaches out of the plane beyond her own side view: only that
+// part of her can cover what the side view says is still free. A hull no
+// deeper than she is tall (almost all of them) adds nothing.
+// Only a hull of fighter size counts: there her depth is of the same order
+// as the whole picture she makes, so what swings out of the plane really
+// covers her neighbour. On a cruiser the dock sits on a hull many times
+// larger, and M11 and M13 are judged and stay as they are.
+function dkOut(o){
+  const m = mountsFor(o.img);
+  if(!m || !m.m3d || !m.m3d.len || !dkFlies(o)) return 0;
+  return Math.max(0, dkHalf(o)*(m.m3d.size[2] - m.m3d.size[1])/m.m3d.len);
+}
 const DK_DEPTH_STEPS = 80;        // a container goes into her depth (0.8 s)
 
 function dkList(o){ const m = o && mountsFor(o.img); return (m && m.docks) || []; }
@@ -272,7 +294,7 @@ function dkApproach(e, t){
     const r0 = (e.rollC != null ? e.rollC : 1);
     k.rEnd = k.roll ? -r0 : r0;
     const mt = dkMeet(e, k.iA, k.rEnd, k.flip, t, k.iB, null, toC);
-    k.gap = mt.gap + (toC ? 0 : DK_AIR); k.thin = mt.thin;
+    k.gap = mt.gap + (toC ? 0 : DK_AIR + DK_PERSP*(dkOut(e) + dkOut(t))); k.thin = mt.thin;
     k.stand = Math.max(k.gap, dkClear(e, k.iA) + dkClear(t, k.iB)) + DK_MARGIN;
     k.fly = dkFlies(e);
     // F125 (v327): docked she lies the way the target lies - same angle,

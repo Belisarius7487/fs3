@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v327, M1–M19 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v328, M1–M19 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,7 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | F123 | M21: die Charon dockt am eigenen Andockpunkt des Dragon an, statt sich längsseits zu legen | v324, vollständig erst v325 |
-| F125 | M21: die Charon fliegt wie ein Jäger und richtet sich erst bei der Dragon aus | v325, nachgebessert v326 und v327 |
+| F125 | M21: Anflug von Silvio abgenommen; Abstand beim Andocken zuletzt v328 (Perspektive) | v325–v328 |
 | F124 | M21: die Frachtcontainer sind jetzt FS1-Modelle (`fcsc5`) | v324 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
@@ -57,8 +57,8 @@ Arbeitsliste.
 
 ---
 
-Stand: v327 gebaut (F125: ein Rumpf unter 30 m fliegt beim Andocken wie
-ein Jäger; sechs Bildpunkte Luft zwischen zwei angedockten Rümpfen).
+Stand: v328 gebaut (F125: der Andockabstand bekommt einen Zuschlag für
+die Perspektive, wenn ein jägergroßer Rumpf tiefer ist als hoch).
 
 ---
 
@@ -161,6 +161,35 @@ Schritten nicht in ihre Flugrichtung, die Prüfung fällt durch. Gemessen
 wird die **Blickrichtung**, nicht der rohe Winkel: ein nach links
 fliegender Rumpf wird gespiegelt gezeichnet, dabei springt der Winkelwert
 um 180 Grad, das Bild aber nicht.
+
+**Silvio nach v327, 18.11.2026:** „Anflug ist super, genau so wollte ich
+es. Aber beim Andocken an die dragon stimmt der Abstand nach wie vor nicht.
+Ich vermute, dass dies ein Problem der Perspektive ist. Kann das sein?"
+
+**Ja — nachgemessen im Spiel (headless, `tools/shot.js`-Aufbau):**
+
+- Im Andockmoment: Charon 97,5 × 57,9 Bildpunkte, Dragon 62,8 × 26,2, Mitte
+  zu Mitte 47,2, gerechneter Abstand 6. Im flachen Seitenriss stimmt das.
+- Die Dragon misst im Modell **11,96 lang, 4,94 hoch, 9,44 tief**. Sie ragt
+  also fast doppelt so weit zum Betrachter heraus, wie sie hoch ist — unter
+  allen Andockrümpfen der Extremfall (Centaur 0,65, Chronos 0,82, Aten
+  1,82, Dragon 1,91 Tiefe je Höhe).
+- Das Feld zeichnet seit v209 eine **echte Perspektive** (`F3D_FOV` 40°,
+  `59_field3d.js`): „What sticks out of the plane (above it: nearer) is
+  drawn larger." Der Andockabstand wird aber im flachen Seitenriss
+  gerechnet. Was aus der Ebene ragt, wird größer und von der Bildmitte weg
+  gezeichnet und deckt damit Platz zu, den die Rechnung für frei hält.
+
+**Gebaut (v328):** `dkOut` — wie weit ein Rumpf über seinen eigenen
+Seitenriss hinaus aus der Ebene ragt, aus den Modellmaßen
+(`(Tiefe − Höhe)/Länge`), und nur bei jägergroßen Rümpfen (unter 30 m), wo
+die Tiefe die Größenordnung des ganzen Bildes hat. Der Andockabstand
+bekommt `DK_PERSP` (0,5) davon dazu. Für Charon/Dragon sind das 11,9 statt
+6. **M11 und M13 bleiben unverändert** (dort ist kein Rumpf jägergroß;
+Elysium/Aten steht weiter bei 20,8, das ist deren eigene Rumpfform).
+
+`docksim` Teil 15 prüft es und ist gegen `DK_PERSP = 0` gestellt: dort
+bleibt es bei 6 und die Prüfung fällt durch.
 
 **Noch nicht im echten Spiel gesehen** (Skripte im eingebauten Browser gehen
 weiter nicht) — Silvio sieht es als Erster.
