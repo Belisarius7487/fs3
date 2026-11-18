@@ -430,13 +430,14 @@ function angledDock(dkey, tkey, deg, fromLeft){
   f.flip = api.needsFlip(dkey, !fromLeft); f.warpMax = 160; f.dockHold = 300; f.holdT = null;
   check('both hulls carry dock data from their models', api.dkHas(f) && api.dkHas(t),
         'she ' + api.dkHas(f) + ', it ' + api.dkHas(t));
-  let phases = [], biggest = 0, moves = 0, tMoved = false, last = f.ang || 0;
+  let phases = [], biggest = 0, moves = 0, tMoved = false, last = f.ang || 0, firstTurnAt = null;
   for(let s = 0; s < 12000; s++){
     const k = f._dk, ph = k ? k.ph : '-';
     if(phases[phases.length-1] !== ph) phases.push(ph);
     if(ph === 'on') break;
     const now = f.ang || 0, d = Math.abs(now - last);
-    if(d > 1e-6){ moves++; if(d > biggest) biggest = d; }
+    if(d > 1e-6){ moves++; if(d > biggest) biggest = d;
+                  if(firstTurnAt == null) firstTurnAt = Math.hypot(f.x - t.x, f.y - t.y); }
     last = now;
     if(Math.abs((t.ang || 0) - ang) > 1e-9) tMoved = true;
     step();
@@ -448,6 +449,17 @@ function angledDock(dkey, tkey, deg, fromLeft){
         'she ' + ((f.ang || 0)*180/Math.PI).toFixed(1) + ' deg, it ' + deg);
   check('she turns there a step at a time, not in one jump', moves > 5 && biggest <= DK_TURN + 1e-6,
         moves + ' steps, largest ' + (biggest*180/Math.PI).toFixed(2) + ' deg');
+  // v326 (Silvio): not straight out of her vortex - she flies there first
+  // and turns when she is there.
+  {
+    const k = f._dk;
+    const reach = api.IMGS[dkey].width/2 + api.IMGS[tkey].width/2 + (k ? k.stand : 0) + 12;
+    check('she turns only once she is there, not on her way',
+          firstTurnAt != null && firstTurnAt <= reach,
+          'turned ' + (firstTurnAt == null ? 'never' : firstTurnAt.toFixed(0)) + ' away, there is ' + reach.toFixed(0));
+    check('a little air is left between the two hulls', k && k.gap >= 2 - 1e-9,
+          'gap ' + (k ? k.gap.toFixed(2) : '-'));
+  }
   // Their two docks end up on each other - worked out here from the model
   // data and the angle the hull is drawn at, not with dkPose, so that this
   // catches a dock that is not carried round with its hull.

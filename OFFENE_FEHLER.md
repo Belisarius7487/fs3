@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v325, M1–M19 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v326, M1–M19 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,7 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
 | F123 | M21: die Charon dockt am eigenen Andockpunkt des Dragon an, statt sich längsseits zu legen | v324, vollständig erst v325 |
-| F125 | M21: die Charon richtet sich nach der schräg liegenden Dragon aus, statt waagerecht zu bleiben | v325 |
+| F125 | M21: die Charon richtet sich nach der schräg liegenden Dragon aus — erst bei Ankunft, und mit etwas Luft | v325, nachgebessert v326 |
 | F124 | M21: die Frachtcontainer sind jetzt FS1-Modelle (`fcsc5`) | v324 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
@@ -57,8 +57,8 @@ Arbeitsliste.
 
 ---
 
-Stand: v325 gebaut (F125: der Andockablauf kennt jetzt den freien Winkel
-eines Schiffes; die Charon hat eigene Andockdaten aus ihrem Modell).
+Stand: v326 gebaut (F125 nachgebessert: die Drehung erst am Haltepunkt,
+und zwei Bildpunkte Luft zwischen zwei angedockten Rümpfen).
 
 ---
 
@@ -107,6 +107,33 @@ und die beiden Andockpunkte treffen sich **auf den gezeichneten Rümpfen** —
 letzteres mit einer eigenen Rechnung, nicht mit `dkPose`. Gegen eine Fassung
 gestellt, in der der Winkel wieder ignoriert wird: dort liegen die
 Andockpunkte 24,8 auseinander, die Prüfung fällt durch.
+
+**Silvio nach v325, 18.11.2026** (zwei Punkte):
+
+1. „Zum einen dreht sich die charon direkt nachdem sie den Warptunnel
+   verlassen hat in die Position, die sie braucht, um an der Dragon
+   andocken zu können und schwebt dann auch in dieser Ausrichtung zur
+   Dragon, statt sich erst dann in Position auszurichten, wenn sie bei der
+   Dragon angekommen ist."
+2. „Auf dem Bild siehst du, dass sie etwas zu nah an der Dragon ist. Wenn
+   da ein, zwei Pixel Abstand dazwischen sind, wäre das nicht schlimm."
+
+**Nachgebessert (v326):**
+
+- Die Drehung in den Winkel des Ziels läuft jetzt **erst am Haltepunkt**,
+  zusammen mit dem Umdrehen und der halben Rolle, nicht mehr beim Anflug.
+  Den Weg dorthin fliegt sie wie zuvor. Weil ihr Andockpunkt beim Drehen
+  mitwandert, wird der Haltepunkt zwischen den Drehschritten neu
+  angefahren.
+- `DK_AIR = 2`: zwei Bildpunkte Luft zwischen zwei angedockten **Rümpfen**.
+  **Fracht sitzt weiter auf ihrem Andockpunkt auf** (F97), dort ändert sich
+  nichts. Die anderen Schiff-an-Schiff-Fälle (M11, M13) rücken damit um
+  zwei Bildpunkte auseinander.
+
+Zwei weitere Prüfungen in `docksim` Teil 15: sie dreht sich erst, wenn sie
+da ist, und zwischen den Rümpfen bleibt Luft. Gegen v325 gestellt: dort
+dreht sie 349 Bildpunkte vom Ziel entfernt (also gleich nach dem Sprung)
+und der Abstand ist 0 — beide Prüfungen fallen durch.
 
 **Noch nicht im echten Spiel gesehen** (Skripte im eingebauten Browser gehen
 weiter nicht) — Silvio sieht es als Erster.

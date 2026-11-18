@@ -21,6 +21,10 @@
 
 const DK_SLIDE = 0.33;            // sliding in along the path, per step (0.6 DOCK_SPD)
 const DK_MARGIN = 6;              // air left before she slides in
+// F125 (v326, Silvio, 18.11.2026: "etwas zu nah an der Dragon ... ein, zwei
+// Pixel Abstand waeren nicht schlimm"): two hulls docked keep a little air
+// between them. Cargo still sits on its dock, where it belongs (F97).
+const DK_AIR = 2;
 const DK_DEPTH_STEPS = 80;        // a container goes into her depth (0.8 s)
 
 function dkList(o){ const m = o && mountsFor(o.img); return (m && m.docks) || []; }
@@ -248,7 +252,7 @@ function dkApproach(e, t){
     const r0 = (e.rollC != null ? e.rollC : 1);
     k.rEnd = k.roll ? -r0 : r0;
     const mt = dkMeet(e, k.iA, k.rEnd, k.flip, t, k.iB, null, toC);
-    k.gap = mt.gap; k.thin = mt.thin;
+    k.gap = mt.gap + (toC ? 0 : DK_AIR); k.thin = mt.thin;
     k.stand = Math.max(k.gap, dkClear(e, k.iA) + dkClear(t, k.iB)) + DK_MARGIN;
     const goFlip = needsFlip(e.img, k.left);
     if(!!e.flip !== goFlip){
@@ -264,17 +268,13 @@ function dkApproach(e, t){
     e.rollV = Math.min(1, e.rollV + 1/DOCK_ROLL_STEPS);
     e.rollC = Math.cos(Math.PI*e.rollV);
   }
-  // F125 (v325, Silvio, 18.11.2026: "muss die Charon sich entsprechend
-  // positionieren ... wie ein kleines Schiff, das sich in alle Richtungen
-  // drehen kann"). The target lies where it was left; she turns into its
-  // angle, a little each step so the turn is seen, and she is already
-  // turning while she comes up. A target lying upright (every one before
-  // the Dragon) leaves her exactly as she was.
-  const aEnd = t.ang || 0;
-  const aNow = e.ang || 0;
-  const aOff = dkAngDiff(aEnd, aNow);
-  k.turning = Math.abs(aOff) > 1e-3;
-  if(k.turning) e.ang = aNow + (Math.abs(aOff) <= DK_TURN ? aOff : (aOff > 0 ? DK_TURN : -DK_TURN));
+  // F125 (v325/v326, Silvio, 18.11.2026): the target lies where it was left
+  // and is never turned; the ship coming for it turns into its angle, a
+  // little each step so the turn is seen. v326: only once she is at her
+  // standoff (k.atStand), with her other turn and her roll - she flew the
+  // whole way already lying in the docked angle before ("statt sich erst
+  // dann in Position auszurichten, wenn sie bei der Dragon angekommen
+  // ist"). A target lying upright leaves her exactly as she was.
   const B = dkPose(t, k.iB), A = dkPose(e, k.iA, k.rEnd, k.flip);
   const ox = A.x - e.x, oy = A.y - e.y;
   if(k.ph === 'go'){
@@ -295,8 +295,17 @@ function dkApproach(e, t){
     if(L <= 1){ e.x = hx; e.y = hy; }        // held off the spot (field edge): slides from where she is
     // F101 (v285): at her standoff she turns, visibly, to the way she will
     // face docked - only now, so she never flies backwards on her way here
+    k.atStand = true;
     if(!e._face && !!e.flip !== k.flip) faceTurn(e, k.wantLeft);
-    if((k.roll && e.rollV < 1) || e._face || k.turning) return false;   // turned and rolled first
+    const aOff = dkAngDiff(t.ang || 0, e.ang || 0);
+    if(Math.abs(aOff) > 1e-3){
+      e.ang = (e.ang || 0) + (Math.abs(aOff) <= DK_TURN ? aOff : (aOff > 0 ? DK_TURN : -DK_TURN));
+      // her dock swings round with her, so her standoff moves: let the way
+      // in work again instead of counting this as getting nowhere
+      k.best = null; k.stall = 0;
+      return false;
+    }
+    if((k.roll && e.rollV < 1) || e._face) return false;   // turned and rolled first
     k.ph = 'in';
   }
   if(k.ph === 'in'){
