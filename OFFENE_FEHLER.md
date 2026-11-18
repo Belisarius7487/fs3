@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v324, M1–M19 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v325, M1–M19 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,7 +27,8 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
-| F123 | M21: die Charon dockt am eigenen Andockpunkt des Dragon an, statt sich längsseits zu legen | v324 |
+| F123 | M21: die Charon dockt am eigenen Andockpunkt des Dragon an, statt sich längsseits zu legen | v324, vollständig erst v325 |
+| F125 | M21: die Charon richtet sich nach der schräg liegenden Dragon aus, statt waagerecht zu bleiben | v325 |
 | F124 | M21: die Frachtcontainer sind jetzt FS1-Modelle (`fcsc5`) | v324 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
@@ -56,9 +57,59 @@ Arbeitsliste.
 
 ---
 
-Stand: v324 gebaut (F123: Andockpunkt des Dragon; F124: FS1-Container in M21).
+Stand: v325 gebaut (F125: der Andockablauf kennt jetzt den freien Winkel
+eines Schiffes; die Charon hat eigene Andockdaten aus ihrem Modell).
 
 ---
+
+---
+
+## F125 — M21: die Charon richtet sich beim Andocken nicht aus, v324
+
+**Silvio, 18.11.2026** (mit Bild: die Dragon schräg im gelben Rahmen, die
+Charon waagerecht darunter im blauen): „Bei Bild 1 schwebt die Charon in
+horizontaler Ausrichtung nach oben, statt sich auszurichten, wie es ein
+kleines Schiff tut. So dockt sie auch an die Dragon an, ohne sich irgendwie
+auszurichten. Das ist nicht das, was wir soeben besprochen hatten."
+
+**Zwei Ursachen, beide nachgewiesen:**
+
+1. **Die Charon hatte selbst keine Andockdaten aus ihrem Modell.** In
+   `hlp_mounts_final.json` stand für `sucentaur` nur der alte, von Hand
+   gesetzte Eintrag (`dx`/`dy`/`ang`) von vor v283. `dkHas` ist damit
+   falsch, und der gemeinsame Ablauf lief in v324 **gar nicht** — sie fuhr
+   den alten Weg von vor v283. Die neue `docksim`-Prüfung hat das gefunden.
+2. **Der gemeinsame Ablauf kannte den freien Winkel eines Schiffes nicht.**
+   In `31_dock.js` kam `ang` überhaupt nicht vor. Kleine Schiffe haben
+   einen freien Winkel (`poseFor` aus ihrer Flugrichtung), große nicht —
+   bis zur Dragon war jedes Ziel waagerecht, deshalb fiel es nie auf.
+
+**Gebaut (v325):**
+
+- `mkdocks.py` für `sucentaur` gelaufen (zwei Andockringe, oben und unten).
+  Nur M21 dockt mit der Centaur an, andere Missionen sind nicht betroffen.
+- `dkPose` dreht Andockpunkt und Andockrichtung mit dem Winkel des Rumpfes,
+  wie `mountPos` es für die Geschütze tut. `dkMeet` misst weiter im
+  aufrechten Bild (beide Rümpfe eines Paares stehen am Ende im selben
+  Winkel), der Abstand bleibt also derselbe.
+- Das anfliegende Schiff dreht sich in den Winkel des Ziels, Schritt für
+  Schritt im selben Tempo wie seine halbe Rolle (0,8 Grad je Schritt), und
+  dreht schon beim Anflug. Es schwebt erst ein, wenn es fertig gedreht ist.
+- **Das Ziel wird nie gedreht** — das war schon so und ist jetzt geprüft.
+- Ein Ziel, das aufrecht liegt (jedes vor der Dragon), lässt alles genau wie
+  vorher.
+
+**Neue Prüfung:** `docksim` Teil 15 — die Centaur dockt an einer Dragon, die
+bei −35 und bei +20 Grad liegt, von links und von rechts. Geprüft: beide
+Rümpfe haben Modell-Andockdaten, das liegende Schiff wird nicht gedreht, sie
+liegt am Ende im Winkel des Ziels, sie dreht in vielen kleinen Schritten,
+und die beiden Andockpunkte treffen sich **auf den gezeichneten Rümpfen** —
+letzteres mit einer eigenen Rechnung, nicht mit `dkPose`. Gegen eine Fassung
+gestellt, in der der Winkel wieder ignoriert wird: dort liegen die
+Andockpunkte 24,8 auseinander, die Prüfung fällt durch.
+
+**Noch nicht im echten Spiel gesehen** (Skripte im eingebauten Browser gehen
+weiter nicht) — Silvio sieht es als Erster.
 
 ---
 
@@ -100,6 +151,10 @@ Im Code nachgesehen: der gemeinsame Ablauf dreht das **Zielschiff nie**.
 Schiffs, und dreht es seit F101 (v285) **sichtbar** an seinem Haltepunkt,
 bevor es einschwebt — kein Umspringen, kein Rückwärtsfliegen. Die Dragon
 bleibt also liegen, wie sie liegt.
+
+**v324 war unvollständig** — der gemeinsame Ablauf lief trotzdem nicht,
+weil die Charon selbst keine Modell-Andockdaten hatte. Siehe F125, gebaut
+in v325.
 
 **Gebaut (v324):** `mkdocks.py` für `fidragon` gelaufen (Andockpunkt,
 Anflugweg, Höhenprofil stehen jetzt in `hlp_mounts_final.json`),

@@ -39,7 +39,7 @@ const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','i
   'tickCrossGuards','killEnemy','byId','evSeen','mountsFor','f103Mounts','hullClass',
   'liveThreatCount','scriptUnitsResolved','spriteFacing','needsFlip','faceTurn','tickFaceTurns',
   // F99 (v283): docking from the models' dock data (31_dock.js)
-  'dkList','dkHas','dkHalf','dkIsCargo','dkInPlane','dkPick','dkRideIndex','dkRight','dkPose','dkGrid',
+  'dkList','dkHas','dkHalf','dkIsCargo','dkInPlane','dkPick','dkRideIndex','dkRight','dkAngDiff','dkPose','dkGrid',
   'dkClear','dkMeet','dkDepthOf','dkMustRoll','dkNeedsUpsideDown','dkPlanFor','dkPlaceCargo','dkSeat',
   'dkApproach','dkCastOff','dkCastOffStep','dkPairInfo'];
 // their constants, as the game has them
@@ -76,6 +76,7 @@ return { get enemies(){return enemies;}, set enemies(v){enemies=v;},
     spawnQ.length=0; protSaved=0; protLost=0; guardLost=false; expl=0; },
   tickDocking, tickCrossGuards, tickCarry, killEnemy, dockPoint, cargoSeat, liveThreatCount,
   dockPointN, dkRideIndex, dkSeat, dkHas, dkPose, dkPairInfo, dkPlanFor, dkPick, dkPlaceCargo, needsFlip, IMGS,
+  dkAngDiff, DOCK_ROLL_STEPS, mountsFor,
   hullClassFn: hullClass, setWave(w){ wave = w; DK_PLAN = {wave: null, g: {}}; },
   scriptUnitsResolved, SCRIPT_WAVES };`)(TICK_HZ);
 
@@ -414,6 +415,57 @@ function shipDock(dkey, tkey, fromLeft, tRight){
   if(turnFirst) check('she turns round visibly before she slides in', turned);
 }
 for(const fromLeft of [true, false]) for(const tRight of [false, true]) shipDock('trelysium', 'craten', fromLeft, tRight);
+
+// F125 (v325, Silvio, 18.11.2026): a fighter lies at the angle she had when
+// she was disabled. She is never turned to suit the ship coming for her -
+// the ship coming for her turns into her angle, and turns visibly.
+function angledDock(dkey, tkey, deg, fromLeft){
+  begin('15 F125: ' + dkey + ' docks at a ' + tkey + ' lying at ' + deg + ' degrees');
+  realSized(dkey); realSized(tkey);
+  const ang = deg*Math.PI/180;
+  const t = {uid:'A9', type:'fighter', img:tkey, x:500, y:300, sc:1, flip:false, ang:ang,
+             warp:0, dead:false, hp:50, maxHp:50, small:true, _n:++uidc};
+  api.EV_SEEN.A9 = true; api.enemies.push(t);
+  const f = freighter('S9', fromLeft ? 150 : 850, 300, 'A9'); f.img = dkey; f.crossAfter = 0;
+  f.flip = api.needsFlip(dkey, !fromLeft); f.warpMax = 160; f.dockHold = 300; f.holdT = null;
+  check('both hulls carry dock data from their models', api.dkHas(f) && api.dkHas(t),
+        'she ' + api.dkHas(f) + ', it ' + api.dkHas(t));
+  let phases = [], biggest = 0, moves = 0, tMoved = false, last = f.ang || 0;
+  for(let s = 0; s < 12000; s++){
+    const k = f._dk, ph = k ? k.ph : '-';
+    if(phases[phases.length-1] !== ph) phases.push(ph);
+    if(ph === 'on') break;
+    const now = f.ang || 0, d = Math.abs(now - last);
+    if(d > 1e-6){ moves++; if(d > biggest) biggest = d; }
+    last = now;
+    if(Math.abs((t.ang || 0) - ang) > 1e-9) tMoved = true;
+    step();
+  }
+  const DK_TURN = Math.PI/api.DOCK_ROLL_STEPS;
+  check('she docks: go, then in, then on', phases.join(' ').indexOf('go in on') >= 0, phases.join(' '));
+  check('the one lying there is never turned', !tMoved);
+  check('docked, she lies at its angle', Math.abs(api.dkAngDiff(ang, f.ang || 0)) < 1e-3,
+        'she ' + ((f.ang || 0)*180/Math.PI).toFixed(1) + ' deg, it ' + deg);
+  check('she turns there a step at a time, not in one jump', moves > 5 && biggest <= DK_TURN + 1e-6,
+        moves + ' steps, largest ' + (biggest*180/Math.PI).toFixed(2) + ' deg');
+  // Their two docks end up on each other - worked out here from the model
+  // data and the angle the hull is drawn at, not with dkPose, so that this
+  // catches a dock that is not carried round with its hull.
+  const k = f._dk;
+  if(k){
+    const where = (o, i) => {
+      const d = api.mountsFor(o.img).docks[i], H = api.IMGS[o.img].width*o.sc*0.5;
+      const sx = (o.flip ? -1 : 1)*(o.turnC != null ? o.turnC : 1), r = (o.rollC != null ? o.rollC : 1);
+      const px = d.p[0]*H*sx, py = d.p[1]*H*r, a = o.ang || 0, ca = Math.cos(a), sa = Math.sin(a);
+      return {x: o.x + px*ca - py*sa, y: o.y + px*sa + py*ca};
+    };
+    const A = where(f, k.iA), B = where(t, k.iB);
+    const sep = Math.hypot(A.x - B.x, A.y - B.y);
+    check('their two docks meet on the drawn hulls', Math.abs(sep - k.gap) < 1.5,
+          'apart ' + sep.toFixed(2) + ', gap ' + k.gap.toFixed(2));
+  }
+}
+for(const fromLeft of [true, false]) for(const deg of [-35, 20]) angledDock('sucentaur', 'fidragon', deg, fromLeft);
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

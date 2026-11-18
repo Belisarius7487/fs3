@@ -55,13 +55,35 @@ function dkRight(o, flip){ return (spriteFacing(o.img) === 'right') !== !!(flip 
 // Dock i of o in the field: position, depth (towards the viewer, relative
 // to her middle) and the way it faces. r: her roll (1, or -1 rolled half
 // round); flip: her heading if it is not the present one.
-function dkPose(o, i, r, flip){
+// Shortest way round from one angle to another.
+function dkAngDiff(to, from){
+  let d = to - from;
+  while(d >  Math.PI) d -= Math.PI*2;
+  while(d < -Math.PI) d += Math.PI*2;
+  return d;
+}
+const DK_TURN = Math.PI/DOCK_ROLL_STEPS;   // F125: same rate as her half roll
+function dkPose(o, i, r, flip, noAng){
   const d = dkList(o)[i], H = dkHalf(o);
   const sx = (flip != null) ? ((flip ? -1 : 1)) : (o.flip ? -1 : 1)*(o.turnC != null ? o.turnC : 1);
   if(r == null) r = (o.rollC != null ? o.rollC : 1);
   const ds = (dkRight(o, flip) ? -1 : 1)*r;
-  return {x: o.x + d.p[0]*H*sx, y: o.y + d.p[1]*H*r, z: d.p[2]*H*ds,
-          vx: d.v[0]*sx, vy: d.v[1]*r, sx: sx, r: r, ds: ds, d: d, H: H};
+  let px = d.p[0]*H*sx, py = d.p[1]*H*r, vx = d.v[0]*sx, vy = d.v[1]*r;
+  // F125 (v325): a hull drawn at a free angle carries her dock round with
+  // her - a fighter keeps the angle she had when she was disabled, and is
+  // never turned to suit the ship coming for her (Silvio, 18.11.2026).
+  // mountPos does the same for the gun mounts. noAng: dkMeet measures the
+  // two height maps in the upright frame, which is right because both
+  // hulls of a pair end up turned by the same angle.
+  const a = noAng ? 0 : (o.ang || 0);
+  if(a){
+    const ca = Math.cos(a), sa = Math.sin(a);
+    const qx = px*ca - py*sa, qy = px*sa + py*ca;
+    const wx = vx*ca - vy*sa, wy = vx*sa + vy*ca;
+    px = qx; py = qy; vx = wx; vy = wy;
+  }
+  return {x: o.x + px, y: o.y + py, z: d.p[2]*H*ds,
+          vx: vx, vy: vy, sx: sx, r: r, ds: ds, d: d, H: H};
 }
 function dkGrid(d){
   const hm = d && d.hm;
@@ -85,7 +107,7 @@ function dkClear(o, i){ const d = dkList(o)[i]; return (d && d.clear || 0)*dkHal
 // deck (the Bast) are no walls, the container rests on them.
 const DK_WALL = 0.3;
 function dkMeet(A, iA, rA, fA, B, iB, rB, thinOk){
-  const PA = dkPose(A, iA, rA, fA), PB = dkPose(B, iB, rB);
+  const PA = dkPose(A, iA, rA, fA, true), PB = dkPose(B, iB, rB, null, true);
   const ga = dkGrid(PA.d), gb = dkGrid(PB.d);
   if(!ga || !gb) return {gap: 0, thin: 1};
   // the common line along both dock planes in the picture
@@ -242,6 +264,17 @@ function dkApproach(e, t){
     e.rollV = Math.min(1, e.rollV + 1/DOCK_ROLL_STEPS);
     e.rollC = Math.cos(Math.PI*e.rollV);
   }
+  // F125 (v325, Silvio, 18.11.2026: "muss die Charon sich entsprechend
+  // positionieren ... wie ein kleines Schiff, das sich in alle Richtungen
+  // drehen kann"). The target lies where it was left; she turns into its
+  // angle, a little each step so the turn is seen, and she is already
+  // turning while she comes up. A target lying upright (every one before
+  // the Dragon) leaves her exactly as she was.
+  const aEnd = t.ang || 0;
+  const aNow = e.ang || 0;
+  const aOff = dkAngDiff(aEnd, aNow);
+  k.turning = Math.abs(aOff) > 1e-3;
+  if(k.turning) e.ang = aNow + (Math.abs(aOff) <= DK_TURN ? aOff : (aOff > 0 ? DK_TURN : -DK_TURN));
   const B = dkPose(t, k.iB), A = dkPose(e, k.iA, k.rEnd, k.flip);
   const ox = A.x - e.x, oy = A.y - e.y;
   if(k.ph === 'go'){
@@ -263,7 +296,7 @@ function dkApproach(e, t){
     // F101 (v285): at her standoff she turns, visibly, to the way she will
     // face docked - only now, so she never flies backwards on her way here
     if(!e._face && !!e.flip !== k.flip) faceTurn(e, k.wantLeft);
-    if((k.roll && e.rollV < 1) || e._face) return false;     // turned and rolled first
+    if((k.roll && e.rollV < 1) || e._face || k.turning) return false;   // turned and rolled first
     k.ph = 'in';
   }
   if(k.ph === 'in'){
