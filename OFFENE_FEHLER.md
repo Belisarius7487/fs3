@@ -27,7 +27,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
-| F126 | Juggernauts werden wie jedes andere Großkampfschiff behandelt: `still` und `x` halten sie, `scanSubs` scannt ihre Subsysteme, und beim Einsprung bleibt Platz für die Fahrt aus dem Wirbel — der kleine Sprung nach hinten in M14 ist weg | v329 |
+| F126 | Juggernauts werden wie jedes andere Großkampfschiff behandelt: `still` und `x` halten sie, `scanSubs` scannt ihre Subsysteme. Der Einsprung ist **abgenommen** (M14); der Subsystem-Scan einer Lucifer wird mit M22 beurteilt | v329 |
 | F127 | M22 „Playing Judas" (FS1-Original 18) gebaut — ersetzt die alte Mission 22 „The Fugitive" | v329, v330 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
@@ -134,6 +134,10 @@ klitzekleinen Sprung nach hinten macht, sobald ihr Warpin abgeschlossen ist."
    `portalArrive()` hält sich seit v168 an diese Regel, ein gewöhnlicher
    Einsprung nie. Der Wirbel eines Juggernauts ist der längste im Spiel (320
    Schritte, 96 Einheiten), deshalb fiel es bei ihr auf.
+
+**Abgenommen am 18.11.2026** (Silvio: „Bei M14 sehe ich keinen Minisprung
+bei der Lucifer mehr“) — der Einsprung. Der Subsystem-Scan einer Lucifer
+wird mit M22 beurteilt.
 
 **Gebaut (v329):** Der `sd`-Zweig gibt `scanSubs` weiter, und beim Einsprung
 wird die **Anflugstelle** nach außen gesetzt, nie die Halteposition — um die
