@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 17.11.2026, v320, M1–M19 abgenommen)
+## Lage — als Erstes lesen (Stand 18.11.2026, v324, M1–M19 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,14 +27,14 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | F120 | M20 „Shell Game" (FS1-Original 16) neu gebaut — ersetzt die alte Mission 20 „The Survivors" | v321 |
+| F123 | M21: die Charon dockt am eigenen Andockpunkt des Dragon an, statt sich längsseits zu legen | v324 |
+| F124 | M21: die Frachtcontainer sind jetzt FS1-Modelle (`fcsc5`) | v324 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
 
-| Punkt | Worum es geht | Stand |
-|---|---|---|
-| F123 | M21: die Charon hält beim Andocken viel zu weit vom Dragon weg | gemeldet 17.11.2026, mit Bild |
-| F124 | M21: die Frachtcontainer haben FS2-Modelle, es müssten FS1-Modelle sein | gemeldet 17.11.2026 |
+Nichts offen. (F123 und F124 sind gebaut und stehen oben, Silvios Urteil
+fehlt noch.)
 
 
 **Zurückgestellt:** F105 (M18, die beiden Taurus ohne Sprungwirbel — nur in
@@ -56,7 +56,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v323 gebaut (F122: M21 „Enter the Dragon“; F121: M20s Ziele getrennt).
+Stand: v324 gebaut (F123: Andockpunkt des Dragon; F124: FS1-Container in M21).
 
 ---
 
@@ -81,6 +81,38 @@ daran etwas geändert wird: ob der Dragon im Originalmodell doch einen
 Andockpunkt hat (`tools/pof/mkdocks.py`, Modell von Silvios Rechner). Dann
 wäre der richtige Weg der gemeinsame Andockablauf statt `dockBeside`.
 
+**Nachgesehen (18.11.2026).** Die Vermutung stimmte zur Hälfte: Die Charon
+legte sich tatsächlich längsseits. Aber der Dragon **hat** einen
+Andockpunkt im Originalmodell (`Dragon.pof`, MV_Assets_S) — unter dem
+Rumpf, nach unten zeigend. Er war nur nie in `hlp_mounts_final.json`
+exportiert. Darum fiel die Charon auf `dockBeside` zurück, mit dem festen
+Zuschlag von 12 Rasterpunkten, der für ein Schiff am Zerstörer gedacht war.
+
+**Silvio, 18.11.2026:** „Du musst aber beachten, dass die dragon in der
+Position liegen bleibt, die sie hatte, als ihr Antrieb deaktiviert wurde.
+Wenn sie dann einfach zu der Ausrichtung springt, die sie braucht, damit
+die Charon andocken kann, würde es unrealistisch aussehen, also muss die
+Charon sich entsprechend positionieren. Dazu sollte sie sich verhalten wie
+ein kleines Schiff, dass sich in alle Richtungen drehen kann."
+
+Im Code nachgesehen: der gemeinsame Ablauf dreht das **Zielschiff nie**.
+`dkApproach` setzt nur Kurs (`flip`) und Rolle (`rollC`) des anfliegenden
+Schiffs, und dreht es seit F101 (v285) **sichtbar** an seinem Haltepunkt,
+bevor es einschwebt — kein Umspringen, kein Rückwärtsfliegen. Die Dragon
+bleibt also liegen, wie sie liegt.
+
+**Gebaut (v324):** `mkdocks.py` für `fidragon` gelaufen (Andockpunkt,
+Anflugweg, Höhenprofil stehen jetzt in `hlp_mounts_final.json`),
+`dockBeside` aus M21 entfernt. Die Charon kommt von unten hoch an den
+Andockpunkt.
+
+**Nicht im echten Spiel nachgestellt.** Im eingebauten Browser ließen sich
+am 18.11.2026 keine Skripte ausführen (`javascript_tool` blieb ohne
+Wirkung, auch ein eingefügtes `<script>`), der Andockmoment war also nicht
+anzuhalten und auszumessen. Geprüft ist es über `docksim`, beide
+`fieldsim`-Szenarien von M21 und `warpsim 21`. **Beim nächsten Mal zuerst
+im echten Spiel ansehen**, sobald das wieder geht.
+
 ---
 
 ## F124 — M21: die Frachtcontainer haben FS2-Modelle, v323
@@ -93,8 +125,11 @@ sein müssten."
 `hlp_mounts_final.json` nur für `fs2` eingetragen. Die Shivaner-Fracht der
 FS1-Ära ist `fcsc5` (so in M7 und M20). Zu bauen: Tausch in M21.
 
+**Gebaut (v324):** Tausch `fcsac3` → `fcsc5` in M21, alle drei Container.
+
 **Dazu vorzuschlagen:** `swtest` könnte jede FS1-Mission gegen die
 `eras`-Angaben der Modelle prüfen, damit so etwas nicht wieder durchrutscht.
+Silvio noch nicht gefragt — offen.
 
 ---
 

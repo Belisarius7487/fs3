@@ -3625,18 +3625,22 @@ const SCRIPT_WAVES = {
         x:300, y:274, still:true, label:'SC Shakti'},
        {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:248, y:222},
        {id:'G1', c:'sg', n:1, spr:'sgtrident', fac:'shivan', x:248, y:326},
-       {id:'K1', c:'fc', n:1, spr:'fcsac3', fac:'shivan', x:360, y:228},
-       {id:'K1', c:'fc', n:1, spr:'fcsac3', fac:'shivan', x:360, y:274},
-       {id:'K1', c:'fc', n:1, spr:'fcsac3', fac:'shivan', x:360, y:320},
+       {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', x:360, y:228},
+       {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', x:360, y:274},
+       {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', x:360, y:320},
        // damaged and out of power: they go down easily (hp scales the hull)
        {id:'E1', c:'fi', n:1, size:2, spr:'fibasilisk', fac:'shivan', hp:0.4, x:285, y:205},
        {id:'E2', c:'fi', n:1, size:1, spr:'fiscorpion', fac:'shivan', hp:0.4, x:285, y:345},
        {id:'DR', mark:'disable', c:'fi', n:1, size:1, spr:'fidragon', fac:'shivan',
         hp:0.6, capture:true, x:320, y:274, label:'SF Arjuna 1'},
-       // the Dragon model has no dock point of its own, so the Charon comes
-       // up alongside her (dockBeside) as the Iota does in M15
+       // F123 (v324): the Dragon's own dock, under her keel, is in the mount
+       // data now, so the Charon docks by the one procedure (31_dock.js)
+       // instead of parking alongside. Silvio, 18.11.2026: the Dragon lies
+       // where she was disabled and is never turned to suit the Charon - the
+       // Charon turns and rolls herself to meet her, which is what the
+       // procedure does (it only ever poses the ship that comes in).
        {id:'CH', mark:'protect', c:'tr', n:1, spr:'sucentaur', side:'ally',
-        x:205, y:274, warpIn:true, wait:true, dockTo:'DR', dockBeside:0,
+        x:205, y:274, warpIn:true, wait:true, dockTo:'DR',
         dockHold:8, dockLabel:'SECURING', jumpIfEmpty:true, label:'GTS Charon'},
        {id:'E3', c:'fi', n:1, size:2, spr:'fibasilisk', fac:'shivan', x:440, wait:true}
      ], ev:[
