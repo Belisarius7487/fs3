@@ -2207,6 +2207,8 @@ function updateAllies(){
 
     // F89 (v268): an escape pod on its way into a hangar flies itself.
     if(a.landOn){ if(podFly(a)) allies.splice(i,1); continue; }
+    // F130 (M24): a pod coming out of a hangar flies her bay path outwards.
+    if(a.launchFrom){ podLaunch(a); continue; }
     // v275 (F89): a repair drone flies its own job (64_repair.js).
     if(a.drone){ if(droneTick(a)) allies.splice(i,1); continue; }
     if(a.small){

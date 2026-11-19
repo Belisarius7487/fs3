@@ -649,7 +649,11 @@ function spawnProtected(sp){
     a.head = _t ? Math.atan2(_t.y - a.y, _t.x - a.x) : Math.PI;
     a.head += (Math.random()*2-1)*0.9;      // each pod leaves at its own angle
   }
-  if(sp.cross && !sp.dockTo){
+  // F130 (M24): a pod launched out of a ship's fighter bay (from:'GA').
+  // She sets her own place, heading and depth, so the plain cross spawn
+  // below must leave her alone - her cross speed starts once she is clear.
+  if(sp.from) podLaunchSet(a, sp);
+  if(sp.cross && !sp.dockTo && !sp.from){
     a.crossing = sp.cross;         // Bildpunkte je Schritt
     // Below zero she flies out to the left and faces that way.
     a.flip = needsFlip(a.img, sp.cross < 0);
@@ -1499,6 +1503,93 @@ function podFly(a){
   a.head += a.tv;
   want *= 1 - 0.3*Math.min(1, Math.abs(df)/1.2);   // slower in a hard turn
   a.cs += Math.max(-a.spd*FLY_ACC, Math.min(a.spd*FLY_ACC, a.spd*want - a.cs));
+  a.x += Math.cos(a.head)*a.cs; a.y += Math.sin(a.head)*a.cs;
+  const ps = poseFor(a.head, a.flip); a.ang = ps.ang; a.flip = ps.flip;
+  return false;
+}
+
+// ── ESCAPE PODS OUT OF A HANGAR (F130, M24) ─────────────────
+// The mirror of podFly: a pod with from:'GA' starts INSIDE that ship's
+// fighter bay, comes out of the opening along the path's last stretch -
+// growing, speeding up and rising out of her depth - then follows the bay
+// path outwards point by point. Once clear of the path's outermost point
+// she is free and crosses the field with her own cross speed.
+const POD_OUT_T = 40;      // steps to come out of the opening
+function podLaunchSet(a, sp){
+  a.launchFrom = sp.from;
+  // crossing counts in world units a step; a mission's cross is scaled by
+  // FIELD_K and far too fast for a pod, so take only its direction.
+  a.crossOut   = (sp.cross < 0 ? -1 : 1)*POD_SPEED;
+  a.spd = POD_SPEED; a.turn = POD_TURN; a.cs = POD_SPEED*0.15;
+  a.outT = POD_OUT_T;
+  a.invuln = true;                      // untouchable until she is out
+  a.sc0 = a.sc; a.sc = a.sc0*0.05;
+  a.minY = HUD_H+20*FIELD_K; a.maxY = MH-20*FIELD_K;
+  const t = byId(sp.from)[0], P = t ? podPaths(t) : null;
+  if(t && P){
+    t._bayOut = (t._bayOut || 0);
+    a.bayIx = t._bayOut % P.length; t._bayOut++;
+    const path = P[a.bayIx], last = path.length - 1;
+    a.bayStep = Math.max(0, last - 1);  // the point she heads for next
+    const q = podBayPt(t, path[last]), q2 = podBayPt(t, path[a.bayStep]);
+    a.x = q.x; a.y = q.y;
+    a.head = Math.atan2(q2.y - q.y, q2.x - q.x);
+    a.podHost = t; a.podD = Math.min(1, path[last][2]);
+  } else if(t){
+    const p = podBay(a, t);             // no bay paths: out of her belly
+    a.x = p.x; a.y = p.y; a.bayIx = null;
+    a.head = (a.crossOut < 0) ? Math.PI : 0;
+  }
+}
+// She is clear: hand her over to the ordinary crossing flight.
+function podFree(a){
+  a.launchFrom = null; a.podHost = null; a.podD = 1;
+  a.sc = a.sc0 || a.sc; a.invuln = false;
+  a.crossing = a.crossOut;
+  a.flip = needsFlip(a.img, a.crossOut < 0);
+  const ps = poseFor(a.head, a.flip); a.ang = ps.ang;
+  return false;
+}
+function podLaunch(a){
+  const t = byId(a.launchFrom)[0];
+  if(!t || t.dead || t.warp > 0) return podFree(a);
+  const P = (a.bayIx != null) ? podPaths(t) : null;
+  const path = P ? P[a.bayIx] : null;
+  if(a.outT > 0){
+    a.sc = a.sc0*Math.max(0.05, 1 - a.outT/POD_OUT_T);
+    a.cs += (POD_SPEED*0.6 - a.cs)*0.08;
+    a.x += Math.cos(a.head)*a.cs; a.y += Math.sin(a.head)*a.cs;
+    if(path) a.podD += (Math.min(1, path[a.bayStep][2]) - a.podD)*0.08;
+    if(--a.outT > 0) return false;
+    a.sc = a.sc0; a.invuln = false;
+    if(!path) return podFree(a);
+    return false;
+  }
+  // backwards along the bay path, point by point
+  // out in the play plane and clear of her hull: she is free. The path's
+  // outermost point lies far outside the ship (the Orion's is twice her
+  // half length out) and is only the approach point for landing.
+  if(a.podD >= 0.97){
+    const b = eBox(t), m = 30*FIELD_K;
+    if(a.x < b[0]-m || a.x > b[0]+b[2]+m || a.y < b[1]-m || a.y > b[1]+b[3]+m)
+      return podFree(a);
+  }
+  const q = podBayPt(t, path[a.bayStep]);
+  if(Math.hypot(q.x - a.x, q.y - a.y) < POD_CATCH){
+    if(a.bayStep <= 0) return podFree(a);
+    a.bayStep--;
+  }
+  const g = podBayPt(t, path[a.bayStep]);
+  a.podD += (Math.min(1, path[a.bayStep][2]) - a.podD)*0.06;
+  const dx = g.x - a.x, dy = g.y - a.y, d = Math.hypot(dx, dy) || 0.001;
+  let df = Math.atan2(dy/d, dx/d) - a.head;
+  while(df >  Math.PI) df -= Math.PI*2;
+  while(df < -Math.PI) df += Math.PI*2;
+  const tr = a.turn*POD_TURN_IN, tw = Math.max(-tr, Math.min(tr, df));
+  a.tv = a.tv || 0;
+  a.tv += Math.max(-tr*FLY_TURN_ACC, Math.min(tr*FLY_TURN_ACC, tw - a.tv));
+  a.head += a.tv;
+  a.cs += Math.max(-a.spd*FLY_ACC, Math.min(a.spd*FLY_ACC, a.spd*0.7 - a.cs));
   a.x += Math.cos(a.head)*a.cs; a.y += Math.sin(a.head)*a.cs;
   const ps = poseFor(a.head, a.flip); a.ang = ps.ang; a.flip = ps.flip;
   return false;
@@ -3814,14 +3905,64 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'EV', w:'zielerfuellt', a2:'The Eva is destroyed'},
        {t:'vernichtet', a:'EV', d:2, w:'abzug', a2:''}
      ]},
-  24:{name:'The Ambush', fac:'hol', o:'clear', live:6, u:[
-       {id:'A1', c:'fi', n:2, side:'ally'},
-       {id:'E1', c:'fi', n:3},
-       {id:'V1', c:'cr', n:2, spr:'craten', wait:true}
+  // Doomsday (fs1/sm2-10a). The Lucifer runs the Galatea down. Nephilim
+  // bombers and Manticores keep coming at her as long as she lives; under
+  // 75 % hull the Lucifer jumps in and the crew takes to the Hermes pods,
+  // which launch out of her fighter bay (F130) and run for the edge. The
+  // player's job turns from fighting the wings off to covering the pods.
+  // Silvio, 19.11.2026: "solange die Galatea lebt, feuert sie weiter" -
+  // she is never switched off, she fights to the end. The old mission 24
+  // ("The Ambush") is gone: it sat behind this one in the list and would
+  // have overwritten it without a word (see F129).
+  24:{name:'Doomsday', era:'fs1', orig:20, ship:'bomedusa', fac:'hol',
+      o:'clear', live:6,
+      ziel:'Fight off the Shivan wings', u:[
+       {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionleft', side:'ally',
+        x:300, y:265, still:true, home:true, faceLeft:true, label:'GTD Galatea'},
+       {id:'A2', c:'bo', n:1, size:2, spr:'bomedusa', side:'ally'},
+       // bigger wings than the original's pairs (Silvio: the Galatea is
+       // well armed, it may take more than a few at once)
+       {id:'BH', c:'bo', n:1, size:4, spr:'bonephilim', fac:'shivan', label:'SB Bheema'},
+       {id:'RA', c:'fi', n:1, size:4, spr:'fimanticore', fac:'shivan', label:'SF Rama'},
+       {id:'BH2', c:'bo', n:1, size:4, spr:'bonephilim', fac:'shivan', wait:true, label:'SB Asura'},
+       {id:'RA2', c:'fi', n:1, size:4, spr:'fimanticore', fac:'shivan', wait:true, label:'SF Krishna'},
+       {id:'BH3', c:'bo', n:1, size:4, spr:'bonephilim', fac:'shivan', wait:true, label:'SB Indra'},
+       {id:'RA3', c:'fi', n:1, size:4, spr:'fimanticore', fac:'shivan', wait:true, label:'SF Arjuna'},
+       // invulnerable like in M14 (F66: hits only flare her shield)
+       {id:'LU', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, shieldShow:true,
+        x:697, stopX:660, y:265, wait:true, beamFocus:'GA', beamMul:4},
+       {id:'H1', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, from:'GA',
+        cross:-2.9, label:'Escape pod'},
+       {id:'H2', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, from:'GA',
+        cross:-2.9, label:'Escape pod'},
+       {id:'H3', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, from:'GA',
+        cross:-2.9, label:'Escape pod'}
      ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'meldung', a2:'escort turning hostile'},
-       {t:'alleZerstoert', a:'E1', w:'seite', a2:'A1'},
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'V1'}
+       // wings keep coming while she lives (solange: the condition must NOT hold)
+       {t:'alleZerstoert', a:'BH', solange:{t:'vernichtet', a:'GA'}, w:'einwarpen', a2:'BH2'},
+       {t:'alleZerstoert', a:'RA', solange:{t:'vernichtet', a:'GA'}, w:'einwarpen', a2:'RA2'},
+       {t:'alleZerstoert', a:'BH2', solange:{t:'vernichtet', a:'GA'}, w:'einwarpen', a2:'BH3'},
+       {t:'alleZerstoert', a:'RA2', solange:{t:'vernichtet', a:'GA'}, w:'einwarpen', a2:'RA3'},
+       // nothing named left to send: open reinforcements, so a very good
+       // player never stands in an empty field with the Galatea still up
+       {t:'alleZerstoert', a:'BH3+RA3', solange:{t:'vernichtet', a:'GA'}, w:'nachschub', a2:'shivan'},
+       // under 75 % she calls it: the Lucifer arrives, the crew goes
+       {t:'rumpfUnter', a:'GA', b:75, w:'einwarpen', a2:'LU'},
+       // fallback, so the mission cannot stall if she is never worn down
+       {t:'sek', a:90, w:'einwarpen', a2:'LU'},
+       {t:'da', a:'LU', d:2, w:'ziel', a2:'Cover the escape pods'},
+       {t:'da', a:'LU', d:2, w:'einwarpen', a2:'H1'},
+       {t:'da', a:'LU', d:7, w:'einwarpen', a2:'H2'},
+       {t:'da', a:'LU', d:12, w:'einwarpen', a2:'H3'},
+       {t:'vernichtet', a:'GA', w:'nachschub', a2:'aus'},
+       // the ends - order counts: an 'abzug' closes every later event
+       {t:'verlaesst', a:'H1+H2+H3', w:'zielerfuellt', a2:'Every pod is away'},
+       {t:'vernichtet', a:'H1+H2+H3', w:'zielverfehlt', a2:'Every pod is lost'},
+       {t:'alleZerstoert', a:'H1+H2+H3',
+        solange:[{t:'verlaesst', a:'H1+H2+H3'}, {t:'vernichtet', a:'H1+H2+H3'}],
+        w:'zielteil', a2:'Part of her crew got away'},
+       {t:'alleZerstoert', a:'H1+H2+H3', w:'raus', a2:'LU'},
+       {t:'alleZerstoert', a:'H1+H2+H3', d:6, w:'abzug', a2:'', hold:true}
      ]},
 
   28:{name:'The Ramming', fac:'hol', o:'guard', live:5, u:[
@@ -5116,6 +5257,10 @@ const ALLY_ID = {
   detyphon:'vas_typhon', dehatshepsut:'vas_hatshepsut',
   crfenris:'ter_fenris', crleviathan:'ter_leviathan', craeolus:'ter_aeolus',
   codeimos:'ter_deimos', deorionright:'ter_orion', scfaustus:'ter_faustus', dehecate:'ter_hecate',
+  // M24: the mirrored Orion was missing here, so an ally with spr:
+  // 'deorionleft' fell back to 'vas_aten' and came out as a Vasudan
+  // cruiser. The 3D field draws both from the same model (F3D_ALIAS).
+  deorionleft:'ter_orion',
   ntfcodeimos:'ntf_deimos', sgmjolnir:'ter_mjolnir', cacharybdis:'ter_charybdis',
   casetekh:'ter_setekh', coiceni:'ntf_iceni'
 };
@@ -5779,6 +5924,7 @@ function scriptUnit(u, fac, q){
           ? {time:t0+i*140, type:'ally', allyId:u.ally||ALLY_ID[u.spr]||'vas_aten', spr:u.spr,
              crossSecs:u.crossSecs, still:u.still,
              crossDir:u.crossDir, defectRun:u.defectRun, noWings:u.noWings,
+             faceLeft:u.faceLeft,
              x:u.x, y:u.y, callsOk:u.callsOk, beamDelay:u.beamDelay, guard:u.guard,
              noKill:u.noKill, noWarp:u.noWarp, home:u.home, hurt:u.hurt, bigBang:u.bigBang}
           : {time:t0+i*140, type:ty, spr:u.spr||'', y:(u.c==='in'?(u.y!=null?u.y:H*0.5):yy),
@@ -5850,6 +5996,7 @@ function scriptUnit(u, fac, q){
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
            dockLabel:u.dockLabel, jumpIfEmpty:u.jumpIfEmpty, dockStay:u.dockStay, dockBeside:u.dockBeside,
            pickup:u.pickup?1:0, ride:u.ride, slot:u.slot, land:u.land, bay:u.bay,
+           from:u.from,
            repair:u.repair, repPct:u.repPct});   // v275 (F89): Phidias drones
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast' && !u.warpIn)?1:0,   // F93 (v277): warpIn - a late one jumps in   // v253: u.fac, Shivan cargo in an HoL mission

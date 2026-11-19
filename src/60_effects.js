@@ -1167,6 +1167,9 @@ function update(){
           _a.flip = needsFlip(_a.img, _toLeft);
           guardWanted = true; guardSpawned = true;
         }
+        // M24: a standing capital ship may look the other way, so her bay
+        // and her guns face where the mission needs them.
+        if(_a && _sp.faceLeft) _a.flip = needsFlip(_a.img, true);
         if(_a){ _a.uid=_sp.uid;if(_sp.lbl){_a.label=_sp.lbl;_a._lbl=true;} if(_sp.uid) EV_SEEN[_sp.uid]=true;
                 _a.defectLock = evWillDefect(_sp.uid);
                 if(_sp.defectRun) _a.defectRun = _sp.defectRun;

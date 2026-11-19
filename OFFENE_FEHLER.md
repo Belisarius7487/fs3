@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F130 | M24 „Doomsday“ — der Untergang der Galatea, die Rettungskapseln starten aus ihrer Fighterbay | v334 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
@@ -33,7 +34,59 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
+| F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
+
+## F130 — M24 „Doomsday“ (v334, 19.11.2026)
+
+Silvios Vorgaben für die Mission, in seinen Worten (19.11.2026):
+
+> Solange die Galatea lebt, kommen Nephlim und Manticore nach, sobald eine
+> dieser Staffeln zerstört wurden. (Nephlim und Manticore je eine eigene
+> Staffel). Sobald die Galatea 75% unterschreitet, springt die Lucifer rein.
+> Dann starten schon die Rettungskapseln aus der Fighterbay […] Das Ziel des
+> Spielers wechselt dann von Gegnerarbwehr zum Beschützen der Hermes-Kapseln.
+> Sind alle Hermes-Kapseln zerstört oder entkommen, endet die Mission. Alle
+> hermes-Kapseln entkommen: Erfolg. Teilweise entkommen: Teilerfolg. Alle
+> zerstört: Missionsfehlschlag. Geht trotzdem weiter.
+
+> Die Galatea ist ziemlich wehrhaft, also braucht es vielleicht sogar mehr
+> als die paar Nephlim und Manticors auf einmal
+
+> solange die Galatea lebt, feuert sie weiter.
+
+> Die sollen nicht einfach wie bei der Plato aufploppen, sondern aus der
+> Fighterbay starten, darum meine Anmerkung mit der Testmission, in der sie
+> in einer Orion-Fighterbay landen.
+
+**Gebaut:** Staffeln aus je vier Schiffen, drei Schübe je Seite, danach
+offener Nachschub, alles mit `solange:{t:'vernichtet', a:'GA'}` an das Leben
+der Galatea gebunden. Rückfall `{t:'sek', a:90}` für die Lucifer, damit die
+Mission nicht hängt, falls die Galatea nie unter 75 % kommt.
+
+**Neu an der Mechanik (gilt für alle Missionen, nicht nur für M24):**
+
+- `from:'<Kennung>'` an einer Rettungskapsel: sie startet **in** der
+  Fighterbay dieses Schiffs und fliegt den echten Anflugweg des Modells
+  (`$bay`) nach außen — der Spiegel von `land:`. Sie wächst aus der Öffnung
+  heraus, steigt aus der Tiefe des Rumpfes in die Spielebene und ist frei,
+  sobald sie den Rumpf hinter sich hat. Danach fliegt sie mit Kapseltempo
+  zum Rand. Code in `src/30_waves.js` (`podLaunchSet`, `podLaunch`,
+  `podFree`), eingehängt in `src/40_world.js`.
+- Der äußerste Punkt eines Bay-Wegs liegt **weit außerhalb** des Schiffs
+  (bei der Orion doppelt so weit wie ihre halbe Länge) — er ist der
+  Anflugpunkt fürs Landen. Beim Start darf man ihn nicht abwarten, sonst
+  fliegt die Kapsel quer über das halbe Feld; die Freigabe hängt deshalb an
+  der Rumpfbox, nicht am Wegpunkt.
+- `faceLeft:true` an einem stehenden eigenen Großkampfschiff: es schaut nach
+  links. In M24 nötig, damit die Fighterbay von der Lucifer weg zeigt und
+  die Kapseln nicht an ihr vorbei müssen.
+- `deorionleft` fehlte in `ALLY_ID`. Ein eigenes Großkampfschiff mit diesem
+  Rumpf fiel deshalb stillschweigend auf `vas_aten` zurück und stand als
+  vasudanischer Kreuzer im Feld. Eingetragen als `ter_orion`.
+
+**Die alte Mission 24 („The Ambush") ist entfernt** — sie stand hinter der
+neuen in der Liste und hätte sie überschrieben, genau wie bei F129.
 
 **Abgenommen am 19.11.2026** (Silvio, nach v333: „Funktioniert
 einwandfrei."): **F129** — M23 „Evangelist". Damit sind **M1 bis M23**
