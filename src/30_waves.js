@@ -3914,20 +3914,27 @@ const SCRIPT_WAVES = {
   // she is never switched off, she fights to the end. The old mission 24
   // ("The Ambush") is gone: it sat behind this one in the list and would
   // have overwritten it without a word (see F129).
+  // live:12 - twice the usual six. live caps how many Shivans fly at once,
+  // so doubling the wings only shows up here (Silvio, 19.11.2026: the
+  // bomber waves are too easy to fight off, double them at least).
   24:{name:'Doomsday', era:'fs1', orig:20, ship:'bomedusa', fac:'hol',
-      o:'clear', live:6,
+      o:'clear', live:12,
       ziel:'Fight off the Shivan wings', u:[
+       // stay: she never jumps out, whatever the field looks like - she
+       // dies here (Silvio, 19.11.2026). noWarp: she stands there from the
+       // first second instead of warping in.
        {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionleft', side:'ally',
-        x:300, y:265, still:true, home:true, faceLeft:true, label:'GTD Galatea'},
+        x:300, y:265, still:true, noWarp:true, stay:true, home:true,
+        faceLeft:true, label:'GTD Galatea'},
        {id:'A2', c:'bo', n:1, size:2, spr:'bomedusa', side:'ally'},
        // bigger wings than the original's pairs (Silvio: the Galatea is
        // well armed, it may take more than a few at once)
-       {id:'BH', c:'bo', n:1, size:4, spr:'bonephilim', fac:'shivan', label:'SB Bheema'},
-       {id:'RA', c:'fi', n:1, size:4, spr:'fimanticore', fac:'shivan', label:'SF Rama'},
-       {id:'BH2', c:'bo', n:1, size:4, spr:'bonephilim', fac:'shivan', wait:true, label:'SB Asura'},
-       {id:'RA2', c:'fi', n:1, size:4, spr:'fimanticore', fac:'shivan', wait:true, label:'SF Krishna'},
-       {id:'BH3', c:'bo', n:1, size:4, spr:'bonephilim', fac:'shivan', wait:true, label:'SB Indra'},
-       {id:'RA3', c:'fi', n:1, size:4, spr:'fimanticore', fac:'shivan', wait:true, label:'SF Arjuna'},
+       {id:'BH', c:'bo', n:1, size:8, spr:'bonephilim', fac:'shivan', label:'SB Bheema'},
+       {id:'RA', c:'fi', n:1, size:8, spr:'fimanticore', fac:'shivan', label:'SF Rama'},
+       {id:'BH2', c:'bo', n:1, size:8, spr:'bonephilim', fac:'shivan', wait:true, label:'SB Asura'},
+       {id:'RA2', c:'fi', n:1, size:8, spr:'fimanticore', fac:'shivan', wait:true, label:'SF Krishna'},
+       {id:'BH3', c:'bo', n:1, size:8, spr:'bonephilim', fac:'shivan', wait:true, label:'SB Indra'},
+       {id:'RA3', c:'fi', n:1, size:8, spr:'fimanticore', fac:'shivan', wait:true, label:'SF Arjuna'},
        // invulnerable like in M14 (F66: hits only flare her shield)
        {id:'LU', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, shieldShow:true,
         x:697, stopX:660, y:265, wait:true, beamFocus:'GA', beamMul:4},
@@ -3936,6 +3943,10 @@ const SCRIPT_WAVES = {
        {id:'H2', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, from:'GA',
         cross:-2.9, label:'Escape pod'},
        {id:'H3', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, from:'GA',
+        cross:-2.9, label:'Escape pod'},
+       {id:'H4', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, from:'GA',
+        cross:-2.9, label:'Escape pod'},
+       {id:'H5', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, from:'GA',
         cross:-2.9, label:'Escape pod'}
      ], ev:[
        // wings keep coming while she lives (solange: the condition must NOT hold)
@@ -3948,21 +3959,25 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'BH3+RA3', solange:{t:'vernichtet', a:'GA'}, w:'nachschub', a2:'shivan'},
        // under 75 % she calls it: the Lucifer arrives, the crew goes
        {t:'rumpfUnter', a:'GA', b:75, w:'einwarpen', a2:'LU'},
-       // fallback, so the mission cannot stall if she is never worn down
-       {t:'sek', a:90, w:'einwarpen', a2:'LU'},
+       // fallback, so the mission cannot stall if she is never worn down.
+       // Measured without a player she drops under 75 % after about 65 s,
+       // so this has to sit well clear of that or it would take over.
+       {t:'sek', a:150, w:'einwarpen', a2:'LU'},
        {t:'da', a:'LU', d:2, w:'ziel', a2:'Cover the escape pods'},
        {t:'da', a:'LU', d:2, w:'einwarpen', a2:'H1'},
        {t:'da', a:'LU', d:7, w:'einwarpen', a2:'H2'},
        {t:'da', a:'LU', d:12, w:'einwarpen', a2:'H3'},
+       {t:'da', a:'LU', d:17, w:'einwarpen', a2:'H4'},
+       {t:'da', a:'LU', d:22, w:'einwarpen', a2:'H5'},
        {t:'vernichtet', a:'GA', w:'nachschub', a2:'aus'},
        // the ends - order counts: an 'abzug' closes every later event
-       {t:'verlaesst', a:'H1+H2+H3', w:'zielerfuellt', a2:'Every pod is away'},
-       {t:'vernichtet', a:'H1+H2+H3', w:'zielverfehlt', a2:'Every pod is lost'},
-       {t:'alleZerstoert', a:'H1+H2+H3',
-        solange:[{t:'verlaesst', a:'H1+H2+H3'}, {t:'vernichtet', a:'H1+H2+H3'}],
+       {t:'verlaesst', a:'H1+H2+H3+H4+H5', w:'zielerfuellt', a2:'Every pod is away'},
+       {t:'vernichtet', a:'H1+H2+H3+H4+H5', w:'zielverfehlt', a2:'Every pod is lost'},
+       {t:'alleZerstoert', a:'H1+H2+H3+H4+H5',
+        solange:[{t:'verlaesst', a:'H1+H2+H3+H4+H5'}, {t:'vernichtet', a:'H1+H2+H3+H4+H5'}],
         w:'zielteil', a2:'Part of her crew got away'},
-       {t:'alleZerstoert', a:'H1+H2+H3', w:'raus', a2:'LU'},
-       {t:'alleZerstoert', a:'H1+H2+H3', d:6, w:'abzug', a2:'', hold:true}
+       {t:'alleZerstoert', a:'H1+H2+H3+H4+H5', w:'raus', a2:'LU'},
+       {t:'alleZerstoert', a:'H1+H2+H3+H4+H5', d:6, w:'abzug', a2:'', hold:true}
      ]},
 
   28:{name:'The Ramming', fac:'hol', o:'guard', live:5, u:[
@@ -5924,7 +5939,7 @@ function scriptUnit(u, fac, q){
           ? {time:t0+i*140, type:'ally', allyId:u.ally||ALLY_ID[u.spr]||'vas_aten', spr:u.spr,
              crossSecs:u.crossSecs, still:u.still,
              crossDir:u.crossDir, defectRun:u.defectRun, noWings:u.noWings,
-             faceLeft:u.faceLeft,
+             faceLeft:u.faceLeft, stay:u.stay,
              x:u.x, y:u.y, callsOk:u.callsOk, beamDelay:u.beamDelay, guard:u.guard,
              noKill:u.noKill, noWarp:u.noWarp, home:u.home, hurt:u.hurt, bigBang:u.bigBang}
           : {time:t0+i*140, type:ty, spr:u.spr||'', y:(u.c==='in'?(u.y!=null?u.y:H*0.5):yy),

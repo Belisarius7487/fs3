@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F130 | M24 „Doomsday“ — der Untergang der Galatea, die Rettungskapseln starten aus ihrer Fighterbay | v334 |
+| F130 | M24 „Doomsday“ — der Untergang der Galatea, die Rettungskapseln starten aus ihrer Fighterbay | v335 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
@@ -34,6 +34,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
+| F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
 
@@ -84,6 +85,31 @@ Mission nicht hängt, falls die Galatea nie unter 75 % kommt.
 - `deorionleft` fehlte in `ALLY_ID`. Ein eigenes Großkampfschiff mit diesem
   Rumpf fiel deshalb stillschweigend auf `vas_aten` zurück und stand als
   vasudanischer Kreuzer im Feld. Eingetragen als `ter_orion`.
+
+### Silvios Befunde zu v334 (19.11.2026)
+
+> Ähm, bei mir ist die Galatea einige Zeit nachdem die Lucifer aufgetaucht
+> war und die Rettungskapsel (war das nur eine?) abgeflogen ist, einfach
+> raus gewarpt. Das soll so nicht sein. Sie stirbt in dieser Mission auf
+> jeden Fall. Leider ist es zu leicht die Bomberwellen abzuwehren, also
+> sollten wir diese mindestens mal verdoppeln. Ebenso sollten nach und nach
+> mindestens 5 Rettungskapseln von der Galatea starten sobald die Lucifer
+> einfliegt.
+
+> Mir ist auch aufgefallen, dass die Galatea anfangs der Mission selbst
+> hereinwarpt, obwohl sie schon dastehen sollte.
+
+**Ursache des Wegspringens (im Code nachgewiesen):** Sobald das Feld als
+geräumt gilt, springt jedes eigene Großkampfschiff von selbst ab
+(`40_world.js`, `waveOver`). Zwischen zwei Bomberschüben war das Feld kurz
+leer — die Lucifer zählt nicht mit, weil sie unverwundbar ist. Dagegen gibt
+es `stay`, das bisher nur Installationen bekamen; es ist jetzt ein Feld der
+Mission. Die Galatea springt damit nie mehr ab: sie stirbt oder sie steht.
+Dass nur eine Kapsel kam, hing daran — ohne ihr Trägerschiff fanden die
+folgenden Kapseln keine Fighterbay mehr.
+
+**Behoben in v335:** `stay:true` und `noWarp:true` an der Galatea, Staffeln
+von vier auf acht verdoppelt, fünf Kapseln statt drei.
 
 **Die alte Mission 24 („The Ambush") ist entfernt** — sie stand hinter der
 neuen in der Liste und hätte sie überschrieben, genau wie bei F129.
