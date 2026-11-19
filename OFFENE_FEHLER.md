@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 19.11.2026, v333, M1 bis M22 abgenommen)
+## Lage — als Erstes lesen (Stand 19.11.2026, v333, M1 bis M23 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,12 +26,21 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F129 | M23 „Evangelist" (FS1-Original 19): die Eva am Sprungpunkt zerstören, Waffen-Subsystem als Nebenziel | v332, in v333 erst wirksam |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
 
-Nichts offen.
+| Punkt | Worum es geht |
+|---|---|
+| — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
+
+
+**Abgenommen am 19.11.2026** (Silvio, nach v333: „Funktioniert
+einwandfrei."): **F129** — M23 „Evangelist". Damit sind **M1 bis M23**
+abgenommen. Silvio dazu: „Das Schöne an der Mission ist, dass der Spieler
+gezwungen ist, sich Verstärkung zu rufen, weil es sonst praktisch nicht
+schaffbar ist." Die Mission bleibt also so hart, wie sie ist — das Rufen
+von Verstärkung ist hier erwünscht und kein Balance-Fehler.
 
 
 **Abgenommen am 18.11.2026** (Silvio, nach einem weiteren Durchlauf in
@@ -68,13 +77,13 @@ Arbeitsliste.
 
 ---
 
-Stand: v333. M23 wartet auf Silvios Urteil.
+Stand: v333. M23 ist abgenommen. Die nächste Mission ist M24.
 
 ---
 
 ---
 
-## F129 — M23 „Evangelist" (FS1-Original 19), v332
+## F129 — M23 „Evangelist" (FS1-Original 19), v332/v333 (abgenommen)
 
 Die nächste neue Mission nach M22. Im Original (`fs1/sm2-09a.fs2`) hält der
 shivanische Zerstörer **Eva** (Demon) den Sprungpunkt Deneb–Vasuda Prime;
@@ -125,6 +134,11 @@ Mission und wurde gegen die kaputte Fassung gestellt (dort fällt sie durch).
 
 **Noch nicht gebaut:** eine Prüfung, die eine doppelt belegte
 Missionsnummer von selbst meldet. Erst nach Silvios Entscheidung.
+
+**Abgenommen, Silvio, 19.11.2026** (nach v333): „Funktioniert einwandfrei.
+Das Schöne an der Mission ist, dass der Spieler gezwungen ist, sich
+Verstärkung zu rufen, weil es sonst praktisch nicht schaffbar ist."
+Der Schwierigkeitsgrad bleibt damit so, wie er ist.
 
 
 ---
