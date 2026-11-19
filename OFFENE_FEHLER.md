@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 18.11.2026, v331, M1 bis M22 abgenommen)
+## Lage — als Erstes lesen (Stand 19.11.2026, v332, M1 bis M22 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F129 | M23 „Evangelist" (FS1-Original 19): die Eva am Sprungpunkt zerstören, Waffen-Subsystem als Nebenziel | v332 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
@@ -67,9 +68,43 @@ Arbeitsliste.
 
 ---
 
-Stand: v331. M22 und der Umbau der Juggernauts warten auf Silvios Urteil.
+Stand: v332. M23 wartet auf Silvios Urteil.
 
 ---
+
+---
+
+## F129 — M23 „Evangelist" (FS1-Original 19), v332
+
+Die nächste neue Mission nach M22. Im Original (`fs1/sm2-09a.fs2`) hält der
+shivanische Zerstörer **Eva** (Demon) den Sprungpunkt Deneb–Vasuda Prime;
+der Spieler führt Medusa-Bomber mit Tsunami-Bomben, gedeckt von Ulysses und
+Hercules. Bewachung: zwei Dragons (Arjuna), drei Manticores (Krishna) und
+der Kreuzer **Raja** (Cain). Der Rat aus der Besprechung: erst das
+Waffen-Subsystem der Eva ausschalten, dann kommen die Bomben durch.
+
+**Silvio, 19.11.2026** (zur Frage, ob der Rumpf bis zum Ausfall der Waffen
+gesperrt sein soll): „Ja, der Rumpf muss nicht gesperrt werden. Sie hält
+ohnehin schon genug aus."
+
+**So gebaut (v332):**
+
+- Auftrag von Anfang an: die Eva zerstören. Das Ausschalten ihrer Waffen ist
+  **Nebenziel**, kein Zwang — wer sofort auf den Rumpf bombt, nimmt ihr
+  volles Abwehrfeuer mit, und das Nebenziel gilt am Ende als verfehlt.
+- Die Eva steht still am Sprungpunkt, der Kreuzer Raja davor und seitlich.
+- Die zwei Dragons sind von Anfang an im Feld; die drei Manticores kommen,
+  sobald der Rumpf der Eva unter 85 % fällt — also auf jedem Weg, der zum
+  Sieg führt.
+- Verbündet: zwei Medusa-Bomber und zwei Hercules.
+- **Kein Nachladen:** Die Galatea ist in dieser Originalmission nicht beim
+  Gefecht (sie wird dort als anderswo angegriffen gemeldet), also steht kein
+  Trägerschiff im Feld. Das Rearm-Tor (F22, `home:true`) regelt das von
+  selbst. Die Medusa trägt genug Tsunamis.
+- Weggelassen: das Abarbeiten von zwanzig Bomben mit mehrfachem Nachladen,
+  die Beta-Staffel und der dritte Medusa der Alpha-Staffel.
+
+Die Mission endet nur über die Eva — keine Uhr, kein Nachschub ohne Ende.
 
 ---
 

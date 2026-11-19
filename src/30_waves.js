@@ -3773,6 +3773,47 @@ const SCRIPT_WAVES = {
        {t:'anzahlUnter', a:'RA', b:1, d:2, w:'abzug', a2:''}
      ]},
 
+  // Evangelist (fs1/sm2-09a). The Shivan destroyer Eva holds the Deneb
+  // jump node to Vasuda Prime; the player leads the Medusa bombers that
+  // are sent to break her. The briefing's advice is kept as a secondary
+  // order: take her weapons subsystem out first and the bombs get
+  // through. Silvio, 19.11.2026: the hull stays open from the start -
+  // "Ja, der Rumpf muss nicht gesperrt werden. Sie haelt ohnehin schon
+  // genug aus." So whoever is in a hurry may bomb her straight away and
+  // pays for it with her turrets; the secondary order is then missed.
+  // No rearm: the Galatea is not at this fight in the original (she is
+  // reported under attack elsewhere), so no carrier stands in the field -
+  // the standard gate (home:true, F22) takes care of that by itself. The
+  // Medusa carries bombs enough.
+  // Left out: the twenty-bomb grind with repeated rearming, Beta wing,
+  // and the third Medusa of Alpha wing.
+  // The Eva was the ship the player scanned under cover in M22 - the
+  // same hull, now the target.
+  23:{name:'Evangelist', era:'fs1', orig:19, ship:'bomedusa', fac:'hol',
+      o:'clear', live:6,
+      ziel:'Destroy the destroyer Eva', u:[
+       {id:'A2', c:'bo', n:1, size:2, spr:'bomedusa', side:'ally'},
+       {id:'GA', c:'fi', n:1, size:2, spr:'fiherc', side:'ally'},
+       {id:'EV', mark:'destroy', c:'de', n:1, spr:'dedemon', fac:'shivan',
+        still:true, x:460, y:250, label:'SD Eva'},
+       {id:'RA', c:'cr', n:1, spr:'crcain', fac:'shivan',
+        still:true, x:300, y:400, label:'SC Raja'},
+       {id:'AR', c:'fi', n:1, size:2, spr:'fidragon', fac:'shivan', label:'SF Arjuna'},
+       {id:'KR', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', wait:true}
+     ], ev:[
+       {t:'sek', a:3, w:'nebenziel', a2:'Knock out the weapons on the Eva'},
+       {t:'subsystem', a:'EV', b:'weapons', w:'nebenOk', a2:'The guns of the Eva are out'},
+       {t:'subsystem', a:'EV', b:'weapons', d:1, w:'meldung', a2:'The Eva is disarmed - the bombs get through now'},
+       // her escort notices the bombing run, not the approach
+       {t:'rumpfUnter', a:'EV', b:85, w:'meldung', a2:'Shivan fighters inbound'},
+       {t:'rumpfUnter', a:'EV', b:85, d:1, w:'einwarpen', a2:'KR'},
+       // bombed down with her turrets still firing: the secondary order
+       // is missed, and it is said so before the mission is won
+       {t:'vernichtet', a:'EV', solange:{t:'subsystem', a:'EV', b:'weapons'},
+        w:'nebenFail', a2:'Her guns were never silenced'},
+       {t:'vernichtet', a:'EV', w:'zielerfuellt', a2:'The Eva is destroyed'},
+       {t:'vernichtet', a:'EV', d:2, w:'abzug', a2:''}
+     ]},
   24:{name:'The Ambush', fac:'hol', o:'clear', live:6, u:[
        {id:'A1', c:'fi', n:2, side:'ally'},
        {id:'E1', c:'fi', n:3},
