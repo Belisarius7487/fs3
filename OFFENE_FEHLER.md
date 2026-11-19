@@ -123,6 +123,21 @@ Auslöser bei 75 % arbeitet richtig (nachgemessen: sie erscheint bei 74,5 %
 Rumpf), aber der Rückfall nach 150 Sekunden griff vorher, sobald ein
 Spieler die Bomber gut genug abwehrt.
 
+### Silvios Befund zu v336 (19.11.2026)
+
+> da die Galatea nach links ausgerichtet ist, sollten die Hermes nicht
+> durch ihre Hülle ploppen, sondern hinter ihr auftauchen
+
+**Ursache:** Die Tiefenwerte des Bay-Wegs der Orion springen schon am
+zweiten Punkt von innen auf „Spielebene“, und dieser Punkt liegt noch über
+dem Rumpf. Die Kapsel kam damit mitten über der Galatea nach vorn und flog
+sichtbar durch sie hindurch. Beim Landen fiel das nie auf, weil die Kapsel
+dort von außen kommt und erst am Schluss in die Tiefe geht.
+
+**Behoben in v337:** Solange die Kapsel über dem Rumpf steht, bleibt sie in
+der Tiefe der Hangaröffnung und ist von ihm verdeckt; erst wenn sie ihn
+hinter sich hat, kommt sie in die Spielebene.
+
 **Behoben in v336:** Schluss erst, wenn die Kapseln draußen **und** die
 Galatea zerstört ist; die Lucifer richtet deutlich mehr Schaden an, damit
 daraus keine Wartezeit wird (der Nachschub läuft ohnehin weiter, solange

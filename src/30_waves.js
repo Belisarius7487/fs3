@@ -1559,28 +1559,34 @@ function podLaunch(a){
     a.sc = a.sc0*Math.max(0.05, 1 - a.outT/POD_OUT_T);
     a.cs += (POD_SPEED*0.6 - a.cs)*0.08;
     a.x += Math.cos(a.head)*a.cs; a.y += Math.sin(a.head)*a.cs;
-    if(path) a.podD += (Math.min(1, path[a.bayStep][2]) - a.podD)*0.08;
+    // stay at the opening's depth: she is inside her at this point and
+    // must not be drawn in front of the hull (Silvio, 19.11.2026)
+    if(path) a.podD += (Math.min(1, path[path.length-1][2]) - a.podD)*0.08;
     if(--a.outT > 0) return false;
     a.sc = a.sc0; a.invuln = false;
     if(!path) return podFree(a);
     return false;
   }
   // backwards along the bay path, point by point
+  // Over her hull she stays at the hangar's depth and is hidden by it;
+  // she rises into the play plane only once she is past her, so she comes
+  // out from behind her instead of through her (Silvio, 19.11.2026). The
+  // bay path's own depth jumps to the play plane at its second point from
+  // the inside, and that point still sits over the hull.
+  const b = eBox(t), m = 30*FIELD_K;
+  const clear = a.x < b[0]-m || a.x > b[0]+b[2]+m || a.y < b[1]-m || a.y > b[1]+b[3]+m;
+  const wantD = clear ? 1 : Math.min(1, path[path.length-1][2]);
+  a.podD += (wantD - a.podD)*0.06;
   // out in the play plane and clear of her hull: she is free. The path's
   // outermost point lies far outside the ship (the Orion's is twice her
   // half length out) and is only the approach point for landing.
-  if(a.podD >= 0.97){
-    const b = eBox(t), m = 30*FIELD_K;
-    if(a.x < b[0]-m || a.x > b[0]+b[2]+m || a.y < b[1]-m || a.y > b[1]+b[3]+m)
-      return podFree(a);
-  }
+  if(clear && a.podD >= 0.97) return podFree(a);
   const q = podBayPt(t, path[a.bayStep]);
   if(Math.hypot(q.x - a.x, q.y - a.y) < POD_CATCH){
     if(a.bayStep <= 0) return podFree(a);
     a.bayStep--;
   }
   const g = podBayPt(t, path[a.bayStep]);
-  a.podD += (Math.min(1, path[a.bayStep][2]) - a.podD)*0.06;
   const dx = g.x - a.x, dy = g.y - a.y, d = Math.hypot(dx, dy) || 0.001;
   let df = Math.atan2(dy/d, dx/d) - a.head;
   while(df >  Math.PI) df -= Math.PI*2;
