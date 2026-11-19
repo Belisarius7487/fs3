@@ -3929,15 +3929,18 @@ const SCRIPT_WAVES = {
        {id:'A2', c:'bo', n:1, size:2, spr:'bomedusa', side:'ally'},
        // bigger wings than the original's pairs (Silvio: the Galatea is
        // well armed, it may take more than a few at once)
-       {id:'BH', c:'bo', n:1, size:8, spr:'bonephilim', fac:'shivan', label:'SB Bheema'},
-       {id:'RA', c:'fi', n:1, size:8, spr:'fimanticore', fac:'shivan', label:'SF Rama'},
-       {id:'BH2', c:'bo', n:1, size:8, spr:'bonephilim', fac:'shivan', wait:true, label:'SB Asura'},
-       {id:'RA2', c:'fi', n:1, size:8, spr:'fimanticore', fac:'shivan', wait:true, label:'SF Krishna'},
-       {id:'BH3', c:'bo', n:1, size:8, spr:'bonephilim', fac:'shivan', wait:true, label:'SB Indra'},
-       {id:'RA3', c:'fi', n:1, size:8, spr:'fimanticore', fac:'shivan', wait:true, label:'SF Arjuna'},
+       // They jump in right beside her instead of at the edge, so their
+       // run starts at once (Silvio, 19.11.2026). Her hull reaches from
+       // about 180 to 420 on the grid, so 480 and up is clear of her.
+       {id:'BH', c:'bo', n:1, size:8, spr:'bonephilim', fac:'shivan', x:490, y:300, label:'SB Bheema'},
+       {id:'RA', c:'fi', n:1, size:8, spr:'fimanticore', fac:'shivan', x:520, y:180, label:'SF Rama'},
+       {id:'BH2', c:'bo', n:1, size:8, spr:'bonephilim', fac:'shivan', wait:true, x:500, y:200, label:'SB Asura'},
+       {id:'RA2', c:'fi', n:1, size:8, spr:'fimanticore', fac:'shivan', wait:true, x:530, y:350, label:'SF Krishna'},
+       {id:'BH3', c:'bo', n:1, size:8, spr:'bonephilim', fac:'shivan', wait:true, x:490, y:380, label:'SB Indra'},
+       {id:'RA3', c:'fi', n:1, size:8, spr:'fimanticore', fac:'shivan', wait:true, x:520, y:240, label:'SF Arjuna'},
        // invulnerable like in M14 (F66: hits only flare her shield)
        {id:'LU', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, shieldShow:true,
-        x:697, stopX:660, y:265, wait:true, beamFocus:'GA', beamMul:4},
+        x:697, stopX:660, y:265, wait:true, beamFocus:'GA', beamMul:7},
        {id:'H1', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, from:'GA',
         cross:-2.9, label:'Escape pod'},
        {id:'H2', c:'ep', n:1, spr:'ephermes', side:'ally', wait:true, from:'GA',
@@ -3960,9 +3963,10 @@ const SCRIPT_WAVES = {
        // under 75 % she calls it: the Lucifer arrives, the crew goes
        {t:'rumpfUnter', a:'GA', b:75, w:'einwarpen', a2:'LU'},
        // fallback, so the mission cannot stall if she is never worn down.
-       // Measured without a player she drops under 75 % after about 65 s,
-       // so this has to sit well clear of that or it would take over.
-       {t:'sek', a:150, w:'einwarpen', a2:'LU'},
+       // It took over in v335: a player who fights the bombers off well
+       // keeps her above 75 % past 150 s, and then the Lucifer came in at
+       // 85 % (Silvio). Far enough out now to be a brake and nothing else.
+       {t:'sek', a:300, w:'einwarpen', a2:'LU'},
        {t:'da', a:'LU', d:2, w:'ziel', a2:'Cover the escape pods'},
        {t:'da', a:'LU', d:2, w:'einwarpen', a2:'H1'},
        {t:'da', a:'LU', d:7, w:'einwarpen', a2:'H2'},
@@ -3976,8 +3980,13 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'H1+H2+H3+H4+H5',
         solange:[{t:'verlaesst', a:'H1+H2+H3+H4+H5'}, {t:'vernichtet', a:'H1+H2+H3+H4+H5'}],
         w:'zielteil', a2:'Part of her crew got away'},
-       {t:'alleZerstoert', a:'H1+H2+H3+H4+H5', w:'raus', a2:'LU'},
-       {t:'alleZerstoert', a:'H1+H2+H3+H4+H5', d:6, w:'abzug', a2:'', hold:true}
+       // She dies in this mission, whatever else happens (Silvio,
+       // 19.11.2026) - so the Lucifer stays until she is gone. No idle
+       // waiting comes of it: the wings keep coming while the Galatea lives.
+       {t:'alleZerstoert', a:'H1+H2+H3+H4+H5', wenn:{t:'vernichtet', a:'GA'},
+        w:'raus', a2:'LU'},
+       {t:'alleZerstoert', a:'H1+H2+H3+H4+H5', wenn:{t:'vernichtet', a:'GA'},
+        d:6, w:'abzug', a2:'', hold:true}
      ]},
 
   28:{name:'The Ramming', fac:'hol', o:'guard', live:5, u:[

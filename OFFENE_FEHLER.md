@@ -108,6 +108,27 @@ Mission. Die Galatea springt damit nie mehr ab: sie stirbt oder sie steht.
 Dass nur eine Kapsel kam, hing daran — ohne ihr Trägerschiff fanden die
 folgenden Kapseln keine Fighterbay mehr.
 
+### Silvios Befunde zu v335 (19.11.2026)
+
+> Jetzt ist die Lucifer nach einiger Zeit einfach herausgewarpt während die
+> Galatea noch bei rund 50% Hülle war. Zudem sprang sie nicht erst rein als
+> die Galatea bei 75% war sondern früher. Dazu kommt, dass die Bomber nach
+> wie vor zu leicht abzuwehren sind. Mein Rat wäre sie näher an der Galatea
+> hereinwarpen zu lassen, damit sie schneller Schaden anrichten können.
+
+**Ursachen:** Das Missionsende hing allein an den Kapseln — waren alle
+fünf draußen, sprang die Lucifer ab und die Mission war vorbei, auch wenn
+die Galatea noch stand. Der zu frühe Einsprung war die Notbremse: der
+Auslöser bei 75 % arbeitet richtig (nachgemessen: sie erscheint bei 74,5 %
+Rumpf), aber der Rückfall nach 150 Sekunden griff vorher, sobald ein
+Spieler die Bomber gut genug abwehrt.
+
+**Behoben in v336:** Schluss erst, wenn die Kapseln draußen **und** die
+Galatea zerstört ist; die Lucifer richtet deutlich mehr Schaden an, damit
+daraus keine Wartezeit wird (der Nachschub läuft ohnehin weiter, solange
+die Galatea lebt). Notbremse von 150 auf 300 Sekunden. Bomber und Jäger
+springen direkt neben der Galatea ein statt am Rand.
+
 **Behoben in v335:** `stay:true` und `noWarp:true` an der Galatea, Staffeln
 von vier auf acht verdoppelt, fünf Kapseln statt drei.
 
