@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 19.11.2026, v332, M1 bis M22 abgenommen)
+## Lage — als Erstes lesen (Stand 19.11.2026, v333, M1 bis M22 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F129 | M23 „Evangelist" (FS1-Original 19): die Eva am Sprungpunkt zerstören, Waffen-Subsystem als Nebenziel | v332 |
+| F129 | M23 „Evangelist" (FS1-Original 19): die Eva am Sprungpunkt zerstören, Waffen-Subsystem als Nebenziel | v332, in v333 erst wirksam |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
@@ -68,7 +68,7 @@ Arbeitsliste.
 
 ---
 
-Stand: v332. M23 wartet auf Silvios Urteil.
+Stand: v333. M23 wartet auf Silvios Urteil.
 
 ---
 
@@ -105,6 +105,27 @@ ohnehin schon genug aus."
   die Beta-Staffel und der dritte Medusa der Alpha-Staffel.
 
 Die Mission endet nur über die Eva — keine Uhr, kein Nachschub ohne Ende.
+
+**Nachtrag v333 — die Mission war in v332 nicht im Spiel.**
+
+**Silvio, 19.11.2026:** „Ähm... hab 332 gebaut, aber die Mission ist nicht
+da. Es ist immer noch die alte Mission"
+
+Ursache, im Code nachgewiesen: Unter der Nummer 23 stand schon eine alte
+Mission („The Pickup"). Die Missionsliste ist nicht nach Nummern sortiert —
+die alte 23 lag hinter der 24, also hinter der neuen Mission, und hat sie
+beim Laden überschrieben. Keine Prüfstufe hat das gemeldet; die Zahl
+„82 Missionen geprüft" blieb unverändert, weil eine die andere ersetzt hatte.
+
+**Behoben in v333:** Die alte Mission „The Pickup" ist entfernt, Nummer 23
+ist jetzt „Evangelist". `docksim` prüfte an den Daten dieser alten Mission,
+dass die Frachter automatisch auf die Zahl der Container aufgestockt werden;
+diese Prüfung hängt jetzt an einem eigenen kleinen Beispiel statt an einer
+Mission und wurde gegen die kaputte Fassung gestellt (dort fällt sie durch).
+
+**Noch nicht gebaut:** eine Prüfung, die eine doppelt belegte
+Missionsnummer von selbst meldet. Erst nach Silvios Entscheidung.
+
 
 ---
 

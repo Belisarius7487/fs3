@@ -182,7 +182,7 @@ check('its freighter leaves empty, does not take the other', msgs('LEFT EMPTY') 
 check('never two on one container', shared === 0);
 check('counted once', lost() === 1, 'lost ' + lost());
 
-// ── 5b. Enemy container shot by the player (M023) ─────────────
+// ── 5b. Enemy container shot by the player ───────────────────
 begin('5b scanned enemy container shot before pickup');
 const c5b = container('C1', 300, 200, 'enemy'); container('C1', 320, 330, 'enemy');
 freighter('F1', -40, 200, 'C1'); freighter('F1', -40, 300, 'C1');
@@ -205,7 +205,7 @@ api.spawnQ.push({uid:'C1', type:'protect', spr:'fcvc3'});
 run(50);
 check('waits instead of leaving empty', msgs('LEFT EMPTY') === 0 && msgs('NO CARGO') === 0);
 
-// ── 8. Freighters held back for an event (M023) ───────────────
+// ── 8. Freighters held back for an event ─────────────────────
 begin('8  freighters held for an event');
 container('C1', 300, 200, 'enemy');
 api.EV_HELD['F1'] = [{uid:'F1', type:'protect', dockTo:'C1'}];
@@ -235,10 +235,18 @@ begin('10 freighter count follows the containers');
 const cnt = (m, id) => api.scriptUnitsResolved(api.SCRIPT_WAVES[m]).find(u => u.id === id);
 // v253: M9 is an FS1 mission now; M3's freighters each fetch one container.
 check('M003: one container, one freighter each', cnt(3, 'F1').n === 1 && cnt(3, 'C1').pickup);
-check('M023: three containers, now three freighters', cnt(23, 'F1').n === 3 && cnt(23, 'C1').pickup,
-      'was ' + api.SCRIPT_WAVES[23].u.find(u => u.id === 'F1').n);
+// The rule on a def of its own, so it no longer hangs on one mission:
+// "The Pickup" carried this case until v333, where mission 23 became the
+// FS1 mission "Evangelist" and the old one was dropped. Three containers,
+// two freighters written by hand - the resolver has to send three.
+const pickDef = {u:[{id:'C1', c:'fc', n:3, spr:'fcvc3', scan:true},
+                    {id:'F1', c:'fr', n:2, spr:'frbast', side:'ally', dockTo:'C1'}]};
+const pickRes = api.scriptUnitsResolved(pickDef);
+check('three containers, now three freighters',
+      pickRes.find(u => u.id === 'F1').n === 3 && pickRes.find(u => u.id === 'C1').pickup,
+      'was ' + pickRes.find(u => u.id === 'F1').n);
 check('M027: transports unchanged', cnt(27, 'T1').n === 1 && !cnt(27, 'A1').pickup);
-check('mission data itself untouched', api.SCRIPT_WAVES[23].u.find(u => u.id === 'F1').n === 2);
+check('mission data itself untouched', pickDef.u.find(u => u.id === 'F1').n === 2);
 
 // ── 11. Cargo riding on a freighter (v253, Shieldbreaker) ─────
 begin('11 cargo rides on its freighter, dies or leaves with her');

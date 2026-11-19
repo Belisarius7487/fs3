@@ -3850,20 +3850,6 @@ const SCRIPT_WAVES = {
        {t:'zerstoert', a:'V3', w:'nachschub', a2:'aus'}
      ]},
 
-  // live 6 -> 4 (v185), same reason as The Convoy.
-  23:{name:'The Pickup', fac:'hol', o:'scan', live:4, hunt:'C1', u:[
-       {id:'C1', c:'fc', n:3, spr:'fcvc3', scan:true, x:200},
-       {id:'E1', c:'fi', n:2},
-       {id:'F1', c:'fr', n:2, spr:'frbast', side:'ally', cross:0.34, x:-40,
-        dockTo:'C1', wait:true}
-     ], ev:[
-       {t:'erfuellt', a:'', w:'einwarpen', a2:'F1'},
-       {t:'erfuellt', a:'', w:'meldung',   a2:'freighters inbound'},
-       {t:'erfuellt', a:'', w:'auftrag',   a2:'protect'},
-       {t:'erfuellt', a:'', w:'nachschub', a2:'an'},
-       {t:'alleZerstoert', a:'F1', w:'nachschub', a2:'aus'}
-     ]},
-
   // v185: the Vasudan bombers are now two to three times as tough (Osiris
   // 207/154). Two wings of two took all three Isis; one bomber per wing and
   // a cap of 4 leaves the repair a fight again.
