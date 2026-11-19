@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 19.11.2026, v333, M1 bis M23 abgenommen)
+## Lage — als Erstes lesen (Stand 19.11.2026, v337, M1 bis M24 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F130 | M24 „Doomsday“ — der Untergang der Galatea, die Rettungskapseln starten aus ihrer Fighterbay | v335 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 
 **Offen, noch nicht gebaut:**
@@ -38,7 +37,12 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
 
-## F130 — M24 „Doomsday“ (v334, 19.11.2026)
+## F130 — M24 „Doomsday“ (v334 bis v337, 19.11.2026, abgenommen)
+
+**Abgenommen am 19.11.2026** (Silvio, nach v337: „jetzt passt es"). Damit
+sind **M1 bis M24** abgenommen. Die nächste Mission ist M25 — im Original
+FS1 `fs1/sm3-01a.fs2`, „Exodus".
+
 
 Silvios Vorgaben für die Mission, in seinen Worten (19.11.2026):
 
