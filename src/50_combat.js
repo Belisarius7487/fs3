@@ -3259,6 +3259,10 @@ function warpFiring(e){
 }
 function updateBeams(e) {
   if(!e.beams || (e.warp>0 && !warpFiring(e))) return;
+  // M25 (Silvio, 21.11.2026): her main guns stay cold while nothing of our
+  // own above fighter size is in the field. She only answers a capital
+  // ship the player calls in.
+  if(e.beamsWhenCalled && typeof CALLED_CAP !== 'undefined' && !CALLED_CAP) return;
   // Told not to fire: no beams either (v180, the Sathanas passing in 78
   // still lit their anti-fighter beams once the cover was blown).
   // A beam that was firing is put down, not left hanging (v183: a ship in

@@ -1125,8 +1125,11 @@ function placePlanet(p){
   const key = (p.key && PLANET_DATA[p.key]) ? p.key : (had ? had.key : all[(Math.random()*all.length)|0]);
   const w = p.w || PLANET_W_MAX;
   bodies = bodies.filter(function(b){ return b.kind!=='planet'; });
+  // fix (M25, Vasuda Prime): she holds her place on the screen instead of
+  // drifting with the camera, so a beam aimed at her always strikes the
+  // same spot. Speed 0 takes her out of the parallax in bodyPar().
   bodies.push({key:key, kind:'planet', meta:PLANET_DATA[key], w:w, x:p.x, y:p.y,
-               spd: BODY_SPD_MIN + (Math.min(w, SUN_W_MAX)/SUN_W_MAX)*(BODY_SPD_MAX-BODY_SPD_MIN)});
+               spd: p.fix ? 0 : BODY_SPD_MIN + (Math.min(w, SUN_W_MAX)/SUN_W_MAX)*(BODY_SPD_MAX-BODY_SPD_MIN)});
   bodies.sort(function(a,b){ return a.w-b.w; });
 }
 
@@ -1237,6 +1240,78 @@ function drawBodies(){
   if(dim>0){
     ctx.fillStyle='rgba(4,6,12,'+(dim*bodyA).toFixed(3)+')';
     ctx.fillRect(0,0,W,H);
+  }
+}
+
+// ── PLANET BOMBARDMENT (M25, Vasuda Prime) ────────────────────
+// A capital ship carrying bombard:{dx,dy,px,py,w} fires past her own hull
+// at the planet behind her. dx/dy is the mount on her picture, the same
+// relative place the model data uses for guns and thrusters. px/py is the
+// spot on the planet, in shares of its radius from its middle. Drawn
+// before the ships, so her hull covers the root of it: the shot comes
+// from her far side. White core, orange-red flanks, thinning towards the
+// planet so it reads as reaching into the distance.
+function bombardTarget(b){
+  let pl = null;
+  for(const o of bodies) if(o.kind==='planet'){ pl = o; break; }
+  if(!pl) return null;
+  const img = BODY_IMG[pl.key];
+  if(!img || !img.complete || !img.naturalWidth) return null;
+  const h = pl.w*img.height/img.width;
+  const bp = bodyPar(pl);
+  const r = (pl.meta && pl.meta.r > 0) ? pl.meta.r*pl.w : pl.w*0.5;
+  return {x: pl.x - bp.x + (b.px||0)*r, y: pl.y - bp.y + (b.py||0)*r, r: r, h: h};
+}
+// One tapered band: wide at the ship, narrow at the planet.
+function bombardBand(x0, y0, x1, y1, w0, w1, col, a0, a1){
+  const dx = x1-x0, dy = y1-y0, len = Math.hypot(dx, dy) || 1;
+  const nx = -dy/len, ny = dx/len;
+  const g = ctx.createLinearGradient(x0, y0, x1, y1);
+  g.addColorStop(0, col.replace('A', a0.toFixed(3)));
+  g.addColorStop(0.55, col.replace('A', (a0*0.55 + a1*0.45).toFixed(3)));
+  g.addColorStop(1, col.replace('A', a1.toFixed(3)));
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(x0 + nx*w0, y0 + ny*w0);
+  ctx.lineTo(x1 + nx*w1, y1 + ny*w1);
+  ctx.lineTo(x1 - nx*w1, y1 - ny*w1);
+  ctx.lineTo(x0 - nx*w0, y0 - ny*w0);
+  ctx.closePath();
+  ctx.fill();
+}
+function drawBombard(){
+  if(GS !== 'playing' || typeof enemies === 'undefined') return;
+  for(const e of enemies){
+    const b = e.bombard;
+    if(!b || e.dead) continue;
+    const t = bombardTarget(b);
+    if(!t) continue;
+    const img = IMGS[e.img];
+    if(!img) continue;
+    const m = mountPos(e, {dx: b.dx||0, dy: b.dy||0});
+    // The planet keeps to the screen, the mount lives in the world - so
+    // the aiming point is carried into world units before drawing.
+    const tx = (typeof s2wX === 'function') ? s2wX(t.x) : t.x;
+    const ty = (typeof s2wY === 'function') ? s2wY(t.y) : t.y;
+    // A slow swell, so the shot is alive without flickering.
+    const pu = 0.88 + 0.12*Math.sin(spawnT*0.055);
+    const w0 = (b.w || 0.028)*img.height*e.sc*pu;
+    const w1 = w0*0.16;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    bombardBand(m.x, m.y, tx, ty, w0*2.6, w1*2.8, 'rgba(255,42,6,A)',    0.52, 0.20);
+    bombardBand(m.x, m.y, tx, ty, w0*1.3, w1*1.6, 'rgba(255,104,16,A)',  0.70, 0.28);
+    bombardBand(m.x, m.y, tx, ty, w0*0.26, w1*0.42, 'rgba(255,236,206,A)', 0.80, 0.30);
+    // Where it bites into the planet: a glow that stays put, because the
+    // planet does (fix in placePlanet).
+    const gR = w0*2.6;
+    const gr = ctx.createRadialGradient(tx, ty, 0, tx, ty, gR);
+    gr.addColorStop(0,    'rgba(255,240,215,'+(0.55*pu).toFixed(3)+')');
+    gr.addColorStop(0.3,  'rgba(255,140,44,'+(0.34*pu).toFixed(3)+')');
+    gr.addColorStop(1,    'rgba(255,70,16,0)');
+    ctx.fillStyle = gr;
+    ctx.beginPath(); ctx.arc(tx, ty, gR, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
   }
 }
 

@@ -1355,6 +1355,10 @@ function updateVasudan(){
 // ticket lets you pick any of the destroyers in the menu. Tickets survive
 // losing a life and are cleared on game over.
 let tickets = {cruiser:0, corvette:0, destroyer:0, colossus:0};
+// M25: set as soon as the player has called in a ship of her own of
+// cruiser class or larger. Every support ticket is that or bigger, so
+// one called escort is enough. Cleared when a wave starts.
+let CALLED_CAP = false;
 const TICKET_START = {cruiser:1, corvette:0, destroyer:0, colossus:0};
 const TICKET_ORDER = ['cruiser','corvette','destroyer','colossus'];
 const TICKET_ABBR  = {cruiser:'CR', corvette:'CV', destroyer:'DE', colossus:'CO'};
@@ -1756,6 +1760,7 @@ function allyHull(d){
 }
 function mkAlly(id){
   const d = ALLY_DEFS[id]; if(!d) return null;
+  CALLED_CAP = true;      // M25: the Lucifer's beams wake on this
   const spr = d.spr; if(!spr) return null;
   const img = IMGS[spr];
   const geo = {

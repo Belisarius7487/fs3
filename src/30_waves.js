@@ -1839,6 +1839,11 @@ function applySpawnOpts(e, sp){
   // beamMul (v257, Tombaugh): her beams hit this many times harder - the
   // Lucifer that wiped out a station and its fleet in one strike.
   if(sp.beamMul) e.beamMul = sp.beamMul;
+  // bombard (M25): she burns a planet in the background, drawn under the
+  // hulls. beamsWhenCalled: her own guns wake only once the player has
+  // called in a capital ship.
+  if(sp.bombard) e.bombard = sp.bombard;
+  if(sp.beamsWhenCalled) e.beamsWhenCalled = true;
   // ghost: scenery shots pass through, no lock and no subsystems (M78).
   if(sp.ghost){ e.ghost = true; e.noTarget = true; e.subs = null; }
   if(sp.gasBeams) e.gasBeams = true;
@@ -3396,132 +3401,72 @@ const SCRIPT_WAVES = {
        // The rest ends on its own: the last Shivan down, nothing left to come.
      ]},
 
-  25:{name:'The Escape', fac:'hol', o:'clear', live:5, u:[
-       {id:'F1', c:'fr', n:2, spr:'frbast', escape:0.55, x:-40},
-       {id:'T1', c:'tr', n:1, spr:'trisis', escape:0.62, x:-40},
-       {id:'E1', c:'fi', n:2}
+  // M25 "The Fall of Vasuda Prime" - the FS1 cutscene played as a mission
+  // (Silvio, 20./21.11.2026). The Lucifer burns the planet with a beam
+  // past her far flank while refugee ships climb out of Vasuda Prime and
+  // run for the jump point; Shivan fighters hunt them down. She cannot be
+  // fought: invulnerable, and her own main guns stay cold until the
+  // player calls in a capital ship of his own (beamsWhenCalled).
+  // neb/planet fix: this one scene needs its own sky, and the planet must
+  // hold still so the bombardment always strikes the same spot.
+  // The first twenty seconds carry no refugee, so the player can take the
+  // scene in before he has anyone to cover (Silvio, 21.11.2026).
+  25:{name:'The Fall of Vasuda Prime', era:'fs1', orig:21, ship:'fiherc',
+      fac:'hol', o:'clear', live:10,
+      neb:'Vasuda',
+      planet:{key:'VasudaPrime-03B', x:700, y:300, w:520, fix:true},
+      // The Shivan fighters are here for the convoy, not for the player;
+      // the hunt moves on to each wave as it lifts off.
+      hunt:'T1', huntShare:0.8,
+      ziel:'Cover the refugee ships out of Vasuda Prime', u:[
+       {id:'LU', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, shieldShow:true,
+        x:175, y:200, still:true, noWarp:true, noHold:true,
+        beamsWhenCalled:true, beamMul:4,
+        // dx/dy is the mount Silvio marked on her side view, dead on one
+        // of her two beam points; px/py the spot on the planet, in shares
+        // of its radius from the middle.
+        bombard:{dx:0.353, dy:0.087, px:-0.04, py:0.50, w:0.022},
+        label:'SD Lucifer'},
+       {id:'A1', c:'fi', n:2, size:3, spr:'fiherc', side:'ally'},
+       // Three lifts out of the atmosphere. cross below zero: they come in
+       // at the right edge, out of the planet's quarter, and run left.
+       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:20, x:248, y:150, cross:-0.12, label:'PVT Isis'},
+       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:23, x:252, y:250, cross:-0.12, label:'PVT Anhur'},
+       {id:'T1', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', noWarp:true, t:26, x:246, y:330, cross:-0.12, label:'PVF Satis'},
+       {id:'T1', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', noWarp:true, t:29, x:256, y:195, cross:-0.18, label:'Escape pod'},
+       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:32, x:250, y:290, cross:-0.12, label:'PVT Nekhbet'},
+       {id:'T2', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', noWarp:true, t:44, x:262, y:165, cross:-0.12, label:'PVF Nekhen'},
+       {id:'T2', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:47, x:258, y:310, cross:-0.12, label:'PVT Sokar'},
+       {id:'T2', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', noWarp:true, t:50, x:266, y:225, cross:-0.18, label:'Escape pod'},
+       {id:'T2', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:53, x:260, y:345, cross:-0.12, label:'PVT Khonsu'},
+       {id:'T2', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', noWarp:true, t:56, x:264, y:185, cross:-0.12, label:'PVF Sekhmet'},
+       {id:'T3', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:66, x:272, y:265, cross:-0.12, label:'PVT Wadjet'},
+       {id:'T3', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', noWarp:true, t:69, x:276, y:340, cross:-0.12, label:'PVF Hathor'},
+       {id:'T3', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', noWarp:true, t:72, x:270, y:160, cross:-0.18, label:'Escape pod'},
+       {id:'T3', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', noWarp:true, t:75, x:274, y:300, cross:-0.18, label:'Escape pod'},
+       // The hunters come in beside the convoy, so their run starts at
+       // once instead of being flown in from the edge.
+       {id:'S1', c:'fi', n:1, size:4, spr:'fiscorpion',  fac:'shivan', t:22, x:300, y:230, label:'SF Scorpio'},
+       {id:'S2', c:'fi', n:1, size:4, spr:'fimanticore', fac:'shivan', t:27, x:305, y:320, label:'SF Manticore'},
+       {id:'S3', c:'fi', n:1, size:5, spr:'fiscorpion',  fac:'shivan', t:45, x:310, y:250, label:'SF Scorpio'},
+       {id:'S4', c:'fi', n:1, size:5, spr:'fimanticore', fac:'shivan', t:51, x:312, y:180, label:'SF Manticore'},
+       {id:'S5', c:'fi', n:1, size:6, spr:'fiscorpion',  fac:'shivan', t:67, x:316, y:330, label:'SF Scorpio'},
+       {id:'S6', c:'fi', n:1, size:6, spr:'fimanticore', fac:'shivan', t:72, x:318, y:270, label:'SF Manticore'}
      ], ev:[
-       {t:'sek', a:2, w:'nachschub', a2:'an'},
-       {t:'alleZerstoert', a:'F1', w:'nachschub', a2:'aus'}
-     ]},
-
-  // La Ruota della Fortuna (fs1/sm2-03a). Alpha in Medusas comes to wipe
-  // out a Hammer of Light outpost, but the Shivans were first: only the
-  // wreck of the Vasudan station still drifts about (wreck3d, the Karnak's
-  // own debris pieces), and the Shivans who did it are still there, a
-  // little worn. Their bombers down, two more Scorpions; those down, the
-  // Galatea jumps in (the home ship) and right behind her the cruisers
-  // Lilith and Cain. Replaces the old mission 17 (Silvio, 23.10.2026).
-  17:{name:'La Ruota della Fortuna', era:'fs1', orig:13, ship:'bomedusa', fac:'hol', o:'clear', live:6,
-      wreck3d:{key:'inkarnak', n:5},
-      ziel:'Destroy all Shivans', u:[
-       {id:'W1', c:'bo', n:1, size:3, spr:'bomedusa', side:'ally'},
-       // already there when Alpha arrives, worn from the fight with the outpost
-       {id:'E1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:323, y:223, noWarp:true, hurt:0.8},
-       {id:'E2', c:'fi', n:1, size:1, spr:'fibasilisk', fac:'shivan', x:354, y:289, noWarp:true, hurt:0.8},
-       {id:'B1', c:'bo', n:1, size:2, spr:'boshaitan', fac:'shivan', x:333, y:339, noWarp:true, hurt:0.85},
-       {id:'V1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
-       {id:'GA', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally', x:115, y:273, still:true, wait:true,
-        home:true, label:'GTD Galatea'},
-       {id:'LI', c:'cr', n:1, spr:'crlilith', fac:'shivan', x:257, y:218, still:true, wait:true, label:'SC Lilith'},
-       {id:'CA', c:'cr', n:1, spr:'crcain', fac:'shivan', x:267, y:334, still:true, wait:true, label:'SC Cain'},
-       {id:'A1', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
-       {id:'R1', c:'bo', n:1, size:2, spr:'bonephilim', fac:'shivan', wait:true},
-       {id:'R2', c:'fi', n:1, size:1, spr:'fiscorpion', fac:'shivan', wait:true},
-       {id:'D1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally', wait:true}
-     ], ev:[
-       {t:'alleZerstoert', a:'B1', d:4, w:'einwarpen', a2:'V1'},
-       {t:'alleZerstoert', a:'V1', d:7, w:'einwarpen', a2:'GA'},
-       {t:'da', a:'GA', d:6, w:'einwarpen', a2:'LI'},
-       {t:'da', a:'GA', d:6, w:'einwarpen', a2:'CA'},
-       {t:'da', a:'GA', d:10, w:'einwarpen', a2:'A1'},
-       // the Lilith hit: Nephilims and a Scorpion go for the Galatea
-       {t:'rumpfUnter', a:'LI', b:90, w:'einwarpen', a2:'R1'},
-       {t:'rumpfUnter', a:'LI', b:90, w:'einwarpen', a2:'R2'},
-       {t:'da', a:'R1', w:'jagd', a2:'GA'},
-       // help: two Valkyries against the bombers
-       {t:'da', a:'LI', d:15, w:'einwarpen', a2:'D1'},
-       {t:'da', a:'GA', w:'bonus', a2:'Keep the Galatea above half hull', keep:true},
-       {t:'rumpfUnter', a:'GA', b:50, w:'bonusFail', a2:'The Galatea is below half hull'},
-       {t:'vernichtet', a:'GA', w:'zielverfehlt', a2:'The Galatea is lost'},
-       {t:'vernichtet', a:'GA', d:6, w:'abzug', a2:''}
-       // The rest ends on its own: the last Shivan down, nothing left to come.
-     ]},
-
-  // Where Eagles Dare (fs1/sm2-04a). Alpha raids a Hammer of Light supply
-  // depot: six containers, three Ankh sentry guns, Seths. Two transports
-  // lie alongside two freighters; after 10 s all four run for the jump
-  // node. Once they are gone, Anubis come in, and Hammer of
-  // Light freighters and GTA freighters race for the containers - ours to
-  // be covered, theirs to be stopped. No home ship, so no rearm.
-  // The containers are drawn larger (F94); every Taurus is a Ma'at, the
-  // Satis took no containers in FS1 (F95).
-  // Replaces the old mission 18 (Silvio, 23.10.2026).
-  18:{name:'Where Eagles Dare', era:'fs1', orig:14, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
-      ziel:'Stop the Gemini transports and freighters', u:[
-       {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
-       {id:'W2', c:'bo', n:1, size:3, spr:'boathena', side:'ally'},
-       // six containers: one for each of the six freighters that come for
-       // them, else two would find none and jump out empty at once
-       // F99 (v283): as large as still fits the Chronos' deck between her
-       // end blocks (docksim 12) - any of them may be hers. Was VC3 x3 and
-       // VAC4 x1.4 (F94); those rested on her end blocks.
-       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:252, y:220},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:283, y:243},
-       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:260, y:266},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:283, y:286},
-       {id:'K', c:'fc', n:1, spr:'fcvc3', big:2.2, x:260, y:309},
-       {id:'K', c:'fc', n:1, spr:'fcvac4', big:0.95, x:283, y:329},
-       {id:'G1', c:'sg', n:1, spr:'sgankh', x:233, y:266},
-       {id:'G1', c:'sg', n:1, spr:'sgankh', x:307, y:216},
-       {id:'G1', c:'sg', n:1, spr:'sgankh', x:307, y:329},
-       {id:'E1', c:'fi', n:1, size:4, spr:'fiseth', t:2},
-       // the Gemini: two freighters, a transport alongside each. They lie
-       // well short of the jump node (right) so they can be caught.
-       {id:'F1', mark:'destroy', c:'fr', n:1, spr:'frsatis', x:197, y:243, escape:0.25, escWarp:true,
-        escHit:true, escDelay:10, label:'PVFr Gemini 2'},
-       {id:'F2', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:197, y:302, escape:0.25, escWarp:true,
-        escHit:true, escDelay:10, label:'PVFr Gemini 3'},
-       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:199, y:225, escape:0.3, escWarp:true,
-        escHit:true, escDelay:10, label:'PVT Gemini 4'},
-       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:199, y:319, escape:0.3, escWarp:true,
-        escHit:true, escDelay:10, label:'PVT Gemini 1'},
-       {id:'E2', c:'fi', n:1, size:3, spr:'fiseth', wait:true},
-       {id:'E3', c:'fi', n:1, size:4, spr:'fianubis', wait:true},
-       // the race for the containers
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:227, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 1'},
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:272, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:317, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 3'},
-       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:127, y:231, warpIn:true, wait:true,
-        dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 1'},
-       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frchronos', side:'ally', x:127, y:272, warpIn:true, wait:true,
-        dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 2'},
-       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:127, y:313, warpIn:true, wait:true,
-        dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 3'},
-       {id:'IO', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', wait:true}
-     ], ev:[
-       // after 10 s (escDelay), or once fired on, the Gemini run
-       {t:'sek', a:25, w:'einwarpen', a2:'E2'},
-       {t:'vernichtet', a:'F1+F2+GT', w:'zielerfuellt', a2:'All Gemini stopped'},
-       {t:'verlaesst', a:'F1', w:'meldung', a2:'A Gemini freighter got away'},
-       {t:'verlaesst', a:'F2', w:'meldung', a2:'A Gemini freighter got away'},
-       {t:'verlaesst', a:'GT', w:'meldung', a2:'A Gemini transport got away'},
-       // the Gemini gone, whichever way: Anubis, then the race
-       {t:'alleZerstoert', a:'F1+F2+GT', d:20, w:'einwarpen', a2:'E3'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'TA'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'KA'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'IO'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'ziel', a2:'Cover the Kappa freighters'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'nebenziel', a2:'Stop the Taurus freighters'},
-       {t:'verlaesst', a:'TA', wenn:{t:'angedockt', a:'TA'}, w:'nebenFail', a2:'A Taurus freighter got away with cargo'},
-       {t:'vernichtet', a:'TA', w:'nebenOk', a2:'All Taurus freighters stopped'},
-       {t:'leer', a:'KA', w:'meldung', a2:'A Kappa freighter found no cargo left'},
-       {t:'verlaesst', a:'KA', wenn:{t:'angedockt', a:'KA'}, w:'zielerfuellt', a2:'The Kappa freighters are away with the cargo'},
-       {t:'vernichtet', a:'KA', w:'zielverfehlt', a2:'The Kappa freighters are lost'},
-       // the wave stays open until our freighters are through, one way or
-       // the other; then what is left of the depot is scenery
-       {t:'alleZerstoert', a:'KA', hold:true, w:'kulisse', a2:'K'}
-       // The rest ends on its own: the last enemy down, nothing left to come.
+       // the hunt follows each lift as it comes up
+       {t:'sek', a:44, w:'jagd', a2:'T2'},
+       {t:'sek', a:66, w:'jagd', a2:'T3'},
+       // 14 ships lift off, every one is either saved or lost - so the two
+       // results cover every run between them and never both fire: four or
+       // more away means at most ten lost, eleven lost means at most three
+       // away. 'gerettet' waits until nobody is still under way.
+       {t:'gerettet', a:4,  w:'zielerfuellt', a2:'Refugees escaped Vasuda Prime'},
+       {t:'verloren', a:11, w:'zielverfehlt', a2:'Vasuda Prime burned with them'},
+       // The end hangs on the lifts, not on the Lucifer - she never dies
+       // and never leaves. Every lift is seen before this can hold, so it
+       // cannot fire in a gap between two of them.
+       {t:'alleZerstoert', a:'T1+T2+T3', w:'nachschub', a2:'aus'},
+       {t:'alleZerstoert', a:'T1+T2+T3', d:6, w:'abzug', a2:'', hold:true}
      ]},
 
   26:{name:'The Minefield', fac:'hol', o:'guard', live:4,
@@ -5990,6 +5935,9 @@ function scriptUnit(u, fac, q){
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
          gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
          noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, beamMul:u.beamMul, stopX:u.stopX, shieldShow:u.shieldShow,
+         // M25: the planet she burns, and her guns held back until the
+         // player calls in a capital ship. Dropped here, both did nothing.
+         bombard:u.bombard, beamsWhenCalled:u.beamsWhenCalled,
          ghost:u.ghost, crossAfter:u.crossAfter, portalMid:u.portalMid});
     return;
   }
@@ -6117,7 +6065,14 @@ function buildScripted(def){
     if(missionSec(gk, true)) notice(secDefP(gk).name.toUpperCase()+' FITTED', 'info');
   }
   if(def.scene) useScene(def.scene);
+  // neb (M25): a mission that needs one certain backdrop names it instead
+  // of taking whatever was rolled.
+  if(def.neb && typeof NEB_DATA !== 'undefined' && NEB_DATA[def.neb]){
+    nebCur = def.neb;
+    if(typeof NEBS !== 'undefined' && !NEBS[nebCur] && typeof nebLoad === 'function') nebLoad(nebCur);
+  }
   if(def.planet) placePlanet(def.planet);     // F69 (v258)
+  CALLED_CAP = false;                          // M25: no escort called yet
   // Ein stehendes Feld wird gesetzt, nicht gespeist. Sonst sammeln sich
   // unbewegliche Brocken ausserhalb des rechten Randes.
   // noRocks: a crossing without the belt feeding rocks into it.

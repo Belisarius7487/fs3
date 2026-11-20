@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 19.11.2026, v337, M1 bis M24 abgenommen)
+## Lage — als Erstes lesen (Stand 21.11.2026, v338, M1 bis M24 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,6 +27,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
+| F133 | M25 „The Fall of Vasuda Prime“ — die FS1-Zwischensequenz als Mission: Lucifer beschießt Vasuda Prime, 14 Flüchtlingsschiffe (Isis, Satis, Ra-Kapseln) fliehen nach links, Scorpio und Manticore jagen sie. Neu dabei: fester Hintergrund je Mission (`neb`), feststehender Planet (`planet.fix`), Bombardementstrahl (`bombard`), Hauptgeschütze erst bei gerufener Unterstützung (`beamsWhenCalled`). Alte Mission 25 „The Escape“ entfernt | v338 |
 
 **Offen, noch nicht gebaut:**
 
@@ -5627,3 +5628,71 @@ diese Punkte noch gelten, entscheidet Silvio:
    abgeschriebene Kopie von `tickCapRam`, die einen Fehler nicht sehen
    konnte, den das Spiel zeigte. `ramsim.js` liest das Original. Die Kopie
    sollte raus, damit sie kein falsches Vertrauen stiftet.
+
+
+## F133 — M25 „The Fall of Vasuda Prime" (v338, 21.11.2026, Urteil offen)
+
+Statt „Exodus" (`fs1/sm3-01a.fs2`) steht an Stelle 25 jetzt die
+FS1-Zwischensequenz vom Untergang Vasuda Primes, so wie Silvio sie am
+20./21.11.2026 beschrieben hat. Exodus rückt dahinter.
+
+Silvios Vorgaben, in seinen Worten:
+
+> Allerdings braucht dies einiges an Sonderfunktionen mit einem bestimmten
+> Hintergrund, einem bestimmten Planeten, einem Blauweißen Zusatzbeam an der
+> vom Spieler abgewandten Seite der Lucifer, der auf den Planeten feuert.
+> Dabei müssten Vasudanische Transporter versuchen vom Planeten zu fliehen,
+> während Shivanische Schiffe diese verfolgen und zu zerstören versuchen.
+
+> In FS1 ist es ziemlich tragisch, da etliche Flüchtlingstransporter von
+> Vasuda Prime starten, aber nur eine kleine Handvoll entkommt. Ich würde es
+> so machen, dass die normalen Geschütze der Lucifer und etliche Jäger sich
+> auf die Flüchtlingskonvois stürzen anstatt dem Spieler und seiner
+> Verbündeten. Die Lucifer nutzt ihre zwei vorderen Strahlengeschütze nur,
+> wenn der Spieler Kreuzer oder größer als Unterstützung ruft.
+
+> Der hinter dem Lucifer Rumpf befindliche Beamstrahl sollte nicht blau-weiß
+> sein, sondern orange-rot-weiß (weiß wie immer der Kern des Strahls) und nur
+> auf den Planeten feuern, also immer dünner werden, um den Eindruck zu
+> erwecken, dass er in die Ferne zielt und auch immer dieselbe Stelle auf dem
+> Planeten treffen, daher darf sich der Planet nicht bewegen, wie es die
+> Planeten in anderen Missionen machen.
+
+> ja, die Kapseln zählen mit. Ich würde dich auch bitten die Kapseln nicht
+> gleich bei Missionsstart spawnen zu lassen, sondern mindestens 20 Sekunden
+> zu warten, damit der Spieler die Möglichkeit hat die Mission bzw. das
+> Setting zu sehen und zu verstehen
+
+Weitere Festlegungen: 10 Transporter (Isis und Satis), dazu Ra-Kapseln, die
+für das Ziel mitzählen; als Verfolger Scorpio und Manticore. Die Stelle des
+Bombardementstrahls hat Silvio auf dem alten 2D-Sprite eingezeichnet; sie
+liegt bei `dx 0.353, dy 0.087` und damit genau auf einem der beiden
+Strahlpunkte, die das Modell ohnehin führt.
+
+**So ist es gebaut:**
+
+- 14 Flüchtlingsschiffe in drei Schüben (ab 20 s, dann 44 s und 66 s), sechs
+  Isis, vier Satis, vier Ra-Kapseln. Sie kommen rechts ins Bild und laufen
+  nach links aus dem Feld (`cross`), die Kapseln schneller als die Schiffe.
+  Die ersten zwanzig Sekunden gehört das Bild allein der Lucifer.
+- Ergebnis: vier oder mehr durch = Ziel erfüllt, elf oder mehr verloren =
+  Ziel verfehlt. Zusammen decken die beiden jeden Ausgang ab und können nie
+  beide feuern. Die Welle endet, wenn alle drei Schübe aus dem Feld sind.
+- Die Jagd der Shivaner (`hunt`) wandert mit jedem Schub weiter.
+- Die Lucifer ist unverwundbar, steht und springt nie ab; ihre zwei
+  Strahlengeschütze bleiben kalt, bis der Spieler ein eigenes Schiff ab
+  Kreuzergröße ruft (`beamsWhenCalled`, gesetzt über `CALLED_CAP` in
+  `mkAlly`).
+- Neu im Spiel, für alle Missionen nutzbar: `neb:'<Name>'` nagelt den
+  Hintergrund fest, `planet:{… fix:true}` nimmt den Planeten aus der
+  Parallaxe, `bombard:{dx,dy,px,py,w}` zeichnet den Strahl unter den Rümpfen
+  (`drawBombard` in `20_render.js`), `px`/`py` ist die Einschlagstelle in
+  Anteilen des Planetenradius.
+
+**Noch nicht im echten Spiel gesehen.** In der Cloud fehlen die
+Planetenbilder (`PLANET_DATA` füllt erst der Packer auf dem Server) und die
+Modelle, deshalb ist der Strahl hier nur mit einem Ersatzplaneten und mit
+grauen Platzhalterschiffen geprüft. Offen bleibt damit, ob der Rumpf der
+Lucifer die Wurzel des Strahls wirklich verdeckt, ob `VasudaPrime-03B` im
+Planeten-Ordner auf dem Server liegt (sonst nimmt das Spiel einen anderen
+Planeten) und ob Breite und Farbe des Strahls im Bild stimmen.

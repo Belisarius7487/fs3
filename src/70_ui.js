@@ -44,6 +44,9 @@ function draw(){
 
   // v208: from here on the field is drawn through the camera (world units)
   camOn();
+  // M25: the bombardment of a planet goes under the hulls, so the shot
+  // leaves the ship on her far side.
+  try{ if(typeof drawBombard==='function') drawBombard(); }catch(eb){}
   // v201 (Silvio's layer order): the shots go over the ships now - capital
   // ships, then small craft, then shots. What a turret on the far flank
   // fires is drawn here, under the hulls, until it is clear of its ship.
