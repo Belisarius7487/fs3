@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 21.11.2026, v338, M1 bis M24 abgenommen)
+## Lage — als Erstes lesen (Stand 21.11.2026, v339, M1 bis M24 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,7 +27,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
-| F133 | M25 „The Fall of Vasuda Prime“ — die FS1-Zwischensequenz als Mission: Lucifer beschießt Vasuda Prime, 14 Flüchtlingsschiffe (Isis, Satis, Ra-Kapseln) fliehen nach links, Scorpio und Manticore jagen sie. Neu dabei: fester Hintergrund je Mission (`neb`), feststehender Planet (`planet.fix`), Bombardementstrahl (`bombard`), Hauptgeschütze erst bei gerufener Unterstützung (`beamsWhenCalled`). Alte Mission 25 „The Escape“ entfernt | v338 |
+| F133 | M25 „The Fall of Vasuda Prime“ — die FS1-Zwischensequenz als Mission: Lucifer beschießt Vasuda Prime, 14 Flüchtlingsschiffe (Isis, Satis, Ra-Kapseln) fliehen nach links, Scorpio und Manticore jagen sie. Neu dabei: fester Hintergrund je Mission (`neb`), feststehender Planet (`planet.fix`), Bombardementstrahl (`bombard`), Hauptgeschütze erst bei gerufener Unterstützung (`beamsWhenCalled`). Alte Mission 25 „The Escape“ entfernt | v338, v339 |
 
 **Offen, noch nicht gebaut:**
 
@@ -5630,7 +5630,7 @@ diese Punkte noch gelten, entscheidet Silvio:
    sollte raus, damit sie kein falsches Vertrauen stiftet.
 
 
-## F133 — M25 „The Fall of Vasuda Prime" (v338, 21.11.2026, Urteil offen)
+## F133 — M25 „The Fall of Vasuda Prime" (v338/v339, 21.11.2026, Urteil offen)
 
 Statt „Exodus" (`fs1/sm3-01a.fs2`) steht an Stelle 25 jetzt die
 FS1-Zwischensequenz vom Untergang Vasuda Primes, so wie Silvio sie am
@@ -5696,3 +5696,17 @@ grauen Platzhalterschiffen geprüft. Offen bleibt damit, ob der Rumpf der
 Lucifer die Wurzel des Strahls wirklich verdeckt, ob `VasudaPrime-03B` im
 Planeten-Ordner auf dem Server liegt (sonst nimmt das Spiel einen anderen
 Planeten) und ob Breite und Farbe des Strahls im Bild stimmen.
+
+**Nachtrag v339 (21.11.2026).** Silvio nach v338: „Planet und Hintergrund
+stimmen, aber zwei große Probleme: Der Planet ist zu groß skaliert, daher
+matschig. Mindestens mal halbieren. Zweitens warpt die Lucifer zu
+Missionsstart rein, statt schon da zu stehen.“ Dazu: „Der Strahl des
+Planetenbombardements ist etwas zu weit links, sodass er auf dem Planeten
+tatsächlich Wasser statt Landmasse trifft.“
+
+- Planet halbiert (`w` 520 auf 260).
+- **`noWarp` wurde im Zweig für Superzerstörer gar nicht durchgereicht**
+  (`scriptUnit`, `u.c==='sd'`): die Angabe stand in der Mission, kam aber nie
+  am Schiff an, also kam die Lucifer immer durch einen Wirbel. Gilt für jede
+  Mission mit einem stehenden Superzerstörer, nicht nur für M25.
+- Einschlagstelle nach rechts gerückt (`px` −0.04 auf 0.14).

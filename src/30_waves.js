@@ -3414,7 +3414,7 @@ const SCRIPT_WAVES = {
   25:{name:'The Fall of Vasuda Prime', era:'fs1', orig:21, ship:'fiherc',
       fac:'hol', o:'clear', live:10,
       neb:'Vasuda',
-      planet:{key:'VasudaPrime-03B', x:700, y:300, w:520, fix:true},
+      planet:{key:'VasudaPrime-03B', x:700, y:300, w:260, fix:true},
       // The Shivan fighters are here for the convoy, not for the player;
       // the hunt moves on to each wave as it lifts off.
       hunt:'T1', huntShare:0.8,
@@ -3425,7 +3425,7 @@ const SCRIPT_WAVES = {
         // dx/dy is the mount Silvio marked on her side view, dead on one
         // of her two beam points; px/py the spot on the planet, in shares
         // of its radius from the middle.
-        bombard:{dx:0.353, dy:0.087, px:-0.04, py:0.50, w:0.022},
+        bombard:{dx:0.353, dy:0.087, px:0.14, py:0.50, w:0.022},
         label:'SD Lucifer'},
        {id:'A1', c:'fi', n:2, size:3, spr:'fiherc', side:'ally'},
        // Three lifts out of the atmosphere. cross below zero: they come in
@@ -5932,6 +5932,10 @@ function scriptUnit(u, fac, q){
          // capital ship (hasSubsystems), only this branch never passed
          // the job on, so scanSubs on her did nothing at all.
          scanSubs:u.scanSubs,
+         // M25 (Silvio, 21.11.2026: "warpt die Lucifer zu Missionsstart rein,
+         // statt schon da zu stehen"): noWarp was never handed on in this
+         // branch, so a super destroyer always came through a vortex.
+         noWarp:u.noWarp,
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
          gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
          noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, beamMul:u.beamMul, stopX:u.stopX, shieldShow:u.shieldShow,
