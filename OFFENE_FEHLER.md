@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 21.11.2026, v340, M1 bis M24 abgenommen)
+## Lage — als Erstes lesen (Stand 21.11.2026, v341, M1 bis M24 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -29,6 +29,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F133 | M25 „The Fall of Vasuda Prime“ — die FS1-Zwischensequenz als Mission: Lucifer beschießt Vasuda Prime, 14 Flüchtlingsschiffe (Isis, Satis, Ra-Kapseln) fliehen nach links, Scorpio und Manticore jagen sie. Neu dabei: fester Hintergrund je Mission (`neb`), feststehender Planet (`planet.fix`), Bombardementstrahl (`bombard`), Hauptgeschütze erst bei gerufener Unterstützung (`beamsWhenCalled`). Alte Mission 25 „The Escape“ entfernt | v338–v340 |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt — vorher stand dort nur „Escaped“ ohne Schiff. Gilt für alle Missionen | v340 |
+| F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
 
@@ -5760,3 +5761,29 @@ Die Kapseln in M25 heißen deshalb „Escape pod 1“ bis „4“ und nicht alle
 gleich. **Offen:** ob das für Silvio reicht oder ob auch Auftragszeilen
 (`zielerfuellt` und Verwandte) das auslösende Schiff nennen sollen — deren
 Text schreibt bisher die Mission.
+
+## F135 — M17 und M18 versehentlich gelöscht (v338 bis v340, behoben in v341)
+
+Silvio, 21.11.2026: „Ich habe gerade einen neuen Durchlauf gestartet und
+stelle fest, dass ich ab Mission 17 wieder bei den alten Missionen war".
+
+Ursache, im Code nachgesehen: Beim Entfernen der alten Mission 25 („The
+Escape", v338) wurde nicht nur deren Block gelöscht, sondern alles bis zur
+nächsten **Nummer, nach der gesucht wurde** — und zwischen der alten Mission
+25 und Mission 26 standen in der Datei **M17 „La Ruota della Fortuna" und
+M18 „Where Eagles Dare"**. Die Missionsliste ist nicht nach Nummern sortiert;
+geprüft wurde nur, wo Mission 25 anfängt und wo das nächste `]},` steht —
+und das war das Ende von M18, nicht das von Mission 25. Keine Prüfstufe hat
+es gemeldet: eine **fehlende** Nummer fällt keiner von ihnen auf, nur eine
+doppelte wäre (siehe den offenen Punkt zur Prüfung doppelter
+Missionsnummern) überhaupt Thema gewesen.
+
+Behoben in v341: beide Missionen sind Zeichen für Zeichen aus dem Stand vor
+v338 wiederhergestellt (verglichen, identisch). `fieldsim` läuft für beide
+durch, `warpsim` meldet für M17/M18 genau dieselben vier Punkte wie v337 —
+also nichts Neues.
+
+**Lehre für die nächste Sitzung:** Vor und nach dem Entfernen einer Mission
+die vollständige Nummernliste vergleichen:
+`grep -oE "^ *[0-9]+: *\{" src/30_waves.js | tr -d ' :{' | sort -n`
+Es darf genau eine Nummer verschwinden.
