@@ -891,7 +891,7 @@ function leaveEmpty(e, wasCargo){
     if(typeof plogEvent === 'function')
       plogEvent(plogName(e)+' found no cargo',
                 (e.side==='ally' || allies.indexOf(e) >= 0) ? 'bad' : 'good');
-    SUB_MSGS.push({x:e.x, y:e.y-28, txt:'NO CARGO', life:150, ml:150,
+    SUB_MSGS.push({x:e.x, y:e.y-28, txt:'NO CARGO', logTxt: plogName(e)+' FOUND NO CARGO', life:150, ml:150,
                    ally:false, tone:(e.side==='ally' || allies.indexOf(e) >= 0) ? 'bad' : 'good'});
   }
   if(e.crossAfter){ e.crossing = e.crossAfter; faceTurn(e, e.crossAfter < 0); }
@@ -1115,7 +1115,7 @@ function tickDocking(){
     c.resBy = null;
     // F134: name the cargo nobody came back for
     if(typeof plogEvent === 'function') plogEvent(plogName(c)+' left behind', 'bad');
-    SUB_MSGS.push({x:c.x, y:c.y-24, txt:'CARGO LEFT BEHIND', life:170, ml:170,
+    SUB_MSGS.push({x:c.x, y:c.y-24, txt:'CARGO LEFT BEHIND', logTxt: plogName(c)+' LEFT BEHIND', life:170, ml:170,
                    ally:false, tone:ours ? 'bad' : 'good'});
   }
   for(const e of all){
@@ -1375,8 +1375,8 @@ function tickEscapers(){
       e.warpX = e.x; e.warpY = e.y;
       // An untouchable ship leaving is the story, not a miss (the Azrael).
       if(!e.invuln)
-        SUB_MSGS.push({x:e.x, y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
-                       ally:false, tone:'bad'});
+        SUB_MSGS.push({x:e.x, y:e.y, txt:'TARGET ESCAPED', logTxt: plogName(e)+' ESCAPED',
+                       life:170, ml:170, ally:false, tone:'bad'});
       continue;
     }
     // Ganz draussen heisst: die linke Kante hat den rechten Rand passiert.
@@ -1387,7 +1387,8 @@ function tickEscapers(){
       // F134: name her, the same way a ship reaching the jump point is named
       if(typeof plogEvent === 'function') plogEvent(plogName(e)+' escaped', 'bad');
       score = Math.max(0, score - Math.round((e.pts||200)*ESCAPE_PENALTY));
-      SUB_MSGS.push({x:Math.min(e.x, CAM.x+camHalfW()*0.8), y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
+      SUB_MSGS.push({x:Math.min(e.x, CAM.x+camHalfW()*0.8), y:e.y, txt:'TARGET ESCAPED',
+                     logTxt: plogName(e)+' ESCAPED', life:170, ml:170,
                      ally:false, tone:'bad'});
       enemies.splice(i,1);
     }
@@ -1633,11 +1634,11 @@ function tickCrossGuards(){
       crossDone++; if(!a.emptyRun) protSaved++;
       if(a.uid) EV_LEFT[a.uid] = true;
       { const _fi = allies.indexOf(a); if(_fi>=0) allies.splice(_fi,1); }
-      SUB_MSGS.push({x:a.x, y:a.y,
-                     txt: (hullClass(a.img)==='ep') ? 'RESCUED'
-                          : (a.emptyRun ? 'LEFT EMPTY'
-                          // F110 (v293): only a ship that carried something delivered it
-                          : ((a.dockedTo || a.hasCargo || a.dockTo) ? 'DELIVERED' : 'ESCAPED')),
+      const _end = (hullClass(a.img)==='ep') ? 'RESCUED'
+                   : (a.emptyRun ? 'LEFT EMPTY'
+                   // F110 (v293): only a ship that carried something delivered it
+                   : ((a.dockedTo || a.hasCargo || a.dockTo) ? 'DELIVERED' : 'ESCAPED'));
+      SUB_MSGS.push({x:a.x, y:a.y, txt:_end, logTxt: plogName(a)+' '+_end,
                      life:150, ml:150, ally:true, tone:'good'});
       // F134 (Silvio, 21.11.2026): the log said only "Escaped" and never
       // which ship it was. Every one of ours that gets through is named.

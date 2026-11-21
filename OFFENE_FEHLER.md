@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 21.11.2026, v343, M1 bis M24 abgenommen)
+## Lage — als Erstes lesen (Stand 21.11.2026, v344, M1 bis M24 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,7 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 |---|---|---|
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F133 | M25 „The Fall of Vasuda Prime“ — die FS1-Zwischensequenz als Mission: Lucifer beschießt Vasuda Prime, 14 Flüchtlingsschiffe (Isis, Satis, Ra-Kapseln) fliehen nach links, Scorpio und Manticore jagen sie. Neu dabei: fester Hintergrund je Mission (`neb`), feststehender Planet (`planet.fix`), Bombardementstrahl (`bombard`), Hauptgeschütze erst bei gerufener Unterstützung (`beamsWhenCalled`). Alte Mission 25 „The Escape“ entfernt | v338–v340 |
-| F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343 |
+| F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
@@ -5821,3 +5821,20 @@ Gebaut:
 **Offen:** Die Auftragszeilen (`zielerfuellt` und Verwandte) nennen weiter
 nur den Text, den die Mission schreibt — ob dort auch das auslösende Schiff
 stehen soll, hat Silvio noch nicht entschieden.
+
+**Nachtrag v344 (21.11.2026).** Silvio schickte ein Bild des
+Pausebildschirms: unter LOG stand weiterhin nur „RESCUED“, zweimal
+untereinander.
+
+Befund: Es gibt **zwei** Protokolle, und v340/v343 hatten das falsche
+getroffen. `plogEvent` füllt die Zeitleiste des Wellenberichts am Ende.
+Das LOG im Pausebildschirm dagegen füllt `mlogLine`, und gespeist wird es
+allein aus den schwebenden Feldtexten (`drawSubMsgs`, Filter
+`SUB_MSG_LOG`) — also aus „RESCUED“, „ESCAPED“, „NO CARGO“ und
+Verwandten, die den Namen des Schiffs nie trugen.
+
+Gebaut: Eine Feldmeldung kann jetzt eine eigene, ausführlichere Zeile fürs
+Log mitführen (`logTxt`). Im Feld steht weiter der kurze Text — dort ist
+das Schiff ja direkt darunter —, im Log steht der Name davor: „ESCAPE POD 1
+RESCUED“, „PVF SATIS ESCAPED“, „GTF URSA FOUND NO CARGO“, „VC 3 LEFT
+BEHIND“. In M24 nachgesehen, das Log liest sich jetzt so.

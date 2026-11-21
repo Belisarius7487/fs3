@@ -918,7 +918,12 @@ const SUB_MSG_LOG = /^(RESCUED|DELIVERED|ESCAPED|LEFT EMPTY|CARGO LEFT BEHIND|TA
 function drawSubMsgs(){
   for(let i=SUB_MSGS.length-1;i>=0;i--){
     const m=SUB_MSGS[i];
-    if(!m._seen){ m._seen = true; if(SUB_MSG_LOG.test(String(m.txt||''))) mlogLine(m.txt, m.tone==='bad'?'bad':(m.tone==='good'?'good':'info')); }
+    // F134 (Silvio, 21.11.2026): in the field the ship is right there under
+    // the text, in the log it is not - so a message may carry a fuller line
+    // for the log, with the name of the ship it belongs to.
+    if(!m._seen){ m._seen = true;
+      if(m.logTxt || SUB_MSG_LOG.test(String(m.txt||'')))
+        mlogLine(m.logTxt || m.txt, m.tone==='bad'?'bad':(m.tone==='good'?'good':'info')); }
     if(--m.life<=0){ SUB_MSGS.splice(i,1); continue; }
   }
 }
