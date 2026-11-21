@@ -1451,6 +1451,8 @@ function podFly(a){
     if(--a.landT > 0) return false;
     if(a.uid) EV_LEFT[a.uid] = true;
     if(a.guard && !a.protCounted){ a.protCounted = true; protSaved++; }
+    // F134: name her in the log instead of a bare line (F89 pods landing)
+    if(typeof plogEvent === 'function') plogEvent(plogName(a) + ' aboard', 'good');
     return true;
   }
   let wx, wy, want = 1, turnK = 1;
@@ -1608,7 +1610,12 @@ function tickCrossGuards(){
     // pod at its real speed she rolled off the edge and counted as rescued.
     if(a.rollT != null) continue;
     if(dkCastOffStep(a)) continue;           // F99 (v283): off the dock first
-    a.x += a.crossing;
+    // Out of her vortex she is already under way, but only as fast as she
+    // is out of it (M25, the refugees of Vasuda Prime jump in and then
+    // run): no standing start in the portal and no jump in her speed when
+    // it closes, which is what warpsim watches for.
+    const wk = (a.warp > 0 && a.warpMax > 1) ? Math.max(0, 1 - a.warp/a.warpMax) : 1;
+    a.x += a.crossing * wk;
     if(a.crossing > 0 ? (a.x > WX1+60 || (a.x > MW+60 && !camSees(a.x, a.y, 200))) : (a.x < WX0-60 || (a.x < -60 && !camSees(a.x, a.y, 200)))){
       if(a.dockedTo){ a.dockedTo.dead = true;
         const _ci = allies.indexOf(a.dockedTo);
@@ -1624,6 +1631,12 @@ function tickCrossGuards(){
                           // F110 (v293): only a ship that carried something delivered it
                           : ((a.dockedTo || a.hasCargo || a.dockTo) ? 'DELIVERED' : 'ESCAPED')),
                      life:150, ml:150, ally:true, tone:'good'});
+      // F134 (Silvio, 21.11.2026): the log said only "Escaped" and never
+      // which ship it was. Every one of ours that gets through is named.
+      if(typeof plogEvent === 'function')
+        plogEvent(plogName(a) + ((hullClass(a.img)==='ep') ? ' rescued'
+                   : (a.emptyRun ? ' left empty'
+                   : ((a.dockedTo || a.hasCargo || a.dockTo) ? ' delivered' : ' escaped'))), 'good');
     }
   }
   // Sind alle durch, ist der Auftrag erfuellt und die Welle raeumt nur noch auf.
@@ -3411,7 +3424,7 @@ const SCRIPT_WAVES = {
   // hold still so the bombardment always strikes the same spot.
   // The first twenty seconds carry no refugee, so the player can take the
   // scene in before he has anyone to cover (Silvio, 21.11.2026).
-  25:{name:'The Fall of Vasuda Prime', era:'fs1', orig:21, ship:'fiherc',
+  25:{name:'The Fall of Vasuda Prime', era:'fs1', orig:21, ship:'fiherc', pri:['prom1','banshee'],
       fac:'hol', o:'clear', live:10,
       neb:'Vasuda',
       planet:{key:'VasudaPrime-03B', x:700, y:300, w:260, fix:true},
@@ -3430,32 +3443,32 @@ const SCRIPT_WAVES = {
        {id:'A1', c:'fi', n:2, size:3, spr:'fiherc', side:'ally'},
        // Three lifts out of the atmosphere. cross below zero: they come in
        // at the right edge, out of the planet's quarter, and run left.
-       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:20, x:248, y:150, cross:-0.12, label:'PVT Isis'},
-       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:23, x:252, y:250, cross:-0.12, label:'PVT Anhur'},
-       {id:'T1', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', noWarp:true, t:26, x:246, y:330, cross:-0.12, label:'PVF Satis'},
-       {id:'T1', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', noWarp:true, t:29, x:256, y:195, cross:-0.18, label:'Escape pod'},
-       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:32, x:250, y:290, cross:-0.12, label:'PVT Nekhbet'},
-       {id:'T2', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', noWarp:true, t:44, x:262, y:165, cross:-0.12, label:'PVF Nekhen'},
-       {id:'T2', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:47, x:258, y:310, cross:-0.12, label:'PVT Sokar'},
-       {id:'T2', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', noWarp:true, t:50, x:266, y:225, cross:-0.18, label:'Escape pod'},
-       {id:'T2', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:53, x:260, y:345, cross:-0.12, label:'PVT Khonsu'},
-       {id:'T2', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', noWarp:true, t:56, x:264, y:185, cross:-0.12, label:'PVF Sekhmet'},
-       {id:'T3', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', noWarp:true, t:66, x:272, y:265, cross:-0.12, label:'PVT Wadjet'},
-       {id:'T3', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', noWarp:true, t:69, x:276, y:340, cross:-0.12, label:'PVF Hathor'},
-       {id:'T3', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', noWarp:true, t:72, x:270, y:160, cross:-0.18, label:'Escape pod'},
-       {id:'T3', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', noWarp:true, t:75, x:274, y:300, cross:-0.18, label:'Escape pod'},
+       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', warpIn:true, t:20, x:248, y:150, cross:-0.12, label:'PVT Isis'},
+       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', warpIn:true, t:25, x:252, y:250, cross:-0.12, label:'PVT Anhur'},
+       {id:'T1', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', warpIn:true, t:30, x:246, y:330, cross:-0.12, label:'PVF Satis'},
+       {id:'T1', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', warpIn:true, t:35, x:256, y:195, cross:-0.18, label:'Escape pod 1'},
+       {id:'T1', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', warpIn:true, t:40, x:250, y:290, cross:-0.12, label:'PVT Nekhbet'},
+       {id:'T2', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', warpIn:true, t:54, x:262, y:165, cross:-0.12, label:'PVF Nekhen'},
+       {id:'T2', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', warpIn:true, t:59, x:258, y:310, cross:-0.12, label:'PVT Sokar'},
+       {id:'T2', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', warpIn:true, t:64, x:266, y:225, cross:-0.18, label:'Escape pod 2'},
+       {id:'T2', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', warpIn:true, t:69, x:260, y:345, cross:-0.12, label:'PVT Khonsu'},
+       {id:'T2', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', warpIn:true, t:74, x:264, y:185, cross:-0.12, label:'PVF Sekhmet'},
+       {id:'T3', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', warpIn:true, t:88, x:272, y:265, cross:-0.12, label:'PVT Wadjet'},
+       {id:'T3', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', warpIn:true, t:93, x:276, y:340, cross:-0.12, label:'PVF Hathor'},
+       {id:'T3', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', warpIn:true, t:98, x:270, y:160, cross:-0.18, label:'Escape pod 3'},
+       {id:'T3', mark:'protect', c:'ep', n:1, spr:'epra',    side:'ally', warpIn:true, t:103, x:274, y:300, cross:-0.18, label:'Escape pod 4'},
        // The hunters come in beside the convoy, so their run starts at
        // once instead of being flown in from the edge.
        {id:'S1', c:'fi', n:1, size:4, spr:'fiscorpion',  fac:'shivan', t:22, x:300, y:230, label:'SF Scorpio'},
-       {id:'S2', c:'fi', n:1, size:4, spr:'fimanticore', fac:'shivan', t:27, x:305, y:320, label:'SF Manticore'},
-       {id:'S3', c:'fi', n:1, size:5, spr:'fiscorpion',  fac:'shivan', t:45, x:310, y:250, label:'SF Scorpio'},
-       {id:'S4', c:'fi', n:1, size:5, spr:'fimanticore', fac:'shivan', t:51, x:312, y:180, label:'SF Manticore'},
-       {id:'S5', c:'fi', n:1, size:6, spr:'fiscorpion',  fac:'shivan', t:67, x:316, y:330, label:'SF Scorpio'},
-       {id:'S6', c:'fi', n:1, size:6, spr:'fimanticore', fac:'shivan', t:72, x:318, y:270, label:'SF Manticore'}
+       {id:'S2', c:'fi', n:1, size:4, spr:'fimanticore', fac:'shivan', t:32, x:305, y:320, label:'SF Manticore'},
+       {id:'S3', c:'fi', n:1, size:5, spr:'fiscorpion',  fac:'shivan', t:55, x:310, y:250, label:'SF Scorpio'},
+       {id:'S4', c:'fi', n:1, size:5, spr:'fimanticore', fac:'shivan', t:61, x:312, y:180, label:'SF Manticore'},
+       {id:'S5', c:'fi', n:1, size:6, spr:'fiscorpion',  fac:'shivan', t:89, x:316, y:330, label:'SF Scorpio'},
+       {id:'S6', c:'fi', n:1, size:6, spr:'fimanticore', fac:'shivan', t:95, x:318, y:270, label:'SF Manticore'}
      ], ev:[
        // the hunt follows each lift as it comes up
-       {t:'sek', a:44, w:'jagd', a2:'T2'},
-       {t:'sek', a:66, w:'jagd', a2:'T3'},
+       {t:'sek', a:54, w:'jagd', a2:'T2'},
+       {t:'sek', a:88, w:'jagd', a2:'T3'},
        // 14 ships lift off, every one is either saved or lost - so the two
        // results cover every run between them and never both fire: four or
        // more away means at most ten lost, eleven lost means at most three

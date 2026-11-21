@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 21.11.2026, v339, M1 bis M24 abgenommen)
+## Lage — als Erstes lesen (Stand 21.11.2026, v340, M1 bis M24 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,7 +27,8 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
-| F133 | M25 „The Fall of Vasuda Prime“ — die FS1-Zwischensequenz als Mission: Lucifer beschießt Vasuda Prime, 14 Flüchtlingsschiffe (Isis, Satis, Ra-Kapseln) fliehen nach links, Scorpio und Manticore jagen sie. Neu dabei: fester Hintergrund je Mission (`neb`), feststehender Planet (`planet.fix`), Bombardementstrahl (`bombard`), Hauptgeschütze erst bei gerufener Unterstützung (`beamsWhenCalled`). Alte Mission 25 „The Escape“ entfernt | v338, v339 |
+| F133 | M25 „The Fall of Vasuda Prime“ — die FS1-Zwischensequenz als Mission: Lucifer beschießt Vasuda Prime, 14 Flüchtlingsschiffe (Isis, Satis, Ra-Kapseln) fliehen nach links, Scorpio und Manticore jagen sie. Neu dabei: fester Hintergrund je Mission (`neb`), feststehender Planet (`planet.fix`), Bombardementstrahl (`bombard`), Hauptgeschütze erst bei gerufener Unterstützung (`beamsWhenCalled`). Alte Mission 25 „The Escape“ entfernt | v338–v340 |
+| F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt — vorher stand dort nur „Escaped“ ohne Schiff. Gilt für alle Missionen | v340 |
 
 **Offen, noch nicht gebaut:**
 
@@ -5710,3 +5711,52 @@ tatsächlich Wasser statt Landmasse trifft.“
   am Schiff an, also kam die Lucifer immer durch einen Wirbel. Gilt für jede
   Mission mit einem stehenden Superzerstörer, nicht nur für M25.
 - Einschlagstelle nach rechts gerückt (`px` −0.04 auf 0.14).
+
+**Nachtrag v340 (21.11.2026).** Silvio nach v339, drei Punkte:
+
+1. „Wieso startet mein Hercules mit nur einer Avenger und einer D-Advanced?
+   Die D-Advanced wird nur bei Disabling Runs gebraucht.“ — Das war die
+   FS1-Standardbewaffnung der Hercules aus FSPort (Avenger plus Disruptor,
+   und der Disruptor ist bei uns die D-Advanced); M25 hat sie nicht
+   überschrieben. Jetzt `pri:['prom1','banshee']` — Silvios Wahl.
+2. „Im Log steht ‚Escaped‘ als Erfolg. Aber nicht welcher Transporter es
+   geschafft hat. Gleiches Problem betrifft frühere Missionen, auch bei
+   anderen Objectives. Man kann oft nur raten welches Schiff oder Ziel
+   diesen Log-Eintrag erzeugt hat.“ — siehe F134.
+3. „Da es glaube ich zu aufwändig wäre, einen Anflug vom Planeten auf das
+   Spielfeld darzustellen … würde ich den Sprungwirbel bevorzugen.“ — Die
+   Flüchtlingsschiffe springen jetzt ein (`warpIn`) statt aufzuploppen.
+
+Dazu: „Zwischen den einzelnen Spawns der Flüchtlingsschiffe könntest du gerne
+einige wenige Sekunden mehr Zeit verstreichen lassen, damit der Spieler
+überhaupt die Möglichkeit hat die noch im Feld befindlichen Gegner wenigstens
+teilweise abzuschießen.“ — Abstand innerhalb eines Schubs von 3 auf 5
+Sekunden, die drei Schübe starten bei 20 s, 54 s und 88 s.
+
+**Ein Schiff, die aus ihrem Wirbel kommt und gleich quert, beschleunigt
+heraus** statt im Wirbel stillzustehen und beim Schließen auf volle Fahrt zu
+springen (`tickCrossGuards`). `warpsim` meldete genau diesen Sprung; die
+Beschleunigung ist auch das, was man in FreeSpace sieht.
+
+## F134 — Das Protokoll nennt kein Schiff (v340, 21.11.2026, Urteil offen)
+
+Silvio, 21.11.2026: „Im Log steht ‚Escaped‘ als Erfolg. Aber nicht welcher
+Transporter es geschafft hat. Gleiches Problem betrifft frühere Missionen,
+auch bei anderen Objectives. Man kann oft nur raten welches Schiff oder Ziel
+diesen Log-Eintrag erzeugt hat.“
+
+Befund: Für ein durchgekommenes eigenes Schiff gab es überhaupt keinen
+Protokolleintrag — nur den schwebenden Text „ESCAPED“ über dem Schiff
+selbst. Verluste waren schon benannt (`plogAllyLost`), entkommene Gegner auch
+(„X is through“).
+
+Gebaut: an jeder Stelle, an der eines unserer Schiffe das Feld verlässt,
+schreibt das Protokoll jetzt den Namen — `tickCrossGuards` (querende Schiffe:
+„X escaped / delivered / rescued / left empty“), Rettungskapseln in einem
+Hangar („X aboard“), eigene Großkampfschiffe beim Aussprung („X jumped out“)
+und am Ende einer Querung auf Zeit („X is through“).
+
+Die Kapseln in M25 heißen deshalb „Escape pod 1“ bis „4“ und nicht alle
+gleich. **Offen:** ob das für Silvio reicht oder ob auch Auftragszeilen
+(`zielerfuellt` und Verwandte) das auslösende Schiff nennen sollen — deren
+Text schreibt bisher die Mission.

@@ -2206,6 +2206,8 @@ function updateAllies(){
       // Jumped out: she left. Without this 'vernichtet' read her as
       // destroyed the moment she was gone.
       if(a.warpOut <= 0){ if(a.uid) EV_LEFT[a.uid] = true;
+                          // F134: say in the log who jumped out
+                          if(typeof plogEvent === 'function') plogEvent(plogName(a)+' jumped out', 'good');
                           if(a.guard) guardGone = true; allies.splice(i,1); }
       continue;                       // no firing while jumping out
     }
@@ -2240,6 +2242,8 @@ function updateAllies(){
         a.warpOut = a.warpMax; a.warpX = a.x; a.warpY = a.y;
         // She has left, as far as the mission's events are concerned.
         if(a.uid) EV_LEFT[a.uid] = true;
+        // F134: the log names her, not just the fact that someone is through
+        if(typeof plogEvent === 'function') plogEvent(plogName(a)+' is through', 'good');
         // The job is done the moment she engages her drive. The belt stops
         // feeding rocks at her while she is on her way out.
         if(a.guard){
