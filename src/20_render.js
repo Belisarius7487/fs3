@@ -1304,6 +1304,27 @@ function drawBombard(){
     bombardBand(m.x, m.y, tx, ty, w0*0.26, w1*0.42, 'rgba(255,236,206,A)', 0.80, 0.30);
     // Where it bites into the planet: a glow that stays put, because the
     // planet does (fix in placePlanet).
+    // Silvio, 21.11.2026: "Es fehlt etwas, das optisch darauf hinweist,
+    // dass er ein Strahl ist. Dezente Unregelmaessigkeiten im Strahl, die
+    // vom Ursprung zum Planeten hin gehen und immer undeutlicher werden."
+    // Knots of brighter plasma run from the muzzle towards the planet and
+    // fade as they go, so the shot has a direction instead of only
+    // breathing. Their spacing and length differ, so the run never reads
+    // as a rhythm.
+    const KN = 7;
+    for(let i=0;i<KN;i++){
+      const u = ((spawnT*0.0042 + i/KN + (i%3)*0.031) % 1);
+      const ln = 0.055 + 0.035*((i*5)%3);
+      const u0 = Math.max(0, u - ln*0.5), u1 = Math.min(1, u + ln*0.5);
+      if(u1 <= u0) continue;
+      // Further out the shot is thinner and the knot fainter.
+      const wa = (w0 + (w1-w0)*u0)*0.5, wb = (w0 + (w1-w0)*u1)*0.5;
+      const fade = Math.pow(1-u, 1.7)*0.55;
+      if(fade < 0.01) continue;
+      bombardBand(m.x + (tx-m.x)*u0, m.y + (ty-m.y)*u0,
+                  m.x + (tx-m.x)*u1, m.y + (ty-m.y)*u1,
+                  wa, wb, 'rgba(255,214,150,A)', fade*0.35, fade);
+    }
     const gR = w0*2.6;
     const gr = ctx.createRadialGradient(tx, ty, 0, tx, ty, gR);
     gr.addColorStop(0,    'rgba(255,240,215,'+(0.55*pu).toFixed(3)+')');

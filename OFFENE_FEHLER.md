@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 21.11.2026, v341, M1 bis M24 abgenommen)
+## Lage — als Erstes lesen (Stand 21.11.2026, v342, M1 bis M24 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -5787,3 +5787,14 @@ also nichts Neues.
 die vollständige Nummernliste vergleichen:
 `grep -oE "^ *[0-9]+: *\{" src/30_waves.js | tr -d ' :{' | sort -n`
 Es darf genau eine Nummer verschwinden.
+
+**Nachtrag v342 (21.11.2026).** Silvio zum Bombardementstrahl: „Der
+Planetenstrahl der Lucifer hat das Problem, dass er einfach nur leicht
+dünner und dicker werdend wabert. Es fehlt etwas, das optisch darauf
+hinweist, dass er ein Strahl ist. Dezente Unregelmäßigkeiten im Strahl, die
+vom Ursprung zum Planeten hin gehen und immer undeutlicher werden
+vielleicht.“
+
+Gebaut: sieben hellere Knoten laufen vom Geschütz zum Planeten und verblassen
+unterwegs; Abstand und Länge sind ungleich, damit kein Takt entsteht
+(`drawBombard` in `20_render.js`).
