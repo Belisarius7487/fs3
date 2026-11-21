@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 21.11.2026, v342, M1 bis M24 abgenommen)
+## Lage — als Erstes lesen (Stand 21.11.2026, v343, M1 bis M24 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,7 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 |---|---|---|
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F133 | M25 „The Fall of Vasuda Prime“ — die FS1-Zwischensequenz als Mission: Lucifer beschießt Vasuda Prime, 14 Flüchtlingsschiffe (Isis, Satis, Ra-Kapseln) fliehen nach links, Scorpio und Manticore jagen sie. Neu dabei: fester Hintergrund je Mission (`neb`), feststehender Planet (`planet.fix`), Bombardementstrahl (`bombard`), Hauptgeschütze erst bei gerufener Unterstützung (`beamsWhenCalled`). Alte Mission 25 „The Escape“ entfernt | v338–v340 |
-| F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt — vorher stand dort nur „Escaped“ ohne Schiff. Gilt für alle Missionen | v340 |
+| F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
@@ -5798,3 +5798,26 @@ vielleicht.“
 Gebaut: sieben hellere Knoten laufen vom Geschütz zum Planeten und verblassen
 unterwegs; Abstand und Länge sind ungleich, damit kein Takt entsteht
 (`drawBombard` in `20_render.js`).
+
+**Nachtrag v343 (21.11.2026).** Silvio nach v341: „Mir fällt auf, dass in M24
+und allen anderen betroffenen Missionen immer noch nur Escaped oder No Cargo
+und so weiter steht.“ Auf Nachfrage: gemeint ist die Zeitleiste im
+**Pausebildschirm**.
+
+Befund: Seit v340 steht dort ein Name — aber in M24 heißen alle fünf
+Rettungskapseln „Escape pod“, also stand fünfmal dasselbe da. Und mehrere
+Ereignisse schrieben überhaupt nichts in die Zeitleiste, sondern nur den
+schwebenden Text ins Feld.
+
+Gebaut:
+
+- **Gleichnamige Schiffe einer Mission werden durchnummeriert** (`LBL_TOT`,
+  `LBL_IDX` in `30_waves.js`). Erst wird gezählt, dann vergeben, damit auch
+  das erste eine Nummer bekommt. M24 liest sich jetzt „ESCAPE POD 1 rescued
+  … ESCAPE POD 5 lost“. Keine Mission musste dafür angefasst werden.
+- Benannte Einträge dazu, wo es keine gab: „X found no cargo“, „X left
+  behind“, „X escaped“ (Gegner über den rechten Rand), „X captured“.
+
+**Offen:** Die Auftragszeilen (`zielerfuellt` und Verwandte) nennen weiter
+nur den Text, den die Mission schreibt — ob dort auch das auslösende Schiff
+stehen soll, hat Silvio noch nicht entschieden.

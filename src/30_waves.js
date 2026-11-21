@@ -887,6 +887,10 @@ function leaveEmpty(e, wasCargo){
   if(wasCargo){
     e.emptyRun = true;
     // F107 (v292): an enemy leaving empty is good news
+    // F134: the log says which ship went away empty
+    if(typeof plogEvent === 'function')
+      plogEvent(plogName(e)+' found no cargo',
+                (e.side==='ally' || allies.indexOf(e) >= 0) ? 'bad' : 'good');
     SUB_MSGS.push({x:e.x, y:e.y-28, txt:'NO CARGO', life:150, ml:150,
                    ally:false, tone:(e.side==='ally' || allies.indexOf(e) >= 0) ? 'bad' : 'good'});
   }
@@ -1109,6 +1113,8 @@ function tickDocking(){
     if(c.resBy && c.resBy.dead) c.lostCounted = true;
     else if(!c.lostCounted){ c.lostCounted = true; if(ours){ protLost++; guardLost = true; } }
     c.resBy = null;
+    // F134: name the cargo nobody came back for
+    if(typeof plogEvent === 'function') plogEvent(plogName(c)+' left behind', 'bad');
     SUB_MSGS.push({x:c.x, y:c.y-24, txt:'CARGO LEFT BEHIND', life:170, ml:170,
                    ally:false, tone:ours ? 'bad' : 'good'});
   }
@@ -1378,6 +1384,8 @@ function tickEscapers(){
       escGone++;
       EV_LEFT[e.uid] = true;
       plogLoss('escaped', e);
+      // F134: name her, the same way a ship reaching the jump point is named
+      if(typeof plogEvent === 'function') plogEvent(plogName(e)+' escaped', 'bad');
       score = Math.max(0, score - Math.round((e.pts||200)*ESCAPE_PENALTY));
       SUB_MSGS.push({x:Math.min(e.x, CAM.x+camHalfW()*0.8), y:e.y, txt:'TARGET ESCAPED', life:170, ml:170,
                      ally:false, tone:'bad'});
@@ -2359,6 +2367,9 @@ let waveObj = 'clear';
 // sie ausschliesslich auf den Spieler, und ein Schuetzling ist nie in
 // Gefahr. HUNT_SHARE ist der Anteil der Jaeger, der auf das Ziel geht -
 // nicht alle, sonst steht der Spieler unbehelligt daneben.
+// F134: how often a name occurs in this mission, and how many of them have
+// been handed out. Ships of one name are numbered through.
+let LBL_TOT = {}, LBL_IDX = {};
 let waveHunt = '';
 // Stehendes Feld: die Brocken drehen sich, aber treiben nicht. Ein Gebiet,
 // durch das man fliegt, statt eines Stroms, der vorbeizieht.
@@ -5643,6 +5654,7 @@ function evFire(ev){
           u.faction = 'terran';
           EV_TAKEN[arg] = true;
           score += u.pts || 0;
+          if(typeof plogEvent === 'function') plogEvent(plogName(u)+' captured', 'good');   // F134
           SUB_MSGS.push({x:u.x, y:u.y-60, txt:'CAPTURED', life:200, ml:200,
                          ally:true, tone:'good'});
           continue;
@@ -5658,6 +5670,7 @@ function evFire(ev){
         u.warpX = u.x; u.warpY = u.y;
         EV_TAKEN[arg] = true;
         score += u.pts || 0;
+        if(typeof plogEvent === 'function') plogEvent(plogName(u)+' captured', 'good');   // F134
         SUB_MSGS.push({x:u.x, y:u.y-40, txt:'CAPTURED', life:200, ml:200,
                        ally:true, tone:'good'});
       }
@@ -5981,7 +5994,11 @@ function scriptUnit(u, fac, q){
     e.uid = u.id;
     // F98 (v282): each unit keeps its own name - one id shared by three
     // freighters gave all three the last name (Kappa 3)
-    if(u.label) e.lbl = String(u.label).toUpperCase();
+    // F134: several of one name in a mission are numbered through.
+    if(u.label){
+      const _k = String(u.label).toUpperCase();
+      e.lbl = (LBL_TOT[_k] > 1) ? (_k + ' ' + (LBL_IDX[_k] = (LBL_IDX[_k]||0) + 1)) : _k;
+    }
     if(u.hp) e.hpMul = u.hp;
     if(u.hull) e.hullMul = u.hull;
     if(u.wait){ e.delay = e.time - t0; (EV_HELD[u.id]=EV_HELD[u.id]||[]).push(e); }
@@ -6215,6 +6232,15 @@ function buildScripted(def){
   astStreamCd = (astStill || def.noRocks) ? 1e9 : AST_STREAM_MEAN;
   // Eine geschriebene Querung endet, wenn der Schuetzling drueben ist.
   transitSecs = def.crossEnds ? 1 : 0;
+  // F134: ships that share a name are numbered, or the log says the same
+  // thing five times over (the escape pods of M24). Counted first, so the
+  // first of them is "ESCAPE POD 1" and not the only one without a number.
+  LBL_TOT = {}; LBL_IDX = {};
+  for(const u of scriptUnitsResolved(def)){
+    if(!u.label) continue;
+    const k = String(u.label).toUpperCase();
+    LBL_TOT[k] = (LBL_TOT[k]||0) + Math.max(1, u.n||1);
+  }
   for(const u of scriptUnitsResolved(def)){
     scriptUnit(u, def.fac, q);
     if(u.replace) EV_REPL[u.id] = {u:u, mul:u.replace, hp:u.hp||1};
