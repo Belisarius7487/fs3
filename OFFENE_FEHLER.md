@@ -29,7 +29,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell, mit echter Tiefe (verschiebt sich mit der Kamera wie ein Schiffsmodell). Alte Mission 26 „The Minefield" entfernt | v345, v346 |
-| F139 | **Jeder Rumpf kleiner als ein Kreuzer fliegt jetzt wie ein Jäger** (Silvio, 23.11.2026: „Wir müssen eh alle Missionen bzw. alle kleineren Schiffe dafür anfassen"). Gilt für den Flug, noch nicht für den Anflug beim Andocken — siehe unten | v349 |
+| F139 | **Rümpfe kleiner als ein Kreuzer fliegen wie ein Jäger** (v349). **Der Umfang war falsch gewählt** — gemeint ist nicht die Länge, sondern die Art des Schiffes; siehe F140 | v349 |
 | F138 | **Die Frachtcontainer blieben waagerecht, während ihr Frachter schräg zum Knoten flog** (Silvio nach v347). Die Fracht übernimmt jetzt den Winkel ihres Trägers | v348 |
 | F137 | **M26: die beiden Frachtcontainer standen im Feld, statt auf ihren Frachtern zu sitzen** (Silvio nach v346: „ich hab 2 Frachtcontainer im Feld stehen, die einfach despawnen, wenn, ich vermute es sind ihre Trägerfrachter, wegspringen"). Sie kommen jetzt mit ihrem Frachter und aus seinem Wirbel | v347 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
@@ -39,6 +39,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
+| F140 | **Nicht die Länge entscheidet, sondern die Art des Schiffes.** Auch große Frachter und Transporter (Triton, Elysium „und viele andere") sollen sich wie kleine Schiffe verhalten, und ihre Fracht — der Triton-Container und die Mesonenbombe — soll wie die kleinen Container am Andockpunkt des Trägers sitzen. **Vor dem Bauen erst eine Liste der betroffenen Schiffe** (Silvio, 23.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -5634,6 +5635,43 @@ diese Punkte noch gelten, entscheidet Silvio:
    konnte, den das Spiel zeigte. `ramsim.js` liest das Original. Die Kopie
    sollte raus, damit sie kein falsches Vertrauen stiftet.
 
+
+## F140 — Die Art des Schiffes entscheidet, nicht die Länge (offen)
+
+Silvio nach v349, in seinen Worten:
+
+> Du hast aber gesagt, dass Triton-Frachter von der Änderung im Flugverhalten
+> aufgrund ihrer Größe nicht betroffen sind, was so nicht meine Absicht war.
+> Diese sind keine Kreuzer oder größer, sondern halt relativ große Frachter.
+> Sie sollten sich also ebenfalls wie kleinere Schiffe verhalten, dazu sollten
+> ihre Frachtcontainer, ich glaube TRI-TR, und die Mesonenbombe (sie ist dazu
+> gedacht von der Triton transportiert werden zu können) wie die kleinen
+> Frachtcontainer an den Andockpunkten ihrer Trägerfrachter verhalten. Auch
+> betrifft dies Elysium-Transporter und viele andere Schiffe.
+
+> Wenn es soweit ist, machen wir vorher eine Liste mit den Schiffen, die noch
+> angepasst werden müssen.
+
+**Was daran falsch ist.** F139 (v349) nimmt als Marke die Länge des kürzesten
+Kreuzers (`flyCrLen`, 190 m). Damit fallen gerade die großen Nichtkämpfer
+heraus — die Triton mit 310 m fliegt weiter wie ein Großkampfschiff, obwohl
+sie ein Frachter ist. Gemeint ist: **Frachter, Transporter, Fracht und
+Rettungskapseln verhalten sich wie kleine Schiffe, egal wie lang sie sind**;
+erst Kreuzer, Korvetten, Zerstörer, Juggernauts und Installationen nicht.
+
+**Zu klären, wenn es soweit ist:**
+
+- Die Liste der Schiffe, die angepasst werden müssen — Silvio will sie vor
+  dem Bauen sehen. Sie gehört an den Anfang der Arbeit, nicht ans Ende.
+- Welcher Container zur Triton gehört. Silvio vermutet „TRI-TR"; im Spiel
+  gibt es unter anderem `fctctri` und als Mesonenbombe `fcmeson`
+  (**nicht nachgeprüft**, nur aus der Liste der Rümpfe gelesen).
+- Die Mesonenbombe ist 372 m lang und damit länger als mancher Kreuzer. Sie
+  soll trotzdem am Andockpunkt ihres Trägers sitzen wie ein kleiner
+  Container.
+- Ob der **Anflug beim Andocken** mitgeht (F139 unten: `DK_FLY_LEN` steht
+  noch bei 30 m, und zwei Prüffälle sprechen dagegen). Das hängt an
+  derselben Entscheidung.
 
 ## F139 — Rümpfe kleiner als ein Kreuzer fliegen wie Jäger (v349, 23.11.2026, Urteil offen)
 
