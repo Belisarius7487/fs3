@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 21.11.2026, v344, M1 bis M24 abgenommen)
+## Lage — als Erstes lesen (Stand 23.11.2026, v344, M1 bis M25 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,7 +27,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
-| F133 | M25 „The Fall of Vasuda Prime“ — die FS1-Zwischensequenz als Mission: Lucifer beschießt Vasuda Prime, 14 Flüchtlingsschiffe (Isis, Satis, Ra-Kapseln) fliehen nach links, Scorpio und Manticore jagen sie. Neu dabei: fester Hintergrund je Mission (`neb`), feststehender Planet (`planet.fix`), Bombardementstrahl (`bombard`), Hauptgeschütze erst bei gerufener Unterstützung (`beamsWhenCalled`). Alte Mission 25 „The Escape“ entfernt | v338–v340 |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
@@ -5632,7 +5631,11 @@ diese Punkte noch gelten, entscheidet Silvio:
    sollte raus, damit sie kein falsches Vertrauen stiftet.
 
 
-## F133 — M25 „The Fall of Vasuda Prime" (v338/v339, 21.11.2026, Urteil offen)
+## F133 — M25 „The Fall of Vasuda Prime" (v338–v340, abgenommen 23.11.2026)
+
+**Abgenommen am 23.11.2026** (Silvio: „M25 spielt sich gut"). Damit sind
+**M1 bis M25** abgenommen. Die nächste Mission ist M26 — im Original FS1
+`fs1/sm3-01a.fs2`, „Exodus".
 
 Statt „Exodus" (`fs1/sm3-01a.fs2`) steht an Stelle 25 jetzt die
 FS1-Zwischensequenz vom Untergang Vasuda Primes, so wie Silvio sie am
