@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 23.11.2026, v344, M1 bis M25 abgenommen)
+## Lage — als Erstes lesen (Stand 23.11.2026, v345, M1 bis M25 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,6 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 |---|---|---|
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
+| F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell. Alte Mission 26 „The Minefield" entfernt | v345 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
@@ -35,7 +36,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen |
+| F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
 
@@ -5630,6 +5631,75 @@ diese Punkte noch gelten, entscheidet Silvio:
    konnte, den das Spiel zeigte. `ramsim.js` liest das Original. Die Kopie
    sollte raus, damit sie kein falsches Vertrauen stiftet.
 
+
+## F136 — M26 „Exodus" und der Sprungknoten (v345, 23.11.2026, Urteil offen)
+
+An Stelle 26 steht jetzt „Exodus" (`fs1/sm3-01a.fs2`). Die alte Mission 26
+„The Minefield" ist entfernt; keine Prüfung hing an ihr.
+
+**Der Sprungknoten, neu und für alle Missionen nutzbar.** Eine Mission nennt
+ihre Knoten in `nodes:[{id,x,y,label}]`; sie sind reine Kulisse, werden unter
+allen Rümpfen gezeichnet, sind kein Ziel und nehmen keinen Schaden
+(`drawJumpNodes` in `20_render.js`).
+
+- **Das Gitter ist das echte FS1-Muster**, aus dem Modell des FreeSpace Port
+  (`fsport-3.7.3/fsport3_7/data/models/subspacenode.pof`) ausgelesen: eine
+  Kugel aus **zwei gekreuzten Bändern**, 36 vierseitige Flächen auf 84
+  Punkten, hier auf eine Einheitskugel gerechnet (`JN_V`/`JN_F`). Das
+  FS2-Modell der MVPs ist ein anderes (44 unregelmäßige Facetten, 24
+  Dreiecke, 18 Vierecke, 2 Sechsecke) — **FS1-Missionen brauchen das
+  FS1-Muster** (Silvio, 23.11.2026).
+- **Beide Modelle haben gar keine Textur** und tragen auf jeder Fläche reines
+  Rot; das Spiel zeichnet den Knoten selbst. Die Farbe ist **reines Grün
+  `#00FF00`**, von Silvio aus dem Spiel belegt (Bild vom 23.11.2026).
+  Deshalb liegt auch nichts davon auf dem Server: es gibt keine Modelldatei
+  zu laden.
+- **Größe:** anderthalb Orion-Höhen (Silvio: „Mach ihn etwa anderthalb mal so
+  hoch wie eine Orion"), also 877 Welteinheiten Durchmesser — rund ein
+  Drittel kleiner als im Original.
+- **Ein Schiff springt irgendwo innerhalb der Kugel ein und aus**, es muss
+  die Mitte nicht treffen (Silvio, 23.11.2026). Beim Absprung fliegt es noch
+  ein Stück hinein (`JN_IN` 0,55 des Radius), damit man es in den Käfig
+  fliegen sieht statt am Rand zu verschwinden.
+- **Eine Einheit mit `toNode:'<Kennung>'`** zieht während ihrer Querfahrt auf
+  den Knoten zu und springt in ihm ab statt über den Rand zu laufen. Der
+  Anstieg bleibt deutlich unter ihrem Vorwärtsschritt, damit sie nie
+  seitwärts rutscht, sondern dahin schaut, wo sie hinfliegt (F24).
+  Zwei Fallen dabei, beide erst im Spiel aufgefallen:
+  - `spawnProtected` nagelt `minY`/`maxY` auf die Starthöhe, und
+    `updateAllies` klemmt die Höhe in **jedem** Bild dorthin zurück. Ohne das
+    Lösen dieser Klammer erreicht ein Schiff einen Knoten über oder unter
+    sich **nie** — es lief stattdessen über den linken Rand hinaus, und alle
+    Zähler sahen trotzdem richtig aus.
+  - Die Querfahrt wird beim Absprung **nicht auf null gesetzt**, sondern nur
+    gesperrt (`if(a.warpOut > 0) continue;`). Eine Querfahrt von null hebt die
+    Bewegungssperre auf, und der Bahnantrieb fasst das Schiff wieder an.
+- Die Fracht eines Frachters springt mit ihm (F100): `EV_LEFT` wird beim
+  Eintritt in den Knoten gesetzt, und `tickRiders` liest das als „mit weg",
+  nicht als „verloren".
+
+**Die Mission.** Drei Knoten wie im Original (Sirius, Vasuda, Aldebaran),
+jeder zu zwei Dritteln im Bild. Rechts der Vasuda-Knoten, aus dem die
+Konvois nach und nach einspringen; links oben Sirius, links unten Aldebaran.
+Im Original fliegen die Kappa-Frachter zwei verschiedene Wegpunktpfade — der
+eine endet am Aldebaran-, der andere am Sirius-Knoten —, und genau das ist
+hier nachgebaut: sechs Konvoischiffe in drei Schüben, zwei davon mit
+Container (VC3 auf der Bast, VAC4 auf der Ma'at), drei nach oben und drei
+nach unten. Sieben Shivaner-Schübe setzen ihnen nach, eingesprungen **neben**
+dem Konvoi, damit ihr Angriff sofort beginnt (M24).
+
+Ergebnis: alle sechs durch = erfüllt, ein Teil verloren = Teilerfolg, alle
+sechs tot = Fehlschlag. Die drei decken jeden Ausgang ab; die Mission endet,
+sobald kein Konvoischiff mehr unterwegs ist, auch wenn alle sterben.
+
+**Geprüft:** `checks.sh --fast` grün. Zwei neue `fieldsim`-Szenarien („FS1 M26
+v345 Exodus") — beide grün in v345, in v344 fallen sie gleich beim ersten
+Punkt durch, weil dort an Stelle 26 noch „The Minefield" steht. `warpsim` über
+M26: siehe F132, das Bild fährt mit Anlauf in den Wirbel, der Rumpf steht.
+
+**Im echten Spiel noch nicht von Silvio gesehen.** Headless aufgenommen ist
+der Knoten selbst (`v345/v345_knoten.png`) — dort sind die Schiffe graue
+Platzhalter, weil die Modelle vom Server kommen.
 
 ## F133 — M25 „The Fall of Vasuda Prime" (v338–v340, abgenommen 23.11.2026)
 

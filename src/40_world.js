@@ -1364,6 +1364,10 @@ let tickets = {cruiser:0, corvette:0, destroyer:0, colossus:0};
 // cruiser class or larger. Every support ticket is that or bigger, so
 // one called escort is enough. Cleared when a wave starts.
 let CALLED_CAP = false;
+// F136 (v345): the mission's jump nodes. Scenery only - drawn under every
+// hull, never a target, never hit. A mission sets it, worldForWave does not
+// read it: the play field stays one size for every mission (F119).
+let MISSION_NODES = [];
 const TICKET_START = {cruiser:1, corvette:0, destroyer:0, colossus:0};
 const TICKET_ORDER = ['cruiser','corvette','destroyer','colossus'];
 const TICKET_ABBR  = {cruiser:'CR', corvette:'CV', destroyer:'DE', colossus:'CO'};
@@ -2211,8 +2215,10 @@ function updateAllies(){
       // Jumped out: she left. Without this 'vernichtet' read her as
       // destroyed the moment she was gone.
       if(a.warpOut <= 0){ if(a.uid) EV_LEFT[a.uid] = true;
-                          // F134: say in the log who jumped out
-                          if(typeof plogEvent === 'function') plogEvent(plogName(a)+' jumped out', 'good');
+                          // F134: say in the log who jumped out. F136: a
+                          // ship that jumped out inside a node is already
+                          // in the log by name, so it is not said twice.
+                          if(typeof plogEvent === 'function' && !a.jumpLogged) plogEvent(plogName(a)+' jumped out', 'good');
                           if(a.guard) guardGone = true; allies.splice(i,1); }
       continue;                       // no firing while jumping out
     }

@@ -616,6 +616,14 @@ function spawnProtected(sp){
   }
   // v253: cargo riding on a freighter of ours from the start (tickRiders)
   if(sp.ride){ a.rideId = sp.ride; a.rideSlot = sp.slot || 0; }
+  // F136 (M26): she is running for this jump node and leaves inside it.
+  // Her height must be free for that - spawnProtected pins minY/maxY to
+  // the spawn height, and updateAllies clamps her back to it every step,
+  // so without this she can never climb to a node above or below her.
+  if(sp.toNode){
+    a.toNode = sp.toNode;
+    a.minY = HUD_H+20*FIELD_K; a.maxY = MH-20*FIELD_K;
+  }
   if(sp.still){ a.vy = 0; a.minY = a.y; a.maxY = a.y; }
   // v275 (F89): a transport that sends Phidias drones to repair a ship.
   if(sp.repair && typeof repairSetup === 'function') repairSetup(a, sp);
@@ -1612,19 +1620,66 @@ function podLaunch(a){
   return false;
 }
 
+const JN_IN = 0.55;            // how far into a node a ship flies before she jumps
+function _n_label(id){
+  const n = (typeof jnById === 'function') ? jnById(id) : null;
+  return (n && n.label) ? n.label : 'jump node';
+}
 function tickCrossGuards(){
   for(const a of allies.slice()){
     if(!a.crossing || a.dead || allies.indexOf(a)<0) continue;
     // v250 (F29): in her death roll she is lost, not on her way - with the
     // pod at its real speed she rolled off the edge and counted as rescued.
     if(a.rollT != null) continue;
+    // F136 (M26): she has opened her vortex inside a node. Her crossing
+    // stays set - it is what keeps the lane drive off her (moveLocked) -
+    // but she must not travel any further: her place stands still and only
+    // the picture drives into the vortex.
+    if(a.warpOut > 0) continue;
     if(dkCastOffStep(a)) continue;           // F99 (v283): off the dock first
     // Out of her vortex she is already under way, but only as fast as she
     // is out of it (M25, the refugees of Vasuda Prime jump in and then
     // run): no standing start in the portal and no jump in her speed when
     // it closes, which is what warpsim watches for.
     const wk = (a.warp > 0 && a.warpMax > 1) ? Math.max(0, 1 - a.warp/a.warpMax) : 1;
+    // F136 (M26): a ship bound for a jump node angles towards it while she
+    // runs. The climb is held well under her forward step, so she is never
+    // seen sliding sideways - she looks where she flies (F24).
+    if(a.toNode && typeof jnById === 'function'){
+      const _n = jnById(a.toNode);
+      if(_n){
+        const _step = Math.abs(a.crossing)*wk;
+        const _dy = _n.y*FIELD_K - a.y;
+        const _vy = Math.max(-_step*0.5, Math.min(_step*0.5, _dy*0.03));
+        a.y += _vy;
+        if(typeof poseFor === 'function'){
+          a.head = Math.atan2(_vy, a.crossing);
+          const _ps = poseFor(a.head, a.flip);
+          a.ang = _ps.ang; a.flip = _ps.flip;
+        }
+      }
+    }
     a.x += a.crossing * wk;
+    // Inside the sphere is enough, she need not meet its middle (Silvio,
+    // 23.11.2026). She opens her vortex there; the ordinary allied tick
+    // runs it down and takes her off the field, and her cargo goes with
+    // her because EV_LEFT is set here (tickRiders, F100).
+    if(a.toNode && !a.warpOut && typeof jnAt === 'function' && jnAt(a.x, a.y, a.toNode, JN_IN)){
+      a.warpMax = a.warpMax > 1 ? a.warpMax : 160;
+      a.warpOut = a.warpMax; a.warpX = a.x; a.warpY = a.y;
+      a.jumpLogged = true;              // the allied tick must not say it twice
+      crossDone++; if(!a.emptyRun) protSaved++;
+      if(a.uid) EV_LEFT[a.uid] = true;
+      const _nend = (hullClass(a.img)==='ep') ? 'RESCUED'
+                    : ((a.dockedTo || a.hasCargo || a.dockTo) ? 'DELIVERED' : 'ESCAPED');
+      SUB_MSGS.push({x:a.x, y:a.y, txt:_nend, logTxt: plogName(a)+' '+_nend,
+                     life:150, ml:150, ally:true, tone:'good'});
+      if(typeof plogEvent === 'function')
+        plogEvent(plogName(a) + ((hullClass(a.img)==='ep') ? ' rescued'
+                  : ((a.dockedTo || a.hasCargo || a.dockTo) ? ' delivered' : ' escaped'))
+                  + ' through the ' + (_n_label(a.toNode)), 'good');
+      continue;
+    }
     if(a.crossing > 0 ? (a.x > WX1+60 || (a.x > MW+60 && !camSees(a.x, a.y, 200))) : (a.x < WX0-60 || (a.x < -60 && !camSees(a.x, a.y, 200)))){
       if(a.dockedTo){ a.dockedTo.dead = true;
         const _ci = allies.indexOf(a.dockedTo);
@@ -3613,15 +3668,69 @@ const SCRIPT_WAVES = {
        // The rest ends on its own: the last enemy down, nothing left to come.
      ]},
 
-  26:{name:'The Minefield', fac:'hol', o:'guard', live:4,
-      stillRocks:true, crossEnds:true, u:[
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', crossSecs:70, hp:1.5},
-       {id:'R1', c:'ast', n:40},
-       {id:'G1', c:'sg', n:9, spr:'sgankh'},
-       {id:'E1', c:'fi', n:3}
+  // Exodus (fs1/sm3-01a). Vasuda Prime has burned and Terrans fly escort
+  // for Vasudans for the first time. In the original the Kappa freighters
+  // leave on two different waypoint paths, one ending at the Aldebaran
+  // node and one at the Sirius node, while the Shivans hunt them down.
+  // Here the convoys come out of the Vasuda node on the right, one lot
+  // after another, cross the field and jump out inside one of the two
+  // nodes on the left (Silvio, 23.11.2026). Replaces the old mission 26,
+  // 'The Minefield'.
+  26:{name:'Exodus', era:'fs1', orig:22, ship:'fiherc', pri:['prom1','banshee'],
+      fac:'hol', o:'clear', live:6,
+      // Scenery. Two thirds of each sphere stands in the picture; a ship
+      // jumps in or out anywhere inside one, it need not meet the middle.
+      nodes:[{id:'VA', x:783, y:277, label:'Vasuda Jump Node'},
+             {id:'SI', x:17,  y:130, label:'Sirius Jump Node'},
+             {id:'AL', x:17,  y:424, label:'Aldebaran Jump Node'}],
+      // The Shivans are after the convoy, not the player; the hunt moves
+      // on with each lot that comes through (as in M25).
+      hunt:'KA', huntShare:0.8,
+      ziel:'Escort the Vasudan convoys to the jump nodes', u:[
+       {id:'A1', c:'fi', n:2, size:3, spr:'fiherc', side:'ally'},
+       // First lot, for the Aldebaran node below left.
+       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', warpIn:true, t:6,
+        x:762, y:252, cross:-0.30, toNode:'AL', label:'PVFr Kappa 4'},
+       {id:'KB', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', warpIn:true, t:11,
+        x:768, y:300, cross:-0.30, toNode:'AL', label:'PVFr Kappa 9'},
+       // Second lot, the two with cargo, for the Sirius node above left.
+       // The containers sit on their freighters from the start and jump
+       // out with them (F100).
+       {id:'KC', mark:'protect', c:'fr', n:1, spr:'frbast', side:'ally', warpIn:true, t:40,
+        x:760, y:243, cross:-0.28, toNode:'SI', label:'PVFr Kappa 5'},
+       {id:'KD', mark:'protect', c:'fr', n:1, spr:'frmaat', side:'ally', warpIn:true, t:45,
+        x:766, y:291, cross:-0.28, toNode:'SI', label:'PVFr Kappa 6'},
+       {id:'C1', mark:'protect', c:'fc', n:1, spr:'fcvc3',  side:'ally', ride:'KC', label:'Cargo VC3'},
+       {id:'C2', mark:'protect', c:'fc', n:1, spr:'fcvac4', side:'ally', ride:'KD', label:'Cargo VAC4'},
+       // Third lot: one up, one down.
+       {id:'KE', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', warpIn:true, t:78,
+        x:764, y:264, cross:-0.34, toNode:'SI', label:'PVT Mu 1'},
+       {id:'KF', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', warpIn:true, t:83,
+        x:770, y:312, cross:-0.30, toNode:'AL', label:'PVFr Kappa 10'},
+       // The hunters come in beside the convoy, so their run starts at
+       // once instead of being flown in from the edge (M24).
+       {id:'S1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', t:14, x:690, y:275},
+       {id:'S2', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', t:30, x:620, y:230},
+       {id:'S3', c:'bo', n:1, size:2, spr:'boshaitan',  fac:'shivan', t:48, x:660, y:300},
+       {id:'S4', c:'fi', n:1, size:4, spr:'fibasilisk', fac:'shivan', t:62, x:560, y:180},
+       {id:'S5', c:'bo', n:1, size:2, spr:'bonephilim', fac:'shivan', t:86, x:640, y:330},
+       {id:'S6', c:'fi', n:1, size:4, spr:'fiscorpion', fac:'shivan', t:92, x:600, y:250},
+       {id:'S7', c:'fi', n:1, size:1, spr:'fidragon',   fac:'shivan', t:104, x:520, y:270}
      ], ev:[
-       {t:'sek', a:3, w:'nachschub', a2:'an'},
-       {t:'verlaesst', a:'A1', w:'nachschub', a2:'aus'}
+       // the hunt follows each lot as it comes out
+       {t:'sek', a:40, w:'jagd', a2:'KC'},
+       {t:'sek', a:78, w:'jagd', a2:'KE'},
+       // Six ships lift out, each of them either gets through or dies, so
+       // the three results cover every run between them. Order matters:
+       // the last one to fire is the one that stands.
+       {t:'verlaesst',    a:'KA+KB+KC+KD+KE+KF', w:'zielerfuellt', a2:'Both convoys reached the jump nodes'},
+       {t:'alleZerstoert', a:'KA+KB+KC+KD+KE+KF', wenn:{t:'verloren', a:1}, w:'zielteil', a2:'Part of the convoys never made it'},
+       {t:'vernichtet',   a:'KA+KB+KC+KD+KE+KF', w:'zielverfehlt', a2:'The convoys were wiped out'},
+       // The end hangs on the convoys, not on the Shivans: every lot is
+       // seen before this can hold, so it cannot fire in a gap between two
+       // of them.
+       {t:'alleZerstoert', a:'KA+KB+KC+KD+KE+KF', w:'nachschub', a2:'aus'},
+       {t:'alleZerstoert', a:'KA+KB+KC+KD+KE+KF', d:6, w:'abzug', a2:'', hold:true}
      ]},
 
   // Tenderizer (fs1/sm2-05a). Alpha patrols the Antares-Beta Aquilae jump
@@ -6128,7 +6237,7 @@ function scriptUnit(u, fac, q){
            x:xx, y:yy, cross:u.cross, at:u.at, dockTo:u.dockTo, dockHold:u.dockHold,
            dockLabel:u.dockLabel, jumpIfEmpty:u.jumpIfEmpty, dockStay:u.dockStay, dockBeside:u.dockBeside,
            pickup:u.pickup?1:0, ride:u.ride, slot:u.slot, land:u.land, bay:u.bay,
-           from:u.from,
+           from:u.from, toNode:u.toNode,          // F136 (M26)
            repair:u.repair, repPct:u.repPct});   // v275 (F89): Phidias drones
     else
       put({time:t0+i*stagger, type:fix, spr:u.spr||'', fac:u.fac||fac, noWarp:(fix!=='ast' && !u.warpIn)?1:0,   // F93 (v277): warpIn - a late one jumps in   // v253: u.fac, Shivan cargo in an HoL mission
@@ -6226,6 +6335,9 @@ function buildScripted(def){
     if(typeof NEBS !== 'undefined' && !NEBS[nebCur] && typeof nebLoad === 'function') nebLoad(nebCur);
   }
   if(def.planet) placePlanet(def.planet);     // F69 (v258)
+  // nodes (F136, M26): jump nodes of the mission, pure scenery. A ship
+  // jumps in or out anywhere inside one of them.
+  MISSION_NODES = Array.isArray(def.nodes) ? def.nodes : [];
   CALLED_CAP = false;                          // M25: no escort called yet
   // Ein stehendes Feld wird gesetzt, nicht gespeist. Sonst sammeln sich
   // unbewegliche Brocken ausserhalb des rechten Randes.

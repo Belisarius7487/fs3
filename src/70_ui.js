@@ -46,6 +46,9 @@ function draw(){
   camOn();
   // M25: the bombardment of a planet goes under the hulls, so the shot
   // leaves the ship on her far side.
+  // F136 (M26): the jump nodes lie behind everything on the field, so a
+  // ship warping out inside one is drawn in front of its cage.
+  try{ if(typeof drawJumpNodes==='function') drawJumpNodes(); }catch(ej){}
   try{ if(typeof drawBombard==='function') drawBombard(); }catch(eb){}
   // v201 (Silvio's layer order): the shots go over the ships now - capital
   // ships, then small craft, then shots. What a turret on the far flank

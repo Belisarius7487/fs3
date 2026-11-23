@@ -1279,6 +1279,83 @@ function bombardBand(x0, y0, x1, y1, w0, w1, col, a0, a1){
   ctx.closePath();
   ctx.fill();
 }
+// --- Jump node (F136, v345) -------------------------------------------
+// The lattice is the real FS1 one, read out of the FreeSpace Port model
+// subspacenode.pof: a sphere of two crossed bands, 36 four-sided faces on
+// 84 points, scaled here to a unit sphere. FS2 uses a different model (44
+// irregular facets) - FS1 missions must show the FS1 pattern.
+// The model carries no texture at all and stores pure red on every face;
+// the game draws the node itself, in pure green (Silvio, 23.11.2026).
+const JN_V=[[-0.425,-0.884,0.113],[-0.425,-0.884,-0.113],[-0.283,-0.938,-0.199],[-0.283,-0.938,0.199],[0,-0.976,-0.199],[0,-0.976,0.199],[-0.884,-0.113,-0.425],[-0.884,0.113,-0.425],[-0.795,0.113,-0.571],[-0.795,-0.113,-0.571],[-0.571,-0.113,-0.795],[-0.571,0.113,-0.795],[-0.425,0.113,-0.884],[-0.425,-0.113,-0.884],[-0.571,-0.795,0.113],[-0.571,-0.795,-0.113],[-0.884,-0.113,0.425],[-0.884,0.113,0.425],[-0.938,0.199,0.283],[-0.938,-0.199,0.283],[-0.795,-0.113,0.571],[-0.795,0.113,0.571],[-0.425,-0.113,0.884],[-0.425,0.113,0.884],[-0.571,0.113,0.795],[-0.571,-0.113,0.795],[-0.283,-0.199,0.938],[-0.283,0.199,0.938],[-0.938,-0.199,-0.283],[-0.938,0.199,-0.283],[-0.976,-0.199,-0],[-0.976,0.199,-0],[-0.283,0.199,-0.938],[-0.283,-0.199,-0.938],[0,0.199,-0.976],[0,-0.199,-0.976],[-0.283,0.938,0.199],[-0.283,0.938,-0.199],[-0.425,0.884,-0.113],[-0.425,0.884,0.113],[0,0.976,0.199],[0,0.976,-0.199],[-0.571,0.795,-0.113],[-0.571,0.795,0.113],[-0,-0.199,0.976],[-0,0.199,0.976],[0.283,-0.938,-0.199],[0.283,-0.938,0.199],[0.425,-0.113,-0.884],[0.425,0.113,-0.884],[0.571,0.113,-0.795],[0.571,-0.113,-0.795],[0.283,-0.199,-0.938],[0.283,0.199,-0.938],[0.795,-0.113,-0.571],[0.795,0.113,-0.571],[0.884,0.113,-0.425],[0.884,-0.113,-0.425],[0.425,-0.884,-0.113],[0.425,-0.884,0.113],[0.571,-0.795,-0.113],[0.571,-0.795,0.113],[0.425,-0.113,0.884],[0.425,0.113,0.884],[0.283,0.199,0.938],[0.283,-0.199,0.938],[0.571,-0.113,0.795],[0.571,0.113,0.795],[0.884,-0.113,0.425],[0.884,0.113,0.425],[0.795,0.113,0.571],[0.795,-0.113,0.571],[0.938,0.199,-0.283],[0.938,-0.199,-0.283],[0.976,0.199,0],[0.976,-0.199,0],[0.283,0.938,0.199],[0.283,0.938,-0.199],[0.425,0.884,0.113],[0.425,0.884,-0.113],[0.571,0.795,0.113],[0.571,0.795,-0.113],[0.938,0.199,0.283],[0.938,-0.199,0.283]];
+const JN_F=[[0,1,2,3],[3,2,4,5],[6,7,8,9],[10,11,12,13],[14,15,1,0],[16,17,18,19],[20,21,17,16],[22,23,24,25],[26,27,23,22],[28,29,7,6],[30,31,29,28],[13,12,32,33],[33,32,34,35],[36,37,38,39],[40,41,37,36],[39,38,42,43],[19,18,31,30],[44,45,27,26],[5,4,46,47],[48,49,50,51],[52,53,49,48],[54,55,56,57],[47,46,58,59],[59,58,60,61],[62,63,64,65],[66,67,63,62],[68,69,70,71],[35,34,53,52],[57,56,72,73],[73,72,74,75],[76,77,41,40],[78,79,77,76],[80,81,79,78],[65,64,45,44],[75,74,82,83],[83,82,69,68]];
+// A fixed three-quarter view, so both bands read as a cage rather than
+// collapsing edge-on into a line.
+const JN_AX = 0.50, JN_AY = 0.60;
+const JN_COL = '0,255,0';
+// Diameter: one and a half times an Orion's drawn height (Silvio,
+// 23.11.2026: "Mach ihn etwa anderthalb mal so hoch wie eine Orion").
+function jnSize(){
+  const w = (typeof hullWidth === 'function') ? hullWidth('deorionright', true) : 1677;
+  const o = (typeof OUTLINES !== 'undefined' && OUTLINES && OUTLINES['deorionright'])
+            ? OUTLINES['deorionright'] : null;
+  const ratio = (o && o.ratio) ? o.ratio : 0.3558;
+  return w*ratio*1.5;
+}
+function jnPt(p, cx, cy, r){
+  const ca=Math.cos(JN_AX), sa=Math.sin(JN_AX), cb=Math.cos(JN_AY), sb=Math.sin(JN_AY);
+  let x=p[0], y=p[1], z=p[2];
+  const x2 = x*cb - z*sb, z2 = x*sb + z*cb;
+  const y2 = y*ca - z2*sa;
+  return [cx + x2*r, cy + y2*r];
+}
+// Scenery: drawn under everything, never targeted, never hit.
+function drawJumpNodes(){
+  const NS = (typeof MISSION_NODES !== 'undefined') ? MISSION_NODES : null;
+  if(!NS || !NS.length) return;
+  const r = jnSize()*0.5;
+  ctx.save();
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  for(const n of NS){
+    const cx = n.x*FIELD_K, cy = n.y*FIELD_K;
+    for(let pass=0; pass<2; pass++){
+      // first pass a wide soft halo, then the crisp line on top
+      ctx.lineWidth   = pass ? Math.max(1, 1.6*FIELD_K*0.35) : Math.max(2, 7*FIELD_K*0.35);
+      ctx.strokeStyle = 'rgba('+JN_COL+','+(pass ? 0.85 : 0.10)+')';
+      for(const f of JN_F){
+        ctx.beginPath();
+        for(let i=0;i<f.length;i++){
+          const q = jnPt(JN_V[f[i]], cx, cy, r);
+          if(i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.restore();
+}
+function jnById(id){
+  const NS = (typeof MISSION_NODES !== 'undefined') ? MISSION_NODES : null;
+  if(!NS) return null;
+  for(const n of NS) if(n.id === id) return n;
+  return null;
+}
+// Is this place inside one of the mission's nodes? Ships jump in and out
+// anywhere within the sphere, they need not meet its middle (Silvio,
+// 23.11.2026).
+// f narrows the sphere: the exit uses 0.55 so a ship is seen flying into
+// the cage instead of winking out the instant she touches its rim.
+function jnAt(x, y, id, f){
+  const NS = (typeof MISSION_NODES !== 'undefined') ? MISSION_NODES : null;
+  if(!NS || !NS.length) return null;
+  const r = jnSize()*0.5*(f || 1);
+  for(const n of NS){
+    if(id && n.id !== id) continue;
+    if(Math.hypot(x - n.x*FIELD_K, y - n.y*FIELD_K) <= r) return n;
+  }
+  return null;
+}
+
 function drawBombard(){
   if(GS !== 'playing' || typeof enemies === 'undefined') return;
   for(const e of enemies){

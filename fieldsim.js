@@ -7130,6 +7130,69 @@ scenario('FS1 M22 v329 Playing Judas: one shot gives her away, the fighters come
 // ── Runner ─────────────────────────────────────────────────────────────
 // F109 (v309): cargo riding on a freighter jumps through her vortex, not
 // through one of its own in front of its own nose (M8, the taken Asmodeus)
+// -- M26, Exodus (v345, F136) ------------------------------------------
+// The convoys come out of the Vasuda node on the right and leave inside
+// one of the two nodes on the left - not over the edge. Against v344 both
+// of these fail: there mission 26 is still 'The Minefield'.
+scenario('FS1 M26 v345 Exodus: both convoys jump out inside their nodes, the cargo with them, end', 'm=26', `
+  const r = {};
+  const W = SCRIPT_WAVES[26] || {};
+  r.isExodus = W.name === 'Exodus';
+  r.threeNodes = Array.isArray(MISSION_NODES) && MISSION_NODES.length === 3;
+  // the FS1 lattice, not the FS2 one: 36 faces, every one four-sided
+  r.fs1Pattern = typeof JN_F !== 'undefined' && JN_F.length === 36
+                 && JN_F.every(function(f){ return f.length === 4; });
+  // she comes out of the right-hand node
+  FS.until(()=>byId('KA').length===1, 3000, false);
+  const ka = byId('KA')[0];
+  r.startsInVasudaNode = !!ka && !!jnAt(ka.x, ka.y, 'VA');
+  // Keep the field clear and let every lot run its course.
+  const out = {};
+  for(let k=0; k<26000; k++){
+    player.invT = 999;
+    if(k % 30 === 0) for(const id of ['S1','S2','S3','S4','S5','S6','S7']) FS.killId(id);
+    for(const a of allies) if(a.toNode && a.warpOut > 0 && !out[a.uid])
+      out[a.uid] = {n:a.toNode, inside: !!jnAt(a.x, a.y, a.toNode), x:a.x};
+    if(EV_LEFT.KA && EV_LEFT.KB && EV_LEFT.KC && EV_LEFT.KD && EV_LEFT.KE && EV_LEFT.KF) break;
+    FS.step(1);
+  }
+  r.allSix = !!(EV_LEFT.KA && EV_LEFT.KB && EV_LEFT.KC && EV_LEFT.KD && EV_LEFT.KE && EV_LEFT.KF);
+  r.sixJumped = Object.keys(out).length === 6;
+  r.allInsideNode = Object.keys(out).every(function(k){ return out[k].inside; });
+  // inside a node, not run off the edge
+  r.notOverTheEdge = Object.keys(out).every(function(k){ return out[k].x > 0; });
+  r.upperToSirius = !!out.KC && out.KC.n === 'SI';
+  r.lowerToAldebaran = !!out.KA && out.KA.n === 'AL';
+  // the containers went with their freighters (F100)
+  r.cargoWentAlong = !!EV_LEFT.C1 && !!EV_LEFT.C2;
+  FS.until(()=>{ player.invT = 999;
+                 for(const id of ['S1','S2','S3','S4','S5','S6','S7']) FS.killId(id);
+                 return waveOver || wave>26; }, 6000, false);
+  r.ends = waveOver || wave>26;
+  return r;`);
+
+scenario('FS1 M26 v345 Exodus: every convoy ship shot down - the mission still ends', 'm=26', `
+  const r = {};
+  r.isExodus = (SCRIPT_WAVES[26]||{}).name === 'Exodus';
+  for(let k=0; k<26000; k++){
+    player.invT = 999;
+    for(const a of allies.slice()) if(a.toNode && !(a.warp>0) && !(a.warpOut>0)){
+      a.hp = 0; damageEnemy(a, 99999, a.x, a.y, false, 'bolt');
+    }
+    if(k % 30 === 0) for(const id of ['S1','S2','S3','S4','S5','S6','S7']) FS.killId(id);
+    if(EV_SEEN.KF && byId('KA').length===0 && byId('KB').length===0 && byId('KC').length===0
+       && byId('KD').length===0 && byId('KE').length===0 && byId('KF').length===0) break;
+    FS.step(1);
+  }
+  r.noneLeft = !EV_LEFT.KA && !EV_LEFT.KF;
+  FS.until(()=>MLOG.objs.some(function(o){ return o.st==='fail' || o.st==='part'; }), 2000, false);
+  r.resultShown = MLOG.objs.some(function(o){ return o.st==='fail' || o.st==='part'; });
+  FS.until(()=>{ player.invT = 999;
+                 for(const id of ['S1','S2','S3','S4','S5','S6','S7']) FS.killId(id);
+                 return waveOver || wave>26; }, 8000, false);
+  r.ends = waveOver || wave>26;
+  return r;`);
+
 scenario('v309 F109: riding cargo jumps through its freighter vortex', 'm=8', `
   const r = {};
   FS.step(60);
