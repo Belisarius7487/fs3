@@ -1301,12 +1301,19 @@ function jnSize(){
   const ratio = (o && o.ratio) ? o.ratio : 0.3558;
   return w*ratio*1.5;
 }
+// The cage stands in the world with a real depth, so the camera sees it
+// the way it sees a ship's model: f3dPersp moves a point at depth z onto
+// the same rays as the 3D hulls (59_field3d.js). Move the camera and the
+// near band slides across the far one (Silvio, 23.11.2026: a flat picture
+// that does not shift with the camera is a waste).
 function jnPt(p, cx, cy, r){
   const ca=Math.cos(JN_AX), sa=Math.sin(JN_AX), cb=Math.cos(JN_AY), sb=Math.sin(JN_AY);
-  let x=p[0], y=p[1], z=p[2];
-  const x2 = x*cb - z*sb, z2 = x*sb + z*cb;
-  const y2 = y*ca - z2*sa;
-  return [cx + x2*r, cy + y2*r];
+  const x=p[0], y=p[1], z=p[2];
+  const x2 = x*cb - z*sb, z1 = x*sb + z*cb;      // yaw
+  const y2 = y*ca - z1*sa, z2 = y*sa + z1*ca;    // pitch
+  const wx = cx + x2*r, wy = cy + y2*r, wz = z2*r;
+  const q = (typeof f3dPersp === 'function') ? f3dPersp(wx, wy, wz) : {x: wx, y: wy};
+  return [q.x, q.y, z2];                          // z2: -1 far, +1 near
 }
 // Scenery: drawn under everything, never targeted, never hit.
 function drawJumpNodes(){
@@ -1319,14 +1326,18 @@ function drawJumpNodes(){
     const cx = n.x*FIELD_K, cy = n.y*FIELD_K;
     for(let pass=0; pass<2; pass++){
       // first pass a wide soft halo, then the crisp line on top
-      ctx.lineWidth   = pass ? Math.max(1, 1.6*FIELD_K*0.35) : Math.max(2, 7*FIELD_K*0.35);
-      ctx.strokeStyle = 'rgba('+JN_COL+','+(pass ? 0.85 : 0.10)+')';
+      ctx.lineWidth = pass ? Math.max(1, 1.05*FIELD_K*0.35) : Math.max(2, 5.5*FIELD_K*0.35);
       for(const f of JN_F){
+        const P = [];
+        let dsum = 0;
+        for(let i=0;i<f.length;i++){ const q = jnPt(JN_V[f[i]], cx, cy, r); P.push(q); dsum += q[2]; }
+        // The far side of the cage is dimmer than the near side, so depth
+        // reads even when the camera stands still.
+        const d = dsum/f.length;                       // -1 far .. +1 near
+        const dim = 0.62 + 0.38*(d*0.5 + 0.5);
+        ctx.strokeStyle = 'rgba('+JN_COL+','+((pass ? 0.80 : 0.09)*dim).toFixed(3)+')';
         ctx.beginPath();
-        for(let i=0;i<f.length;i++){
-          const q = jnPt(JN_V[f[i]], cx, cy, r);
-          if(i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]);
-        }
+        for(let i=0;i<P.length;i++){ if(i) ctx.lineTo(P[i][0], P[i][1]); else ctx.moveTo(P[i][0], P[i][1]); }
         ctx.closePath();
         ctx.stroke();
       }

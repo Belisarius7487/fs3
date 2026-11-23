@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 23.11.2026, v345, M1 bis M25 abgenommen)
+## Lage — als Erstes lesen (Stand 23.11.2026, v346, M1 bis M25 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,7 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 |---|---|---|
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
-| F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell. Alte Mission 26 „The Minefield" entfernt | v345 |
+| F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell, mit echter Tiefe (verschiebt sich mit der Kamera wie ein Schiffsmodell). Alte Mission 26 „The Minefield" entfernt | v345, v346 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
@@ -5697,8 +5697,21 @@ v345 Exodus") — beide grün in v345, in v344 fallen sie gleich beim ersten
 Punkt durch, weil dort an Stelle 26 noch „The Minefield" steht. `warpsim` über
 M26: siehe F132, das Bild fährt mit Anlauf in den Wirbel, der Rumpf steht.
 
+**Nachtrag v346 (23.11.2026).** Silvio nach v345: „Die Linien sind ein ganz
+klein wenig zu dick gezeichnet und das Model ist nicht 3D, sprich die Linien
+verschieben sich nicht, wenn die Kamera sich bewegt, was sehr schade ist."
+
+- Die Linien sind dünner (die scharfe Lage von 1,6 auf 1,05, der Hof von 7
+  auf 5,5).
+- **Der Knoten hat jetzt echte Tiefe.** Jeder Punkt wird mit `f3dPersp`
+  gezeichnet — derselben Strahlenrechnung, mit der die Schiffsmodelle im
+  Feld gezeichnet werden (`59_field3d.js`). Damit wandert das nähere Band
+  über das fernere, sobald die Kamera sich bewegt, genau wie bei einem
+  Schiff. Dazu ist die ferne Seite des Käfigs etwas dunkler als die nahe,
+  damit die Tiefe auch bei stehender Kamera zu sehen ist.
+
 **Im echten Spiel noch nicht von Silvio gesehen.** Headless aufgenommen ist
-der Knoten selbst (`v345/v345_knoten.png`) — dort sind die Schiffe graue
+der Knoten selbst (`v345/v345_knoten.png`, und aus zwei Kamerastellungen in `v346/`) — dort sind die Schiffe graue
 Platzhalter, weil die Modelle vom Server kommen.
 
 ## F133 — M25 „The Fall of Vasuda Prime" (v338–v340, abgenommen 23.11.2026)
