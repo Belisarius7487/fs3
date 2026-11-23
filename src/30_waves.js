@@ -3700,8 +3700,16 @@ const SCRIPT_WAVES = {
         x:760, y:243, cross:-0.28, toNode:'SI', label:'PVFr Kappa 5'},
        {id:'KD', mark:'protect', c:'fr', n:1, spr:'frmaat', side:'ally', warpIn:true, t:45,
         x:766, y:291, cross:-0.28, toNode:'SI', label:'PVFr Kappa 6'},
-       {id:'C1', mark:'protect', c:'fc', n:1, spr:'fcvc3',  side:'ally', ride:'KC', label:'Cargo VC3'},
-       {id:'C2', mark:'protect', c:'fc', n:1, spr:'fcvac4', side:'ally', ride:'KD', label:'Cargo VAC4'},
+       // F137: the cargo comes WITH its freighter - same second, same jump.
+       // Spawned at wave start it stood in the middle of the field for
+       // forty seconds and then snapped across onto her (Silvio, 23.11.2026:
+       // "ich hab 2 Frachtcontainer im Feld stehen, die einfach despawnen").
+       // With warpIn and her second, tickDockWarp pairs the two and the
+       // cargo comes out of her vortex.
+       {id:'C1', mark:'protect', c:'fc', n:1, spr:'fcvc3',  side:'ally', ride:'KC',
+        warpIn:true, t:40, x:760, y:243, label:'Cargo VC3'},
+       {id:'C2', mark:'protect', c:'fc', n:1, spr:'fcvac4', side:'ally', ride:'KD',
+        warpIn:true, t:45, x:766, y:291, label:'Cargo VAC4'},
        // Third lot: one up, one down.
        {id:'KE', mark:'protect', c:'tr', n:1, spr:'trisis',  side:'ally', warpIn:true, t:78,
         x:764, y:264, cross:-0.34, toNode:'SI', label:'PVT Mu 1'},

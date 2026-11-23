@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 23.11.2026, v346, M1 bis M25 abgenommen)
+## Lage — als Erstes lesen (Stand 23.11.2026, v347, M1 bis M25 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -29,6 +29,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell, mit echter Tiefe (verschiebt sich mit der Kamera wie ein Schiffsmodell). Alte Mission 26 „The Minefield" entfernt | v345, v346 |
+| F137 | **M26: die beiden Frachtcontainer standen im Feld, statt auf ihren Frachtern zu sitzen** (Silvio nach v346: „ich hab 2 Frachtcontainer im Feld stehen, die einfach despawnen, wenn, ich vermute es sind ihre Trägerfrachter, wegspringen"). Sie kommen jetzt mit ihrem Frachter und aus seinem Wirbel | v347 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
@@ -5631,6 +5632,38 @@ diese Punkte noch gelten, entscheidet Silvio:
    konnte, den das Spiel zeigte. `ramsim.js` liest das Original. Die Kopie
    sollte raus, damit sie kein falsches Vertrauen stiftet.
 
+
+## F137 — M26: die Container standen im Feld (v347, 23.11.2026, Urteil offen)
+
+Silvios Befund nach v346, in seinen Worten:
+
+> ich hab 2 Frachtcontainer im Feld stehen, die einfach despawnen, wenn, ich
+> vermute es sind ihre Trägerfrachter, wegspringen
+
+**Im Spiel nachgemessen, und es war genau das.** Container einer Mission
+stehen seit Wellenbeginn im Feld („alles steht ab dem ersten Bild da",
+`scriptUnit`), ihre Frachter kamen aber erst nach 40 und 45 Sekunden. So
+lange standen die beiden mitten im Feld — gemessen 2177 und 2680
+Welteinheiten von ihrem Frachter entfernt, mit eigenem Auftragsrahmen und
+ohne Wirbel — und sprangen in dem Bild, in dem der Frachter aus seinem
+Wirbel kam, quer über das Feld auf ihn. Sprang der Frachter später im Knoten
+ab, verschwand der Container mit ihm (`tickRiders` liest `EV_LEFT` als „mit
+weg").
+
+**Behoben in der Mission, nicht im Ablauf.** Jeder Container bekommt die
+Sekunde seines Frachters und `warpIn`. Damit haben beide im selben Bild einen
+Wirbel, `tickDockWarp` paart sie über `dockPartner` (`rideId`) und der
+Container kommt aus dem Wirbel des Frachters heraus — die Maschinerie dafür
+gab es seit v284 (F100) schon, sie griff nur nie, weil der Container ohne
+Wirbel dastand.
+
+**Regel für neue Missionen:** Fracht mit `ride:` bekommt immer dieselbe
+Sekunde (`t:`) und dasselbe `warpIn` wie ihr Träger. Steht der Träger von
+Missionsbeginn an im Feld, braucht die Fracht beides nicht.
+
+**Geprüft:** das `fieldsim`-Szenario „FS1 M26 … both convoys jump out" hat
+dafür einen eigenen Punkt bekommen (`noCargoBeforeFreighter`); in v346 fällt
+er durch, in v347 ist er grün.
 
 ## F136 — M26 „Exodus" und der Sprungknoten (v345, 23.11.2026, Urteil offen)
 

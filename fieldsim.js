@@ -7148,9 +7148,16 @@ scenario('FS1 M26 v345 Exodus: both convoys jump out inside their nodes, the car
   r.startsInVasudaNode = !!ka && !!jnAt(ka.x, ka.y, 'VA');
   // Keep the field clear and let every lot run its course.
   const out = {};
+  // F137: no cargo may stand in the field before its freighter is there -
+  // it comes out of her vortex with her, it does not wait and snap on.
+  let earlyCargo = null;
   for(let k=0; k<26000; k++){
     player.invT = 999;
     if(k % 30 === 0) for(const id of ['S1','S2','S3','S4','S5','S6','S7']) FS.killId(id);
+    if(!EV_SEEN.KC && earlyCargo === null){
+      const cs = allies.filter(function(o){ return o.type === 'container'; });
+      if(cs.length) earlyCargo = cs.length;
+    }
     for(const a of allies) if(a.toNode && a.warpOut > 0 && !out[a.uid])
       out[a.uid] = {n:a.toNode, inside: !!jnAt(a.x, a.y, a.toNode), x:a.x};
     if(EV_LEFT.KA && EV_LEFT.KB && EV_LEFT.KC && EV_LEFT.KD && EV_LEFT.KE && EV_LEFT.KF) break;
@@ -7164,6 +7171,7 @@ scenario('FS1 M26 v345 Exodus: both convoys jump out inside their nodes, the car
   r.upperToSirius = !!out.KC && out.KC.n === 'SI';
   r.lowerToAldebaran = !!out.KA && out.KA.n === 'AL';
   // the containers went with their freighters (F100)
+  r.noCargoBeforeFreighter = earlyCargo === null;
   r.cargoWentAlong = !!EV_LEFT.C1 && !!EV_LEFT.C2;
   FS.until(()=>{ player.invT = 999;
                  for(const id of ['S1','S2','S3','S4','S5','S6','S7']) FS.killId(id);
