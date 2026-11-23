@@ -1033,6 +1033,12 @@ function tickRiders(){
       c.rideSeen = true;
       // F99 (v283): with the models' dock data it sits on her cargo dock as
       // a carried one does (31_dock.js), the way up its dock needs
+      // F138 (Silvio, 23.11.2026: "die Frachtcontainer immer richtig
+      // ausgerichtet an den Frachtern"): the cargo takes her carrier's
+      // angle. It sat level while the freighter flew at a slant towards her
+      // node, which looked wrong. dkPose carries a dock point round with
+      // the hull's angle (F125), so the seat follows from this on its own.
+      c.ang = f.ang || 0;
       if(dkHas(f) && dkHas(c)){
         if(c._rideUp == null){ c._rideUp = dkNeedsUpsideDown(f.img, c.img); if(c._rideUp){ c.rollV = 1; c.rollC = -1; } }
         const st = dkSeat(f, c, dkRideIndex(f, c.rideSlot));

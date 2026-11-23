@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 23.11.2026, v347, M1 bis M25 abgenommen)
+## Lage — als Erstes lesen (Stand 23.11.2026, v348, M1 bis M25 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -29,6 +29,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell, mit echter Tiefe (verschiebt sich mit der Kamera wie ein Schiffsmodell). Alte Mission 26 „The Minefield" entfernt | v345, v346 |
+| F138 | **Die Frachtcontainer blieben waagerecht, während ihr Frachter schräg zum Knoten flog** (Silvio nach v347). Die Fracht übernimmt jetzt den Winkel ihres Trägers | v348 |
 | F137 | **M26: die beiden Frachtcontainer standen im Feld, statt auf ihren Frachtern zu sitzen** (Silvio nach v346: „ich hab 2 Frachtcontainer im Feld stehen, die einfach despawnen, wenn, ich vermute es sind ihre Trägerfrachter, wegspringen"). Sie kommen jetzt mit ihrem Frachter und aus seinem Wirbel | v347 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
@@ -37,6 +38,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
+| F139 | **Alle Schiffe kleiner als Kreuzer sollen sich im Flug wie Jäger verhalten** — Silvio nach v347: „Ich würde vorschlagen, dass alle Schiffe kleiner als Kreuzer sich wie Jäger im Flug verhalten". Betrifft Frachter, Transporter, Rettungskapseln und Fracht in allen Missionen, also auch die 25 abgenommenen. Umfang noch zu klären, siehe unten |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -5632,6 +5634,41 @@ diese Punkte noch gelten, entscheidet Silvio:
    konnte, den das Spiel zeigte. `ramsim.js` liest das Original. Die Kopie
    sollte raus, damit sie kein falsches Vertrauen stiftet.
 
+
+## F138 — Fracht übernimmt den Winkel ihres Trägers (v348, 23.11.2026, Urteil offen)
+
+Silvios Befund nach v347, in seinen Worten:
+
+> bleiben die Frachtcontainer in waagerechter Position, obwohl die Frachter
+> (leider nicht alle) schräg in Richtung ihrer Zielsprungknoten fliegen, was
+> seltsam aussieht
+
+`tickRiders` setzt jetzt `c.ang = f.ang`, bevor der Sitz gerechnet wird.
+`dkPose` trägt einen Andockpunkt ohnehin mit dem Winkel des Rumpfes herum
+(F125), also folgt der Sitz daraus von selbst. Im Spiel nachgemessen: Frachter
+0,461 rad, Container 0,461 rad, Abstand 22 Welteinheiten — er sitzt also
+weiter auf seinem Andockpunkt und steht im selben Winkel.
+
+**Headless nicht zu sehen:** die Platzhalterrümpfe werden flach gezeichnet,
+der Winkel ist dort nur an den Zahlen abzulesen.
+
+## F139 — Schiffe kleiner als Kreuzer sollen wie Jäger fliegen (offen)
+
+Silvio nach v347:
+
+> Ich würde vorschlagen, dass alle Schiffe kleiner als Kreuzer sich wie Jäger
+> im Flug verhalten
+
+Heute dreht sich ein Frachter oder Transporter auf Querfahrt nur so weit, wie
+F24 es verlangt (er schaut in seine Fahrtrichtung), und ein Rumpf unter 30 m
+fliegt nur **beim Andocken** wie ein Jäger (F125, v327). Der Vorschlag geht
+weiter: jede Klasse unter dem Kreuzer — Frachter, Transporter,
+Rettungskapseln, Fracht — soll sich im Flug wie ein Jäger verhalten.
+
+**Noch nicht gebaut, weil der Umfang zu klären ist:** die Änderung trifft
+alle Missionen, auch die 25 abgenommenen, und sie berührt das Andocken
+(31_dock.js) und die Querfahrt. Silvio ist gefragt, ob es überall gelten soll
+oder zuerst nur in M26.
 
 ## F137 — M26: die Container standen im Feld (v347, 23.11.2026, Urteil offen)
 
