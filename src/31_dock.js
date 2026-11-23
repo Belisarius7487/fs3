@@ -99,6 +99,29 @@ function dkFlies(o){
   const L = (typeof HULL_LEN !== 'undefined') ? HULL_LEN[o.img] : null;
   return L != null && L < DK_FLY_LEN;
 }
+// F139 (v349, Silvio, 23.11.2026: "Ich wuerde vorschlagen, dass alle Schiffe
+// kleiner als Kreuzer sich wie Jaeger im Flug verhalten"). This is the mark
+// for FLYING, not for the dock approach: the approach still goes by
+// DK_FLY_LEN above, because carrying it over there makes the Ma'at pass over
+// her container (docksim 13) and takes the Elysium's turn-round away
+// (docksim 14, F101) - Silvio's call, not mine.
+// The mark is the shortest cruiser there is, read from the hulls themselves
+// so it stays true when one is added.
+let FLY_CR_LEN = 0;
+function flyCrLen(){
+  if(FLY_CR_LEN || typeof HULL_LEN === 'undefined') return FLY_CR_LEN || 194;
+  let m = 0;
+  for(const k in HULL_LEN) if(hullClass(k) === 'cr' && HULL_LEN[k] > 0)
+    m = (m === 0) ? HULL_LEN[k] : Math.min(m, HULL_LEN[k]);
+  FLY_CR_LEN = m || 194;
+  return FLY_CR_LEN;
+}
+// Smaller than a cruiser: she looks where she is going and turns into her
+// course. From a cruiser's length up she keeps the heading she had (F24).
+function flyLikeFighter(o){
+  const L = (typeof HULL_LEN !== 'undefined') ? HULL_LEN[o.img] : null;
+  return L != null && L < flyCrLen();
+}
 // Steer her heading towards want, a step at a time, and draw her from it.
 // True once she is there.
 function dkFly(o, want){

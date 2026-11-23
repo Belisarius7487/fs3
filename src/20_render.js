@@ -617,6 +617,20 @@ let FS_PORTALS = [];
 const FS_PORTAL_LINGER = 3;    // seconds after the jump before it closes anyway
 function fsPortalOpen(e, g, WS){
   if(e._fsp) return;
+  // F137 (v349): a ship that jumps as the member of a pair never opens a
+  // vortex of her own - she comes through her carrier's, and fsWarp hands
+  // her its geometry with mem set. On the FIRST frame of a jump the pair is
+  // not tied yet (tickDockWarp runs after the spawn), and the cargo of M26
+  // registered a vortex of its own 79 px off the one it then came out of
+  // (warpsim). The lead is picked the same way tickDockWarp picks it.
+  if(typeof dockPartner === 'function'){
+    const pp = dockPartner(e);
+    if(pp && !pp.dead && (pp.warp > 0 || pp.warpOut > 0)){
+      const ie = IMGS[e.img], ip = IMGS[pp.img];
+      const se = ie ? ie.width*e.sc : 0, sp = ip ? ip.width*pp.sc : 0;
+      if(sp >= se) return;
+    }
+  }
   e._fsp = {e, px:g.px, py:g.py, fx:g.fx, fy:g.fy, WS, mW:e.warpMax||100,
             t0:fc - ((e.warpMax||100) - e.warp), closeT:-1};
   FS_PORTALS.push(e._fsp);

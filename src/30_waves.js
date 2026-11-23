@@ -1038,7 +1038,12 @@ function tickRiders(){
       // angle. It sat level while the freighter flew at a slant towards her
       // node, which looked wrong. dkPose carries a dock point round with
       // the hull's angle (F125), so the seat follows from this on its own.
+      // The way she faces goes with the angle: with only the angle copied
+      // the cargo's nose pointed the other way, and warpsim caught it - her
+      // drawn cut sat 79 px off her own vortex and her motion read as
+      // backwards, because both are measured along the nose.
       c.ang = f.ang || 0;
+      c.flip = !!f.flip;
       if(dkHas(f) && dkHas(c)){
         if(c._rideUp == null){ c._rideUp = dkNeedsUpsideDown(f.img, c.img); if(c._rideUp){ c.rollV = 1; c.rollC = -1; } }
         const st = dkSeat(f, c, dkRideIndex(f, c.rideSlot));
@@ -1658,7 +1663,13 @@ function tickCrossGuards(){
         const _dy = _n.y*FIELD_K - a.y;
         const _vy = Math.max(-_step*0.5, Math.min(_step*0.5, _dy*0.03));
         a.y += _vy;
-        if(typeof poseFor === 'function'){
+        // F139: a hull smaller than a cruiser flies this leg like a fighter -
+        // she looks where she is going and turns into her course, with the
+        // same steering the dock approach uses (dkFly, 31_dock.js). A larger
+        // one keeps the heading she had (F24, F101).
+        if(typeof flyLikeFighter === 'function' && flyLikeFighter(a) && typeof dkFly === 'function'){
+          dkFly(a, Math.atan2(_vy, a.crossing));
+        } else if(typeof poseFor === 'function'){
           a.head = Math.atan2(_vy, a.crossing);
           const _ps = poseFor(a.head, a.flip);
           a.ang = _ps.ang; a.flip = _ps.flip;
