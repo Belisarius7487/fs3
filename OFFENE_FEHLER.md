@@ -5661,15 +5661,23 @@ die Triton mit 310 m bleibt außen vor, Satis und Container sind dabei.
 **Der Anflug beim Andocken bleibt vorerst bei 30 m** (`DK_FLY_LEN`). Trägt man
 die neue Marke dorthin, werden zwei Andock-Prüfungen rot, und beide zu Recht:
 
-- `docksim` 13 (F99, die Ma'at holt einen VAC4): „never over it at a height
-  where they touch" — 206 Schritte lang fährt die Ma'at auf dem neuen Kurs
-  über ihren Container hinweg, auf einer Höhe, auf der sich die beiden
-  berühren.
-- `docksim` 14 (F101, die Elysium dockt an einer Aten an): „she turns round
-  visibly before she slides in" — die Elysium (32 m) dreht sich dann nicht
-  mehr sichtbar um, sondern steuert wie ein Jäger. „Fliegt nie rückwärts"
-  und „schwebt in der Lage des Ziels ein" bleiben dabei grün; nur das
-  Umdrehen entfällt.
+- **Prüffall 13** von `docksim` (F99, eine Ma'at holt einen VAC4 — ein
+  Paar, das die Prüfung sich selbst baut, keine Mission): „never over it at
+  a height where they touch" — 206 Schritte lang fährt die Ma'at auf dem
+  neuen Kurs über ihren Container hinweg, auf einer Höhe, auf der sich die
+  beiden berühren.
+- **Prüffall 14** von `docksim` (F101, eine Elysium dockt an einer Aten an):
+  „she turns round visibly before she slides in" — die Elysium (32 m) dreht
+  sich dann nicht mehr sichtbar um, sondern steuert wie ein Jäger. „Fliegt
+  nie rückwärts" und „schwebt in der Lage des Ziels ein" bleiben dabei grün;
+  nur das Umdrehen entfällt.
+
+**Die Nummern der Prüffälle sind nicht die Nummern der Missionen.** Am
+23.11.2026 wurde „Prüffall 13" als „M13" gelesen und Silvio falsch berichtet,
+in M13 fahre eine Ma'at über ihren Container — in M13 gibt es gar keine Ma'at
+(dort fliegen Athena, Cain, Basilisk, Scorpio, Valkyrie und eine Chronos).
+Eine Ma'at dockt in **M18** an Container an, dazu in der Testmission 91 und
+in M26. Die betroffenen Missionen sind also M18 und M26.
 
 Das Erste ist ein echter Fehler, das Zweite eine Prüfung, die das alte
 Verhalten festhält. Beides ist Silvios Entscheidung, nicht Claudes.
