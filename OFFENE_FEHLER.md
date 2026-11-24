@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 24.11.2026, v351, M1 bis M25 abgenommen)
+## Lage — als Erstes lesen (Stand 24.11.2026, v351, M1 bis M25 und M27 abgenommen, M26 noch ohne Urteil)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F141 | **M27 „Last Hope"** — die vasudanische *Hope* steht mit 35 % Rumpf im Feld, die *Isis* schickt ihre zehn Phidias-Drohnen (die Mechanik aus v275, bisher nur in der Testmission), der Kreuzer *Mecross* hilft, die Shivaner kommen in Schüben. Rumpf voll → vasudanische Ablösung springt ein, die *Hope* springt ab. Drei Enden geprüft: geheilt und weg, alle Drohnen abgeschossen (Teilerfolg, sie zieht angeschlagen ab), *Hope* zerstört. Die Reparatur dauert **97 Sekunden** (in `fieldsim` gemessen). Alte Mission 27 „The Repair" entfernt; ihr Andockfall steht jetzt als eigenes Beispiel in `docksim` | v351 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell, mit echter Tiefe (verschiebt sich mit der Kamera wie ein Schiffsmodell). Alte Mission 26 „The Minefield" entfernt | v345, v346 |
@@ -45,12 +44,19 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
 
-## F141 — M27 „Last Hope“ (v351, 24.11.2026, Urteil offen)
+## F141 — M27 „Last Hope“ (v351, 24.11.2026, abgenommen)
 
 Im Original (`fs1/sm3-02a.fs2`) verlässt der vasudanische Zerstörer *Hope*
 beschädigt das Antares-System. Ein Reparaturtransporter *Isis* flickt ihn,
 die Shivaner greifen in Schüben an, und als vasudanische Jäger als Ablösung
 eintreffen, springt die *Hope* ab.
+
+**Abgenommen am 24.11.2026** nach dem ersten Durchlauf in v351 (Silvio:
+„Es spielt sich wirklich gut.“) — ohne weiteren Bauzyklus. Abgenommen sind damit
+**M1 bis M25 und M27**; für **M26 „Exodus" (F136) fehlt das Urteil noch** —
+Silvio ging am 24.11.2026 direkt zu M27 weiter, ohne etwas dazu zu sagen,
+also steht es offen und ist nicht als Ja zu lesen. Die nächste Mission ist
+M28 — im Original FS1 `fs1/sm3-03a.fs2`.
 
 Silvios Entwurf, von ihm abgenommen am 24.11.2026 („Gefällt mir“):
 
