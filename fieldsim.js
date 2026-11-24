@@ -7201,6 +7201,53 @@ scenario('FS1 M26 v345 Exodus: every convoy ship shot down - the mission still e
   r.ends = waveOver || wave>26;
   return r;`);
 
+// FS1 M27 (v351) Last Hope. Three ends: mended and away, drones all lost
+// and away half mended, Hope dead. Each one has to reach waveOver.
+scenario('FS1 M27 v351 Last Hope: the drones mend her, the relief comes, she leaves, end', 'm=27', `
+  const r = {};
+  r.isLastHope = (SCRIPT_WAVES[27]||{}).name === 'Last Hope';
+  FS.until(()=>byId('HO').length===1, 400, false);
+  const ho = byId('HO')[0];
+  r.startsHurt = !!ho && ho.hp < ho.maxHp*0.5;
+  r.dronesOut = FS.until(()=>allies.some(function(a){ return a.drone; }), 600, true, true) >= 0;
+  // The field is held clear, the way a player defending her would: the
+  // drones get their hundred seconds of work in.
+  const tRep = FS.until(()=>!!EV_REPAIRED.HO, 4000, true, true, 60);
+  r.mended = tRep >= 0;
+  r.hullFull = !!ho && ho.hp >= ho.maxHp;
+  // How long the repair really takes, in seconds (TICK_HZ steps a second).
+  // Keeps the mission's length a measured number, not a guess.
+  r.repairSeconds = Math.round(tRep/TICK_HZ);
+  r.underTwoMinutes = tRep >= 0 && tRep/TICK_HZ < 120;
+  r.reliefCame = FS.until(()=>!!EV_SEEN.MU, 400, true, true) >= 0;
+  r.hopeLeft = FS.until(()=>!!EV_LEFT.HO, 400, true, true) >= 0;
+  r.goalMet = FS.until(()=>MLOG.objs.some(function(o){ return o.st==='done'; }), 400, true, true) >= 0;
+  r.ends = FS.until(()=>waveOver || wave>27, 800, true, true) >= 0;
+  return r;`);
+
+scenario('FS1 M27 v351 Last Hope: every drone shot down - she still leaves and the mission ends', 'm=27', `
+  const r = {};
+  // Every drone is shot the moment it is out: all ten gone is what makes
+  // the repair fail, and the Isis jumps.
+  const kill = function(){ for(const a of allies.slice())
+      if(a.drone && !(a.warp>0) && !(a.warpOut>0)){
+        a.hp = 0; damageEnemy(a, 99999, a.x, a.y, false, 'bolt'); } };
+  r.repairFailed = FS.until(function(){ kill(); return !!EV_REPFAIL.IS; }, 1500, true, true) >= 0;
+  r.notMended = !EV_REPAIRED.HO;
+  r.hopeLeft = FS.until(()=>!!EV_LEFT.HO, 1200, true, true) >= 0;
+  r.partShown = FS.until(()=>MLOG.objs.some(function(o){ return o.st==='part'; }), 400, true, true) >= 0;
+  r.ends = FS.until(()=>waveOver || wave>27, 800, true, true) >= 0;
+  return r;`);
+
+scenario('FS1 M27 v351 Last Hope: the Hope destroyed - the mission still ends', 'm=27', `
+  const r = {};
+  FS.until(()=>byId('HO').length===1, 400, false);
+  const ho = byId('HO')[0];
+  ho.hp = 0; damageEnemy(ho, 99999, ho.x, ho.y, false, 'bolt');
+  r.hopeGone = FS.until(()=>byId('HO').length===0, 600, true, true) >= 0;
+  r.resultShown = FS.until(()=>MLOG.objs.some(function(o){ return o.st==='fail'; }), 600, true, true) >= 0;
+  r.ends = FS.until(()=>waveOver || wave>27, 800, true, true) >= 0;
+  return r;`);
 scenario('v309 F109: riding cargo jumps through its freighter vortex', 'm=8', `
   const r = {};
   FS.step(60);

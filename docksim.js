@@ -247,7 +247,17 @@ const pickRes = api.scriptUnitsResolved(pickDef);
 check('three containers, now three freighters',
       pickRes.find(u => u.id === 'F1').n === 3 && pickRes.find(u => u.id === 'C1').pickup,
       'was ' + pickRes.find(u => u.id === 'F1').n);
-check('M027: transports unchanged', cnt(27, 'T1').n === 1 && !cnt(27, 'A1').pickup);
+// Until v351 this read mission 27, where three Isis docked at a destroyer;
+// that number is the FS1 mission "Last Hope" now and the old one was
+// dropped, so the case stands on a def of its own like the one above. A
+// transport sent to dock at a SHIP, not to fetch cargo, stays a single
+// ship and must not be turned into a pickup.
+const repDef = {u:[{id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally'},
+                   {id:'T1', c:'tr', n:1, spr:'trisis', side:'ally', dockTo:'A1'}]};
+const repRes = api.scriptUnitsResolved(repDef);
+check('transport docking at a ship stays one, and is no pickup',
+      repRes.find(u => u.id === 'T1').n === 1 && !repRes.find(u => u.id === 'A1').pickup,
+      'n ' + repRes.find(u => u.id === 'T1').n);
 check('mission data itself untouched', pickDef.u.find(u => u.id === 'F1').n === 2);
 
 // ── 11. Cargo riding on a freighter (v253, Shieldbreaker) ─────

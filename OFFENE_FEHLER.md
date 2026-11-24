@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 24.11.2026, v350, M1 bis M25 abgenommen)
+## Lage — als Erstes lesen (Stand 24.11.2026, v351, M1 bis M25 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,10 +26,11 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F141 | **M27 „Last Hope"** — die vasudanische *Hope* steht mit 35 % Rumpf im Feld, die *Isis* schickt ihre zehn Phidias-Drohnen (die Mechanik aus v275, bisher nur in der Testmission), der Kreuzer *Mecross* hilft, die Shivaner kommen in Schüben. Rumpf voll → vasudanische Ablösung springt ein, die *Hope* springt ab. Drei Enden geprüft: geheilt und weg, alle Drohnen abgeschossen (Teilerfolg, sie zieht angeschlagen ab), *Hope* zerstört. Die Reparatur dauert **97 Sekunden** (in `fieldsim` gemessen). Alte Mission 27 „The Repair" entfernt; ihr Andockfall steht jetzt als eigenes Beispiel in `docksim` | v351 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell, mit echter Tiefe (verschiebt sich mit der Kamera wie ein Schiffsmodell). Alte Mission 26 „The Minefield" entfernt | v345, v346 |
-| F140 | **Jetzt entscheidet die Art des Schiffes, nicht die Länge.** Frachter, Transporter, Fracht und Rettungskapseln fliegen wie kleine Schiffe, egal wie lang sie sind — dazu die Gas-Miner, die Hippocrates und die Imhotep/Faustus (Silvios Entscheidung vom 24.11.2026). Neu dabei: Dis, Triton, TC-Meson, TC-TRI, SAC3, Anuket, Rahu, Zephyrus, Hippocrates, Imhotep. Diese fünf Rümpfe haben jetzt auch echte Modell-Andockdaten, damit ihre Fracht am Andockpunkt des Trägers sitzt. **Im Spiel noch nicht zu sehen:** keine Mission schickt eines dieser Schiffe zu einem Sprungknoten — die Regel greift ab M27 | v350 |
+| F140 | **Jetzt entscheidet die Art des Schiffes, nicht die Länge.** Frachter, Transporter, Fracht und Rettungskapseln fliegen wie kleine Schiffe, egal wie lang sie sind — dazu die Gas-Miner, die Hippocrates und die Imhotep/Faustus (Silvios Entscheidung vom 24.11.2026). Neu dabei: Dis, Triton, TC-Meson, TC-TRI, SAC3, Anuket, Rahu, Zephyrus, Hippocrates, Imhotep. Diese fünf Rümpfe haben jetzt auch echte Modell-Andockdaten, damit ihre Fracht am Andockpunkt des Trägers sitzt. **Im Spiel noch nicht zu sehen:** keine Mission schickt eines dieser Schiffe quer über das Feld. In M27 (v351) steht die *Isis* still, also zeigt sich die Regel auch dort nicht — erst eine Mission mit einem fahrenden Transporter oder Frachter macht sie sichtbar | v350 |
 | F139 | **Rümpfe kleiner als ein Kreuzer fliegen wie ein Jäger** (v349). Der Umfang war falsch gewählt; mit F140 (v350) entscheidet die Art des Schiffes. Die Längenmarke bleibt als zweiter Weg hinein, damit nichts verliert, was seit v349 so fliegt | v349 |
 | F138 | **Die Frachtcontainer blieben waagerecht, während ihr Frachter schräg zum Knoten flog** (Silvio nach v347). Die Fracht übernimmt jetzt den Winkel ihres Trägers | v348 |
 | F137 | **M26: die beiden Frachtcontainer standen im Feld, statt auf ihren Frachtern zu sitzen** (Silvio nach v346: „ich hab 2 Frachtcontainer im Feld stehen, die einfach despawnen, wenn, ich vermute es sind ihre Trägerfrachter, wegspringen"). Sie kommen jetzt mit ihrem Frachter und aus seinem Wirbel | v347 |
@@ -43,6 +44,50 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
+
+## F141 — M27 „Last Hope“ (v351, 24.11.2026, Urteil offen)
+
+Im Original (`fs1/sm3-02a.fs2`) verlässt der vasudanische Zerstörer *Hope*
+beschädigt das Antares-System. Ein Reparaturtransporter *Isis* flickt ihn,
+die Shivaner greifen in Schüben an, und als vasudanische Jäger als Ablösung
+eintreffen, springt die *Hope* ab.
+
+Silvios Entwurf, von ihm abgenommen am 24.11.2026 („Gefällt mir“):
+
+- Die *Hope* steht von Anfang an links im Feld, Rumpf bei 35 %, bewegt sich
+  nicht und springt nie von selbst ab (`stay`).
+- Daneben der vasudanische Kreuzer *Mecross*, der mitschießt.
+- Die *Isis* springt kurz nach Beginn ein und schickt ihre zehn
+  Reparaturdrohnen. Damit hat der Spieler zwei Dinge zu beschützen: die
+  *Hope* und die Drohnen. **Das ist der erste echte Einsatz der
+  Drohnenmechanik aus v275 (F89)** — bisher lief sie nur in Mission 91.
+- Shivaner von rechts, neben der *Hope* eingesprungen, damit der Angriff
+  sofort beginnt: Nephilim-Bomber mit Manticore-Geleit, dann der Kreuzer
+  *Lightning* (Cain), zuletzt Dragons und Shaitan-Bomber. Danach offener
+  Nachschub, solange die *Hope* lebt.
+- **Kein Nachladen:** die Bastion ist in dieser Mission nicht dabei (Rearm-Tor, F22).
+
+**Die drei Enden, alle in `fieldsim` gespielt:**
+
+1. Rumpf voll → Ablösung springt ein → die *Hope* springt ab (Ziel erfüllt).
+2. Alle zehn Drohnen abgeschossen oder die *Isis* zerstört → Teilerfolg, die
+   Ablösung kommt später und die *Hope* zieht angeschlagen ab.
+3. *Hope* zerstört → Ziel verfehlt, Mission endet.
+
+**Reparaturtempo gemessen, nicht geraten.** `repPct` ist der Prozentsatz
+Rumpf je Sekunde bei voller Arbeit aller zehn Drohnen. Mit 0,6 stand der
+Rumpf nach 128 Sekunden erst bei 81 % — die Drohnen verlieren rund zwei
+Fünftel der Zeit beim Fliegen von einer Schadensstelle zur nächsten.
+Mit **1,1** dauert die Reparatur **97 Sekunden** (`fieldsim`). Wer am
+Reparaturtempo dreht, misst es wieder dort und verlässt sich nicht auf
+den Nennwert.
+
+**Alte Mission 27 „The Repair" entfernt.** Ihr Andockfall hing an einer
+Prüfung in `docksim` („M027: transports unchanged"); die steht jetzt auf
+einem eigenen kleinen Beispiel, wie es bei „The Pickup" schon gemacht wurde.
+
+`warpsim` über M27 meldet zwei „stop“-Befunde an absprungenden Jägern — das
+ist der bekannte F132 und nichts Neues.
 
 ## F130 — M24 „Doomsday“ (v334 bis v337, 19.11.2026, abgenommen)
 

@@ -3758,6 +3758,74 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'KA+KB+KC+KD+KE+KF', d:6, w:'abzug', a2:'', hold:true}
      ]},
 
+  // Last Hope (fs1/sm3-02a). The Vasudan destroyer Hope limps out of
+  // Antares badly shot up; a repair transport patches her while the
+  // Shivans try to finish her off. In the original the Isis docks and
+  // repairs fifteen turrets one by one - here she sends the ten Phidias
+  // drones of v275 (F89), which so far only ran in the test mission, so
+  // the player has the Hope AND the drones to cover. Her hull whole, the
+  // Vasudan relief jumps in and she leaves. Replaces the old mission 27
+  // "The Repair"; that one's docking case lives on in docksim as a def of
+  // its own.
+  27:{name:'Last Hope', era:'fs1', orig:23, ship:'fivalyrie', pri:['prom1','banshee'],
+      fac:'hol', o:'clear', live:8,
+      ziel:'Cover the repair of the PVD Hope', u:[
+       // hurt: the share of her hull she starts with. stay: she never
+       // leaves on her own, so a field gone quiet between two waves
+       // cannot end the mission - only the 'raus' below sends her off.
+       {id:'HO', mark:'protect', c:'de', n:1, spr:'detyphon', side:'ally',
+        x:240, y:265, still:true, noWarp:true, stay:true, hurt:0.35,
+        label:'PVD Hope'},
+       {id:'ME', c:'cr', n:1, spr:'craten', side:'ally', x:170, y:400,
+        still:true, noWarp:true, label:'PVC Mecross'},
+       // repPct: per cent of her hull per second with all ten drones out,
+       // at full rate. They lose about two fifths of it flying from one
+       // damaged spot to the next, so 1.1 makes her 65 % good in a little
+       // under two minutes - measured in fieldsim, not guessed.
+       {id:'IS', c:'tr', n:1, spr:'trisis', side:'ally', x:330, y:410,
+        warpIn:true, still:true, t:4, repair:'HO', repPct:1.1, label:'PVT Isis'},
+       {id:'A1', c:'fi', n:2, size:3, spr:'fivalyrie', side:'ally'},
+       // The Shivans jump in beside the Hope instead of at the edge, so
+       // their run on her starts at once (M24). Her hull covers roughly
+       // 190 to 290 on the grid, so 450 and up is clear of her.
+       {id:'IN', c:'bo', n:1, size:3, spr:'bonephilim',  fac:'shivan', t:12, x:470, y:300, label:'SB Indra'},
+       {id:'KR', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', t:18, x:520, y:170, label:'SF Krishna'},
+       {id:'AS', c:'bo', n:1, size:2, spr:'bonephilim',  fac:'shivan', wait:true, x:480, y:210, label:'SB Asura'},
+       {id:'LI', c:'cr', n:1, spr:'crcain', fac:'shivan', t:55, x:640, y:360, label:'SC Lightning'},
+       {id:'DU', c:'fi', n:1, size:2, spr:'fidragon',  fac:'shivan', wait:true, x:540, y:250, label:'SF Durga'},
+       {id:'BH', c:'bo', n:1, size:3, spr:'boshaitan', fac:'shivan', wait:true, x:500, y:380, label:'SB Bheema'},
+       // The Vasudan relief of the original: they come, she goes.
+       {id:'MU', c:'fi', n:1, size:4, spr:'fitoth', side:'ally', wait:true,
+        x:60, y:265, label:'PVF Mu'}
+     ], ev:[
+       // Waves keep coming while she lives (solange: must NOT hold)
+       {t:'alleZerstoert', a:'IN', solange:{t:'vernichtet', a:'HO'}, w:'einwarpen', a2:'AS'},
+       {t:'alleZerstoert', a:'KR', solange:{t:'vernichtet', a:'HO'}, w:'einwarpen', a2:'DU'},
+       {t:'alleZerstoert', a:'AS', solange:{t:'vernichtet', a:'HO'}, w:'einwarpen', a2:'BH'},
+       // Nothing named left to send: open reinforcements, so a good
+       // player never waits out the drones in an empty field.
+       {t:'alleZerstoert', a:'DU+BH', solange:{t:'vernichtet', a:'HO'}, w:'nachschub', a2:'shivan'},
+       // Won: her hull is whole, the relief arrives, she jumps out.
+       {t:'repariert', a:'HO', w:'einwarpen', a2:'MU'},
+       {t:'repariert', a:'HO', d:5, w:'raus', a2:'HO'},
+       // Repair broken off - all ten drones shot down, or the Isis killed
+       // first. The relief still comes, far enough out that it cannot take
+       // over from the line above (M24), and she limps away half mended.
+       {t:'reparaturGescheitert', a:'IS', w:'zielteil', a2:'The Hope left only half mended'},
+       {t:'reparaturGescheitert', a:'IS', d:25, w:'einwarpen', a2:'MU'},
+       {t:'reparaturGescheitert', a:'IS', d:30, w:'raus', a2:'HO'},
+       {t:'vernichtet', a:'IS', w:'zielteil', a2:'The Hope left only half mended'},
+       {t:'vernichtet', a:'IS', d:25, w:'einwarpen', a2:'MU'},
+       {t:'vernichtet', a:'IS', d:30, w:'raus', a2:'HO'},
+       // The ends - order counts: an 'abzug' closes every later event
+       {t:'verlaesst', a:'HO', wenn:{t:'repariert', a:'HO'}, w:'zielerfuellt', a2:'The Hope is whole and away'},
+       {t:'verlaesst', a:'HO', w:'nachschub', a2:'aus'},
+       {t:'verlaesst', a:'HO', d:6, w:'abzug', a2:'', hold:true},
+       {t:'vernichtet', a:'HO', w:'zielverfehlt', a2:'The Hope is lost'},
+       {t:'vernichtet', a:'HO', w:'nachschub', a2:'aus'},
+       {t:'vernichtet', a:'HO', d:6, w:'abzug', a2:'', hold:true}
+     ]},
+
   // Tenderizer (fs1/sm2-05a). Alpha patrols the Antares-Beta Aquilae jump
   // node while the Galatea passes through. The Vasudans escalate: Anubis
   // fighters, then Osiris bombers on the Galatea, then Seths packed with
@@ -4242,29 +4310,6 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
        {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
        {t:'zerstoert', a:'V3', w:'nachschub', a2:'aus'}
-     ]},
-
-  // v185: the Vasudan bombers are now two to three times as tough (Osiris
-  // 207/154). Two wings of two took all three Isis; one bomber per wing and
-  // a cap of 4 leaves the repair a fight again.
-  27:{name:'The Repair', fac:'hol', o:'guard', live:4, u:[
-       // Jeder angedockte Transporter setzt den Rumpf ein Viertel hoch.
-       // Wer schlecht verteidigt, wartet laenger - das ist die Uhr.
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:0.30, still:true},
-       {id:'T1', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', dockLabel:'REPAIRING'},
-       {id:'T2', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', wait:true, dockLabel:'REPAIRING'},
-       {id:'T3', c:'tr', n:1, spr:'trisis', side:'ally', x:-40, dockTo:'A1', wait:true, dockLabel:'REPAIRING'},
-       {id:'B1', c:'bo', n:1},
-       {id:'B2', c:'bo', n:1, wait:true}
-     ], ev:[
-       {t:'angedockt', a:'T1', w:'heilen', a2:'A1'},
-       {t:'angedockt', a:'T1', w:'einwarpen', a2:'T2'},
-       {t:'angedockt', a:'T2', w:'heilen', a2:'A1'},
-       {t:'angedockt', a:'T2', w:'einwarpen', a2:'T3'},
-       {t:'angedockt', a:'T3', w:'heilen', a2:'A1'},
-       {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'B2'},
-       {t:'sek', a:3, w:'nachschub', a2:'an'},
-       {t:'angedockt', a:'T3', w:'nachschub', a2:'aus'}
      ]},
 
   29:{name:'The Blockade', fac:'hol', o:'guard', live:5, u:[
@@ -5739,8 +5784,8 @@ function evFire(ev){
       for(const u of byId(arg)){ if(u.rollT != null) continue; u.warpMax = u.warpMax > 1 ? u.warpMax : 100; u.warpOut = u.warpMax; EV_LEFT[arg] = true; }
       break;
     case 'heilen': {
-      // M027: jeder angedockte Transporter setzt den Rumpf ein Stueck
-      // hoch. Wer schlecht verteidigt, wartet laenger.
+      // Docking repair missions: each transport that makes it in sets the
+      // hull a step higher. Defend badly and the wait gets longer.
       const ht = byId(arg)[0];
       if(ht){ ht.hp = Math.min(ht.maxHp, ht.hp + ht.maxHp*0.25);
               SUB_MSGS.push({x:ht.x, y:ht.y-40, txt:'HULL REPAIRED',
