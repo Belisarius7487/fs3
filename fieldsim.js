@@ -1120,6 +1120,140 @@ scenario('M23 a crossing freighter is driven by her crossing alone', 'm=23', `
   r.laneHoldsHer = !a._lane || a._lane.stand === true;
   return r;`);
 
+// F142 (M28): the pods launch out of the station, cross towards the right
+// edge, and only turn onto their approach once the Hope is really there.
+// Against v351 this fails on landsInHope: landOn was read before
+// launchFrom, so a pod with both never flew her bay path out at all.
+scenario('M28 pods launch, wait for the Hope, then land in her', 'm=28', `
+  const r = {};
+  const pods = () => allies.filter(a=>a.uid==='EP' && !a.dead);
+  const hope = () => allies.filter(a=>a.uid==='HO' && !a.dead)[0];
+  // All four are out of the station within the first half minute.
+  r.fourLaunch = FS.until(()=>podsSeen() >= 4, 32000, false, true) >= 0;
+  // While the Hope is still away they are crossing, not standing still.
+  const early = pods()[0];
+  r.crossesWhileWaiting = !!(early && early.crossing > 0);
+  r.hopeComes = FS.until(()=>hope() && !(hope().warp>0), 20000, false, true) >= 0;
+  // Once she is in the field every pod still flying turns onto the approach
+  // and gives up her crossing - otherwise two drives would move her.
+  r.aimed = FS.until(()=>{ const p = pods(); return p.length>0 && p.every(a=>a.landAimed && !a.crossing); }, 8000, false, true) >= 0;
+  const before = protSaved;
+  r.landsInHope = FS.until(()=>protSaved > before, 60000, false, true) >= 0;
+  return r;
+  function podsSeen(){ return allies.filter(a=>a.uid==='EP').length + protSaved; }`);
+
+// F142 (M28), Silvio 24.11.2026: "Mach die Station doch einfach bei voller
+// Huellenstaerke und lass die Rettungskapseln ueber einen Zeitraum von 20
+// Sekunden starten. So schnell schafft es nicht mal die Lucifer die Station
+// zu zerstoeren." So she has to be standing when the last pod leaves at 19 s.
+// Her hull multiplier (ter_aquilae) and the Lucifer's beamMul are what this
+// holds; lower either and it goes red.
+// F142 (M28), Silvio 24.11.2026: "Mach die Station doch einfach bei voller
+// Huellenstaerke und lass die Rettungskapseln ueber einen Zeitraum von 20
+// Sekunden starten. So schnell schafft es nicht mal die Lucifer die Station
+// zu zerstoeren." So she has to be standing when the last pod leaves at 19 s.
+// Her hull multiplier (ter_aquilae) and the Lucifer's beamMul are what this
+// holds; lower either and it goes red.
+// F142 (M28), Silvio 24.11.2026: "Mach die Station doch einfach bei voller
+// Huellenstaerke und lass die Rettungskapseln ueber einen Zeitraum von 20
+// Sekunden starten. So schnell schafft es nicht mal die Lucifer die Station
+// zu zerstoeren." So she has to be standing when the last pod leaves at 19 s.
+// Her hull multiplier (ter_aquilae) and the Lucifer's beamMul are what this
+// holds; lower either and it goes red.
+// F142 (M28), Silvio 24.11.2026: "Mach die Station doch einfach bei voller
+// Huellenstaerke und lass die Rettungskapseln ueber einen Zeitraum von 20
+// Sekunden starten. So schnell schafft es nicht mal die Lucifer die Station
+// zu zerstoeren." So she has to be standing when the last pod leaves at 19 s.
+// Her hull multiplier (ter_aquilae) and the Lucifer's beamMul are what this
+// holds; lower either and it goes red.
+scenario('TMP M28 hull curve', 'm=28', `
+  const r = {};
+  const st = () => allies.filter(a=>a.uid==='ST' && !a.dead)[0];
+  const curve = [];
+  for(let s=0;s<90;s+=3){
+    FS.step(3*60);
+    const a = st();
+    curve.push(s+3 + ':' + (a ? Math.round(a.hp/a.maxHp*100) : 'gone'));
+  }
+  r.curve = curve.join(' ');
+  return r;`);
+
+scenario('TMP M28 hull curve', 'm=28', `
+  const r = {};
+  const st = () => allies.filter(a=>a.uid==='ST' && !a.dead)[0];
+  const curve = [];
+  for(let s=0;s<100;s+=5){
+    FS.step(5*TICK_HZ);
+    const a = st();
+    curve.push(s+5 + ':' + (a ? Math.round(a.hp/a.maxHp*100) : 'gone'));
+  }
+  r.curve = curve.join(' ');
+  return r;`);
+
+scenario('M28 the station outlives the last escape pod', 'm=28', `
+  const r = {};
+  const st = () => allies.filter(a=>a.uid==='ST' && !a.dead)[0];
+  // 25 s in - six seconds after the last pod is away. Measured curve of
+  // v352 (TICK_HZ steps a second, not 60): 98 % at 5 s, 63 % at 20 s when
+  // the last pod is out, 48 % at 30 s, 18 % at 45 s, gone at about 62 s.
+  // She has to be visibly worked on by now and still standing: her hull
+  // multiplier (ter_aquilae) and the Lucifer's beamMul are what hold this.
+  FS.step(25*TICK_HZ);
+  r.standingAfterLastPod = !!st();
+  const h = st() ? Math.round(st().hp/st().maxHp*100) : 0;
+  r.hullAt25s = h;
+  r.alreadyBurning = h > 0 && h < 90;
+  r.notNearlyGone = h > 30;
+  // And she does go down - she is not meant to survive, and nothing but the
+  // Lucifer's guns does it (no clearing, no stand-in player here).
+  r.sheDiesToTheLucifer = FS.until(()=>!st(), 120000, false, false) >= 0;
+  return r;`);
+
+// F142: her guns are for the station and nothing else. The test that
+// matters is what she does once the station can no longer be shot at: with
+// beamOnly she holds fire, without it she falls back to the nearest
+// reachable target - the Hope, the pods or the player. Against a build
+// with beamOnly taken out again this fails on holdsFire.
+scenario('M28 the Lucifer holds fire when the station is gone', 'm=28', `
+  const r = {};
+  const lu = () => enemies.filter(e=>e.uid==='LU' && !e.dead)[0];
+  const hope = () => allies.filter(a=>a.uid==='HO' && !a.dead)[0];
+  FS.step(2);
+  r.sheIsThere = !!lu();
+  // Her own target while the station stands is the station and nothing else.
+  const wrong = {};
+  let shots = 0;
+  for(let i=0;i<40;i++){
+    FS.step(30);
+    const e = lu(); if(!e || !e.beams) break;
+    for(const b of e.beams){
+      if(!b.tgt) continue;
+      shots++;
+      const id = (b.tgt === player) ? 'player' : (b.tgt.uid || b.tgt.label || '?');
+      if(id !== 'ST') wrong[id] = (wrong[id]||0)+1;
+    }
+  }
+  r.sheAimedAtTheStation = shots > 0 && Object.keys(wrong).length === 0;
+  // Now take the station away and wait for the Hope to be in the field, so
+  // there is something big and reachable for a fallback to find.
+  r.hopeIsIn = FS.until(()=>hope() && !(hope().warp>0), 25000, false, true) >= 0;
+  for(const a of allies.slice()) if(a.uid === 'ST'){ a.dead = true; allies.splice(allies.indexOf(a),1); }
+  // Put every battery back to idle so each one has to pick afresh.
+  { const e = lu(); if(e) for(const b of e.beams){ b.state='idle'; b.tgt=null; b.timer=1; } }
+  const after = {};
+  for(let i=0;i<60;i++){
+    FS.step(30);
+    const e = lu(); if(!e || !e.beams) break;
+    for(const b of e.beams){
+      if(!b.tgt) continue;
+      const id = (b.tgt === player) ? 'player' : (b.tgt.uid || b.tgt.label || '?');
+      after[id] = (after[id]||0)+1;
+    }
+  }
+  r.holdsFire = Object.keys(after).length === 0;
+  r.pickedInstead = Object.keys(after).join(',');
+  return r;`);
+
 // Every written mission has to come to an end when its enemies go down,
 // with nothing thrown on the way. Enemy ships are cleared every two seconds
 // once they are out of their vortex - a player who hits everything.

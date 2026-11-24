@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 24.11.2026, v351, M1 bis M27 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v352, M1 bis M27 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -30,6 +30,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F140 | **Jetzt entscheidet die Art des Schiffes, nicht die Länge.** Frachter, Transporter, Fracht und Rettungskapseln fliegen wie kleine Schiffe, egal wie lang sie sind — dazu die Gas-Miner, die Hippocrates und die Imhotep/Faustus (Silvios Entscheidung vom 24.11.2026). Neu dabei: Dis, Triton, TC-Meson, TC-TRI, SAC3, Anuket, Rahu, Zephyrus, Hippocrates, Imhotep. Diese fünf Rümpfe haben jetzt auch echte Modell-Andockdaten, damit ihre Fracht am Andockpunkt des Trägers sitzt. **Im Spiel noch nicht zu sehen:** keine Mission schickt eines dieser Schiffe quer über das Feld. In M27 (v351) steht die *Isis* still, also zeigt sich die Regel auch dort nicht — erst eine Mission mit einem fahrenden Transporter oder Frachter macht sie sichtbar | v350 |
 | F139 | **Rümpfe kleiner als ein Kreuzer fliegen wie ein Jäger** (v349). Der Umfang war falsch gewählt; mit F140 (v350) entscheidet die Art des Schiffes. Die Längenmarke bleibt als zweiter Weg hinein, damit nichts verliert, was seit v349 so fliegt | v349 |
+| F142 | **M28 „A Failure to Communicate"** gebaut (siehe unten). Dazu zwei Änderungen am gemeinsamen Ablauf: eine Rettungskapsel darf jetzt ein Schiff als Landeziel nennen, das noch nicht im Feld steht (sie fährt weiter und schwenkt ein, sobald es da ist), und ein Großkampfschiff kann mit `beamOnly` angewiesen werden, **ausschließlich** sein `beamFocus`-Ziel zu beschießen | v352 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
@@ -40,6 +41,48 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
+
+## F142 — M28 „A Failure to Communicate“ (v352, 25.11.2026, Urteil offen)
+
+Im Original (`fs1/sm3-03a.fs2`) steht die *Lucifer* beim Aquilae-Außenposten
+und schießt ihn mit ihrem Hauptstrahl in Stücke. Rettungskapseln stoßen ab.
+Daneben liegt die *Aquilae Communications*, ein Faustus — die Funkzentrale
+des Sektors und der eigentliche Hauptauftrag: sie muss halten, bis ein
+eigener Zerstörer in Stellung ist. Dazwischen Shivaner in Wellen.
+
+Silvios Festlegungen vom 24./25.11.2026:
+
+- Die Station startet mit **voller Hüllenstärke**, nicht beschädigt. „So
+  schnell schafft es nicht mal die Lucifer die Station zu zerstören.“
+- Die **vier Rettungskapseln starten über zwanzig Sekunden** verteilt — nicht
+  erst, wenn die Station schon tot ist oder gerade explodiert: „Sie sollen ja
+  nicht plötzlich aufploppen.“
+- Die **Hope warpt am rechten Bildrand ein, sobald die letzte Kapsel
+  gestartet ist**, und die **Kapseln landen in ihrem Hangar**.
+- Die **Lucifer ignoriert die Hope** und konzentriert sich nur auf die
+  Station.
+- Der Name der Funkzentrale ist der aus dem Original, **Aquilae
+  Communications** — „Funkstelle“ war nur Claudes Hilfswort und steht nicht
+  im Spiel.
+
+**Im Spiel gemessen (v352, nicht geschätzt):** Die Station steht bei 98 %
+nach 5 Sekunden, 63 % nach 20 Sekunden — also noch gut zwei Drittel, wenn
+die letzte Kapsel heraus ist —, 48 % nach 30, 18 % nach 45 und ist nach
+rund 62 Sekunden zerstört. Gehalten wird das von zwei Werten: `hullMul`
+des neuen Eintrags `ter_aquilae` (1,35) und `beamMul` der Lucifer (15).
+Wer einen davon ändert, ändert diesen Verlauf — die `fieldsim`-Prüfung
+„M28 the station outlives the last escape pod“ schlägt dann an.
+
+**Achtung bei eigenen Messungen:** Das Spiel läuft mit `TICK_HZ` = 100
+Schritten je Sekunde, nicht 60. Ein `FS.step(25*60)` sind 15 Sekunden, nicht
+25 — dieser Irrtum hat beim Bau von M28 eine Messrunde gekostet.
+
+Verworfen auf dem Weg dorthin: die Kapseln über den Rand abspringen lassen
+(wie in M24) — Silvio will sie im Hangar der Hope; und die Station tiefer
+angeschlagen beginnen zu lassen.
+
+Die alte Mission 28 („The Ramming“) ist entfernt; sie lag in der Datei
+hinter der neuen und hätte sie stillschweigend überschrieben (F129).
 
 ## F141 — M27 „Last Hope“ (v351, 24.11.2026, abgenommen)
 

@@ -1640,6 +1640,12 @@ const ALLY_DEFS = {
   ter_halkins:    {cls:'cruiser',   fac:'terran',  spr:'frchronos',    label:'GTFr Halkins', noFire:true},
   ter_tombaugh:   {cls:'destroyer', fac:'terran',  spr:'inarcadia',    label:'Tombaugh Station',
                    stay:true, hullMul:1.5},
+  // M28 (F142): the Aquilae installation the Lucifer burns down. Tougher
+  // than Tombaugh on purpose - Silvio, 24.11.2026: "So schnell schafft es
+  // nicht mal die Lucifer die Station zu zerstoeren", so she has to hold
+  // while all four pods get away.
+  ter_aquilae:    {cls:'destroyer', fac:'terran',  spr:'inarcadia',    label:'Aquilae Installation',
+                   stay:true, hullMul:1.35},
   // Mission use only: the Iceni on our side of a fight (M70).
   ntf_iceni:      {cls:'corvette',  fac:'terran',  spr:'coiceni',      label:'NTF Iceni'}
 };
@@ -2223,10 +2229,23 @@ function updateAllies(){
       continue;                       // no firing while jumping out
     }
 
-    // F89 (v268): an escape pod on its way into a hangar flies itself.
-    if(a.landOn){ if(podFly(a)) allies.splice(i,1); continue; }
     // F130 (M24): a pod coming out of a hangar flies her bay path outwards.
+    // Checked before landOn (F142, M28): a pod that launches out of one ship
+    // and lands in another has both, and the launch comes first.
     if(a.launchFrom){ podLaunch(a); continue; }
+    // F89 (v268): an escape pod on its way into a hangar flies itself.
+    // F142 (M28): her hangar may not be in the field yet - the Hope only
+    // warps in once the last pod is away. Until she is there (and out of
+    // her own vortex) the pod simply keeps crossing; podLandAim turns her
+    // onto the approach the moment she can see it.
+    if(a.landOn){
+      const lt = podHangar(a);
+      if(lt){
+        if(!a.landAimed) podLandAim(a, lt);
+        if(podFly(a)) allies.splice(i,1);
+        continue;
+      }
+    }
     // v275 (F89): a repair drone flies its own job (64_repair.js).
     if(a.drone){ if(droneTick(a)) allies.splice(i,1); continue; }
     if(a.small){

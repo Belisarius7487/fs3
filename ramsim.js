@@ -343,10 +343,14 @@ ok('and so does the corvette and destroyer branch',
      Math.abs((x0 - e.x) - 0.9) < 0.01);
 }
 {
-  // And the mission has to hand it a speed a ship can travel at. 0.05 only
+  // And a mission has to hand it a speed a ship can travel at. 0.05 only
   // ever worked because the station keeping was doing the real moving.
-  const m = src.match(/\{id:'V1'[^}]*capRam:([\d.]+)/);
-  ok('mission 28 gives the cruiser a real speed', !!m && parseFloat(m[1]) >= 0.5);
+  // F142 (v352): this hung on the old mission 28, which was removed with
+  // M28; it now holds every ram course in the missions to the same floor.
+  const all = [...src.matchAll(/capRam:([\d.]+)/g)].map(m => parseFloat(m[1]));
+  const slow = all.filter(v => v < 0.5);
+  ok('every ram course in the missions has a real speed (' + all.length + ' found)',
+     all.length > 0 && slow.length === 0);
 }
 
 console.log('\nThe ramming cruiser reaches its target from any height');

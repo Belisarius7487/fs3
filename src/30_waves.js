@@ -656,6 +656,9 @@ function spawnProtected(sp){
     const _t = byId(sp.land)[0];
     a.head = _t ? Math.atan2(_t.y - a.y, _t.x - a.x) : Math.PI;
     a.head += (Math.random()*2-1)*0.9;      // each pod leaves at its own angle
+    // F142 (M28): with her hangar already in the field she is aimed now, as
+    // before. Without it she waits - podLandAim does it when the ship comes.
+    if(_t) a.landAimed = true;
   }
   // F130 (M24): a pod launched out of a ship's fighter bay (from:'GA').
   // She sets her own place, heading and depth, so the plain cross spawn
@@ -1461,6 +1464,24 @@ function podAround(a, t, gx, gy){
   const yOut = (gy < b[1] || gy > b[1] + b[3]) ? gy : (a.y < b[1] + b[3]*0.5 ? b[1] - 120 : b[1] + b[3] + 120);
   return {x:endX, y:yOut};
 }
+// F142 (M28): the ship this pod is to land in, but only once she is really
+// there to be flown into - in the field, alive, and out of her own vortex.
+// Before that the pod has no hangar and keeps crossing; if the ship is
+// killed she loses it again and crosses on out, which is her escape.
+function podHangar(a){
+  const t = byId(a.landOn)[0];
+  if(!t || t.dead) return null;
+  if(t.warp > 0 || t.warpOut > 0) return null;
+  return t;
+}
+// F142: turn a crossing pod onto her approach. Her crossing has to go, or
+// tickCrossGuards would keep driving her while podFly flies her as well.
+function podLandAim(a, t){
+  a.landAimed = true;
+  a.crossing = 0;
+  a.spd = POD_SPEED; a.turn = POD_TURN; a.cs = 0;
+  a.head = Math.atan2(t.y - a.y, t.x - a.x) + (Math.random()*2-1)*0.5;
+}
 // Returns true when the pod is inside and has to leave the list.
 function podFly(a){
   const t = byId(a.landOn)[0];
@@ -1930,6 +1951,12 @@ function applySpawnOpts(e, sp){
   if(sp.portalMid) e.portalMid = true;
   // beamFocus: her guns go for this ship first (the Hatshepsut, M77).
   if(sp.beamFocus) e.beamFocus = sp.beamFocus;
+  // beamOnly (F142, M28): her guns are for the beamFocus list and for
+  // nothing else. Without it a capital falls back to the nearest reachable
+  // target, so the Lucifer at Aquilae would turn on the Hope as she warps
+  // in - Silvio, 25.11.2026: "Die Lucifer sollte die Hope aber ignorieren
+  // und sich nur auf die Station konzentrieren."
+  if(sp.beamOnly) e.beamOnly = true;
   // beamMul (v257, Tombaugh): her beams hit this many times harder - the
   // Lucifer that wiped out a station and its fleet in one strike.
   if(sp.beamMul) e.beamMul = sp.beamMul;
@@ -3826,6 +3853,93 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'HO', d:6, w:'abzug', a2:'', hold:true}
      ]},
 
+  // A Failure to Communicate (fs1/sm3-03a). The Lucifer stands over the
+  // Aquilae installation and burns it down; the crew gets out in escape
+  // pods while the Aquilae Communications, the Faustus that carries the
+  // sector's traffic, has to hold. Shivans come in waves - Dragons out of
+  // the Lucifer, then Basilisks, then Shaitan bombers that go for the
+  // Faustus. In the original a Vasudan destroyer takes position at the end
+  // and Alpha is sent home; here the Hope out of M27 warps in at the right
+  // edge once the last pod is away, and the pods land in her bay.
+  // Silvio, 24./25.11.2026: the station starts at full hull ("So schnell
+  // schafft es nicht mal die Lucifer die Station zu zerstoeren"), the four
+  // pods launch spread over twenty seconds and not when she is already
+  // dead, the Hope comes as soon as the last one is out, and the Lucifer
+  // ignores the Hope and keeps to the station (beamOnly).
+  // Left out of the original: the four Watchdog sentry guns around the
+  // station - every gun platform in the game so far is hostile, and a 9 m
+  // allied one is a dot nobody sees. Replaces the old mission 28.
+  28:{name:'A Failure to Communicate', era:'fs1', orig:24, ship:'fivalyrie',
+      pri:['prom1','banshee'], fac:'hol', o:'clear', live:7,
+      // While the pods are out the Shivans are after them, not the player.
+      hunt:'EP', huntShare:0.6,
+      ziel:'Hold the Aquilae Communications', u:[
+       // The station: her own entry (ter_aquilae) carries the name and a
+       // hull four times a Tombaugh's, so she lasts past the last pod.
+       // She is not an order - she cannot be saved.
+       {id:'ST', c:'in', n:1, spr:'inarcadia', ally:'ter_aquilae', side:'ally',
+        x:200, y:170, still:true, noWarp:true},
+       // The real mission: the sector's comm ship, below the station.
+       {id:'AC', mark:'protect', c:'cr', n:1, spr:'scfaustus', side:'ally',
+        x:230, y:420, still:true, noWarp:true, guard:true,
+        label:'Aquilae Communications'},
+       {id:'A1', c:'fi', n:2, size:3, spr:'fivalyrie', side:'ally'},
+       // She cannot be fought: invulnerable, hits only flare her shield,
+       // and her guns are for the station and nothing else (beamOnly).
+       {id:'LU', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true,
+        shieldShow:true, x:700, y:120, still:true, noWarp:true, noHold:true,
+        beamFocus:'ST', beamOnly:true, beamMul:15, label:'SD Lucifer'},
+       // The pods: out of the station's belly, one every five seconds, then
+       // across the field to the right - where the Hope comes in. All four
+       // share the id EP so the Shivans hunt whichever is still flying;
+       // their own outcome is counted ('gerettet'), not read off the id.
+       // x/y only matter if the station is gone before one of them is due.
+       {id:'EP', c:'ep', n:1, spr:'ephermes', side:'ally', t:4,  from:'ST',
+        cross:2.9, land:'HO', x:260, y:265, label:'Escape pod'},
+       {id:'EP', c:'ep', n:1, spr:'ephermes', side:'ally', t:9,  from:'ST',
+        cross:2.9, land:'HO', x:260, y:265, label:'Escape pod'},
+       {id:'EP', c:'ep', n:1, spr:'ephermes', side:'ally', t:14, from:'ST',
+        cross:2.9, land:'HO', x:260, y:265, label:'Escape pod'},
+       {id:'EP', c:'ep', n:1, spr:'ephermes', side:'ally', t:19, from:'ST',
+        cross:2.9, land:'HO', x:260, y:265, label:'Escape pod'},
+       // stay: she holds her place once she is in, so a quiet moment
+       // between two waves cannot send her off with the pods still out.
+       {id:'HO', c:'de', n:1, spr:'detyphon', side:'ally', x:620, y:420,
+        wait:true, still:true, stay:true, label:'PVD Hope'},
+       // The waves jump in beside the pods' track, not at the edge, so
+       // their run starts at once (M24).
+       {id:'DE', c:'fi', n:2, size:2, spr:'fidragon',  fac:'shivan', wait:true,
+        x:480, y:300, label:'SF Deva'},
+       {id:'KA', c:'fi', n:3, size:3, spr:'fibasilisk', fac:'shivan', wait:true,
+        x:520, y:230, label:'SF Karna'},
+       {id:'AS', c:'bo', n:3, size:3, spr:'boshaitan', fac:'shivan', wait:true,
+        x:340, y:470, label:'SB Asura'}
+     ], ev:[
+       {t:'sek', a:3, w:'nebenziel', a2:'Get the escape pods aboard the Hope'},
+       {t:'sek', a:8, w:'einwarpen', a2:'DE'},
+       // The last pod leaves at 19 s - Silvio: the Hope comes as soon as
+       // she is out, at the right edge.
+       {t:'sek', a:20, w:'einwarpen', a2:'HO'},
+       {t:'vernichtet', a:'ST', w:'meldung', a2:'the Aquilae installation is gone'},
+       {t:'gerettet', a:4, w:'nebenOk', a2:'All four escape pods aboard the Hope'},
+       // The waves, each with a brake far behind what a good player needs
+       // so the real trigger is what fires (M24).
+       {t:'alleZerstoert', a:'DE', w:'einwarpen', a2:'KA'},
+       {t:'da', a:'DE', d:45, w:'einwarpen', a2:'KA'},
+       {t:'alleZerstoert', a:'KA', w:'einwarpen', a2:'AS'},
+       {t:'da', a:'KA', d:50, w:'einwarpen', a2:'AS'},
+       // The bombers are here for the comm ship.
+       {t:'da', a:'AS', w:'jagd', a2:'AC'},
+       // The ends - order counts: an 'abzug' closes every later event.
+       {t:'alleZerstoert', a:'AS', w:'zielerfuellt', a2:'Aquilae Communications holds'},
+       {t:'alleZerstoert', a:'AS', w:'nachschub', a2:'aus'},
+       {t:'alleZerstoert', a:'AS', d:4, w:'raus', a2:'LU'},
+       {t:'alleZerstoert', a:'AS', d:9, w:'abzug', a2:'', hold:true},
+       {t:'vernichtet', a:'AC', w:'zielverfehlt', a2:'Aquilae Communications destroyed'},
+       {t:'vernichtet', a:'AC', w:'nachschub', a2:'aus'},
+       {t:'vernichtet', a:'AC', d:6, w:'abzug', a2:'', hold:true}
+     ]},
+
   // Tenderizer (fs1/sm2-05a). Alpha patrols the Antares-Beta Aquilae jump
   // node while the Galatea passes through. The Vasudans escalate: Anubis
   // fighters, then Osiris bombers on the Galatea, then Seths packed with
@@ -4284,14 +4398,6 @@ const SCRIPT_WAVES = {
         w:'raus', a2:'LU'},
        {t:'alleZerstoert', a:'H1+H2+H3+H4+H5', wenn:{t:'vernichtet', a:'GA'},
         d:6, w:'abzug', a2:'', hold:true}
-     ]},
-
-  28:{name:'The Ramming', fac:'hol', o:'guard', live:5, u:[
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:1.1, still:true},
-       {id:'V1', c:'cr', n:1, spr:'crmentu', capRam:0.9, still:true},
-       {id:'E1', c:'fi', n:2}
-     ], ev:[
-       {t:'sek', a:2, w:'meldung', a2:'cruiser on ramming course'}
      ]},
 
   30:{name:'The Boss', fac:'hol', o:'clear', live:6, u:[
@@ -6267,7 +6373,7 @@ function scriptUnit(u, fac, q){
          noWarp:u.noWarp,
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
          gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
-         noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, beamMul:u.beamMul, stopX:u.stopX, shieldShow:u.shieldShow,
+         noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, beamOnly:u.beamOnly, beamMul:u.beamMul, stopX:u.stopX, shieldShow:u.shieldShow,
          // M25: the planet she burns, and her guns held back until the
          // player calls in a capital ship. Dropped here, both did nothing.
          bombard:u.bombard, beamsWhenCalled:u.beamsWhenCalled,

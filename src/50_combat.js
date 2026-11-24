@@ -1722,6 +1722,9 @@ function pickBeamTarget(e, b){
     for(const id of String(e.beamFocus).split('>'))
       for(const f of byId(id))
         if(list.indexOf(f) >= 0 && beamCanAim(e, b, mp, f)) return f;
+    // beamOnly (F142, M28): the focus list is all she shoots at. Nothing
+    // on it in reach means she holds fire instead of taking the nearest.
+    if(e.beamOnly) return null;
   }
   let best=null, bd=Infinity;
   for(const o of list){
@@ -3295,7 +3298,9 @@ function updateBeams(e) {
         // Find a target first. With no target it will not charge, the
         // turret holds fire and retries shortly after.
         let tgt = pickBeamTarget(e,b);
-        if(!tgt && b.large && !LARGE_BEAM_HOLDS_FIRE && beamCanAim(e, b, mountPos(e, b), player)) tgt = player;
+        // beamOnly (F142): a large beam normally falls back to the player
+        // when it finds nothing; a gun bound to its focus list does not.
+        if(!tgt && b.large && !e.beamOnly && !LARGE_BEAM_HOLDS_FIRE && beamCanAim(e, b, mountPos(e, b), player)) tgt = player;
         if(!tgt){ b.timer = 45 + Math.random()*45; }
         else {
           b.tgt = tgt;
