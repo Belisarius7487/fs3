@@ -41,9 +41,11 @@ const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','i
   // F99 (v283): docking from the models' dock data (31_dock.js)
   'dkList','dkHas','dkHalf','dkIsCargo','dkInPlane','dkPick','dkRideIndex','dkRight','dkAngDiff','dkPose','dkGrid',
   'dkClear','dkMeet','dkOut','dkFlies','dkFly','poseFor','dkDepthOf','dkMustRoll','dkNeedsUpsideDown','dkPlanFor','dkPlaceCargo','dkSeat',
-  'dkApproach','dkCastOff','dkCastOffStep','dkPairInfo'];
+  'dkApproach','dkCastOff','dkCastOffStep','dkPairInfo',
+  // F140 (v350): the kind of ship decides who flies like a small one
+  'flyCrLen','flyLikeFighter'];
 // their constants, as the game has them
-const DK_CONSTS = (src.match(/^(?:const|let) (?:DK_\w+|DOCK_ROLL_STEPS|FACE_TURN_STEPS|KEEP_UPRIGHT|FLIP_HYST)\b.*$/mg) || []).join('\n');
+const DK_CONSTS = (src.match(/^(?:const|let) (?:DK_\w+|FLY_\w+|DOCK_ROLL_STEPS|FACE_TURN_STEPS|KEEP_UPRIGHT|FLIP_HYST)\b.*$/mg) || []).join('\n');
 
 const world = `
 let wave=0, enemies=[], allies=[], SUB_MSGS=[], EV_DOCK={}, EV_SEEN={}, EV_HELD={}, EV_LEFT={}, EV_TAKEN={}, EV_EMPTY={}, spawnQ=[];
@@ -77,7 +79,7 @@ return { get enemies(){return enemies;}, set enemies(v){enemies=v;},
     spawnQ.length=0; protSaved=0; protLost=0; guardLost=false; expl=0; },
   tickDocking, tickCrossGuards, tickCarry, killEnemy, dockPoint, cargoSeat, liveThreatCount,
   dockPointN, dkRideIndex, dkSeat, dkHas, dkPose, dkPairInfo, dkPlanFor, dkPick, dkPlaceCargo, needsFlip, IMGS,
-  dkAngDiff, DOCK_ROLL_STEPS, mountsFor, dkOut, DK_AIR,
+  dkAngDiff, DOCK_ROLL_STEPS, mountsFor, dkOut, DK_AIR, flyLikeFighter, flyCrLen,
   hullClassFn: hullClass, setWave(w){ wave = w; DK_PLAN = {wave: null, g: {}}; },
   scriptUnitsResolved, SCRIPT_WAVES };`)(TICK_HZ);
 
@@ -516,6 +518,21 @@ function angledDock(dkey, tkey, deg, fromLeft){
   }
 }
 for(const fromLeft of [true, false]) for(const deg of [-35, 20]) angledDock('sucentaur', 'fidragon', deg, fromLeft);
+
+// ── F140: the kind of ship decides, not her length ────────────
+// Silvio, 23.11.2026: the Triton is a freighter, not a warship, so she
+// flies like a small ship although she is longer than a cruiser. With the
+// v349 rule (length only) every hull below fails.
+console.log('\nF140 - who flies like a small ship');
+for(const k of ['frtriton','frdis','fcmeson','fctctri','fcsac3',
+                'gmanuket','gmrahu','gmzephyrus','mehippocrates','scimhotep'])
+  check(k + ' flies like a small ship', api.flyLikeFighter({img:k}) === true);
+// Warships, installations and the AWACS hulls keep the heading they had.
+for(const k of ['crlilith','craeolus','codeimos','dehecate','sdcolossus','inarcadia','casetekh'])
+  check(k + ' keeps her heading', api.flyLikeFighter({img:k}) === false);
+// Nothing that flew like a fighter since v349 loses it.
+for(const k of ['fiherc','boursa','epra','suphidias','frbast','trelysium','fcvc3','cacharybdis'])
+  check(k + ' still flies like a small ship', api.flyLikeFighter({img:k}) === true);
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

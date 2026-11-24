@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 23.11.2026, v349, M1 bis M25 abgenommen)
+## Lage — als Erstes lesen (Stand 24.11.2026, v350, M1 bis M25 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -29,7 +29,8 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell, mit echter Tiefe (verschiebt sich mit der Kamera wie ein Schiffsmodell). Alte Mission 26 „The Minefield" entfernt | v345, v346 |
-| F139 | **Rümpfe kleiner als ein Kreuzer fliegen wie ein Jäger** (v349). **Der Umfang war falsch gewählt** — gemeint ist nicht die Länge, sondern die Art des Schiffes; siehe F140 | v349 |
+| F140 | **Jetzt entscheidet die Art des Schiffes, nicht die Länge.** Frachter, Transporter, Fracht und Rettungskapseln fliegen wie kleine Schiffe, egal wie lang sie sind — dazu die Gas-Miner, die Hippocrates und die Imhotep/Faustus (Silvios Entscheidung vom 24.11.2026). Neu dabei: Dis, Triton, TC-Meson, TC-TRI, SAC3, Anuket, Rahu, Zephyrus, Hippocrates, Imhotep. Diese fünf Rümpfe haben jetzt auch echte Modell-Andockdaten, damit ihre Fracht am Andockpunkt des Trägers sitzt. **Im Spiel noch nicht zu sehen:** keine Mission schickt eines dieser Schiffe zu einem Sprungknoten — die Regel greift ab M27 | v350 |
+| F139 | **Rümpfe kleiner als ein Kreuzer fliegen wie ein Jäger** (v349). Der Umfang war falsch gewählt; mit F140 (v350) entscheidet die Art des Schiffes. Die Längenmarke bleibt als zweiter Weg hinein, damit nichts verliert, was seit v349 so fliegt | v349 |
 | F138 | **Die Frachtcontainer blieben waagerecht, während ihr Frachter schräg zum Knoten flog** (Silvio nach v347). Die Fracht übernimmt jetzt den Winkel ihres Trägers | v348 |
 | F137 | **M26: die beiden Frachtcontainer standen im Feld, statt auf ihren Frachtern zu sitzen** (Silvio nach v346: „ich hab 2 Frachtcontainer im Feld stehen, die einfach despawnen, wenn, ich vermute es sind ihre Trägerfrachter, wegspringen"). Sie kommen jetzt mit ihrem Frachter und aus seinem Wirbel | v347 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
@@ -39,7 +40,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F140 | **Nicht die Länge entscheidet, sondern die Art des Schiffes.** Auch große Frachter und Transporter (Triton, Elysium „und viele andere") sollen sich wie kleine Schiffe verhalten, und ihre Fracht — der Triton-Container und die Mesonenbombe — soll wie die kleinen Container am Andockpunkt des Trägers sitzen. **Vor dem Bauen erst eine Liste der betroffenen Schiffe** (Silvio, 23.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -5636,7 +5636,7 @@ diese Punkte noch gelten, entscheidet Silvio:
    sollte raus, damit sie kein falsches Vertrauen stiftet.
 
 
-## F140 — Die Art des Schiffes entscheidet, nicht die Länge (offen)
+## F140 — Die Art des Schiffes entscheidet, nicht die Länge (v350, 24.11.2026, Urteil offen)
 
 Silvio nach v349, in seinen Worten:
 
@@ -5659,19 +5659,59 @@ sie ein Frachter ist. Gemeint ist: **Frachter, Transporter, Fracht und
 Rettungskapseln verhalten sich wie kleine Schiffe, egal wie lang sie sind**;
 erst Kreuzer, Korvetten, Zerstörer, Juggernauts und Installationen nicht.
 
-**Zu klären, wenn es soweit ist:**
+**Die Liste, die Silvio vor dem Bauen sehen wollte (24.11.2026).** Betroffen
+sind vier Arten: Frachter, Transporter, Fracht und Rettungskapseln. Davon
+flogen seit v349 schon alle wie kleine Schiffe außer diesen fünf, die wegen
+ihrer Länge herausfielen:
 
-- Die Liste der Schiffe, die angepasst werden müssen — Silvio will sie vor
-  dem Bauen sehen. Sie gehört an den Anfang der Arbeit, nicht ans Ende.
-- Welcher Container zur Triton gehört. Silvio vermutet „TRI-TR"; im Spiel
-  gibt es unter anderem `fctctri` und als Mesonenbombe `fcmeson`
-  (**nicht nachgeprüft**, nur aus der Liste der Rümpfe gelesen).
-- Die Mesonenbombe ist 372 m lang und damit länger als mancher Kreuzer. Sie
-  soll trotzdem am Andockpunkt ihres Trägers sitzen wie ein kleiner
-  Container.
-- Ob der **Anflug beim Andocken** mitgeht (F139 unten: `DK_FLY_LEN` steht
-  noch bei 30 m, und zwei Prüffälle sprechen dagegen). Das hängt an
-  derselben Entscheidung.
+| Rumpf | Art | Länge (Tabelle) |
+|---|---|---|
+| Dis (`frdis`) | Frachter | 317 m |
+| Triton (`frtriton`) | Frachter | 313 m |
+| TC-Meson, die Mesonenbombe (`fcmeson`) | Fracht | 372 m |
+| TC-TRI, der Triton-Container (`fctctri`) | Fracht | 249 m |
+| SAC3, shivanischer Container (`fcsac3`) | Fracht | 243 m |
+
+Silvios Vermutung „TRI-TR" war fast richtig: der Container heißt **TC-TRI**
+(`tools/pof/buildmodels.py` nennt die Modelldatei `TC-TRI.pof`).
+
+**Silvios Entscheidung dazu (24.11.2026):** Die drei weiteren Nichtkämpfer
+kommen mit — die Gas-Miner Anuket, Rahu und Zephyrus (211–347 m), das
+Lazarettschiff Hippocrates (420 m) und das Forschungsschiff Imhotep (201 m).
+Vorgeschlagen war, sie draußen zu lassen; Silvio: „ja, diese 3 sollen
+mitkommen."
+
+**So ist es gebaut (v350).**
+
+- `FLY_KIND` in `src/31_dock.js` nennt die Arten, die wie kleine Schiffe
+  fliegen: Jäger, Bomber, Rettungskapseln, Hilfsschiffe, Frachter,
+  Transporter, Fracht, Gas-Miner, Lazarett- und Forschungsschiffe. Kreuzer,
+  Korvetten, Zerstörer, Juggernauts, Installationen, Geschütztürme und die
+  beiden Aufklärer (Charybdis, Setekh) behalten F24/F101.
+- **Die Längenmarke bleibt als zweiter Weg hinein**: wer kürzer ist als der
+  kürzeste Kreuzer, fliegt weiter wie ein Jäger, auch wenn seine Art nicht in
+  `FLY_KIND` steht. Sonst hätte die Charybdis (181 m) verloren, was sie seit
+  v349 hat. Silvio hat nach dem Umfang *nach oben* gefragt, nicht nach einer
+  Einschränkung.
+- **Fracht am Andockpunkt:** Triton, Dis, TC-Meson, TC-TRI und SAC3 hatten in
+  `hlp_mounts_final.json` nur alte, von Hand gesetzte Einträge (`dx`/`dy`/
+  `ang`) und **keine** Modelldaten (`p`/`hm`) — genau die Falle aus F125. Mit
+  `tools/pof/mkdocks.py` aus MVPS 5.0.2 nachgezogen; damit greift für sie der
+  gemeinsame Ablauf (`dkSeat`) wie bei den kleinen Containern.
+- **Geprüft:** `docksim` hat einen neuen Teil „F140 — who flies like a small
+  ship" (zehn Rümpfe müssen mitkommen, sieben nicht, acht dürfen nichts
+  verlieren). Gegen v349 gestellt: dort fallen genau die zehn neuen durch.
+
+**Im Spiel ist noch nichts davon zu sehen.** Die Regel greift dort, wo ein
+Schiff quer durchs Feld zu einem Sprungknoten zieht (`toNode`, F136), und
+keine der abgenommenen Missionen schickt einen Frachter dieser Größe dorthin.
+Sichtbar wird es ab M27, und sobald eine Mission die Mesonenbombe oder den
+TC-TRI auf einer Triton tragen lässt.
+
+**Offen geblieben:** Der **Anflug beim Andocken** steht weiter bei 30 m
+(`DK_FLY_LEN`). Trägt man die Art-Regel dorthin, werden zwei Andock-Prüfungen
+rot, und beide zu Recht (die Ma'at fährt über ihren Container, die Elysium
+verliert ihr Wenden) — deshalb unverändert, bis Silvio es anders will.
 
 ## F139 — Rümpfe kleiner als ein Kreuzer fliegen wie Jäger (v349, 23.11.2026, Urteil offen)
 

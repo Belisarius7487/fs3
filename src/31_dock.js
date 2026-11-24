@@ -116,9 +116,21 @@ function flyCrLen(){
   FLY_CR_LEN = m || 194;
   return FLY_CR_LEN;
 }
-// Smaller than a cruiser: she looks where she is going and turns into her
-// course. From a cruiser's length up she keeps the heading she had (F24).
+// F140 (v350, Silvio, 23.11.2026): the KIND of ship decides, not her length.
+// "Diese sind keine Kreuzer oder groesser, sondern halt relativ grosse
+// Frachter. Sie sollten sich also ebenfalls wie kleinere Schiffe verhalten."
+// So freighters, transports, cargo and escape pods behave like small ships
+// however long they are - the Triton is 313 m and still a freighter. Silvio,
+// 24.11.2026, takes the remaining non-combatants in as well: the gas miners,
+// the Hippocrates and the Imhotep/Faustus. Warships (cruiser, corvette,
+// destroyer, juggernaut), installations, sentry guns and the AWACS hulls
+// keep the heading they had (F24, F101).
+const FLY_KIND = {fi:1, bo:1, ep:1, su:1, fr:1, tr:1, fc:1, gm:1, me:1, sc:1};
+// She looks where she is going and turns into her course. The length mark
+// stays as a SECOND way in, so nothing that has flown like a fighter since
+// v349 loses it (the Charybdis at 181 m is the only one it still carries).
 function flyLikeFighter(o){
+  if(FLY_KIND[hullClass(o.img)]) return true;
   const L = (typeof HULL_LEN !== 'undefined') ? HULL_LEN[o.img] : null;
   return L != null && L < flyCrLen();
 }
