@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 24.11.2026, v351, M1 bis M25 und M27 abgenommen, M26 noch ohne Urteil)
+## Lage — als Erstes lesen (Stand 24.11.2026, v351, M1 bis M27 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,11 +28,8 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 |---|---|---|
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
-| F136 | **M26 „Exodus"** — die Konvois kommen rechts aus dem Vasuda-Knoten, ziehen quer durchs Feld und springen links im Sirius- oder im Aldebaran-Knoten ab; zwei Frachter tragen von Anfang an einen Container. Neu dabei und für alle Missionen nutzbar: der **Sprungknoten** (`nodes` in der Mission) als grünes Liniengitter nach dem FS1-Modell, mit echter Tiefe (verschiebt sich mit der Kamera wie ein Schiffsmodell). Alte Mission 26 „The Minefield" entfernt | v345, v346 |
 | F140 | **Jetzt entscheidet die Art des Schiffes, nicht die Länge.** Frachter, Transporter, Fracht und Rettungskapseln fliegen wie kleine Schiffe, egal wie lang sie sind — dazu die Gas-Miner, die Hippocrates und die Imhotep/Faustus (Silvios Entscheidung vom 24.11.2026). Neu dabei: Dis, Triton, TC-Meson, TC-TRI, SAC3, Anuket, Rahu, Zephyrus, Hippocrates, Imhotep. Diese fünf Rümpfe haben jetzt auch echte Modell-Andockdaten, damit ihre Fracht am Andockpunkt des Trägers sitzt. **Im Spiel noch nicht zu sehen:** keine Mission schickt eines dieser Schiffe quer über das Feld. In M27 (v351) steht die *Isis* still, also zeigt sich die Regel auch dort nicht — erst eine Mission mit einem fahrenden Transporter oder Frachter macht sie sichtbar | v350 |
 | F139 | **Rümpfe kleiner als ein Kreuzer fliegen wie ein Jäger** (v349). Der Umfang war falsch gewählt; mit F140 (v350) entscheidet die Art des Schiffes. Die Längenmarke bleibt als zweiter Weg hinein, damit nichts verliert, was seit v349 so fliegt | v349 |
-| F138 | **Die Frachtcontainer blieben waagerecht, während ihr Frachter schräg zum Knoten flog** (Silvio nach v347). Die Fracht übernimmt jetzt den Winkel ihres Trägers | v348 |
-| F137 | **M26: die beiden Frachtcontainer standen im Feld, statt auf ihren Frachtern zu sitzen** (Silvio nach v346: „ich hab 2 Frachtcontainer im Feld stehen, die einfach despawnen, wenn, ich vermute es sind ihre Trägerfrachter, wegspringen"). Sie kommen jetzt mit ihrem Frachter und aus seinem Wirbel | v347 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
@@ -52,11 +49,9 @@ die Shivaner greifen in Schüben an, und als vasudanische Jäger als Ablösung
 eintreffen, springt die *Hope* ab.
 
 **Abgenommen am 24.11.2026** nach dem ersten Durchlauf in v351 (Silvio:
-„Es spielt sich wirklich gut.“) — ohne weiteren Bauzyklus. Abgenommen sind damit
-**M1 bis M25 und M27**; für **M26 „Exodus" (F136) fehlt das Urteil noch** —
-Silvio ging am 24.11.2026 direkt zu M27 weiter, ohne etwas dazu zu sagen,
-also steht es offen und ist nicht als Ja zu lesen. Die nächste Mission ist
-M28 — im Original FS1 `fs1/sm3-03a.fs2`.
+„Es spielt sich wirklich gut.“) — ohne weiteren Bauzyklus. Damit sind **M1
+bis M27** abgenommen. Die nächste Mission ist M28 — im Original FS1
+`fs1/sm3-03a.fs2`.
 
 Silvios Entwurf, von ihm abgenommen am 24.11.2026 („Gefällt mir“):
 
@@ -5811,7 +5806,7 @@ in M26. Die betroffenen Missionen sind also M18 und M26.
 Das Erste ist ein echter Fehler, das Zweite eine Prüfung, die das alte
 Verhalten festhält. Beides ist Silvios Entscheidung, nicht Claudes.
 
-## F138 — Fracht übernimmt den Winkel ihres Trägers (v348, 23.11.2026, Urteil offen)
+## F138 — Fracht übernimmt den Winkel ihres Trägers (v348, 23.11.2026, abgenommen)
 
 Silvios Befund nach v347, in seinen Worten:
 
@@ -5846,7 +5841,7 @@ alle Missionen, auch die 25 abgenommenen, und sie berührt das Andocken
 (31_dock.js) und die Querfahrt. Silvio ist gefragt, ob es überall gelten soll
 oder zuerst nur in M26.
 
-## F137 — M26: die Container standen im Feld (v347, 23.11.2026, Urteil offen)
+## F137 — M26: die Container standen im Feld (v347, 23.11.2026, abgenommen)
 
 Silvios Befund nach v346, in seinen Worten:
 
@@ -5889,7 +5884,11 @@ Missionsbeginn an im Feld, braucht die Fracht beides nicht.
 dafür einen eigenen Punkt bekommen (`noCargoBeforeFreighter`); in v346 fällt
 er durch, in v347 ist er grün.
 
-## F136 — M26 „Exodus" und der Sprungknoten (v345, 23.11.2026, Urteil offen)
+## F136 — M26 „Exodus" und der Sprungknoten (v345, 23.11.2026, abgenommen)
+
+**Abgenommen am 24.11.2026** (Silvio: „M26 spielte sich auch sehr gut“).
+Damit sind auch die Sprungknoten, die mitfahrende Fracht (F137) und ihr
+Winkel (F138) im Spiel beurteilt und in Ordnung.
 
 An Stelle 26 steht jetzt „Exodus" (`fs1/sm3-01a.fs2`). Die alte Mission 26
 „The Minefield" ist entfernt; keine Prüfung hing an ihr.
