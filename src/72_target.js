@@ -577,11 +577,18 @@ function drawSubIcon(id, cx, cy, sz, col){
   ctx.save(); ctx.translate(cx - sz/2, cy - sz/2); ctx.scale(sz/960, sz/960); ctx.translate(0, 960);
   ctx.fillStyle = col; ctx.fill(P); ctx.restore();
 }
+// Silvio, 25.11.2026: "man weiss oft nicht welches Subsystem welches Symbol
+// hat" - the locked one says its name under the grid, in three letters.
+// Only the locked one: every name at once would overload the box.
+const SUB_SHORT = {weapons:'WPN', engines:'ENG', sensors:'SEN',
+                   navigation:'NAV', communication:'COM'};
+const SUB_SHORT_H = 8;           // the line the icons give up to it
 // the icons of e's subsystems in the box x, y, w, h: three on top, two under
 function drawBarSubIcons(e, x, y, w, h){
   window._barSubIcons = [];
   if(!e || e.kind === 'bomb' || !e.subs || !e.subs.length || w < 12) return;
-  const cols = 3, cell = Math.min(w/cols, h/2), sz = cell*0.86;
+  const cols = 3, cell = Math.min(w/cols, (h - SUB_SHORT_H)/2), sz = cell*0.86;
+  let picked3 = '';
   let i = 0;
   for(const id of SUB_ICON_ORDER){
     const s = e.subs.find(function(q){ return q.id === id; });
@@ -597,8 +604,17 @@ function drawBarSubIcons(e, x, y, w, h){
     // F89 (Silvio, 23.10.2026): the targeted subsystem wears a bracket here
     // instead of its name on the field
     const picked = typeof TGT !== 'undefined' && TGT.e === e && TGT.sub === s;
-    if(picked){ const r = cell*0.5; fsBrackets(cx - r, cy - r, cx + r, cy + r, '#ffffff', 1.1, 1); }
+    if(picked){ const r = cell*0.5; fsBrackets(cx - r, cy - r, cx + r, cy + r, '#ffffff', 1.1, 1); picked3 = SUB_SHORT[id] || ''; }
     window._barSubIcons.push({id: id, x: cx, y: cy, sz: sz, col: col, dead: dead, picked: picked});
+  }
+  window._barSubShort = picked3;
+  if(picked3){
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = thLabel(6.5);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(thFit(picked3, w), x + w/2, y + 2*cell + SUB_SHORT_H*0.5);
+    ctx.restore();
   }
 }
 // called at the end of drawHUDHLP with the first free x after the ship and
@@ -643,7 +659,9 @@ function drawBarScope(x0, x1){
     ctx.font = thValue(8, true); ctx.textBaseline = 'top'; ctx.textAlign = 'right'; ctx.fillStyle = col;
     ctx.fillText(Math.round(tgtDist(e)/SIZE_UPM) + 'm', x + w - 3, y + 3);
     // F89: the subsystems in the right margin, under the distance
-    if(ship) drawBarSubIcons(e, x + w - mg + 3, y + 16, mg - 6, h - 16);
+    // v364: a line higher than before, so the three letters under the grid
+    // cost the icons as little height as possible
+    if(ship) drawBarSubIcons(e, x + w - mg + 3, y + 14, mg - 6, h - 14);
   } else {
     ctx.fillStyle = TH('textDim'); ctx.font = thLabel(7); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     ctx.fillText('NO TARGET', x + 3, y + 3);

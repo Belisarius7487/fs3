@@ -56,7 +56,7 @@ git add CODEMAP.md
 ## Full index
 
 <!-- AUTO:START -->
-Generated from `hlp_shooter_v363_logic.html` by `codemap.py` — do not edit by hand.
+Generated from `hlp_shooter_v364_logic.html` by `codemap.py` — do not edit by hand.
 
 ### (file start) (line 1)
 - data: `SPR_DATA`, `NEB_DATA`, `ROLES`, `NEB_NAMES`, `CVS`, `ctx`, `W`
@@ -1682,8 +1682,8 @@ Generated from `hlp_shooter_v363_logic.html` by `codemap.py` — do not edit by 
 - `subIconPath()` 30465
 - `drawEngineGlyph()` 30471
 - `drawSubIcon()` 30489
-- `drawBarSubIcons()` 30496 — the icons of e's subsystems in the box x, y, w, h: three on top, two…
-- `drawBarScope()` 30522 — called at the end of drawHUDHLP with the first free x after the ship…
-- data: `SUB_ICON_D`, `SUB_ICON_P`, `SUB_ICON_ORDER`, `SUB_DEAD_COL`
+- `drawBarSubIcons()` 30502 — the icons of e's subsystems in the box x, y, w, h: three on top, two…
+- `drawBarScope()` 30538 — called at the end of drawHUDHLP with the first free x after the ship…
+- data: `SUB_ICON_D`, `SUB_ICON_P`, `SUB_ICON_ORDER`, `SUB_DEAD_COL`, `SUB_SHORT`, `SUB_SHORT_H`
 
 <!-- AUTO:END -->

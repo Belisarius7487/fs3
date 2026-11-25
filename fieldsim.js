@@ -7441,6 +7441,39 @@ scenario('FS1 M27 v351 Last Hope: the Hope destroyed - the mission still ends', 
   r.resultShown = FS.until(()=>MLOG.objs.some(function(o){ return o.st==='fail'; }), 600, true, true) >= 0;
   r.ends = FS.until(()=>waveOver || wave>27, 800, true, true) >= 0;
   return r;`);
+// F147 (v364, Silvio 25.11.2026): the icons alone did not say which
+// subsystem was locked. The locked one now writes its three letters under
+// the grid - and only the locked one.
+scenario('F147 v364: the locked subsystem writes its three letters under the icons, and only that one', 'm=29', `
+  const r = {};
+  const withSubs = () => enemies.find(x=>x.subs && x.subs.length && !x.dead && !(x.warp>0));
+  r.enemyWithSubs = FS.until(()=>!!withSubs(), 20000, true) >= 0;
+  const e = withSubs();
+  if(!e) return r;
+  const pick = id => e.subs.find(s=>s.id===id);
+  const codes = ['WPN','ENG','SEN','NAV','COM'];
+  const shown = function(){
+    const seen = [];
+    const ft = ctx.fillText;
+    ctx.fillText = function(t){ seen.push(String(t)); return ft.apply(ctx, arguments); };
+    try{ draw(); } finally { ctx.fillText = ft; }
+    return seen.filter(t=>codes.indexOf(t)>=0);
+  };
+  TGT.e = e; TGT.sub = pick('navigation');
+  const a = shown();
+  r.navOnly = a.length === 1 && a[0] === 'NAV';
+  TGT.sub = pick('communication');
+  const b = shown();
+  r.comOnly = b.length === 1 && b[0] === 'COM';
+  TGT.sub = pick('weapons');
+  r.wpnOnly = (function(){ const c = shown(); return c.length===1 && c[0]==='WPN'; })();
+  // nothing locked, nothing written
+  TGT.sub = null;
+  r.noneWhenUnlocked = shown().length === 0;
+  // the icons still fit in their box, above the letters
+  r.iconsAbove = (window._barSubIcons||[]).length === 5;
+  return r;`);
+
 // F146 (M29): the briefing's own plan is the mission - her radio room dies
 // first, or she calls Krishna in. Both branches have to reach an end. The
 // cruiser is held up with a huge hull here, so the clock can run past her
