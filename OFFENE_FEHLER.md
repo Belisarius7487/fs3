@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v364, M1 bis M28 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v364, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,8 +26,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F147 | **Das aufgeschaltete Subsystem schreibt sein Kürzel unter die Symbolreihe** im Zielbereich der Leiste: WPN, ENG, SEN, NAV, COM. Nur das aufgeschaltete, sonst überlädt die Anzeige. Die Symbole rücken dafür eine Zeile nach oben und werden etwas kleiner | v364 |
-| F146 | **M29 „Reaching the Zenith" gebaut** (fs1/sm3-04a): der shivanische Kreuzer Zenith bewacht den Sprungknoten nach Altair. Hauptziel ist, sie zu zerstören; Nebenziel ist ihr Funkraum, denn solange der steht, ruft sie Krishna herbei. Dazu zwei Arjuna-Staffeln und Rama, die bei ihr selbst einspringen, `live:9`. Dabei gefunden und mitbehoben: ein Kriegsschiff, dem die Waffen ausgeschossen werden, flieht nach 15 Sekunden (`checkDisarmFlee`) — genau das schlägt das Original-Briefing als Ersatzplan vor, und die Mission wäre damit unlösbar geworden. Die Zenith bekommt `noFlee:true`, wie alle Kreuzer, die zerstört werden sollen. Die alte Mission 29 („The Blockade") ist entfernt, sie stand hinter der neuen und hätte sie stillschweigend überschrieben (F129) | v363 |
 | F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v362:** übergebene Zeichenflächen geben sich jetzt als fertig geladene Bilder aus, sonst blinken die Planeten beim Übergang einmal weg | v354–v362 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
@@ -45,7 +43,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
 
-## F147 — Kürzel für das aufgeschaltete Subsystem (v364, 25.11.2026, gebaut, Urteil offen)
+## F147 — Kürzel für das aufgeschaltete Subsystem (v364, 25.11.2026, abgenommen)
 
 Silvio, 25.11.2026: „Ein größeres Problem sehe ich darin, dass man zwar in
 der HUD-Anzeige oben am Rand sieht, das man ein Subsystem anvisiert hat, da
@@ -67,12 +65,14 @@ Bildpunkte höher als vorher, damit die Symbole so wenig wie möglich
 schrumpfen. Die weiße Klammer um das aufgeschaltete Symbol bleibt — das
 Kürzel ersetzt sie nicht, es erklärt sie.
 
+**Abgenommen** (Silvio, 25.11.2026): „Wunderbar."
+
 **Geprüft:** `fieldsim`-Szenario „F147 v364" — NAV, COM und WPN erscheinen
 einzeln und jeweils als einziges Kürzel, ohne Aufschaltung erscheint
 keines, und alle fünf Symbole stehen weiter im Kasten. Gegen v363 gestellt
 ist das Szenario rot.
 
-## F146 — M29 „Reaching the Zenith" (v363, 25.11.2026, gebaut, Urteil offen)
+## F146 — M29 „Reaching the Zenith" (v363, 25.11.2026, abgenommen)
 
 Silvio, 25.11.2026, zum Entwurf: „Zerstören klingt gut, aber wir sind schon
 ziemlich am Ende des FS1 Strangs, also können ruhig auch ein paar mehr
@@ -114,6 +114,9 @@ springt `checkDisarmFlee` vorher heraus.
 **Die alte Mission 29 („The Blockade") ist entfernt.** Sie stand hinter
 der neuen in der Liste und hätte sie stillschweigend überschrieben — der
 Fall aus F129.
+
+**Abgenommen** (Silvio, 25.11.2026): „Mission spielt sich auch
+einwandfrei."
 
 **Geprüft:** `./checks.sh --fast` grün, beide `fieldsim`-Szenarien zu M29
 grün (Funkraum zuerst → Krishna bleibt weg; Funkraum heil → Rama und
