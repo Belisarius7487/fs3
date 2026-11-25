@@ -90,6 +90,28 @@ oder wenn alle verloren gegangen sind rot (für Objective verfehlt)."
   und musste in v367 ersetzt werden (Silvio, 26.11.2026): „Die Escape Pods
   kommen aus der Station, nicht aus der Faustus und die Hope springt nie
   weg, sondern bleibt bei Missionsabschluss im Feld."
+**Wie ein Besprechungstext geschrieben wird** (Silvio, 26.11.2026, nach drei
+verworfenen Fassungen für M28 — „Wenn ich jeden Text 3 mal korrigieren muss,
+bevor er endlich mal halbwegs stimmt, release ich FS3 auch in 5 Jahren
+nicht"):
+
+1. **Drei, vier kurze Sätze, nicht mehr.**
+2. **Was passiert und was auf dem Spiel steht. Sonst nichts.**
+3. **Keine Positionen, keine Richtungen, keine Zeitangaben, keine Mechanik** —
+   „The Hope comes in across the field" wurde genau dafür verworfen: „Den
+   Spieler interessiert es nicht wo die Hope auftaucht, nur dass sie
+   irgendwann auftaucht."
+4. **Ein Schiff wird nur genannt, wenn der Spieler mit ihm etwas tun muss.**
+5. **Sachsprache wie in einem Einsatzbefehl, keine Umschreibungen** —
+   „Freespace ist immer noch eine militärische Simulation, also sollte FS3
+   nicht anfangen blumige Umschreibungen zu nutzen." „burning down" wurde
+   dafür verworfen, richtig ist „is attacking".
+6. **Mehrzahl beachten:** „evacuating by Escape Pods", nicht „by escape pod".
+
+**Jeder Besprechungstext wird Silvio erst im Chat gezeigt und dort
+abgenommen, bevor er in einen Bau wandert.** Eine Textkorrektur darf keinen
+Bauzyklus kosten.
+
 - **Kein Komma vor „and"** in englischen Texten (Silvio, 26.11.2026: „vor
   einem ‚and' steht kein Komma in der normalen Rechtschreibung also lass
   den Blödsinn"). Gilt für alles Englische: Besprechungen, Aufträge,
