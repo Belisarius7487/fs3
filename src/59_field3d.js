@@ -636,13 +636,6 @@ function f3dWarmFx(){
 let F3D_BOX = null;
 function f3dLoadBoxShow(){
   if(typeof window === 'undefined' || typeof document === 'undefined' || !document.body) return;
-  // v354 (Silvio): the models load behind the title sequence, but the bar
-  // waits - it only becomes visible once the sequence has run through.
-  if(typeof introOn === 'function' && introOn()){
-    if(F3D_BOX && F3D_BOX.parentNode) F3D_BOX.parentNode.removeChild(F3D_BOX);
-    F3D_BOX = null;
-    return;
-  }
   const lb = window.FS3_LOADBOX;
   if(!lb) return;
   const ready = F3D.ok === false || (F3D_PRE.done && F3D_PRE.warm) || f3dNow() - (lb.t0 || (lb.t0 = f3dNow())) > 30000;

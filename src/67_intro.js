@@ -125,6 +125,12 @@ function drawIntro(){
   introLoad();
   // The models start loading right away; only the bar waits.
   if(typeof f3dPreloadBar === 'function') try{ f3dPreloadBar(); }catch(e){}
+  // v354a (Silvio): the bar runs to its end first. The loading page puts it
+  // up before the game even exists, so a sequence that started here would
+  // push it aside and let it come back - the bar must finish, then this
+  // starts. Both handles are cleared by f3dLoadBoxShow once the ships are on
+  // the graphics card.
+  if(typeof window !== 'undefined' && (window.FS3_LOADBOX || F3D_BOX)) return;
   const now = performance.now();
   if(!introReady()){
     // Give the two pictures a moment. If they will not come, skip the

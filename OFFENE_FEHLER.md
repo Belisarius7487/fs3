@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v354, M1 bis M28 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v355, M1 bis M28 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn | v354 |
+| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v355:** der Vorspann wartet, bis der Ladebalken durchgelaufen ist — vorher sah man Balken, Vorspann und wieder Balken | v354, v355 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
@@ -6332,9 +6332,22 @@ So gebaut (`src/67_intro.js`):
   Explosionsbilder in `63_fxanim.js`. Sie gehören zu keinem Modell und zu
   keinem Sprite, also gibt es für sie keinen Ordner auf dem Server und
   `build_game.py` bleibt unverändert.
-- **Der Ladebalken** wartet: `f3dLoadBoxShow()` nimmt seinen Kasten weg,
-  solange der Vorspann läuft, und zeigt ihn danach, falls die Modelle dann
-  noch nicht fertig sind.
+- **Der Ladebalken läuft zuerst durch, dann kommt der Vorspann** (v355).
+  In v354 war es umgekehrt versucht worden, und das war falsch: Silvio,
+  25.11.2026: „Der Ladebalken ist das erste was man sieht, dann springt der
+  Hintergrund rein, dann der Ladebalken weg und das HLP Logobanner, gefolgt
+  vom SR-Logo und Text rein, danach direkt wieder der Ladebalken.“ Der Grund
+  steckt in der Reihenfolge: Den Balken stellt `loader.html` auf, **bevor es
+  das Spiel überhaupt gibt**; das Spiel kann vorher nichts zeichnen. Ein
+  Vorspann, der den Balken beiseiteschiebt, lässt ihn danach zwangsläufig
+  wiederkommen. `drawIntro()` wartet deshalb, solange `window.FS3_LOADBOX`
+  oder `F3D_BOX` steht, und beginnt erst, wenn `f3dLoadBoxShow()` beide
+  weggeräumt hat. Ergebnis: ein Balken von Anfang bis Ende, danach der
+  Vorspann, danach der Startbildschirm.
+- **Was damit nicht geht:** der Vorspann kann nicht vor dem Balken laufen,
+  solange er im Spiel liegt. Dafür müsste er in `loader.html` nachgebaut
+  werden — dort gibt es aber weder Sterne noch Planeten, der Hintergrund
+  wäre schlicht schwarz.
 - Klick, Tipp und jede Taste springen in den Startbildschirm. Der Vorspann
   läuft einmal je Seitenaufruf; vom Spielende zurück zum Titel kommt er
   nicht wieder.
