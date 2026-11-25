@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v355, M1 bis M28 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v356, M1 bis M28 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v355:** der Vorspann wartet, bis der Ladebalken durchgelaufen ist — vorher sah man Balken, Vorspann und wieder Balken | v354, v355 |
+| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach — so, wie Silvio es verlangt hat | v354–v356 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
@@ -6332,7 +6332,26 @@ So gebaut (`src/67_intro.js`):
   Explosionsbilder in `63_fxanim.js`. Sie gehören zu keinem Modell und zu
   keinem Sprite, also gibt es für sie keinen Ordner auf dem Server und
   `build_game.py` bleibt unverändert.
-- **Der Ladebalken läuft zuerst durch, dann kommt der Vorspann** (v355).
+- **v356: der Vorspann liegt in `loader.html` und läuft als Erstes.** Silvios
+  Vorgabe vom 25.11.2026: „Während der Title-Screen läuft, könnte im
+  Hintergrund ja bereits der Ladebalken laufen und erst sichtbar werden,
+  wenn der Title-Screen durchgelaufen ist." In v354 und v355 wurde das im
+  Spiel versucht — beides falsch, und Silvio hat es zu Recht
+  zurückgewiesen. Der Grund: Den Balken stellt die **Ladeseite** auf, lange
+  bevor es das Spiel gibt; ein Vorspann im Spiel kann ihm nicht zuvorkommen.
+  Also gehört der Vorspann in die Ladeseite. Dort läuft er ab dem ersten
+  Augenblick, `#box` mit dem Balken bleibt versteckt, und das Spiel wird
+  erst übergeben, wenn der Vorspann durch ist (`start()` prüft jetzt auch
+  `introDone`). Ist der Vorspann vorbei und noch etwas zu laden, erscheint
+  der Balken und läuft zu Ende.
+- **Der Himmel in der Ladeseite ist selbst gezeichnet** (`#sky`, ein
+  Canvas mit treibenden Sternen). Der echte Hintergrund des Spiels samt
+  Planeten steckt in der Spieldatei, die zu diesem Zeitpunkt noch geladen
+  wird — **Planeten gibt es auf der Ladeseite deshalb nicht.**
+- **Die Fassung im Spiel bleibt als Rückfall** für die Logikdatei, die ohne
+  Ladeseite geöffnet wird. Die Ladeseite setzt `window.FS3_INTRO_PLAYED`,
+  bevor sie übergibt; `introOn()` liest das und hält sich dann heraus.
+- **Nicht mehr gültig (v355):**
   In v354 war es umgekehrt versucht worden, und das war falsch: Silvio,
   25.11.2026: „Der Ladebalken ist das erste was man sieht, dann springt der
   Hintergrund rein, dann der Ladebalken weg und das HLP Logobanner, gefolgt

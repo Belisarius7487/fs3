@@ -26,7 +26,14 @@ const INTRO_T = {
 };
 const INTRO = {armed: true, done: false, t0: 0, wait: 0, img: {}, cv: {}};
 
-function introOn(){ return INTRO.armed && !INTRO.done; }
+// v356: with the loading page in front of us the sequence has already run
+// there, before the bar - that is where Silvio wants it. The copy in the
+// game is what is left for the logic file opened on its own, without that
+// page.
+function introOn(){
+  if(typeof window !== 'undefined' && window.FS3_INTRO_PLAYED) return false;
+  return INTRO.armed && !INTRO.done;
+}
 function introSkip(){ INTRO.done = true; }
 
 // The pictures are decoded once, on the first frame that wants them.
