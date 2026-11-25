@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v353, M1 bis M28 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v354, M1 bis M28 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,6 +26,8 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn | v354 |
+| F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F140 | **Jetzt entscheidet die Art des Schiffes, nicht die Länge.** Frachter, Transporter, Fracht und Rettungskapseln fliegen wie kleine Schiffe, egal wie lang sie sind — dazu die Gas-Miner, die Hippocrates und die Imhotep/Faustus (Silvios Entscheidung vom 24.11.2026). Neu dabei: Dis, Triton, TC-Meson, TC-TRI, SAC3, Anuket, Rahu, Zephyrus, Hippocrates, Imhotep. Diese fünf Rümpfe haben jetzt auch echte Modell-Andockdaten, damit ihre Fracht am Andockpunkt des Trägers sitzt. **Im Spiel noch nicht zu sehen:** keine Mission schickt eines dieser Schiffe quer über das Feld. In M27 (v351) steht die *Isis* still, also zeigt sich die Regel auch dort nicht — erst eine Mission mit einem fahrenden Transporter oder Frachter macht sie sichtbar | v350 |
@@ -6293,3 +6295,57 @@ Log mitführen (`logTxt`). Im Feld steht weiter der kurze Text — dort ist
 das Schiff ja direkt darunter —, im Log steht der Name davor: „ESCAPE POD 1
 RESCUED“, „PVF SATIS ESCAPED“, „GTF URSA FOUND NO CARGO“, „VC 3 LEFT
 BEHIND“. In M24 nachgesehen, das Log liest sich jetzt so.
+
+## F144 — Vorspann vor dem Startbildschirm (25.11.2026, v354)
+
+Silvios Wunsch vom 25.11.2026: „Für FS3 würde ich gerne einen Title-Screen
+einbauen, der vor dem Ladebalken spielt“, mit dem Hard-Light-Banner und
+dem Logo von Series Resurrecta — „Mobius fragte einst, ‚Is FS3 coming out
+with a "development hosted by SR" label?‘ und ich halte das für eine tolle
+Idee.“ Dazu: „Mein Wunsch wäre, dass wir den Hintergrund, den wir bereits
+beim Startbildschirm verwenden auch beim Title-Screen verwenden, zusammen
+mit wandernden Planeten und Sternen. Während der Title-Screen läuft, könnte
+im Hintergrund ja bereits der Ladebalken laufen und erst sichtbar werden,
+wenn der Title-Screen durchgelaufen ist.“ Überspringen: „Ja, sicher ist
+sicher.“
+
+So gebaut (`src/67_intro.js`):
+
+- Der Ablauf liegt in `INTRO_T`, in Millisekunden ab dem ersten Bild:
+  „Developed for“ 0,45–1,45 s ein, Banner 1,6–2,8 s ein, beides 4,3–5,2 s
+  aus, Series Resurrecta 5,4–6,6 s ein und 10,2–11,3 s aus, Ende bei 11,4 s.
+  Das Lichtband startet mit dem Logo und braucht knapp eine Sekunde je
+  Durchlauf, dann 0,6 s Pause — in Silvios Entwurf abgenommen.
+- **`GS` bleibt dabei `'title'`.** Der Vorspann ist eine Auflage auf dem
+  Startbildschirm, kein eigener Spielzustand: `drawIntro()` nimmt das Bild,
+  bevor `drawTitle()` drankommt. Damit bleiben die Zeilen, auf die `shipsim`
+  festgelegt ist (`rollBodies`, `tickStars`), unangetastet, und Nebel,
+  Sterne und Planeten laufen ohne Zutun weiter.
+- **Das Lichtband** wird auf einer Hilfsfläche gezeichnet, mit
+  `destination-in` auf die Form des Logos beschnitten und mit `lighter`
+  aufgelegt. Deshalb leuchten nur Logo und Schriftzug auf, nie das Schwarz
+  daneben.
+- **Die Schrift im Bild war zu hell.** Ein weißes Lichtband kann reines Weiß
+  nicht aufhellen; „SERIES RESURRECTA“ ist deshalb ein leicht abgetöntes
+  Weiß, damit der Durchlauf sichtbar wird.
+- **Die beiden Bilder liegen als base64 in der Quelle**, wie die
+  Explosionsbilder in `63_fxanim.js`. Sie gehören zu keinem Modell und zu
+  keinem Sprite, also gibt es für sie keinen Ordner auf dem Server und
+  `build_game.py` bleibt unverändert.
+- **Der Ladebalken** wartet: `f3dLoadBoxShow()` nimmt seinen Kasten weg,
+  solange der Vorspann läuft, und zeigt ihn danach, falls die Modelle dann
+  noch nicht fertig sind.
+- Klick, Tipp und jede Taste springen in den Startbildschirm. Der Vorspann
+  läuft einmal je Seitenaufruf; vom Spielende zurück zum Titel kommt er
+  nicht wieder.
+
+## F145 — Tastenliste auf dem Startbildschirm nur auf Tastendruck (25.11.2026, v354)
+
+Silvio, 25.11.2026: „Zudem würde ich mir wünschen, dass die Keybind-Anzeige
+im Startbildschirm nur auf Knopfdruck erscheint, da sie meiner Ansicht nach
+zuviel Platz einnimmt.“
+
+Gebaut: die Tafel hängt an `titleCtls` in `src/70_ui.js` und ist beim
+Start aus. An ihrer Stelle steht eine Zeile „C - CONTROLS“; **C** blendet
+die Tafel ein und wieder aus. Inhalt und Aufbau der Tafel sind unverändert,
+sie kommt weiterhin aus der Tastentabelle.

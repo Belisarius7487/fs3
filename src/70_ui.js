@@ -31,6 +31,8 @@ function draw(){
   if(GS==='playing' && subspaceOn()) drawSubspace();
   else { drawNebula(); drawStars(); drawBodies(); }   // v213: the stars behind the planets
 
+  // v354: the title sequence runs over the same sky, before the start screen
+  if(GS==='title' && typeof introOn==='function' && introOn()){ drawIntro(); return; }
   if(GS==='title'){drawTitle(); if(typeof f3dPreloadBar==='function') try{ f3dPreloadBar(); }catch(ep){} return;}
   if(GS==='gameover'){drawGO();return;}
 
@@ -3740,6 +3742,7 @@ function titleFsHit(p){
   const r = window._titleFsRect;
   return !!r && p.x>=r.x && p.x<=r.x+r.w && p.y>=r.y && p.y<=r.y+r.h;
 }
+let titleCtls = false;   // v354: the key list on the start screen, off until C
 function drawTitle(){
   // The backdrop and the bodies are already on the canvas by the time this
   // runs. What used to happen here was a 78 percent black sheet over the lot,
@@ -3803,18 +3806,25 @@ function drawTitle(){
   // rather than as more title. The whole list, in two columns, and where to
   // find it again during a run (v185, Silvio). v207: from the key table,
   // so it always shows the keys as they are.
-  const cL = ctlRows('flight'), cR = ctlRows('game').concat(ctlRows('menu').map(function(r){ return [r[0], 'window: '+r[1], r[2]]; }));
-  const rowH = 14, nR = Math.max(cL.length, cR.length);
-  const bw = 640, bh = nR*rowH + 46, bx = (W-bw)/2, by = H-62-bh;
-  thPlate(bx, by, bw, bh, thRGBA('panelBack', 0.72));
-  ctx.textAlign='left'; ctx.textBaseline='middle';
-  ctx.fillStyle = TH('textDim'); ctx.font = thLabel(9);
-  ctx.fillText('CONTROLS', bx+16, by+12);
-  drawCtlRows(cL, bx+16, by+22, bw/2-24, rowH, 150);
-  drawCtlRows(cR, bx+16+bw/2, by+22, bw/2-16, rowH, 126);
-  ctx.textAlign='center';
-  ctx.fillStyle = TH('textDim'); ctx.font = thValue(10, false);
-  ctx.fillText('change them in the game: '+bindKey('settings')+' - SETTINGS - CONTROLS', W/2, by+bh-9);
+  // v354 (Silvio): the plate took too much of the screen, so it waits for C.
+  if(titleCtls){
+    const cL = ctlRows('flight'), cR = ctlRows('game').concat(ctlRows('menu').map(function(r){ return [r[0], 'window: '+r[1], r[2]]; }));
+    const rowH = 14, nR = Math.max(cL.length, cR.length);
+    const bw = 640, bh = nR*rowH + 46, bx = (W-bw)/2, by = H-62-bh;
+    thPlate(bx, by, bw, bh, thRGBA('panelBack', 0.72));
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillStyle = TH('textDim'); ctx.font = thLabel(9);
+    ctx.fillText('CONTROLS', bx+16, by+12);
+    drawCtlRows(cL, bx+16, by+22, bw/2-24, rowH, 150);
+    drawCtlRows(cR, bx+16+bw/2, by+22, bw/2-16, rowH, 126);
+    ctx.textAlign='center';
+    ctx.fillStyle = TH('textDim'); ctx.font = thValue(10, false);
+    ctx.fillText('change them in the game: '+bindKey('settings')+' - SETTINGS - CONTROLS', W/2, by+bh-9);
+  } else {
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle = TH('textDim'); ctx.font = thValue(11, false);
+    ctx.fillText('C - CONTROLS', W/2, H-70);
+  }
 
   // The one thing to do. It pulses rather than blinks: a blink says hurry.
   const k = 0.55 + 0.45*Math.sin(fc*0.05);
@@ -3908,7 +3918,8 @@ CVS.addEventListener('mousedown',function(ev){
   mouseAt(p);
   if(ev.button===0){
     isFiring=true; MOUSE.down=true;
-    if(GS==='title'||GS==='gameover'){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); }
+    if(GS==='title' && typeof introOn==='function' && introOn()){ introSkip(); return; }
+  if(GS==='title'||GS==='gameover'){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); }
   }
   if(ev.button===2&&GS==='playing'){ SEC_HOLD.rmb=true; fireSecondary(); }
 });
@@ -3989,6 +4000,7 @@ CVS.addEventListener('touchstart',function(ev){
   }
   mouseAt(p);
   isFiring=true; MOUSE.down=true;
+  if(GS==='title' && typeof introOn==='function' && introOn()){ introSkip(); return; }
   if(GS==='title'||GS==='gameover'){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); }
   // Pause-Button Tap
   if(GS==='playing'){
@@ -4056,6 +4068,9 @@ function inputPress(ev){
   if(bindIs('sound', ev)){ sndToggleMute(); return true; }
   if(bindIs('full', ev) && (GS==='playing'||GS==='title'||GS==='gameover')){ toggleFullscreen(); return true; }
   if(GS==='title'||GS==='gameover'){
+    if(GS==='title' && typeof introOn==='function' && introOn()){ introSkip(); return true; }
+    // v354 (Silvio): the key list is a plate of its own now, shown on C
+    if(GS==='title' && ev.code==='KeyC'){ titleCtls = !titleCtls; return true; }
     if(ev.code==='Space'||ev.code==='Enter'){ if(GS==='title'||performance.now()-gameOverAt>1500) toTitleOrLaunch(); return true; }
     return false;
   }
