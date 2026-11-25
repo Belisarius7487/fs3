@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v353, M1 bis M27 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v353, M1 bis M28 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -30,7 +30,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F140 | **Jetzt entscheidet die Art des Schiffes, nicht die Länge.** Frachter, Transporter, Fracht und Rettungskapseln fliegen wie kleine Schiffe, egal wie lang sie sind — dazu die Gas-Miner, die Hippocrates und die Imhotep/Faustus (Silvios Entscheidung vom 24.11.2026). Neu dabei: Dis, Triton, TC-Meson, TC-TRI, SAC3, Anuket, Rahu, Zephyrus, Hippocrates, Imhotep. Diese fünf Rümpfe haben jetzt auch echte Modell-Andockdaten, damit ihre Fracht am Andockpunkt des Trägers sitzt. **Im Spiel noch nicht zu sehen:** keine Mission schickt eines dieser Schiffe quer über das Feld. In M27 (v351) steht die *Isis* still, also zeigt sich die Regel auch dort nicht — erst eine Mission mit einem fahrenden Transporter oder Frachter macht sie sichtbar | v350 |
 | F139 | **Rümpfe kleiner als ein Kreuzer fliegen wie ein Jäger** (v349). Der Umfang war falsch gewählt; mit F140 (v350) entscheidet die Art des Schiffes. Die Längenmarke bleibt als zweiter Weg hinein, damit nichts verliert, was seit v349 so fliegt | v349 |
-| F142 | **M28 „A Failure to Communicate"** gebaut (siehe unten). Dazu drei Änderungen am gemeinsamen Ablauf: eine Rettungskapsel darf ein Schiff als Landeziel nennen, das noch nicht im Feld steht; `fireOnly` bindet **alle** Waffen eines Großkampfschiffs an seine `beamFocus`-Liste (Strahlen, Geschütze, Abwehrlaser, Flak); und eine Kapsel fliegt eine Einflugschneise, die **im Rumpf** beginnt, geradewegs an, statt um das Schiff herum | v352, v353 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
@@ -76,7 +75,11 @@ ist so gewollt** („Die Hope bleibt im Feld bei Missionsende und das ist
 auch in Ordnung so"). Sie trägt `stay:true` und springt nicht von selbst
 ab — das ist kein Fehler und wird nicht „behoben".
 
-## F142 — M28 „A Failure to Communicate“ (v352, 25.11.2026, Urteil offen)
+## F142 — M28 „A Failure to Communicate“ (v352/v353, 25.11.2026, abgenommen)
+
+**Abgenommen am 25.11.2026** nach zwei Durchläufen (v352, v353). Damit
+sind **M1 bis M28** abgenommen. Die nächste Mission ist M29 — im Original
+FS1 `fs1/sm3-04a.fs2`, „Reaching the Zenith“.
 
 Im Original (`fs1/sm3-03a.fs2`) steht die *Lucifer* beim Aquilae-Außenposten
 und schießt ihn mit ihrem Hauptstrahl in Stücke. Rettungskapseln stoßen ab.
@@ -160,9 +163,8 @@ die Shivaner greifen in Schüben an, und als vasudanische Jäger als Ablösung
 eintreffen, springt die *Hope* ab.
 
 **Abgenommen am 24.11.2026** nach dem ersten Durchlauf in v351 (Silvio:
-„Es spielt sich wirklich gut.“) — ohne weiteren Bauzyklus. Damit sind **M1
-bis M27** abgenommen. Die nächste Mission ist M28 — im Original FS1
-`fs1/sm3-03a.fs2`.
+„Es spielt sich wirklich gut.“) — ohne weiteren Bauzyklus. (Danach gebaut:
+M28, siehe F142. Der Stand steht oben in der Lage, nicht hier.)
 
 Silvios Entwurf, von ihm abgenommen am 24.11.2026 („Gefällt mir“):
 
