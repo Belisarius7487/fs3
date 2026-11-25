@@ -634,6 +634,12 @@ function f3dWarmFx(){
 // takes it away when the ships are ready. Its style lives in a shadow root,
 // so none of it touches the game's page.
 let F3D_BOX = null;
+// True while the loading bar is still on screen, in either of its two
+// lives: the loading page's own, handed over but not yet put up, and the
+// one the game shows while the ships go onto the graphics card.
+function f3dBoxUp(){
+  return typeof window !== 'undefined' && !!(window.FS3_LOADBOX || F3D_BOX);
+}
 function f3dLoadBoxShow(){
   if(typeof window === 'undefined' || typeof document === 'undefined' || !document.body) return;
   const lb = window.FS3_LOADBOX;

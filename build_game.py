@@ -416,17 +416,21 @@ def model_files(root="models"):
     return out
 
 
-def loader_bodies(planets, n=2):
-    """A couple of planets for the loading page. They are embedded there, so
-    the smallest ones are taken - the page has to appear at once."""
-    if not planets:
-        return []
-    keys = sorted(planets, key=lambda k: len(planets[k]["src"]))[:n]
-    return [{"src": planets[k]["src"], "cx": planets[k]["cx"],
-             "cy": planets[k]["cy"], "r": planets[k]["r"]} for k in keys]
+def loader_bodies(planets, suns):
+    """Bodies for the loading page: two planets and a sun. They are embedded
+    in the page, which has to appear at once, so the smallest are taken."""
+    out = []
+    for src, kind, n in ((planets, "planet", 2), (suns, "sun", 1)):
+        if not src:
+            continue
+        for key in sorted(src, key=lambda k: len(src[k]["src"]))[:n]:
+            b = src[key]
+            out.append({"src": b["src"], "cx": b["cx"], "cy": b["cy"],
+                        "r": b["r"], "kind": kind})
+    return out
 
 
-def write_loader(path, game, planets=None):
+def write_loader(path, game, planets=None, suns=None):
     """The loading page: shows at once and fetches the game with a progress
     bar. It needs the game's file name (beside it), its size in bytes (the
     server sends none with gzip) and a stamp against a stale cache."""
@@ -439,7 +443,7 @@ def write_loader(path, game, planets=None):
                .replace("@@GAME_BYTES@@", str(st.st_size))
                .replace("@@STAMP@@", stamp)
                .replace("@@MODELS@@", json.dumps(model_files()))
-               .replace("@@PLANETS@@", json.dumps(loader_bodies(planets or {}))))
+               .replace("@@PLANETS@@", json.dumps(loader_bodies(planets or {}, suns or {}))))
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(page)
     STATS["Ladeseite"] = path
@@ -564,7 +568,7 @@ def main():
 
     size = os.path.getsize(args.out) / (1024 * 1024)
     if args.loader:
-        write_loader(args.loader, args.out, planets)
+        write_loader(args.loader, args.out, planets, suns)
 
     # --- the short report (Silvio, 16.11.2026) ---
     print("\nFS3 build %s" % STATS.get("Version", "ohne Versionsnummer"))

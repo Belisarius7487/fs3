@@ -912,7 +912,12 @@ function bulletOnPlayer(b){
 const ECO_GLINT_GONE = true;   // kept as a marker for the eco settings
 
 // ── NEBULA BACKGROUND ─────────────────────────────────────────
-let nebCur=NEB_NAMES[0],nebNxt=NEB_NAMES[1];
+// v358: the loading page has already shown one of these behind the title
+// sequence and says which (window.FS3_NEB). Keeping it means the picture
+// does not change when the game takes over.
+let nebCur=(typeof window!=='undefined' && window.FS3_NEB && NEB_NAMES.indexOf(window.FS3_NEB)>=0)
+           ? window.FS3_NEB : NEB_NAMES[0];
+let nebNxt=NEB_NAMES[1];
 // The one after this one is chosen and fetched a whole wave ahead (v229b).
 // Asking for it at the moment of the changeover was asking for 2.75 MB
 // inside a window of a second or two: it arrived part way through and

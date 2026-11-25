@@ -201,7 +201,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
   // The game's own backdrop lives in the game file, which is still coming
   // down while this plays. So the sky is drawn here: one of the nebula
   // pictures the server has beside this page, stars adrift over it, and a
-  // planet or two that build_game.py puts in (@@PLANETS@@).
+  // planet or two that build_game.py lays in for it.
   var introDone = false;
   (function(){
     var NEBS = ["Aldebaran","AlphaCentauri","Antares","BeAquilae","darkspace","Deneb",
@@ -216,7 +216,10 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     // The nebula is a couple of megabytes, so it fades in when it is here
     // rather than holding the sequence up.
     var neb = new Image(), nebA = 0;
-    neb.src = 'nebulae/neb_' + NEBS[Math.floor(Math.random()*NEBS.length)] + '.png';
+    // The game is told which one this is, so the picture does not change
+    // when it takes over (Silvio, 25.11.2026).
+    window.FS3_NEB = NEBS[Math.floor(Math.random()*NEBS.length)];
+    neb.src = 'nebulae/neb_' + window.FS3_NEB + '.png';
     // Each planet drifts slowly across, the way the start screen rolls them.
     var bods = [];
     for(var bi=0; bi<BODIES.length; bi++){
@@ -248,13 +251,24 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
         if(!g.complete || !g.naturalWidth) continue;
         var w = cv.width*b.w, h = w*g.naturalHeight/g.naturalWidth;
         var x0 = cv.width*b.x - w/2, y0 = cv.height*b.y - h/2;
-        // cx, cy and r mark the disc inside the picture: a planet stored as
-        // JPEG has no alpha of its own and is cut out by this circle.
+        if(b.d.kind === 'sun'){
+          var gr = c.createRadialGradient(x0+w/2, y0+h/2, w*0.42, x0+w/2, y0+h/2, w*1.25);
+          gr.addColorStop(0, 'rgba(255,224,160,0.22)');
+          gr.addColorStop(0.55, 'rgba(255,180,90,0.08)');
+          gr.addColorStop(1, 'rgba(255,150,60,0)');
+          c.save(); c.globalCompositeOperation = 'lighter';
+          c.fillStyle = gr; c.fillRect(x0-w*0.8, y0-w*0.8, w*2.6, w*2.6); c.restore();
+        }
         c.save();
-        c.beginPath();
-        c.arc(x0 + w*b.d.cx/g.naturalWidth, y0 + h*b.d.cy/g.naturalHeight,
-              w*b.d.r/g.naturalWidth, 0, 6.2832);
-        c.clip();
+        // cx, cy and r mark the disc inside the picture: one stored as JPEG
+        // has no alpha of its own and is cut out by this circle. r == 0
+        // means the picture brings its own alpha - then nothing is cut.
+        if(b.d.r > 0){
+          c.beginPath();
+          c.arc(x0 + w*b.d.cx/g.naturalWidth, y0 + h*b.d.cy/g.naturalHeight,
+                w*b.d.r/g.naturalWidth, 0, 6.2832);
+          c.clip();
+        }
         c.drawImage(g, x0, y0, w, h);
         c.restore();
       }

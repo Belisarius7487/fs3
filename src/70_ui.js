@@ -33,6 +33,13 @@ function draw(){
 
   // v354: the title sequence runs over the same sky, before the start screen
   if(GS==='title' && typeof introOn==='function' && introOn()){ drawIntro(); return; }
+  // v358 (Silvio): while the bar is still running the start screen must not
+  // already invite a key - the game is not loaded yet and nothing happens.
+  // Only the sky is shown under the bar.
+  if(GS==='title' && typeof f3dBoxUp==='function' && f3dBoxUp()){
+    if(typeof f3dPreloadBar==='function') try{ f3dPreloadBar(); }catch(ep){}
+    return;
+  }
   if(GS==='title'){drawTitle(); if(typeof f3dPreloadBar==='function') try{ f3dPreloadBar(); }catch(ep){} return;}
   if(GS==='gameover'){drawGO();return;}
 

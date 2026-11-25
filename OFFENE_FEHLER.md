@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v357, M1 bis M28 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v358, M1 bis M28 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt | v354–v357 |
+| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v358:** Spiel und Ladeseite zeigen denselben Nebel, Planeten und Sonnen erscheinen wirklich, und unter dem Balken steht keine Aufforderung mehr | v354–v358 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
@@ -6398,3 +6398,31 @@ Gebaut: die Tafel hängt an `titleCtls` in `src/70_ui.js` und ist beim
 Start aus. An ihrer Stelle steht eine Zeile „C - CONTROLS“; **C** blendet
 die Tafel ein und wieder aus. Inhalt und Aufbau der Tafel sind unverändert,
 sie kommt weiterhin aus der Tastentabelle.
+
+### Nachtrag v358 (25.11.2026) — drei Schönheitsfehler an F144
+
+Silvio: „1. Der Ladebalken lädt ein anderes Hintergrundbild als das Intro.
+2. Während der Ladebalken noch läuft steht bereits da, dass man Klicken oder
+eine Taste drücken soll, damit es losgeht, was natürlich nicht funktioniert,
+weil das Spiel ja noch nicht fertig geladen ist. 3. Es laden zwar
+Hintergründe, aber keine Planeten/Sonnen."
+
+1. **Derselbe Nebel.** Die Ladeseite würfelt einen der zwölf Hintergründe
+   aus; das Spiel begann unabhängig davon immer mit dem ersten der Liste.
+   Die Ladeseite merkt sich ihre Wahl jetzt in `window.FS3_NEB`, und
+   `nebCur` in `20_render.js` übernimmt sie beim Start, wenn sie da ist.
+   `enterTitle()` würfelt weiterhin neu — das ist der Weg vom Spielende
+   zurück zum Titel und soll einen frischen Himmel geben.
+2. **Keine Aufforderung unter dem Balken.** Seit v357 ist der Ladekasten
+   durchsichtig, und damit war der fertige Startbildschirm darunter zu
+   sehen, „PRESS SPACE OR ENTER" eingeschlossen. Solange der Balken steht
+   (`f3dBoxUp()`, neu in `59_field3d.js`), zeichnet `draw()` nur noch den
+   Himmel und lässt den Startbildschirm ganz weg.
+3. **Planeten und Sonnen.** Zwei Fehler auf einmal. Erstens schnitt die
+   Ladeseite jedes Bild auf den Kreis `cx`/`cy`/`r` zu — aber **`r == 0`
+   heißt in `build_game.py`, dass das Bild einen echten Alphakanal hat**
+   (`encode_body`), und ein Kreis mit Radius null schneidet alles weg.
+   Jetzt wird nur zugeschnitten, wenn `r > 0`. Zweitens bekam die Ladeseite
+   überhaupt keine Sonnen; `loader_bodies` nimmt jetzt die zwei kleinsten
+   Planeten **und** die kleinste Sonne, und eine Sonne bekommt denselben
+   warmen Schein wie im Spiel.
