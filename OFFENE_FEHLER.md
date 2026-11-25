@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v352, M1 bis M27 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v353, M1 bis M27 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -30,7 +30,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F140 | **Jetzt entscheidet die Art des Schiffes, nicht die Länge.** Frachter, Transporter, Fracht und Rettungskapseln fliegen wie kleine Schiffe, egal wie lang sie sind — dazu die Gas-Miner, die Hippocrates und die Imhotep/Faustus (Silvios Entscheidung vom 24.11.2026). Neu dabei: Dis, Triton, TC-Meson, TC-TRI, SAC3, Anuket, Rahu, Zephyrus, Hippocrates, Imhotep. Diese fünf Rümpfe haben jetzt auch echte Modell-Andockdaten, damit ihre Fracht am Andockpunkt des Trägers sitzt. **Im Spiel noch nicht zu sehen:** keine Mission schickt eines dieser Schiffe quer über das Feld. In M27 (v351) steht die *Isis* still, also zeigt sich die Regel auch dort nicht — erst eine Mission mit einem fahrenden Transporter oder Frachter macht sie sichtbar | v350 |
 | F139 | **Rümpfe kleiner als ein Kreuzer fliegen wie ein Jäger** (v349). Der Umfang war falsch gewählt; mit F140 (v350) entscheidet die Art des Schiffes. Die Längenmarke bleibt als zweiter Weg hinein, damit nichts verliert, was seit v349 so fliegt | v349 |
-| F142 | **M28 „A Failure to Communicate"** gebaut (siehe unten). Dazu zwei Änderungen am gemeinsamen Ablauf: eine Rettungskapsel darf jetzt ein Schiff als Landeziel nennen, das noch nicht im Feld steht (sie fährt weiter und schwenkt ein, sobald es da ist), und ein Großkampfschiff kann mit `beamOnly` angewiesen werden, **ausschließlich** sein `beamFocus`-Ziel zu beschießen | v352 |
+| F142 | **M28 „A Failure to Communicate"** gebaut (siehe unten). Dazu drei Änderungen am gemeinsamen Ablauf: eine Rettungskapsel darf ein Schiff als Landeziel nennen, das noch nicht im Feld steht; `fireOnly` bindet **alle** Waffen eines Großkampfschiffs an seine `beamFocus`-Liste (Strahlen, Geschütze, Abwehrlaser, Flak); und eine Kapsel fliegt eine Einflugschneise, die **im Rumpf** beginnt, geradewegs an, statt um das Schiff herum | v352, v353 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
 **Offen, noch nicht gebaut:**
@@ -76,6 +76,40 @@ Wer einen davon ändert, ändert diesen Verlauf — die `fieldsim`-Prüfung
 **Achtung bei eigenen Messungen:** Das Spiel läuft mit `TICK_HZ` = 100
 Schritten je Sekunde, nicht 60. Ein `FS.step(25*60)` sind 15 Sekunden, nicht
 25 — dieser Irrtum hat beim Bau von M28 eine Messrunde gekostet.
+
+### Nachtrag v353 (25.11.2026) — zwei von vier Kapseln gingen verloren
+
+Silvio nach dem ersten Durchlauf von v352: „Nicht eine einzige Escape Pod
+kann es schaffen, wenn die Lucifer mit ihren Lasergeschützen auf sie zielt.
+Als ich sagte sie soll sich nur auf die Station konzentrieren, meinte ich
+auch diese Laser." Sein Protokoll: Kapsel 2 bei 0:20 und Kapsel 1 bei 0:25
+verloren, Kapsel 3 und 4 bei 0:29 und 0:32 an Bord.
+
+**Im Code und in `fieldsim` nachgesehen — die Lasergeschütze waren es
+nicht.** Mit allen Gegnern außer der Lucifer weggeräumt kommen auch in der
+alten Fassung alle vier Kapseln durch; ihre Abwehrgeschütze reichen gar
+nicht so weit. Die wirkliche Ursache: **die Kapseln kamen nicht in den
+Hangar der Hope.** Ihre Einflugschneise beginnt in der Mitte ihres Rumpfes
+und läuft in die Tiefe hinein (bei einer Orion beginnt sie weit neben dem
+Rumpf). `podFly` flog jeden ersten Wegpunkt um den Rumpf herum — eine
+Kapsel, die hineinfliegen sollte, kreiste die Hope deshalb endlos, blieb
+minutenlang im Feld und wurde dort von den Jägern abgeräumt. Nur die erste
+kam an.
+
+Geändert in v353:
+
+1. **Ein Wegpunkt innerhalb des Rumpfes wird geradewegs angeflogen**, nicht
+   umkreist (`podFly`). Gemessen: alle vier an Bord 23, 29, 30 und 35
+   Sekunden nach Missionsbeginn, also binnen fünfzehn Sekunden nach dem
+   Einsprung der Hope. Prüfung: „M28 all four escape pods reach the Hope";
+   ohne die Änderung landet nur eine.
+2. **`beamOnly` heißt jetzt `fireOnly` und bindet alle Waffen** — Strahlen,
+   Hauptgeschütze, Abwehrlaser und Flak — an die `beamFocus`-Liste. Das war
+   Silvios ausdrücklicher Wunsch, auch wenn es den Verlust nicht verursacht
+   hat. Der alte Name war irreführend: er klang nach „nur Strahlen", gemeint
+   war „nur dieses Ziel".
+3. Die Kapseln haben die doppelte Rumpfstärke (`hp:2`), damit ein Treffer
+   auf dem Weg nicht sofort das Ende ist.
 
 Verworfen auf dem Weg dorthin: die Kapseln über den Rand abspringen lassen
 (wie in M24) — Silvio will sie im Hangar der Hope; und die Station tiefer

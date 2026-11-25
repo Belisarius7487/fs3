@@ -1209,11 +1209,37 @@ scenario('M28 the station outlives the last escape pod', 'm=28', `
   r.sheDiesToTheLucifer = FS.until(()=>!st(), 120000, false, false) >= 0;
   return r;`);
 
+// F142 (M28), after Silvio's first run of v352, where two of the four pods
+// were lost: they were not being shot out of the sky on the way, they were
+// circling the Hope. Her bay path starts at her middle and runs into the
+// depth, and podFly flew every first point round the hull, so a pod that
+// was meant to go straight in orbited her until something killed it. With
+// the fix all four are aboard within about fifteen seconds of her arrival
+// (measured in v353: 23 s, 29 s, 30 s, 35 s). Against a build without it
+// only the first one lands and this goes red.
+scenario('M28 all four escape pods reach the Hope', 'm=28', `
+  const r = {};
+  const pods = () => allies.filter(a=>a.uid==='EP' && !a.dead);
+  const landed = [];
+  let last = 0;
+  // Their hull is held full: this is about whether they can fly into her
+  // at all, not about surviving the fighters.
+  for(let sec=1; sec<=70; sec++){
+    FS.step(TICK_HZ);
+    for(const a of pods()) a.hp = a.maxHp;
+    if(protSaved > last){ for(let k=last;k<protSaved;k++) landed.push(sec); last = protSaved; }
+  }
+  r.allFourAboard = protSaved >= 4;
+  r.aboardAt = landed.join('s ') + 's';
+  // and none of them is still wandering about out there
+  r.noneLeftOutside = pods().length === 0;
+  return r;`);
+
 // F142: her guns are for the station and nothing else. The test that
 // matters is what she does once the station can no longer be shot at: with
-// beamOnly she holds fire, without it she falls back to the nearest
+// fireOnly she holds fire, without it she falls back to the nearest
 // reachable target - the Hope, the pods or the player. Against a build
-// with beamOnly taken out again this fails on holdsFire.
+// with fireOnly taken out again this fails on holdsFire.
 scenario('M28 the Lucifer holds fire when the station is gone', 'm=28', `
   const r = {};
   const lu = () => enemies.filter(e=>e.uid==='LU' && !e.dead)[0];

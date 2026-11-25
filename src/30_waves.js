@@ -1529,8 +1529,15 @@ function podFly(a){
         a.podD += (Math.min(1, path[a.bayStep][2]) - a.podD)*0.06;
       }
       // on the path she follows it; on the way to its start she goes round
-      // the hull rather than through it
-      g = a.bayStep ? q2 : podAround(a, t, q2.x, q2.y);
+      // the hull rather than through it.
+      // F142 (M28): unless that start lies inside the hull. An Orion's bay
+      // path begins well off her side (x share 3.5) and is flown round her;
+      // a Typhon's begins at her middle and runs into the depth instead, so
+      // going round it means circling her for ever - the pods did exactly
+      // that until v353. A point inside her box is flown at straight.
+      const _in = (function(){ const b = eBox(t);
+        return q2.x > b[0] && q2.x < b[0]+b[2] && q2.y > b[1] && q2.y < b[1]+b[3]; })();
+      g = (a.bayStep || _in) ? q2 : podAround(a, t, q2.x, q2.y);
       if(a.bayStep){ turnK = POD_TURN_IN; want = 0.6; }
     } else {
       const p = podBay(a, t), bh = eBox(t)[3], low = Math.max(POD_BELOW, bh*0.35);
@@ -1951,12 +1958,12 @@ function applySpawnOpts(e, sp){
   if(sp.portalMid) e.portalMid = true;
   // beamFocus: her guns go for this ship first (the Hatshepsut, M77).
   if(sp.beamFocus) e.beamFocus = sp.beamFocus;
-  // beamOnly (F142, M28): her guns are for the beamFocus list and for
+  // fireOnly (F142, M28): her guns are for the beamFocus list and for
   // nothing else. Without it a capital falls back to the nearest reachable
   // target, so the Lucifer at Aquilae would turn on the Hope as she warps
   // in - Silvio, 25.11.2026: "Die Lucifer sollte die Hope aber ignorieren
   // und sich nur auf die Station konzentrieren."
-  if(sp.beamOnly) e.beamOnly = true;
+  if(sp.fireOnly) e.fireOnly = true;
   // beamMul (v257, Tombaugh): her beams hit this many times harder - the
   // Lucifer that wiped out a station and its fleet in one strike.
   if(sp.beamMul) e.beamMul = sp.beamMul;
@@ -3865,7 +3872,7 @@ const SCRIPT_WAVES = {
   // schafft es nicht mal die Lucifer die Station zu zerstoeren"), the four
   // pods launch spread over twenty seconds and not when she is already
   // dead, the Hope comes as soon as the last one is out, and the Lucifer
-  // ignores the Hope and keeps to the station (beamOnly).
+  // ignores the Hope and keeps to the station (fireOnly).
   // Left out of the original: the four Watchdog sentry guns around the
   // station - every gun platform in the game so far is hostile, and a 9 m
   // allied one is a dot nobody sees. Replaces the old mission 28.
@@ -3885,23 +3892,23 @@ const SCRIPT_WAVES = {
         label:'Aquilae Communications'},
        {id:'A1', c:'fi', n:2, size:3, spr:'fivalyrie', side:'ally'},
        // She cannot be fought: invulnerable, hits only flare her shield,
-       // and her guns are for the station and nothing else (beamOnly).
+       // and her guns are for the station and nothing else (fireOnly).
        {id:'LU', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true,
         shieldShow:true, x:700, y:120, still:true, noWarp:true, noHold:true,
-        beamFocus:'ST', beamOnly:true, beamMul:15, label:'SD Lucifer'},
+        beamFocus:'ST', fireOnly:true, beamMul:15, label:'SD Lucifer'},
        // The pods: out of the station's belly, one every five seconds, then
        // across the field to the right - where the Hope comes in. All four
        // share the id EP so the Shivans hunt whichever is still flying;
        // their own outcome is counted ('gerettet'), not read off the id.
        // x/y only matter if the station is gone before one of them is due.
        {id:'EP', c:'ep', n:1, spr:'ephermes', side:'ally', t:4,  from:'ST',
-        cross:2.9, land:'HO', x:260, y:265, label:'Escape pod'},
+        cross:2.9, land:'HO', x:260, y:265, hp:2, label:'Escape pod'},
        {id:'EP', c:'ep', n:1, spr:'ephermes', side:'ally', t:9,  from:'ST',
-        cross:2.9, land:'HO', x:260, y:265, label:'Escape pod'},
+        cross:2.9, land:'HO', x:260, y:265, hp:2, label:'Escape pod'},
        {id:'EP', c:'ep', n:1, spr:'ephermes', side:'ally', t:14, from:'ST',
-        cross:2.9, land:'HO', x:260, y:265, label:'Escape pod'},
+        cross:2.9, land:'HO', x:260, y:265, hp:2, label:'Escape pod'},
        {id:'EP', c:'ep', n:1, spr:'ephermes', side:'ally', t:19, from:'ST',
-        cross:2.9, land:'HO', x:260, y:265, label:'Escape pod'},
+        cross:2.9, land:'HO', x:260, y:265, hp:2, label:'Escape pod'},
        // stay: she holds her place once she is in, so a quiet moment
        // between two waves cannot send her off with the pods still out.
        {id:'HO', c:'de', n:1, spr:'detyphon', side:'ally', x:620, y:420,
@@ -6373,7 +6380,7 @@ function scriptUnit(u, fac, q){
          noWarp:u.noWarp,
          reactorOnly:u.reactorOnly, scanReactors:u.scanReactors, crossLeft:u.crossLeft,
          gasBeams:u.gasBeams, subDrift:u.subDrift, viaPortal:u.viaPortal,
-         noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, beamOnly:u.beamOnly, beamMul:u.beamMul, stopX:u.stopX, shieldShow:u.shieldShow,
+         noHold:u.noHold, crossWarp:u.crossWarp, warpT:u.warpT, beamFocus:u.beamFocus, fireOnly:u.fireOnly, beamMul:u.beamMul, stopX:u.stopX, shieldShow:u.shieldShow,
          // M25: the planet she burns, and her guns held back until the
          // player calls in a capital ship. Dropped here, both did nothing.
          bombard:u.bombard, beamsWhenCalled:u.beamsWhenCalled,

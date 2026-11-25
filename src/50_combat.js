@@ -1722,9 +1722,9 @@ function pickBeamTarget(e, b){
     for(const id of String(e.beamFocus).split('>'))
       for(const f of byId(id))
         if(list.indexOf(f) >= 0 && beamCanAim(e, b, mp, f)) return f;
-    // beamOnly (F142, M28): the focus list is all she shoots at. Nothing
+    // fireOnly (F142, M28): the focus list is all she shoots at. Nothing
     // on it in reach means she holds fire instead of taking the nearest.
-    if(e.beamOnly) return null;
+    if(e.fireOnly) return null;
   }
   let best=null, bd=Infinity;
   for(const o of list){
@@ -2567,6 +2567,16 @@ function aSecondary(x, y, fac, s){
 // Capital ships: every turret reloads on its own clock.
 // Worauf ein Grosskampfschiff haelt. Verbuendete Grosskampfschiffe zuerst:
 // dafuer sind die Geschuetze gebaut. Sonst der Spieler.
+// F142 (M28): a ship with fireOnly shoots at what stands in her beamFocus
+// list and at nothing else - not her beams, not her guns, not her
+// anti-fighter turrets. Silvio, 25.11.2026, after the Lucifer's turrets
+// picked off two escape pods: "Als ich sagte sie soll sich nur auf die
+// Station konzentrieren, meinte ich auch diese Laser."
+function focusBlocks(o, t){
+  if(!o || !o.fireOnly) return false;
+  if(!t || !t.uid) return true;
+  return String(o.beamFocus||'').split('>').indexOf(t.uid) < 0;
+}
 function capGunTarget(e){
   let best=null, bd=1e9;
   // In the gas the gunners see our ships no further than the player
@@ -2574,10 +2584,13 @@ function capGunTarget(e){
   const fog = nebulaOn() ? CAP_NEBULA_SIGHT*CAP_NEBULA_SIGHT : Infinity;
   for(const a of allies){
     if(a.dead || a.small) continue;
+    if(focusBlocks(e, a)) continue;              // F142: not on her list
     const d=(a.x-e.x)*(a.x-e.x)+(a.y-e.y)*(a.y-e.y);
     if(d > fog && !tagged(a)) continue;
     if(d<bd){ bd=d; best=a; }
   }
+  // F142: she is here for her list only - no falling back to the player.
+  if(e.fireOnly) return best;
   // A ship that cannot be locked (the Pegasus) is not a target for the
   // guns either; with nothing else in reach they hold fire.
   if(best || canLockOn(player)) return best || player;
@@ -2650,6 +2663,9 @@ function flakReach(px, py, ang, want){
 function flakFire(e, ally){
   if(!flakHas(e) || e.dead || e.warp>0 || e.warpOut>0) return;
   if(e.noFire || !subOK(e,'weapons')) return;
+  // F142 (M28): flak is thrown at small craft, and a ship bound to her
+  // focus list has no business with them - the station is not a fighter.
+  if(e.fireOnly) return;
   const _fm = (typeof mountsFor === "function") ? mountsFor(e.img) : null;
   if(_fm && _fm.raw){ flakTurrets(e, ally, _fm.flak); return; }
   if(e.flakT===undefined) e.flakT = rndR(FLAK_RATE)|0;
@@ -2800,6 +2816,9 @@ function turretTick(o, isPlayer){
   let best = null, bd = reach;
   for(const t of list){
     if(!t || t===o || t.dead || t.warp>0 || t.warpOut>0 || t.scenery || t.invuln) continue;
+    // F142 (M28): her anti-fighter turrets keep to her list as well - this
+    // is what shot the escape pods out of the sky in v352.
+    if(focusBlocks(o, t)) continue;
     if(t.type==='asteroid' || (mine && !isPlayer && (playerOnly(t) || escortSpares(t)))) continue;
     if(t===player && (GS!=='playing' || !playerSeen())) continue;
     const dx = t.x-pts[0].x, dy = t.y-pts[0].y, d = Math.hypot(dx, dy);
@@ -3298,9 +3317,9 @@ function updateBeams(e) {
         // Find a target first. With no target it will not charge, the
         // turret holds fire and retries shortly after.
         let tgt = pickBeamTarget(e,b);
-        // beamOnly (F142): a large beam normally falls back to the player
+        // fireOnly (F142): a large beam normally falls back to the player
         // when it finds nothing; a gun bound to its focus list does not.
-        if(!tgt && b.large && !e.beamOnly && !LARGE_BEAM_HOLDS_FIRE && beamCanAim(e, b, mountPos(e, b), player)) tgt = player;
+        if(!tgt && b.large && !e.fireOnly && !LARGE_BEAM_HOLDS_FIRE && beamCanAim(e, b, mountPos(e, b), player)) tgt = player;
         if(!tgt){ b.timer = 45 + Math.random()*45; }
         else {
           b.tgt = tgt;
