@@ -912,11 +912,15 @@ function bulletOnPlayer(b){
 const ECO_GLINT_GONE = true;   // kept as a marker for the eco settings
 
 // ── NEBULA BACKGROUND ─────────────────────────────────────────
-// v358: the loading page has already shown one of these behind the title
-// sequence and says which (window.FS3_NEB). Keeping it means the picture
-// does not change when the game takes over.
-let nebCur=(typeof window!=='undefined' && window.FS3_NEB && NEB_NAMES.indexOf(window.FS3_NEB)>=0)
-           ? window.FS3_NEB : NEB_NAMES[0];
+// v359: the loading page has drawn this very sky behind the title sequence
+// and hands it over whole (window.FS3_SKY): the star layers, the nebula and
+// the planets, finished and decoded. Taking them means nothing is fetched,
+// rolled or drawn a second time, and the picture stays put when the bar
+// appears and when the start screen comes up.
+const FS3_SKY = (typeof window !== 'undefined' && window.FS3_SKY) ? window.FS3_SKY : null;
+let nebCur = (FS3_SKY && FS3_SKY.nebName && NEB_NAMES.indexOf(FS3_SKY.nebName) >= 0)
+             ? FS3_SKY.nebName : NEB_NAMES[0];
+if(FS3_SKY && FS3_SKY.neb && !NEBS[nebCur]){ NEBS[nebCur] = FS3_SKY.neb; nebsLoaded++; }
 let nebNxt=NEB_NAMES[1];
 // The one after this one is chosen and fetched a whole wave ahead (v229b).
 // Asking for it at the moment of the changeover was asking for 2.75 MB
@@ -1184,6 +1188,18 @@ function rollBodies(){
   out.sort(function(a,b){ return a.w-b.w; });
   bodies=out;
   rollLight();
+}
+
+// The planets and the sun of the loading page, with the places and speeds
+// they already had there. Their pictures come decoded, so none is fetched
+// again; the data of each body is linked back from the game's own tables.
+if(FS3_SKY && FS3_SKY.bodies && FS3_SKY.bodies.length){
+  bodies = FS3_SKY.bodies.map(function(b){
+    const meta = (b.kind === 'sun' ? SUN_DATA : PLANET_DATA)[b.key];
+    if(FS3_SKY.bodyImgs && FS3_SKY.bodyImgs[b.key]) BODY_IMG[b.key] = FS3_SKY.bodyImgs[b.key];
+    return {key: b.key, kind: b.kind, meta: meta, w: b.w, x: b.x, y: b.y, spd: b.spd};
+  }).filter(function(b){ return !!b.meta; });
+  usedBodies = bodies.map(function(b){ return b.key; });
 }
 
 function tickBodies(){
@@ -1725,6 +1741,8 @@ const MOUSE={x:400,y:250,down:false,sx:400,sy:250,scr:false};
 const LIVES_START = 10;
 const LIVES_ICONS_MAX = 4;   // above this the bar shows a count, not a row
 let score=0,lives=LIVES_START,wave=0,fc=0;
+// the star drift carries on from where the loading page left it
+if(FS3_SKY && typeof FS3_SKY.fc === 'number') fc = FS3_SKY.fc;
 // Elapsed time of the current run, in logic steps. Only counts while the
 // game is actually running, so a long look at the call menu is not a way
 // to a better time once there is a ranking.

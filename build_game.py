@@ -416,17 +416,24 @@ def model_files(root="models"):
     return out
 
 
-def loader_bodies(planets, suns):
-    """Bodies for the loading page: two planets and a sun. They are embedded
-    in the page, which has to appear at once, so the smallest are taken."""
+def loader_bodies(folder, planets, suns):
+    """The planets and suns for the loading page. They are written beside it
+    as files, not embedded: the page has to appear at once, and this way it
+    can roll a different sky on every reload, the way the game does. The
+    pictures are the same ones the game carries, already re-encoded."""
     out = []
-    for src, kind, n in ((planets, "planet", 2), (suns, "sun", 1)):
-        if not src:
-            continue
-        for key in sorted(src, key=lambda k: len(src[k]["src"]))[:n]:
+    if not os.path.isdir(folder):
+        os.makedirs(folder, exist_ok=True)
+    for src, kind in ((planets, "planet"), (suns, "sun")):
+        for key in sorted(src or {}):
             b = src[key]
-            out.append({"src": b["src"], "cx": b["cx"], "cy": b["cy"],
-                        "r": b["r"], "kind": kind})
+            head, _, b64 = b["src"].partition(",")
+            ext = ".jpg" if "jpeg" in head else ".png"
+            name = kind + "_" + re.sub(r"[^A-Za-z0-9_.-]", "_", key) + ext
+            with open(os.path.join(folder, name), "wb") as fh:
+                fh.write(base64.b64decode(b64))
+            out.append({"key": key, "kind": kind, "file": name,
+                        "cx": b["cx"], "cy": b["cy"], "r": b["r"]})
     return out
 
 
@@ -443,7 +450,9 @@ def write_loader(path, game, planets=None, suns=None):
                .replace("@@GAME_BYTES@@", str(st.st_size))
                .replace("@@STAMP@@", stamp)
                .replace("@@MODELS@@", json.dumps(model_files()))
-               .replace("@@PLANETS@@", json.dumps(loader_bodies(planets or {}, suns or {}))))
+               .replace("@@PLANETS@@", json.dumps(
+                   loader_bodies(os.path.join(os.path.dirname(os.path.abspath(path)), "bodies"),
+                                 planets or {}, suns or {}))))
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(page)
     STATS["Ladeseite"] = path

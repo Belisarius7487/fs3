@@ -37,6 +37,13 @@ function draw(){
   // already invite a key - the game is not loaded yet and nothing happens.
   // Only the sky is shown under the bar.
   if(GS==='title' && typeof f3dBoxUp==='function' && f3dBoxUp()){
+    // v359: the same veil the start screen lays over the sky, so it does not
+    // darken all at once the moment the bar goes away.
+    const lv = ctx.createLinearGradient(0, 0, 0, H);
+    lv.addColorStop(0.00, 'rgba(0,0,8,0.20)');
+    lv.addColorStop(0.45, 'rgba(0,0,8,0.42)');
+    lv.addColorStop(1.00, 'rgba(0,0,8,0.78)');
+    ctx.fillStyle = lv; ctx.fillRect(0, 0, W, H);
     if(typeof f3dPreloadBar==='function') try{ f3dPreloadBar(); }catch(ep){}
     return;
   }

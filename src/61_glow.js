@@ -252,6 +252,13 @@ function drawChargeParts(e, b){
 const STAR_LAYERS = [];
 function starLayers(){
   if(STAR_LAYERS.length || typeof document === 'undefined') return STAR_LAYERS;
+  // v359: the loading page painted these three before the game existed and
+  // has been drawing them all along. Taking them keeps the star field as it
+  // is - a fresh set would change its grain and its drift in plain sight.
+  if(typeof FS3_SKY !== 'undefined' && FS3_SKY && FS3_SKY.stars && FS3_SKY.stars.length === 3){
+    for(let i = 0; i < 3; i++) STAR_LAYERS.push({c: FS3_SKY.stars[i], par: FS3_SKY.par[i]});
+    return STAR_LAYERS;
+  }
   const spec = [{n: 520, s: [0.25, 0.55], b: [0.30, 0.70], par: 0.35},
                 {n: 140, s: [0.45, 0.85], b: [0.55, 0.95], par: 0.7},
                 {n: 14,  s: [0.8, 1.2],  b: [0.85, 1.0], par: 1.1}];

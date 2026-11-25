@@ -68,7 +68,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
    here: in the game it could never come first. The sky is drawn here too
    (stars adrift on a canvas), since the game's own backdrop is inside the
    game file that is still being fetched. */
-#sky{position:fixed;inset:0;z-index:0;display:block}
+#sky{position:fixed;left:0;top:0;z-index:0;display:block}
 #box{position:relative;z-index:2}
 #box.wait{display:none}
 #intro{position:fixed;inset:0;z-index:3;cursor:pointer}
@@ -171,6 +171,8 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     var css = document.getElementById('loadcss');
     window.FS3_LOADBOX = {html: document.getElementById('box').outerHTML, css: css ? css.textContent : '',
                           cls: document.documentElement.className, p: DL_SHARE, n: N};
+    // the finished sky, so the game draws on with it instead of its own
+    if(SKY) window.FS3_SKY = SKY();
     setTimeout(function(){ document.open(); document.write(gameText); document.close(); }, 30);
   }
   // The model files, a few at a time. One that cannot be fetched is left
@@ -197,89 +199,174 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     .then(function(){ modelsLeft--; start(null); nextModel(); });
   }
 
-  // ── the title sequence and its sky (F144, v356/v357) ─────────
-  // The game's own backdrop lives in the game file, which is still coming
-  // down while this plays. So the sky is drawn here: one of the nebula
-  // pictures the server has beside this page, stars adrift over it, and a
-  // planet or two that build_game.py lays in for it.
-  var introDone = false;
+  // ── the title sequence and the sky it plays over (F144, v359) ─
+  // The sky is drawn here with the game's own rules, in the game's own
+  // 800 x 500 picture: the same three star layers, the same nebula fit,
+  // the same planets and the same veil. When the game takes over it is
+  // handed the finished canvases (window.FS3_SKY) and carries on with
+  // them. Nothing is fetched, rolled or drawn a second time, so the
+  // picture does not change when the bar appears or when the start screen
+  // comes up (Silvio, 25.11.2026: "ohne Neuladen einzelner Elemente").
+  var introDone = false, SKY = null;
   (function(){
+    var GW = 800, GH = 500, GHUD = 54;
     var NEBS = ["Aldebaran","AlphaCentauri","Antares","BeAquilae","darkspace","Deneb",
                 "DSerpentis","Fomalhaut","R128","Sirius","Vasuda","Vega"];
-    var BODIES = @@PLANETS@@;
-    var cv = document.getElementById('sky'), c = cv.getContext('2d'), stars = [];
-    function size(){ cv.width = innerWidth; cv.height = innerHeight;
-      stars = []; var n = Math.round(cv.width*cv.height/9000);
-      for(var i=0;i<n;i++) stars.push([Math.random()*cv.width, Math.random()*cv.height,
-        Math.random()*1.3+0.2, Math.random()*0.22+0.04]); }
-    size(); addEventListener('resize', size);
-    // The nebula is a couple of megabytes, so it fades in when it is here
-    // rather than holding the sequence up.
-    var neb = new Image(), nebA = 0;
-    // The game is told which one this is, so the picture does not change
-    // when it takes over (Silvio, 25.11.2026).
-    window.FS3_NEB = NEBS[Math.floor(Math.random()*NEBS.length)];
-    neb.src = 'nebulae/neb_' + window.FS3_NEB + '.png';
-    // Each planet drifts slowly across, the way the start screen rolls them.
-    var bods = [];
-    for(var bi=0; bi<BODIES.length; bi++){
-      var im = new Image(); im.src = BODIES[bi].src;
-      bods.push({d: BODIES[bi], img: im,
-                 w: 0.18 + Math.random()*0.22,          // share of the width
-                 x: Math.random(), y: 0.2 + Math.random()*0.6,
-                 vx: -(0.000018 + Math.random()*0.000022)});
+    var POOL = @@PLANETS@@;                       // planets and suns beside this page
+    var cv = document.getElementById('sky'), c = cv.getContext('2d');
+    var RES = 1, fc = 0, layers = [], bodies = [], bodyImgs = {}, neb = null;
+    var nebName = NEBS[(Math.random()*NEBS.length)|0];
+
+    // the game's applyResolution: 800 x 500, centred, letterboxed
+    function fit(){
+      var aw = window.innerWidth || GW, ah = window.innerHeight || GH;
+      var f = Math.min(aw/GW, ah/GH);
+      var cw = Math.max(1, Math.round(GW*f)), ch = Math.max(1, Math.round(GH*f));
+      cv.style.width = cw+'px'; cv.style.height = ch+'px';
+      cv.style.left = Math.round((aw-cw)/2)+'px';
+      cv.style.top = Math.round((ah-ch)/2)+'px';
+      var dpr = window.devicePixelRatio || 1;
+      var res = Math.max(1, Math.min(2, cw*dpr/GW));
+      if(!layers.length || Math.abs(res-RES) > 0.01){ RES = res; buildStars(RES); }
+      cv.width = Math.round(GW*RES); cv.height = Math.round(GH*RES);
+      c.setTransform(RES, 0, 0, RES, 0, 0);
+      c.imageSmoothingEnabled = true;
     }
-    (function sky(){
-      c.setTransform(1,0,0,1,0,0);
-      c.globalAlpha = 1;
-      c.fillStyle = '#000'; c.fillRect(0,0,cv.width,cv.height);
-      if(neb.complete && neb.naturalWidth){
-        if(nebA < 1) nebA = Math.min(1, nebA + 0.02);
-        var sc = Math.max(cv.width/neb.naturalWidth, cv.height/neb.naturalHeight);
-        var nw = neb.naturalWidth*sc, nh = neb.naturalHeight*sc;
-        c.globalAlpha = nebA;
-        c.drawImage(neb, (cv.width-nw)/2, (cv.height-nh)/2, nw, nh);
-        c.globalAlpha = 1;
+    // starLayers() of 61_glow.js, rule for rule
+    function buildStars(k){
+      var SPEC = [{n:520, s:[0.25,0.55], b:[0.30,0.70], par:0.35},
+                  {n:140, s:[0.45,0.85], b:[0.55,0.95], par:0.7},
+                  {n:14,  s:[0.8,1.2],   b:[0.85,1.0],  par:1.1}];
+      var TINTS = [[255,255,255],[205,220,255],[255,236,214],[220,232,255],[255,250,235]];
+      layers = [];
+      for(var li=0; li<SPEC.length; li++){
+        var L = SPEC[li];
+        var lc = document.createElement('canvas');
+        lc.width = Math.round(GW*k); lc.height = Math.round(GH*k);
+        var g = lc.getContext('2d'); g.scale(k, k);
+        for(var i=0; i<L.n; i++){
+          var x = Math.random()*GW, y = Math.random()*GH;
+          var sz = L.s[0] + Math.random()*(L.s[1]-L.s[0]);
+          var br = L.b[0] + Math.random()*(L.b[1]-L.b[0]);
+          var t = TINTS[(Math.random()*TINTS.length)|0];
+          var rgb = t[0]+','+t[1]+','+t[2];
+          var offs = [0, -GW, GW], offy = [0, -GH, GH];
+          for(var oa=0; oa<3; oa++) for(var ob=0; ob<3; ob++){
+            var px = x + offs[oa], py = y + offy[ob];
+            if(px < -8 || px > GW+8 || py < -8 || py > GH+8) continue;
+            var gr = g.createRadialGradient(px, py, 0, px, py, sz*2.2);
+            gr.addColorStop(0, 'rgba('+rgb+','+br.toFixed(3)+')');
+            gr.addColorStop(0.18, 'rgba('+rgb+','+(br*0.85).toFixed(3)+')');
+            gr.addColorStop(0.32, 'rgba('+rgb+','+(br*0.18).toFixed(3)+')');
+            gr.addColorStop(1, 'rgba('+rgb+',0)');
+            g.fillStyle = gr; g.beginPath(); g.arc(px, py, sz*2.2, 0, 6.2832); g.fill();
+          }
+        }
+        layers.push({c: lc, par: L.par});
       }
-      for(var i=0;i<stars.length;i++){ var s = stars[i];
-        s[0] -= s[3]; if(s[0] < -2){ s[0] = cv.width+2; s[1] = Math.random()*cv.height; }
-        c.fillStyle = 'rgba(210,220,255,' + (0.25 + s[2]*0.45) + ')';
-        c.fillRect(s[0], s[1], s[2], s[2]); }
-      for(var k=0;k<bods.length;k++){
-        var b = bods[k], g = b.img;
-        b.x += b.vx; if(b.x < -0.4) b.x = 1.4;
-        if(!g.complete || !g.naturalWidth) continue;
-        var w = cv.width*b.w, h = w*g.naturalHeight/g.naturalWidth;
-        var x0 = cv.width*b.x - w/2, y0 = cv.height*b.y - h/2;
-        if(b.d.kind === 'sun'){
-          var gr = c.createRadialGradient(x0+w/2, y0+h/2, w*0.42, x0+w/2, y0+h/2, w*1.25);
-          gr.addColorStop(0, 'rgba(255,224,160,0.22)');
-          gr.addColorStop(0.55, 'rgba(255,180,90,0.08)');
+    }
+    // rollBodies() and makeBody() of 20_render.js, same numbers
+    function roll(){
+      var used = [];
+      function add(kind){
+        var pool = [];
+        for(var i=0; i<POOL.length; i++)
+          if(POOL[i].kind === kind && used.indexOf(POOL[i].key) < 0) pool.push(POOL[i]);
+        if(!pool.length) return;
+        var d = pool[(Math.random()*pool.length)|0];
+        used.push(d.key);
+        var sun = kind === 'sun';
+        var wMin = sun ? 90 : 150, wMax = sun ? 900 : 420;
+        var w = wMin + Math.random()*(wMax - wMin);
+        bodies.push({key: d.key, kind: kind, d: d, w: w,
+          x: -w*0.3 + Math.random()*(GW + w*0.6),
+          y: GHUD - w*0.25 + Math.random()*(GH - GHUD + w*0.5),
+          spd: 0.03 + (w/900)*(0.13 - 0.03)});
+        var im = new Image();
+        im.onload = function(){
+          var bc = document.createElement('canvas');
+          bc.width = im.naturalWidth; bc.height = im.naturalHeight;
+          bc.getContext('2d').drawImage(im, 0, 0);
+          bodyImgs[d.key] = bc;
+        };
+        im.src = 'bodies/' + d.file;
+      }
+      var n = (Math.random()*3)|0;                 // BODY_PLANET_MAX = 2
+      for(var i=0; i<n; i++) add('planet');
+      if(Math.random() < 0.40) add('sun');         // SUN_CHANCE
+      bodies.sort(function(a, b){ return a.w - b.w; });
+    }
+    // The nebula is a few megabytes. It is fetched beside the sequence and
+    // appears when it is here - the sequence never waits for it.
+    var ni = new Image();
+    ni.onload = function(){
+      var nc = document.createElement('canvas');
+      nc.width = ni.naturalWidth; nc.height = ni.naturalHeight;
+      nc.getContext('2d').drawImage(ni, 0, 0);
+      neb = nc;
+    };
+    ni.src = 'nebulae/neb_' + nebName + '.png';
+
+    roll(); fit();
+    window.addEventListener('resize', fit);
+
+    function frame(){
+      fc++;
+      c.setTransform(RES, 0, 0, RES, 0, 0);
+      c.globalAlpha = 1;
+      c.fillStyle = '#000'; c.fillRect(0, 0, GW, GH);
+      if(neb){                                     // drawNebFit
+        var sc = Math.max(GW/neb.width, GH/neb.height);
+        var dw = neb.width*sc, dh = neb.height*sc;
+        c.drawImage(neb, (GW-dw)/2, (GH-dh)/2, dw, dh);
+      }
+      for(var li=0; li<layers.length; li++){       // drawStars, title drift
+        var l = layers[li], ox = -fc*0.35*l.par;
+        ox = ((ox % GW) + GW) % GW;
+        c.drawImage(l.c, ox-GW, 0, GW, GH);
+        c.drawImage(l.c, ox, 0, GW, GH);
+      }
+      for(var bi=0; bi<bodies.length; bi++){       // tickBodies + drawBodies
+        var b = bodies[bi], g = bodyImgs[b.key];
+        b.x -= b.spd;
+        if(b.x + b.w < -40) b.x = GW + b.w*0.5 + Math.random()*200;
+        if(!g) continue;
+        var w = b.w, h = w*g.height/g.width, x0 = b.x - w/2, y0 = b.y - h/2;
+        if(b.kind === 'sun'){
+          var gw = Math.min(0.30, (w/900)*0.30 + 0.06);
+          var gr = c.createRadialGradient(b.x, b.y, w*0.42, b.x, b.y, w*1.25);
+          gr.addColorStop(0, 'rgba(255,224,160,'+gw.toFixed(3)+')');
+          gr.addColorStop(0.55, 'rgba(255,180,90,'+(gw*0.35).toFixed(3)+')');
           gr.addColorStop(1, 'rgba(255,150,60,0)');
-          c.save(); c.globalCompositeOperation = 'lighter';
-          c.fillStyle = gr; c.fillRect(x0-w*0.8, y0-w*0.8, w*2.6, w*2.6); c.restore();
+          c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = gr;
+          c.fillRect(b.x-w*1.3, b.y-w*1.3, w*2.6, w*2.6); c.restore();
         }
         c.save();
-        // cx, cy and r mark the disc inside the picture: one stored as JPEG
-        // has no alpha of its own and is cut out by this circle. r == 0
-        // means the picture brings its own alpha - then nothing is cut.
+        // r == 0 means the picture brings its own alpha; otherwise the disc
+        // inside it is cut out, exactly as the game does it
         if(b.d.r > 0){
           c.beginPath();
-          c.arc(x0 + w*b.d.cx/g.naturalWidth, y0 + h*b.d.cy/g.naturalHeight,
-                w*b.d.r/g.naturalWidth, 0, 6.2832);
+          c.arc(x0 + w*b.d.cx/g.width, y0 + h*b.d.cy/g.height, w*b.d.r/g.width, 0, 6.2832);
           c.clip();
         }
         c.drawImage(g, x0, y0, w, h);
         c.restore();
       }
-      // the same veil the start screen lays over its sky, so type reads
-      var v = c.createLinearGradient(0, 0, 0, cv.height);
+      var v = c.createLinearGradient(0, 0, 0, GH);  // the start screen's veil
       v.addColorStop(0.00, 'rgba(0,0,8,0.20)');
       v.addColorStop(0.45, 'rgba(0,0,8,0.42)');
       v.addColorStop(1.00, 'rgba(0,0,8,0.78)');
-      c.fillStyle = v; c.fillRect(0, 0, cv.width, cv.height);
-      requestAnimationFrame(sky);
-    })();
+      c.fillStyle = v; c.fillRect(0, 0, GW, GH);
+      requestAnimationFrame(frame);
+    }
+    frame();
+
+    // what the game is handed when it takes over
+    SKY = function(){
+      return {stars: layers.map(function(l){ return l.c; }), par: [0.35, 0.7, 1.1],
+              nebName: nebName, neb: neb, bodies: bodies, bodyImgs: bodyImgs, fc: fc};
+    };
+
     var el = document.getElementById('intro');
     el.className = 'play';
     function end(){

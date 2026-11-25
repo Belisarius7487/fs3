@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v358, M1 bis M28 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v359, M1 bis M28 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v358:** Spiel und Ladeseite zeigen denselben Nebel, Planeten und Sonnen erscheinen wirklich, und unter dem Balken steht keine Aufforderung mehr | v354–v358 |
+| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt | v354–v359 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
@@ -6426,3 +6426,44 @@ Hintergründe, aber keine Planeten/Sonnen."
    überhaupt keine Sonnen; `loader_bodies` nimmt jetzt die zwei kleinsten
    Planeten **und** die kleinste Sonne, und eine Sonne bekommt denselben
    warmen Schein wie im Spiel.
+
+### Nachtrag v359 (25.11.2026) — ein Himmel statt zwei
+
+Silvio, nach v358: „1. Der Hintergrund lädt praktisch zweimal und das sieht
+man, sobald der Ladebalken auftaucht. 2. Wenn der Ladebalken auftaucht haben
+die vorbeiziehenden Sterne im Hintergrund plötzlich eine andere Dichte und
+Geschwindigkeit. 3. Es lädt immer dasselbe Planetenbild, egal wie oft ich F5
+drücke. 4. Die plötzliche Abdunklung beim Startbildschirm fällt auch negativ
+auf. … Alles in allem würde ich vorschlagen, dass du den kompletten Ablauf
+nicht in unterschiedliche Dateien packst, sondern sicherstellst, dass
+Title-Screen, Ladebildschirm und Startbildschirm ohne Neuladen einzelner
+Elemente auskommen."
+
+Alle vier Punkte hatten dieselbe Ursache: **es gab zwei Himmel.** Die
+Ladeseite zeichnete einen eigenen und das Spiel danach seinen eigenen.
+Deshalb jetzt **ein einziger**, in der Ladeseite erzeugt und dem Spiel
+übergeben:
+
+- Die Ladeseite rechnet im **selben Bild wie das Spiel**: 800 × 500,
+  mittig, mit schwarzen Balken an den Seiten (`applyResolution`
+  nachgebaut). Vorher rechnete sie in Fensterpunkten, weshalb derselbe
+  Nebel in anderem Ausschnitt lag und beim Übergang sichtbar sprang.
+- Sie baut die **drei Sternebenen nach `starLayers()`** — dieselben 520,
+  140 und 14 Sterne, dieselben Größen, Helligkeiten und Farbstiche, dieselbe
+  Drift `fc*0.35*par`. Übergeben werden die fertigen Zeichenflächen; eine
+  abgelöste Zeichenfläche übersteht `document.write` (nachgemessen), ein
+  Bild nicht zuverlässig, deshalb werden auch Nebel und Planeten in
+  Zeichenflächen übertragen.
+- **Planeten und Sonnen** werden nicht mehr in die Seite eingebettet,
+  sondern von `build_game.py` als Dateien daneben gelegt (`bodies/`, dazu
+  eine Liste im Platzhalter `@@PLANETS@@`). Die Seite würfelt daraus wie
+  `rollBodies()` — null bis zwei Planeten, Sonne mit 40 % — also bei jedem
+  Neuladen anders. Das war Punkt 3: vorher lagen die zwei **kleinsten**
+  fest in der Seite.
+- **Der Schleier** liegt jetzt auch über der Ladephase im Spiel, nicht erst
+  auf dem Startbildschirm. Das war Punkt 4.
+- Die Übergabe steht in `window.FS3_SKY` (Sternebenen, Nebelname und
+  -fläche, Körper mit Ort und Tempo, ihre Bilder, `fc`). Im Spiel nehmen
+  `nebCur`/`NEBS`, `bodies`/`BODY_IMG`, `starLayers()` und `fc` sie
+  unverändert an. Ist nichts da — die Logikdatei ohne Ladeseite geöffnet —
+  läuft alles wie vorher.
