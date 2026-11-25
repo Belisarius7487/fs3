@@ -221,6 +221,16 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     // (Silvio, 25.11.2026). So the sky is fetched first and the rest is
     // held back until it is in - at most a moment, never longer.
     var pending = 0, started = false;
+    // A canvas carries neither complete nor naturalWidth, and the game asks
+    // for both before it draws a picture. Without them a handed-over sky
+    // was skipped for the few frames until the game had fetched its own -
+    // the planets blinked once when the bar came up (Silvio, 25.11.2026).
+    function asImage(cv){
+      cv.complete = true;
+      cv.naturalWidth = cv.width;
+      cv.naturalHeight = cv.height;
+      return cv;
+    }
     function skyIn(){ if(started) return; started = true; beginDownloads(); }
     var nebName = NEBS[(Math.random()*NEBS.length)|0];
 
@@ -297,6 +307,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
           var bc = document.createElement('canvas');
           bc.width = im.naturalWidth; bc.height = im.naturalHeight;
           bc.getContext('2d').drawImage(im, 0, 0);
+          asImage(bc);
           bodyImgs[d.key] = bc;
           if(--pending <= 0) skyIn();
         };
@@ -315,7 +326,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
       var nc = document.createElement('canvas');
       nc.width = ni.naturalWidth; nc.height = ni.naturalHeight;
       nc.getContext('2d').drawImage(ni, 0, 0);
-      neb = nc;
+      neb = asImage(nc);
     };
     ni.src = 'nebulae/neb_' + nebName + '.png';
 
@@ -386,7 +397,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
 
     // what the game is handed when it takes over
     SKY = function(){
-      return {stars: layers.map(function(l){ return l.c; }), par: [0.35, 0.7, 1.1],
+      return {stars: layers.map(function(l){ return asImage(l.c); }), par: [0.35, 0.7, 1.1],
               nebName: nebName, neb: neb, bodies: bodies, bodyImgs: bodyImgs, fc: fc};
     };
 

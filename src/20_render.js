@@ -1196,7 +1196,15 @@ function rollBodies(){
 if(FS3_SKY && FS3_SKY.bodies && FS3_SKY.bodies.length){
   bodies = FS3_SKY.bodies.map(function(b){
     const meta = (b.kind === 'sun' ? SUN_DATA : PLANET_DATA)[b.key];
-    if(FS3_SKY.bodyImgs && FS3_SKY.bodyImgs[b.key]) BODY_IMG[b.key] = FS3_SKY.bodyImgs[b.key];
+    const im = FS3_SKY.bodyImgs && FS3_SKY.bodyImgs[b.key];
+    // drawBodies asks a picture for complete and naturalWidth; a canvas has
+    // neither of its own, so they are stamped on before it is put in.
+    if(im){
+      if(!im.complete) im.complete = true;
+      if(!im.naturalWidth) im.naturalWidth = im.width;
+      if(!im.naturalHeight) im.naturalHeight = im.height;
+      BODY_IMG[b.key] = im;
+    }
     return {key: b.key, kind: b.kind, meta: meta, w: b.w, x: b.x, y: b.y, spd: b.spd};
   }).filter(function(b){ return !!b.meta; });
   usedBodies = bodies.map(function(b){ return b.key; });
