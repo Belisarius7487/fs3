@@ -197,21 +197,73 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     .then(function(){ modelsLeft--; start(null); nextModel(); });
   }
 
-  // ── the title sequence and its sky (F144, v356) ──────────────
+  // ── the title sequence and its sky (F144, v356/v357) ─────────
+  // The game's own backdrop lives in the game file, which is still coming
+  // down while this plays. So the sky is drawn here: one of the nebula
+  // pictures the server has beside this page, stars adrift over it, and a
+  // planet or two that build_game.py puts in (@@PLANETS@@).
   var introDone = false;
   (function(){
+    var NEBS = ["Aldebaran","AlphaCentauri","Antares","BeAquilae","darkspace","Deneb",
+                "DSerpentis","Fomalhaut","R128","Sirius","Vasuda","Vega"];
+    var BODIES = @@PLANETS@@;
     var cv = document.getElementById('sky'), c = cv.getContext('2d'), stars = [];
     function size(){ cv.width = innerWidth; cv.height = innerHeight;
       stars = []; var n = Math.round(cv.width*cv.height/9000);
       for(var i=0;i<n;i++) stars.push([Math.random()*cv.width, Math.random()*cv.height,
         Math.random()*1.3+0.2, Math.random()*0.22+0.04]); }
     size(); addEventListener('resize', size);
+    // The nebula is a couple of megabytes, so it fades in when it is here
+    // rather than holding the sequence up.
+    var neb = new Image(), nebA = 0;
+    neb.src = 'nebulae/neb_' + NEBS[Math.floor(Math.random()*NEBS.length)] + '.png';
+    // Each planet drifts slowly across, the way the start screen rolls them.
+    var bods = [];
+    for(var bi=0; bi<BODIES.length; bi++){
+      var im = new Image(); im.src = BODIES[bi].src;
+      bods.push({d: BODIES[bi], img: im,
+                 w: 0.18 + Math.random()*0.22,          // share of the width
+                 x: Math.random(), y: 0.2 + Math.random()*0.6,
+                 vx: -(0.000018 + Math.random()*0.000022)});
+    }
     (function sky(){
+      c.setTransform(1,0,0,1,0,0);
+      c.globalAlpha = 1;
       c.fillStyle = '#000'; c.fillRect(0,0,cv.width,cv.height);
+      if(neb.complete && neb.naturalWidth){
+        if(nebA < 1) nebA = Math.min(1, nebA + 0.02);
+        var sc = Math.max(cv.width/neb.naturalWidth, cv.height/neb.naturalHeight);
+        var nw = neb.naturalWidth*sc, nh = neb.naturalHeight*sc;
+        c.globalAlpha = nebA;
+        c.drawImage(neb, (cv.width-nw)/2, (cv.height-nh)/2, nw, nh);
+        c.globalAlpha = 1;
+      }
       for(var i=0;i<stars.length;i++){ var s = stars[i];
         s[0] -= s[3]; if(s[0] < -2){ s[0] = cv.width+2; s[1] = Math.random()*cv.height; }
         c.fillStyle = 'rgba(210,220,255,' + (0.25 + s[2]*0.45) + ')';
         c.fillRect(s[0], s[1], s[2], s[2]); }
+      for(var k=0;k<bods.length;k++){
+        var b = bods[k], g = b.img;
+        b.x += b.vx; if(b.x < -0.4) b.x = 1.4;
+        if(!g.complete || !g.naturalWidth) continue;
+        var w = cv.width*b.w, h = w*g.naturalHeight/g.naturalWidth;
+        var x0 = cv.width*b.x - w/2, y0 = cv.height*b.y - h/2;
+        // cx, cy and r mark the disc inside the picture: a planet stored as
+        // JPEG has no alpha of its own and is cut out by this circle.
+        c.save();
+        c.beginPath();
+        c.arc(x0 + w*b.d.cx/g.naturalWidth, y0 + h*b.d.cy/g.naturalHeight,
+              w*b.d.r/g.naturalWidth, 0, 6.2832);
+        c.clip();
+        c.drawImage(g, x0, y0, w, h);
+        c.restore();
+      }
+      // the same veil the start screen lays over its sky, so type reads
+      var v = c.createLinearGradient(0, 0, 0, cv.height);
+      v.addColorStop(0.00, 'rgba(0,0,8,0.20)');
+      v.addColorStop(0.45, 'rgba(0,0,8,0.42)');
+      v.addColorStop(1.00, 'rgba(0,0,8,0.78)');
+      c.fillStyle = v; c.fillRect(0, 0, cv.width, cv.height);
       requestAnimationFrame(sky);
     })();
     var el = document.getElementById('intro');

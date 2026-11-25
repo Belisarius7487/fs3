@@ -646,7 +646,9 @@ function f3dLoadBoxShow(){
   }
   if(!F3D_BOX){
     const host = document.createElement('div');
-    host.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:50;background:#000;' +
+    // v357 (Silvio): no black sheet. The game is already drawing its own
+    // sky behind this, so the bar sits on the backdrop instead of on black.
+    host.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:50;' +
       'display:flex;align-items:center;justify-content:center;font-family:Tahoma,"Segoe UI",sans-serif';
     if(lb.cls) host.className = lb.cls;
     const root = host.attachShadow ? host.attachShadow({mode: 'open'}) : host;

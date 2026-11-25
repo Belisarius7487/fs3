@@ -416,7 +416,17 @@ def model_files(root="models"):
     return out
 
 
-def write_loader(path, game):
+def loader_bodies(planets, n=2):
+    """A couple of planets for the loading page. They are embedded there, so
+    the smallest ones are taken - the page has to appear at once."""
+    if not planets:
+        return []
+    keys = sorted(planets, key=lambda k: len(planets[k]["src"]))[:n]
+    return [{"src": planets[k]["src"], "cx": planets[k]["cx"],
+             "cy": planets[k]["cy"], "r": planets[k]["r"]} for k in keys]
+
+
+def write_loader(path, game, planets=None):
     """The loading page: shows at once and fetches the game with a progress
     bar. It needs the game's file name (beside it), its size in bytes (the
     server sends none with gzip) and a stamp against a stale cache."""
@@ -428,7 +438,8 @@ def write_loader(path, game):
     page = (tpl.replace("@@GAME_FILE@@", os.path.basename(game))
                .replace("@@GAME_BYTES@@", str(st.st_size))
                .replace("@@STAMP@@", stamp)
-               .replace("@@MODELS@@", json.dumps(model_files())))
+               .replace("@@MODELS@@", json.dumps(model_files()))
+               .replace("@@PLANETS@@", json.dumps(loader_bodies(planets or {}))))
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(page)
     STATS["Ladeseite"] = path
@@ -553,7 +564,7 @@ def main():
 
     size = os.path.getsize(args.out) / (1024 * 1024)
     if args.loader:
-        write_loader(args.loader, args.out)
+        write_loader(args.loader, args.out, planets)
 
     # --- the short report (Silvio, 16.11.2026) ---
     print("\nFS3 build %s" % STATS.get("Version", "ohne Versionsnummer"))

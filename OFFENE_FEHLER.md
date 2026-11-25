@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v356, M1 bis M28 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v357, M1 bis M28 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach — so, wie Silvio es verlangt hat | v354–v356 |
+| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt | v354–v357 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
@@ -6345,9 +6345,26 @@ So gebaut (`src/67_intro.js`):
   `introDone`). Ist der Vorspann vorbei und noch etwas zu laden, erscheint
   der Balken und läuft zu Ende.
 - **Der Himmel in der Ladeseite ist selbst gezeichnet** (`#sky`, ein
-  Canvas mit treibenden Sternen). Der echte Hintergrund des Spiels samt
-  Planeten steckt in der Spieldatei, die zu diesem Zeitpunkt noch geladen
-  wird — **Planeten gibt es auf der Ladeseite deshalb nicht.**
+  Canvas). Silvio, 25.11.2026: „es fehlt das Hintergrundbild sowohl beim
+  Intro als auch während der Ladebalken läuft. Nur die Sterne sind im Intro
+  zu sehen. Beim Ladebalken wird der Hintergrund sogar komplett schwarz,
+  ohne Sterne." Seit **v357** zeichnet die Ladeseite deshalb dasselbe Bild
+  wie der Startbildschirm:
+  - **Nebel:** einer der zwölf Hintergründe aus `nebulae/` neben der Seite.
+    Die liegen als Dateien auf dem Server (`build.sh` kopiert sie), sind
+    aber einige Megabyte groß, also wird der Nebel nebenher geholt und
+    eingeblendet, wenn er da ist — der Vorspann wartet nicht auf ihn.
+  - **Planeten:** `build_game.py` legt der Ladeseite die beiden **kleinsten**
+    Planetenbilder bei (`loader_bodies`, Platzhalter `@@PLANETS@@`); sie
+    treiben langsam durchs Bild. Klein deshalb, weil sie in der Seite
+    stecken und die Seite sofort da sein muss. Ein Planet, der als JPEG
+    ohne Alpha gespeichert ist, wird über seinen Kreis (`cx`, `cy`, `r`)
+    ausgeschnitten — genau wie im Spiel.
+  - **Derselbe Schleier** wie auf dem Startbildschirm liegt darüber.
+- **Der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt** (v357).
+  Er lag als schwarze Fläche über allem; dahinter zeichnet das Spiel zu
+  diesem Zeitpunkt längst seinen eigenen Himmel. Jetzt sitzt der Balken auf
+  dem Hintergrund statt auf Schwarz.
 - **Die Fassung im Spiel bleibt als Rückfall** für die Logikdatei, die ohne
   Ladeseite geöffnet wird. Die Ladeseite setzt `window.FS3_INTRO_PLAYED`,
   bevor sie übergibt; `introOn()` liest das und hält sich dann heraus.
