@@ -81,6 +81,13 @@ Escape Pods beschützt werden müssen, könnte dastehen ‚Protect Escape Pods
 Text grün (für voller Erfolg), bei 1, 2 oder 3 von 4 gelb (für Teilerfolg)
 oder wenn alle verloren gegangen sind rot (für Objective verfehlt)."
 
+**v369 (Silvio, 26.11.2026):** Ein Auftragsknopf ist nur so breit, wie sein
+eigener Text ihn braucht, und wird nicht über den ganzen Streifen gezogen.
+Dazu trägt jeder einen deutlich sichtbaren, langsam schwellenden Leuchtring
+(„damit er nicht zu leicht übersehen wird"); die Knöpfe schwellen leicht
+versetzt, damit sie nicht im Gleichtakt pochen. Passen sie zusammen nicht in
+den Streifen, teilen sie ihn nach Textlänge auf.
+
 **Weitere Festlegungen aus demselben Gespräch:**
 
 - **Besprechungstexte beschreiben unsere Mission, nicht die Vorlage** — „weil

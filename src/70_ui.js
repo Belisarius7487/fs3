@@ -2035,13 +2035,26 @@ function drawBarObjectives(x0, y0, w, h){
   window._objBtns = [];
   const list = objBarList();
   if(!list.length) return;
-  const gap = 3, bh = h - 2, bw = (w - gap*(list.length-1)) / list.length;
+  const gap = 4, bh = h - 2, pad = 14;
   ctx.textBaseline = 'middle';
+  // Silvio, 26.11.2026: each button only as wide as its own words need, not
+  // stretched over the whole strip. If they do not all fit, they share what
+  // there is in proportion to their length and thFit cuts what is over.
+  const labs = list.map(objBarLabel);
+  ctx.font = thValue(8, true);
+  const want = labs.map(t => Math.ceil(ctx.measureText(t).width) + pad);
+  const room = w - gap*(list.length-1);
+  let sum = want.reduce((a, b) => a + b, 0);
+  const wide = sum > room ? want.map(v => v*room/sum) : want;
+  let bx = x0;
   for(let i = 0; i < list.length; i++){
-    const o = list[i], bx = x0 + i*(bw+gap);
+    const o = list[i], bw = wide[i];
     const rr = {x:bx, y:y0, w:bw, h:bh, o:o};
     const can = !!objBarTarget(o), hov = can && hovering(bx, y0, bw, bh);
     thButton(bx, y0, bw, bh, hov ? 'ready' : null);
+    // A slow swell on the ring, so an order is not overlooked in a fight
+    // (Silvio: "ein deutlich sichtbarer, leicht wabernder Glow").
+    thGlowPath(bx, y0, bw, bh, 4, 0.55 + 0.45*Math.sin(fc*0.045 + i*0.9));
     // Blinking belongs to the moment an order is settled, not to its
     // whole life - a bar that never stops moving is the clutter again.
     let a = 1;
@@ -2049,11 +2062,12 @@ function drawBarObjectives(x0, y0, w, h){
     if(o.st !== 'open' && age < OBJ_BAR_BLINK) a = 0.4 + 0.6*Math.abs(Math.sin(age*0.16));
     ctx.globalAlpha = a;
     ctx.fillStyle = MLOG_COL[o.st] || TH('text');
-    ctx.font = thValue(8, o.st !== 'open');
+    ctx.font = thValue(8, true);
     ctx.textAlign = 'center';
-    ctx.fillText(thFit(objBarLabel(o), bw-8), bx + bw/2, y0 + bh/2 + 0.5);
+    ctx.fillText(thFit(labs[i], bw-6), bx + bw/2, y0 + bh/2 + 0.5);
     ctx.globalAlpha = 1; ctx.textAlign = 'left';
     window._objBtns.push(rr);
+    bx += bw + gap;
   }
 }
 function objBarClick(p){
