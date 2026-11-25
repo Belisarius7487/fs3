@@ -3886,11 +3886,12 @@ const SCRIPT_WAVES = {
       zielKurz:'Protect Aquilae Comm', zielZu:'AC',
       // The briefing describes OUR mission, not the original's (Silvio,
       // 25.11.2026): what stands in this field and what is asked here.
-      brief:{text:'The Lucifer has taken station over the Aquilae installation and is burning her down. '+
-                  'Nothing we have can touch that ship, and the installation will not survive her.\n'+
-                  'What can still be saved is below: the Aquilae Communications carries the traffic of '+
-                  'this whole sector, and the crew of the installation is coming out in escape pods. '+
-                  'The Hope will be here for them. Keep the Shivans off both until she is away.',
+      brief:{text:'The Lucifer has taken station over the Aquilae installation and is burning it down. '+
+                  'Nothing we have can touch her.\n'+
+                  'The crew is abandoning the installation in escape pods. The Hope comes in across '+
+                  'the field to take them aboard.\n'+
+                  'Below the installation stands the Aquilae Communications. She carries the traffic '+
+                  'of this whole sector and she has to hold. Keep the Shivans off her and off the pods.',
              ziele:['Hold the Aquilae Communications',
                     'Get the escape pods aboard the Hope']}, u:[
        // The station: her own entry (ter_aquilae) carries the name and a

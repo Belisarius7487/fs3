@@ -84,7 +84,16 @@ oder wenn alle verloren gegangen sind rot (für Objective verfehlt)."
 **Weitere Festlegungen aus demselben Gespräch:**
 
 - **Besprechungstexte beschreiben unsere Mission, nicht die Vorlage** — „weil
-  wir schon starke Anpassungen vorgenommen haben."
+  wir schon starke Anpassungen vorgenommen haben." Jeder Satz wird an den
+  Einheiten und Ereignissen der Mission nachgelesen, bevor er geschrieben
+  wird. Der erste Text für M28 (v365/v366) behauptete zweierlei Falsches
+  und musste in v367 ersetzt werden (Silvio, 26.11.2026): „Die Escape Pods
+  kommen aus der Station, nicht aus der Faustus und die Hope springt nie
+  weg, sondern bleibt bei Missionsabschluss im Feld."
+- **Kein Komma vor „and"** in englischen Texten (Silvio, 26.11.2026: „vor
+  einem ‚and' steht kein Komma in der normalen Rechtschreibung also lass
+  den Blödsinn"). Gilt für alles Englische: Besprechungen, Aufträge,
+  Protokollzeilen und die Kommentare im Code.
 - **Die Beschriftungen der Knöpfe bleiben kurz** (Silvios Wahl B gegen
   schrumpfende Schrift): „Die Texte immer kurz halten."
 - **Während der Besprechung läuft die Missionsuhr nicht.**
