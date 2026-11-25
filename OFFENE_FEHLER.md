@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v362, M1 bis M28 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v363, M1 bis M28 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F146 | **M29 „Reaching the Zenith" gebaut** (fs1/sm3-04a): der shivanische Kreuzer Zenith bewacht den Sprungknoten nach Altair. Hauptziel ist, sie zu zerstören; Nebenziel ist ihr Funkraum, denn solange der steht, ruft sie Krishna herbei. Dazu zwei Arjuna-Staffeln und Rama, die bei ihr selbst einspringen, `live:9`. Dabei gefunden und mitbehoben: ein Kriegsschiff, dem die Waffen ausgeschossen werden, flieht nach 15 Sekunden (`checkDisarmFlee`) — genau das schlägt das Original-Briefing als Ersatzplan vor, und die Mission wäre damit unlösbar geworden. Die Zenith bekommt `noFlee:true`, wie alle Kreuzer, die zerstört werden sollen. Die alte Mission 29 („The Blockade") ist entfernt, sie stand hinter der neuen und hätte sie stillschweigend überschrieben (F129) | v363 |
 | F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v362:** übergebene Zeichenflächen geben sich jetzt als fertig geladene Bilder aus, sonst blinken die Planeten beim Übergang einmal weg | v354–v362 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
@@ -42,6 +43,54 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
+
+## F146 — M29 „Reaching the Zenith" (v363, 25.11.2026, gebaut, Urteil offen)
+
+Silvio, 25.11.2026, zum Entwurf: „Zerstören klingt gut, aber wir sind schon
+ziemlich am Ende des FS1 Strangs, also können ruhig auch ein paar mehr
+Gegner da sein."
+
+**Die Mission.** Der Weg nach Altair führt durch den Deneb-Sprungknoten,
+bewacht vom shivanischen Kreuzer Zenith (Lilith). Der Knoten steht als
+Kulisse am rechten Rand (F136), die Zenith davor, beide stehen still.
+
+| Wer | Wann |
+|---|---|
+| Beta, 2 Medusa-Bomber (eigene) | von Anfang an |
+| Gamma, 2 Hercules (eigene) | von Anfang an |
+| Zenith, Lilith-Kreuzer | von Anfang an, steht still |
+| Arjuna, 3 Manticore | Sekunde 4, neben der Zenith |
+| Arjuna, 3 Manticore | Sekunde 34, neben der Zenith |
+| Rama, 2 Dragon | unter 92 % Rumpf, springen bei der Zenith ein |
+| Krishna, 3 Scorpion | Sekunde 52 — **nur solange ihr Funkraum steht** |
+
+Hauptziel: die Zenith zerstören. Nebenziel: ihren Funkraum ausschalten.
+Das ist keine eigens gebaute Mechanik — ein Großkampfschiff mit heilem
+Funkraum ruft von sich aus Jäger (`sendInterceptors`), und `tickComms`
+streicht beim Verlust des Funkraums alles, was noch an Staffeln in der
+Warteschlange steht. Das Nebenziel gilt als verfehlt, sobald Krishna da
+ist: dann ist der Ruf nachweislich durchgegangen. Am Tod der Zenith ließe
+es sich nicht mehr unterscheiden, weil der Auslöser `subsystem` falsch
+meldet, sobald das Schiff selbst weg ist.
+
+**Dabei gefunden: ein entwaffneter Kreuzer flieht.** `checkDisarmFlee`
+gibt jedem Kriegsschiff, dessen Waffen ausfallen, eine Fluchtuhr von 15
+Sekunden. Das Original-Briefing schlägt aber genau das als Ersatzplan vor
+(„go after all weapons systems"). In `fieldsim` sprang die Zenith dadurch
+um Sekunde 44 ab, und das Hauptziel war nicht mehr erreichbar. Sie bekommt
+deshalb `noFlee:true`, wie jeder Kreuzer, der zerstört werden soll. Die
+Prüfung dafür steht als `notDisarmFled` im ersten Szenario und war ohne
+`noFlee` rot. M23 traf das nicht: die Eva ist ein Zerstörer, und für die
+springt `checkDisarmFlee` vorher heraus.
+
+**Die alte Mission 29 („The Blockade") ist entfernt.** Sie stand hinter
+der neuen in der Liste und hätte sie stillschweigend überschrieben — der
+Fall aus F129.
+
+**Geprüft:** `./checks.sh --fast` grün, beide `fieldsim`-Szenarien zu M29
+grün (Funkraum zuerst → Krishna bleibt weg; Funkraum heil → Rama und
+Krishna kommen, Nebenziel verfehlt; beide Wege enden). `warpsim` über
+Mission 29 meldet nur den bekannten „stop" aus F132.
 
 ## F143 — Staffel warpt am Ende ein und sofort wieder aus (v353, 25.11.2026, behoben und bestätigt)
 

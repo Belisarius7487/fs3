@@ -3947,6 +3947,66 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'AC', d:6, w:'abzug', a2:'', hold:true}
      ]},
 
+  // Reaching the Zenith (fs1/sm3-04a). The road to Altair runs through the
+  // Deneb jump node, and the only thing guarding it is the Shivan cruiser
+  // Zenith with her two patrol wings. The briefing's own plan is the
+  // mission: silence her radio room first, or she keeps calling wings in.
+  // That is not scripted - a capital ship with a live communication
+  // subsystem scrambles interceptors by itself (sendInterceptors in
+  // 40_world.js) - so the subsystem is a real choice, and Krishna on top
+  // of it. Silvio, 25.11.2026: destroying her is the primary order, and
+  // "wir sind schon ziemlich am Ende des FS1 Strangs, also koennen ruhig
+  // auch ein paar mehr Gegner da sein" - hence live:9, a second Arjuna
+  // wave, and the late wings springing in at the cruiser herself (at:'ZE')
+  // instead of at the edge, where their approach would be dead time.
+  // Alpha flies the Ulysses she flies in the original. No rearm: no carrier
+  // of ours is in the original's field (F22). The old mission 29 ("The
+  // Blockade") is gone - it sat behind this one in the list and would have
+  // overwritten it without a word (see F129).
+  29:{name:'Reaching the Zenith', era:'fs1', orig:25, ship:'fiulysses',
+      pri:['prom1','banshee'], fac:'hol', o:'clear', live:9,
+      ziel:'Destroy the cruiser Zenith',
+      nodes:[{id:'AL', x:772, y:266, label:'Altair Jump Node'}], u:[
+       {id:'BE', c:'bo', n:1, size:2, spr:'bomedusa', side:'ally'},
+       {id:'GA', c:'fi', n:1, size:2, spr:'fiherc', side:'ally'},
+       // noFlee: a warship that loses her guns runs after 15 seconds
+       // (checkDisarmFlee). The briefing's own fallback is to shoot her
+       // weapons out, so without this the mission can be made unwinnable
+       // by doing what the briefing asks. Measured in fieldsim: she jumped
+       // out around second 44 of a run and the order could never be met.
+       {id:'ZE', mark:'destroy', c:'cr', n:1, spr:'crlilith', fac:'shivan',
+        still:true, noFlee:true, x:600, y:266, label:'SC Zenith'},
+       {id:'AR', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan',
+        t:4, x:556, y:212, label:'SF Arjuna'},
+       {id:'A2', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan',
+        t:34, x:560, y:322, label:'SF Arjuna'},
+       {id:'RA', c:'fi', n:1, size:2, spr:'fidragon', fac:'shivan',
+        wait:true, at:'ZE', label:'SF Rama'},
+       {id:'KR', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan',
+        wait:true, at:'ZE', label:'SF Krishna'}
+     ], ev:[
+       {t:'sek', a:3, w:'nebenziel', a2:'Knock out the communications on the Zenith'},
+       {t:'subsystem', a:'ZE', b:'communication', w:'nebenOk', a2:'The Zenith is cut off'},
+       {t:'subsystem', a:'ZE', b:'communication', d:1, w:'meldung',
+        a2:'Her radio room is gone - no more wings will answer her'},
+       // Rama is already on patrol with her, so she comes either way
+       {t:'rumpfUnter', a:'ZE', b:92, w:'meldung', a2:'Shivan superiority fighters closing in'},
+       {t:'rumpfUnter', a:'ZE', b:92, d:1, w:'einwarpen', a2:'RA'},
+       // Krishna answers the call - only while there is a call to answer
+       {t:'sek', a:52, solange:{t:'subsystem', a:'ZE', b:'communication'},
+        w:'meldung', a2:'The Zenith is calling for reinforcements'},
+       {t:'sek', a:52, d:3, solange:{t:'subsystem', a:'ZE', b:'communication'},
+        w:'einwarpen', a2:'KR'},
+       // Krishna out of the node proves the call went through, so that is
+       // where the secondary order is missed - not at her death, where a
+       // 'solange' guard could not tell the two cases apart any more (the
+       // subsystem trigger reads false once the ship itself is gone).
+       {t:'da', a:'KR', w:'nebenFail', a2:'Her call got out - Krishna is answering it'},
+       {t:'vernichtet', a:'ZE', w:'zielerfuellt', a2:'The Zenith is destroyed - the way to Altair is open'},
+       {t:'vernichtet', a:'ZE', w:'nachschub', a2:'aus'},
+       {t:'vernichtet', a:'ZE', d:2, w:'abzug', a2:''}
+     ]},
+
   // Tenderizer (fs1/sm2-05a). Alpha patrols the Antares-Beta Aquilae jump
   // node while the Galatea passes through. The Vasudans escalate: Anubis
   // fighters, then Osiris bombers on the Galatea, then Seths packed with
@@ -4423,15 +4483,6 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
        {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
        {t:'zerstoert', a:'V3', w:'nachschub', a2:'aus'}
-     ]},
-
-  29:{name:'The Blockade', fac:'hol', o:'guard', live:5, u:[
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:1.1},
-       {id:'V1', c:'co', n:2, spr:'cosobek', hp:0.7},
-       {id:'E1', c:'fi', n:2}
-     ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
-       {t:'alleZerstoert', a:'V1', w:'nachschub', a2:'aus'}
      ]},
 
   // ── NTF CYCLE ─────────────────────────────────────────────

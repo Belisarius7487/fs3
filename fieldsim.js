@@ -7441,6 +7441,55 @@ scenario('FS1 M27 v351 Last Hope: the Hope destroyed - the mission still ends', 
   r.resultShown = FS.until(()=>MLOG.objs.some(function(o){ return o.st==='fail'; }), 600, true, true) >= 0;
   r.ends = FS.until(()=>waveOver || wave>27, 800, true, true) >= 0;
   return r;`);
+// F146 (M29): the briefing's own plan is the mission - her radio room dies
+// first, or she calls Krishna in. Both branches have to reach an end. The
+// cruiser is held up with a huge hull here, so the clock can run past her
+// call-in time without her own escort finishing the mission first.
+scenario('FS1 M29 v363 Reaching the Zenith: her radio room dies first, Krishna never answers, the cruiser dies, end', 'm=29', `
+  const r = {};
+  r.isZenith = (SCRIPT_WAVES[29]||{}).name === 'Reaching the Zenith';
+  r.hasNode = ((SCRIPT_WAVES[29]||{}).nodes||[]).length === 1;
+  FS.until(()=>byId('ZE').length===1, 400, false);
+  const ze = byId('ZE')[0];
+  r.cruiserThere = !!ze;
+  r.hasSubs = !!ze && !!ze.subs && ze.subs.length === 5;
+  ze.maxHp = 1e7; ze.hp = 1e7;
+  r.secondaryAsked = FS.until(()=>MLOG.objs.some(o=>o.side==='neben' && o.st==='open'), 400, true, false) >= 0;
+  // The radio room goes, as the briefing asks.
+  for(const s of (ze.subs||[])) if(s.id==='communication'){ s.dead = true; s.hp = 0; }
+  r.secondaryDone = FS.until(()=>MLOG.objs.some(o=>o.side==='neben' && o.st==='done'), 400, true, false) >= 0;
+  // Well past the 52 seconds at which she would have called Krishna in.
+  // Her fighters are left flying: clearing them every second makes the
+  // wave count as cleared and ends the mission before the clock is up.
+  FS.step(80*TICK_HZ);
+  r.krishnaStayedAway = !EV_SEEN.KR;
+  r.atSecond = Math.round(spawnT/TICK_HZ);
+  // F146: with her guns shot out she used to run (checkDisarmFlee)
+  r.notDisarmFled = byId('ZE').length === 1;
+  r.cruiserStillUp = byId('ZE').length === 1;
+  ze.hp = 0; damageEnemy(ze, 9e7, ze.x, ze.y, false, 'bolt');
+  r.goalMet = FS.until(()=>MLOG.objs.some(o=>!o.side && o.st==='done'), 600, true, false) >= 0;
+  r.ends = FS.until(()=>waveOver || wave>29, 800, true, false) >= 0;
+  return r;`);
+
+scenario('FS1 M29 v363 Reaching the Zenith: radio room left alone - Rama and Krishna come, secondary missed, end', 'm=29', `
+  const r = {};
+  FS.until(()=>byId('ZE').length===1, 400, false);
+  const ze = byId('ZE')[0];
+  // Held up, but under the 92 % that calls Rama out of her patrol.
+  ze.maxHp = 1e7; ze.hp = 1e7*0.85;
+  r.ramaCame = FS.until(()=>!!EV_SEEN.RA, 600, true, false) >= 0;
+  // Her radio room is left alone: after 52 seconds the call goes out and
+  // Krishna springs in at the cruiser herself.
+  FS.step(70*TICK_HZ);
+  r.krishnaCame = !!EV_SEEN.KR;
+  r.secondaryMissed = MLOG.objs.some(o=>o.side==='neben' && o.st==='fail');
+  r.cruiserStillUp = byId('ZE').length === 1;
+  ze.hp = 0; damageEnemy(ze, 9e7, ze.x, ze.y, false, 'bolt');
+  r.goalMet = FS.until(()=>MLOG.objs.some(o=>!o.side && o.st==='done'), 600, true, false) >= 0;
+  r.ends = FS.until(()=>waveOver || wave>29, 800, true, false) >= 0;
+  return r;`);
+
 scenario('v309 F109: riding cargo jumps through its freighter vortex', 'm=8', `
   const r = {};
   FS.step(60);
