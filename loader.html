@@ -339,6 +339,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
         c.drawImage(l.c, ox-GW, 0, GW, GH);
         c.drawImage(l.c, ox, 0, GW, GH);
       }
+      var dim = 0;
       for(var bi=0; bi<bodies.length; bi++){       // tickBodies + drawBodies
         var b = bodies[bi], g = bodyImgs[b.key];
         b.x -= b.spd;
@@ -346,7 +347,8 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
         if(!g) continue;
         var w = b.w, h = w*g.height/g.width, x0 = b.x - w/2, y0 = b.y - h/2;
         if(b.kind === 'sun'){
-          var gw = Math.min(0.30, (w/900)*0.30 + 0.06);
+          dim = Math.max(dim, Math.min(0.35, (w/900)*0.35));   // BODY_DIM_MAX
+          var gw = Math.min(0.30, (w/900)*0.30 + 0.06);        // SUN_GLOW_MAX
           var gr = c.createRadialGradient(b.x, b.y, w*0.42, b.x, b.y, w*1.25);
           gr.addColorStop(0, 'rgba(255,224,160,'+gw.toFixed(3)+')');
           gr.addColorStop(0.55, 'rgba(255,180,90,'+(gw*0.35).toFixed(3)+')');
@@ -356,14 +358,22 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
         }
         c.save();
         // r == 0 means the picture brings its own alpha; otherwise the disc
-        // inside it is cut out, exactly as the game does it
+        // is cut out as a circle. cx, cy and r are shares of the picture,
+        // not pixels (build_game.py rounds them to four decimals) - read as
+        // pixels the radius came out under half a point and nothing was
+        // drawn at all, which is why the planets only turned up once the
+        // game took over (Silvio, 25.11.2026).
         if(b.d.r > 0){
           c.beginPath();
-          c.arc(x0 + w*b.d.cx/g.width, y0 + h*b.d.cy/g.height, w*b.d.r/g.width, 0, 6.2832);
+          c.arc(x0 + b.d.cx*w, y0 + b.d.cy*h, b.d.r*w*0.995, 0, 6.2832);
           c.clip();
         }
         c.drawImage(g, x0, y0, w, h);
         c.restore();
+      }
+      if(dim > 0){                                  // a big sun darkens the rest
+        c.fillStyle = 'rgba(4,6,12,' + dim.toFixed(3) + ')';
+        c.fillRect(0, 0, GW, GH);
       }
       var v = c.createLinearGradient(0, 0, 0, GH);  // the start screen's veil
       v.addColorStop(0.00, 'rgba(0,0,8,0.20)');

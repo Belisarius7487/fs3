@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v360, M1 bis M28 abgenommen)
+## Lage — als Erstes lesen (Stand 25.11.2026, v361, M1 bis M28 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v360:** die Bilder des Himmels werden vor der Spieldatei geholt, sonst erscheinen die Planeten erst mit dem Balken | v354–v360 |
+| F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v361:** die Planeten wurden auf der Ladeseite auf einen Kreis von unter einem halben Bildpunkt zugeschnitten und waren damit unsichtbar | v354–v361 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
@@ -6483,3 +6483,28 @@ hoher Priorität angefordert — und beginnt mit Spieldatei und Modellen
 (`beginDownloads()`), sobald die Planetenbilder da sind. Damit das nie
 hängen bleibt, startet sie spätestens nach 2,5 Sekunden, und ein Bild, das
 gar nicht kommt, zählt wie eines, das da ist.
+
+### Nachtrag v361 (25.11.2026) — die Planeten waren weggeschnitten
+
+Silvio nach v360: „Keine Änderung. Planet ploppt erst mit dem Ladebalken
+auf." Das war der Befund, und v360 hatte die falsche Ursache behoben.
+
+**Auf dem Dev-Server nachgesehen** (eingebauter Browser, Netzwerkliste):
+die Planetenbilder wurden als Erstes angefordert, kamen mit 200 zurück und
+sind **12 KB und 10 KB groß** — an der Reihenfolge oder der Größe lag es
+also nicht. Sichtbar waren sie trotzdem nicht.
+
+Die Ursache stand im Code: `cx`, `cy` und `r` eines Körpers sind **Anteile
+des Bildes, keine Bildpunkte**. Das Spiel rechnet
+`b.meta.r*b.w*0.995`; die Ladeseite rechnete `w*r/Bildbreite`, also bei
+`r = 0,47` einen Radius von etwa 0,4 Bildpunkten — der Kreis schnitt den
+ganzen Planeten weg. Zu sehen war er deshalb erst, wenn das Spiel übernahm
+und ihn selbst richtig zeichnete. Das sah aus wie zu spätes Laden, war aber
+ein Rechenfehler.
+
+Dass mein eigener Test das nicht fand, lag an meinen Testbildern: sie
+hatten einen Alphakanal, also `r = 0`, und damit lief der fehlerhafte
+Zweig gar nicht. **Ein Prüfbild muss den Fall treffen, um den es geht.**
+
+Mitgenommen: die Sonne verdunkelt jetzt auch auf der Ladeseite den Rest des
+Bildes (`BODY_DIM_MAX`), wie im Spiel.
