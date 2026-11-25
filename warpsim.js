@@ -153,6 +153,8 @@ const BODY = `
     // ship with a warp counter running or a vortex still open (FS_PORTALS,
     // its closing phase included), plus DRAW_TAIL steps after it.
     // WARPSIM_DRAW=all draws every step, as before - the cross-check.
+    // F148: dismiss a mission briefing, or the paused game never steps.
+    if(typeof briefOpen !== 'undefined' && briefOpen) briefClose();
     update(); t++;
     let jumpNow = FS_PORTALS.length > 0 || (player.warp > 0) || (player.warpOut > 0);
     if(!jumpNow) for(const e of enemies.concat(allies))

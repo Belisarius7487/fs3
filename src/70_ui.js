@@ -315,9 +315,10 @@ function draw(){
   drawObjCount();
   drawWaveTitle();
   drawSettings();
+  drawBriefing();                         // F148
   // Opening the settings pauses the game, so without this the pause
   // notice printed straight across the panel it had just opened.
-  if(paused && !settingsOpen) drawPaused();
+  if(paused && !settingsOpen && !briefOpen) drawPaused();
   drawDiag();
 }
 
@@ -660,6 +661,85 @@ const MLOG_COL = {open:null, done:'#4dff88', fail:'#ff5533', part:'#ffcc44'};
 const MLOG_WORD = {open:'OPEN', done:'COMPLETE', fail:'FAILED', part:'PARTIAL'};
 const MLOG_TONE = {info:'#7fd6ff', good:'#4dff88', bad:'#ff5533', part:'#ffcc44'};
 function mlogClock(steps){ const s = Math.max(0, Math.floor(steps/TICK_HZ)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+// ── F148: THE BRIEFING BEFORE THE MISSION (Silvio, 25.11.2026) ──
+// The one place where the orders are read in words, before anything is
+// flying. A mission says what stands there itself (brief: {text, ziele}),
+// so nothing that only comes up later can be given away here. The game is
+// stopped while it stands - briefOpen counts as a panel - so the mission
+// clock does not run (Silvio: "Wichtig ist natuerlich, dass waehrend der
+// Zeit zwischen den Missionen [...] die Zeit nicht weiterzaehlt").
+let briefDef = null;
+function briefSet(def){
+  briefDef = (def && def.brief && (def.brief.text || (def.brief.ziele||[]).length))
+    ? {name:String(def.name||''), text:String(def.brief.text||''),
+       ziele:(def.brief.ziele||[]).map(function(z){ return String(z).toUpperCase(); })}
+    : null;
+  briefOpen = !!briefDef;
+  syncPause();
+}
+function briefClose(){
+  if(!briefOpen) return false;
+  briefOpen = false;
+  syncPause();
+  if(GS==='playing') mouseHold();
+  syncCursor();
+  return true;
+}
+// Break a line at spaces to a given width, in the font already set.
+function briefWrap(txt, w){
+  const out = [];
+  for(const para of String(txt||'').split('\n')){
+    let line = '';
+    for(const word of para.split(/\s+/)){
+      if(!word) continue;
+      const t = line ? line + ' ' + word : word;
+      if(line && ctx.measureText(t).width > w){ out.push(line); line = word; }
+      else line = t;
+    }
+    if(line) out.push(line);
+  }
+  return out;
+}
+function drawBriefing(){
+  if(!briefOpen || !briefDef || GS!=='playing') return;
+  const pw = 560, pad = 18, headH = 44, rowH = 20, lineH = 16;
+  ctx.font = thValue(12, false);
+  const body = briefWrap(briefDef.text, pw - 2*pad);
+  const nObj = briefDef.ziele.length;
+  const ph = headH + 14 + body.length*lineH + 18 + 14 + nObj*rowH + 12 + 26;
+  const px = ((W-pw)/2)|0, py = Math.max(HUD_H + 4, ((H-ph)/2)|0);
+  thFrame(px, py, pw, ph, headH);
+  window._briefPanelRect = {x:px, y:py, w:pw, h:ph};
+  const x0 = px + pad, x1 = px + pw - pad;
+  ctx.textBaseline = 'middle';
+  // header: BRIEFING and the mission's name
+  ctx.textAlign = 'left'; ctx.fillStyle = TH('textBright'); ctx.font = thLabel(20);
+  ctx.fillText('BRIEFING', x0, py + headH/2);
+  const bwW = ctx.measureText('BRIEFING').width;
+  if(briefDef.name){
+    ctx.fillStyle = TH('accentWarm'); ctx.font = thValue(13, true);
+    ctx.fillText(thFit(briefDef.name.toUpperCase(), x1 - (x0 + bwW + 14)), x0 + bwW + 14, py + headH/2 + 1);
+  }
+  // the situation, in our own words - not the original's
+  let y = py + headH + 14;
+  ctx.fillStyle = TH('text'); ctx.font = thValue(12, false);
+  for(const ln of body){ ctx.fillText(ln, x0, y); y += lineH; }
+  y += 18;
+  ctx.fillStyle = TH('textDim'); ctx.font = thLabel(10);
+  ctx.fillText('OBJECTIVES', x0, y); y += 14;
+  for(const z of briefDef.ziele){
+    const cy = y + rowH/2;
+    ctx.strokeStyle = TH('text'); ctx.lineWidth = 1;
+    ctx.strokeRect(x0 + 0.5, cy - 4.5, 9, 9);
+    ctx.fillStyle = TH('textBright'); ctx.font = thValue(12, true);
+    ctx.fillText(thFit(z, x1 - (x0 + 18)), x0 + 18, cy);
+    y += rowH;
+  }
+  ctx.textAlign = 'center'; ctx.fillStyle = TH('accent'); ctx.font = thLabel(11);
+  ctx.fillText('CLICK OR PRESS ANY KEY TO LAUNCH', px + pw/2, py + ph - 15);
+  ctx.textAlign = 'left';
+}
+
 function drawPaused(){
   // sizes for a phone too: the whole canvas shrinks there (Silvio)
   const pw = 560, pad = 18, rowH = 21, headH = 44;
@@ -883,6 +963,7 @@ const OBJ_TONE = {done:'#4dff88', fail:'#ff5533', part:'#ffcc44'};
 let objCard = null;           // {head, txt, tone, t0}
 let objPinned = '';           // the objective the last card announced
 let missionObj = '';          // a mission's own objective, see 'ziel'
+let missionObjMeta = null;    // F148: its short label, its id, its tally
 let missionObjUsed = false;   // this wave speaks for itself
 function objStrip(t){ return String(t||'').replace(/^\[\s*/, '').replace(/\s*\]$/, ''); }
 function objAnnounce(head, txt, tone){
@@ -918,7 +999,9 @@ function drawFieldBanner(){
   }
   if(objDoneT>0 && !paused) objDoneT--;
   const cur = currentObjective();
-  if(cur){ if(cur.txt!==objPinned){ objPinned = cur.txt; objAnnounce('NEW OBJECTIVE', cur.txt, 'new'); } }
+  if(cur){ if(cur.txt!==objPinned){ objPinned = cur.txt;
+           objMeta(missionObjMeta);           // F148: what its button needs
+           objAnnounce('NEW OBJECTIVE', cur.txt, 'new'); } }
   else objPinned = '';
   // A card waits for the jump in to finish: nobody reads it in the dark.
   if(objCard && arriveT>0) objCard.t0 = fc;
@@ -958,7 +1041,28 @@ function notice(txt, tone){
 // short log - shown only in the pause screen ──
 const MLOG_MAX = 40;
 let MLOG = {objs:[], log:[], t:0};
-function mlogReset(){ MLOG = {objs:[], log:[], t:0}; }
+function mlogReset(){ MLOG = {objs:[], log:[], t:0}; OBJ_META = null; }
+// F148 (Silvio, 25.11.2026): an objective may carry what its button in the
+// bar needs - a short label, the id the button jumps to, and a tally. The
+// effect that files the objective sets this one step earlier, because the
+// objective itself travels through objAnnounce as a plain string.
+let OBJ_META = null;
+function objMeta(m){ OBJ_META = (m && (m.kurz || m.zu || m.soll)) ? m : null; }
+function objMetaTake(){ const m = OBJ_META; OBJ_META = null; return m || {}; }
+function objMetaFields(m){
+  return {kurz:m.kurz||'', zu:m.zu||'', sub:m.sub||'', soll:m.soll||0,
+          zaehl:m.zaehl||'', stT:fc};
+}
+// The counters a button may show. Both tallies are the ones the triggers
+// 'gerettet' and 'entkommen' already read; nothing new is counted here.
+function objTally(o){
+  if(!o || !o.soll) return null;
+  let n;
+  if(o.zaehl === 'gerettet') n = protSaved;
+  else if(o.zaehl === 'entkommen') n = escGone;
+  else return null;
+  return {n:Math.min(n|0, o.soll), soll:o.soll};
+}
 function mlogLine(txt, tone){
   txt = String(txt||'').trim(); if(!txt) return;
   MLOG.log.push({t:MLOG.t, txt:txt.toUpperCase(), tone:tone||'info'});
@@ -970,36 +1074,50 @@ function mlogOpen(){ for(let i=MLOG.objs.length-1;i>=0;i--) if(MLOG.objs[i].st==
 // ('bonus', listed as BONUS: ...) or a second task ('nebenziel'). Neither
 // is closed by a new main objective; each takes its own result.
 function mlogSide(kind, txt, keep){
-  txt = String(txt||'').trim().toUpperCase(); if(!txt) return;
+  txt = String(txt||'').trim().toUpperCase(); const m = objMetaTake(); if(!txt) return;
   if(kind === 'bonus') txt = 'BONUS: ' + txt;
   for(const o of MLOG.objs) if(o.side === kind && o.txt === txt && o.st === 'open') return;
-  MLOG.objs.push({txt:txt, st:'open', side:kind, keep:!!keep});
+  MLOG.objs.push(Object.assign({txt:txt, st:'open', side:kind, keep:!!keep}, objMetaFields(m)));
+}
+// F148: the group is through - its tally decides. All of them is a full
+// success, some of them a partial one, none of them a failure. Without a
+// tally there is nothing to judge, so the objective is left as it stands.
+function mlogSideEnd(kind, txt){
+  for(let i=MLOG.objs.length-1;i>=0;i--){
+    const o = MLOG.objs[i];
+    if(o.side !== kind || o.st !== 'open') continue;
+    const c = objTally(o); if(!c) return;
+    const st = (c.n >= c.soll) ? 'done' : (c.n > 0 ? 'part' : 'fail');
+    o.st = st; o.stT = fc;
+    if(txt) mlogLine(txt, st==='done'?'good':(st==='fail'?'bad':'part'));
+    return;
+  }
 }
 function mlogSideResult(kind, st, txt){
   for(let i=MLOG.objs.length-1;i>=0;i--){
     const o = MLOG.objs[i];
-    if(o.side === kind && o.st === 'open'){ o.st = st; break; }
+    if(o.side === kind && o.st === 'open'){ o.st = st; o.stT = fc; break; }
   }
   if(txt) mlogLine(txt, st==='done'?'good':'bad');
 }
 // A bonus that only has to hold ("keep her above half hull") is won when
 // the main objective is.
 function mlogKeepBonus(){
-  for(const o of MLOG.objs) if(o.side === 'bonus' && o.keep && o.st === 'open') o.st = 'done';
+  for(const o of MLOG.objs) if(o.side === 'bonus' && o.keep && o.st === 'open'){ o.st = 'done'; o.stT = fc; }
 }
 // a new objective; one still open is done with, as the mission moves on
 // only once a step is taken
 function mlogObjective(txt){
-  txt = String(txt||'').trim().toUpperCase(); if(!txt) return;
+  txt = String(txt||'').trim().toUpperCase(); const m = objMetaTake(); if(!txt) return;
   const o = mlogOpen();
   if(o && o.txt === txt) return;
-  if(o) o.st = 'done';
-  MLOG.objs.push({txt:txt, st:'open'});
+  if(o){ o.st = 'done'; o.stT = fc; }
+  MLOG.objs.push(Object.assign({txt:txt, st:'open'}, objMetaFields(m)));
 }
 // a result: the open objective takes its state, the words go to the log
 function mlogResult(st, txt){
   const o = mlogOpen();
-  if(o) o.st = st;
+  if(o){ o.st = st; o.stT = fc; }
   else if(txt) MLOG.objs.push({txt:String(txt).toUpperCase(), st:st});
   if(txt && !(o && o.txt === String(txt).toUpperCase())) mlogLine(txt, st==='done'?'good':(st==='fail'?'bad':'part'));
 }
@@ -1871,6 +1989,76 @@ function drawHUD(){
   drawHUDHLP();
 }
 
+// ── F148: THE ORDERS AS BUTTONS IN THE BAR (Silvio, 25.11.2026) ──
+// "Also wuerde ich vorschlagen, jeden Befehl zu einem Button mit
+// entsprechender Optik zu machen, den der Spieler sogar anklicken kann und
+// dann automatisch das betreffende Ziel und ggf. Subsystem anvisiert."
+// The words are read once in the briefing; here they stay in view for the
+// whole mission, with a tally where a group is meant and a colour once the
+// order is settled. Nothing of this touches the field.
+const OBJ_BAR_H = 13;        // the strip the squeezed columns give up
+const OBJ_BAR_MAX = 4;       // more than four are not read at a glance
+const OBJ_BAR_BLINK = 220;   // steps an order blinks after it is settled
+function objBarList(){
+  return MLOG.objs.slice(0, OBJ_BAR_MAX);
+}
+function objBarLabel(o){
+  let t = o.kurz || o.txt;
+  const c = objTally(o);
+  if(c) t += ' (' + c.n + '/' + c.soll + ')';
+  return t.toUpperCase();
+}
+// The ship a button jumps to: the nearest one of its id that may be held.
+function objBarTarget(o){
+  if(!o || !o.zu || typeof byId !== 'function') return null;
+  let best = null;
+  for(const id of String(o.zu).split('+'))
+    for(const u of byId(id)){
+      if(!tgtCan(u)) continue;
+      if(!best || tgtDist(u) < tgtDist(best)) best = u;
+    }
+  return best;
+}
+function objBarSub(u, name){
+  if(!u || !name || !u.subs) return null;
+  for(const s of u.subs) if(s.id === name && !s.dead) return s;
+  return null;
+}
+function drawBarObjectives(x0, y0, w, h){
+  window._objBtns = [];
+  const list = objBarList();
+  if(!list.length) return;
+  const gap = 3, bh = h - 2, bw = (w - gap*(list.length-1)) / list.length;
+  ctx.textBaseline = 'middle';
+  for(let i = 0; i < list.length; i++){
+    const o = list[i], bx = x0 + i*(bw+gap);
+    const rr = {x:bx, y:y0, w:bw, h:bh, o:o};
+    const can = !!objBarTarget(o), hov = can && hovering(bx, y0, bw, bh);
+    thButton(bx, y0, bw, bh, hov ? 'ready' : null);
+    // Blinking belongs to the moment an order is settled, not to its
+    // whole life - a bar that never stops moving is the clutter again.
+    let a = 1;
+    const age = fc - (o.stT||0);
+    if(o.st !== 'open' && age < OBJ_BAR_BLINK) a = 0.4 + 0.6*Math.abs(Math.sin(age*0.16));
+    ctx.globalAlpha = a;
+    ctx.fillStyle = MLOG_COL[o.st] || TH('text');
+    ctx.font = thValue(8, o.st !== 'open');
+    ctx.textAlign = 'center';
+    ctx.fillText(thFit(objBarLabel(o), bw-8), bx + bw/2, y0 + bh/2 + 0.5);
+    ctx.globalAlpha = 1; ctx.textAlign = 'left';
+    window._objBtns.push(rr);
+  }
+}
+function objBarClick(p){
+  for(const rr of (window._objBtns||[])){
+    if(p.x < rr.x || p.x > rr.x+rr.w || p.y < rr.y || p.y > rr.y+rr.h) continue;
+    const t = objBarTarget(rr.o);
+    if(t) tgtSet(t, objBarSub(t, rr.o.sub));
+    return true;        // the strip swallows the click either way
+  }
+  return false;
+}
+
 // THE HLP BAR
 // Same geometry as the old bar down to the pixel, so every pointer rectangle
 // and everything that reads them keeps working. What changed is the surface:
@@ -1882,6 +2070,12 @@ function drawHUDHLP(){
   // the player needs in one line - score, the three stores, lives, the
   // banks, support, tickets and the five buttons. Nothing on the field.
   var H2=HUD_H, mid=(H2/2)|0;
+  // F148 (Silvio, 25.11.2026, with his edited screenshot of the bar): the
+  // stores, the lives and the two bank panels give up the foot of the bar,
+  // and the strip that frees carries the mission's orders as buttons. The
+  // bar does not grow; only these columns are squeezed. Everything right
+  // of them - support, radar, target view, buttons - keeps the full height.
+  var OBJ_H=OBJ_BAR_H, HB=H2-OBJ_H, midB=(HB/2)|0;
 
   thPanel(0, 0, W, H2, TH('barTop'), TH('panelBack'));
   ctx.fillStyle=TH('panelBack'); ctx.fillRect(0, H-8, W, 8);
@@ -1904,13 +2098,14 @@ function drawHUDHLP(){
 
   // 2  HULL, SHIELD, ENERGY - three bars, the share at the end (v210:
   // narrower, and PRIMARY, SECONDARY, SUPPORT too: room for the radar)
-  var bw=50, bh=Math.max(5, (H2-16)/3-6), gap=(H2-8)/3, bx=x+34;
+  var objX0=x;                                   // F148: the strip starts here
+  var bw=50, bh=Math.max(4, (HB-13)/3-5), gap=(HB-6)/3, bx=x+34;
   var hR=Math.max(0, player.hp/player.maxHp);
   var sR=player.maxSh ? Math.max(0, player.sh/player.maxSh) : 0;
   var eR=player.enMax ? Math.max(0, player.en/player.enMax) : 0;
   var rows=[['HULL', hR], ['SHIELD', sR], ['ENERGY', eR]];
   for(var i=0;i<3;i++){
-    var y=5+i*gap;
+    var y=4+i*gap;
     lab(rows[i][0], x, y+3);
     ctx.fillStyle=TH('edgeDark'); ctx.fillRect(bx, y, bw, bh);
     if(i===0){
@@ -1933,34 +2128,34 @@ function drawHUDHLP(){
     ctx.fillText(Math.round(rows[i][1]*100)+'%', bx+bw+23, y+bh/2+0.5); ctx.textAlign='left';
   }
   if(player.enEmptyT>0) player.enEmptyT--;
-  x=bx+bw+27; thDivider(x, 4, H2-4); x+=6;
+  x=bx+bw+27; thDivider(x, 4, HB-4); x+=6;
 
   // 3  LIVES - the hull icon back in front of the count (Silvio, v187)
-  lab('LIVES', x, 9);
+  lab('LIVES', x, 8);
   var lIco=ICONS[isBomberHull(player.ship)?'bomberlives':'fighterlives'], lW=13;
   if(lIco){
-    var lh=12; lW=Math.max(1, Math.round(lIco.width*(lh/lIco.height)));
-    if(lW>18){ lh=lh*18/lW; lW=18; }
-    ctx.drawImage(lIco, x|0, (mid+6-lh/2)|0, lW, lh);
+    var lh=10; lW=Math.max(1, Math.round(lIco.width*(lh/lIco.height)));
+    if(lW>16){ lh=lh*16/lW; lW=16; }
+    ctx.drawImage(lIco, x|0, (midB+5-lh/2)|0, lW, lh);
   } else {
-    ctx.fillStyle=TH('text'); var ly=mid+3;
+    ctx.fillStyle=TH('text'); var ly=midB+2;
     ctx.fillRect(x, ly+2, 11, 3); ctx.fillRect(x+2, ly, 7, 2);
     ctx.fillRect(x+2, ly+5, 7, 2); ctx.fillRect(x+9, ly+2, 4, 3);
   }
-  ctx.fillStyle=TH('textBright'); ctx.font=thValue(14, true);
-  ctx.fillText(String(lives), x+lW+4, mid+6);
+  ctx.fillStyle=TH('textBright'); ctx.font=thValue(12, true);
+  ctx.fillText(String(lives), x+lW+4, midB+5);
   var lPl=barPulseLevel('lives');
-  if(lPl>0) thGlowPath(x-4, 5, 44, H2-10, 4, lPl);
-  x+=40; thDivider(x, 4, H2-4); x+=6;
+  if(lPl>0) thGlowPath(x-4, 4, 44, HB-8, 4, lPl);
+  x+=40; thDivider(x, 4, HB-4); x+=6;
 
   // 4  PRIMARY: one row per bank, the firing ones lit, linked ones joined
   // by a bracket. A tap on the panel steps the mode, like the wheel.
-  var pb=player.pb||[], fire=firingBanks(), prow=(H2-14)/Math.max(2, pb.length);
+  var pb=player.pb||[], fire=firingBanks(), prow=(HB-12)/Math.max(2, pb.length);
   var px0=x;
-  lab('PRIMARY', x, 7);
+  lab('PRIMARY', x, 6);
   var nM=primaryCount(player.ship);
   for(var pi=0;pi<pb.length;pi++){
-    var py=14+pi*prow+prow/2, on=fire.indexOf(pb[pi])>=0;
+    var py=12+pi*prow+prow/2, on=fire.indexOf(pb[pi])>=0;
     var pw=priDefP(pb[pi].key), poor=player.en<pw.en;
     ctx.fillStyle=on?TH('accent'):TH('textDim'); ctx.font=thLabel(7);
     ctx.fillText(String(pi+1), x, py);
@@ -1974,22 +2169,22 @@ function drawHUDHLP(){
   }
   if(fire.length>1){
     ctx.strokeStyle=TH('accent'); ctx.lineWidth=1.2;
-    var y0=14+prow*0.5-4, y1=14+prow*(pb.length-0.5)+4;
+    var y0=12+prow*0.5-4, y1=12+prow*(pb.length-0.5)+4;
     ctx.beginPath(); ctx.moveTo(x+91,y0); ctx.lineTo(x+94,y0); ctx.lineTo(x+94,y1); ctx.lineTo(x+91,y1); ctx.stroke();
     ctx.fillStyle=TH('accent'); ctx.font=thLabel(6);
     ctx.save(); ctx.translate(x+100,(y0+y1)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('LINK',0,0); ctx.restore();
   }
-  window._priRect=(pb.length>=2)?{x:px0-3, y:3, w:106, h:H2-6}:null;
-  if(window._priRect && hovering(px0-3, 3, 106, H2-6)) thGlowPath(px0-3, 3, 104, H2-6, 4, 0.35);
-  x+=106; thDivider(x, 4, H2-4); x+=6;
+  window._priRect=(pb.length>=2)?{x:px0-3, y:3, w:106, h:HB-5}:null;
+  if(window._priRect && hovering(px0-3, 3, 106, HB-5)) thGlowPath(px0-3, 3, 104, HB-5, 4, 0.35);
+  x+=106; thDivider(x, 4, HB-4); x+=6;
 
   // 5  SECONDARY: one row per bank with its own rack, the chosen one lit.
   // A tap on another row chooses it, on the chosen one it fires (touch).
-  var sb=player.sb||[], srow=(H2-14)/Math.max(3, sb.length);
-  lab('SECONDARY', x, 7);
+  var sb=player.sb||[], srow=(HB-12)/Math.max(3, sb.length);
+  lab('SECONDARY', x, 6);
   window._secRows=[]; window._secBtnRect=null;
   for(var si=0;si<sb.length;si++){
-    var sy=14+si*srow+srow/2, son=(si===player.sSel), sw=secDefP(sb[si].key);
+    var sy=12+si*srow+srow/2, son=(si===player.sSel), sw=secDefP(sb[si].key);
     var rr={x:x-2, y:sy-srow/2+1, w:94, h:srow-2, i:si};
     if(son){
       // The theme's own glow, not a fixed orange (it read red on Void).
@@ -2007,7 +2202,9 @@ function drawHUDHLP(){
     ctx.fillText(String(sb[si].ammo).padStart(2,'0'), x+88, sy); ctx.textAlign='left';
     window._secRows.push(rr);
   }
-  x+=96; thDivider(x, 4, H2-4); x+=5;
+  x+=96;
+  drawBarObjectives(objX0, HB, x-objX0, OBJ_H);     // F148
+  thDivider(x, 4, H2-4); x+=5;
 
   // 6  SUPPORT - a narrow button
   var alX=x, alBW=50, alBH=H2-10, alBY=5;
@@ -3640,6 +3837,9 @@ function pointerConsumed(p){
   // The tap that puts you back in the fight is spent on that and nothing
   // else - it must not also fire, steer or open a panel.
   if(clearResumeHold()) return true;
+  // F148: the briefing is dismissed by any tap, wherever it lands, and
+  // that tap launches the mission and does nothing else.
+  if(briefOpen){ briefClose(); return true; }
   if(GS!=='playing') return false;
   if(rearmMenu){
     for(const r of (window._rearmRects||[]))
@@ -3691,6 +3891,9 @@ function pointerConsumed(p){
   // The banks in the bar (v186): the primary panel steps the mode, a
   // secondary row that is not chosen gets chosen. The chosen row fires
   // (the old SEC button, _secBtnRect).
+  // F148: the orders sit below those panels and are asked first, so a tap
+  // on an order never steps the bank behind it.
+  if(objBarClick(p)) return true;
   var rp=window._priRect;
   if(rp&&p.x>=rp.x&&p.x<=rp.x+rp.w&&p.y>=rp.y&&p.y<=rp.y+rp.h){ cyclePrimary(); return true; }
   for(const sr of (window._secRows||[])){
@@ -3716,7 +3919,7 @@ function toTitleOrLaunch(){
 // set of bodies.
 function enterTitle(){
   GS='title'; sndAllOff();
-  resumeHold=false; userPaused=false; paused=false;
+  resumeHold=false; userPaused=false; paused=false; briefOpen=false; briefDef=null;
   nebCur = NEB_NAMES[(Math.random()*NEB_NAMES.length)|0];
   rollBodies();
   // After rollBodies(), not before it: shipsim reads this run of lines as
@@ -4089,6 +4292,7 @@ function inputPress(ev){
     return false;
   }
   if(GS!=='playing') return false;
+  if(briefOpen){ briefClose(); return true; }     // F148: any key launches
   if(bindIs('settings', ev) && !windowOpen()){ setSettings(!settingsOpen); return true; }
   if(bindIs('pause', ev)){ userPaused=!userPaused; syncPause(); return true; }
   if(settingsOpen) return false;

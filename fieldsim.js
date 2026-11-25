@@ -58,7 +58,11 @@ const HELPERS = `
       // at its loading screen and none of the field is ever drawn.
       imgsLoaded = TOTAL; nebsLoaded = 0;
     },
+    // F148: a mission with a briefing stands paused until it is dismissed,
+    // and update() does nothing while paused - so the first step launches
+    // it, exactly as the player's first click does.
     step(n){ for(let i=0;i<n;i++){ player.hp = player.maxHp; player.sh = player.maxSh;
+             if(typeof briefOpen !== 'undefined' && briefOpen) briefClose();
              if(typeof lives!=='undefined') lives = 3; update(); if(i%25===0) draw(); } },
     // Shoot down every enemy fighter and bomber that is out of its vortex,
     // the bombs in flight and rocks closing on an escort - what a player
@@ -7472,6 +7476,47 @@ scenario('F147 v364: the locked subsystem writes its three letters under the ico
   r.noneWhenUnlocked = shown().length === 0;
   // the icons still fit in their box, above the letters
   r.iconsAbove = (window._barSubIcons||[]).length === 5;
+  return r;`);
+
+// F148 (M28): the briefing stands before the mission and the mission clock
+// does not run while it does; the orders then sit in the bar as buttons,
+// one of them counting its group, and a tap on one holds that ship.
+scenario('F148 v365 M28: briefing first, clock stopped, orders as buttons in the bar', 'm=28', `
+  const r = {};
+  // The briefing is up before anything has been stepped, and the game is
+  // stopped behind it.
+  r.briefUp = !!briefOpen;
+  r.briefHasBoth = !!briefDef && briefDef.ziele.length === 2;
+  r.paused = !!paused;
+  const t0 = MLOG.t;
+  for(let i=0;i<60;i++) update();          // not FS.step: that dismisses it
+  r.clockStood = (MLOG.t === t0);
+  // A tap anywhere launches the mission, and the clock runs again.
+  briefClose();
+  r.briefGone = !briefOpen && !paused;
+  FS.step(6*TICK_HZ);
+  r.clockRuns = MLOG.t > t0;
+  // Both orders are in the bar, with their short labels; the pods count.
+  const names = () => objBarList().map(o => objBarLabel(o));
+  const n = names();
+  r.twoButtons = n.length === 2;
+  r.shortLabels = n[0] === 'PROTECT AQUILAE COMM';
+  r.podsCount = (n[1]||'').indexOf('PROTECT ESCAPE PODS (') === 0 && (n[1]||'').slice(-3) === '/4)';
+  // Drawing the bar leaves a clickable rectangle for each of them.
+  draw();
+  r.twoRects = (window._objBtns||[]).length === 2;
+  // The button for the comm ship holds her when it is tapped.
+  const rect = (window._objBtns||[]).find(b => b.o.zu === 'AC');
+  if(rect){
+    TGT.e = null;
+    objBarClick({x:rect.x + rect.w/2, y:rect.y + rect.h/2});
+    r.clickHolds = !!TGT.e && TGT.e.uid === 'AC';
+  }
+  // Once the pods are through, their button is settled and coloured.
+  FS.until(()=>{ const o = MLOG.objs.find(x=>x.side==='neben'); return o && o.st!=='open'; }, 40000, true);
+  const pod = MLOG.objs.find(x=>x.side==='neben');
+  r.podsSettled = !!pod && pod.st !== 'open';
+  r.podsColour = !!pod && ['done','part','fail'].indexOf(pod.st) >= 0;
   return r;`);
 
 // F146 (M29): the briefing's own plan is the mission - her radio room dies

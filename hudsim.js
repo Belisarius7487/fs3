@@ -67,7 +67,9 @@ const names = [
   'insidePanel',
   'thChamferPath','thPlate','thGlowPath','thBrackets','thScale','thFrame','thRGBA','thGloss','thCutGlint','drawHUD', 'drawHUDHLP', 'TH', 'thLabel', 'thValue',
                'firingBanks','priDefP','secDefP',
-               'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton','btnState','btnText'];
+               'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton','btnState','btnText',
+               // F148: the orders strip in the bar
+               'drawBarObjectives','objBarList','objBarLabel','objBarTarget','objTally'];
 
 const CALLS = [];
 const ctxStub = new Proxy({}, {
@@ -96,6 +98,16 @@ const world = `
   let BAR_PULSE={}; function barPulseLevel(){ return 0; } function barPulse(){}
 
   const W=800, H=500, HUD_H=54;
+  const OBJ_BAR_H=13, OBJ_BAR_MAX=4, OBJ_BAR_BLINK=220;   // F148
+  // F148: two open orders in the bar, one of them a counted group
+  const MLOG_COL = {open:null, done:'#4dff88', fail:'#ff5533', part:'#ffcc44'};
+  let protSaved=1, escGone=0, briefOpen=false, briefDef=null;
+  let MLOG = {objs:[{txt:'HOLD THE AQUILAE COMMUNICATIONS', st:'open', kurz:'Protect Aquilae Comm', zu:'AC', sub:'', soll:0, zaehl:'', stT:0},
+                    {txt:'GET THE ESCAPE PODS ABOARD THE HOPE', st:'open', side:'neben', kurz:'Protect Escape Pods', zu:'EP', sub:'', soll:4, zaehl:'gerettet', stT:0}],
+              log:[], t:0};
+  function byId(){ return []; }
+  function tgtCan(){ return false; }
+  function tgtDist(){ return 0; }
   const MW=W, MH=H, FIELD_K=1, TEMPO_K=1, CAM_BASE_Z=1, WX0=0, WX1=W, WY0=54, WY1=H, SIZE_UPM=3.75, FIELD_CX=W/2, FIELD_CY=(54+H)/2; const CAM={x:W/2, y:(54+H)/2, z:1, zt:1, over:false}; function camSees(){ return true; } function camHalfW(){ return W/2; } function camHalfH(){ return (H-54)/2; } function w2sX(x){ return x; } function w2sY(y){ return y; } function s2wX(x){ return x; } function s2wY(y){ return y; } function camFollow(){} function camSnap(){} function mouseTick(){} function worldSet(){} function worldForWave(){} function mouseAt(p){ if(typeof MOUSE!=="undefined"){ MOUSE.x=p.x; MOUSE.y=p.y; } } function mouseHold(){ if(typeof MOUSE!=='undefined' && typeof player!=='undefined'){ MOUSE.x=player.x; MOUSE.y=player.y; } }  // v208: the world is the old field in the sims; v209: tempo and zoom 1
   const ctx=CTX; const window={};
   let GS='playing', score=29910, wave=10, runTime=361, lives=8, fc=7;

@@ -831,7 +831,8 @@ function nextWave(){
   // der vorigen erbt. buildFS1Wave setzt ihn gleich danach.
   waveTitle=''; titleT=0;
   objWasSet=false; objDoneT=0; objFailed=false; objSeenOnce=false;
-  missionObj=''; missionObjUsed=false; objCard=null; objPinned='';
+  missionObj=''; missionObjMeta=null; missionObjUsed=false; objCard=null; objPinned='';
+  briefOpen=false; briefDef=null;        // F148: cleared, then set by the mission
   scanUnderFire=false; portalOn=false; portalIn=false; waveFs1=false;
   practiceTickets();
   protSaved=0; protLost=0;

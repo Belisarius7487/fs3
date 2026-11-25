@@ -1717,8 +1717,11 @@ let userPaused=false;   // the pause button and the P key
 // panel had to be written into it by hand. The rearm panel was not, so it
 // opened over a game that carried on running underneath it. Asking whether
 // ANY of them is open cannot be forgotten in the same way.
+// F148: the briefing counts as a panel, so the game is stopped while it
+// stands and the mission clock does not run.
+let briefOpen = false;
 function panelOpen(){
-  return !!(shipMenu || callMenu || rearmMenu || settingsOpen);
+  return !!(shipMenu || callMenu || rearmMenu || settingsOpen || briefOpen);
 }
 // After a panel closes the game stays stopped until one more tap. However
 // the panel was left - a choice made, ESC, a tap outside - the return to

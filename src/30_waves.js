@@ -3880,7 +3880,19 @@ const SCRIPT_WAVES = {
       pri:['prom1','banshee'], fac:'hol', o:'clear', live:7,
       // While the pods are out the Shivans are after them, not the player.
       hunt:'EP', huntShare:0.6,
-      ziel:'Hold the Aquilae Communications', u:[
+      ziel:'Hold the Aquilae Communications',
+      // F148: the short label on its button, and the ship the button jumps
+      // to. The words themselves are read once, in the briefing.
+      zielKurz:'Protect Aquilae Comm', zielZu:'AC',
+      // The briefing describes OUR mission, not the original's (Silvio,
+      // 25.11.2026): what stands in this field and what is asked here.
+      brief:{text:'The Lucifer has taken station over the Aquilae installation and is burning her down. '+
+                  'Nothing we have can touch that ship, and the installation will not survive her.\n'+
+                  'What can still be saved is below: the Aquilae Communications carries the traffic of '+
+                  'this whole sector, and the crew of the installation is coming out in escape pods. '+
+                  'The Hope will be here for them. Keep the Shivans off both until she is away.',
+             ziele:['Hold the Aquilae Communications',
+                    'Get the escape pods aboard the Hope']}, u:[
        // The station: her own entry (ter_aquilae) carries the name and a
        // hull four times a Tombaugh's, so she lasts past the last pod.
        // She is not an order - she cannot be saved.
@@ -3922,7 +3934,10 @@ const SCRIPT_WAVES = {
        {id:'AS', c:'bo', n:3, size:3, spr:'boshaitan', fac:'shivan', wait:true,
         x:340, y:470, label:'SB Asura'}
      ], ev:[
-       {t:'sek', a:3, w:'nebenziel', a2:'Get the escape pods aboard the Hope'},
+       // F148: the pods are a group, so their button carries the tally -
+       // "Protect Escape Pods (1/4)" - and jumps to whichever is flying.
+       {t:'sek', a:3, w:'nebenziel', a2:'Get the escape pods aboard the Hope',
+        kurz:'Protect Escape Pods', zu:'EP', soll:4, zaehl:'gerettet'},
        {t:'sek', a:8, w:'einwarpen', a2:'DE'},
        // The last pod leaves at 19 s - Silvio: the Hope comes as soon as
        // she is out, at the right edge.
@@ -3938,6 +3953,10 @@ const SCRIPT_WAVES = {
        // The bombers are here for the comm ship.
        {t:'da', a:'AS', w:'jagd', a2:'AC'},
        // The ends - order counts: an 'abzug' closes every later event.
+       // F148: whatever became of the pods is settled by now - their
+       // button takes green, yellow or red from its own tally.
+       {t:'alleZerstoert', a:'AS', w:'nebenEnde', a2:'The escape pods are accounted for'},
+       {t:'vernichtet', a:'AC', w:'nebenEnde', a2:'The escape pods are accounted for'},
        {t:'alleZerstoert', a:'AS', w:'zielerfuellt', a2:'Aquilae Communications holds'},
        {t:'alleZerstoert', a:'AS', w:'nachschub', a2:'aus'},
        {t:'alleZerstoert', a:'AS', d:4, w:'raus', a2:'LU'},
@@ -5914,6 +5933,14 @@ function evTrig(ev){
 }
 
 // ── Wirkungen ────────────────────────────────────────────────
+// F148: the extra fields an objective may carry for its button in the bar
+// - a short label, the id (and subsystem) the button jumps to, and a tally
+// against a target count. All optional; an objective without them is shown
+// by its own words and is not clickable.
+function evMeta(ev){
+  return {kurz:ev.kurz||'', zu:ev.zu||'', sub:ev.sub||'',
+          soll:ev.soll||0, zaehl:ev.zaehl||''};
+}
 function evFire(ev){
   // Ausloeser und Wirkung koennen verschiedene Ziele haben. wa ist das
   // Ziel der Wirkung, a das des Ausloesers.
@@ -6023,6 +6050,7 @@ function evFire(ev){
       // The mission's own objective, in words. Announced by a card and
       // kept in the line under the bar.
       missionObj = String(arg || '').toUpperCase();
+      missionObjMeta = evMeta(ev);          // F148: what its button needs
       missionObjUsed = true;
       break;
     case 'zielerfuellt':
@@ -6036,12 +6064,16 @@ function evFire(ev){
       break;
     // F112 (v293): a bonus or a second objective of its own, beside the
     // main one (keep:true - a bonus that is won with the main objective)
-    case 'bonus':      mlogSide('bonus', arg, ev.keep); break;
+    case 'bonus':      objMeta(evMeta(ev)); mlogSide('bonus', arg, ev.keep); break;
     case 'bonusOk':    mlogSideResult('bonus', 'done', arg); break;
     case 'bonusFail':  mlogSideResult('bonus', 'fail', arg); break;
-    case 'nebenziel':  mlogSide('neben', arg); break;
+    case 'nebenziel':  objMeta(evMeta(ev)); mlogSide('neben', arg); break;
     case 'nebenOk':    mlogSideResult('neben', 'done', arg); break;
     case 'nebenFail':  mlogSideResult('neben', 'fail', arg); break;
+    // F148 (Silvio, 25.11.2026): a counted objective is judged by its own
+    // tally when the group is through - all of them green, some of them
+    // yellow, none of them red. Written once here, for every mission.
+    case 'nebenEnde':  mlogSideEnd('neben', arg); break;
     // v249: a partial success, in yellow (the Plato lost, her crew
     // away - FS1 M5).
     case 'zielteil':
@@ -6533,6 +6565,10 @@ function buildScripted(def){
   // A mission that states its objective in words speaks for itself for
   // the whole wave; the automatic result cards then stay quiet.
   missionObj = String(def.ziel || '').toUpperCase();
+  // F148: the mission's own objective may name what its button needs.
+  missionObjMeta = def.ziel ? {kurz:def.zielKurz||'', zu:def.zielZu||'', sub:def.zielSub||'',
+                               soll:def.zielSoll||0, zaehl:def.zielZaehl||''} : null;
+  briefSet(def);                      // F148: the briefing, if she has one
   if(def.ship) forceShip(def.ship, def.sec);
   if(def.pri) missionPri(def.pri);
   missionObjUsed = !!def.ziel || (def.ev||[]).some(function(e){ return /^ziel/.test(e.w); });
@@ -6602,6 +6638,10 @@ function buildScripted(def){
   }
   EV = (def.ev||[]).map(function(e){
     return {t:e.t, a:e.a, b:e.b, w:e.w, wa:e.wa, lostMax:e.lostMax, again:e.again, d:e.d, wenn:e.wenn, solange:e.solange, hold:e.hold,
+            // F148: what an objective's button in the bar needs. This copy
+            // takes the fields one by one, so a new one has to be named
+            // here or it never reaches the event that fires.
+            kurz:e.kurz, zu:e.zu, sub:e.sub, soll:e.soll, zaehl:e.zaehl, keep:e.keep,
             at:null, done:false}; });
   return q.sort(function(a,b){ return a.time-b.time; });
 }

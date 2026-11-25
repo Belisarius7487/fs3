@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F148 | **Besprechung vor der Mission und Auftragsknöpfe in der Leiste** (v365): vor jeder geschriebenen Mission steht ein Besprechungsbildschirm mit Lage und Aufträgen, die Missionsuhr läuft dabei nicht, ein Klick startet. In der Leiste tragen Hülle/Leben/PRIMARY/SECONDARY einen Streifen darunter frei; dort stehen die Aufträge als anklickbare Knöpfe, die das Ziel anvisieren, mit Zähler („(1/4)") und Farbe für Erfolg, Teilerfolg und Fehlschlag. Zuerst nur an M28; die übrigen Missionen folgen | v365 |
 | F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v362:** übergebene Zeichenflächen geben sich jetzt als fertig geladene Bilder aus, sonst blinken die Planeten beim Übergang einmal weg | v354–v362 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
 | — | Ausgabe von `build.sh` gekürzt: kurze Übersicht, Warnungen, „geändert seit dem letzten Bau“; `--laut` gibt die alte Fassung. Kein neuer Spielstand nötig, wirkt beim nächsten Bau | Werkzeuge |
@@ -42,6 +43,60 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
+
+## F148 — Besprechung vor der Mission und Auftragsknöpfe in der Leiste (v365, 25.11.2026)
+
+Angestoßen von Deathblack Shiv im Forum (25.11.2026): die Missionsziele vor
+dem Einsprung nennen, vor dem Start eine Taste oder einen Klick verlangen,
+und bei neuen Zielen eine Meldung geben. Silvio dazu: „I had that before and
+wasn't too happy with it, because the screen got clustered with objectives,
+but I see to it, because, yes, without looking at the pause screen it's hard
+to understand the real goal."
+
+**Das lange Gespräch dazu, mit allem, was dabei verworfen wurde:**
+
+- Verworfen: eine verschwindende Textzeile bei neuen Zielen — „Was, wenn der
+  Spieler gerade nicht auf die neu aufkommenden Befehle achten kann? Ich
+  suche eine Lösung, die alle Eventualitäten abdeckt, ohne das Spielfeld mit
+  Texteinblendungen zuzukleistern, denn das war überhaupt erst der Grund,
+  weshalb wir uns von diesen Einblendungen verabschiedet hatten."
+- Verworfen: pulsender Auftragsrahmen, der beim Anvisieren verstummt —
+  „wenn man das Schiff beim Durchschalten ausversehen anvisiert hatte,
+  verliert sich der Hinweis, dass ein neues Ziel da ist."
+- Verworfen: Pausebildschirm als Quittung mit Markierung am Pause-Knopf.
+- Verworfen: alles Neue nur als Bonus zu bauen und die Mission bei einer
+  echten Lagewende anzuhalten — „Das ist auch nicht die Lösung."
+- Verworfen: drei farbige Marken ohne Worte — „woher weiß der Spieler dann
+  was zerstört werden muss oder was beschützt werden muss? Das ist unnötig
+  fummelig für ein Spiel das sich so schnell spielt wie FS3."
+
+**Silvios Lösung (25.11.2026, mit bearbeitetem Bildschirmfoto der Leiste):**
+Hülle/Schilde/Energie, Leben, PRIMARY und SECONDARY werden gestaucht; der
+darunter frei werdende Streifen trägt die Aufträge. „Also würde ich
+vorschlagen, jeden Befehl zu einem Button mit entsprechender Optik zu
+machen, den der Spieler sogar anklicken kann und dann automatisch das
+betreffende Ziel und ggf. Subsystem anvisiert. Wenn zum Beispiel mehrere
+Escape Pods beschützt werden müssen, könnte dastehen ‚Protect Escape Pods
+(1/4)' und sobald alle entkommen sind, also 4/4 erreicht sind, blinkt der
+Text grün (für voller Erfolg), bei 1, 2 oder 3 von 4 gelb (für Teilerfolg)
+oder wenn alle verloren gegangen sind rot (für Objective verfehlt)."
+
+**Weitere Festlegungen aus demselben Gespräch:**
+
+- **Besprechungstexte beschreiben unsere Mission, nicht die Vorlage** — „weil
+  wir schon starke Anpassungen vorgenommen haben."
+- **Die Beschriftungen der Knöpfe bleiben kurz** (Silvios Wahl B gegen
+  schrumpfende Schrift): „Die Texte immer kurz halten."
+- **Während der Besprechung läuft die Missionsuhr nicht.**
+- **Bonusziele, die erst im Gefecht entstehen, stehen nicht in der
+  Besprechung** — sie erscheinen in dem Moment, in dem ihr Auslöser greift.
+- **Noch zu tun:** alle bisherigen Missionen durchgehen, damit die Knöpfe
+  überall richtig stehen und wirken, und jeder Mission ihren
+  Besprechungstext geben. Silvio: „Wir werden auch nochmal alle bisherigen
+  Missionen durchgehen müssen."
+
+**Gebaut in v365, zuerst nur an M28** als härtester Fall (vier
+Rettungskapseln, also ein Ziel mit Zähler und allen drei Farben).
 
 ## F147 — Kürzel für das aufgeschaltete Subsystem (v364, 25.11.2026, abgenommen)
 
