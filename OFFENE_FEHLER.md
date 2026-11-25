@@ -30,6 +30,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F134 | Das Protokoll nennt jetzt den Namen, wenn eines unserer Schiffe durchkommt, an Bord geht oder abspringt, leer abzieht, zurückgelassen wird, entkommt oder gekapert wird; gleichnamige Schiffe einer Mission werden durchnummeriert. Gilt für alle Missionen | v340, v343, v344 |
 | F140 | **Jetzt entscheidet die Art des Schiffes, nicht die Länge.** Frachter, Transporter, Fracht und Rettungskapseln fliegen wie kleine Schiffe, egal wie lang sie sind — dazu die Gas-Miner, die Hippocrates und die Imhotep/Faustus (Silvios Entscheidung vom 24.11.2026). Neu dabei: Dis, Triton, TC-Meson, TC-TRI, SAC3, Anuket, Rahu, Zephyrus, Hippocrates, Imhotep. Diese fünf Rümpfe haben jetzt auch echte Modell-Andockdaten, damit ihre Fracht am Andockpunkt des Trägers sitzt. **Im Spiel noch nicht zu sehen:** keine Mission schickt eines dieser Schiffe quer über das Feld. In M27 (v351) steht die *Isis* still, also zeigt sich die Regel auch dort nicht — erst eine Mission mit einem fahrenden Transporter oder Frachter macht sie sichtbar | v350 |
 | F139 | **Rümpfe kleiner als ein Kreuzer fliegen wie ein Jäger** (v349). Der Umfang war falsch gewählt; mit F140 (v350) entscheidet die Art des Schiffes. Die Längenmarke bleibt als zweiter Weg hinein, damit nichts verliert, was seit v349 so fliegt | v349 |
+| F143 | **Eine eigene Jägerstaffel warpte am Missionsende noch kurz ein und sofort wieder raus** (Silvio, 25.11.2026, M28: „wenn die Faustus rauswarpt, warpt immer noch kurz eine Jägerstaffel hinter ihr rein und direkt wieder raus"). Eigene Zerstörer schicken von sich aus Staffeln los; die Hope tat das mit leerem Feld. Jetzt wird nur noch gestartet, wenn überhaupt etwas Bekämpfbares da ist, und beim Abzug verschwinden eigene Kleinschiffe, die noch im Wirbel stecken. Gilt für alle Missionen | v353 |
 | F142 | **M28 „A Failure to Communicate"** gebaut (siehe unten). Dazu drei Änderungen am gemeinsamen Ablauf: eine Rettungskapsel darf ein Schiff als Landeziel nennen, das noch nicht im Feld steht; `fireOnly` bindet **alle** Waffen eines Großkampfschiffs an seine `beamFocus`-Liste (Strahlen, Geschütze, Abwehrlaser, Flak); und eine Kapsel fliegt eine Einflugschneise, die **im Rumpf** beginnt, geradewegs an, statt um das Schiff herum | v352, v353 |
 | F135 | **M17 und M18 waren in v338 bis v340 aus dem Spiel verschwunden** — beim Entfernen der alten Mission 25 mitgelöscht. In v341 wortgleich wiederhergestellt | v341 |
 
@@ -41,6 +42,33 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
+
+## F143 — Staffel warpt am Ende ein und sofort wieder aus (v353, Urteil offen)
+
+Silvio, 25.11.2026, nach v353 in M28: „wenn die Faustus rauswarpt, warpt
+immer noch kurz eine Jägerstaffel hinter ihr rein und direkt wieder raus."
+In seinem Protokoll von v352 stehen bei 1:49 bis 1:51 sechs GTB Athena und
+Medusa sowie drei PVF Seth, die absprangen, nachdem das Feld bei 1:48 schon
+geräumt war.
+
+Ursache: **Eigene Zerstörer stellen von sich aus Staffeln auf**
+(`launchAllyWing`, alle 40_world.js). Die Hope ist ein Zerstörer und tat
+das auch dann noch, als nichts Bekämpfbares mehr im Feld stand — die
+Lucifer ist unverwundbar und zählt nicht. Der `abzug` eine Sekunde später
+schickte die frisch eingewarpte Staffel sofort wieder hinaus.
+
+Behoben allgemein, nicht in der Mission:
+
+1. `worthScrambling()`: Es wird nur gestartet, wenn mindestens ein Gegner
+   im Feld steht, der bekämpft werden kann — kein unverwundbarer, keiner
+   im Absprung, keiner im Abzug. Gilt auch für die Abfangjäger
+   (`sendInterceptors`).
+2. Beim `abzug` verschwinden **eigene Kleinschiffe, die noch im Wirbel
+   stecken**, so wie es für die Gegner schon galt. Das deckt den
+   Sekundenbruchteil ab, in dem eine Staffel schon unterwegs war.
+
+Prüfung: `fieldsim`-Szenario „M28 no wing is scrambled into an empty
+field"; ohne die Änderung startet die Hope drei Jäger ins leere Feld.
 
 ## F142 — M28 „A Failure to Communicate“ (v352, 25.11.2026, Urteil offen)
 

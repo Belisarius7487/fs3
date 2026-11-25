@@ -1898,7 +1898,22 @@ function mkAllySmall(kind, fac, spr, y){
 
 // A destroyer launches fighters to cover the player and bombers to go
 // after enemy capital ships.
+// F143 (Silvio, 25.11.2026, M28): "wenn die Faustus rauswarpt, warpt immer
+// noch kurz eine Jaegerstaffel hinter ihr rein und direkt wieder raus."
+// A destroyer scrambled a wing into a field that held nothing to fight -
+// in M28 the Lucifer is invulnerable, so she is not a reason either - and
+// the withdrawal a second later sent it straight back out. Nobody
+// scrambles fighters against an empty sky.
+function worthScrambling(){
+  for(const e of enemies){
+    if(e.dead || e.scenery || e.invuln || e.warpOut>0 || e.withdrawn) continue;
+    if(e.type==='asteroid') continue;
+    return true;
+  }
+  return false;
+}
 function launchAllyWing(host){
+  if(!worthScrambling()) return;
   const vas = host.faction==='vasudan';
   const wantBomber = enemies.some(isLargeShip);
   const pool = allySmallPool(wantBomber, vas);   // F60/F62 (v258)
@@ -1939,6 +1954,7 @@ const INTERCEPT_SIZE = 3;
 const INTERCEPT_DELAY = 90;     // scramble time, so the bombers are seen first
 
 function sendInterceptors(host){
+  if(!worthScrambling()) return;      // F143: not into an empty field
   const vas = host.faction==='vasudan';
   // v241 (F23): the fighters of the era, not always the FS2 ones.
   const pool = allySmallPool(false, vas);   // F60/F62 (v258)

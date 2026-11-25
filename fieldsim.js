@@ -1209,6 +1209,39 @@ scenario('M28 the station outlives the last escape pod', 'm=28', `
   r.sheDiesToTheLucifer = FS.until(()=>!st(), 120000, false, false) >= 0;
   return r;`);
 
+// F143 (Silvio, 25.11.2026, M28): "wenn die Faustus rauswarpt, warpt immer
+// noch kurz eine Jaegerstaffel hinter ihr rein und direkt wieder raus." Our
+// own destroyers put wings up on their own; the Hope did it with nothing
+// left to fight, and the withdrawal sent the wing straight back out. Here
+// the field is emptied of everything the Lucifer excepted (she is
+// invulnerable and no reason to scramble either) and the mission is run to
+// its end: no allied fighter or bomber may show up in that stretch.
+// Against a build without the fix a wing turns up and this goes red.
+scenario('M28 no wing is scrambled into an empty field', 'm=28', `
+  const r = {};
+  const small = () => allies.filter(a=>a.small && !a.guard && !a.dead).length;
+  const hope = () => allies.filter(a=>a.uid==='HO' && !a.dead)[0];
+  r.hopeIsIn = FS.until(()=>hope() && !(hope().warp>0), 25000, false, true) >= 0;
+  // Empty the field of everything that can be fought. What is left is the
+  // Lucifer, who is invulnerable and no reason to scramble either.
+  for(let sec=0; sec<4; sec++){
+    for(const e of enemies){ if(!e.invuln && !e.scenery && !(e.warp>0)) e.hp = 0; }
+    FS.step(TICK_HZ);
+  }
+  r.fieldIsEmpty = !enemies.some(e=>!e.dead && !e.invuln && !e.scenery);
+  // Our own small craft are taken out of the field too, so the cap on how
+  // many may be up at once cannot be what stops a launch here.
+  for(let i=allies.length-1;i>=0;i--) if(allies[i].small && !allies[i].guard) allies.splice(i,1);
+  // Her wing timer is put on zero, so she would launch on the next tick.
+  const ho = hope();
+  r.sheIsADestroyer = !!ho && ho.type === 'destroyer';
+  if(ho) ho.wingCd = 0;
+  const before = small();
+  FS.step(TICK_HZ*4);
+  r.noWingScrambled = small() <= before;
+  r.smallAlliesBeforeAfter = before + '->' + small();
+  return r;`);
+
 // F142 (M28), after Silvio's first run of v352, where two of the four pods
 // were lost: they were not being shot out of the sky on the way, they were
 // circling the Hope. Her bay path starts at her middle and runs into the

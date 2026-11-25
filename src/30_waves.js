@@ -6117,6 +6117,14 @@ function evFire(ev){
         e.warpX = e.x; e.warpY = e.y;
         if(e.uid) EV_LEFT[e.uid] = true;
       }
+      // F143 (M28): our own small craft still inside their vortex do not
+      // arrive either. A wing launched by one of our destroyers a moment
+      // before the withdrawal used to pop out whole and jump straight back
+      // out behind the ship it came from (Silvio, 25.11.2026).
+      for(let i=allies.length-1;i>=0;i--){
+        const a = allies[i];
+        if(a.warp > 0 && a.small && !a.guard) allies.splice(i,1);
+      }
       break;
     case 'kulisse':
       // Out of the fight: she stays, but no longer shoots and no longer
