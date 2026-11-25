@@ -215,6 +215,13 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     var POOL = @@PLANETS@@;                       // planets and suns beside this page
     var cv = document.getElementById('sky'), c = cv.getContext('2d');
     var RES = 1, fc = 0, layers = [], bodies = [], bodyImgs = {}, neb = null;
+    // The planets are a few dozen kilobytes, the game is 28 MB and the
+    // models come with it. Asked for together, the small pictures wait
+    // behind the big ones and the planets turned up only with the bar
+    // (Silvio, 25.11.2026). So the sky is fetched first and the rest is
+    // held back until it is in - at most a moment, never longer.
+    var pending = 0, started = false;
+    function skyIn(){ if(started) return; started = true; beginDownloads(); }
     var nebName = NEBS[(Math.random()*NEBS.length)|0];
 
     // the game's applyResolution: 800 x 500, centred, letterboxed
@@ -283,11 +290,15 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
           y: GHUD - w*0.25 + Math.random()*(GH - GHUD + w*0.5),
           spd: 0.03 + (w/900)*(0.13 - 0.03)});
         var im = new Image();
+        if('fetchPriority' in im) im.fetchPriority = 'high';
+        pending++;
+        im.onerror = function(){ if(--pending <= 0) skyIn(); };
         im.onload = function(){
           var bc = document.createElement('canvas');
           bc.width = im.naturalWidth; bc.height = im.naturalHeight;
           bc.getContext('2d').drawImage(im, 0, 0);
           bodyImgs[d.key] = bc;
+          if(--pending <= 0) skyIn();
         };
         im.src = 'bodies/' + d.file;
       }
@@ -299,6 +310,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     // The nebula is a few megabytes. It is fetched beside the sequence and
     // appears when it is here - the sequence never waits for it.
     var ni = new Image();
+    if('fetchPriority' in ni) ni.fetchPriority = 'high';
     ni.onload = function(){
       var nc = document.createElement('canvas');
       nc.width = ni.naturalWidth; nc.height = ni.naturalHeight;
@@ -309,6 +321,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
 
     roll(); fit();
     window.addEventListener('resize', fit);
+    if(!pending) skyIn(); else setTimeout(skyIn, 2500);   // never a hostage
 
     function frame(){
       fc++;
@@ -381,6 +394,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     addEventListener('mousedown', end); addEventListener('touchstart', end);
     addEventListener('keydown', end);
   })();
+  function beginDownloads(){
   for(var k=0; k<6; k++) nextModel();
   var url = GAME + '?b=' + STAMP;
   fetch(url).then(function(r){
@@ -399,6 +413,7 @@ body{background:#000;color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;
     }
     return pump();
   }).catch(fail);
+  }
 })();
 </script>
 </body>
