@@ -7491,8 +7491,13 @@ scenario('F148 v365 M28: briefing first, clock stopped, orders as buttons in the
   const t0 = MLOG.t;
   for(let i=0;i<60;i++) update();          // not FS.step: that dismisses it
   r.clockStood = (MLOG.t === t0);
-  // A tap anywhere launches the mission, and the clock runs again.
-  briefClose();
+  // The briefing is left by its own ACCEPT button, not by a tap anywhere.
+  draw();
+  const bb = window._briefBtnRect;
+  r.acceptButton = !!bb;
+  pointerConsumed({x:10, y:H-10});
+  r.staysOnStrayTap = !!briefOpen;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
   r.briefGone = !briefOpen && !paused;
   FS.step(6*TICK_HZ);
   r.clockRuns = MLOG.t > t0;

@@ -703,10 +703,11 @@ function briefWrap(txt, w){
 function drawBriefing(){
   if(!briefOpen || !briefDef || GS!=='playing') return;
   const pw = 560, pad = 18, headH = 44, rowH = 20, lineH = 16;
+  const btnW = 120, btnH = 26;
   ctx.font = thValue(12, false);
   const body = briefWrap(briefDef.text, pw - 2*pad);
   const nObj = briefDef.ziele.length;
-  const ph = headH + 14 + body.length*lineH + 18 + 14 + nObj*rowH + 12 + 26;
+  const ph = headH + 14 + body.length*lineH + 18 + 14 + nObj*rowH + 14 + btnH + 14;
   const px = ((W-pw)/2)|0, py = Math.max(HUD_H + 4, ((H-ph)/2)|0);
   thFrame(px, py, pw, ph, headH);
   window._briefPanelRect = {x:px, y:py, w:pw, h:ph};
@@ -735,9 +736,15 @@ function drawBriefing(){
     ctx.fillText(thFit(z, x1 - (x0 + 18)), x0 + 18, cy);
     y += rowH;
   }
-  ctx.textAlign = 'center'; ctx.fillStyle = TH('accent'); ctx.font = thLabel(11);
-  ctx.fillText('CLICK OR PRESS ANY KEY TO LAUNCH', px + pw/2, py + ph - 15);
+  // The button that starts the mission (Silvio, 25.11.2026: "mach bitte
+  // einen Button und nicht einfach nur einen blauen Text").
+  const bx = (px + (pw-btnW)/2)|0, by = (py + ph - 14 - btnH)|0;
+  const st = btnState(true, false, hovering(bx, by, btnW, btnH));
+  thButton(bx, by, btnW, btnH, st);
+  ctx.textAlign = 'center'; ctx.fillStyle = btnText(st); ctx.font = thValue(13, true);
+  ctx.fillText('ACCEPT', bx + btnW/2, by + btnH/2 + 0.5);
   ctx.textAlign = 'left';
+  window._briefBtnRect = {x:bx, y:by, w:btnW, h:btnH};
 }
 
 function drawPaused(){
@@ -3837,9 +3844,13 @@ function pointerConsumed(p){
   // The tap that puts you back in the fight is spent on that and nothing
   // else - it must not also fire, steer or open a panel.
   if(clearResumeHold()) return true;
-  // F148: the briefing is dismissed by any tap, wherever it lands, and
-  // that tap launches the mission and does nothing else.
-  if(briefOpen){ briefClose(); return true; }
+  // F148: the briefing is left by its own ACCEPT button. Everywhere else
+  // the tap is swallowed, as with every other window.
+  if(briefOpen){
+    const bb = window._briefBtnRect;
+    if(bb && p.x>=bb.x && p.x<=bb.x+bb.w && p.y>=bb.y && p.y<=bb.y+bb.h) briefClose();
+    return true;
+  }
   if(GS!=='playing') return false;
   if(rearmMenu){
     for(const r of (window._rearmRects||[]))
@@ -4292,7 +4303,9 @@ function inputPress(ev){
     return false;
   }
   if(GS!=='playing') return false;
-  if(briefOpen){ briefClose(); return true; }     // F148: any key launches
+  // F148: the ACCEPT button starts the mission; Enter and Space do the
+  // same, so the hand need not leave the keyboard. No other key does.
+  if(briefOpen){ if(ev.code==='Enter'||ev.code==='Space') briefClose(); return true; }
   if(bindIs('settings', ev) && !windowOpen()){ setSettings(!settingsOpen); return true; }
   if(bindIs('pause', ev)){ userPaused=!userPaused; syncPause(); return true; }
   if(settingsOpen) return false;
