@@ -2779,7 +2779,11 @@ const SCRIPT_WAVES = {
   // Eve of Destruction (fs1/sm1-01a). Four wings of Anubis against the
   // Orff; she is lost, the mission is lost.
   1: {name:'Eve of Destruction', era:'fs1', orig:1, ship:'fiapollo', fac:'hol', o:'clear', live:6,
-      ziel:'Protect the GTC Orff - destroy all attackers', u:[
+      ziel:'Protect the GTC Orff',
+      zielKurz:'Protect GTC Orff', zielZu:'A1',
+      brief:{text:'Vasudan fighters are attacking the GTC Orff. We are her only escort. '+
+                  'Protect the Cruiser.',
+             ziele:['Protect the GTC Orff']}, u:[
        {id:'A1', mark:'protect', c:'cr', n:1, spr:'crfenris', side:'ally', guard:true, still:true,
         x:178, y:278, label:'GTC Orff'},
        {id:'W1', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', label:'Alpha 2'},
@@ -2803,7 +2807,11 @@ const SCRIPT_WAVES = {
   // field, two of them at once from two sides; with three Vasudans left
   // their ace comes for the player - always, not only for a healthy one.
   2: {name:'The Field of Battle', era:'fs1', orig:2, ship:'fiapollo', fac:'hol', o:'clear', live:8, stillRocks:true,
-      ziel:'Destroy all Vasudan fighters', u:[
+      ziel:'Destroy all Vasudan fighters',
+      zielKurz:'Destroy Vasudan fighters', zielZu:'E1+E2+E3+E4+S1',
+      brief:{text:'Vasudan fighters are hiding inside the asteroid field. '+
+                  'Sweep the area and destroy them all.',
+             ziele:['Destroy all Vasudan fighters']}, u:[
        {id:'R1', c:'ast', n:70, spread:1},
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
        {id:'E1', c:'fi', n:1, size:3, spr:'fianubis', t:5, x:171, y:249},
@@ -2820,7 +2828,8 @@ const SCRIPT_WAVES = {
        {t:'da', a:'E3', d:30, w:'einwarpen', a2:'E4'},
        {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'einwarpen', a2:'S1'},
        {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'meldung', a2:'A Vasudan ace is coming for you'},
-       {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'bonus', a2:'Shoot down the ace'},
+       {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'bonus', a2:'Shoot down the ace',
+        kurz:'Shoot down the ace', zu:'S1'},
        {t:'vernichtet', a:'S1', w:'bonusOk', a2:'The ace is down'},
        {t:'alleZerstoert', a:'E1+E2+E3+E4+S1', w:'zielerfuellt', a2:'All Vasudans destroyed'}
      ]},
@@ -2832,7 +2841,16 @@ const SCRIPT_WAVES = {
   // (playerOnly): Vasudan fire is for us, ours goes through - only the
   // player can hit one.
   3: {name:'Small Deadly Space', era:'fs1', orig:3, ship:'fiapollo', fac:'hol', o:'clear', live:6,
-      ziel:'Intercept the Bast and the Ma\'at', u:[
+      ziel:'Intercept Vasudans',
+      // F149: a counted destroy objective - a freighter that gets away is
+      // not counted, so the button shows the partial success honestly.
+      zielKurz:'Intercept freighters', zielZu:'F1+F2', zielSoll:2, zielZaehl:'vernichtet',
+      brief:{text:'Vasudans are raiding our cargo depots and try to steal what\'s ours. '+
+                  'Destroy any strike craft you encounter and keep our cargo safe.\n'+
+                  'The GTT Omega will then warp in and recover the most important freight. '+
+                  'Cover her until she leaves.',
+             ziele:['Intercept Vasudans',
+                    'Cover the Omega']}, u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
        {id:'K1', c:'fc', n:1, spr:'fcvc3', x:159, y:268},
        {id:'C1', c:'fc', n:1, spr:'fcvc3', x:203, y:234},
@@ -2849,8 +2867,10 @@ const SCRIPT_WAVES = {
        {id:'E4', c:'fi', n:1, size:3, spr:'fianubis', wait:true},
        {id:'E5', c:'fi', n:1, size:3, spr:'fianubis', wait:true}
      ], ev:[
-       {t:'sek', a:4, w:'meldung', a2:'Bonus: one container holds a weapon prototype - scan it'},
-       {t:'gescannt', a:'P1', w:'meldung', a2:'Bonus: weapon prototype found'},
+       // F149: a real bonus with its own button, not just a message.
+       {t:'sek', a:4, w:'bonus', a2:'Scan the container with the weapon prototype',
+        kurz:'Scan container', zu:'P1'},
+       {t:'gescannt', a:'P1', w:'bonusOk', a2:'Weapon prototype found'},
        // a freighter gone, whichever way: two more Anubis
        {t:'zerstoert', a:'F1', w:'einwarpen', a2:'E3'},
        {t:'zerstoert', a:'F2', w:'einwarpen', a2:'E3'},
@@ -2860,10 +2880,12 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'F1', w:'meldung', a2:'The Bast got away with her container'},
        {t:'verlaesst', a:'F2', w:'meldung', a2:'The Ma\'at got away with her container'},
        {t:'vernichtet', a:'F1+F2', w:'zielerfuellt', a2:'Both freighters stopped'},
-       {t:'alleZerstoert', a:'F1+F2', w:'ziel', a2:'Destroy the Vasudan fighters'},
+       {t:'alleZerstoert', a:'F1+F2', w:'ziel', a2:'Destroy the Vasudan fighters',
+        kurz:'Destroy fighters', zu:'E1+E2+E3'},
        // the field clear: the Omega comes for the agreed container
        {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'einwarpen', a2:'T1'},
-       {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'ziel', a2:'Cover the Omega'},
+       {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'ziel', a2:'Cover the Omega',
+        kurz:'Cover the Omega', zu:'T1'},
        {t:'da', a:'T1', d:5,  w:'einwarpen', a2:'E4'},
        {t:'da', a:'T1', d:15, w:'einwarpen', a2:'E5'},
        // F56 (v256): the container shot before she has loaded - she jumps
@@ -2886,7 +2908,15 @@ const SCRIPT_WAVES = {
   // At the latest after 60/75 s they run anyway, so the mission ends
   // even if nobody ever fires on them.
   4: {name:'Avenging Angels', era:'fs1', orig:4, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
-      ziel:'Disable the Omega - engines and weapons', u:[
+      ziel:'Disable Omega engines and weapons',
+      zielKurz:'Disable the Omega', zielZu:'O1',
+      brief:{text:'The GTT Omega is transporting defected Terran personnel and is to be taken '+
+                  'intact. Disable her engines and weapons so she cannot run. '+
+                  'The GTT Comet will board her. Cover the Comet until the Omega is ours.\n'+
+                  'Intelligence assumes a Vasudan transport in the area. If you encounter it, '+
+                  'try to disable it as well.',
+             ziele:['Disable Omega engines and weapons',
+                    'Cover the Comet']}, u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
        {id:'O1', mark:'disable', c:'tr', n:1, spr:'trelysium', x:175, y:253, escape:0.15, escWarp:true,
         escHit:true, escDelay:60, subs:'engines+weapons', capture:true, label:'GTT Omega'},
@@ -2902,11 +2932,14 @@ const SCRIPT_WAVES = {
        {id:'T2', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally', x:107, y:291, warpIn:true,
         dockTo:'R1', dockHold:8, dockLabel:'BOARDING', wait:true, label:'GT Intelligence 1'}
      ], ev:[
-       {t:'sek', a:4, w:'meldung', a2:'Bonus: disable the Rasputin as well'},
+       // F149: both bonuses are real objectives with their own buttons.
+       {t:'sek', a:4, w:'bonus', a2:'Disable the Rasputin as well',
+        kurz:'Disable Rasputin', zu:'R1'},
        // the Omega dead in space: the Comet and two Anubis
        {t:'subsystem', a:'O1', b:'engines+weapons', w:'einwarpen', a2:'T1'},
        {t:'subsystem', a:'O1', b:'engines+weapons', w:'einwarpen', a2:'E3'},
-       {t:'subsystem', a:'O1', b:'engines+weapons', w:'ziel', a2:'Cover the Comet'},
+       {t:'subsystem', a:'O1', b:'engines+weapons', w:'ziel', a2:'Cover the Comet',
+        kurz:'Cover the Comet', zu:'T1'},
        // F89: disabled - her yellow frame goes out
        {t:'subsystem', a:'O1', b:'engines+weapons', w:'markieren', a2:'O1:'},
        {t:'angedockt', a:'T1', w:'kapern', a2:'O1'},
@@ -2921,9 +2954,13 @@ const SCRIPT_WAVES = {
        {t:'beschossen', a:'R1', w:'einwarpen', a2:'E4'},
        // bonus: the Rasputin dead in space, and Intelligence takes her
        {t:'subsystem', a:'R1', b:'engines+weapons', w:'einwarpen', a2:'T2'},
-       {t:'subsystem', a:'R1', b:'engines+weapons', w:'meldung', a2:'Bonus: Intelligence is coming for the Rasputin'},
+       // The first bonus is settled before the second one opens.
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'bonusOk', a2:'The Rasputin is dead in space'},
+       {t:'subsystem', a:'R1', b:'engines+weapons', w:'bonus', a2:'Protect GT Intelligence 1',
+        kurz:'Protect GTT Intelligence', zu:'T2'},
        {t:'angedockt', a:'T2', w:'kapern', a2:'R1'},
-       {t:'angedockt', a:'T2', w:'meldung', a2:'Bonus: PVT Rasputin captured'},
+       {t:'angedockt', a:'T2', w:'bonusOk', a2:'PVT Rasputin captured'},
+       {t:'vernichtet', a:'T2', w:'bonusFail', a2:'GT Intelligence 1 destroyed'},
        {t:'vernichtet', a:'T2', w:'freigeben', a2:'R1'},
        {t:'vernichtet', a:'T2', d:3, w:'raus', a2:'R1'}
      ]},
@@ -2933,7 +2970,12 @@ const SCRIPT_WAVES = {
   // unknowns: they go for the Vasudans first (feud), then the Plato. Unlike
   // the original she can be saved. Under 20 % hull she launches a pod.
   5: {name:'Out of the Dark, Into the Night', era:'fs1', orig:5, ship:'fiapollo', fac:'hol', o:'clear', live:6,
-      feud:true, ziel:'Protect the Plato', u:[
+      feud:true, ziel:'Protect the Plato',
+      zielKurz:'Protect the Plato', zielZu:'P1',
+      brief:{text:'Our job is to protect the science vessel GTSC Plato crossing this sector.\n'+
+                  'Vasudans have ambushed this place before, so we are sent in to escort '+
+                  'her through.',
+             ziele:['Protect the Plato']}, u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiapollo', side:'ally'},
        {id:'P1', mark:'protect', c:'cr', n:1, spr:'scfaustus', side:'ally', guard:true, crossSecs:120,
         y:274, label:'GTSC Plato'},
@@ -2968,17 +3010,20 @@ const SCRIPT_WAVES = {
        {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'S0'},
        {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'S1'},
        {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'X1'},
-       {t:'da', a:'S0', w:'nebenziel', a2:'Scan an unknown'},
+       {t:'da', a:'S0', w:'nebenziel', a2:'Scan an unknown',
+        kurz:'Scan unknown fighter', zu:'S0'},
        {t:'da', a:'S0', d:20, w:'einwarpen', a2:'S2'},
        {t:'da', a:'S0', d:20, w:'einwarpen', a2:'X2'},
        {t:'gescannt', a:'S0', w:'nebenOk', a2:'Unknown scanned'},
-       {t:'gescannt', a:'S0', w:'bonus', a2:'Shoot down an unknown'},
+       {t:'gescannt', a:'S0', w:'bonus', a2:'Shoot down an unknown',
+        kurz:'Destroy 1 fighter', zu:'S0+S1+X1'},
        {t:'anzahlUnter', a:'S0+S1+X1', b:4, w:'bonusOk', a2:'An unknown is down'},
        // under 20 %, or gone at once: the escape pod
        {t:'rumpfUnter', a:'P1', b:20, w:'einwarpen', a2:'H1'},
        {t:'rumpfUnter', a:'P1', b:20, w:'meldung', a2:'The Plato launches an escape pod'},
        {t:'vernichtet', a:'P1', w:'einwarpen', a2:'H1'},
-       {t:'vernichtet', a:'P1', w:'ziel', a2:'Cover the escape pod'},
+       {t:'vernichtet', a:'P1', w:'ziel', a2:'Cover the escape pod',
+        kurz:'Cover the pod', zu:'H1'},
        // the ends - order counts: an 'abzug' closes every later event
        {t:'verlaesst', a:'P1', w:'zielerfuellt', a2:'The Plato is through'},
        {t:'verlaesst', a:'P1', w:'abzug', a2:''},
@@ -5828,6 +5873,16 @@ function evTrigAny(c){
   return false;
 }
 function evSeen(id){ return !!EV_SEEN[id]; }
+// F149: how many of these ids are destroyed - read exactly as the
+// 'vernichtet' trigger reads it, so a counted destroy objective and its
+// trigger cannot drift apart. A ship that got away is not counted.
+function countDestroyed(ids){
+  let n = 0;
+  for(const id of String(ids||'').split('+'))
+    if(id && evSeen(id) && byId(id).length===0
+       && !EV_LEFT[id] && !EV_FLED[id] && !EV_TAKEN[id]) n++;
+  return n;
+}
 // A trigger may name several ids joined with '+'.
 function evIds(a){ return String(a||'').split('+'); }
 // Ist fuer diese Kennung ein Seitenwechsel vorgesehen? Dann bekommt sie

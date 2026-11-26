@@ -7524,6 +7524,65 @@ scenario('F148 v365 M28: briefing first, clock stopped, orders as buttons in the
   r.podsColour = !!pod && ['done','part','fail'].indexOf(pod.st) >= 0;
   return r;`);
 
+// F149 (v370): the briefing and the order buttons rolled out to M1-M5.
+// Round one of F148 for the rest of the missions.
+scenario('F149 v370 M1-M5: every one has her briefing, and M1 shows her order as a button', 'm=1', `
+  const r = {};
+  // Every one of the five carries a briefing with text and orders.
+  r.allBriefed = [1,2,3,4,5].every(n => {
+    const d = SCRIPT_WAVES[n];
+    return d && d.brief && d.brief.text.length > 20 && (d.brief.ziele||[]).length >= 1;
+  });
+  // Nothing in these texts carries a comma before an 'and' (Silvio).
+  r.noCommaAnd = [1,2,3,4,5].every(n =>
+    SCRIPT_WAVES[n].brief.text.indexOf(', and ') < 0);
+  // Every main order has its short label and the id its button jumps to.
+  r.allLabelled = [1,2,3,4,5].every(n => {
+    const d = SCRIPT_WAVES[n];
+    return !!d.zielKurz && !!d.zielZu;
+  });
+  // M1: the briefing is up first, the clock stands, ACCEPT lets her start.
+  r.briefUp = !!briefOpen && !!paused;
+  const t0 = MLOG.t;
+  for(let i=0;i<60;i++) update();
+  r.clockStood = (MLOG.t === t0);
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  r.briefGone = !briefOpen && !paused;
+  FS.step(3*TICK_HZ);
+  // Her one order stands in the bar, and its button holds the Orff.
+  const n = objBarList().map(o => objBarLabel(o));
+  r.oneButton = n.length === 1 && n[0] === 'PROTECT GTC ORFF';
+  draw();
+  const rect = (window._objBtns||[]).find(b => b.o.zu === 'A1');
+  if(rect){
+    TGT.e = null;
+    objBarClick({x:rect.x + rect.w/2, y:rect.y + rect.h/2});
+    r.clickHolds = !!TGT.e && TGT.e.uid === 'A1';
+  }
+  return r;`);
+
+// F149: M3 is the counted one - two freighters, and a freighter that got
+// away is not counted as stopped. The scan bonus is a real order now.
+scenario('F149 v370 M3: the freighter button counts, and the scan is a bonus with a button', 'm=3', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(6*TICK_HZ);
+  const names = () => objBarList().map(o => objBarLabel(o));
+  r.startsAtZero = names().some(t => t === 'INTERCEPT FREIGHTERS (0/2)');
+  r.scanBonus = names().some(t => t === 'SCAN CONTAINER');
+  // One freighter destroyed: the tally moves.
+  FS.killId('F1');
+  FS.step(3*TICK_HZ);
+  r.oneOfTwo = names().some(t => t === 'INTERCEPT FREIGHTERS (1/2)');
+  FS.killId('F2');
+  FS.step(3*TICK_HZ);
+  r.twoOfTwo = names().some(t => t === 'INTERCEPT FREIGHTERS (2/2)');
+  return r;`);
+
 // F146 (M29): the briefing's own plan is the mission - her radio room dies
 // first, or she calls Krishna in. Both branches have to reach an end. The
 // cruiser is held up with a huge hull here, so the clock can run past her

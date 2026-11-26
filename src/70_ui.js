@@ -1067,6 +1067,9 @@ function objTally(o){
   let n;
   if(o.zaehl === 'gerettet') n = protSaved;
   else if(o.zaehl === 'entkommen') n = escGone;
+  // F149: a counted destroy objective - how many of the ids the button
+  // jumps to are destroyed.
+  else if(o.zaehl === 'vernichtet' && typeof countDestroyed === 'function') n = countDestroyed(o.zu);
   else return null;
   return {n:Math.min(n|0, o.soll), soll:o.soll};
 }
