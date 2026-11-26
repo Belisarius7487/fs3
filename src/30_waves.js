@@ -3017,11 +3017,20 @@ const SCRIPT_WAVES = {
        {t:'gescannt', a:'S0', w:'nebenOk', a2:'Unknown scanned'},
        {t:'gescannt', a:'S0', w:'bonus', a2:'Shoot down an unknown',
         kurz:'Destroy 1 fighter', zu:'S0+S1+X1'},
-       {t:'anzahlUnter', a:'S0+S1+X1', b:4, w:'bonusOk', a2:'An unknown is down'},
+       {t:'anzahlUnter', a:'S0+S1+X1', b:4, w:'bonusOk', a2:'An unknown is down',
+        fuer:'Destroy 1 fighter'},
        // under 20 %, or gone at once: the escape pod
        {t:'rumpfUnter', a:'P1', b:20, w:'einwarpen', a2:'H1'},
        {t:'rumpfUnter', a:'P1', b:20, w:'meldung', a2:'The Plato launches an escape pod'},
        {t:'vernichtet', a:'P1', w:'einwarpen', a2:'H1'},
+       // F149 (Silvio, 26.11.2026): the pod is a bonus of its own, however
+       // she came to be launched - the Plato's hull or the Plato's death.
+       {t:'rumpfUnter', a:'P1', b:20, w:'bonus', a2:'Protect the escape pod',
+        kurz:'Protect Escape Pod', zu:'H1'},
+       {t:'verlaesst', a:'H1', w:'bonusOk', a2:'The escape pod is away',
+        fuer:'Protect Escape Pod'},
+       {t:'vernichtet', a:'H1', w:'bonusFail', a2:'The escape pod is lost',
+        fuer:'Protect Escape Pod'},
        {t:'vernichtet', a:'P1', w:'ziel', a2:'Cover the escape pod',
         kurz:'Cover the pod', zu:'H1'},
        // the ends - order counts: an 'abzug' closes every later event
@@ -6119,11 +6128,13 @@ function evFire(ev){
     // F112 (v293): a bonus or a second objective of its own, beside the
     // main one (keep:true - a bonus that is won with the main objective)
     case 'bonus':      objMeta(evMeta(ev)); mlogSide('bonus', arg, ev.keep); break;
-    case 'bonusOk':    mlogSideResult('bonus', 'done', arg); break;
-    case 'bonusFail':  mlogSideResult('bonus', 'fail', arg); break;
+    // F149: 'fuer' names the objective a result is meant for, so a mission
+    // with two of them open cannot settle the wrong one.
+    case 'bonusOk':    mlogSideResult('bonus', 'done', arg, ev.fuer); break;
+    case 'bonusFail':  mlogSideResult('bonus', 'fail', arg, ev.fuer); break;
     case 'nebenziel':  objMeta(evMeta(ev)); mlogSide('neben', arg); break;
-    case 'nebenOk':    mlogSideResult('neben', 'done', arg); break;
-    case 'nebenFail':  mlogSideResult('neben', 'fail', arg); break;
+    case 'nebenOk':    mlogSideResult('neben', 'done', arg, ev.fuer); break;
+    case 'nebenFail':  mlogSideResult('neben', 'fail', arg, ev.fuer); break;
     // F148 (Silvio, 25.11.2026): a counted objective is judged by its own
     // tally when the group is through - all of them green, some of them
     // yellow, none of them red. Written once here, for every mission.

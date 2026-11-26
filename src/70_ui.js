@@ -1103,10 +1103,17 @@ function mlogSideEnd(kind, txt){
     return;
   }
 }
-function mlogSideResult(kind, st, txt){
+// F149: with two of them open at once, the latest is not always the one
+// that was won. 'fuer' names the objective by its short label or its words;
+// without it the latest open one is taken, as before.
+function mlogSideResult(kind, st, txt, fuer){
+  const want = String(fuer||'').trim().toUpperCase();
   for(let i=MLOG.objs.length-1;i>=0;i--){
     const o = MLOG.objs[i];
-    if(o.side === kind && o.st === 'open'){ o.st = st; o.stT = fc; break; }
+    if(o.side !== kind || o.st !== 'open') continue;
+    if(want && String(o.kurz||'').toUpperCase() !== want
+            && String(o.txt||'').toUpperCase().indexOf(want) < 0) continue;
+    o.st = st; o.stT = fc; break;
   }
   if(txt) mlogLine(txt, st==='done'?'good':'bad');
 }
@@ -2009,8 +2016,15 @@ function drawHUD(){
 const OBJ_BAR_H = 13;        // the strip the squeezed columns give up
 const OBJ_BAR_MAX = 4;       // more than four are not read at a glance
 const OBJ_BAR_BLINK = 220;   // steps an order blinks after it is settled
+// F149 (Silvio, 26.11.2026): "wenn Ziele erfuellt sind, sollten sie nicht
+// ewig in der oberen Leiste bleiben, sonst haben wir irgendwann mal zehn
+// kleine Knoepfchen da oben". A settled order blinks in its colour and then
+// leaves the strip; the pause screen keeps every one of them.
+const OBJ_BAR_KEEP = OBJ_BAR_BLINK + 80;
 function objBarList(){
-  return MLOG.objs.slice(0, OBJ_BAR_MAX);
+  return MLOG.objs.filter(function(o){
+    return o.st === 'open' || (fc - (o.stT||0)) < OBJ_BAR_KEEP;
+  }).slice(0, OBJ_BAR_MAX);
 }
 function objBarLabel(o){
   let t = o.kurz || o.txt;

@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F149 | **Runde 1 von F148 ausgerollt: M1 bis M5** (v370). Jede der fuenf hat ihren Besprechungstext und ihre Auftragsknoepfe; Silvio hat die Texte am 26.11.2026 im Chat abgenommen. Neu dabei: ein Zaehler fuer ein Zerstoerungsziel (M3, Intercept freighters 0/2) und aus den bisherigen Bonus-Meldungen in M3 und M4 sind echte Bonusziele mit Knopf geworden. Noch offen: M6 bis M27 und M29 | v370 |
+| F149 | **Runde 1 von F148 ausgerollt: M1 bis M5** (v370, v371). Jede der fuenf hat ihren Besprechungstext und ihre Auftragsknoepfe; Silvio hat die Texte am 26.11.2026 im Chat abgenommen. Neu dabei: ein Zaehler fuer ein Zerstoerungsziel (M3, Intercept freighters 0/2) und aus den bisherigen Bonus-Meldungen in M3 und M4 sind echte Bonusziele mit Knopf geworden. Noch offen: M6 bis M27 und M29. **v371:** erfuellte Auftraege verlassen die Leiste, nachdem sie in ihrer Farbe geblinkt haben (sie bleiben im Pausebildschirm), und in M5 ist die Rettungskapsel der Plato ein eigenes Bonusziel | v370, v371 |
 | F148 | **Besprechung vor der Mission und Auftragsknöpfe in der Leiste** (v365/v366): vor jeder geschriebenen Mission steht ein Besprechungsbildschirm mit Lage und Aufträgen, die Missionsuhr läuft dabei nicht, ein Klick startet. In der Leiste tragen Hülle/Leben/PRIMARY/SECONDARY einen Streifen darunter frei; dort stehen die Aufträge als anklickbare Knöpfe, die das Ziel anvisieren, mit Zähler („(1/4)") und Farbe für Erfolg, Teilerfolg und Fehlschlag. Zuerst nur an M28; die übrigen Missionen folgen. v366: ACCEPT-Knopf statt Textzeile | v365, v366 |
 | F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v362:** übergebene Zeichenflächen geben sich jetzt als fertig geladene Bilder aus, sonst blinken die Planeten beim Übergang einmal weg | v354–v362 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
@@ -178,6 +178,24 @@ ein Auftragsknopf nur mitzählen, wie viele Schützlinge durchgekommen sind
 Auslöser `vernichtet`, damit Knopf und Auslöser nicht auseinanderlaufen.
 **Ein Frachter, der entkommt, wird nicht mitgezählt** — sonst stünde ein
 Teilerfolg als voller Erfolg am Knopf.
+
+**Nachtrag v371 (Silvio, 26.11.2026).** Zwei Punkte aus demselben Gespräch:
+
+1. **Erfüllte Aufträge verlassen die Leiste** — „wenn Ziele erfüllt sind,
+   sollten sie nicht ewig in der oberen Leiste bleiben, sonst haben wir
+   irgendwann mal zehn kleine Knöpfchen da oben". Ein Auftrag blinkt nach
+   seinem Ergebnis noch in seiner Farbe (`OBJ_BAR_BLINK`) und verschwindet
+   dann aus dem Streifen (`OBJ_BAR_KEEP`). **Im Pausebildschirm bleibt jeder
+   Auftrag mit seinem Ergebnis stehen** — dort wird nichts entfernt.
+2. **M5: die Rettungskapsel der Plato ist ein eigenes Bonusziel**
+   („Protect Escape Pod"), sobald die Plato sie aussetzt. Stirbt die Plato
+   ganz, nennt schon der Hauptauftrag die Kapsel, deshalb hängt der Bonus
+   nur am Aussetzen bei niedriger Hülle.
+
+Dabei fiel eine Falle auf: M5 hat jetzt zwei Bonusziele, die gleichzeitig
+offen sein können, und `bonusOk`/`bonusFail` trafen immer das **zuletzt**
+geöffnete. Ein Ereignis kann sein Ziel jetzt mit `fuer:'<Kurzname>'` nennen;
+ohne `fuer` bleibt es beim alten Verhalten.
 
 **Geprüft:** `./checks.sh --fast` grün, `warpsim` über die Missionen 1 bis 5
 ohne neue Funde (die zwei Meldungen in M4 bestehen schon in v369), und zwei

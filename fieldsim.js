@@ -7579,8 +7579,49 @@ scenario('F149 v370 M3: the freighter button counts, and the scan is a bonus wit
   FS.step(3*TICK_HZ);
   r.oneOfTwo = names().some(t => t === 'INTERCEPT FREIGHTERS (1/2)');
   FS.killId('F2');
-  FS.step(3*TICK_HZ);
+  FS.step(TICK_HZ);
   r.twoOfTwo = names().some(t => t === 'INTERCEPT FREIGHTERS (2/2)');
+  // F149: settled, it blinks in its colour and then leaves the strip -
+  // "sonst haben wir irgendwann mal zehn kleine Knoepfchen da oben".
+  r.settled = MLOG.objs.some(o => !o.side && o.st !== 'open');
+  FS.step(6*TICK_HZ);
+  r.leftTheStrip = !names().some(t => t.indexOf('INTERCEPT FREIGHTERS') === 0);
+  r.keptInPause = MLOG.objs.some(o => String(o.txt||'').indexOf('INTERCEPT') === 0);
+  return r;`);
+
+// F149: the Plato's escape pod is a bonus of its own, and the mission's two
+// bonuses cannot settle each other.
+scenario('F149 v371 M5: the escape pod is its own bonus, and the right button takes the result', 'm=5', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(2*TICK_HZ);
+  const names = () => objBarList().map(o => objBarLabel(o));
+  r.noPodYet = !names().some(t => t === 'PROTECT ESCAPE POD');
+  // Her hull taken down to a fifth: the pod launches and asks for cover.
+  FS.until(()=>byId('P1').length===1, 400, false);
+  const pl = byId('P1')[0];
+  r.platoThere = !!pl;
+  pl.hp = pl.maxHp * 0.15;
+  FS.step(3*TICK_HZ);
+  r.podAsked = names().some(t => t === 'PROTECT ESCAPE POD');
+  r.podIsBonus = MLOG.objs.some(o => o.side === 'bonus' && o.kurz === 'Protect Escape Pod');
+  // Its button holds the pod itself.
+  draw();
+  const rect = (window._objBtns||[]).find(b => b.o.zu === 'H1');
+  if(rect){
+    TGT.e = null;
+    objBarClick({x:rect.x + rect.w/2, y:rect.y + rect.h/2});
+    r.clickHoldsPod = !!TGT.e && TGT.e.uid === 'H1';
+  }
+  // The pod shot down settles the pod's own button, not another bonus.
+  for(const a of allies) if(a.uid === 'H1'){ a.hp = 0; a.shield = 0; }
+  FS.step(6*TICK_HZ);
+  r.podGone = byId('H1').length === 0;
+  const pod = MLOG.objs.find(o => o.kurz === 'Protect Escape Pod');
+  r.podState = pod ? pod.st : 'none';
+  r.podFailed = !!pod && pod.st === 'fail';
   return r;`);
 
 // F146 (M29): the briefing's own plan is the mission - her radio room dies
