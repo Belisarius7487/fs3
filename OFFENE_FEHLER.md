@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 26.11.2026, v373, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 26.11.2026, v374, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F150 | **M15: die Nelson fuhr nach rechts aus dem Feld und ihr Beschützerauftrag wurde nie grün** (Silvio, 26.11.2026). Gemessen: ihre Querfahrt brauchte 39 Sekunden, der Abzug kam vorher und setzte ihr Ereignis auf „erledigt". Jetzt wartet sie bei den Transportern und springt am Missionsende mit der Pinnacle ab | v374 |
 | F148 | **Besprechung vor der Mission und Auftragsknöpfe in der Leiste** (v365/v366): vor jeder geschriebenen Mission steht ein Besprechungsbildschirm mit Lage und Aufträgen, die Missionsuhr läuft dabei nicht, ein Klick startet. In der Leiste tragen Hülle/Leben/PRIMARY/SECONDARY einen Streifen darunter frei; dort stehen die Aufträge als anklickbare Knöpfe, die das Ziel anvisieren, mit Zähler („(1/4)") und Farbe für Erfolg, Teilerfolg und Fehlschlag. Zuerst nur an M28; die übrigen Missionen folgen. v366: ACCEPT-Knopf statt Textzeile | v365, v366 |
 | F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v362:** übergebene Zeichenflächen geben sich jetzt als fertig geladene Bilder aus, sonst blinken die Planeten beim Übergang einmal weg | v354–v362 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
@@ -255,6 +256,31 @@ Missionen 6 bis 10 grün, `warpsim` über 6 bis 10 ohne neue Funde (die zwei
 Meldungen bestehen schon in v371), und drei neue Szenarien („F149 v372
 M6-M10", „F149 v372 M7", „F149 v372 M9"). Gegen v371 gestellt sind alle drei
 rot.
+
+## F150 — M15: die Nelson fuhr nach rechts aus dem Feld, ihr Auftrag wurde nie grün (v374, 26.11.2026)
+
+Silvio, 26.11.2026: „Die GTFR Nelson fliegt in M15 nach rechts aus dem
+Spielfeld. Ob mit Warp oder nicht, konnte ich nicht sehen, aber mir schien
+ihr Beschützerauftrag wurde nie grün, wenn sie entkam. Es macht aber auch
+keinen Sinn, dass sie das einzige Schiff ist, welches nach rechts entkommen
+will. Sinnvoller für diese Mission wäre es, wenn alle Iota-Transporter nach
+und nach abfliegen und die Nelson mit der Pinnacle rauswarpt, oder?"
+
+**Ursache, im Spiel nachgemessen** (`fieldsim`, M15): Die Nelson fuhr mit
+`cross:0.15` quer über das Feld und brauchte **39 Sekunden**, bis sie den
+rechten Weltrand wirklich hinter sich hatte — erst dort wird `EV_LEFT`
+gesetzt und erst dann kann ihr `verlaesst`-Ereignis feuern. Die Mission war
+vorher zu Ende: `abzug` setzt **alle** noch offenen Ereignisse auf
+„erledigt" (`for(const x of EV) x.done = true`), also auch ihr `nebenOk`.
+Ihr Auftrag blieb damit für immer offen. Gemessen: Abzug bei Schritt 3702,
+Weltrand erst bei 3887.
+
+**Gebaut (v374):** Die Nelson fährt nicht mehr quer, sie steht bei den
+Transportern und **springt am Missionsende mit der Pinnacle ab** (Wirkung
+`raus` auf N1 und P1). Ihr `verlaesst` feuert damit sofort beim Absprung,
+drei Sekunden vor dem Abzug. Die drei Transporter fliegen schon vorher
+nacheinander ab: sie docken an der Pinnacle an (`dockHold`, Aufschrift
+TRANSFER) und springen danach einzeln weg — daran ist nichts geändert.
 
 ## F149 — Runde 3: M11 bis M15 (v373, 26.11.2026, Urteil offen)
 

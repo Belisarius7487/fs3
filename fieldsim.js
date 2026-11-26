@@ -7781,6 +7781,27 @@ scenario('F149 v373 M15: all three transports count, one lost is a partial succe
   r.twoGotThrough = !!EV_LEFT.T1 && !!EV_LEFT.T2;
   return r;`);
 
+// F150 (Silvio, 26.11.2026): the Nelson used to drive off to the right and
+// her order never closed - the withdrawal marked it done before she was
+// over the world edge. She waits and jumps out with the Pinnacle.
+scenario('F150 v374 M15: the Nelson waits, jumps out with the Pinnacle and her order closes', 'm=15', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(2*TICK_HZ);
+  const nel = () => byId('N1')[0];
+  const ord = () => MLOG.objs.filter(x=>x.side==='neben' && String(x.kurz).indexOf('Nelson')>=0)[0];
+  r.startX = Math.round(nel().x);
+  r.orderOpen = (ord()||{}).st === 'open';
+  FS.step(30*TICK_HZ);
+  r.staysPut = !!nel() && Math.abs(nel().x - r.startX) < 40;
+  // Her order closes before the withdrawal, not after it.
+  r.orderClosed = FS.until(()=>(ord()||{}).st === 'done', 40000, true)>=0;
+  r.jumpedOut = !!EV_LEFT.N1;
+  r.pinnacleGone = !!EV_LEFT.P1;
+  return r;`);
+
 // F146 (M29): the briefing's own plan is the mission - her radio room dies
 // first, or she calls Krishna in. Both branches have to reach an end. The
 // cruiser is held up with a huge hull here, so the clock can run past her

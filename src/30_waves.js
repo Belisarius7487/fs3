@@ -3621,7 +3621,12 @@ const SCRIPT_WAVES = {
                     'Protect the Nelson',
                     "Protect the Pinnacle's freighters"]}, u:[
        {id:'A1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
-       {id:'N1', c:'fr', n:1, spr:'frchronos', side:'ally', x:194, y:206, cross:0.15, mark:'protect', label:'GTFr Nelson'},
+       // F150 (Silvio, 26.11.2026): she used to drive off to the right on
+       // her own, which made no sense beside a convoy that leaves by jump -
+       // and her crossing took 39 s, longer than the mission, so her order
+       // never closed. She waits with the transports and jumps out with the
+       // Pinnacle at the end.
+       {id:'N1', c:'fr', n:1, spr:'frchronos', side:'ally', x:194, y:206, still:true, mark:'protect', label:'GTFr Nelson'},
        // They wait where they are until the Pinnacle is there (tickDocking
        // holds a dock whose target has not arrived yet), then meet her.
        {id:'T1', c:'tr', n:1, spr:'trelysium', side:'ally', x:116, y:237,
@@ -3688,6 +3693,12 @@ const SCRIPT_WAVES = {
        {t:'da', a:'L1', w:'jagd', a2:'F1'},
        {t:'da', a:'L1', w:'ziel', a2:'Destroy the remaining fighters',
         kurz:'Destroy remaining fighters', zu:'L1+L2'},
+       // F150: the Pinnacle takes her leave and the Nelson goes with her.
+       // 'raus' sets her as gone right away, so her order closes in the
+       // next step - three seconds before the withdrawal, which would
+       // otherwise mark every open event as done and leave it hanging.
+       {t:'alleZerstoert', a:'L1+L2', w:'raus', a2:'P1'},
+       {t:'alleZerstoert', a:'L1+L2', w:'raus', a2:'N1'},
        {t:'alleZerstoert', a:'L1+L2', w:'nebenEnde', a2:"The Pinnacle's freighters"},
        {t:'alleZerstoert', a:'L1+L2', d:3, w:'abzug', a2:'', hold:true}
      ]},
