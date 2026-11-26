@@ -4707,10 +4707,11 @@ scenario('FS1 M6 Paving the Way: the Galatea, five wings, the jump', 'm=6', `
   if(objCard && objCard.tone) tone = objCard.tone;
   r.success = tone==='done';
   r.ends = FS.until(()=>wave>6, 20000, true, true)>=0;
-  // Mission 7 is the old Hammer of Light again: FS2 rules and arms.
-  FS.until(()=>missionOrig===0, 400, false);
-  r.backToFs2 = currentEra==='fs2' && missionOrig===0 && player.ship==='fitoth'
-             && player.pb.every(b=>!priDefP(b.key).era);
+  // Mission 7 is Pandora's Box, written since: the FS1 strand carries on
+  // with her hull and her arms. It used to be an old Hammer of Light wave,
+  // and this check still expected FS2 rules long after that was true.
+  FS.until(()=>missionOrig===7, 400, false);
+  r.onIntoFs1M7 = currentEra==='fs1' && missionOrig===7 && player.ship==='fivalyrie';
   return r;`);
 
 scenario('FS1 M6: the Galatea lost - failed', 'm=6', `
@@ -5051,6 +5052,9 @@ scenario('FS1 M7 Pandora: three scans, the trap, blast waves that hurt, held out
   const px = k2.x - 50, py = k2.y;
   for(const id of ['K1','K3','K5']) byId(id)[0].scanned = true;
   let minHp = player.maxHp, cargoShocks = 0;
+  // The set of blast waves already counted - it was never declared, so this
+  // scenario died with "seen is not defined" instead of running.
+  const seen = new Set();
   for(let t=0;t<800;t++){
     player.x = px; player.y = py; player.vx = 0; player.vy = 0;
     update(); if(t%25===0) draw();
@@ -7622,6 +7626,85 @@ scenario('F149 v371 M5: the escape pod is its own bonus, and the right button ta
   const pod = MLOG.objs.find(o => o.kurz === 'Protect Escape Pod');
   r.podState = pod ? pod.st : 'none';
   r.podFailed = !!pod && pod.st === 'fail';
+  return r;`);
+
+// F149 (v372): the briefing and the order buttons rolled out to M6-M10.
+// M6 keeps no bonus of its own for the hull - a Galatea that gets out below
+// half hull is a partial success (Silvio, 26.11.2026).
+scenario('F149 v372 M6-M10: every one has her briefing, and M6 below half hull is a partial success', 'm=6', `
+  const r = {};
+  r.allFiveHaveBriefings = [6,7,8,9,10].every(function(n){
+    const d = SCRIPT_WAVES[n];
+    return d && d.brief && d.brief.text.length > 20 && (d.brief.ziele||[]).length >= 1;
+  });
+  r.allFiveHaveButtons = [6,7,8,9,10].every(n => !!SCRIPT_WAVES[n].zielKurz && !!SCRIPT_WAVES[n].zielZu);
+  r.noCommaBeforeAnd = [6,7,8,9,10].every(n => SCRIPT_WAVES[n].brief.text.indexOf(', and ') < 0);
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(2*TICK_HZ);
+  r.galateaButton = objBarList().some(o => objBarLabel(o) === 'PROTECT THE GALATEA');
+  r.noHullBonus = MLOG.objs.every(o => o.side !== 'bonus');
+  // Every wing down while her hull is held under half: a partial success,
+  // not a full one.
+  r.partialSuccess = FS.until(()=>{
+    const q = byId('G1')[0];
+    if(q) q.hp = q.maxHp*0.3;
+    return !!(objCard && objCard.tone === 'part');
+  }, 12000, true)>=0;
+  r.galateaAlive = byId('G1').length === 1 || !!EV_LEFT.G1;
+  r.tone = objCard ? objCard.tone : 'none';
+  return r;`);
+
+// F149 (v372): the scan button of M7 counts, and once the trap is sprung a
+// hint in the bar opens the call menu (Silvio's choice A, 26.11.2026).
+scenario('F149 v372 M7: the scan button counts, and the support hint opens the call menu', 'm=7', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(2*TICK_HZ);
+  const main = () => MLOG.objs.find(o => !o.side);
+  r.countsNone = objBarLabel(main()).indexOf('(0/3)') >= 0;
+  byId('K1')[0].scanned = true; FS.step(10);
+  r.countsOne = objBarLabel(main()).indexOf('(1/3)') >= 0;
+  byId('K3')[0].scanned = true; byId('K5')[0].scanned = true;
+  FS.step(6*TICK_HZ);
+  const hint = () => MLOG.objs.find(o => o.side === 'ruf');
+  r.hintShown = !!hint() && objBarList().some(o => o.side === 'ruf');
+  // A click on it opens the call menu instead of holding a ship.
+  draw();
+  const rect = (window._objBtns||[]).find(b => b.o.side === 'ruf');
+  if(rect){
+    setCallMenu(false);
+    objBarClick({x:rect.x + rect.w/2, y:rect.y + rect.h/2});
+    r.clickOpensCallMenu = !!callMenu;
+    setCallMenu(false);
+  }
+  // Support called: the hint has done its job and leaves the bar.
+  rufHintDone();
+  r.hintSettled = !!hint() && hint().st !== 'open';
+  return r;`);
+
+// F149 (v372): the convoy button of M9 counts the freighters still standing,
+// and its own tally decides the mission - one of them lost is a partial
+// success (Silvio, 26.11.2026: no bonus of its own).
+scenario('F149 v372 M9: the convoy button counts, and one freighter lost is a partial success', 'm=9', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(2*TICK_HZ);
+  const main = () => MLOG.objs.find(o => !o.side);
+  r.noBonusRow = MLOG.objs.every(o => o.side !== 'bonus');
+  r.countsAllThree = objBarLabel(main()).indexOf('(3/3)') >= 0;
+  for(const a of allies) if(a.uid === 'T3'){ a.hp = 0; a.shield = 0; }
+  FS.step(4*TICK_HZ);
+  r.thetaThreeGone = byId('T3').length === 0;
+  r.countsTwo = objBarLabel(main()).indexOf('(2/3)') >= 0;
+  r.partialSuccess = FS.until(()=>objCard && objCard.tone==='part', 12000, true)>=0;
+  r.tone = objCard ? objCard.tone : 'none';
+  r.twoLeave = FS.until(()=>!!EV_LEFT.T1 && !!EV_LEFT.T2, 20000, true)>=0;
   return r;`);
 
 // F146 (M29): the briefing's own plan is the mission - her radio room dies

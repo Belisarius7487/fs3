@@ -750,7 +750,9 @@ function drawBriefing(){
 function drawPaused(){
   // sizes for a phone too: the whole canvas shrinks there (Silvio)
   const pw = 560, pad = 18, rowH = 21, headH = 44;
-  const objs = MLOG.objs.length ? MLOG.objs.slice() : [];
+  // F149: the support hint lives in the bar only - it is no objective and
+  // has no result to show here.
+  const objs = MLOG.objs.filter(function(o){ return o.side !== 'ruf'; });
   if(!objs.length){ const c = currentObjective(); if(c) objs.push({txt:String(c.txt).toUpperCase(), st:'open'}); }
   const tmr = missionTimerLeft();
   const nObj = Math.max(1, objs.length) + (tmr >= 0 ? 1 : 0);
@@ -1070,6 +1072,11 @@ function objTally(o){
   // F149: a counted destroy objective - how many of the ids the button
   // jumps to are destroyed.
   else if(o.zaehl === 'vernichtet' && typeof countDestroyed === 'function') n = countDestroyed(o.zu);
+  // F149: 'uebrig' counts the ids still alive - a convoy button that starts
+  // at (3/3) and drops as freighters die, instead of sitting at (0/3) until
+  // they are through. 'gescannt' counts the ids already scanned.
+  else if(o.zaehl === 'uebrig' && typeof countAlive === 'function') n = countAlive(o.zu);
+  else if(o.zaehl === 'gescannt' && typeof countScanned === 'function') n = countScanned(o.zu);
   else return null;
   return {n:Math.min(n|0, o.soll), soll:o.soll};
 }
@@ -1102,6 +1109,21 @@ function mlogSideEnd(kind, txt){
     if(txt) mlogLine(txt, st==='done'?'good':(st==='fail'?'bad':'part'));
     return;
   }
+}
+// F149: the same judgement for the main objective of a mission - its own
+// tally decides when the mission is over. All of them a full success, some
+// of them a partial one, none of them a failure. Without a tally there is
+// nothing to judge and it counts as met.
+function mainTallyState(){
+  const o = mlogOpen(); if(!o) return 'done';
+  const c = objTally(o); if(!c) return 'done';
+  return (c.n >= c.soll) ? 'done' : (c.n > 0 ? 'part' : 'fail');
+}
+// F149 (Silvio, 26.11.2026): the support hint is not an objective - it is a
+// reminder that reinforcements may be called, and it leaves the bar as soon
+// as the player has called one.
+function rufHintDone(){
+  for(const o of MLOG.objs) if(o.side === 'ruf' && o.st === 'open'){ o.st = 'done'; o.stT = fc; }
 }
 // F149: with two of them open at once, the latest is not always the one
 // that was won. 'fuer' names the objective by its short label or its words;
@@ -2067,7 +2089,9 @@ function drawBarObjectives(x0, y0, w, h){
   for(let i = 0; i < list.length; i++){
     const o = list[i], bw = wide[i];
     const rr = {x:bx, y:y0, w:bw, h:bh, o:o};
-    const can = !!objBarTarget(o), hov = can && hovering(bx, y0, bw, bh);
+    // F149: the support hint has no ship to jump to; it opens the call menu.
+    const can = (o.side === 'ruf') || !!objBarTarget(o);
+    const hov = can && hovering(bx, y0, bw, bh);
     thButton(bx, y0, bw, bh, hov ? 'ready' : null);
     // A slow swell on the ring, so an order is not overlooked in a fight
     // (Silvio: "ein deutlich sichtbarer, leicht wabernder Glow").
@@ -2090,6 +2114,7 @@ function drawBarObjectives(x0, y0, w, h){
 function objBarClick(p){
   for(const rr of (window._objBtns||[])){
     if(p.x < rr.x || p.x > rr.x+rr.w || p.y < rr.y || p.y > rr.y+rr.h) continue;
+    if(rr.o.side === 'ruf'){ setCallMenu(true); return true; }
     const t = objBarTarget(rr.o);
     if(t) tgtSet(t, objBarSub(t, rr.o.sub));
     return true;        // the strip swallows the click either way

@@ -2072,6 +2072,8 @@ function callAlly(id){
   initSubsystems(a);
   const cost = allyCost(id);
   score -= cost; a.callCost = cost;
+  // F149: the support hint in the objective bar has done its job.
+  if(typeof rufHintDone === 'function') rufHintDone();
   STATS.escortsCalled++;
   plogCall(a, cost);
   if(!a.colossus) assignStation(a);   // she has one station and it is the top

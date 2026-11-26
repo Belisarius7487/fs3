@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 25.11.2026, v364, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 26.11.2026, v372, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F149 | **Runde 2: Besprechung und Auftragsknöpfe für M6 bis M10** (v372). Die Texte sind wörtlich von Silvio. M6 ohne Hüllen-Bonus, dafür Teilerfolg unter halber Hülle; M7 mit Scanzähler, den Geschütztürmen als Auftrag und einem Knopf „Call support (C + 1/2/3)", der das Rufmenü öffnet; M9 und M10 ohne Bonus, der Knopf zählt die stehenden Frachter und entscheidet den Ausgang; M10 mit Bonus auf die überlaufende Eskorte | v372 |
 | F148 | **Besprechung vor der Mission und Auftragsknöpfe in der Leiste** (v365/v366): vor jeder geschriebenen Mission steht ein Besprechungsbildschirm mit Lage und Aufträgen, die Missionsuhr läuft dabei nicht, ein Klick startet. In der Leiste tragen Hülle/Leben/PRIMARY/SECONDARY einen Streifen darunter frei; dort stehen die Aufträge als anklickbare Knöpfe, die das Ziel anvisieren, mit Zähler („(1/4)") und Farbe für Erfolg, Teilerfolg und Fehlschlag. Zuerst nur an M28; die übrigen Missionen folgen. v366: ACCEPT-Knopf statt Textzeile | v365, v366 |
 | F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v362:** übergebene Zeichenflächen geben sich jetzt als fertig geladene Bilder aus, sonst blinken die Planeten beim Übergang einmal weg | v354–v362 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
@@ -40,7 +41,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 sind M6 bis M10**; danach fehlen M11 bis M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
+| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut** (v372), Urteil offen — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 sind M11 bis M15**; danach fehlen M16 bis M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -209,6 +210,52 @@ nachzulesen — er sah die Meldung zu Recht nicht.
 ohne neue Funde (die zwei Meldungen in M4 bestehen schon in v369), und zwei
 neue `fieldsim`-Szenarien („F149 v370 M1-M5" und „F149 v370 M3"). Gegen v369
 gestellt sind beide rot.
+
+## F149 — Runde 2: M6 bis M10 (v372, 26.11.2026, Urteil offen)
+
+**Die fünf Besprechungstexte stammen wörtlich von Silvio** (26.11.2026);
+Claudes Entwürfe wurden verworfen. Nur „assignement" wurde zu „assignment"
+berichtigt. Seine Festlegungen zu den Aufträgen:
+
+- **M6 bekommt keinen eigenen Bonusknopf für die Hülle.** „Wenn ihre Hülle
+  unter 50% fällt und sie entkommt, ist es nur ein Teilerfolg." Dafür nötig:
+  der Hüllenstand lässt sich nicht mehr ablesen, sobald die Galatea
+  gesprungen ist. Darum die neuen Sprachmittel **`merken` / `gemerkt`** — die
+  Mission schreibt sich den Einbruch unter 50 % als Notiz und liest sie beim
+  Ende zurück. **Falle, die einen Anlauf gekostet hat:** der erste Versuch
+  prüfte die Hülle zwei Sekunden nach dem letzten Abschuss. Zu spät — ein
+  eigenes Großkampfschiff springt von selbst ab, sobald das Feld leer
+  scheint, und ihr `verlaesst` mit `zielerfuellt` lief vorher durch.
+- **M7: die Geschütztürme sind ein Auftrag, kein Bonus** („The depot is
+  defended by sentry guns. Take them out."), also `nebenziel`. Der Scanzähler
+  steht als (0/3) am Knopf.
+- **M7 bekommt einen Knopf, der kein Auftrag ist:** „Call support
+  (C + 1/2/3)", sobald die Shivaner den Spieler jagen. Silvio wählte
+  Möglichkeit A: **ein Klick öffnet das Rufmenü**, und der Knopf verlässt die
+  Leiste, sobald Verstärkung gerufen ist. Im Pausebildschirm taucht er nicht
+  auf — er ist kein Auftrag und hat kein Ergebnis. Wirkung `rufHinweis`.
+- **M9 und M10 bekommen keinen Bonus** („entweder Erfolg, Teilerfolg oder
+  Fehlschlag"). Der Knopf zählt die Frachter, die noch stehen — (3/3) von
+  Anfang an, nicht (0/3) bis zum Absprung. Dafür der Zähler **`uebrig`** und
+  die neue Wirkung **`zielEnde`**: das Gegenstück zu `nebenEnde` für den
+  Hauptauftrag, die den Ausgang nach dem eigenen Zähler färbt.
+- **M10 behält einen Bonus:** „Destroy Vasudan Attackers", und der Knopf
+  öffnet erst, wenn die Eskorte überläuft.
+
+Neu im Code: Zähler `uebrig` (`countAlive`) und `gescannt` (`countScanned`),
+Wirkungen `zielEnde`, `merken` und `rufHinweis`, Auslöser `gemerkt`.
+
+**Zwei veraltete Stellen in den Prüfungen selbst berichtigt** (beide schon in
+v371 rot, nicht von dieser Runde verursacht): im Szenario zu M7 war `seen`
+nie angelegt, es starb mit „seen is not defined" und lief seit seinem Einbau
+nie; das Szenario zu M6 erwartete danach noch die alte FS2-Welle als Mission
+7, wo längst Pandora's Box steht.
+
+**Geprüft:** `./checks.sh --fast` grün, alle `fieldsim`-Szenarien der
+Missionen 6 bis 10 grün, `warpsim` über 6 bis 10 ohne neue Funde (die zwei
+Meldungen bestehen schon in v371), und drei neue Szenarien („F149 v372
+M6-M10", „F149 v372 M7", „F149 v372 M9"). Gegen v371 gestellt sind alle drei
+rot.
 
 ## F147 — Kürzel für das aufgeschaltete Subsystem (v364, 25.11.2026, abgenommen)
 

@@ -3047,7 +3047,12 @@ const SCRIPT_WAVES = {
   // jumps. She is the home ship - the first mission with a rearm (F22).
   6: {name:'Paving the Way', era:'fs1', orig:6, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       stillRocks:true,
-      ziel:'Protect the Galatea', u:[
+      ziel:'Protect the Galatea',
+      zielKurz:'Protect the Galatea', zielZu:'G1',
+      brief:{text:'The Galatea needs to traverse an asteroid field for her new assignment. '+
+                  'It\'s also possible that the unknowns will try to attack her. '+
+                  'Keep her safe from rocks and attacks.',
+             ziele:['Protect the Galatea']}, u:[
        {id:'R1', c:'ast', n:60, spread:1},
        {id:'G1', mark:'protect', c:'de', n:1, spr:'deorionright', side:'ally', guard:true, home:true,
         crossSecs:170, y:273, label:'GTD Galatea'},
@@ -3066,9 +3071,16 @@ const SCRIPT_WAVES = {
        {t:'da', a:'B2', d:30, w:'einwarpen', a2:'J2'},
        {t:'alleZerstoert', a:'J2', w:'einwarpen', a2:'B3'},
        {t:'da', a:'J2', d:30, w:'einwarpen', a2:'B3'},
-       {t:'sek', a:1, w:'bonus', a2:'Keep the Galatea above half hull', keep:true},
-       {t:'rumpfUnter', a:'G1', b:50, w:'bonusFail', a2:'The Galatea is below half hull'},
+       // F149 (Silvio, 26.11.2026): no bonus button of her own for the
+       // hull. A Galatea that gets out below half hull is a partial
+       // success. Her hull cannot be read once she has jumped, so the drop
+       // is noted the moment it happens. Order counts: the 'abzug' under
+       // the partial closes the full success that follows it.
+       {t:'rumpfUnter', a:'G1', b:50, w:'merken', a2:'badly hurt'},
        {t:'alleZerstoert', a:'B1+J1+B2+J2+B3', d:2, w:'raus', a2:'G1'},
+       {t:'verlaesst', a:'G1', wenn:{t:'gemerkt', a:'badly hurt'},
+        w:'zielteil', a2:'The Galatea is through - badly damaged'},
+       {t:'verlaesst', a:'G1', wenn:{t:'gemerkt', a:'badly hurt'}, w:'abzug', a2:''},
        {t:'verlaesst', a:'G1', w:'zielerfuellt', a2:'The Galatea has jumped'},
        {t:'verlaesst', a:'G1', w:'abzug', a2:''},
        {t:'vernichtet', a:'G1', w:'zielverfehlt', a2:'GTD Galatea destroyed'},
@@ -3082,7 +3094,13 @@ const SCRIPT_WAVES = {
   // Shivans jump in. Not an escape as in FS1 but 60 s to hold out, on no
   // clock that is shown (Silvio, 14.10.2026); then the Shivans pull out.
   7: {name:"Pandora's Box", era:'fs1', orig:7, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
-      ziel:'Scan the three marked containers', u:[
+      ziel:'Scan the three marked containers',
+      zielKurz:'Scan containers', zielZu:'K1+K3+K5', zielSoll:3, zielZaehl:'gescannt',
+      brief:{text:'We have located a Shivan cargo depot. Intelligence needs to know what '+
+                  'they are storing there, so you have to scan some of these containers.\n'+
+                  'The depot is defended by sentry guns. Take them out.',
+             ziele:['Scan the three marked containers',
+                    'Destroy the sentry guns']}, u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fivalyrie', side:'ally'},
        {id:'K1', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, scanFirst:true, shock:true, x:190, y:240},
        {id:'K2', c:'fc', n:1, spr:'fcsc5', fac:'shivan', shock:true, x:218, y:267},
@@ -3100,11 +3118,15 @@ const SCRIPT_WAVES = {
        {id:'D1', c:'fi', n:1, size:1, spr:'fidragon', fac:'shivan', wait:true}
      ], ev:[
        // v254: half the Shivan fighters (Silvio, F45): 14 -> 7
-       {t:'sek', a:4, w:'meldung', a2:'Bonus: destroy the three sentry guns'},
-       {t:'alleZerstoert', a:'G1', w:'meldung', a2:'Bonus: sentry guns destroyed'},
+       // F149 (Silvio, 26.11.2026): the guns are an order of their own, not
+       // a bonus - the briefing says to take them out.
+       {t:'sek', a:4, w:'nebenziel', a2:'Destroy the sentry guns',
+        kurz:'Destroy sentry guns', zu:'G1'},
+       {t:'alleZerstoert', a:'G1', w:'nebenOk', a2:'The sentry guns are down'},
        // the third scan springs the trap
        {t:'gescannt', a:'K1+K3+K5', w:'meldung', a2:'The containers are rigged - get clear!'},
-       {t:'gescannt', a:'K1+K3+K5', w:'ziel', a2:'Hold out until the Shivans give up'},
+       {t:'gescannt', a:'K1+K3+K5', w:'ziel', a2:'Hold out until the Shivans give up',
+        kurz:'Hold out'},
        {t:'gescannt', a:'K1+K3+K5', d:1, w:'zerstoeren', a2:'K1'},
        {t:'gescannt', a:'K1+K3+K5', d:2, w:'zerstoeren', a2:'K2'},
        {t:'gescannt', a:'K1+K3+K5', d:3, w:'zerstoeren', a2:'K3'},
@@ -3112,6 +3134,10 @@ const SCRIPT_WAVES = {
        {t:'gescannt', a:'K1+K3+K5', d:5, w:'zerstoeren', a2:'K5'},
        {t:'gescannt', a:'K1+K3+K5', d:6, w:'zerstoeren', a2:'K6'},
        {t:'gescannt', a:'K1+K3+K5', d:3, w:'einwarpen', a2:'M1'},
+       // F149 (Silvio, 26.11.2026): with the Shivans hunting him, a hint in
+       // the bar that he may call for reinforcements. A click opens the
+       // call menu.
+       {t:'gescannt', a:'K1+K3+K5', d:4, w:'rufHinweis', a2:'Call support (C + 1/2/3)'},
        {t:'gescannt', a:'K1+K3+K5', d:5, w:'einwarpen', a2:'C1'},
        {t:'gescannt', a:'K1+K3+K5', d:8, w:'einwarpen', a2:'J1'},
        {t:'gescannt', a:'K1+K3+K5', d:22, w:'einwarpen', a2:'J2'},
@@ -3135,7 +3161,15 @@ const SCRIPT_WAVES = {
   // needs about 75 s to the edge instead of 19 (the others about 50 s), time
   // enough to scan, disable and fight.
   8: {name:'Shieldbreaker', era:'fs1', orig:7, ship:'fiapollo', pri:'dadv', fac:'hol', o:'clear', live:6,
-      ziel:'Scan the cargo - find the shield prototypes', u:[
+      ziel:'Scan the cargo - find the shield prototypes',
+      zielKurz:'Scan cargo', zielZu:'K1+K2+K3+K4+K5+K6',
+      brief:{text:'Three Shivan freighters are moving cargo under light escort. '+
+                  'One of them carries shield prototypes and we want them intact.\n'+
+                  'Scan the containers to find them, then disable that freighter so it '+
+                  'can\'t escape. The GTT Elysium will dock and capture it.',
+             ziele:['Scan the cargo - find the shield prototypes',
+                    'Disable the freighter that carries them',
+                    'Cover the Elysium']}, u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
        {id:'F1', c:'fr', n:1, spr:'frasmodeus', fac:'shivan', x:238, y:272, escape:0.04, escWarp:true,
         escHit:true, escDelay:90, subs:'engines+weapons', capture:true, label:'SFr Asmodeus 2'},
@@ -3161,7 +3195,16 @@ const SCRIPT_WAVES = {
        {id:'S3', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true},
        {id:'S4', c:'fi', n:1, size:2, spr:'fiscorpion', fac:'shivan', wait:true}
      ], ev:[
-       {t:'sek', a:4, w:'meldung', a2:'Bonus: destroy the other two freighters'},
+       // F149: a real bonus with its own counted button. A freighter that
+       // gets away does not count - and the other two are pulled out as
+       // soon as the Asmodeus 2 is dead in space, so the bonus has to be
+       // taken before that.
+       {t:'sek', a:4, w:'bonus', a2:'Destroy the other two freighters',
+        kurz:'Destroy 2 freighters', zu:'F2+F3', soll:2, zaehl:'vernichtet'},
+       {t:'verlaesst', a:'F2', w:'bonusFail', a2:'The Asmodeus 1 got away',
+        fuer:'Destroy 2 freighters'},
+       {t:'verlaesst', a:'F3', w:'bonusFail', a2:'The Asmodeus 3 got away',
+        fuer:'Destroy 2 freighters'},
        // fire on one, and all three run
        {t:'beschossen', a:'F1', w:'fliehen', a2:'F1+F2+F3'},
        {t:'beschossen', a:'F2', w:'fliehen', a2:'F1+F2+F3'},
@@ -3172,6 +3215,7 @@ const SCRIPT_WAVES = {
        // must not come - the objective would ask for what is already done,
        // and her mark would go back from protect to disable.
        {t:'gescannt', a:'K2', w:'ziel', a2:'Disable the Asmodeus 2 - engines and weapons',
+        kurz:'Disable Asmodeus 2', zu:'F1', sub:'engines',
         solange:{t:'subsystem', a:'F1', b:'engines+weapons'}},
        {t:'gescannt', a:'K2', w:'markieren', a2:'F1:disable',
         solange:{t:'subsystem', a:'F1', b:'engines+weapons'}},
@@ -3182,7 +3226,8 @@ const SCRIPT_WAVES = {
        {t:'gescannt', a:'K6', w:'meldung', a2:'Container scanned - nothing'},
        // dead in space: the Elysium, and the Shivans come for their own ship
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'einwarpen', a2:'T1'},
-       {t:'subsystem', a:'F1', b:'engines+weapons', w:'ziel', a2:'Cover the Elysium until the Asmodeus is taken'},
+       {t:'subsystem', a:'F1', b:'engines+weapons', w:'ziel', a2:'Cover the Elysium until the Asmodeus is taken',
+        kurz:'Cover the Elysium', zu:'T1+T2'},
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'markieren', a2:'F1:protect'},
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'opfer', a2:'F1'},
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'jagd', a2:'F1'},
@@ -3202,7 +3247,8 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'T1', w:'einwarpen', a2:'T2'},
        {t:'vernichtet', a:'T1', w:'meldung', a2:'Elysium 1 lost - a second one is on her way'},
        // bonus
-       {t:'vernichtet', a:'F2+F3', w:'meldung', a2:'Bonus: both other freighters destroyed'},
+       {t:'vernichtet', a:'F2+F3', w:'bonusOk', a2:'Both other freighters destroyed',
+        fuer:'Destroy 2 freighters'},
        // the ends - order counts: an 'abzug' closes every later event
        {t:'angedockt', a:'T1', w:'kapern', a2:'F1'},
        {t:'angedockt', a:'T2', w:'kapern', a2:'F1'},
@@ -3226,7 +3272,12 @@ const SCRIPT_WAVES = {
   // slowly to the right, about three minutes to the edge, so the fight is
   // over long before they get there.
   9: {name:'The Hammer and the Anvil: Breakout', era:'fs1', orig:8, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
-      ziel:'Protect the Theta freighters and their cargo', u:[
+      ziel:'Protect the Theta freighters and their cargo',
+      zielKurz:'Protect convoy', zielZu:'T1+T2+T3', zielSoll:3, zielZaehl:'uebrig',
+      brief:{text:'The Theta freighters are carrying the captured shield technology and we '+
+                  'expect Shivans to ambush the convoy.\n'+
+                  'Keep the freighters safe until they make the jump.',
+             ziele:['Protect the Theta freighters and their cargo']}, u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
        {id:'T1', c:'fr', n:1, spr:'frposeidon', side:'ally', x:107, y:235, cross:0.08, mark:'protect', label:'GTFr Theta 1'},
        {id:'T2', c:'fr', n:1, spr:'frposeidon', side:'ally', x:117, y:273, cross:0.08, mark:'protect', label:'GTFr Theta 2'},
@@ -3240,7 +3291,6 @@ const SCRIPT_WAVES = {
        {id:'B2', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true},
        {id:'B3', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true}
      ], ev:[
-       {t:'sek', a:4, w:'meldung', a2:'Bonus: bring all three containers through'},
        {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'V1'},
        {t:'alleZerstoert', a:'B1', w:'einwarpen', a2:'V2'},
        {t:'da', a:'B1', d:30, w:'einwarpen', a2:'V1'},
@@ -3252,15 +3302,23 @@ const SCRIPT_WAVES = {
        // the ends - order counts: an 'abzug' closes every later event
        {t:'vernichtet', a:'K1+K2+K3', w:'zielverfehlt', a2:'All shield prototypes lost'},
        {t:'vernichtet', a:'K1+K2+K3', w:'abzug', a2:''},
-       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'meldung', a2:'Bonus: all three containers through', lostMax:0},
-       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'zielerfuellt', a2:'The convoy jumps out'},
+       // F149 (Silvio, 26.11.2026): no bonus of its own. The convoy button
+       // counts the freighters still standing, and when the field is clear
+       // that tally decides the mission: all three a success, some of them
+       // a partial one, none of them a failure.
        {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'raus', a2:'T1'},
        {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'raus', a2:'T2'},
-       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'raus', a2:'T3'}
+       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'raus', a2:'T3'},
+       {t:'alleZerstoert', a:'B1+V1+V2+B2+B3', w:'zielEnde', a2:'The convoy jumps out'}
      ]},
 
   10:{name:'The Hammer and the Anvil: Betrayal', era:'fs1', orig:8, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
-      ziel:'Protect the Theta freighters and their cargo', u:[
+      ziel:'Protect the Theta freighters and their cargo',
+      zielKurz:'Protect convoy', zielZu:'T1+T2+T3', zielSoll:3, zielZaehl:'uebrig',
+      brief:{text:'Theta convoy continues transporting the captured shield technology to '+
+                  'our researchers. A Vasudan wing has been assigned as additional escort.\n'+
+                  'Keep on protecting the convoy.',
+             ziele:['Protect the Theta freighters and their cargo']}, u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
        {id:'A1', c:'fi', n:1, size:3, spr:'fianubis', side:'ally'},
        {id:'A2', c:'fi', n:1, size:2, spr:'fiseth', side:'ally'},
@@ -3275,12 +3333,17 @@ const SCRIPT_WAVES = {
        {id:'B2', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true},
        {id:'B3', c:'fi', n:1, size:3, spr:'fibasilisk', fac:'shivan', wait:true}
      ], ev:[
-       {t:'sek', a:4, w:'meldung', a2:'Bonus: bring all three containers through'},
        // the escort turns on the convoy - v254 (F48): at 6 s, not 15
        {t:'sek', a:6, w:'seite', a2:'A1'},
        {t:'sek', a:6, w:'seite', a2:'A2'},
        {t:'sek', a:6, w:'meldung', a2:'The Vasudan escort is turning on the convoy!'},
        {t:'sek', a:6, w:'jagd', a2:'T2'},
+       // F149 (Silvio, 26.11.2026): the turncoats are the bonus of this
+       // mission, and the button only opens once they have shown their hand.
+       {t:'sek', a:6, w:'bonus', a2:'Destroy the Vasudan attackers',
+        kurz:'Destroy Vasudan attackers', zu:'A1+A2', soll:2, zaehl:'vernichtet'},
+       {t:'vernichtet', a:'A1+A2', w:'bonusOk', a2:'Both Vasudan attackers destroyed',
+        fuer:'Destroy Vasudan attackers'},
        // then the Shivans
        {t:'alleZerstoert', a:'A1+A2', w:'einwarpen', a2:'S1'},
        {t:'sek', a:45, w:'einwarpen', a2:'S1'},
@@ -3292,11 +3355,11 @@ const SCRIPT_WAVES = {
        // the ends - order counts: an 'abzug' closes every later event
        {t:'vernichtet', a:'K1+K2+K3', w:'zielverfehlt', a2:'All shield prototypes lost'},
        {t:'vernichtet', a:'K1+K2+K3', w:'abzug', a2:''},
-       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'meldung', a2:'Bonus: all three containers through', lostMax:0},
-       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'zielerfuellt', a2:'The convoy jumps out'},
+       // F149: the convoy button's own tally decides, as in M9.
        {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'raus', a2:'T1'},
        {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'raus', a2:'T2'},
-       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'raus', a2:'T3'}
+       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'raus', a2:'T3'},
+       {t:'alleZerstoert', a:'A1+A2+S1+B1+B2+B3', w:'zielEnde', a2:'The convoy jumps out'}
      ]},
 
   // The Darkness and the Light (fs1/sm1-09a). A Hammer of Light depot of
@@ -5832,6 +5895,11 @@ let EV_POS = {};
 let EV_LABEL = {};
 // v253: the mission mark of each unit (drawMissionMark, 72_target.js)
 let EV_MARK = {};
+// F149 (v372): a note a mission writes to itself ('merken') and reads back
+// later ('gemerkt'). It is for a state that is gone by the time the mission
+// is judged - the Galatea's hull is no longer on the field once she has
+// jumped, so the drop below half has to be kept.
+let EV_FLAG = {};
 let evReinf = false, evReinfCd = 0;
 // v257: the faction a 'nachschub' names ('shivan'), else the wave's own.
 let evReinfFac = '';
@@ -5856,7 +5924,7 @@ function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_EMPTY = {}; EV_POS = {};
   if(typeof DK_PLAN !== 'undefined') DK_PLAN = {wave: null, g: {}};   // F99: containers placed afresh
   EV_REPAIRED = {}; EV_REPFAIL = {};
-  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; PREY_ON = false;
+  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; EV_FLAG = {}; PREY_ON = false;
   missionTimer = {end:0, label:''}; missedJumps = 0;
   evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP; evReinfFac = '';
 }
@@ -5890,6 +5958,23 @@ function countDestroyed(ids){
   for(const id of String(ids||'').split('+'))
     if(id && evSeen(id) && byId(id).length===0
        && !EV_LEFT[id] && !EV_FLED[id] && !EV_TAKEN[id]) n++;
+  return n;
+}
+// F149: how many of the ids are still in the field, and how many of them
+// are scanned. Both read the same way countDestroyed does, so a button's
+// tally never counts ships of another group.
+function countAlive(ids){
+  let n = 0;
+  for(const id of String(ids||'').split('+')) if(id && byId(id).length > 0) n++;
+  return n;
+}
+function countScanned(ids){
+  let n = 0;
+  for(const id of String(ids||'').split('+')){
+    if(!id || !evSeen(id)) continue;
+    const us = byId(id);
+    if(us.length > 0 && us.every(function(u){ return u.scanned; })) n++;
+  }
   return n;
 }
 // A trigger may name several ids joined with '+'.
@@ -5985,6 +6070,8 @@ function evTrig(ev){
         return us.length>0 && us.every(function(u){ return u.scanned; });
       });
     }
+    // F149: a note the mission wrote earlier with 'merken'.
+    case 'gemerkt':      return !!EV_FLAG[ev.a];
     case 'erfuellt':
       // Zu Wellenbeginn ist noch nichts im Feld, und "nichts zu tun" sieht
       // aus wie "erledigt". Erst wenn der Auftrag einmal bestanden hat.
@@ -6139,6 +6226,25 @@ function evFire(ev){
     // tally when the group is through - all of them green, some of them
     // yellow, none of them red. Written once here, for every mission.
     case 'nebenEnde':  mlogSideEnd('neben', arg); break;
+    // F149: the same for the main objective of a mission - full, partial or
+    // failed by its own tally (the convoy missions).
+    // F149: write a note for later ('gemerkt' reads it). For a state that
+    // is gone by the time the mission is judged.
+    case 'merken':     EV_FLAG[String(arg||'')] = true; break;
+    case 'zielEnde': {
+      missionObj = '';
+      missionObjUsed = true;
+      const _st = (typeof mainTallyState === 'function') ? mainTallyState() : 'done';
+      objAnnounce(_st==='done' ? 'OBJECTIVE COMPLETE'
+                  : (_st==='part' ? 'PARTIAL SUCCESS' : 'OBJECTIVE FAILED'),
+                  String(arg || '').toUpperCase(), _st);
+      if(_st==='done' && typeof mlogKeepBonus === 'function') mlogKeepBonus();
+      break;
+    }
+    // F149 (Silvio, 26.11.2026): a hint in the bar that reinforcements may
+    // be called. Not an objective: a click opens the call menu and it goes
+    // once support has been called.
+    case 'rufHinweis': objMeta(evMeta(ev)); mlogSide('ruf', arg); break;
     // v249: a partial success, in yellow (the Plato lost, her crew
     // away - FS1 M5).
     case 'zielteil':
