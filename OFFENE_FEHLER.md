@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 26.11.2026, v372, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 26.11.2026, v373, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -40,7 +40,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 sind M11 bis M15**; danach fehlen M16 bis M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
+| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 (M11 bis M15) ist gebaut** (v373) — Einzelheiten im Abschnitt „F149 — Runde 3", **Urteil offen**. **Runde 4 sind M16 bis M20**; danach fehlen M21 bis M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -255,6 +255,48 @@ Missionen 6 bis 10 grün, `warpsim` über 6 bis 10 ohne neue Funde (die zwei
 Meldungen bestehen schon in v371), und drei neue Szenarien („F149 v372
 M6-M10", „F149 v372 M7", „F149 v372 M9"). Gegen v371 gestellt sind alle drei
 rot.
+
+## F149 — Runde 3: M11 bis M15 (v373, 26.11.2026, Urteil offen)
+
+Silvios Texte sind wörtlich übernommen (nur Tippfehler stillschweigend
+berichtigt: „spottet" → „spotted", Apostroph in „The Taranis' appearance").
+Seine Festlegungen dieser Runde:
+
+- **Ein Subsystem kann ein Auftrag für sich sein.** M11 und M12 haben je
+  zwei Aufträge am selben Schiff: `Disable …` (Triebwerk) und `Disarm …`
+  (Waffen), jeder mit eigenem Knopf und eigenem Ergebnis. Der Auslöser
+  `subsystem` konnte das schon lange — mit `b:'engines'` statt
+  `b:'engines+weapons'`.
+- **M15: „Es sollten alle zählen"** — nicht mehr nur Iota. Der Hauptauftrag
+  heißt `Escort the transports` (0/3) und wird am Ende nach seinem Zähler
+  gefärbt. Dafür ist der Zähler **`durch`** neu (`countLeft`): er zählt die
+  Kennungen, die das Feld heil verlassen haben. `uebrig` wäre hier falsch —
+  es fällt bei jedem erfolgreichen Absprung wieder.
+- **M15, Knopftext gekürzt** (Silvio: „Escort the transports to the
+  Pinnacle ist zu lang").
+- **M14 `Hold out!` ist kein Auftrag**, sondern ein Hinweis: „Hold out heißt
+  der Spieler soll überleben. Der Button kann daher gerne den nächsten Feind
+  anvisieren. Die Lucifer sollte er aber ignorieren." Dafür ist die Wirkung
+  **`hinweis`** neu (Seite `tipp`, wie `rufHinweis` nicht im
+  Pausebildschirm) und `zu:'*'` sucht den nächsten Gegner, der überhaupt zu
+  bekämpfen ist — ein unverwundbarer Rumpf wird übersprungen.
+- **Zähler zählen Kennungen, nicht Schiffe** (Lehre aus Runde 2): die sechs
+  Depotcontainer in M11 trugen alle die Kennung `D1` und ergaben höchstens
+  1/6; sie heißen jetzt D1 bis D6. Ebenso die drei Frachter der Pinnacle in
+  M15 (jetzt F1 bis F3).
+- **Nicht jeder Zusatz ist ein Bonus:** M12, M13 und M14 haben keinen. Der
+  Bonus in M11 heißt `Destroy freighters` (0/2); eine Satis, die abspringt,
+  zählt nicht mit und lässt den Bonus verfehlt sein.
+
+**Geprüft:** `./checks.sh --fast` grün, `fieldsim` über M11 bis M15 und
+`warpsim` über 11 bis 15 ohne **neue** Funde, und drei neue Szenarien
+(„F149 v373 M11-M15", „F149 v373 M14", „F149 v373 M15"), gegen v372 gestellt
+alle drei rot.
+
+**Schon vor dieser Änderung rot** (in v372 wortgleich, also nicht von dieser
+Runde): `taken` und `farOff` in M11, `facesLeft` in M13, `shieldDrawn` und
+`reactorsHidden` in M14. Alle fünf betreffen Lage und Darstellung von
+Schiffen, nicht die Besprechungen. Noch nicht untersucht.
 
 ## F147 — Kürzel für das aufgeschaltete Subsystem (v364, 25.11.2026, abgenommen)
 

@@ -750,9 +750,9 @@ function drawBriefing(){
 function drawPaused(){
   // sizes for a phone too: the whole canvas shrinks there (Silvio)
   const pw = 560, pad = 18, rowH = 21, headH = 44;
-  // F149: the support hint lives in the bar only - it is no objective and
-  // has no result to show here.
-  const objs = MLOG.objs.filter(function(o){ return o.side !== 'ruf'; });
+  // F149: the support hint and any other plain hint live in the bar only -
+  // they are no objectives and have no result to show here.
+  const objs = MLOG.objs.filter(function(o){ return o.side !== 'ruf' && o.side !== 'tipp'; });
   if(!objs.length){ const c = currentObjective(); if(c) objs.push({txt:String(c.txt).toUpperCase(), st:'open'}); }
   const tmr = missionTimerLeft();
   const nObj = Math.max(1, objs.length) + (tmr >= 0 ? 1 : 0);
@@ -1077,6 +1077,10 @@ function objTally(o){
   // they are through. 'gescannt' counts the ids already scanned.
   else if(o.zaehl === 'uebrig' && typeof countAlive === 'function') n = countAlive(o.zu);
   else if(o.zaehl === 'gescannt' && typeof countScanned === 'function') n = countScanned(o.zu);
+  // F149: 'durch' counts the ids that left the field in one piece - an
+  // escort button judged by how many of the convoy got away, where
+  // 'uebrig' would drop again on every successful jump out.
+  else if(o.zaehl === 'durch' && typeof countLeft === 'function') n = countLeft(o.zu);
   else return null;
   return {n:Math.min(n|0, o.soll), soll:o.soll};
 }
@@ -2058,6 +2062,17 @@ function objBarLabel(o){
 function objBarTarget(o){
   if(!o || !o.zu || typeof byId !== 'function') return null;
   let best = null;
+  // F149: '*' is the nearest enemy worth shooting at, for a hint button in
+  // a mission where no own id is the target. An invulnerable hull (the
+  // Lucifer) is skipped - sending the player at her would be a lie.
+  if(String(o.zu) === '*'){
+    if(typeof enemies === 'undefined') return null;
+    for(const u of enemies){
+      if(u.invuln || !tgtCan(u)) continue;
+      if(!best || tgtDist(u) < tgtDist(best)) best = u;
+    }
+    return best;
+  }
   for(const id of String(o.zu).split('+'))
     for(const u of byId(id)){
       if(!tgtCan(u)) continue;

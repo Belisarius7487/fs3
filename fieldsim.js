@@ -7707,6 +7707,80 @@ scenario('F149 v372 M9: the convoy button counts, and one freighter lost is a pa
   r.twoLeave = FS.until(()=>!!EV_LEFT.T1 && !!EV_LEFT.T2, 20000, true)>=0;
   return r;`);
 
+// F149 (v373), round 3: M11 to M15. The Ramses carries two orders of her
+// own now - engines and weapons settle apart - and the depot counts.
+scenario('F149 v373 M11-M15: every one has her briefing, and the Ramses has two orders of her own', 'm=11', `
+  const r = {};
+  r.allFiveHaveBriefings = [11,12,13,14,15].every(function(n){
+    const d = SCRIPT_WAVES[n];
+    return d && d.brief && d.brief.text.length > 20 && (d.brief.ziele||[]).length >= 1;
+  });
+  r.allFiveHaveButtons = [11,12,13,14,15].every(n => !!SCRIPT_WAVES[n].zielKurz && !!SCRIPT_WAVES[n].zielZu);
+  r.noCommaBeforeAnd = [11,12,13,14,15].every(n => SCRIPT_WAVES[n].brief.text.indexOf(', and ') < 0);
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(2*TICK_HZ);
+  const lab = () => objBarList().map(objBarLabel);
+  r.depotCountsSix = lab().some(t => t.indexOf('DESTROY THE DEPOT (0/6)') >= 0);
+  r.disableOrder = lab().some(t => t.indexOf('DISABLE THE RAMSES') >= 0);
+  r.disarmOrder = lab().some(t => t.indexOf('DISARM THE RAMSES') >= 0);
+  r.bonusAsked = FS.until(()=>MLOG.objs.some(o=>o.side==='bonus'), 1200, false)>=0;
+  // Her guns alone: the disarm order is settled, the engines order stays.
+  const ra = byId('R1')[0];
+  for(const sb of ra.subs) if(sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
+  FS.step(2*TICK_HZ);
+  const neben = k => MLOG.objs.filter(o=>o.side==='neben' && String(o.kurz).toUpperCase().indexOf(k)>=0)[0];
+  r.disarmDone = (neben('DISARM')||{}).st === 'done';
+  r.disableStillOpen = (neben('DISABLE')||{}).st === 'open';
+  // Four of the six containers down: the counter follows them.
+  for(const id of ['D1','D2','D3','D4']) FS.killId(id);
+  FS.step(4*TICK_HZ);
+  r.depotCountsFour = lab().some(t => t.indexOf('(4/6)') >= 0);
+  return r;`);
+
+// F149 (v373, Silvio's wording): "Hold out" is no order - a click takes the
+// nearest enemy worth shooting at, and never the Lucifer.
+scenario('F149 v373 M14: the hint comes with the Lucifer and never points at her', 'm=14', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(2*TICK_HZ);
+  r.noHintYet = MLOG.objs.every(o => o.side !== 'tipp');
+  r.ptolemyButton = objBarList().map(objBarLabel).some(t => t.indexOf('PROTECT THE PTOLEMY') >= 0);
+  r.luciferCame = FS.until(()=>byId('L1').length===1, 8000, true)>=0;
+  const hint = () => MLOG.objs.find(o => o.side === 'tipp');
+  r.hintThere = FS.until(()=>!!hint(), 1200, true)>=0;
+  r.hintLabel = hint() ? objBarLabel(hint()) : 'none';
+  r.notAnObjective = !!hint() && !hint().soll;
+  // Her hull is invulnerable, so the hint must look past her.
+  const got = FS.until(()=>!!objBarTarget(hint()), 2000, false)>=0;
+  const t = objBarTarget(hint());
+  r.takesAnEnemy = got && !!t && enemies.indexOf(t) >= 0;
+  r.notTheLucifer = !t || (!t.invuln && t.uid !== 'L1');
+  return r;`);
+
+// F149 (Silvio, 26.11.2026: "Es sollten alle zählen"): the main objective of
+// M15 counts every transport that got through, not Iota alone.
+scenario('F149 v373 M15: all three transports count, one lost is a partial success', 'm=15', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(2*TICK_HZ);
+  const main = () => MLOG.objs.find(o => !o.side);
+  r.startsAtNone = objBarLabel(main()).indexOf('(0/3)') >= 0;
+  r.nelsonOrder = MLOG.objs.some(o=>o.side==='neben' && String(o.kurz).indexOf('Nelson')>=0);
+  // Omega down: two can still get through, so a partial success.
+  for(const a of allies) if(a.uid === 'T3'){ a.hp = 0; a.shield = 0; }
+  FS.step(4*TICK_HZ);
+  r.omegaGone = byId('T3').length === 0;
+  r.partialSuccess = FS.until(()=>objCard && objCard.tone==='part', 30000, true)>=0;
+  r.tone = objCard ? objCard.tone : 'none';
+  r.twoGotThrough = !!EV_LEFT.T1 && !!EV_LEFT.T2;
+  return r;`);
+
 // F146 (M29): the briefing's own plan is the mission - her radio room dies
 // first, or she calls Krishna in. Both branches have to reach an end. The
 // cruiser is held up with a huge hull here, so the clock can run past her
