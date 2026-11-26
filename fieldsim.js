@@ -7722,17 +7722,17 @@ scenario('F149 v373 M11-M15: every one has her briefing, and the Ramses has two 
   if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
   FS.step(2*TICK_HZ);
   const lab = () => objBarList().map(objBarLabel);
-  r.depotCountsSix = lab().some(t => t.indexOf('DESTROY THE DEPOT (0/6)') >= 0);
-  r.disableOrder = lab().some(t => t.indexOf('DISABLE THE RAMSES') >= 0);
-  r.disarmOrder = lab().some(t => t.indexOf('DISARM THE RAMSES') >= 0);
+  r.depotCountsSix = lab().some(t => t.indexOf('DEPOT (0/6)') >= 0);
+  r.disableOrder = lab().some(t => t.indexOf('RAMSES ENGINES') >= 0);
+  r.disarmOrder = lab().some(t => t.indexOf('RAMSES WEAPONS') >= 0);
   r.bonusAsked = FS.until(()=>MLOG.objs.some(o=>o.side==='bonus'), 1200, false)>=0;
   // Her guns alone: the disarm order is settled, the engines order stays.
   const ra = byId('R1')[0];
   for(const sb of ra.subs) if(sb.id==='weapons'){ sb.hp = 0; sb.dead = true; }
   FS.step(2*TICK_HZ);
   const neben = k => MLOG.objs.filter(o=>o.side==='neben' && String(o.kurz).toUpperCase().indexOf(k)>=0)[0];
-  r.disarmDone = (neben('DISARM')||{}).st === 'done';
-  r.disableStillOpen = (neben('DISABLE')||{}).st === 'open';
+  r.disarmDone = (neben('RAMSES WEAPONS')||{}).st === 'done';
+  r.disableStillOpen = (neben('RAMSES ENGINES')||{}).st === 'open';
   // Four of the six containers down: the counter follows them.
   for(const id of ['D1','D2','D3','D4']) FS.killId(id);
   FS.step(4*TICK_HZ);
@@ -7748,7 +7748,7 @@ scenario('F149 v373 M14: the hint comes with the Lucifer and never points at her
   if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
   FS.step(2*TICK_HZ);
   r.noHintYet = MLOG.objs.every(o => o.side !== 'tipp');
-  r.ptolemyButton = objBarList().map(objBarLabel).some(t => t.indexOf('PROTECT THE PTOLEMY') >= 0);
+  r.ptolemyButton = objBarList().map(objBarLabel).some(t => t.indexOf('PTOLEMY') >= 0);
   r.luciferCame = FS.until(()=>byId('L1').length===1, 8000, true)>=0;
   const hint = () => MLOG.objs.find(o => o.side === 'tipp');
   r.hintThere = FS.until(()=>!!hint(), 1200, true)>=0;
@@ -7800,6 +7800,47 @@ scenario('F150 v374 M15: the Nelson waits, jumps out with the Pinnacle and her o
   r.orderClosed = FS.until(()=>(ord()||{}).st === 'done', 40000, true)>=0;
   r.jumpedOut = !!EV_LEFT.N1;
   r.pinnacleGone = !!EV_LEFT.P1;
+  return r;`);
+
+// F151 (Silvio, 26.11.2026): the buttons wear the colour of the job, read
+// from the very place the brackets read theirs, and the short names must
+// fit the strip without being cut.
+scenario('F151 v379 M11: red to destroy, yellow to disable, and nothing is cut off', 'm=11', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(6*TICK_HZ);
+  draw();
+  const btn = window._objBtns || [];
+  r.fourOrders = btn.length === 4;
+  ctx.font = thValue(8, true);
+  r.nothingCut = btn.every(b => thFit(objBarLabel(b.o), b.w-6) === objBarLabel(b.o));
+  const col = k => { const b = btn.find(x=>String(x.o.kurz).indexOf(k)>=0); return b ? objBarColour(b.o) : 'none'; };
+  r.depotRed = col('Depot') === MARK_COL.DESTROY;
+  r.enginesYellow = col('Ramses engines') === MARK_COL.DISABLE;
+  r.weaponsYellow = col('Ramses weapons') === MARK_COL.DISABLE;
+  r.bonusRed = col('Bonus') === MARK_COL.DESTROY;
+  // The colour is the ship's own, not a second list that could drift.
+  const ram = byId('R1')[0];
+  r.sameAsBracket = MARK_COL[missionMark(ram)] === col('Ramses engines');
+  return r;`);
+
+scenario('F151 v379 M15: blue to protect, and a scan order takes no job colour', 'm=15', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(4*TICK_HZ);
+  draw();
+  const btn = () => window._objBtns || [];
+  ctx.font = thValue(8, true);
+  r.nothingCut = btn().every(b => thFit(objBarLabel(b.o), b.w-6) === objBarLabel(b.o));
+  const col = k => { const b = btn().find(x=>String(x.o.kurz).indexOf(k)>=0); return b ? objBarColour(b.o) : 'none'; };
+  r.transportsBlue = col('Transports') === MARK_COL.PROTECT;
+  r.nelsonBlue = col('Nelson') === MARK_COL.PROTECT;
+  // M8 scans her cargo: no job colour, or the red would read as "destroy".
+  r.scanHasNoColour = objBarColour({kurz:'Scan cargo', zu:'K1', col:'none'}) === null;
   return r;`);
 
 // F146 (M29): the briefing's own plan is the mission - her radio room dies

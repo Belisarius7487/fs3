@@ -69,7 +69,8 @@ const names = [
                'firingBanks','priDefP','secDefP',
                'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton','btnState','btnText',
                // F148: the orders strip in the bar
-               'drawBarObjectives','objBarList','objBarLabel','objBarTarget','objTally'];
+               'drawBarObjectives','objBarList','objBarLabel','objBarTarget','objTally',
+               'objBarColour','objBarGlow','objBarRGBA'];
 
 const CALLS = [];
 const ctxStub = new Proxy({}, {

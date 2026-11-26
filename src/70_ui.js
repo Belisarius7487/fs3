@@ -2080,6 +2080,53 @@ function objBarTarget(o){
     }
   return best;
 }
+// F151 (Silvio, 26.11.2026): "Protection-Orders haben einen blauen Rahmen um
+// die zu beschuetzenden Schiffe. Disabling-Orders einen gelben.
+// Destruction-Orders einen roten. Vielleicht sollten wir die Buttons genauso
+// zeichnen?" The colour is read from the very place the brackets read theirs
+// (missionMark / MARK_COL), so the two can never drift apart. A target with
+// no mark of its own takes the colour of the job it plainly is: an enemy is
+// there to be destroyed.
+function objBarColour(o){
+  if(!o || o.side === 'ruf' || o.side === 'tipp') return null;
+  // A scan is none of the three jobs - its ring on the ship says it, and a
+  // red button would read as "destroy" (F89: a scan target wears no frame).
+  if(o.col === 'none') return null;
+  const t = objBarTarget(o);
+  if(!t) return null;
+  if(typeof missionMark === 'function'){
+    const word = missionMark(t);
+    if(word && typeof MARK_COL !== 'undefined' && MARK_COL[word]) return MARK_COL[word];
+  }
+  if(typeof MARK_COL === 'undefined') return null;
+  return (t.side === 'ally') ? MARK_COL.PROTECT : MARK_COL.DESTROY;
+}
+// '#rrggbb' with an alpha, for the mark colours, which are hex and not
+// theme roles (thRGBA takes a role).
+function objBarRGBA(hex, a){
+  const h = String(hex).replace('#','');
+  const n = parseInt(h.length===3 ? h.replace(/./g, c=>c+c) : h, 16);
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+// F151: how much of the job colour is washed over the plate. Silvio saw
+// three steps and took this one - the ring alone was too faint, a full
+// colour field too loud.
+var OBJ_COL_WASH = 0.10;
+// thGlowPath in the colour of the job instead of the theme's own glow, with
+// the job's colour washed over the plate so the button reads as red, yellow
+// or blue at a glance and not only at its edge.
+function objBarGlow(x, y, w, h, c, k, col){
+  ctx.save();
+  if(OBJ_COL_WASH > 0){
+    thChamferPath(x+0.5, y+0.5, w-1, h-1, c);
+    ctx.fillStyle = objBarRGBA(col, OBJ_COL_WASH); ctx.fill();
+  }
+  ctx.lineWidth = 1.6;
+  ctx.shadowColor = objBarRGBA(col, 0.35*k); ctx.shadowBlur = 7;
+  ctx.strokeStyle = objBarRGBA(col, 0.72 + 0.20*k);
+  thChamferPath(x+0.8, y+0.8, w-1.6, h-1.6, c); ctx.stroke();
+  ctx.restore();
+}
 function objBarSub(u, name){
   if(!u || !name || !u.subs) return null;
   for(const s of u.subs) if(s.id === name && !s.dead) return s;
@@ -2110,7 +2157,11 @@ function drawBarObjectives(x0, y0, w, h){
     thButton(bx, y0, bw, bh, hov ? 'ready' : null);
     // A slow swell on the ring, so an order is not overlooked in a fight
     // (Silvio: "ein deutlich sichtbarer, leicht wabernder Glow").
-    thGlowPath(bx, y0, bw, bh, 4, 0.55 + 0.45*Math.sin(fc*0.045 + i*0.9));
+    // F151: in the colour of the job, the same one its brackets wear.
+    const swell = 0.55 + 0.45*Math.sin(fc*0.045 + i*0.9);
+    const jobCol = objBarColour(o);
+    if(jobCol) objBarGlow(bx, y0, bw, bh, 4, swell, jobCol);
+    else thGlowPath(bx, y0, bw, bh, 4, swell);
     // Blinking belongs to the moment an order is settled, not to its
     // whole life - a bar that never stops moving is the clutter again.
     let a = 1;

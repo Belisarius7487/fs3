@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 26.11.2026, v374, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 26.11.2026, v379, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
 | F150 | **M15: die Nelson fuhr nach rechts aus dem Feld und ihr Beschützerauftrag wurde nie grün** (Silvio, 26.11.2026). Gemessen: ihre Querfahrt brauchte 39 Sekunden, der Abzug kam vorher und setzte ihr Ereignis auf „erledigt". Jetzt wartet sie bei den Transportern und springt am Missionsende mit der Pinnacle ab | v374 |
 | F148 | **Besprechung vor der Mission und Auftragsknöpfe in der Leiste** (v365/v366): vor jeder geschriebenen Mission steht ein Besprechungsbildschirm mit Lage und Aufträgen, die Missionsuhr läuft dabei nicht, ein Klick startet. In der Leiste tragen Hülle/Leben/PRIMARY/SECONDARY einen Streifen darunter frei; dort stehen die Aufträge als anklickbare Knöpfe, die das Ziel anvisieren, mit Zähler („(1/4)") und Farbe für Erfolg, Teilerfolg und Fehlschlag. Zuerst nur an M28; die übrigen Missionen folgen. v366: ACCEPT-Knopf statt Textzeile | v365, v366 |
 | F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v362:** übergebene Zeichenflächen geben sich jetzt als fertig geladene Bilder aus, sonst blinken die Planeten beim Übergang einmal weg | v354–v362 |
@@ -256,6 +257,41 @@ Missionen 6 bis 10 grün, `warpsim` über 6 bis 10 ohne neue Funde (die zwei
 Meldungen bestehen schon in v371), und drei neue Szenarien („F149 v372
 M6-M10", „F149 v372 M7", „F149 v372 M9"). Gegen v371 gestellt sind alle drei
 rot.
+
+## F151 — Auftragsknöpfe tragen die Farbe ihres Auftrags, Texte gekürzt (v379, 26.11.2026, Urteil offen)
+
+Silvio, 26.11.2026, zu abgeschnittenen Knopftexten („Die sind zu lang"):
+„Protection-Orders haben einen blauen Rahmen um die zu beschützenden
+Schiffe. Disabling-Orders einen gelben. Destruction-Orders einen roten.
+Vielleicht sollten wir die Buttons genauso zeichnen? Dann weiß man, dass
+etwas zu beschützen, zerstören oder lahmzulegen ist."
+
+**So gebaut:** Die Farbe des Knopfes kommt aus **derselben Stelle wie die
+Klammern am Schiff** (`missionMark` und `MARK_COL` in `72_target.js`), nicht
+aus einer zweiten Liste — Knopf und Klammer können also nicht auseinander
+laufen. Ein Ziel ohne eigene Auftragsmarke bekommt die Farbe seiner Seite:
+Gegner rot, eigene blau.
+
+**Stärke:** Silvio hat drei Abstufungen im Bild gesehen. Zu dezent war der
+dünne Rahmen allein, zu extrem die voll ausgefüllte Farbfläche mit farbiger
+Schrift. Genommen: Rahmen 1,6 Punkt in der Auftragsfarbe, ein leichter
+Farbschleier über der Fläche (`OBJ_COL_WASH` 0,10), **Schrift bleibt weiß**.
+Ein erledigter Auftrag behält Grün oder Rot seines Ergebnisses.
+
+**Texte gekürzt,** weil die Farbe das Verb trägt: aus „Protect the Halkins"
+wird `Halkins`, aus „Disable the Taranis" `Taranis engines`. Betroffen sind
+**M1 bis M15**. Vorher wurden in M15 drei Knöpfe nebeneinander abgeschnitten
+(sie brauchten 423 Punkte, die Leiste gibt 371 her).
+
+**Ausnahme Scannen:** Ein Scan ist keiner der drei Aufträge, und Rot hieße
+dort „zerstören". Solche Aufträge behalten ihr Verb („Scan cargo") und
+schalten die Farbe mit `col:'none'` bzw. `zielCol:'none'` ab (F89: ein
+Scanziel bekommt auch am Schiff keinen Auftragsrahmen).
+
+**Geprüft:** `./checks.sh --fast` grün (dabei fiel `hudsim` zuerst aus, weil
+neue Funktionen in seiner Namensliste fehlten — sie stehen jetzt drin), zwei
+neue Szenarien („F151 v379 M11", „F151 v379 M15"), gegen v374 gestellt beide
+rot. Eines davon prüft auch, dass **kein Knopftext mehr abgeschnitten** wird.
 
 ## F150 — M15: die Nelson fuhr nach rechts aus dem Feld, ihr Auftrag wurde nie grün (v374, 26.11.2026)
 

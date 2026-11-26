@@ -2780,7 +2780,7 @@ const SCRIPT_WAVES = {
   // Orff; she is lost, the mission is lost.
   1: {name:'Eve of Destruction', era:'fs1', orig:1, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       ziel:'Protect the GTC Orff',
-      zielKurz:'Protect GTC Orff', zielZu:'A1',
+      zielKurz:'GTC Orff', zielZu:'A1',
       brief:{text:'Vasudan fighters are attacking the GTC Orff. We are her only escort. '+
                   'Protect the Cruiser.',
              ziele:['Protect the GTC Orff']}, u:[
@@ -2808,7 +2808,7 @@ const SCRIPT_WAVES = {
   // their ace comes for the player - always, not only for a healthy one.
   2: {name:'The Field of Battle', era:'fs1', orig:2, ship:'fiapollo', fac:'hol', o:'clear', live:8, stillRocks:true,
       ziel:'Destroy all Vasudan fighters',
-      zielKurz:'Destroy Vasudan fighters', zielZu:'E1+E2+E3+E4+S1',
+      zielKurz:'Vasudan fighters', zielZu:'E1+E2+E3+E4+S1',
       brief:{text:'Vasudan fighters are hiding inside the asteroid field. '+
                   'Sweep the area and destroy them all.',
              ziele:['Destroy all Vasudan fighters']}, u:[
@@ -2829,7 +2829,7 @@ const SCRIPT_WAVES = {
        {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'einwarpen', a2:'S1'},
        {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'meldung', a2:'A Vasudan ace is coming for you'},
        {t:'anzahlUnter', a:'E1+E2+E3+E4', b:4, w:'bonus', a2:'Shoot down the ace',
-        kurz:'Shoot down the ace', zu:'S1'},
+        kurz:'The ace', zu:'S1'},
        {t:'vernichtet', a:'S1', w:'bonusOk', a2:'The ace is down'},
        {t:'alleZerstoert', a:'E1+E2+E3+E4+S1', w:'zielerfuellt', a2:'All Vasudans destroyed'}
      ]},
@@ -2844,7 +2844,7 @@ const SCRIPT_WAVES = {
       ziel:'Intercept Vasudans',
       // F149: a counted destroy objective - a freighter that gets away is
       // not counted, so the button shows the partial success honestly.
-      zielKurz:'Intercept freighters', zielZu:'F1+F2', zielSoll:2, zielZaehl:'vernichtet',
+      zielKurz:'Freighters', zielZu:'F1+F2', zielSoll:2, zielZaehl:'vernichtet',
       brief:{text:'Vasudans are raiding our cargo depots and try to steal what\'s ours. '+
                   'Destroy any strike craft you encounter and keep our cargo safe.\n'+
                   'The GTT Omega will then warp in and recover the most important freight. '+
@@ -2869,7 +2869,7 @@ const SCRIPT_WAVES = {
      ], ev:[
        // F149: a real bonus with its own button, not just a message.
        {t:'sek', a:4, w:'bonus', a2:'Scan the container with the weapon prototype',
-        kurz:'Scan container', zu:'P1'},
+        kurz:'Scan container', zu:'P1', col:'none'},
        {t:'gescannt', a:'P1', w:'bonusOk', a2:'Weapon prototype found'},
        // a freighter gone, whichever way: two more Anubis
        {t:'zerstoert', a:'F1', w:'einwarpen', a2:'E3'},
@@ -2881,11 +2881,11 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'F2', w:'meldung', a2:'The Ma\'at got away with her container'},
        {t:'vernichtet', a:'F1+F2', w:'zielerfuellt', a2:'Both freighters stopped'},
        {t:'alleZerstoert', a:'F1+F2', w:'ziel', a2:'Destroy the Vasudan fighters',
-        kurz:'Destroy fighters', zu:'E1+E2+E3'},
+        kurz:'Fighters', zu:'E1+E2+E3'},
        // the field clear: the Omega comes for the agreed container
        {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'einwarpen', a2:'T1'},
        {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'ziel', a2:'Cover the Omega',
-        kurz:'Cover the Omega', zu:'T1'},
+        kurz:'Omega', zu:'T1'},
        {t:'da', a:'T1', d:5,  w:'einwarpen', a2:'E4'},
        {t:'da', a:'T1', d:15, w:'einwarpen', a2:'E5'},
        // F56 (v256): the container shot before she has loaded - she jumps
@@ -2909,7 +2909,7 @@ const SCRIPT_WAVES = {
   // even if nobody ever fires on them.
   4: {name:'Avenging Angels', era:'fs1', orig:4, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Disable Omega engines and weapons',
-      zielKurz:'Disable the Omega', zielZu:'O1',
+      zielKurz:'Omega', zielZu:'O1',
       brief:{text:'The GTT Omega is transporting defected Terran personnel and is to be taken '+
                   'intact. Disable her engines and weapons so she cannot run. '+
                   'The GTT Comet will board her. Cover the Comet until the Omega is ours.\n'+
@@ -2934,12 +2934,12 @@ const SCRIPT_WAVES = {
      ], ev:[
        // F149: both bonuses are real objectives with their own buttons.
        {t:'sek', a:4, w:'bonus', a2:'Disable the Rasputin as well',
-        kurz:'Disable Rasputin', zu:'R1'},
+        kurz:'Rasputin', zu:'R1'},
        // the Omega dead in space: the Comet and two Anubis
        {t:'subsystem', a:'O1', b:'engines+weapons', w:'einwarpen', a2:'T1'},
        {t:'subsystem', a:'O1', b:'engines+weapons', w:'einwarpen', a2:'E3'},
        {t:'subsystem', a:'O1', b:'engines+weapons', w:'ziel', a2:'Cover the Comet',
-        kurz:'Cover the Comet', zu:'T1'},
+        kurz:'Comet', zu:'T1'},
        // F89: disabled - her yellow frame goes out
        {t:'subsystem', a:'O1', b:'engines+weapons', w:'markieren', a2:'O1:'},
        {t:'angedockt', a:'T1', w:'kapern', a2:'O1'},
@@ -2957,7 +2957,7 @@ const SCRIPT_WAVES = {
        // The first bonus is settled before the second one opens.
        {t:'subsystem', a:'R1', b:'engines+weapons', w:'bonusOk', a2:'The Rasputin is dead in space'},
        {t:'subsystem', a:'R1', b:'engines+weapons', w:'bonus', a2:'Protect GT Intelligence 1',
-        kurz:'Protect GTT Intelligence', zu:'T2'},
+        kurz:'GTT Intelligence', zu:'T2'},
        {t:'angedockt', a:'T2', w:'kapern', a2:'R1'},
        {t:'angedockt', a:'T2', w:'bonusOk', a2:'PVT Rasputin captured'},
        {t:'vernichtet', a:'T2', w:'bonusFail', a2:'GT Intelligence 1 destroyed'},
@@ -2971,7 +2971,7 @@ const SCRIPT_WAVES = {
   // the original she can be saved. Under 20 % hull she launches a pod.
   5: {name:'Out of the Dark, Into the Night', era:'fs1', orig:5, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       feud:true, ziel:'Protect the Plato',
-      zielKurz:'Protect the Plato', zielZu:'P1',
+      zielKurz:'Plato', zielZu:'P1',
       brief:{text:'Our job is to protect the science vessel GTSC Plato crossing this sector.\n'+
                   'Vasudans have ambushed this place before, so we are sent in to escort '+
                   'her through.',
@@ -3011,7 +3011,7 @@ const SCRIPT_WAVES = {
        {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'S1'},
        {t:'da', a:'E2+B2', d:30, w:'einwarpen', a2:'X1'},
        {t:'da', a:'S0', w:'nebenziel', a2:'Scan an unknown',
-        kurz:'Scan unknown fighter', zu:'S0'},
+        kurz:'Scan unknown fighter', zu:'S0', col:'none'},
        {t:'da', a:'S0', d:20, w:'einwarpen', a2:'S2'},
        {t:'da', a:'S0', d:20, w:'einwarpen', a2:'X2'},
        {t:'gescannt', a:'S0', w:'nebenOk', a2:'Unknown scanned'},
@@ -3026,13 +3026,13 @@ const SCRIPT_WAVES = {
        // F149 (Silvio, 26.11.2026): the pod is a bonus of its own, however
        // she came to be launched - the Plato's hull or the Plato's death.
        {t:'rumpfUnter', a:'P1', b:20, w:'bonus', a2:'Protect the escape pod',
-        kurz:'Protect Escape Pod', zu:'H1'},
+        kurz:'Escape pod', zu:'H1'},
        {t:'verlaesst', a:'H1', w:'bonusOk', a2:'The escape pod is away',
-        fuer:'Protect Escape Pod'},
+        fuer:'Escape pod'},
        {t:'vernichtet', a:'H1', w:'bonusFail', a2:'The escape pod is lost',
-        fuer:'Protect Escape Pod'},
+        fuer:'Escape pod'},
        {t:'vernichtet', a:'P1', w:'ziel', a2:'Cover the escape pod',
-        kurz:'Cover the pod', zu:'H1'},
+        kurz:'The pod', zu:'H1'},
        // the ends - order counts: an 'abzug' closes every later event
        {t:'verlaesst', a:'P1', w:'zielerfuellt', a2:'The Plato is through'},
        {t:'verlaesst', a:'P1', w:'abzug', a2:''},
@@ -3048,7 +3048,7 @@ const SCRIPT_WAVES = {
   6: {name:'Paving the Way', era:'fs1', orig:6, ship:'fiapollo', fac:'hol', o:'clear', live:6,
       stillRocks:true,
       ziel:'Protect the Galatea',
-      zielKurz:'Protect the Galatea', zielZu:'G1',
+      zielKurz:'Galatea', zielZu:'G1',
       brief:{text:'The Galatea needs to traverse an asteroid field for her new assignment. '+
                   'It\'s also possible that the unknowns will try to attack her. '+
                   'Keep her safe from rocks and attacks.',
@@ -3095,7 +3095,7 @@ const SCRIPT_WAVES = {
   // clock that is shown (Silvio, 14.10.2026); then the Shivans pull out.
   7: {name:"Pandora's Box", era:'fs1', orig:7, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Scan the three marked containers',
-      zielKurz:'Scan containers', zielZu:'K1+K3+K5', zielSoll:3, zielZaehl:'gescannt',
+      zielKurz:'Scan containers', zielCol:'none', zielZu:'K1+K3+K5', zielSoll:3, zielZaehl:'gescannt',
       brief:{text:'We have located a Shivan cargo depot. Intelligence needs to know what '+
                   'they are storing there, so you have to scan some of these containers.\n'+
                   'The depot is defended by sentry guns. Take them out.',
@@ -3121,7 +3121,7 @@ const SCRIPT_WAVES = {
        // F149 (Silvio, 26.11.2026): the guns are an order of their own, not
        // a bonus - the briefing says to take them out.
        {t:'sek', a:4, w:'nebenziel', a2:'Destroy the sentry guns',
-        kurz:'Destroy sentry guns', zu:'G1'},
+        kurz:'Sentry guns', zu:'G1'},
        {t:'alleZerstoert', a:'G1', w:'nebenOk', a2:'The sentry guns are down'},
        // the third scan springs the trap
        {t:'gescannt', a:'K1+K3+K5', w:'meldung', a2:'The containers are rigged - get clear!'},
@@ -3162,7 +3162,7 @@ const SCRIPT_WAVES = {
   // enough to scan, disable and fight.
   8: {name:'Shieldbreaker', era:'fs1', orig:7, ship:'fiapollo', pri:'dadv', fac:'hol', o:'clear', live:6,
       ziel:'Scan the cargo - find the shield prototypes',
-      zielKurz:'Scan cargo', zielZu:'K1+K2+K3+K4+K5+K6',
+      zielKurz:'Scan cargo', zielCol:'none', zielZu:'K1+K2+K3+K4+K5+K6',
       brief:{text:'Three Shivan freighters are moving cargo under light escort. '+
                   'One of them carries shield prototypes and we want them intact.\n'+
                   'Scan the containers to find them, then disable that freighter so it '+
@@ -3215,7 +3215,7 @@ const SCRIPT_WAVES = {
        // must not come - the objective would ask for what is already done,
        // and her mark would go back from protect to disable.
        {t:'gescannt', a:'K2', w:'ziel', a2:'Disable the Asmodeus 2 - engines and weapons',
-        kurz:'Disable Asmodeus 2', zu:'F1', sub:'engines',
+        kurz:'Asmodeus 2', zu:'F1', sub:'engines',
         solange:{t:'subsystem', a:'F1', b:'engines+weapons'}},
        {t:'gescannt', a:'K2', w:'markieren', a2:'F1:disable',
         solange:{t:'subsystem', a:'F1', b:'engines+weapons'}},
@@ -3227,7 +3227,7 @@ const SCRIPT_WAVES = {
        // dead in space: the Elysium, and the Shivans come for their own ship
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'einwarpen', a2:'T1'},
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'ziel', a2:'Cover the Elysium until the Asmodeus is taken',
-        kurz:'Cover the Elysium', zu:'T1+T2'},
+        kurz:'Elysium', zu:'T1+T2'},
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'markieren', a2:'F1:protect'},
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'opfer', a2:'F1'},
        {t:'subsystem', a:'F1', b:'engines+weapons', w:'jagd', a2:'F1'},
@@ -3273,7 +3273,7 @@ const SCRIPT_WAVES = {
   // over long before they get there.
   9: {name:'The Hammer and the Anvil: Breakout', era:'fs1', orig:8, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Protect the Theta freighters and their cargo',
-      zielKurz:'Protect convoy', zielZu:'T1+T2+T3', zielSoll:3, zielZaehl:'uebrig',
+      zielKurz:'Convoy', zielZu:'T1+T2+T3', zielSoll:3, zielZaehl:'uebrig',
       brief:{text:'The Theta freighters are carrying the captured shield technology and we '+
                   'expect Shivans to ambush the convoy.\n'+
                   'Keep the freighters safe until they make the jump.',
@@ -3314,7 +3314,7 @@ const SCRIPT_WAVES = {
 
   10:{name:'The Hammer and the Anvil: Betrayal', era:'fs1', orig:8, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       ziel:'Protect the Theta freighters and their cargo',
-      zielKurz:'Protect convoy', zielZu:'T1+T2+T3', zielSoll:3, zielZaehl:'uebrig',
+      zielKurz:'Convoy', zielZu:'T1+T2+T3', zielSoll:3, zielZaehl:'uebrig',
       brief:{text:'Theta convoy continues transporting the captured shield technology to '+
                   'our researchers. A Vasudan wing has been assigned as additional escort.\n'+
                   'Keep on protecting the convoy.',
@@ -3341,9 +3341,9 @@ const SCRIPT_WAVES = {
        // F149 (Silvio, 26.11.2026): the turncoats are the bonus of this
        // mission, and the button only opens once they have shown their hand.
        {t:'sek', a:6, w:'bonus', a2:'Destroy the Vasudan attackers',
-        kurz:'Destroy Vasudan attackers', zu:'A1+A2', soll:2, zaehl:'vernichtet'},
+        kurz:'Vasudan attackers', zu:'A1+A2', soll:2, zaehl:'vernichtet'},
        {t:'vernichtet', a:'A1+A2', w:'bonusOk', a2:'Both Vasudan attackers destroyed',
-        fuer:'Destroy Vasudan attackers'},
+        fuer:'Vasudan attackers'},
        // then the Shivans
        {t:'alleZerstoert', a:'A1+A2', w:'einwarpen', a2:'S1'},
        {t:'sek', a:45, w:'einwarpen', a2:'S1'},
@@ -3371,7 +3371,7 @@ const SCRIPT_WAVES = {
   // partial one (wenn).
   11:{name:'The Darkness and the Light', era:'fs1', orig:9, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
       feud:true, ziel:'Destroy the depot',
-      zielKurz:'Destroy the depot', zielZu:'D1+D2+D3+D4+D5+D6', zielSoll:6,
+      zielKurz:'Depot', zielZu:'D1+D2+D3+D4+D5+D6', zielSoll:6,
       zielZaehl:'vernichtet',
       brief:{text:'The Vasudans established a supply depot in this sector. We\'re ordered to '+
                   'destroy it. The PVC Ramses is guarding the depot and intelligence wants to '+
@@ -3413,15 +3413,15 @@ const SCRIPT_WAVES = {
        // F149: the two subsystems are two orders of their own, each with its
        // own button and its own result ('fuer' tells them apart).
        {t:'sek', a:1, w:'nebenziel', a2:'Disable the Ramses - engines',
-        kurz:'Disable the Ramses', zu:'R1', sub:'engines'},
+        kurz:'Ramses engines', zu:'R1', sub:'engines'},
        {t:'sek', a:1, w:'nebenziel', a2:'Disarm the Ramses - weapons',
-        kurz:'Disarm the Ramses', zu:'R1', sub:'weapons'},
+        kurz:'Ramses weapons', zu:'R1', sub:'weapons'},
        {t:'subsystem', a:'R1', b:'engines', w:'nebenOk', a2:'The Ramses cannot jump',
-        fuer:'Disable the Ramses'},
+        fuer:'Ramses engines'},
        {t:'subsystem', a:'R1', b:'weapons', w:'nebenOk', a2:'The Ramses is disarmed',
-        fuer:'Disarm the Ramses'},
+        fuer:'Ramses weapons'},
        {t:'sek', a:4, w:'bonus', a2:'Destroy freighters',
-        kurz:'Destroy freighters', zu:'F1+F2', soll:2, zaehl:'vernichtet'},
+        kurz:'Bonus: Satis', zu:'F1+F2', soll:2, zaehl:'vernichtet'},
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
        {t:'da', a:'E1', d:30, w:'einwarpen', a2:'E2'},
        {t:'sek', a:20, w:'einwarpen', a2:'C1'},
@@ -3430,11 +3430,11 @@ const SCRIPT_WAVES = {
        // Both of them, or the bonus is not earned: one that jumps out does
        // not count, so her escape settles it as missed.
        {t:'vernichtet', a:'F1+F2', w:'bonusOk', a2:'Both Satis freighters destroyed',
-        fuer:'Destroy freighters'},
+        fuer:'Bonus: Satis'},
        {t:'verlaesst', a:'F1', w:'bonusFail', a2:'A Satis got away',
-        fuer:'Destroy freighters'},
+        fuer:'Bonus: Satis'},
        {t:'verlaesst', a:'F2', w:'bonusFail', a2:'A Satis got away',
-        fuer:'Destroy freighters'},
+        fuer:'Bonus: Satis'},
        // the depot down: Shaitans
        {t:'alleZerstoert', a:'D1+D2+D3+D4+D5+D6', w:'zielEnde', a2:'The depot is destroyed'},
        {t:'alleZerstoert', a:'D1+D2+D3+D4+D5+D6', w:'einwarpen', a2:'X1'},
@@ -3445,17 +3445,17 @@ const SCRIPT_WAVES = {
        {t:'subsystem', a:'R1', b:'engines+weapons', w:'markieren', a2:'R1:protect'},
        {t:'subsystem', a:'R1', b:'engines+weapons', w:'meldung', a2:'A transport is coming for the Ramses'},
        {t:'subsystem', a:'R1', b:'engines+weapons', w:'nebenziel', a2:'Protect the Elysium',
-        kurz:'Protect the Elysium', zu:'T1'},
+        kurz:'Elysium', zu:'T1'},
        {t:'angedockt', a:'T1', w:'kapern', a2:'R1'},
        {t:'angedockt', a:'T1', w:'meldung', a2:'PVC Ramses taken'},
        {t:'angedockt', a:'T1', w:'nebenOk', a2:'The Ramses is in tow',
-        fuer:'Protect the Elysium'},
+        fuer:'Elysium'},
        {t:'vernichtet', a:'T1', w:'nebenFail', a2:'GTT Elysium destroyed',
-        fuer:'Protect the Elysium'},
+        fuer:'Elysium'},
        // Lost before she was boarded: both subsystem orders are off.
        {t:'vernichtet', a:'R1', w:'nebenFail', a2:'The Ramses cannot be taken',
-        fuer:'Disable the Ramses'},
-       {t:'vernichtet', a:'R1', w:'nebenFail', a2:'', fuer:'Disarm the Ramses'},
+        fuer:'Ramses engines'},
+       {t:'vernichtet', a:'R1', w:'nebenFail', a2:'', fuer:'Ramses weapons'},
        {t:'vernichtet', a:'T1', w:'freigeben', a2:'R1'},
        {t:'vernichtet', a:'T1', w:'markieren', a2:'R1:destroy'},
        {t:'vernichtet', a:'T1', w:'meldung', a2:'The transport is lost - destroy the Ramses'},
@@ -3475,7 +3475,7 @@ const SCRIPT_WAVES = {
   // Basilisks in waves of three (Silvio, 15.10.2026).
   12:{name:'First Strike: Disable', era:'fs1', orig:10, ship:'boathena', fac:'hol', o:'clear', live:6,
       ziel:'Disable the Taranis - engines',
-      zielKurz:'Disable the Taranis', zielZu:'R1', zielSub:'engines',
+      zielKurz:'Taranis engines', zielZu:'R1', zielSub:'engines',
       brief:{text:'The Taranis\' appearance caught us by surprise, but also offers a great '+
                   'opportunity for our intelligence service. The plan is to capture the Shivan '+
                   'cruiser to learn about their motives and their technology. Therefore this '+
@@ -3493,9 +3493,9 @@ const SCRIPT_WAVES = {
      ], ev:[
        // F149: her weapons are an order of their own, with its own button.
        {t:'sek', a:1, w:'nebenziel', a2:'Disarm the Taranis - weapons',
-        kurz:'Disarm the Taranis', zu:'R1', sub:'weapons'},
+        kurz:'Taranis weapons', zu:'R1', sub:'weapons'},
        {t:'subsystem', a:'R1', b:'weapons', w:'nebenOk', a2:'The Taranis is disarmed',
-        fuer:'Disarm the Taranis'},
+        fuer:'Taranis weapons'},
        {t:'alleZerstoert', a:'E1+E2', w:'einwarpen', a2:'E3'},
        {t:'da', a:'E1+E2', d:30, w:'einwarpen', a2:'E3'},
        // the ends - order counts: an 'abzug' closes every later event
@@ -3507,7 +3507,7 @@ const SCRIPT_WAVES = {
 
   13:{name:'First Strike: Salvage', era:'fs1', orig:10, ship:'boathena', fac:'hol', o:'clear', live:6,
       ziel:'Protect the Halkins while she takes the Taranis',
-      zielKurz:'Protect the Halkins', zielZu:'H1',
+      zielKurz:'Halkins', zielZu:'H1',
       brief:{text:'The Taranis lies dead in space. The freighter Halkins is coming in to dock '+
                   'with her and tow her out. The Halkins is unarmed, so you have to keep her '+
                   'safe until she has finished the capture operation.',
@@ -3549,7 +3549,7 @@ const SCRIPT_WAVES = {
   14:{name:'Rain on Ribos IV', era:'fs1', orig:10, ship:'fivalyrie', pri:['avenger','avenger'], fac:'hol', o:'clear', live:6,
       planet:{x:200, y:190, w:400},
       ziel:'Cover the transport until she gets away',
-      zielKurz:'Protect the Ptolemy', zielZu:'T1',
+      zielKurz:'Ptolemy', zielZu:'T1',
       brief:{text:'The Shivans took notice of our capturing of the SC Taranis. The transport '+
                   'Ptolemy is inbound to recover vital data from the Shivan cruiser and must '+
                   'be protected at all cost.',
@@ -3610,7 +3610,7 @@ const SCRIPT_WAVES = {
   // freighters. Replaces the old mission 15 (Silvio, 22.10.2026).
   15:{name:'The Aftermath', era:'fs1', orig:11, ship:'fivalyrie', pri:['avenger','avenger'], fac:'hol', o:'clear', live:6,
       hunt:'N1', ziel:'Escort the transports to the Pinnacle',
-      zielKurz:'Escort the transports', zielZu:'T1+T2+T3', zielSoll:3,
+      zielKurz:'Transports', zielZu:'T1+T2+T3', zielSoll:3,
       zielZaehl:'durch',
       brief:{text:'Transports are carrying refugees out of Tombaugh station. The Vasudan '+
                   'destroyer PVD Pinnacle will take them aboard as soon as she has arrived. '+
@@ -3653,11 +3653,11 @@ const SCRIPT_WAVES = {
        {t:'sek', a:5, w:'einwarpen', a2:'E1'},
        // F149: the Nelson is an order of her own from the start.
        {t:'sek', a:1, w:'nebenziel', a2:'Protect the Nelson',
-        kurz:'Protect the Nelson', zu:'N1'},
+        kurz:'Nelson', zu:'N1'},
        {t:'verlaesst', a:'N1', w:'nebenOk', a2:'GTFr Nelson is clear',
-        fuer:'Protect the Nelson'},
+        fuer:'Nelson'},
        {t:'vernichtet', a:'N1', w:'nebenFail', a2:'GTFr Nelson destroyed',
-        fuer:'Protect the Nelson'},
+        fuer:'Nelson'},
        // second wave: bombers and Basilisks for the transports
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
        {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'},
@@ -3680,7 +3680,7 @@ const SCRIPT_WAVES = {
        // F149: her freighters are their own order, counted and judged by
        // how many of them are still standing at the end.
        {t:'da', a:'F1', w:'nebenziel', a2:"Protect the Pinnacle's freighters",
-        kurz:"Protect Pinnacle's freighters", zu:'F1+F2+F3', soll:3, zaehl:'uebrig'},
+        kurz:"Pinnacle freighters", zu:'F1+F2+F3', soll:3, zaehl:'uebrig'},
        // F149 (Silvio, 26.11.2026): all three transports count, not Iota
        // alone - the main objective is judged by how many got through.
        {t:'alleZerstoert', a:'T1+T2+T3', w:'zielEnde', a2:'The transports are through'},
@@ -3692,7 +3692,7 @@ const SCRIPT_WAVES = {
        {t:'da', a:'P1', d:60, w:'einwarpen', a2:'L2'},
        {t:'da', a:'L1', w:'jagd', a2:'F1'},
        {t:'da', a:'L1', w:'ziel', a2:'Destroy the remaining fighters',
-        kurz:'Destroy remaining fighters', zu:'L1+L2'},
+        kurz:'Fighters', zu:'L1+L2'},
        // F150: the Pinnacle takes her leave and the Nelson goes with her.
        // 'raus' sets her as gone right away, so her order closes in the
        // next step - three seconds before the withdrawal, which would
@@ -6207,7 +6207,7 @@ function evTrig(ev){
 // by its own words and is not clickable.
 function evMeta(ev){
   return {kurz:ev.kurz||'', zu:ev.zu||'', sub:ev.sub||'',
-          soll:ev.soll||0, zaehl:ev.zaehl||''};
+          soll:ev.soll||0, zaehl:ev.zaehl||'', col:ev.col||''};
 }
 function evFire(ev){
   // Ausloeser und Wirkung koennen verschiedene Ziele haben. wa ist das
@@ -6861,7 +6861,8 @@ function buildScripted(def){
   missionObj = String(def.ziel || '').toUpperCase();
   // F148: the mission's own objective may name what its button needs.
   missionObjMeta = def.ziel ? {kurz:def.zielKurz||'', zu:def.zielZu||'', sub:def.zielSub||'',
-                               soll:def.zielSoll||0, zaehl:def.zielZaehl||''} : null;
+                               soll:def.zielSoll||0, zaehl:def.zielZaehl||'',
+                               col:def.zielCol||''} : null;
   briefSet(def);                      // F148: the briefing, if she has one
   if(def.ship) forceShip(def.ship, def.sec);
   if(def.pri) missionPri(def.pri);
