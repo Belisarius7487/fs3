@@ -26,7 +26,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F149 | **Runde 1 von F148 ausgerollt: M1 bis M5** (v370, v371). Jede der fuenf hat ihren Besprechungstext und ihre Auftragsknoepfe; Silvio hat die Texte am 26.11.2026 im Chat abgenommen. Neu dabei: ein Zaehler fuer ein Zerstoerungsziel (M3, Intercept freighters 0/2) und aus den bisherigen Bonus-Meldungen in M3 und M4 sind echte Bonusziele mit Knopf geworden. Noch offen: M6 bis M27 und M29. **v371:** erfuellte Auftraege verlassen die Leiste, nachdem sie in ihrer Farbe geblinkt haben (sie bleiben im Pausebildschirm), und in M5 ist die Rettungskapsel der Plato ein eigenes Bonusziel | v370, v371 |
 | F148 | **Besprechung vor der Mission und Auftragsknöpfe in der Leiste** (v365/v366): vor jeder geschriebenen Mission steht ein Besprechungsbildschirm mit Lage und Aufträgen, die Missionsuhr läuft dabei nicht, ein Klick startet. In der Leiste tragen Hülle/Leben/PRIMARY/SECONDARY einen Streifen darunter frei; dort stehen die Aufträge als anklickbare Knöpfe, die das Ziel anvisieren, mit Zähler („(1/4)") und Farbe für Erfolg, Teilerfolg und Fehlschlag. Zuerst nur an M28; die übrigen Missionen folgen. v366: ACCEPT-Knopf statt Textzeile | v365, v366 |
 | F144 | **Vorspann vor dem Startbildschirm** (v354): „Developed for“ und das HLP-Banner blenden ein und wieder aus, dann das Series-Resurrecta-Logo mit Schriftzug und einem Lichtband, das darüber wandert. Läuft über denselben Sternenhintergrund wie der Startbildschirm. Die Schiffsmodelle laden dahinter; der Ladebalken bleibt verborgen, bis der Vorspann durch ist. Klick oder beliebige Taste überspringt ihn. **v356: der Vorspann liegt jetzt in der Ladeseite und läuft als Erstes**, der Ladebalken erscheint erst danach. **v357:** Nebelhintergrund, Sterne und treibende Planeten auf der Ladeseite, und der Ladekasten des Spiels ist nicht mehr schwarz hinterlegt. **v359: ein einziger Himmel.** Die Ladeseite zeichnet ihn nach den Regeln des Spiels und übergibt ihn fertig; das Spiel zeichnet mit denselben Sternen, demselben Nebel und denselben Planeten weiter. Nichts wird zweimal geladen oder neu gewürfelt. **v362:** übergebene Zeichenflächen geben sich jetzt als fertig geladene Bilder aus, sonst blinken die Planeten beim Übergang einmal weg | v354–v362 |
 | F145 | **Die Tastenliste auf dem Startbildschirm erscheint nur noch auf Tastendruck** (Silvio, 25.11.2026: „da sie meiner Ansicht nach zuviel Platz einnimmt“). Statt der Tafel steht dort „C - CONTROLS“; C blendet sie ein und wieder aus | v354 |
@@ -41,7 +40,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist in v370 gebaut**, es fehlen M6 bis M27 und M29 |
+| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 sind M6 bis M10**; danach fehlen M11 bis M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -145,7 +144,9 @@ sollte Accept als Text haben, mehr nicht"). Ein Klick daneben wird wie
 bei jedem anderen Fenster geschluckt; Eingabe und Leertaste wirken wie
 der Knopf.
 
-## F149 — F148 auf alle Missionen ausrollen, Runde 1: M1 bis M5 (v370, 26.11.2026)
+## F149 — F148 auf alle Missionen ausrollen, Runde 1: M1 bis M5 (v370/v371, 26.11.2026, abgenommen)
+
+**Abgenommen** (Silvio, 26.11.2026): „Ich habe die ersten 5 Missionen abgenommen." **Runde 2 sind M6 bis M10, in einem neuen Chat.**
 
 Silvio hat die fünf Texte am 26.11.2026 im Chat durchgesehen und selbst neu
 geschrieben; gebaut ist, was er geschrieben hat. Seine Beanstandung dazu:
@@ -196,6 +197,13 @@ Dabei fiel eine Falle auf: M5 hat jetzt zwei Bonusziele, die gleichzeitig
 offen sein können, und `bonusOk`/`bonusFail` trafen immer das **zuletzt**
 geöffnete. Ein Ereignis kann sein Ziel jetzt mit `fuer:'<Kurzname>'` nennen;
 ohne `fuer` bleibt es beim alten Verhalten.
+
+**Für die nächsten Runden gemerkt:** die Wirkung `meldung` erscheint **nicht
+im Bild**. Seit F89 schreibt `notice()` nur noch ins Protokoll im
+Pausebildschirm (`drawNotices` wird nirgends mehr aufgerufen). Im Gefecht
+weist also **allein der Knopf in der Leiste** auf einen neuen Auftrag hin.
+Am 26.11.2026 wurde Silvio das Gegenteil behauptet, ohne es im Code
+nachzulesen — er sah die Meldung zu Recht nicht.
 
 **Geprüft:** `./checks.sh --fast` grün, `warpsim` über die Missionen 1 bis 5
 ohne neue Funde (die zwei Meldungen in M4 bestehen schon in v369), und zwei
