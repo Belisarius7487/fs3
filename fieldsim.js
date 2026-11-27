@@ -7843,6 +7843,52 @@ scenario('F151 v379 M15: blue to protect, and a scan order takes no job colour',
   r.scanHasNoColour = objBarColour({kurz:'Scan cargo', zu:'K1', col:'none'}) === null;
   return r;`);
 
+// F152 (Silvio, 27.11.2026, with a screenshot): a sun sat in front of Vasuda
+// Prime while the Lucifer was burning her. The pictures of planets and suns
+// are empty in the logic file (the packer fills them on the server), so the
+// placing is driven here with two stand-ins.
+scenario('F152 v380: a sun never lies in front of the planet a mission places', 'm=25', `
+  const r = {};
+  PLANET_DATA.testplanet = {}; SUN_DATA.testsun = {};
+  // A sun exactly where the planet is about to go - the reported case.
+  bodies = [{key:'testsun', kind:'sun', meta:SUN_DATA.testsun, w:420, x:300, y:300, spd:1}];
+  placePlanet({key:'testplanet', x:300, y:300, w:300, fix:true});
+  const pl = bodies.filter(b=>b.kind==='planet')[0];
+  const sun = bodies.filter(b=>b.kind==='sun')[0];
+  r.bothThere = !!pl && !!sun;
+  r.planetDrawnLast = bodies[bodies.length-1] === pl;
+  r.sunMovedAway = Math.hypot(sun.x-pl.x, sun.y-pl.y) >= (sun.w+pl.w)*0.5*1.1;
+  r.planetKeptHerPlace = pl.x === 300 && pl.y === 300 && pl.spd === 0;
+  // A sun that was nowhere near her is left exactly where it stood.
+  bodies = [{key:'testsun', kind:'sun', meta:SUN_DATA.testsun, w:200, x:40, y:80, spd:1}];
+  placePlanet({key:'testplanet', x:700, y:400, w:300, fix:true});
+  const far = bodies.filter(b=>b.kind==='sun')[0];
+  r.farSunUntouched = far.x === 40 && far.y === 80;
+  return r;`);
+
+// F153 (Silvio, 27.11.2026): no order may end without a colour, and an order
+// against fighter wings is counted by ship, not by wing.
+scenario('F153 v380: every order gets its result at the end, wings count by ship', 'm=2', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(2*TICK_HZ);
+  // M2 is thirteen fighters in five wings - the button says thirteen.
+  r.countsShips = objBarList().map(objBarLabel).some(t => t.indexOf('(0/13)') >= 0);
+  const e = enemies.filter(x=>x.uid==='E1');
+  r.wingIsThree = e.length === 3;
+  if(e.length){ e[0].hp = 0; e[0].shield = 0; }
+  FS.step(3*TICK_HZ);
+  r.oneDownCounts = objBarList().map(objBarLabel).some(t => t.indexOf('(1/13)') >= 0);
+  // An order left open is judged instead of staying blank - the tally
+  // decides, a protected ship by whether she still stands.
+  r.tallyJudges = objEndState({zu:'E1+E2', soll:2, zaehl:'abschuss'}) !== 'open';
+  MLOG.objs.push({side:'neben', kurz:'Erfundener Auftrag', zu:'E9', st:'open', txt:'x'});
+  mlogCloseOpen();
+  r.nothingStaysOpen = MLOG.objs.every(o => o.st !== 'open' || o.side === 'ruf' || o.side === 'tipp');
+  return r;`);
+
 // F146 (M29): the briefing's own plan is the mission - her radio room dies
 // first, or she calls Krishna in. Both branches have to reach an end. The
 // cruiser is held up with a huge hull here, so the clock can run past her

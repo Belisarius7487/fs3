@@ -1151,9 +1151,26 @@ function placePlanet(p){
   // fix (M25, Vasuda Prime): she holds her place on the screen instead of
   // drifting with the camera, so a beam aimed at her always strikes the
   // same spot. Speed 0 takes her out of the parallax in bodyPar().
-  bodies.push({key:key, kind:'planet', meta:PLANET_DATA[key], w:w, x:p.x, y:p.y,
-               spd: p.fix ? 0 : BODY_SPD_MIN + (Math.min(w, SUN_W_MAX)/SUN_W_MAX)*(BODY_SPD_MAX-BODY_SPD_MIN)});
+  const pl = {key:key, kind:'planet', meta:PLANET_DATA[key], w:w, x:p.x, y:p.y,
+              spd: p.fix ? 0 : BODY_SPD_MIN + (Math.min(w, SUN_W_MAX)/SUN_W_MAX)*(BODY_SPD_MAX-BODY_SPD_MIN)};
+  // F152 (Silvio, 27.11.2026): a sun must never lie in front of the planet
+  // a mission puts there - in M25 one sat on Vasuda Prime while the Lucifer
+  // was burning her. The planet a mission asks for is the subject of the
+  // scene, so two things hold: a sun that overlaps her disc moves to the
+  // far side, and she is drawn after every other body, so nothing in the
+  // sky can cover her. The light follows the sun's new place by itself,
+  // because lightAngleAt reads her position.
+  for(const b of bodies){
+    if(b.kind !== 'sun') continue;
+    const keep = (b.w + pl.w)*0.5*1.15;
+    if(Math.hypot(b.x - pl.x, b.y - pl.y) >= keep) continue;
+    b.x = (pl.x < W*0.5) ? Math.min(W + b.w*0.3, pl.x + keep)
+                         : Math.max(-b.w*0.3, pl.x - keep);
+    b.y = (pl.y < (HUD_H + H)*0.5) ? Math.min(H + b.w*0.25, pl.y + keep*0.5)
+                                   : Math.max(HUD_H - b.w*0.25, pl.y - keep*0.5);
+  }
   bodies.sort(function(a,b){ return a.w-b.w; });
+  bodies.push(pl);
 }
 
 // A place that comes back within a run keeps its sky: the same backdrop,

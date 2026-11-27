@@ -2809,6 +2809,7 @@ const SCRIPT_WAVES = {
   2: {name:'The Field of Battle', era:'fs1', orig:2, ship:'fiapollo', fac:'hol', o:'clear', live:8, stillRocks:true,
       ziel:'Destroy all Vasudan fighters',
       zielKurz:'Vasudan fighters', zielZu:'E1+E2+E3+E4+S1',
+      zielSoll:13, zielZaehl:'abschuss',
       brief:{text:'Vasudan fighters are hiding inside the asteroid field. '+
                   'Sweep the area and destroy them all.',
              ziele:['Destroy all Vasudan fighters']}, u:[
@@ -2881,7 +2882,7 @@ const SCRIPT_WAVES = {
        {t:'verlaesst', a:'F2', w:'meldung', a2:'The Ma\'at got away with her container'},
        {t:'vernichtet', a:'F1+F2', w:'zielerfuellt', a2:'Both freighters stopped'},
        {t:'alleZerstoert', a:'F1+F2', w:'ziel', a2:'Destroy the Vasudan fighters',
-        kurz:'Fighters', zu:'E1+E2+E3'},
+        kurz:'Fighters', zu:'E1+E2+E3', soll:7, zaehl:'abschuss'},
        // the field clear: the Omega comes for the agreed container
        {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'einwarpen', a2:'T1'},
        {t:'alleZerstoert', a:'E1+E2+E3+F1+F2', w:'ziel', a2:'Cover the Omega',
@@ -3016,7 +3017,7 @@ const SCRIPT_WAVES = {
        {t:'da', a:'S0', d:20, w:'einwarpen', a2:'X2'},
        {t:'gescannt', a:'S0', w:'nebenOk', a2:'Unknown scanned'},
        {t:'gescannt', a:'S0', w:'bonus', a2:'Shoot down an unknown',
-        kurz:'Destroy 1 fighter', zu:'S0+S1+X1'},
+        kurz:'Destroy 1 fighter', zu:'S0+S1+X1', soll:1, zaehl:'abschuss'},
        {t:'anzahlUnter', a:'S0+S1+X1', b:4, w:'bonusOk', a2:'An unknown is down',
         fuer:'Destroy 1 fighter'},
        // under 20 %, or gone at once: the escape pod
@@ -3692,7 +3693,7 @@ const SCRIPT_WAVES = {
        {t:'da', a:'P1', d:60, w:'einwarpen', a2:'L2'},
        {t:'da', a:'L1', w:'jagd', a2:'F1'},
        {t:'da', a:'L1', w:'ziel', a2:'Destroy the remaining fighters',
-        kurz:'Fighters', zu:'L1+L2'},
+        kurz:'Fighters', zu:'L1+L2', soll:7, zaehl:'abschuss'},
        // F150: the Pinnacle takes her leave and the Nelson goes with her.
        // 'raus' sets her as gone right away, so her order closes in the
        // next step - three seconds before the withdrawal, which would
@@ -6004,6 +6005,7 @@ let EV_POS = {};
 let EV_LABEL = {};
 // v253: the mission mark of each unit (drawMissionMark, 72_target.js)
 let EV_MARK = {};
+let EV_PLAN = {};
 // F149 (v372): a note a mission writes to itself ('merken') and reads back
 // later ('gemerkt'). It is for a state that is gone by the time the mission
 // is judged - the Galatea's hull is no longer on the field once she has
@@ -6033,7 +6035,7 @@ function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_EMPTY = {}; EV_POS = {};
   if(typeof DK_PLAN !== 'undefined') DK_PLAN = {wave: null, g: {}};   // F99: containers placed afresh
   EV_REPAIRED = {}; EV_REPFAIL = {};
-  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; EV_FLAG = {}; PREY_ON = false;
+  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; EV_PLAN = {}; EV_FLAG = {}; PREY_ON = false;
   missionTimer = {end:0, label:''}; missedJumps = 0;
   evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP; evReinfFac = '';
 }
@@ -6059,6 +6061,18 @@ function evTrigAny(c){
   return false;
 }
 function evSeen(id){ return !!EV_SEEN[id]; }
+// F153 (Silvio, 27.11.2026): how many ships of these ids are down,
+// counted by ship and not by id - the honest number for an order against
+// fighter wings. An id that has not warped in yet counts nothing; once it
+// is there, whatever is missing from its planned strength was shot down.
+function countShipsDown(ids){
+  let n = 0;
+  for(const id of String(ids||'').split('+')){
+    if(!id || !EV_SEEN[id]) continue;
+    n += Math.max(0, (EV_PLAN[id]||0) - byId(id).length);
+  }
+  return n;
+}
 // F149: how many of these ids are destroyed - read exactly as the
 // 'vernichtet' trigger reads it, so a counted destroy objective and its
 // trigger cannot drift apart. A ship that got away is not counted.
@@ -6478,6 +6492,10 @@ function evFire(ev){
       evReinf = false;
       EV_HELD = {};
       EV_REPL = {};
+      // F153: every order still open gets its result first. Marking the
+      // events done below would otherwise take away the one chance it had
+      // to turn green or red (F150, the Nelson).
+      if(typeof mlogCloseOpen === 'function') mlogCloseOpen();
       // The script is over: nothing still waiting in it may hold the wave,
       // a mission clock included (v177).
       for(const x of EV) x.done = true;
@@ -6842,6 +6860,10 @@ function buildScripted(def){
   missionOrig = (currentEra === 'fs1') ? (def.orig || 0) : 0;
   for(const u of (def.u||[])) if(u.label) EV_LABEL[u.id] = String(u.label).toUpperCase();
   for(const u of (def.u||[])) if(u.mark) EV_MARK[u.id] = u.mark;
+  // F153: how many ships an id stands for, straight from the mission's
+  // own list. A wing is one id but three or four fighters, so a tally
+  // over ids would read (0/5) while ten of them are already down.
+  for(const u of (def.u||[])) EV_PLAN[u.id] = (EV_PLAN[u.id]||0) + (u.n||1)*(u.size||1);
   currentFaction = def.fac;
   waveLive  = def.live || 4;
   waveObj   = def.o || 'clear';

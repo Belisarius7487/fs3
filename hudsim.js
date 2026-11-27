@@ -70,7 +70,8 @@ const names = [
                'thBevel', 'thGlow', 'thPanel', 'thDivider', 'thButton','btnState','btnText',
                // F148: the orders strip in the bar
                'drawBarObjectives','objBarList','objBarLabel','objBarTarget','objTally',
-               'objBarColour','objBarGlow','objBarRGBA'];
+               'objBarColour','objBarGlow','objBarRGBA',
+               'objEndState','mlogCloseOpen'];
 
 const CALLS = [];
 const ctxStub = new Proxy({}, {

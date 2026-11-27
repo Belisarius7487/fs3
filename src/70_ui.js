@@ -1081,6 +1081,8 @@ function objTally(o){
   // escort button judged by how many of the convoy got away, where
   // 'uebrig' would drop again on every successful jump out.
   else if(o.zaehl === 'durch' && typeof countLeft === 'function') n = countLeft(o.zu);
+  // F153: counted by ship, not by id - an order against fighter wings.
+  else if(o.zaehl === 'abschuss' && typeof countShipsDown === 'function') n = countShipsDown(o.zu);
   else return null;
   return {n:Math.min(n|0, o.soll), soll:o.soll};
 }
@@ -1122,6 +1124,43 @@ function mainTallyState(){
   const o = mlogOpen(); if(!o) return 'done';
   const c = objTally(o); if(!c) return 'done';
   return (c.n >= c.soll) ? 'done' : (c.n > 0 ? 'part' : 'fail');
+}
+// F153 (Silvio, 27.11.2026): "Hier und da kommt es noch vor, dass Ziele
+// einfach nicht gezaehlt werden oder einfach nur keine farbige Rueckmeldung
+// geben ob sie nun erreicht oder verfehlt wurden." An order whose result
+// hung on an event that never came stayed open for good, because the
+// withdrawal marks every event as done (proved on the Nelson, F150). So
+// every order still open when the mission ends is judged here instead.
+function objEndState(o){
+  const c = objTally(o);
+  if(c) return (c.n >= c.soll) ? 'done' : (c.n > 0 ? 'part' : 'fail');
+  const ids = String(o.zu||'').split('+').filter(Boolean);
+  if(!ids.length) return 'done';
+  let good = 0;
+  for(const id of ids){
+    const alive = (typeof byId === 'function') && byId(id).length > 0;
+    const left  = (typeof EV_LEFT !== 'undefined') && (EV_LEFT[id] || EV_FLED[id]);
+    const taken = (typeof EV_TAKEN !== 'undefined') && !!EV_TAKEN[id];
+    const mark  = (typeof EV_MARK !== 'undefined') ? EV_MARK[id] : '';
+    if(mark === 'destroy'){ if(!alive && !left) good++; }
+    else if(mark === 'disable'){
+      const u = alive ? byId(id)[0] : null;
+      const sb = (u && u.subs && o.sub) ? u.subs.filter(s=>s.id===o.sub)[0] : null;
+      if(sb && (sb.dead || sb.hp <= 0)) good++;
+    }
+    else if(mark === 'protect'){ if(alive || left || taken) good++; }
+    // No mark of its own: while she is still in the field her side says it,
+    // and once she is gone there is nothing left to do about her.
+    else if(alive){ if(byId(id)[0].side === 'ally') good++; }
+    else good++;
+  }
+  return (good >= ids.length) ? 'done' : (good > 0 ? 'part' : 'fail');
+}
+function mlogCloseOpen(){
+  for(const o of MLOG.objs){
+    if(o.st !== 'open' || o.side === 'ruf' || o.side === 'tipp') continue;
+    o.st = objEndState(o); o.stT = fc;
+  }
 }
 // F149 (Silvio, 26.11.2026): the support hint is not an objective - it is a
 // reminder that reinforcements may be called, and it leaves the bar as soon
