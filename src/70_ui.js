@@ -1086,6 +1086,8 @@ function objTally(o){
   else if(o.zaehl === 'durch' && typeof countLeft === 'function') n = countLeft(o.zu);
   // F153: counted by ship, not by id - an order against fighter wings.
   else if(o.zaehl === 'abschuss' && typeof countShipsDown === 'function') n = countShipsDown(o.zu);
+  // F149 round 5: counted by scan point, for a hull read system by system.
+  else if(o.zaehl === 'subs' && typeof countSubScanned === 'function') n = countSubScanned(o.zu);
   else return null;
   return {n:Math.min(n|0, o.soll), soll:o.soll};
 }

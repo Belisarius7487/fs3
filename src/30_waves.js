@@ -3790,7 +3790,13 @@ const SCRIPT_WAVES = {
       // The Shivan fighters are here for the convoy, not for the player;
       // the hunt moves on to each wave as it lifts off.
       hunt:'T1', huntShare:0.8,
-      ziel:'Cover the refugee ships out of Vasuda Prime', u:[
+      // F149 round 5: Silvio's own words, 27.11.2026.
+      ziel:'Cover the refugee ships out of Vasuda Prime',
+      zielKurz:'Refugees', zielZu:'T1+T2+T3', zielSoll:14, zielZaehl:'gerettet',
+      brief:{text:'The Lucifer has taken position in orbit above Vasuda Prime bombarding it '+
+                  'relentlessly. Vasudans are scrambling Transports and Escape Pods to '+
+                  'rescue as many as possible. Cover the refugees until they are clear.',
+             ziele:['Cover the refugee ships out of Vasuda Prime']}, u:[
        {id:'LU', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true, shieldShow:true,
         x:175, y:200, still:true, noWarp:true, noHold:true,
         beamsWhenCalled:true, beamMul:4,
@@ -4560,7 +4566,20 @@ const SCRIPT_WAVES = {
   // bombers, most of the cargo, and Delta wing.
   21:{name:'Enter the Dragon', era:'fs1', orig:17, ship:'fiulysses', pri:'dadv',
       fac:'hol', o:'clear', live:6,
-      ziel:'Destroy the cruiser Shakti', u:[
+      // F149 round 5: Silvio's own words, 27.11.2026.
+      ziel:'Destroy the cruiser Shakti',
+      zielKurz:'Shakti', zielZu:'SH',
+      brief:{text:'For our upcoming operation we need to capture a Shivan fighter. This '+
+                  'fighter is designated Arjuna 1, a Dragon class fighter, guarding a Shivan '+
+                  'repair depot in Deneb. The Shakti, a Shivan Cain class cruiser, is guarding '+
+                  'the area as well and posing the biggest threat. Destroy the Shakti and the '+
+                  'cargo containers, but keep Arjuna 1 alive.\n'+
+                  'Your objective is to disable it. The GTS Charon will then warp in and tow '+
+                  'the fighter away.',
+             ziele:['Destroy the Shakti',
+                    'Destroy Cargo',
+                    'Disable Arjuna 1',
+                    'Oversee capturing of Arjuna 1']}, u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fiulysses', side:'ally'},
        {id:'W2', c:'bo', n:1, size:2, spr:'bomedusa', side:'ally'},
        {id:'SH', mark:'destroy', c:'cr', n:1, spr:'crcain', fac:'shivan',
@@ -4586,19 +4605,30 @@ const SCRIPT_WAVES = {
         dockHold:8, dockLabel:'SECURING', jumpIfEmpty:true, label:'GTS Charon'},
        {id:'E3', c:'fi', n:1, size:2, spr:'fibasilisk', fac:'shivan', x:440, wait:true}
      ], ev:[
-       {t:'sek', a:4, w:'nebenziel', a2:'Destroy the supply containers'},
-       {t:'alleZerstoert', a:'K1', w:'nebenOk', a2:'The depot is gone'},
+       // abschuss, not vernichtet: the three containers all wear the one id
+       // K1, so a count by id could never read higher than 1 (F153).
+       {t:'sek', a:4, w:'nebenziel', a2:'Destroy the supply containers',
+        kurz:'Depot', zu:'K1', soll:3, zaehl:'abschuss'},
+       {t:'alleZerstoert', a:'K1', w:'nebenOk', a2:'The depot is gone', fuer:'Depot'},
        {t:'vernichtet', a:'SH', w:'zielerfuellt', a2:'The Shakti is destroyed'},
-       {t:'vernichtet', a:'SH', d:1, w:'ziel', a2:'Disable the Dragon Arjuna 1'},
+       {t:'vernichtet', a:'SH', d:1, w:'ziel', a2:'Disable the Dragon Arjuna 1',
+        kurz:'Arjuna 1', zu:'DR'},
        {t:'vernichtet', a:'SH', d:1, w:'meldung', a2:'Arjuna 1 is the Dragon - beat her hull down, she cannot be destroyed'},
        {t:'vernichtet', a:'SH', d:12, w:'einwarpen', a2:'E3'},
        // wenn: she may be at the floor long before the Shakti is gone -
        // the Charon only comes once the orders are in that order.
-       {t:'rumpfUnter', a:'DR', b:20, wenn:{t:'vernichtet', a:'SH'}, w:'kulisse', a2:'DR'},
+       // Silvio, 27.11.2026: "sobald er 15% Huelle erreicht hat, sollte er
+       // still stehen bleiben, egal ob die Shakti noch lebt oder nicht."
+       // So this one carries no wenn - the Dragon is dead in space the
+       // moment she is at the floor. Only the Charon waits for the Shakti.
+       {t:'rumpfUnter', a:'DR', b:20, w:'kulisse', a2:'DR'},
        {t:'rumpfUnter', a:'DR', b:20, wenn:{t:'vernichtet', a:'SH'},
         w:'meldung', a2:'Arjuna 1 is dead in space - the Charon is on her way'},
        {t:'rumpfUnter', a:'DR', b:20, wenn:{t:'vernichtet', a:'SH'}, w:'einwarpen', a2:'CH'},
-       {t:'da', a:'CH', w:'ziel', a2:'Capture Arjuna 1'},
+       // the button points at the Charon, not at the Dragon: she is scenery
+       // from here on and the job is to keep the tug alive.
+       {t:'da', a:'CH', w:'ziel', a2:'Capture Arjuna 1',
+        kurz:'Charon', zu:'CH', col:'protect'},
        {t:'da', a:'E3', w:'jagd', a2:'CH'},
        {t:'angedockt', a:'CH', w:'kapern', a2:'DR'},
        // the ends - order counts: an abzug closes every later event
@@ -4635,7 +4665,20 @@ const SCRIPT_WAVES = {
   // three of the six Rama Manticores.
   22:{name:'Playing Judas', era:'fs1', orig:18, ship:'fidragon', fac:'hol',
       o:'clear', live:6, disguise:true, noSupport:true,
-      ziel:'Scan the Shivan warships', u:[
+      // F149 round 5: Silvio's own words, 27.11.2026.
+      ziel:'Scan the Shivan warships',
+      zielKurz:'Scan warships', zielZu:'LI+EV', zielSoll:2, zielZaehl:'gescannt',
+      zielCol:'none',
+      brief:{text:'The fighter we captured in our last operation is meant for you, pilot. We '+
+                  'fitted it with a Terran cockpit, everything else is still Shivan. We hope '+
+                  'you\'ll be able to fly into a major Shivan staging point and gather as much '+
+                  'data as possible. We hope it\'ll disguise you as one of their own. If you '+
+                  'fire your weapons, however, your cover will be blown.\n'+
+                  'Scan their warships and their supply ships, Intelligence needs every '+
+                  'reading you can take.',
+             ziele:['Scan the Shivan warships',
+                    'Scan the Shivan supply ships',
+                    'Scan the Shivan cargo']}, u:[
        {id:'TR', c:'tr', n:1, spr:'trazrael', fac:'shivan', still:true,
         scan:true, x:200, y:210, label:'ST Kali'},
        {id:'KA', c:'fc', n:1, spr:'fcsc5', fac:'shivan', scan:true, x:250, y:300},
@@ -4665,22 +4708,31 @@ const SCRIPT_WAVES = {
        {id:'RA', mark:'destroy', c:'fi', n:1, size:3, spr:'fimanticore',
         fac:'shivan', wait:true}
      ], ev:[
-       {t:'sek', a:3, w:'nebenziel', a2:'Scan the Shivan supply ships'},
-       {t:'sek', a:4, w:'bonus', a2:'Scan the Shivan cargo'},
-       {t:'gescannt', a:'TR+FR', w:'nebenOk', a2:'Both supply ships are logged'},
-       {t:'gescannt', a:'KA+KB', w:'bonusOk', a2:'Both cargo pods are logged'},
+       {t:'sek', a:3, w:'nebenziel', a2:'Scan the Shivan supply ships',
+        kurz:'Scan supply ships', zu:'TR+FR', soll:2, zaehl:'gescannt', col:'none'},
+       {t:'sek', a:4, w:'bonus', a2:'Scan the Shivan cargo',
+        kurz:'Scan cargo', zu:'KA+KB', soll:2, zaehl:'gescannt', col:'none'},
+       {t:'gescannt', a:'TR+FR', w:'nebenOk', a2:'Both supply ships are logged',
+        fuer:'Scan supply ships'},
+       {t:'gescannt', a:'KA+KB', w:'bonusOk', a2:'Both cargo pods are logged',
+        fuer:'Scan cargo'},
        // the two warships of the post bring the juggernaut in
        {t:'gescannt', a:'LI+EV', d:1, w:'meldung', a2:'A juggernaut is coming out of subspace'},
        {t:'gescannt', a:'LI+EV', d:4, w:'einwarpen', a2:'LU'},
-       {t:'da', a:'LU', d:1, w:'ziel', a2:'Scan the juggernaut'},
+       // zaehl 'subs': the Lucifer is read point by point, five of them.
+       {t:'da', a:'LU', d:1, w:'ziel', a2:'Scan the juggernaut',
+        kurz:'Scan Lucifer', zu:'LU', soll:5, zaehl:'subs', col:'none'},
        {t:'gescannt', a:'LU', w:'zielerfuellt', a2:'The Lucifer is logged'},
        {t:'gescannt', a:'LU', d:1, w:'auffliegen', a2:''},
        // blown before the Lucifer was logged: that job is gone with it,
        // and so is whatever was left unscanned
        {t:'aufgeflogen', solange:{t:'gescannt', a:'LU'}, w:'zielverfehlt', a2:'They know what you are'},
-       {t:'aufgeflogen', solange:{t:'gescannt', a:'TR+FR'}, w:'nebenFail', a2:'The supply ships stay unlogged'},
-       {t:'aufgeflogen', solange:{t:'gescannt', a:'KA+KB'}, w:'bonusFail', a2:'The cargo stays unlogged'},
-       {t:'aufgeflogen', d:1, w:'ziel', a2:'Destroy the Shivan fighters'},
+       {t:'aufgeflogen', solange:{t:'gescannt', a:'TR+FR'}, w:'nebenFail', a2:'The supply ships stay unlogged',
+        fuer:'Scan supply ships'},
+       {t:'aufgeflogen', solange:{t:'gescannt', a:'KA+KB'}, w:'bonusFail', a2:'The cargo stays unlogged',
+        fuer:'Scan cargo'},
+       {t:'aufgeflogen', d:1, w:'ziel', a2:'Destroy the Shivan fighters',
+        kurz:'Shivan fighters', zu:'RA', soll:3, zaehl:'abschuss'},
        {t:'aufgeflogen', d:2, w:'einwarpen', a2:'RA'},
        // the end, the same on every way in: their fighters down, and what
        // is left of the post withdraws. Cargo cannot jump out, so it
@@ -4709,7 +4761,21 @@ const SCRIPT_WAVES = {
   // same hull, now the target.
   23:{name:'Evangelist', era:'fs1', orig:19, ship:'bomedusa', fac:'hol',
       o:'clear', live:6,
-      ziel:'Destroy the destroyer Eva', u:[
+      // F149 round 5: Silvio's own words, 27.11.2026. The node is new with
+      // them - "Wenn wir schon sagen, dass sie einen Jumppoint blockiert,
+      // sollte auch einer in der Mission sein vor dem sie stehen kann."
+      nodes:[{id:'VA', x:620, y:250, label:'Vasuda Jump Node'}],
+      ziel:'Destroy the destroyer Eva',
+      zielKurz:'Eva', zielZu:'EV',
+      brief:{text:'The Shivan destroyer Eva holds the Deneb jump node to Vasuda Prime. You '+
+                  'lead the Medusa bombers sent to destroy her. Knock out her weapons first '+
+                  'so your bombs can get through. If you go straight in, her turrets will '+
+                  'tear your wing apart.\n'+
+                  'When her guns are down, she\'ll likely charge her jump drive, so knock out '+
+                  'her Nav system as well.',
+             ziele:['Destroy SD Eva',
+                    'Disable her weapons subsystem',
+                    'Disable her navigation subsystem']}, u:[
        {id:'A2', c:'bo', n:1, size:2, spr:'bomedusa', side:'ally'},
        {id:'GA', c:'fi', n:1, size:2, spr:'fiherc', side:'ally'},
        {id:'EV', mark:'destroy', c:'de', n:1, spr:'dedemon', fac:'shivan',
@@ -4719,18 +4785,37 @@ const SCRIPT_WAVES = {
        {id:'AR', c:'fi', n:1, size:2, spr:'fidragon', fac:'shivan', label:'SF Arjuna'},
        {id:'KR', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', wait:true}
      ], ev:[
-       {t:'sek', a:3, w:'nebenziel', a2:'Knock out the weapons on the Eva'},
-       {t:'subsystem', a:'EV', b:'weapons', w:'nebenOk', a2:'The guns of the Eva are out'},
+       // col: the Eva wears a destroy mark, but these two orders are
+       // disable jobs on the same hull (F153).
+       {t:'sek', a:3, w:'nebenziel', a2:'Knock out the weapons on the Eva',
+        kurz:'Eva weapons', zu:'EV', sub:'weapons', col:'disable'},
+       {t:'subsystem', a:'EV', b:'weapons', w:'nebenOk', a2:'The guns of the Eva are out',
+        fuer:'Eva weapons'},
        {t:'subsystem', a:'EV', b:'weapons', d:1, w:'meldung', a2:'The Eva is disarmed - the bombs get through now'},
+       // Losing her guns starts her jump clock (checkDisarmFlee): a
+       // destroyer runs 25 s after she is disarmed. With her navigation
+       // gone that clock buys her nothing. d:2 so the order above is
+       // written into the log before this one opens.
+       {t:'subsystem', a:'EV', b:'weapons', d:2, w:'nebenziel',
+        a2:'Knock out the navigation on the Eva',
+        kurz:'Eva navigation', zu:'EV', sub:'navigation', col:'disable'},
+       {t:'subsystem', a:'EV', b:'navigation', wenn:{t:'subsystem', a:'EV', b:'weapons'},
+        w:'nebenOk', a2:'The Eva cannot jump out any more', fuer:'Eva navigation'},
        // her escort notices the bombing run, not the approach
        {t:'rumpfUnter', a:'EV', b:85, w:'meldung', a2:'Shivan fighters inbound'},
        {t:'rumpfUnter', a:'EV', b:85, d:1, w:'einwarpen', a2:'KR'},
        // bombed down with her turrets still firing: the secondary order
        // is missed, and it is said so before the mission is won
        {t:'vernichtet', a:'EV', solange:{t:'subsystem', a:'EV', b:'weapons'},
-        w:'nebenFail', a2:'Her guns were never silenced'},
+        w:'nebenFail', a2:'Her guns were never silenced', fuer:'Eva weapons'},
        {t:'vernichtet', a:'EV', w:'zielerfuellt', a2:'The Eva is destroyed'},
-       {t:'vernichtet', a:'EV', d:2, w:'abzug', a2:''}
+       {t:'vernichtet', a:'EV', d:2, w:'abzug', a2:''},
+       // She can now leave through the node, so the mission needs an end on
+       // that way too - without it nothing closes the wave once she is gone.
+       {t:'verlaesst', a:'EV', w:'nebenFail', a2:'The Eva kept her jump drive',
+        fuer:'Eva navigation'},
+       {t:'verlaesst', a:'EV', d:1, w:'zielverfehlt', a2:'The Eva escaped through the node'},
+       {t:'verlaesst', a:'EV', d:3, w:'abzug', a2:''}
      ]},
   // Doomsday (fs1/sm2-10a). The Lucifer runs the Galatea down. Nephilim
   // bombers and Manticores keep coming at her as long as she lives; under
@@ -4746,7 +4831,14 @@ const SCRIPT_WAVES = {
   // bomber waves are too easy to fight off, double them at least).
   24:{name:'Doomsday', era:'fs1', orig:20, ship:'bomedusa', fac:'hol',
       o:'clear', live:12,
-      ziel:'Fight off the Shivan wings', u:[
+      // F149 round 5: Silvio's own words, 27.11.2026.
+      ziel:'Fight off the Shivan wings',
+      zielKurz:'Shivan wings', zielZu:'*',
+      brief:{text:'The Galatea is under heavy attack from Shivan fighters and bombers and '+
+                  'unlikely to survive. The crew is preparing to disembark through escape '+
+                  'pods. The Lucifer has been spotted in the area as well, so be prepared '+
+                  'for anything.',
+             ziele:['Defend escape pods']}, u:[
        // stay: she never jumps out, whatever the field looks like - she
        // dies here (Silvio, 19.11.2026). noWarp: she stands there from the
        // first second instead of warping in.
@@ -4794,7 +4886,11 @@ const SCRIPT_WAVES = {
        // keeps her above 75 % past 150 s, and then the Lucifer came in at
        // 85 % (Silvio). Far enough out now to be a brake and nothing else.
        {t:'sek', a:300, w:'einwarpen', a2:'LU'},
-       {t:'da', a:'LU', d:2, w:'ziel', a2:'Cover the escape pods'},
+       // 'durch': the pods are counted as they leave the field in one
+       // piece. 'gerettet' would read protSaved, which the Galatea is
+       // counted into as well.
+       {t:'da', a:'LU', d:2, w:'ziel', a2:'Cover the escape pods',
+        kurz:'Escape pods', zu:'H1+H2+H3+H4+H5', soll:5, zaehl:'durch'},
        {t:'da', a:'LU', d:2, w:'einwarpen', a2:'H1'},
        {t:'da', a:'LU', d:7, w:'einwarpen', a2:'H2'},
        {t:'da', a:'LU', d:12, w:'einwarpen', a2:'H3'},
@@ -6215,6 +6311,22 @@ function countScanned(ids){
     if(!id || !evSeen(id)) continue;
     const us = byId(id);
     if(us.length > 0 && us.every(function(u){ return u.scanned; })) n++;
+  }
+  return n;
+}
+// F149 round 5: how many scan points of these ids are read. A hull that is
+// read system by system (scanSubs) is done when all five of its points are
+// in, so its button counts the points and not the ship - a single ship
+// would stand at (0/1) through the whole job.
+function countSubScanned(ids){
+  let n = 0;
+  for(const id of String(ids||'').split('+')){
+    if(!id || !evSeen(id)) continue;
+    for(const u of byId(id)){
+      if(!u.subs) continue;
+      if(u.scanned){ n += u.subs.length; continue; }
+      for(const s of u.subs) if(s.scanned) n++;
+    }
   }
   return n;
 }

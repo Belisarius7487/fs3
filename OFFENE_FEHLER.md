@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 27.11.2026, v381, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 27.11.2026, v382, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F149 | **Runde 5: Besprechung und Auftragsknöpfe auf M21 bis M25** (v382). Dazu zwei Festlegungen Silvios vom 27.11.2026: Arjuna 1 bleibt in M21 stehen, sobald sie bei 15 % Hülle ist, egal ob die Shakti noch lebt (die Charon wartet weiter auf die Shakti), und die Eva in M23 kann ihre Navigation verlieren, damit sie nicht abspringt — die Mission hat dafür jetzt einen Sprungknoten. Neuer Zähler `subs` für die fünf Scanpunkte der Lucifer | v382 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
 | F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
@@ -44,7 +45,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 (M11 bis M15) ist gebaut und von Silvio abgenommen** (27.11.2026, v373 bis v380: „Von den texten her bin ich zufrieden"). **Runde 4 (M16 bis M20) ist gebaut und von Silvio abgenommen** (27.11.2026, v381: „Soweit sah alles gut aus. Ich würde es so abnehmen"). **Runde 5 sind M21 bis M25**; danach fehlen M26, M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
+| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 (M11 bis M15) ist gebaut und von Silvio abgenommen** (27.11.2026, v373 bis v380: „Von den texten her bin ich zufrieden"). **Runde 4 (M16 bis M20) ist gebaut und von Silvio abgenommen** (27.11.2026, v381: „Soweit sah alles gut aus. Ich würde es so abnehmen"). **Runde 5 (M21 bis M25) ist gebaut, Urteil offen** (27.11.2026, v382) — Einzelheiten im Abschnitt „F149 — Runde 5“; danach fehlen M26, M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -7071,3 +7072,72 @@ rechtzeitigen Abschuss nicht von einem Abschuss beim Aufprall unterscheiden.
 Außerdem darf ein Auftrag seine Farbe mit `col:'disable'` (oder `destroy`,
 `protect`) selbst nennen, wenn zwei Aufträge auf demselben Rumpf liegen; die
 Farben kommen weiter aus `MARK_COL`, nicht aus einer zweiten Liste.
+
+## F149 — Runde 5: M21 bis M25 (v382, 27.11.2026, Urteil offen)
+
+Silvios Texte sind wörtlich übernommen (ein Tippfehler in M21 ist still
+berichtigt: „You're objective" → „Your objective"). Seine Festlegungen
+dieser Runde:
+
+- **M21 „Enter the Dragon":** die Besprechung stellt den Auftrag auf das
+  Kapern um — Arjuna 1 ist das Ziel der Operation, die Shakti „posing the
+  biggest threat". Knöpfe: `Shakti` (rot), `Depot (0/3)` (rot, ab Sekunde 4),
+  `Arjuna 1` (gelb, nach dem Tod der Shakti), `Charon` (blau, wenn die
+  Charon kommt). Der Depot-Zähler läuft über `zaehl:'abschuss'`, weil alle
+  drei Container die eine Kennung `K1` tragen und ein Zähler nach Kennungen
+  dort höchstens 1 ergäbe.
+- **M21, Silvios Befund vom 27.11.2026:** „Der Dragon Fighter fliegt weiter
+  solange die Shakti noch lebt, selbst wenn er schon bei 15% Hülle ist. Das
+  sollte so nicht sein, sondern sobald er 15% Hülle erreicht hat, sollte er
+  still stehen bleiben, egal ob die Shakti noch lebt oder nicht. Die GTS
+  Charon sollte aber erst einwarpen, wenn die Shakti zerstört wurde."
+  Behoben: das `kulisse`-Ereignis auf `rumpfUnter DR 20` trägt kein `wenn`
+  mehr. Meldung und Einsprung der Charon behalten ihr
+  `wenn:{t:'vernichtet', a:'SH'}`.
+- **M22 „Playing Judas":** die Besprechung erzählt den Umbau des gekaperten
+  Jägers („We fitted it with a Terran cockpit, everything else is still
+  Shivan"). Knöpfe: `Scan warships (0/2)`, `Scan supply ships (0/2)`
+  (ab Sek. 3), `Scan cargo (0/2)` (Bonus, ab Sek. 4),
+  `Scan Lucifer (0/5)` (wenn sie einspringt), `Shivan fighters (0/3)`
+  (rot, sobald der Spieler aufgeflogen ist). Scans bleiben farblos
+  (`col:'none'`).
+- **Neuer Zähler `zaehl:'subs'`** (`countSubScanned`): ein Rumpf, der
+  System für System gelesen wird (`scanSubs`), hat **fünf** Scanpunkte, und
+  der Knopf zählt die Punkte statt des Schiffes — ein einzelnes Schiff
+  stünde sonst den ganzen Auftrag über auf (0/1). Silvio hatte
+  `Scan Lucifer (0/5)` verlangt.
+- **M23 „Evangelist":** die Besprechung befiehlt zuerst die Waffen, dann die
+  Navigation — Silvio: „When her guns are down, she'll likely charge her
+  jump drive, so knock out her Nav system as well." Dazu sein Hinweis: „Wenn
+  wir schon sagen, dass sie einen Jumppoint blockiert, sollte auch einer in
+  der Mission sein vor dem sie stehen kann." Die Mission hat jetzt einen
+  Sprungknoten (`nodes`, `VA` bei x 620, y 250, „Vasuda Jump Node").
+  Knöpfe: `Eva` (rot), `Eva weapons` (gelb, ab Sek. 3),
+  `Eva navigation` (gelb, sobald die Waffen hin sind). Beide
+  Unteraufträge nennen ihre Farbe selbst (`col:'disable'`), weil die Eva
+  eine Zerstören-Marke trägt.
+  **Dazu ein Schluss für den neuen Weg:** verliert die Eva ihre Waffen,
+  startet ihre Fluchtuhr von selbst (`checkDisarmFlee`, 25 Sekunden für
+  einen Zerstörer). Springt sie ab, gilt der Auftrag als verfehlt und die
+  Mission endet; vorher hing sie in diesem Fall offen, weil `vernichtet`
+  ein entkommenes Schiff nicht zählt.
+- **M24 „Doomsday":** die Besprechung sagt offen, dass die Galatea kaum
+  durchkommt und die Besatzung die Kapseln klarmacht. Aufträge in der
+  Besprechung: nur „Defend escape pods". Knöpfe: `Shivan wings` (rot,
+  `zu:'*'`), `Escape pods (0/5)` (blau, wenn die Kapseln starten). Der
+  Zähler ist `durch` und nicht `gerettet`: `gerettet` liest `protSaved`,
+  und in diese Zahl geht die Galatea mit ein.
+- **M25 „The Fall of Vasuda Prime":** Knopf `Refugees (0/14)` (blau),
+  Zähler `gerettet` — hier richtig, weil alle vierzehn aufsteigenden
+  Schiffe die Schutzmarke tragen und sonst nichts in der Mission.
+
+**Geprüft:** `./checks.sh --fast` grün (14 Stufen), `warpsim` über 21–25,
+und fünf neue `fieldsim`-Szenarien („F149 v382 M21" bis „M25"). Gegen v381
+gestellt fallen alle fünf durch (31 Fehlschläge), sie prüfen also wirklich
+das Neue.
+
+**Nebenbefund, nicht von dieser Runde:** `warpsim` meldet in M23 für die
+eigene Medusa-Staffel `A2` und die Herkules-Staffel `GA` ein Abbremsen beim
+Absprung (3,42 → 2,05 bzw. 1,18 px je Schritt). Derselbe Befund steht
+wortgleich in v381, ist also älter als diese Runde und bleibt liegen, bis
+Silvio ihn im Spiel sieht.

@@ -8247,3 +8247,121 @@ scenario('F154 v381 M20 Shell Game: the scan order really wears no colour, the c
   console.log('\n' + (fails ? fails + ' FAILED' : 'all passed'));
   process.exit(fails ? 1 : 0);
 })();
+
+// ── F149 round 5 (v382): briefing and objective buttons on M21 to M25.
+// Also the two rules Silvio added on 27.11.2026: Arjuna 1 stands still the
+// moment she is at the hull floor, whatever the Shakti is doing, and the
+// Eva can lose her navigation so she cannot jump out. ──
+const accept = `draw();
+  const _bb = window._briefBtnRect;
+  if(_bb) pointerConsumed({x:_bb.x + _bb.w/2, y:_bb.y + _bb.h/2});`;
+
+scenario('F149 v382 M21 Enter the Dragon: depot counted, Arjuna 1 stops at the floor', 'm=21', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.fourOrdersListed = ((SCRIPT_WAVES[21].brief||{}).ziele||[]).length === 4;
+  ${accept}
+  FS.step(5*TICK_HZ);
+  draw();
+  ${colOf}
+  const lbl = objBarList().map(objBarLabel);
+  r.shaktiRed = colOf('SHAKTI') === MARK_COL.DESTROY;
+  r.depotCounted = lbl.some(t => t.indexOf('DEPOT (0/3)') >= 0);
+  ${fitAll}
+  r.nothingCut = !_cut;
+  // Silvio, 27.11.2026: she stands still at the floor even while the Shakti
+  // is alive - and the Charon still waits for the Shakti.
+  FS.until(()=>{ player.invT = 999; for(const e of byId('DR')){ e.hp = e.maxHp*0.05; }
+                 return ((byId('DR')[0]||{}).scenery === true); }, 9000, false);
+  r.dragonStopped = ((byId('DR')[0]||{}).scenery === true) && byId('SH').length > 0;
+  r.charonWaits = byId('CH').length === 0;
+  FS.until(()=>{ player.invT = 999; FS.killId('SH'); return byId('CH').length > 0; }, 9000, false);
+  r.charonCameAfterShakti = byId('CH').length > 0;
+  return r;`);
+
+scenario('F149 v382 M22 Playing Judas: three scan orders, the Lucifer counted by point', 'm=22', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  ${accept}
+  FS.step(6*TICK_HZ);
+  draw();
+  ${colOf}
+  const lbl = objBarList().map(objBarLabel);
+  r.warshipsOrder = lbl.some(t => t.indexOf('SCAN WARSHIPS (0/2)') >= 0);
+  r.supplyOrder   = lbl.some(t => t.indexOf('SCAN SUPPLY SHIPS (0/2)') >= 0);
+  r.cargoOrder    = lbl.some(t => t.indexOf('SCAN CARGO (0/2)') >= 0);
+  r.scansColourless = colOf('SCAN WARSHIPS') === null && colOf('SCAN CARGO') === null;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  // the two warships read, so the juggernaut comes out of subspace
+  FS.until(()=>{ player.invT = 999;
+                 for(const id of ['LI','EV']) for(const e of byId(id)) e.scanned = true;
+                 return byId('LU').length > 0; }, 9000, false);
+  FS.step(3*TICK_HZ);
+  draw();
+  r.luciferOrder = objBarList().map(objBarLabel).some(t => t.indexOf('SCAN LUCIFER (0/5)') >= 0);
+  const lu = byId('LU')[0];
+  if(lu && lu.subs){ lu.subs[0].scanned = true; lu.subs[1].scanned = true; }
+  draw();
+  r.luciferCountsPoints = objBarList().map(objBarLabel).some(t => t.indexOf('SCAN LUCIFER (2/5)') >= 0);
+  return r;`);
+
+scenario('F149 v382 M23 Evangelist: the jump node stands, weapons then navigation', 'm=23', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.nodeInField = (typeof MISSION_NODES !== 'undefined') && MISSION_NODES.length === 1;
+  ${accept}
+  FS.step(5*TICK_HZ);
+  draw();
+  ${colOf}
+  const lbl = objBarList().map(objBarLabel);
+  r.twoOrders = lbl.indexOf('EVA') >= 0 && lbl.indexOf('EVA WEAPONS') >= 0;
+  const ev0 = (window._objBtns||[]).find(x=>String(x.o.kurz)==='Eva');
+  r.evaRed = ev0 ? objBarColour(ev0.o) === MARK_COL.DESTROY : false;
+  r.weaponsYellow = colOf('EVA WEAPONS') === MARK_COL.DISABLE;
+  for(const e of byId('EV')) for(const s of (e.subs||[])) if(s.id === 'weapons') s.dead = true;
+  FS.step(4*TICK_HZ);
+  draw();
+  r.navOrder = objBarList().map(objBarLabel).indexOf('EVA NAVIGATION') >= 0;
+  r.navYellow = colOf('EVA NAVIGATION') === MARK_COL.DISABLE;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  return r;`);
+
+scenario('F149 v382 M24 Doomsday: the wings in red, the pods counted when they launch', 'm=24', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.oneOrderListed = ((SCRIPT_WAVES[24].brief||{}).ziele||[]).length === 1;
+  ${accept}
+  FS.step(4*TICK_HZ);
+  draw();
+  ${colOf}
+  r.wingsRed = colOf('SHIVAN WINGS') === MARK_COL.DESTROY;
+  FS.until(()=>{ player.invT = 999; for(const e of byId('GA')) e.hp = e.maxHp*0.5;
+                 return byId('H1').length > 0; }, 12000, false);
+  FS.step(2*TICK_HZ);
+  draw();
+  r.podsCounted = objBarList().map(objBarLabel).some(t => t.indexOf('ESCAPE PODS (0/5)') >= 0);
+  r.podsBlue = colOf('ESCAPE PODS') === MARK_COL.PROTECT;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  return r;`);
+
+scenario('F149 v382 M25 The Fall of Vasuda Prime: one order, fourteen refugees counted', 'm=25', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.oneOrderListed = ((SCRIPT_WAVES[25].brief||{}).ziele||[]).length === 1;
+  ${accept}
+  FS.step(26*TICK_HZ);
+  draw();
+  ${colOf}
+  r.refugeesCounted = objBarList().map(objBarLabel).some(t => t.indexOf('REFUGEES (0/14)') >= 0);
+  r.refugeesBlue = colOf('REFUGEES') === MARK_COL.PROTECT;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  return r;`);
