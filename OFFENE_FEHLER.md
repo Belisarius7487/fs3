@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 26.11.2026, v379, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 27.11.2026, v379, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -41,6 +41,8 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht |
 |---|---|
+| F152 | **M25: eine Sonne kann vor Vasuda Prime liegen**, der Bombardementstrahl der Lucifer läuft über sie hinweg (Silvio, 27.11.2026, mit Bild). **Muss beim nächsten Bau mit behoben werden** |
+| F153 | **Aufträge werden nicht gezählt oder geben keine farbige Rückmeldung** (Silvio, 27.11.2026). Zwei Ursachen nachgewiesen: vier Gruppenaufträge in M2, M3, M5 und M15 haben gar keinen Zähler, und ein Auftrag ohne Ergebnis bleibt beim Abzug für immer offen, weil `abzug` alle Ereignisse auf „erledigt" setzt |
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
 | F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 (M11 bis M15) ist gebaut** (v373) — Einzelheiten im Abschnitt „F149 — Runde 3", **Urteil offen**. **Runde 4 sind M16 bis M20**; danach fehlen M21 bis M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
@@ -257,6 +259,42 @@ Missionen 6 bis 10 grün, `warpsim` über 6 bis 10 ohne neue Funde (die zwei
 Meldungen bestehen schon in v371), und drei neue Szenarien („F149 v372
 M6-M10", „F149 v372 M7", „F149 v372 M9"). Gegen v371 gestellt sind alle drei
 rot.
+
+## F152 — M25: eine Sonne liegt vor Vasuda Prime (gemeldet 27.11.2026, offen)
+
+Silvio, 27.11.2026, mit Bildschirmfoto: „Die Lucifer schießt dort auf Vasuda
+Prime, aber aus irgend einem Grund ist es möglich, dass eine Sonne davor
+liegt was natürlich nicht passieren darf."
+
+Auf dem Bild steht die Sonne rechts unten **vor** dem Planeten, der
+Bombardementstrahl der Lucifer läuft über sie hinweg. **Muss beim nächsten
+Bau mit behoben werden** (Silvios Vorgabe). Ursache noch nicht untersucht.
+M25 hat einen festgesetzten Planeten (`planet.fix`); die Sonne wird
+offenbar unabhängig davon gesetzt und kann denselben Platz treffen.
+
+## F153 — Aufträge werden nicht gezählt oder geben keine farbige Rückmeldung (gemeldet 27.11.2026, offen)
+
+Silvio, 27.11.2026: „Hier und da kommt es noch vor, dass Ziele einfach nicht
+gezählt werden oder einfach nur keine farbige Rückmeldung geben ob sie nun
+erreicht oder verfehlt wurden."
+
+Keine Mission genannt. **Zwei Ursachen sind im Code nachgewiesen, eine
+dritte ist eine Vermutung:**
+
+1. **Nicht gezählt, weil kein Zähler da ist.** Diese Aufträge nennen eine
+   Gruppe, zeigen aber keinen Stand: M2 `Vasudan fighters` (E1+E2+E3+E4+S1),
+   M3 `Fighters` (E1+E2+E3), M5 `Destroy 1 fighter` (S0+S1+X1), M15
+   `Fighters` (L1+L2). Alle vorhandenen Zähler gehen dagegen auf — geprüft,
+   keiner verlangt mehr Kennungen, als die Mission hat.
+2. **Keine Farbe, weil der Abzug alles abräumt.** Nachgewiesen an F150: wenn
+   ein Auftrag bis zum Missionsende kein Ergebnis bekommen hat, setzt
+   `abzug` sein Ereignis auf „erledigt" (`for(const x of EV) x.done = true`)
+   und der Auftrag bleibt für immer offen — also ohne Grün oder Rot. Das
+   trifft jeden Auftrag, dessen Ergebnis an einem Ereignis hängt, das nicht
+   mehr eintritt.
+3. **Vermutung:** M7s drei Geschütztürme tragen eine einzige Kennung, ein
+   Zähler könnte dort höchstens 1 ergeben (F149, Runde 2). Deshalb steht
+   dort keiner — das kann wie ein fehlender Zähler aussehen.
 
 ## F151 — Auftragsknöpfe tragen die Farbe ihres Auftrags, Texte gekürzt (v379, 26.11.2026, Urteil offen)
 
