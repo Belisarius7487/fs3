@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 27.11.2026, v382, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 28.11.2026, v382, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F149 | **Runde 5: Besprechung und Auftragsknöpfe auf M21 bis M25** (v382). Dazu zwei Festlegungen Silvios vom 27.11.2026: Arjuna 1 bleibt in M21 stehen, sobald sie bei 15 % Hülle ist, egal ob die Shakti noch lebt (die Charon wartet weiter auf die Shakti), und die Eva in M23 kann ihre Navigation verlieren, damit sie nicht abspringt — die Mission hat dafür jetzt einen Sprungknoten. Neuer Zähler `subs` für die fünf Scanpunkte der Lucifer | v382 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
 | F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
@@ -45,7 +44,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 (M11 bis M15) ist gebaut und von Silvio abgenommen** (27.11.2026, v373 bis v380: „Von den texten her bin ich zufrieden"). **Runde 4 (M16 bis M20) ist gebaut und von Silvio abgenommen** (27.11.2026, v381: „Soweit sah alles gut aus. Ich würde es so abnehmen"). **Runde 5 (M21 bis M25) ist gebaut, Urteil offen** (27.11.2026, v382) — Einzelheiten im Abschnitt „F149 — Runde 5“; danach fehlen M26, M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
+| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 (M11 bis M15) ist gebaut und von Silvio abgenommen** (27.11.2026, v373 bis v380: „Von den texten her bin ich zufrieden"). **Runde 4 (M16 bis M20) ist gebaut und von Silvio abgenommen** (27.11.2026, v381: „Soweit sah alles gut aus. Ich würde es so abnehmen"). **Runde 5 (M21 bis M25) ist gebaut und von Silvio abgenommen** (28.11.2026, v382: „Funktioniert alles wunderbar.“) — Einzelheiten im Abschnitt „F149 — Runde 5“. **Runde 6 ist der Rest: M26, M27 und M29.** Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -7073,7 +7072,9 @@ Außerdem darf ein Auftrag seine Farbe mit `col:'disable'` (oder `destroy`,
 `protect`) selbst nennen, wenn zwei Aufträge auf demselben Rumpf liegen; die
 Farben kommen weiter aus `MARK_COL`, nicht aus einer zweiten Liste.
 
-## F149 — Runde 5: M21 bis M25 (v382, 27.11.2026, Urteil offen)
+## F149 — Runde 5: M21 bis M25 (v382, abgenommen 28.11.2026)
+
+Abgenommen am 28.11.2026: „Funktioniert alles wunderbar.“
 
 Silvios Texte sind wörtlich übernommen (ein Tippfehler in M21 ist still
 berichtigt: „You're objective" → „Your objective"). Seine Festlegungen
