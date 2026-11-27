@@ -1059,8 +1059,11 @@ let OBJ_META = null;
 function objMeta(m){ OBJ_META = (m && (m.kurz || m.zu || m.soll)) ? m : null; }
 function objMetaTake(){ const m = OBJ_META; OBJ_META = null; return m || {}; }
 function objMetaFields(m){
+  // F154: col has to come along. It was read by objBarColour but dropped
+  // here, so col:'none' never reached a button and every scan order was
+  // coloured like a destroy order.
   return {kurz:m.kurz||'', zu:m.zu||'', sub:m.sub||'', soll:m.soll||0,
-          zaehl:m.zaehl||'', stT:fc};
+          zaehl:m.zaehl||'', col:m.col||'', stT:fc};
 }
 // The counters a button may show. Both tallies are the ones the triggers
 // 'gerettet' and 'entkommen' already read; nothing new is counted here.
@@ -2131,6 +2134,13 @@ function objBarColour(o){
   // A scan is none of the three jobs - its ring on the ship says it, and a
   // red button would read as "destroy" (F89: a scan target wears no frame).
   if(o.col === 'none') return null;
+  // F154: an order may name its own job where the hull cannot say it. The
+  // Mauler is marked DESTROY, and killing her engines is an order of its
+  // own beside that - two orders on one hull, so one of them states its
+  // colour. The words and their colours are still MARK_COL's, never a
+  // second list.
+  if(o.col && typeof MARK_COL !== 'undefined' && MARK_COL[String(o.col).toUpperCase()])
+    return MARK_COL[String(o.col).toUpperCase()];
   const t = objBarTarget(o);
   if(!t) return null;
   if(typeof missionMark === 'function'){

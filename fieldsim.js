@@ -6443,21 +6443,21 @@ scenario('FS1 M18 v276 Where Eagles Dare: Gemini docked then stopped, the race, 
   const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
   r.name = W.name;
   FS.step(50);
-  r.pairsSideBySide = byId('GT').length===2 && byId('F1').length===1;
+  r.pairsSideBySide = byId('GT1').concat(byId('GT2')).length===2 && byId('F1').length===1;
   r.sentries = byId('G1').length===3;
   r.containers = byId('K').length===6;
   FS.until(()=>{ player.invT = 999; return fc > 1200; }, 1500, false);
   // v323: they have run well right of where the mission puts them -
   // a fixed number here was from before the one field (F119, v320).
   const _gx = (SCRIPT_WAVES[18].u.filter(function(u){ return u.id==='F1'; })[0].x + 20)*FIELD_K;
-  r.geminiRun = byId('F1').concat(byId('F2'), byId('GT')).every(function(t){ return t.x > _gx; });
-  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return fired('All Gemini stopped'); }, 1500, false);
-  r.geminiStopped = fired('All Gemini stopped');
-  FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); return evSeen('KA') && evSeen('TA'); }, 4000, false);
-  r.raceOn = evSeen('KA') && evSeen('TA') && evSeen('E3');
-  FS.until(()=>{ player.invT = 999; FS.killId('TA'); FS.killId('E3'); FS.killId('E1'); FS.killId('E2'); FS.killId('G1');
-                 return fired('The Kappa freighters are away with the cargo'); }, 12000, false);
-  r.kappaAway = fired('The Kappa freighters are away with the cargo');
+  r.geminiRun = byId('F1').concat(byId('F2'), byId('GT1').concat(byId('GT2'))).every(function(t){ return t.x > _gx; });
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT1'); FS.killId('GT2'); return fired('The Gemini are through'); }, 1500, false);
+  r.geminiStopped = fired('The Gemini are through');
+  FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); return evSeen('KA1') && evSeen('TA1'); }, 4000, false);
+  r.raceOn = evSeen('KA1') && evSeen('TA1') && evSeen('E3');
+  FS.until(()=>{ player.invT = 999; FS.killId('TA1'); FS.killId('TA2'); FS.killId('TA3'); FS.killId('E3'); FS.killId('E1'); FS.killId('E2'); FS.killId('G1');
+                 return fired('The Kappa freighters are through'); }, 12000, false);
+  r.kappaAway = fired('The Kappa freighters are through');
   FS.until(()=>{ player.invT = 999; FS.killId('E3'); FS.killId('G1'); return waveOver || wave>18; }, 8000, false);
   r.ends = waveOver || wave>18;
   return r;`);
@@ -6466,16 +6466,19 @@ scenario('FS1 M18 v276 Where Eagles Dare: the Gemini get away, the Kappa lost, e
   const r = {};
   const W = SCRIPT_WAVES[18] || {};
   const fired = function(t){ return (W.ev||[]).some(function(e, i){ return e.a2===t && EV[i] && EV[i].done; }); };
-  const keep = function(){ for(const id of ['F1','F2','GT']) for(const g of byId(id)) g.hp = g.maxHp; };
-  FS.until(()=>{ player.invT = 999; keep(); return evSeen('KA'); }, 12000, false);
+  const keep = function(){ for(const id of ['F1','F2','GT1','GT2']) for(const g of byId(id)) g.hp = g.maxHp; };
+  FS.until(()=>{ player.invT = 999; keep(); return evSeen('KA1'); }, 12000, false);
   r.geminiEscaped = fired('A Gemini freighter got away');
-  r.notAllStopped = !fired('All Gemini stopped');
-  FS.until(()=>{ player.invT = 999; return byId('KA').length===3 && byId('KA').every(function(k){ return !(k.warp>0); }); }, 2000, false);
-  for(const k of byId('KA')){ k.hp = 0; damageEnemy(k, 99999, k.x, k.y, false, 'bolt'); }
-  FS.until(()=>fired('The Kappa freighters are lost'), 600, false);
-  r.noneLeftEmpty = !EV_EMPTY.KA;
-  r.kappaLost = fired('The Kappa freighters are lost');
-  FS.until(()=>{ player.invT = 999; FS.killId('TA'); FS.killId('E1'); FS.killId('E2'); FS.killId('E3'); FS.killId('G1'); return waveOver || wave>18; }, 8000, false);
+  // F149 round 4: the order is judged by its own tally now, so it closes
+  // either way - what tells the two apart is its result, not that it fired.
+  const objSt = function(k){ const o = MLOG.objs.filter(function(x){ return String(x.kurz||'').toUpperCase()===k; }).pop(); return o ? o.st : ''; };
+  r.notAllStopped = objSt('GEMINI') !== 'done';
+  FS.until(()=>{ player.invT = 999; return byId('KA1').concat(byId('KA2'),byId('KA3')).length===3 && byId('KA1').concat(byId('KA2'),byId('KA3')).every(function(k){ return !(k.warp>0); }); }, 2000, false);
+  for(const k of byId('KA1').concat(byId('KA2'),byId('KA3'))){ k.hp = 0; damageEnemy(k, 99999, k.x, k.y, false, 'bolt'); }
+  FS.until(()=>fired('The Kappa freighters are through'), 600, false);
+  r.noneLeftEmpty = !(EV_EMPTY.KA1||EV_EMPTY.KA2||EV_EMPTY.KA3);
+  r.kappaLost = objSt('KAPPA FREIGHTERS') === 'fail';
+  FS.until(()=>{ player.invT = 999; FS.killId('TA1'); FS.killId('TA2'); FS.killId('TA3'); FS.killId('E1'); FS.killId('E2'); FS.killId('E3'); FS.killId('G1'); return waveOver || wave>18; }, 8000, false);
   r.ends = waveOver || wave>18;
   return r;`);
 
@@ -6877,15 +6880,15 @@ scenario('v308 F104: the rim light of a rock shape is one sheet, its cells as th
   return r;`);
 scenario('FS1 M18 v277 F93: the Taurus freighters jump in', 'm=18', `
   const r = {};
-  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);
-  const T = byId('TA');
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT1'); FS.killId('GT2'); return byId('TA1').concat(byId('TA2'),byId('TA3')).length>0; }, 6000, false);
+  const T = byId('TA1').concat(byId('TA2'),byId('TA3'));
   r.arrived = T.length>0;
   r.jumping = T.length>0 && T.every(function(t){ return t.warp>0; });
-  FS.until(()=>byId('TA').every(function(t){ return !(t.warp>0); }), 1500, false);
+  FS.until(()=>byId('TA1').concat(byId('TA2'),byId('TA3')).every(function(t){ return !(t.warp>0); }), 1500, false);
   // v323: against the mission's own place for them, not a number from
   // before the one fixed field (F119, v320) moved every unit inwards.
-  const want = (SCRIPT_WAVES[18].u.filter(function(u){ return u.id==='TA'; })[0].x)*FIELD_K;
-  r.nearPlace = byId('TA').every(function(t){ return Math.abs(t.x - want) < 60*FIELD_K; });
+  const want = (SCRIPT_WAVES[18].u.filter(function(u){ return /^TA/.test(u.id); })[0].x)*FIELD_K;
+  r.nearPlace = byId('TA1').concat(byId('TA2'),byId('TA3')).every(function(t){ return Math.abs(t.x - want) < 60*FIELD_K; });
   return r;`);
 scenario('FS1 M18 v278 F94 F95: containers drawn larger, no Satis comes for one', 'm=18', `
   const r = {};
@@ -6895,16 +6898,16 @@ scenario('FS1 M18 v278 F94 F95: containers drawn larger, no Satis comes for one'
   // F99 (v283): as large as still fits the Chronos' deck (VC3 x2.2, VAC4
   // x0.95 instead of x3 and x1.4) - docksim 12 checks that they fit
   r.containersLarger = K.length===6 && K.every(function(c){ return w(c) >= 0.99*hullWidth(c.img)*(c.img==='fcvc3' ? 2.2 : 0.95); });
-  r.noSatisTaurus = (SCRIPT_WAVES[18].u||[]).filter(function(u){ return u.id==='TA'; }).every(function(u){ return u.spr!=='frsatis'; });
+  r.noSatisTaurus = (SCRIPT_WAVES[18].u||[]).filter(function(u){ return /^TA/.test(u.id); }).every(function(u){ return u.spr!=='frsatis'; });
   return r;`);
 scenario('FS1 M18 v279 F96: the Taurus never snap round, they turn', 'm=18', `
   const r = {};
-  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('TA').length>0; }, 6000, false);
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT1'); FS.killId('GT2'); return byId('TA1').concat(byId('TA2'),byId('TA3')).length>0; }, 6000, false);
   let snaps = 0, seen = 0;
   const last = new Map();
   for(let k=0; k<1500; k++){
     player.invT = 999;
-    for(const t of byId('TA')){
+    for(const t of byId('TA1').concat(byId('TA2'),byId('TA3'))){
       const p = last.get(t);
       if(p && p.flip !== !!t.flip && !p.face) snaps++;
       last.set(t, {flip: !!t.flip, face: !!t._face});
@@ -6917,9 +6920,9 @@ scenario('FS1 M18 v279 F96: the Taurus never snap round, they turn', 'm=18', `
   return r;`);
 scenario('v280 F97: a docked container stays in its freighter batch', 'm=18', `
   const r = {};
-  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT'); return byId('KA').length>0; }, 6000, false);
-  FS.until(()=>{ player.invT = 999; FS.killId('TA'); return byId('KA').some(function(k){ return k.dockedTo; }); }, 6000, false);
-  const host = byId('KA').find(function(k){ return k.dockedTo; });
+  FS.until(()=>{ player.invT = 999; FS.killId('F1'); FS.killId('F2'); FS.killId('GT1'); FS.killId('GT2'); return byId('KA1').concat(byId('KA2'),byId('KA3')).length>0; }, 6000, false);
+  FS.until(()=>{ player.invT = 999; FS.killId('TA1'); FS.killId('TA2'); FS.killId('TA3'); return byId('KA1').concat(byId('KA2'),byId('KA3')).some(function(k){ return k.dockedTo; }); }, 6000, false);
+  const host = byId('KA1').concat(byId('KA2'),byId('KA3')).find(function(k){ return k.dockedTo; });
   const cargo = host && host.dockedTo;
   r.docked = !!cargo;
   r.notInFront = !!cargo && !f3dFront(cargo);
@@ -6931,10 +6934,10 @@ scenario('v280 F97: a docked container stays in its freighter batch', 'm=18', `
   return r;`);
 scenario('v281 F97: the Poseidon holds her container under her keel, not up in her hull', 'm=18', `
   const r = {};
-  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT','E1','E2','E3','TA','G1']) FS.killId(id); for(const k of byId('KA')) k.hp=k.maxHp; };
-  FS.until(()=>{ clean(); return byId('KA').length>0; }, 6000, false);
+  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT1','GT2','E1','E2','E3','TA1','TA2','TA3','G1']) FS.killId(id); for(const k of byId('KA1').concat(byId('KA2'),byId('KA3'))) k.hp=k.maxHp; };
+  FS.until(()=>{ clean(); return byId('KA1').concat(byId('KA2'),byId('KA3')).length>0; }, 6000, false);
   let h = null;
-  FS.until(()=>{ clean(); h = allies.find(k=>k.uid==='KA' && k.img==='frposeidon' && k.dockedTo && k.dockedTo.carrier===k); return !!h; }, 8000, false);
+  FS.until(()=>{ clean(); h = allies.find(k=>/^KA/.test(k.uid) && k.img==='frposeidon' && k.dockedTo && k.dockedTo.carrier===k); return !!h; }, 8000, false);
   r.held = !!h;
   if(h){
     FS.step(20);
@@ -6947,12 +6950,12 @@ scenario('v281 F97: the Poseidon holds her container under her keel, not up in h
   return r;`);
 scenario('v282 F97 F98: a container being loaded is in its freighter depth; each Kappa keeps its name', 'm=18', `
   const r = {};
-  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT','E1','E2','E3','TA','G1']) FS.killId(id); for(const k of byId('KA')) k.hp=k.maxHp; };
-  FS.until(()=>{ clean(); return byId('KA').length===3; }, 6000, false);
+  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT1','GT2','E1','E2','E3','TA1','TA2','TA3','G1']) FS.killId(id); for(const k of byId('KA1').concat(byId('KA2'),byId('KA3'))) k.hp=k.maxHp; };
+  FS.until(()=>{ clean(); return byId('KA1').concat(byId('KA2'),byId('KA3')).length===3; }, 6000, false);
   FS.step(5);
-  r.names = byId('KA').map(function(k){ return k.label; }).sort().join(',') === 'GTFR KAPPA 1,GTFR KAPPA 2,GTFR KAPPA 3';
+  r.names = byId('KA1').concat(byId('KA2'),byId('KA3')).map(function(k){ return k.label; }).sort().join(',') === 'GTFR KAPPA 1,GTFR KAPPA 2,GTFR KAPPA 3';
   let h = null;
-  FS.until(()=>{ clean(); h = allies.find(k=>k.uid==='KA' && k.dockRes && k.holdT!=null && k.holdT>0); return !!h; }, 8000, false);
+  FS.until(()=>{ clean(); h = allies.find(k=>/^KA/.test(k.uid) && k.dockRes && k.holdT!=null && k.holdT>0); return !!h; }, 8000, false);
   r.loading = !!h;
   r.inHerDepth = !!h && f3dCargoHost(h.dockRes) === h;
   return r;`);
@@ -6962,12 +6965,12 @@ scenario('v283 F99: every Kappa docks the one way - over or under it, then strai
   // Container stoppen und dann langsam hoch schweben". Decided: docking
   // from the models' dock data, one procedure for every mission.
   const r = {};
-  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT','E1','E2','E3','TA','G1']) FS.killId(id); for(const k of byId('KA')) k.hp=k.maxHp; };
-  FS.until(()=>{ clean(); return byId('KA').length===3; }, 6000, false);
+  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT1','GT2','E1','E2','E3','TA1','TA2','TA3','G1']) FS.killId(id); for(const k of byId('KA1').concat(byId('KA2'),byId('KA3'))) k.hp=k.maxHp; };
+  FS.until(()=>{ clean(); return byId('KA1').concat(byId('KA2'),byId('KA3')).length===3; }, 6000, false);
   const st = new Map();
   for(let t=0; t<9000; t++){
     clean();
-    for(const k of byId('KA')){
+    for(const k of byId('KA1').concat(byId('KA2'),byId('KA3'))){
       let o = st.get(k); if(!o){ o = {ph:[], bad:0, side:0, dir:0, early:false, late:false, up:null, last:null}; st.set(k, o); }
       const d = k._dk, ph = d ? d.ph : (k.dockedTo ? 'on' : '-');
       if(o.ph[o.ph.length-1] !== ph) o.ph.push(ph);
@@ -6983,7 +6986,7 @@ scenario('v283 F99: every Kappa docks the one way - over or under it, then strai
       o.last = {x:k.x, y:k.y, ph:ph};
     }
     FS.step(1);
-    if(byId('KA').length === 3 && byId('KA').every(function(k){ return k.dockedTo; })) break;
+    if(byId('KA1').concat(byId('KA2'),byId('KA3')).length === 3 && byId('KA1').concat(byId('KA2'),byId('KA3')).every(function(k){ return k.dockedTo; })) break;
   }
   const all = Array.from(st.entries());
   r.three = all.length === 3;
@@ -6993,17 +6996,17 @@ scenario('v283 F99: every Kappa docks the one way - over or under it, then strai
   r.poseidonSinks = all.filter(function(e){ return e[0].img === 'frposeidon'; }).every(function(e){ return e[1].dir > 1 && e[1].up; });
   r.chronosRises = all.filter(function(e){ return e[0].img === 'frchronos'; }).every(function(e){ return e[1].dir < -1 && !e[1].up; });
   r.withHerFromSlide = all.every(function(e){ return e[1].late && !e[1].early; });
-  r.allHold = byId('KA').every(function(k){ return k.dockedTo && k.dockedTo.carrier === k; });
+  r.allHold = byId('KA1').concat(byId('KA2'),byId('KA3')).every(function(k){ return k.dockedTo && k.dockedTo.carrier === k; });
   r.info = all.map(function(e){ return e[0].img + ':' + e[1].ph.join('>') + ' dir ' + e[1].dir.toFixed(1) + ' up ' + e[1].up; }).join(' / ');
   return r;`);
 scenario('v284 F100: each Kappa jumps out with her container, through her vortex', 'm=18', `
   // Silvio (24.10.2026): the Chronos "warpt ganz normal nach vorn raus,
   // laesst den Container dabei stehen und fliegt somit durch ihn durch".
   const r = {};
-  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT','E1','E2','E3','TA','G1']) FS.killId(id); for(const k of byId('KA')) k.hp=k.maxHp; };
-  FS.until(()=>{ clean(); return byId('KA').length===3; }, 6000, false);
-  FS.until(()=>{ clean(); return byId('KA').some(function(k){ return k.warpOut > 0 && k.dockedTo; }); }, 9000, false);
-  const k = byId('KA').find(function(x){ return x.warpOut > 0 && x.dockedTo; });
+  const clean = function(){ player.invT=999; for(const id of ['F1','F2','GT1','GT2','E1','E2','E3','TA1','TA2','TA3','G1']) FS.killId(id); for(const k of byId('KA1').concat(byId('KA2'),byId('KA3'))) k.hp=k.maxHp; };
+  FS.until(()=>{ clean(); return byId('KA1').concat(byId('KA2'),byId('KA3')).length===3; }, 6000, false);
+  FS.until(()=>{ clean(); return byId('KA1').concat(byId('KA2'),byId('KA3')).some(function(k){ return k.warpOut > 0 && k.dockedTo; }); }, 9000, false);
+  const k = byId('KA1').concat(byId('KA2'),byId('KA3')).find(function(x){ return x.warpOut > 0 && x.dockedTo; });
   r.jumping = !!k;
   if(k){
     const c = k.dockedTo;
@@ -7012,7 +7015,7 @@ scenario('v284 F100: each Kappa jumps out with her container, through her vortex
     r.throughHerVortex = c._wLead === k;
     const a = fsWarp(k), b = fsWarp(c);
     r.movesWithHer = !!a && !!b && Math.abs(a.dx - b.dx) < 0.01 && Math.abs(a.dy - b.dy) < 0.01;
-    FS.until(()=>{ clean(); return !byId('KA').includes(k); }, 400, false);
+    FS.until(()=>{ clean(); return !byId('KA1').concat(byId('KA2'),byId('KA3')).includes(k); }, 400, false);
     FS.step(3);
     r.leavesWithHer = !enemies.includes(c) && !allies.includes(c);
   }
@@ -7557,7 +7560,8 @@ scenario('F149 v370 M1-M5: every one has her briefing, and M1 shows her order as
   FS.step(3*TICK_HZ);
   // Her one order stands in the bar, and its button holds the Orff.
   const n = objBarList().map(o => objBarLabel(o));
-  r.oneButton = n.length === 1 && n[0] === 'PROTECT GTC ORFF';
+  // F151 (v379) shortened every label to its target - the verb is the colour now.
+  r.oneButton = n.length === 1 && n[0] === 'GTC ORFF';
   draw();
   const rect = (window._objBtns||[]).find(b => b.o.zu === 'A1');
   if(rect){
@@ -7576,20 +7580,20 @@ scenario('F149 v370 M3: the freighter button counts, and the scan is a bonus wit
   if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
   FS.step(6*TICK_HZ);
   const names = () => objBarList().map(o => objBarLabel(o));
-  r.startsAtZero = names().some(t => t === 'INTERCEPT FREIGHTERS (0/2)');
+  r.startsAtZero = names().some(t => t === 'FREIGHTERS (0/2)');
   r.scanBonus = names().some(t => t === 'SCAN CONTAINER');
   // One freighter destroyed: the tally moves.
   FS.killId('F1');
   FS.step(3*TICK_HZ);
-  r.oneOfTwo = names().some(t => t === 'INTERCEPT FREIGHTERS (1/2)');
+  r.oneOfTwo = names().some(t => t === 'FREIGHTERS (1/2)');
   FS.killId('F2');
   FS.step(TICK_HZ);
-  r.twoOfTwo = names().some(t => t === 'INTERCEPT FREIGHTERS (2/2)');
+  r.twoOfTwo = names().some(t => t === 'FREIGHTERS (2/2)');
   // F149: settled, it blinks in its colour and then leaves the strip -
   // "sonst haben wir irgendwann mal zehn kleine Knoepfchen da oben".
   r.settled = MLOG.objs.some(o => !o.side && o.st !== 'open');
   FS.step(6*TICK_HZ);
-  r.leftTheStrip = !names().some(t => t.indexOf('INTERCEPT FREIGHTERS') === 0);
+  r.leftTheStrip = !names().some(t => t.indexOf('FREIGHTERS') === 0);
   r.keptInPause = MLOG.objs.some(o => String(o.txt||'').indexOf('INTERCEPT') === 0);
   return r;`);
 
@@ -7602,15 +7606,15 @@ scenario('F149 v371 M5: the escape pod is its own bonus, and the right button ta
   if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
   FS.step(2*TICK_HZ);
   const names = () => objBarList().map(o => objBarLabel(o));
-  r.noPodYet = !names().some(t => t === 'PROTECT ESCAPE POD');
+  r.noPodYet = !names().some(t => t === 'ESCAPE POD');
   // Her hull taken down to a fifth: the pod launches and asks for cover.
   FS.until(()=>byId('P1').length===1, 400, false);
   const pl = byId('P1')[0];
   r.platoThere = !!pl;
   pl.hp = pl.maxHp * 0.15;
   FS.step(3*TICK_HZ);
-  r.podAsked = names().some(t => t === 'PROTECT ESCAPE POD');
-  r.podIsBonus = MLOG.objs.some(o => o.side === 'bonus' && o.kurz === 'Protect Escape Pod');
+  r.podAsked = names().some(t => t === 'ESCAPE POD');
+  r.podIsBonus = MLOG.objs.some(o => o.side === 'bonus' && o.kurz === 'Escape pod');
   // Its button holds the pod itself.
   draw();
   const rect = (window._objBtns||[]).find(b => b.o.zu === 'H1');
@@ -7623,7 +7627,7 @@ scenario('F149 v371 M5: the escape pod is its own bonus, and the right button ta
   for(const a of allies) if(a.uid === 'H1'){ a.hp = 0; a.shield = 0; }
   FS.step(6*TICK_HZ);
   r.podGone = byId('H1').length === 0;
-  const pod = MLOG.objs.find(o => o.kurz === 'Protect Escape Pod');
+  const pod = MLOG.objs.find(o => o.kurz === 'Escape pod');
   r.podState = pod ? pod.st : 'none';
   r.podFailed = !!pod && pod.st === 'fail';
   return r;`);
@@ -7643,7 +7647,7 @@ scenario('F149 v372 M6-M10: every one has her briefing, and M6 below half hull i
   const bb = window._briefBtnRect;
   if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
   FS.step(2*TICK_HZ);
-  r.galateaButton = objBarList().some(o => objBarLabel(o) === 'PROTECT THE GALATEA');
+  r.galateaButton = objBarList().some(o => objBarLabel(o) === 'GALATEA');
   r.noHullBonus = MLOG.objs.every(o => o.side !== 'bonus');
   // Every wing down while her hull is held under half: a partial success,
   // not a full one.
@@ -7876,7 +7880,11 @@ scenario('F153 v380: every order gets its result at the end, wings count by ship
   FS.step(2*TICK_HZ);
   // M2 is thirteen fighters in five wings - the button says thirteen.
   r.countsShips = objBarList().map(objBarLabel).some(t => t.indexOf('(0/13)') >= 0);
-  const e = enemies.filter(x=>x.uid==='E1');
+  // The wing has to be out of its vortex before one of it can be shot: at
+  // two seconds it was still coming in, so nothing died and the tally
+  // never moved (the check read as a counting fault, which it was not).
+  FS.until(()=>enemies.filter(x=>x.uid==='E1' && !(x.warp>0)).length >= 3, 1200, false);
+  const e = enemies.filter(x=>x.uid==='E1' && !(x.warp>0));
   r.wingIsThree = e.length === 3;
   if(e.length){ e[0].hp = 0; e[0].shield = 0; }
   FS.step(3*TICK_HZ);
@@ -8076,6 +8084,138 @@ scenario('v313 F103 stage4: no sprites left, the frames come from the models', '
   }
   FS.step(60);
   r.alive = enemies.length + allies.length > 0;
+  return r;`);
+
+// ── F149 round 4 (v381): the briefing and the order buttons of M16 to M20,
+// and F154 - the two orders on the Mauler, won or lost by whether she got
+// there. ──
+const fitAll = `ctx.font = thValue(8, true);
+  const _btn = window._objBtns || [];
+  const _cut = _btn.some(b => thFit(objBarLabel(b.o), b.w-6) !== objBarLabel(b.o));`;
+const colOf = `const colOf = function(k){ const b = (window._objBtns||[]).find(x=>String(x.o.kurz).toUpperCase().indexOf(k)>=0); return b ? objBarColour(b.o) : 'none'; };`;
+const stOf = `const st = function(k){ const o = MLOG.objs.filter(x=>String(x.kurz||'').toUpperCase()===k).pop(); return o ? o.st : ''; };`;
+
+scenario('F149 v381 M16 The Big Bang: briefing, the Asimov in blue, the Ravage as a bonus', 'm=16', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.briefNamesAsimov = String((SCRIPT_WAVES[16].brief||{}).text||'').indexOf('GTSC Asimov') >= 0;
+  r.oneOrderListed = ((SCRIPT_WAVES[16].brief||{}).ziele||[]).length === 1;
+  FS.step(3*TICK_HZ);
+  draw();
+  ${colOf}
+  r.asimovBlue = colOf('ASIMOV') === MARK_COL.PROTECT;
+  r.ravageBonus = objBarList().map(objBarLabel).some(t => t.indexOf('BONUS: RAVAGE') >= 0);
+  r.ravageBlue = colOf('RAVAGE') === MARK_COL.PROTECT;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  return r;`);
+
+scenario('F149 v381 M17 La Ruota della Fortuna: Shivans in red, the two cruisers counted', 'm=17', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.briefOrderIsOutpost = ((SCRIPT_WAVES[17].brief||{}).ziele||[])[0] === 'DESTROY OUTPOST'
+                       || ((SCRIPT_WAVES[17].brief||{}).ziele||[])[0] === 'Destroy outpost';
+  FS.step(3*TICK_HZ);
+  draw();
+  ${colOf}
+  r.shivansRed = colOf('SHIVANS') === MARK_COL.DESTROY;
+  FS.until(()=>{ player.invT = 999; FS.killId('E1'); FS.killId('E2'); FS.killId('B1'); FS.killId('V1');
+                 return byId('LI').length>0 && byId('CA').length>0; }, 4000, false);
+  FS.step(2*TICK_HZ);
+  draw();
+  const lbl = objBarList().map(objBarLabel);
+  r.cruiserOrder = lbl.some(t => t.indexOf('CRUISERS (0/2)') >= 0);
+  r.cruisersRed = colOf('CRUISERS') === MARK_COL.DESTROY;
+  r.galateaBonus = lbl.some(t => t.indexOf('BONUS: GALATEA') >= 0);
+  ${fitAll}
+  r.nothingCut = !_cut;
+  return r;`);
+
+scenario('F149 v381 M18 Where Eagles Dare: four Gemini counted, then both freighter orders', 'm=18', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  FS.step(3*TICK_HZ);
+  draw();
+  ${colOf}
+  r.geminiFour = objBarList().map(objBarLabel).some(t => t.indexOf('GEMINI (0/4)') >= 0);
+  r.geminiRed = colOf('GEMINI') === MARK_COL.DESTROY;
+  FS.until(()=>{ player.invT = 999; for(const id of ['F1','F2','GT1','GT2']) FS.killId(id);
+                 return byId('KA1').length>0 && byId('TA1').length>0; }, 6000, false);
+  FS.step(2*TICK_HZ);
+  draw();
+  const lbl = objBarList().map(objBarLabel);
+  r.kappaCounted = lbl.some(t => t.indexOf('KAPPA FREIGHTERS (0/3)') >= 0);
+  r.taurusCounted = lbl.some(t => t.indexOf('TAURUS FREIGHTERS (0/3)') >= 0);
+  r.kappaBlue = colOf('KAPPA') === MARK_COL.PROTECT;
+  r.taurusRed = colOf('TAURUS') === MARK_COL.DESTROY;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  return r;`);
+
+scenario('F154 v381 M19 Tenderizer: three orders in the bar, the Mauler stopped in time wins both', 'm=19', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  FS.step(2*TICK_HZ);
+  draw();
+  ${colOf}
+  r.sentryRed = colOf('SENTRY GUNS') === MARK_COL.DESTROY;
+  FS.until(()=>{ player.invT = 999; FS.killId('G1'); FS.killId('E1'); FS.killId('B1');
+                 return byId('MA').length>0; }, 9000, false);
+  FS.step(2*TICK_HZ);
+  draw();
+  const lbl = objBarList().map(objBarLabel);
+  r.threeOrders = lbl.indexOf('GALATEA') >= 0 && lbl.indexOf('STOP MAULER') >= 0 && lbl.indexOf('MAULER') >= 0;
+  r.galateaBlue = colOf('GALATEA') === MARK_COL.PROTECT;
+  r.enginesYellow = colOf('STOP MAULER') === MARK_COL.DISABLE;
+  const mb = (window._objBtns||[]).find(x=>String(x.o.kurz)==='Mauler');
+  r.maulerRed = mb ? objBarColour(mb.o) === MARK_COL.DESTROY : false;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  for(const e of byId('MA')){ e.hp = 0; e.shield = 0; }
+  FS.step(4*TICK_HZ);
+  r.neverRammed = !EV_RAM.MA;
+  ${stOf}
+  r.bothWon = st('STOP MAULER') === 'done' && st('MAULER') === 'done';
+  return r;`);
+
+scenario('F154 v381 M19 Tenderizer: the Mauler reaches the Galatea - both orders lost', 'm=19', `
+  const r = {};
+  FS.until(()=>{ player.invT = 999; FS.killId('G1'); FS.killId('E1'); FS.killId('B1');
+                 return byId('MA').length>0; }, 9000, false);
+  const hold = function(){ for(const e of byId('MA')){ e.maxHp = 9e9; e.hp = 9e9;
+                             for(const s of (e.subs||[])){ s.dead = false; s.hp = s.maxHp||s.hp; } } };
+  FS.until(()=>{ hold(); player.invT = 999; return !!EV_RAM.MA; }, 9000, false);
+  r.rammed = !!EV_RAM.MA;
+  FS.step(3*TICK_HZ);
+  ${stOf}
+  r.engineOrderLost = st('STOP MAULER') === 'fail';
+  r.hullOrderLost = st('MAULER') === 'fail';
+  r.noFalseWin = !(SCRIPT_WAVES[19].ev||[]).some(function(e, i){
+                    return e.a2 === 'PVC Mauler destroyed' && EV[i] && EV[i].done; });
+  return r;`);
+
+scenario('F154 v381 M20 Shell Game: the scan order really wears no colour, the cargo is counted', 'm=20', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.fourOrdersListed = ((SCRIPT_WAVES[20].brief||{}).ziele||[]).length === 4;
+  FS.until(()=>{ player.invT = 999; FS.killId('S1'); return !!EV_LEFT.EV; }, 4000, false);
+  FS.step(2*TICK_HZ);
+  draw();
+  ${colOf}
+  const lbl = objBarList().map(objBarLabel);
+  r.freightersCounted = lbl.some(t => t.indexOf('SHIVAN FREIGHTERS (0/2)') >= 0);
+  r.scanCounted = lbl.some(t => t.indexOf('SCAN CARGO (0/2)') >= 0);
+  const sc = MLOG.objs.filter(o=>String(o.kurz||'')==='Scan cargo').pop();
+  r.scanKeepsCol = !!sc && sc.col === 'none';
+  r.scanHasNoColour = !!sc && objBarColour(sc) === null;
+  r.freightersRed = colOf('SHIVAN FREIGHTERS') === MARK_COL.DESTROY;
+  ${fitAll}
+  r.nothingCut = !_cut;
   return r;`);
 
 (async()=>{

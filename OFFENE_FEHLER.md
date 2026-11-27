@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 27.11.2026, v380, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 27.11.2026, v381, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,6 +26,8 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F149 | **Runde 4: Besprechung und Auftragsknöpfe für M16 bis M20** (v381). Die Texte sind wörtlich von Silvio. Neu: die Mauler in M19 trägt zwei Aufträge (Triebwerk gelb, Rumpf rot), die beide gewonnen sind, wenn sie vor dem Rammstoß stirbt, und beide verloren, wenn sie die Galatea rammt; M17 bekommt einen eigenen Auftrag für die beiden Kreuzer; in M18 hat jeder Gemini-, Kappa- und Taurus-Frachter eine eigene Kennung, damit die Knöpfe zählen können | v381 |
+| F154 | **`col` und `fuer` kamen nie am Ereignis an** — gefunden beim Bau von Runde 4. Die Ereigniskopie in `buildScripted()` übernimmt die Felder einzeln, und diese zwei fehlten: ein Scanauftrag wurde deshalb rot gezeichnet, obwohl die Mission `col:'none'` setzt (F151), und `fuer` wurde ignoriert, also traf jedes Ergebnis den **zuletzt** geöffneten Auftrag (F149) — genau die Verwechslung, gegen die `fuer` geschrieben wurde. Dazu ließ `objMetaFields()` `col` fallen. Beides behoben; neu ist der Auslöser `gerammt` | v381 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
 | F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
@@ -44,7 +46,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 (M11 bis M15) ist gebaut** (v373) — Einzelheiten im Abschnitt „F149 — Runde 3", **Urteil offen**. **Runde 4 sind M16 bis M20**; danach fehlen M21 bis M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
+| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 (M11 bis M15) ist gebaut und von Silvio abgenommen** (27.11.2026, v373 bis v380: „Von den texten her bin ich zufrieden"). **Runde 4 (M16 bis M20) ist gebaut** (v381) — Einzelheiten im Abschnitt „F149 — Runde 4", **Urteil offen**. **Runde 5 sind M21 bis M25**; danach fehlen M26, M27 und M29. Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -385,7 +387,7 @@ drei Sekunden vor dem Abzug. Die drei Transporter fliegen schon vorher
 nacheinander ab: sie docken an der Pinnacle an (`dockHold`, Aufschrift
 TRANSFER) und springen danach einzeln weg — daran ist nichts geändert.
 
-## F149 — Runde 3: M11 bis M15 (v373, 26.11.2026, Urteil offen)
+## F149 — Runde 3: M11 bis M15 (v373 bis v380, 27.11.2026, abgenommen)
 
 Silvios Texte sind wörtlich übernommen (nur Tippfehler stillschweigend
 berichtigt: „spottet" → „spotted", Apostroph in „The Taranis' appearance").
@@ -6990,3 +6992,81 @@ Die Ladeseite setzt `complete`, `naturalWidth` und `naturalHeight` jetzt
 selbst auf die Zeichenflächen (`asImage()`), und die Übernahme im Spiel tut
 es noch einmal, falls etwas ohne diese Merkmale ankommt. Nachgemessen: nach
 dem Übergang melden alle Körper `complete: true` und eine echte Breite.
+
+
+## F149 — Runde 4: M16 bis M20 (v381, 27.11.2026, Urteil offen)
+
+Silvios Texte sind wörtlich übernommen. Seine Festlegungen dieser Runde:
+
+- **M16:** der Besprechungstext nennt die Selbstzerstörung der Asimov („her
+  crew will self destruct her and sacrifice themselves along with the
+  research"), die Ravage bleibt ein Bonus. Knöpfe: `Asimov` (blau),
+  `Bonus: Ravage` (blau).
+- **M17:** die Besprechung ist der Stand **vor** dem Einsprung — Befehl ist,
+  die Verteidigung des Außenpostens zu brechen, bevor die Galatea kommt.
+  Im Feld steht dort nur noch das Wrack, und der Auftrag lautet „Destroy all
+  Shivans". Dazu ein **eigener Auftrag für die beiden Kreuzer**
+  (`Cruisers (0/2)`, rot), weil Silvio sie getrennt sehen will.
+- **M18:** jeder Gemini-, Kappa- und Taurus-Frachter bekommt eine **eigene
+  Kennung** (`GT1/GT2`, `KA1`–`KA3`, `TA1`–`TA3`), sonst können die Knöpfe
+  nicht zählen — ein Zähler zählt Kennungen, nie Schiffe derselben Kennung.
+  Knöpfe: `Gemini (0/4)` rot, danach `Kappa freighters (0/3)` blau mit
+  `durch` (wer heil rauskommt) und `Taurus freighters (0/3)` rot. Beide
+  Gruppenaufträge werden mit `zielEnde` nach ihrem eigenen Zähler gefärbt.
+- **M19:** Silvio nennt die Geschütze **sentry guns**, der Auftrag heißt so.
+  Die Mauler trägt **zwei** Aufträge: `Stop Mauler` (gelb, Triebwerk) und
+  `Mauler` (rot, Rumpf). Silvio, 27.11.2026: „Wenn die Mauler stirbt bevor
+  sie die Galatea rammen konnte, gilt beides als erfolgreich. Wenn sie die
+  Galatea rammt, dann nicht, auch wenn sie dabei zerstört wurde." Weil der
+  Rammstoß sie selbst tötet, kann `vernichtet` die beiden Fälle nicht
+  trennen — dafür ist der neue Auslöser `gerammt` da (F154). Die Galatea
+  bleibt der Hauptauftrag und steht bis zum Missionsende in der Leiste.
+- **M20:** Knöpfe `Escort` rot, dann `Shivan freighters (0/2)` rot,
+  `Scan cargo (0/2)` farblos und `Cargo (0/2)` blau mit `durch`.
+
+**Was dabei teuer war:** die beiden Mauler-Aufträge brauchen eindeutige
+`fuer`-Werte. `fuer` trifft entweder genau den Kurznamen oder ist ein
+Teilstück des Auftragstextes — `fuer:'Mauler'` hätte auch „Disable the
+Mauler's engines" getroffen. Deshalb heißen sie `Stop Mauler` und
+`Destroy the Mauler`.
+
+**Geprüft:** `./checks.sh --fast` grün, `warpsim` über 16 bis 20 ohne neue
+Funde (dieselben neun Meldungen wie in v380), alle `fieldsim`-Szenarien der
+Missionen 16 bis 20 grün, die Szenarien der Runden 1 bis 3 grün, und sechs
+neue Szenarien („F149 v381 M16", „M17", „M18", „F154 v381 M19" zweimal und
+„F154 v381 M20"). Gegen v380 gestellt sind alle sechs rot.
+
+**Vier Szenarien waren schon in v380 rot** und sind dort berichtigt, nicht
+im Spiel: die Knopfbeschriftungen aus v370 bis v372 („PROTECT GTC ORFF",
+„INTERCEPT FREIGHTERS (0/2)", „PROTECT ESCAPE POD", „PROTECT THE GALATEA")
+stammen von **vor** F151, das in v379 jeden Knopf auf sein Ziel gekürzt hat;
+und „F153 v380" schoss auf eine Staffel, die noch im Wirbel steckte.
+
+**Drei alte Szenarien sind weiter rot, in v380 genauso** — nicht in dieser
+Runde verursacht und nicht angefasst: „FS1 M16 v263 … the Asimov blows up"
+(`playerHurt`) und „v264 F84 …" (`lockBehind`, `seekThenLock`).
+
+## F154 — `col` und `fuer` kamen nie am Ereignis an (v381, 27.11.2026, Urteil offen)
+
+Gefunden beim Bau von Runde 4: der gelbe Knopf für das Triebwerk der Mauler
+blieb rot. Ursache war nicht die Farbe, sondern der Weg dorthin.
+
+- **`buildScripted()` kopiert die Ereignisse Feld für Feld**, und `col` und
+  `fuer` standen nicht in dieser Liste. Beide erreichten das Ereignis also
+  nie: ein Scanauftrag wurde rot gezeichnet, obwohl die Mission `col:'none'`
+  setzt (M7, M8, M11, F151), und `fuer` wurde ignoriert, also traf jedes
+  Ergebnis den **zuletzt** geöffneten Auftrag — genau die Verwechslung,
+  gegen die `fuer` in F149 geschrieben wurde (M5, M8, M10, M11, M12, M15).
+- **`objMetaFields()` ließ `col` ebenfalls fallen**, obwohl `objBarColour()`
+  es liest.
+- Der Kommentar an der Kopierstelle warnt ausdrücklich davor; trotzdem sind
+  dort zweimal Felder vergessen worden. Wer ein neues Feld für einen Auftrag
+  einführt, trägt es **dort** ein.
+
+Neu dazu: der Auslöser **`gerammt`** (`EV_RAM`). `tickCapRam()` merkt sich
+die Kennung des Großkampfschiffs, das sein Ziel erreicht und zugeschlagen
+hat, bevor es vom Feld genommen wird — sonst kann eine Mission einen
+rechtzeitigen Abschuss nicht von einem Abschuss beim Aufprall unterscheiden.
+Außerdem darf ein Auftrag seine Farbe mit `col:'disable'` (oder `destroy`,
+`protect`) selbst nennen, wenn zwei Aufträge auf demselben Rumpf liegen; die
+Farben kommen weiter aus `MARK_COL`, nicht aus einer zweiten Liste.

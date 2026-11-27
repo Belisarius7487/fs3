@@ -1280,6 +1280,9 @@ function tickCapRam(){
     const vy = dy/L*e.capRam*CAP_RAM_CLIMB;
     e.y += (Math.abs(vy) > Math.abs(dy)) ? dy : vy;
     if(hullsBite(e, t, CAP_RAM_BITE)){
+      // F154: she got there. Noted before she is taken off the field, so a
+      // mission can tell this apart from a kill made in time.
+      if(e.uid != null && typeof EV_RAM !== 'undefined') EV_RAM[e.uid] = true;
       t.hp -= Math.max(1, Math.round((t.maxHp||100)*RAM_PCT_CAPITAL));
       hullHit(e.x, e.y);
       triggerExpl(e.x, e.y, 'destroyer', e.faction, e);
@@ -3711,7 +3714,16 @@ const SCRIPT_WAVES = {
   // Asimov blows herself up, and her blast hurts everything near (bigBang).
   // Replaces the old mission 16 (Silvio, 22.10.2026).
   16:{name:'The Big Bang', era:'fs1', orig:12, ship:'fiapollo', fac:'hol', o:'clear', live:6, huntShare:1,
-      ziel:'Get the scientists off the Asimov', u:[
+      // F149 round 4: Silvio's own words, 27.11.2026.
+      ziel:'Get the scientists off the Asimov',
+      zielKurz:'Asimov', zielZu:'AS',
+      brief:{text:'The science cruiser GTSC Asimov is under attack by Shivan forces. Her '+
+                  'scientists and their research can\'t be replaced. Clear the Shivans out '+
+                  'so a transport can dock and take them off. If the Asimov\'s hull gives way '+
+                  'her crew will self destruct her and sacrifice themselves along with the '+
+                  'research to prevent it from falling into enemy hands.\n'+
+                  'The GTC Ravage will provide fire support. Keep her safe.',
+             ziele:['Get the scientists off the Asimov']}, u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fiapollo', side:'ally'},
        {id:'W2', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
        {id:'AS', mark:'protect', c:'cr', n:1, spr:'scfaustus', side:'ally', x:174, y:255, still:true, noWarp:true,
@@ -3754,8 +3766,10 @@ const SCRIPT_WAVES = {
        {t:'angedockt', a:'T1', w:'zielerfuellt', a2:'The scientists are safe'},
        {t:'angedockt', a:'T2', w:'zielerfuellt', a2:'The scientists are safe'},
        {t:'vernichtet', a:'T1+T2', w:'zielverfehlt', a2:'Spomer and Stull destroyed'},
-       {t:'sek', a:1, w:'bonus', a2:'Protect the Ravage', keep:true},
-       {t:'vernichtet', a:'RV', w:'bonusFail', a2:'GTC Ravage destroyed'}
+       {t:'sek', a:1, w:'bonus', a2:'Protect the Ravage', keep:true,
+        kurz:'Bonus: Ravage', zu:'RV'},
+       {t:'vernichtet', a:'RV', w:'bonusFail', a2:'GTC Ravage destroyed',
+        fuer:'Bonus: Ravage'}
        // The rest ends on its own: the last Shivan down, nothing left to come.
      ]},
 
@@ -3836,7 +3850,16 @@ const SCRIPT_WAVES = {
   // Lilith and Cain. Replaces the old mission 17 (Silvio, 23.10.2026).
   17:{name:'La Ruota della Fortuna', era:'fs1', orig:13, ship:'bomedusa', fac:'hol', o:'clear', live:6,
       wreck3d:{key:'inkarnak', n:5},
-      ziel:'Destroy all Shivans', u:[
+      // F149 round 4: Silvio's own words, 27.11.2026. The briefing is what
+      // command believed before the wing jumped in - the outpost is already
+      // a wreck when it gets there, and the order on the field says Shivans.
+      ziel:'Destroy all Shivans',
+      zielKurz:'Shivans', zielZu:'*',
+      brief:{text:'We\'re sent in to wipe out a Hammer of Light outpost in this sector. Your '+
+                  'job is to cripple its defenses before we send in the Galatea.\n'+
+                  'Our last scouts didn\'t return, so be prepared for anything. You\'ll be '+
+                  'flying Medusa bombers for this sortie.',
+             ziele:['Destroy outpost']}, u:[
        {id:'W1', c:'bo', n:1, size:3, spr:'bomedusa', side:'ally'},
        // already there when Alpha arrives, worn from the fight with the outpost
        {id:'E1', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan', x:323, y:223, noWarp:true, hurt:0.8},
@@ -3863,8 +3886,16 @@ const SCRIPT_WAVES = {
        {t:'da', a:'R1', w:'jagd', a2:'GA'},
        // help: two Valkyries against the bombers
        {t:'da', a:'LI', d:15, w:'einwarpen', a2:'D1'},
-       {t:'da', a:'GA', w:'bonus', a2:'Keep the Galatea above half hull', keep:true},
-       {t:'rumpfUnter', a:'GA', b:50, w:'bonusFail', a2:'The Galatea is below half hull'},
+       {t:'da', a:'GA', w:'bonus', a2:'Keep the Galatea above half hull', keep:true,
+        kurz:'Bonus: Galatea', zu:'GA'},
+       {t:'rumpfUnter', a:'GA', b:50, w:'bonusFail', a2:'The Galatea is below half hull',
+        fuer:'Bonus: Galatea'},
+       // F149 round 4 (Silvio, 27.11.2026): the two cruisers are an order of
+       // their own beside "destroy all Shivans", with their own tally.
+       {t:'da', a:'LI+CA', w:'nebenziel', a2:'Destroy the Shivan cruisers',
+        kurz:'Cruisers', zu:'LI+CA', soll:2, zaehl:'vernichtet'},
+       {t:'vernichtet', a:'LI+CA', w:'nebenOk', a2:'Both Shivan cruisers destroyed',
+        fuer:'Cruisers'},
        {t:'vernichtet', a:'GA', w:'zielverfehlt', a2:'The Galatea is lost'},
        {t:'vernichtet', a:'GA', d:6, w:'abzug', a2:''}
        // The rest ends on its own: the last Shivan down, nothing left to come.
@@ -3880,7 +3911,17 @@ const SCRIPT_WAVES = {
   // Satis took no containers in FS1 (F95).
   // Replaces the old mission 18 (Silvio, 23.10.2026).
   18:{name:'Where Eagles Dare', era:'fs1', orig:14, ship:'fivalyrie', fac:'hol', o:'clear', live:6,
-      ziel:'Stop the Gemini transports and freighters', u:[
+      // F149 round 4: Silvio's own words, 27.11.2026.
+      ziel:'Stop the transports and freighters',
+      zielKurz:'Gemini', zielZu:'F1+F2+GT1+GT2', zielSoll:4, zielZaehl:'vernichtet',
+      brief:{text:'We\'ve located a Hammer of Light supply depot. Transports and freighters '+
+                  'are loading there and we must make sure none of them may get away. Our own '+
+                  'freighters are coming in to take what\'s left in the containers. Hammer of '+
+                  'Light freighters will come for the same cargo and have to be stopped.\n'+
+                  'Try to keep the containers safe.',
+             ziele:['Stop the transports and freighters',
+                    'Cover the Kappa freighters',
+                    'Stop the Taurus freighters']}, u:[
        {id:'W1', c:'fi', n:1, size:2, spr:'fivalyrie', side:'ally'},
        {id:'W2', c:'bo', n:1, size:3, spr:'boathena', side:'ally'},
        // six containers: one for each of the six freighters that come for
@@ -3904,45 +3945,62 @@ const SCRIPT_WAVES = {
         escHit:true, escDelay:10, label:'PVFr Gemini 2'},
        {id:'F2', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:197, y:302, escape:0.25, escWarp:true,
         escHit:true, escDelay:10, label:'PVFr Gemini 3'},
-       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:199, y:225, escape:0.3, escWarp:true,
+       // F149 round 4: one id each, so the button can count all four (0/4) -
+       // a tally counts ids, never ships of the same id.
+       {id:'GT1', mark:'destroy', c:'tr', n:1, spr:'trisis', x:199, y:225, escape:0.3, escWarp:true,
         escHit:true, escDelay:10, label:'PVT Gemini 4'},
-       {id:'GT', mark:'destroy', c:'tr', n:1, spr:'trisis', x:199, y:319, escape:0.3, escWarp:true,
+       {id:'GT2', mark:'destroy', c:'tr', n:1, spr:'trisis', x:199, y:319, escape:0.3, escWarp:true,
         escHit:true, escDelay:10, label:'PVT Gemini 1'},
        {id:'E2', c:'fi', n:1, size:3, spr:'fiseth', wait:true},
        {id:'E3', c:'fi', n:1, size:4, spr:'fianubis', wait:true},
        // the race for the containers
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:227, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 1'},
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:272, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
-       {id:'TA', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:317, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 3'},
-       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:127, y:231, warpIn:true, wait:true,
+       {id:'TA1', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:227, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 1'},
+       {id:'TA2', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:272, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 2'},
+       {id:'TA3', mark:'destroy', c:'fr', n:1, spr:'frmaat', x:346, y:317, wait:true, warpIn:true, dockTo:'K', escape:0.15, label:'PVFr Taurus 3'},
+       {id:'KA1', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:127, y:231, warpIn:true, wait:true,
         dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 1'},
-       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frchronos', side:'ally', x:127, y:272, warpIn:true, wait:true,
+       {id:'KA2', mark:'protect', c:'fr', n:1, spr:'frchronos', side:'ally', x:127, y:272, warpIn:true, wait:true,
         dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 2'},
-       {id:'KA', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:127, y:313, warpIn:true, wait:true,
+       {id:'KA3', mark:'protect', c:'fr', n:1, spr:'frposeidon', side:'ally', x:127, y:313, warpIn:true, wait:true,
         dockTo:'K', dockHold:12, dockLabel:'LOADING', jumpIfEmpty:true, label:'GTFr Kappa 3'},
        {id:'IO', c:'fi', n:1, size:1, spr:'fiapollo', side:'ally', wait:true}
      ], ev:[
        // after 10 s (escDelay), or once fired on, the Gemini run
        {t:'sek', a:25, w:'einwarpen', a2:'E2'},
-       {t:'vernichtet', a:'F1+F2+GT', w:'zielerfuellt', a2:'All Gemini stopped'},
+       // F149 round 4: the order counts the four of them and is judged by
+       // its own tally - all four stopped is a success, some of them a
+       // partial one, none a failure.
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', w:'zielEnde', a2:'The Gemini are through'},
        {t:'verlaesst', a:'F1', w:'meldung', a2:'A Gemini freighter got away'},
        {t:'verlaesst', a:'F2', w:'meldung', a2:'A Gemini freighter got away'},
-       {t:'verlaesst', a:'GT', w:'meldung', a2:'A Gemini transport got away'},
+       {t:'verlaesst', a:'GT1', w:'meldung', a2:'A Gemini transport got away'},
+       {t:'verlaesst', a:'GT2', w:'meldung', a2:'A Gemini transport got away'},
        // the Gemini gone, whichever way: Anubis, then the race
-       {t:'alleZerstoert', a:'F1+F2+GT', d:20, w:'einwarpen', a2:'E3'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'TA'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'KA'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'einwarpen', a2:'IO'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'ziel', a2:'Cover the Kappa freighters'},
-       {t:'alleZerstoert', a:'F1+F2+GT', d:25, w:'nebenziel', a2:'Stop the Taurus freighters'},
-       {t:'verlaesst', a:'TA', wenn:{t:'angedockt', a:'TA'}, w:'nebenFail', a2:'A Taurus freighter got away with cargo'},
-       {t:'vernichtet', a:'TA', w:'nebenOk', a2:'All Taurus freighters stopped'},
-       {t:'leer', a:'KA', w:'meldung', a2:'A Kappa freighter found no cargo left'},
-       {t:'verlaesst', a:'KA', wenn:{t:'angedockt', a:'KA'}, w:'zielerfuellt', a2:'The Kappa freighters are away with the cargo'},
-       {t:'vernichtet', a:'KA', w:'zielverfehlt', a2:'The Kappa freighters are lost'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:20, w:'einwarpen', a2:'E3'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:25, w:'einwarpen', a2:'TA1'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:25, w:'einwarpen', a2:'TA2'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:25, w:'einwarpen', a2:'TA3'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:25, w:'einwarpen', a2:'KA1'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:25, w:'einwarpen', a2:'KA2'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:25, w:'einwarpen', a2:'KA3'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:25, w:'einwarpen', a2:'IO'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:25, w:'ziel', a2:'Cover the Kappa freighters',
+        kurz:'Kappa freighters', zu:'KA1+KA2+KA3', soll:3, zaehl:'durch'},
+       {t:'alleZerstoert', a:'F1+F2+GT1+GT2', d:25, w:'nebenziel', a2:'Stop the Taurus freighters',
+        kurz:'Taurus freighters', zu:'TA1+TA2+TA3', soll:3, zaehl:'vernichtet'},
+       {t:'verlaesst', a:'TA1', wenn:{t:'angedockt', a:'TA1'}, w:'nebenFail', a2:'A Taurus freighter got away with cargo'},
+       {t:'verlaesst', a:'TA2', wenn:{t:'angedockt', a:'TA2'}, w:'nebenFail', a2:'A Taurus freighter got away with cargo'},
+       {t:'verlaesst', a:'TA3', wenn:{t:'angedockt', a:'TA3'}, w:'nebenFail', a2:'A Taurus freighter got away with cargo'},
+       {t:'vernichtet', a:'TA1+TA2+TA3', w:'nebenOk', a2:'All Taurus freighters stopped'},
+       {t:'leer', a:'KA1', w:'meldung', a2:'A Kappa freighter found no cargo left'},
+       {t:'leer', a:'KA2', w:'meldung', a2:'A Kappa freighter found no cargo left'},
+       {t:'leer', a:'KA3', w:'meldung', a2:'A Kappa freighter found no cargo left'},
+       // Our freighters through, one way or the other: how many of them got
+       // out in one piece colours the order.
+       {t:'alleZerstoert', a:'KA1+KA2+KA3', w:'zielEnde', a2:'The Kappa freighters are through'},
        // the wave stays open until our freighters are through, one way or
        // the other; then what is left of the depot is scenery
-       {t:'alleZerstoert', a:'KA', hold:true, w:'kulisse', a2:'K'}
+       {t:'alleZerstoert', a:'KA1+KA2+KA3', hold:true, w:'kulisse', a2:'K'}
        // The rest ends on its own: the last enemy down, nothing left to come.
      ]},
 
@@ -4270,7 +4328,16 @@ const SCRIPT_WAVES = {
       // 80 and the middle of the height. Each mission keeps exactly the
       // distances it was tested with; it now uses a part of the field and
       // leaves the rest, which is the mission's business, not the field's.
-      ziel:'Destroy the gun platforms', u:[
+      // F149 round 4: Silvio's own words, 27.11.2026. He calls them sentry
+      // guns, so the order does too.
+      ziel:'Destroy the sentry guns',
+      zielKurz:'Sentry Guns', zielZu:'G1',
+      brief:{text:'You\'re scouting ahead of the Galatea.\n'+
+                  'Hammer of Light fanatics are desperate and will likely try to ambush her. '+
+                  'Take out whatever they put between our flagship and her destination. '+
+                  'Expect desperate moves.',
+             ziele:['Destroy sentry guns',
+                    'Protect the Galatea']}, u:[
        // Silvio, 17.11.2026: at least two of the wing fly what the player
        // flies. The Hercules comes free exactly here (FS1_ALLY_INTRO), so
        // the pool hands out Apollos and Valkyries beside them on its own -
@@ -4305,9 +4372,9 @@ const SCRIPT_WAVES = {
        {id:'MA', mark:'destroy', c:'cr', n:1, spr:'craten', capRam:1.3, hp:3.5,
         x:440, y:273, wait:true, label:'PVC Mauler'}
      ], ev:[
-       {t:'alleZerstoert', a:'G1', w:'zielerfuellt', a2:'The gun platforms are down'},
+       {t:'alleZerstoert', a:'G1', w:'zielerfuellt', a2:'The sentry guns are down'},
        {t:'alleZerstoert', a:'G1', d:3, w:'einwarpen', a2:'GA'},
-       {t:'da', a:'GA', w:'ziel', a2:'Protect the Galatea'},
+       {t:'da', a:'GA', w:'ziel', a2:'Protect the Galatea', kurz:'Galatea', zu:'GA'},
        {t:'da', a:'GA', d:4, w:'einwarpen', a2:'E1'},
        {t:'anzahlUnter', a:'E1', b:3, w:'einwarpen', a2:'B1'},
        {t:'da', a:'B1', w:'jagd', a2:'GA'},
@@ -4317,7 +4384,18 @@ const SCRIPT_WAVES = {
        {t:'alleZerstoert', a:'B1', d:15, w:'einwarpen', a2:'K3'},
        {t:'alleZerstoert', a:'B1', d:20, w:'einwarpen', a2:'MA'},
        {t:'da', a:'K1', w:'meldung', a2:'The Seths are trying to ram the Galatea'},
-       {t:'da', a:'MA', w:'ziel', a2:'Stop the Mauler'},
+       // F149 round 4 (Silvio, 27.11.2026): two orders on the Mauler - her
+       // engines in yellow and her hull in red. Both are won if she is
+       // stopped before she gets there and both are lost if she rams the
+       // Galatea, "auch wenn sie dabei zerstoert wurde". The impact kills
+       // her, so 'vernichtet' on its own cannot tell a kill in time from a
+       // kill on impact - that is what 'gerammt' is for (F154). She wears a
+       // DESTROY mark, so the engine order states its own colour.
+       // One second apart: two orders set in the same step would lose a line.
+       {t:'da', a:'MA', w:'nebenziel', a2:'Disable the Mauler\'s engines',
+        kurz:'Stop Mauler', zu:'MA', sub:'engines', col:'disable'},
+       {t:'da', a:'MA', d:1, w:'nebenziel', a2:'Destroy the Mauler',
+        kurz:'Mauler', zu:'MA'},
        {t:'da', a:'MA', w:'meldung', a2:'The Mauler is on a ram course for the Galatea'},
        // Engines out: she drifts and is out of the fight (v314). Destroyed
        // does the same job, so both paths carry the same four events.
@@ -4327,9 +4405,20 @@ const SCRIPT_WAVES = {
        // left-to-right of the game has to be bent for this mission. A
        // crippled Mauler stays an ordinary target: killing her engines
        // takes the ram away, not the kill.
-       {t:'subsystem', a:'MA', b:'engines', w:'meldung', a2:'The Mauler is dead in space'},
-       {t:'subsystem', a:'MA', b:'engines', w:'zielerfuellt', a2:'The Mauler is stopped'},
-       {t:'vernichtet', a:'MA', w:'zielerfuellt', a2:'The Mauler is stopped'},
+       {t:'subsystem', a:'MA', b:'engines', w:'nebenOk', a2:'The Mauler is dead in space',
+        fuer:'Stop Mauler'},
+       {t:'vernichtet', a:'MA', solange:[{t:'gerammt', a:'MA'}],
+        w:'nebenOk', a2:'PVC Mauler destroyed', fuer:'Destroy the Mauler'},
+       // Shot off the field before her engines ever went: that stopped her
+       // too. The guard keeps this from writing a second line once her
+       // engines have already closed the order.
+       {t:'vernichtet', a:'MA',
+        solange:[{t:'gerammt', a:'MA'}, {t:'subsystem', a:'MA', b:'engines'}],
+        w:'nebenOk', a2:'The Mauler never reached the Galatea', fuer:'Stop Mauler'},
+       {t:'gerammt', a:'MA', w:'nebenFail', a2:'The Mauler rammed the Galatea',
+        fuer:'Destroy the Mauler'},
+       {t:'gerammt', a:'MA', w:'nebenFail', a2:'The Mauler was not stopped in time',
+        fuer:'Stop Mauler'},
        {t:'vernichtet', a:'GA', w:'zielverfehlt', a2:'The Galatea is lost'},
        {t:'vernichtet', a:'GA', d:6, w:'abzug', a2:''}
      ]},
@@ -4351,7 +4440,17 @@ const SCRIPT_WAVES = {
   // Left out: two of the four freighters, the Shivan transports, the
   // Medusa and Valkyrie reinforcements.
   20:{name:'Shell Game', era:'fs1', orig:16, ship:'fiherc', fac:'hol', o:'clear', live:6,
-      ziel:'Destroy the Shivan escort', u:[
+      // F149 round 4: Silvio's own words, 27.11.2026.
+      ziel:'Destroy the Shivan escort',
+      zielKurz:'Escort', zielZu:'S1',
+      brief:{text:'The Shivan destroyer SD Eva is escorting two Shivan freighters. Destroy '+
+                  'her escort. The freighters are to be destroyed as well but their cargo has '+
+                  'to be taken intact: Intelligence wishes to study Shivan technology. Our '+
+                  'transports won\'t move in on a container until it has been scanned.',
+             ziele:['Destroy Shivan escort',
+                    'Destroy Shivan freighters',
+                    'Scan cargo',
+                    'Capture Shivan cargo']}, u:[
        {id:'W1', c:'fi', n:1, size:3, spr:'fiherc', side:'ally'},
        // the Eva: she never fires and cannot be touched - the threat, not
        // the fight. invuln also keeps her out of everyone's target keys.
@@ -4391,8 +4490,12 @@ const SCRIPT_WAVES = {
        {t:'anzahlUnter', a:'S1', b:1, d:3, w:'raus', a2:'EV'},
        // one main objective from here on, so nothing marks another one
        // done early: the freighters and the cargo are the same job.
-       {t:'verlaesst', a:'EV', w:'ziel', a2:'Destroy the Shivan freighters'},
-       {t:'verlaesst', a:'EV', w:'nebenziel', a2:'Scan the Shivan cargo'},
+       {t:'verlaesst', a:'EV', w:'ziel', a2:'Destroy the Shivan freighters',
+        kurz:'Shivan freighters', zu:'F1+F2', soll:2, zaehl:'vernichtet'},
+       // A scan is none of the three jobs, so it keeps its verb and wears
+       // no colour (F151).
+       {t:'verlaesst', a:'EV', w:'nebenziel', a2:'Scan the Shivan cargo',
+        kurz:'Scan cargo', zu:'KA+KB', soll:2, zaehl:'gescannt', col:'none'},
        {t:'verlaesst', a:'EV', d:1, w:'meldung', a2:'No transport will go in until the cargo is cleared'},
        {t:'verlaesst', a:'EV', d:14, w:'einwarpen', a2:'S2'},
        // each scan brings its own transport and a Shivan wing with it
@@ -4414,7 +4517,8 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'F1+F2', wenn:{t:'verlaesst', a:'EV'}, d:1,
         w:'zielerfuellt', a2:'Both Shivan freighters destroyed'},
        {t:'vernichtet', a:'F1+F2', wenn:{t:'verlaesst', a:'EV'}, d:2,
-        w:'ziel', a2:'Capture the Shivan cargo'},
+        w:'ziel', a2:'Capture the Shivan cargo',
+        kurz:'Cargo', zu:'KA+KB', soll:2, zaehl:'durch'},
        {t:'leer', a:'T1', w:'meldung', a2:'The Stern found her container gone'},
        {t:'leer', a:'T2', w:'meldung', a2:'The Harmon found her container gone'},
        // The ends, settled once both transports are off the field however
@@ -6011,6 +6115,11 @@ let EV_PLAN = {};
 // is judged - the Galatea's hull is no longer on the field once she has
 // jumped, so the drop below half has to be kept.
 let EV_FLAG = {};
+// F154 (Silvio, 27.11.2026: "Wenn sie die Galatea rammt, dann nicht, auch
+// wenn sie dabei zerstoert wurde"): the id of a capital ship that reached
+// her target and struck. She dies in the blast, so 'vernichtet' alone
+// cannot tell a kill in time from a kill on impact.
+let EV_RAM = {};
 let evReinf = false, evReinfCd = 0;
 // v257: the faction a 'nachschub' names ('shivan'), else the wave's own.
 let evReinfFac = '';
@@ -6035,7 +6144,7 @@ function evReset(){
   EV = []; EV_HELD = {}; EV_SEEN = {}; EV_LEFT = {}; EV_DOCK = {}; EV_EMPTY = {}; EV_POS = {};
   if(typeof DK_PLAN !== 'undefined') DK_PLAN = {wave: null, g: {}};   // F99: containers placed afresh
   EV_REPAIRED = {}; EV_REPFAIL = {};
-  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; EV_PLAN = {}; EV_FLAG = {}; PREY_ON = false;
+  EV_TAKEN = {}; EV_FLED = {}; EV_REPL = {}; EV_HIT = {}; EV_LABEL = {}; EV_MARK = {}; EV_PLAN = {}; EV_FLAG = {}; EV_RAM = {}; PREY_ON = false;
   missionTimer = {end:0, label:''}; missedJumps = 0;
   evReinf = false; evReinfCd = 0; evReinfGap = EV_REINF_GAP; evReinfFac = '';
 }
@@ -6204,6 +6313,8 @@ function evTrig(ev){
     }
     // F149: a note the mission wrote earlier with 'merken'.
     case 'gemerkt':      return !!EV_FLAG[ev.a];
+    // F154: this capital ship reached her target on a ram course and struck.
+    case 'gerammt':      return evIds(ev.a).every(function(id){ return !!EV_RAM[id]; });
     case 'erfuellt':
       // Zu Wellenbeginn ist noch nichts im Feld, und "nichts zu tun" sieht
       // aus wie "erledigt". Erst wenn der Auftrag einmal bestanden hat.
@@ -6958,7 +7069,13 @@ function buildScripted(def){
             // F148: what an objective's button in the bar needs. This copy
             // takes the fields one by one, so a new one has to be named
             // here or it never reaches the event that fires.
+            // F154: col and fuer were missing from this copy, so neither
+            // ever reached the event. A scan order came out red although
+            // the mission set col:'none' (F151), and 'fuer' was ignored, so
+            // a result always settled the objective opened last (F149) -
+            // exactly the mix-up fuer was written to prevent.
             kurz:e.kurz, zu:e.zu, sub:e.sub, soll:e.soll, zaehl:e.zaehl, keep:e.keep,
+            col:e.col, fuer:e.fuer,
             at:null, done:false}; });
   return q.sort(function(a,b){ return a.time-b.time; });
 }
