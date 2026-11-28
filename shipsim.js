@@ -401,18 +401,25 @@ W.run('wave=2');
 ok('new wave with the Colossus still there: refits again', W.run('shipSwapReady()')===true);
 W.run("toggleShipMenu(); swapShip('fihorus')"); ok('and it is a full hull', P().hp===59);
 
+// v388: where the NTF cycle begins is read out of CYCLES instead of
+// written down here. Every new FS1 mission pushes that wave one further
+// (31 was its first until Black Omega took mission 31), and a number
+// copied into this check would go stale with the next one.
+const NTF1 = W.run('CYCLES.find(c=>c.roster===ROSTER_NTF).first');
 console.log('Cycles: each brings its own fleet');
 {
   // v240: the FS1 strand opens the run (its missions 1-3 replace the old
   // Hammer of Light ones), so the Hammer of Light cycle starts at 4.
-  const fs1 = W.run('cycleAt(1)'), hol = W.run('cycleAt(4)'), ntf = W.run('cycleAt(31)');
+  const fs1 = W.run('cycleAt(1)'), hol = W.run('cycleAt(4)'), ntf = W.run('cycleAt('+NTF1+')');
   ok('waves 1 to 3 are the FS1 cycle', fs1.first===1 && W.run('cycleAt(3)')===fs1);
-  ok('waves 4 to 30 are the Hammer of Light cycle', W.run('cycleAt(30)')===hol && hol.first===4);
-  ok('wave 31 opens the NTF cycle, and it holds to 60', ntf.first===31 && W.run('cycleAt(59)')===ntf && W.run('cycleAt(60)')===ntf);
+  ok('the Hammer of Light cycle runs from 4 up to the NTF cycle',
+     W.run('cycleAt('+(NTF1-1)+')')===hol && hol.first===4);
+  ok('wave '+NTF1+' opens the NTF cycle, and it holds to 60',
+     ntf.first===NTF1 && W.run('cycleAt(59)')===ntf && W.run('cycleAt(60)')===ntf);
   ok('wave 61 opens the Shivan cycle, and it holds after that',
      W.run('cycleAt(61)').first===61 && W.run('cycleAt(140)')===W.run('cycleAt(61)'));
   reset();
-  W.run("score=95000; enterCycle(cycleAt(31))");
+  W.run("score=95000; enterCycle(cycleAt("+NTF1+"))");
   ok('entering it puts the player in a Myrmidon, fresh', P().ship==='fimyrmidon' && P().hp===P().maxHp);
   ok('the roster is the Terran one, nine hulls',
      W.run('PLAYER_SHIPS.length')===9 && W.run("PLAYER_SHIPS.every(s=>s.fac==='terran')"));
@@ -486,13 +493,13 @@ console.log('Shivan cycle: both fleets, each on its own tab (v163)');
   W.run('setShipMenu(false)');
   W.set('allies',[colossus()]);
   ok('the Colossus serves both', W.run("hangarTabOpen('terran') && hangarTabOpen('vasudan')")===true);
-  reset(); W.run("score=95000; enterCycle(cycleAt(31))");
+  reset(); W.run("score=95000; enterCycle(cycleAt("+NTF1+"))");
   ok('the NTF cycle has no tabs', W.run('cycleTabs()')===false);
 }
 
 console.log('A mission can lend a hull');
 {
-  reset(); W.run("score=95000; enterCycle(cycleAt(31)); shipUnlocked=8");
+  reset(); W.run("score=95000; enterCycle(cycleAt("+NTF1+")); shipUnlocked=8");
   W.set('allies',[destroyer({img:'deorionright'})]);
   ok('before: a Terran destroyer offers a switch', W.run('shipSwapReady()')===true);
   W.run("forceShip('fipegasus')");

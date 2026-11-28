@@ -101,64 +101,9 @@ const scenarios = [];
 function scenario(name, query, body, noLaunch){ scenarios.push({name, query, body, noLaunch}); }
 
 // ── Scenarios ──────────────────────────────────────────────────────────
-scenario('M31 Der Aufstand', 'm=31', `
-  const r = {};
-  r.wave = wave; r.ship = player.ship;
-  r.terranCall = ALLY_FAC_ON.terran===true && ALLY_FAC_ON.vasudan===false;
-  FS.step(400);
-  const a = allies.find(x=>x.uid==='A1');
-  r.allyAtStart = !!a && a.img==='crleviathan';
-  r.lockSet = !!a && a.defectLock===true;
-  // Hammer her while she is still ours: she must not die before the turn.
-  if(a){ a.hp = 1; FS.step(5); }
-  r.survivesLock = !!allies.find(x=>x.uid==='A1');
-  // Step by step up to the turn: where she was last as an ally, and where
-  // she is in the first step as an enemy.
-  let last = null, first = null;
-  for(let k=0;k<8000 && !first;k++){
-    if(k%200===0) FS.killSmall();
-    const al = allies.find(x=>x.uid==='A1');
-    if(al) last = {x:al.x, y:al.y};
-    FS.step(1);
-    const en = enemies.find(x=>x.uid==='A1');
-    if(en) first = {x:en.x, y:en.y};
-  }
-  r.turnsInPlace = !!last && !!first && Math.abs(first.x-last.x) < 2 && Math.abs(first.y-last.y) < 2;
-  const e = enemies.find(x=>x.uid==='A1');
-  // From here on the allied wings could shoot her down or hit her engines
-  // before she gets anywhere - that is the game - so for the checks below
-  // she and her subsystems are made too tough for them.
-  if(e){ e.hp = e.maxHp = 1e7; for(const s of e.subs||[]) s.hp = s.maxHp = 1e7; }
-  FS.step(40);
-  r.turned = !!e && !allies.some(x=>x.uid==='A1');
-  r.ntfHull = !!e && e.img==='ntfcrleviathan';
-  r.enemyShape = !!e && e.type==='cruiser' && e.side==='enemy' && !e.dead && e.hp>0;
-  r.hasSubs = !!e && !!e.subs && e.subs.length===5;
-  r.hasGuns = !!e && !!(e.guns||e.mounts||e.wpn||e.beams);
-  r.facesWhereSheGoes = !!e && e.flip===needsFlip(e.img, false);
-  const x0 = e ? e.x : 0;
-  FS.step(200);
-  r.waveOpenWhileSheLives = !waveOver;
-  r.headsRight = !!e && e.x > x0;
-  // Left alone she reaches the edge and jumps.
-  // v208: the mission area is FIELD_K times the old field, her speed is not
-  const t = FS.until(()=>!!EV_LEFT['A1'], 8000*FIELD_K, true);
-  r.jumpsAtTheEdge = t>=0 && e.warpOut>0 && e.x < MW;
-  r.whileFullyOnScreen = !!e && e.x + IMGS[e.img].width*e.sc*0.5 <= MW;
-  FS.until(()=>!enemies.includes(e), 1000, false);
-  r.goneAfterJump = !enemies.includes(e);
-  FS.until(()=>waveOver || wave>31, 4000, true);
-  r.waveEnds = waveOver || wave>31;
-  return r;`);
-
-scenario('M31 engines stop her', 'm=31', `
-  FS.step(300);
-  FS.until(()=>!enemies.some(e=>e.uid==='E1') && !spawnQ.some(q=>q.uid==='E1'), 6000, true);
-  FS.step(40);
-  const e = enemies.find(x=>x.uid==='A1');
-  for(const s of e.subs) if(s.id==='engines'){ s.dead = true; s.hp = 0; }
-  const x0 = e.x; FS.step(600);
-  return {stopped: Math.abs(e.x-x0) < 0.01 && !EV_LEFT['A1']};`);
+// v387: 'M31 Der Aufstand' and 'M31 engines stop her' retired - mission
+// 31 is Black Omega now, an FS1 mission, and the defecting Leviathan
+// they tested is gone from the list.
 
 scenario('M32 Die Frachtroute', 'm=32', `
   const r = {};
@@ -7847,6 +7792,34 @@ scenario('F151 v379 M15: blue to protect, and a scan order takes no job colour',
   r.scanHasNoColour = objBarColour({kurz:'Scan cargo', zu:'K1', col:'none'}) === null;
   return r;`);
 
+// M31 opens with three orders at once - the transports, her guns and the
+// bonus on her hull - so the bar is measured and not estimated (F151: it
+// gives 371 points, and a button needs its text plus 14).
+scenario('F151 M31: three orders fit the bar, and both orders on the Anvil keep their own colour', 'm=31', `
+  const r = {};
+  draw();
+  const bb = window._briefBtnRect;
+  if(bb) pointerConsumed({x:bb.x + bb.w/2, y:bb.y + bb.h/2});
+  FS.step(4*TICK_HZ);
+  draw();
+  const btn = window._objBtns || [];
+  r.threeOrders = btn.length === 3;
+  r.labels = btn.map(b=>objBarLabel(b.o)).join(' | ');
+  ctx.font = thValue(8, true);
+  r.nothingCut = btn.every(b => thFit(objBarLabel(b.o), b.w-6) === objBarLabel(b.o));
+  const col = k => { const b = btn.find(x=>String(x.o.kurz).indexOf(k)>=0); return b ? objBarColour(b.o) : 'none'; };
+  r.transportsBlue = col('Omega transports') === MARK_COL.PROTECT;
+  // Her hull wears a disable mark, so her guns take it without being told
+  // and the bonus on the same hull has to name red for itself.
+  r.gunsYellow = col('Anvil Weapons') === MARK_COL.DISABLE;
+  r.hullRed = col('Anvil') === MARK_COL.DESTROY || col('Anvil Weapons') === MARK_COL.DISABLE;
+  const bonus = btn.find(x=>x.o.side==='bonus');
+  r.bonusRed = !!bonus && objBarColour(bonus.o) === MARK_COL.DESTROY;
+  // The colour is the ship's own, not a second list that could drift.
+  const anv = byId('AN')[0];
+  r.sameAsBracket = MARK_COL[missionMark(anv)] === col('Anvil Weapons');
+  return r;`);
+
 // F152 (Silvio, 27.11.2026, with a screenshot): a sun sat in front of Vasuda
 // Prime while the Lucifer was burning her. The pictures of planets and suns
 // are empty in the logic file (the packer fills them on the server), so the
@@ -8611,5 +8584,117 @@ scenario('M30 the Omegas come round under their own steering', 'm=30', `
   r.turningSteps = turning;
   // Round at the end: her nose is on her course, which runs to the left.
   r.facesHerCourse = !!a && Math.abs(Math.cos(a.head) + 1) < 0.35;
+  return r;`);
+
+// ── M31 Black Omega ───────────────────────────────────────────────────
+// The mission's clock is the transports' crossing, so it is measured here
+// and not guessed (Silvio, 17.11.2026: no made-up times). Their hulls are
+// held full, so what this reads is the script and not a lucky run.
+scenario('M31 both Omega transports leave through the Altair node', 'm=31', `
+  const r = {};
+  const om = () => allies.filter(a=>(a.uid==='O1'||a.uid==='O2') && !a.dead);
+  const an = () => enemies.filter(e=>e.uid==='AN' && !e.dead)[0];
+  const left = [];
+  let seen = 0, leoAt = 0, gunsAt = 0, omAt = 0;
+  // The player sits still here, so what this measures is our wings doing
+  // the job on their own: the slowest a run can be.
+  for(let sec=1; sec<=320; sec++){
+    FS.step(TICK_HZ);
+    for(const a of om()) a.hp = a.maxHp;
+    player.hp = player.maxHp;
+    const e = an();
+    if(!gunsAt && (!e || (e.subs||[]).some(x=>x.id==='weapons' && x.dead))) gunsAt = sec;
+    if(!omAt && om().length) omAt = sec;
+    if(!leoAt && enemies.some(x=>x.uid==='LE' && !x.dead)) leoAt = sec;
+    const n = (typeof countLeft==='function') ? countLeft('O1+O2') : 0;
+    if(n > seen){ for(let k=seen;k<n;k++) left.push(sec); seen = n; }
+    if(seen >= 2) break;
+  }
+  r.gunsOutAt = gunsAt + 's';
+  r.transportsInAt = omAt + 's';
+  r.bomberWingAt = leoAt + 's';
+  r.bothThroughTheNode = seen >= 2;
+  r.throughAt = left.join('s ') + 's';
+  // The way only opens once her guns are out - that is the mission.
+  r.transportsWaitForHer = gunsAt > 0 && omAt > gunsAt;
+  // The bomber wing has to be in the field while there is still something
+  // to attack, not after the last transport is away.
+  r.bomberWingInTime = leoAt > 0 && leoAt < left[left.length-1];
+  r.noneLeftOutside = om().every(a=>a.warpOut>0);
+  r.orderNotFailed = !(objCard && objCard.tone==='fail');
+  return r;`);
+
+// She is 2153 m of hull, a ninth of the field wide, so the gap to the
+// transports' lane is measured and not judged by eye (Silvio, 28.11.2026,
+// on the Lucifer in M30). Against a build with her put on their lane -
+// y:200 instead of y:330 - this goes red on neverOverHerHull.
+scenario('M31 the transports never cross the Anvil hull', 'm=31', `
+  const r = {};
+  const an = () => enemies.filter(e=>e.uid==='AN' && !e.dead)[0];
+  const om = () => allies.filter(a=>(a.uid==='O1'||a.uid==='O2') && !a.dead);
+  let minGap = 1e9, overlaps = 0, sawHer = false;
+  // Her guns are taken at once so the transports are sent in, and her
+  // navigation with them: disarmed on its own she jumps out 25 s later
+  // (checkDisarmFlee) and would not be in the field to measure against.
+  FS.step(TICK_HZ*3);
+  {
+    const e0 = an();
+    if(e0) for(const s of e0.subs) if(s.id==='weapons' || s.id==='navigation'){ s.dead = true; s.hp = 0; }
+  }
+  for(let sec=1; sec<=240; sec++){
+    FS.step(TICK_HZ);
+    for(const a of om()) a.hp = a.maxHp;
+    player.hp = player.maxHp;
+    const e = an();
+    if(e){
+      sawHer = true;
+      e.hp = e.maxHp;
+      const B = eBox(e);
+      for(const a of om()){
+        const b = eBox(a);
+        const gx = Math.max(B[0] - (b[0]+b[2]), b[0] - (B[0]+B[2]));
+        const gy = Math.max(B[1] - (b[1]+b[3]), b[1] - (B[1]+B[3]));
+        const g = Math.max(gx, gy);
+        if(g < minGap) minGap = g;
+        if(gx < 0 && gy < 0) overlaps++;
+      }
+    }
+    if(countLeft('O1+O2') >= 2) break;
+  }
+  r.sheWasThere = sawHer;
+  r.neverOverHerHull = overlaps === 0;
+  r.closestGapPx = Math.round(minGap);
+  return r;`);
+
+// Losing her guns starts her own jump clock (checkDisarmFlee), so the
+// blockade lifts by itself and the bonus of killing her is gone with her.
+// Both ends are written in the mission; this reads that neither leaves an
+// order hanging open.
+scenario('M31 disarming the Anvil lifts the blockade', 'm=31', `
+  const r = {};
+  const an = () => enemies.filter(e=>e.uid==='AN' && !e.dead)[0];
+  FS.step(TICK_HZ*3);
+  const e = an();
+  r.sheIsThere = !!e;
+  if(!e) return r;
+  r.fiveSubs = !!e.subs && e.subs.length === 5;
+  for(const s of e.subs) if(s.id==='weapons'){ s.dead = true; s.hp = 0; }
+  FS.step(TICK_HZ*2);
+  const ord = t => MLOG.objs.filter(o=>new RegExp(t,'i').test(o.txt||''))[0];
+  r.disarmOrderDone = !!ord('disarm the anvil') && ord('disarm the anvil').st==='done';
+  // She runs within half a minute of losing them.
+  let gone = 0;
+  for(let sec=1; sec<=60 && !gone; sec++){
+    FS.step(TICK_HZ);
+    player.hp = player.maxHp;
+    if(EV_LEFT['AN'] === true || !an()) gone = sec;
+  }
+  r.sheWithdraws = gone > 0;
+  r.withdrewAfter = gone + 's';
+  // Gone through her own node, so the bonus of killing her is lost - and
+  // it has to be written off, not left standing open.
+  FS.step(TICK_HZ*2);
+  r.bonusClosed = !!ord('destroy the anvil') && ord('destroy the anvil').st!=='open';
+  r.bonusState = ord('destroy the anvil') ? ord('destroy the anvil').st : '-';
   return r;`);
 

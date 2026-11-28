@@ -15,8 +15,9 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 28.11.2026, v386, M1 bis M30 abgenommen,
-Besprechungen und Auftragsknöpfe in allen Missionen abgenommen)
+## Lage — als Erstes lesen (Stand 28.11.2026, v388, M1 bis M30 abgenommen,
+M31 gebaut und noch nicht beurteilt, Besprechungen und Auftragsknöpfe in
+allen Missionen abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,6 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F157 | **M31 „Black Omega"** (`fs1/sm3-06a`): die Aufzeichnungen von Altair IV gehen auf den beiden Omega-Transportern aus M30 nach Hause, der Hammer-of-Light-Zerstörer **Anvil** (Typhon) versperrt den Altair-Knoten. Der Spieler fliegt zum ersten Mal die Ursa mit Harbinger-Bomben. Erst wenn ihre Waffen aus sind oder sie zerstört ist, kommen die Transporter herein und laufen zum Knoten; eine Osiris-Staffel geht dann auf sie. Gemessen, ohne Spielereingriff: Waffen aus bei 69 s, Transporter herein bei 72 s, beide durch bei 99 s und 104 s. Die alte Mission 31 („The Uprising") ist entfernt, und die NTF-Runde beginnt jetzt bei Welle 32 | v388 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
 | F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
@@ -45,8 +47,9 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff . **28.11.2026 (v385):** dieselbe Prüfung meldet einen dritten Fall — ein Transporter, der zum Andocken einspringt, steht im Wirbel still und fährt beim Schließen schlagartig auf 0,88 Bildpunkte je Schritt an (M30: Omega 1 und Omega 2). **Das ist nicht neu:** M8 („Shieldbreaker", längst abgenommen) meldet für ihre Elysium genau dasselbe. Ursache (Vermutung, im Code noch nicht nachgewiesen): der Andockablauf fährt mit festem Tempo los, während eine Querfahrt mit dem sich öffnenden Wirbel anläuft |
-| F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
+| F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff . **28.11.2026 (v385):** dieselbe Prüfung meldet einen dritten Fall — ein Transporter, der zum Andocken einspringt, steht im Wirbel still und fährt beim Schließen schlagartig auf 0,88 Bildpunkte je Schritt an (M30: Omega 1 und Omega 2). **28.11.2026 (v388):** in M31 melden dieselben beiden Transporter beim **Absprung** den Fall aus M26 (2,13 → 4,27 Bildpunkte je Schritt), und die drei eigenen Staffeln den Fall aus M19 (Tempo fällt beim Aussprung auf null). Nichts davon ist neu, es sind dieselben zwei Muster. **Das ist nicht neu:** M8 („Shieldbreaker", längst abgenommen) meldet für ihre Elysium genau dasselbe. Ursache (Vermutung, im Code noch nicht nachgewiesen): der Andockablauf fährt mit festem Tempo los, während eine Querfahrt mit dem sich öffnenden Wirbel anläuft |
+| F131 | `fieldsim`-Szenario `onlyBombs` ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen. **Die Mission 31, in der es spielt, ist nur die Bühne** — es baut seine Schiffe selbst, der Austausch gegen „Black Omega" in v388 ändert daran nichts |
+| — | `fieldsim`-Szenario „M31 the picked subsystem keeps its name" ist rot: es zeichnet keine Subsystemnamen mehr (`pickedNameDrawn`, `reticleNamesIt` leer). **Besteht wortgleich schon in v387**, also vor dem Austausch der Mission 31; am 28.11.2026 beim Bau von M31 aufgefallen. Noch nicht untersucht |
 
 
 ## F148 — Besprechung vor der Mission und Auftragsknöpfe in der Leiste (v365, 25.11.2026)
@@ -7349,3 +7352,97 @@ Weiterfahrt nach dem Laden, Abzug ohne Fracht). Betroffen ist nur, wer zu
 einem Sprungknoten unterwegs ist und wie ein kleines Schiff fliegt — heute
 die Omega-Transporter in M30. M3 und M8 docken ohne Knoten und fahren
 unverändert.
+
+## F157 — M31 „Black Omega" (v388, 28.11.2026, Urteil offen)
+
+Original `fs1/sm3-06a`. Die Aufzeichnungen von Altair IV sind teilweise
+entschlüsselt und gehen zurück nach Terranergebiet — wieder auf den beiden
+Omega-Transportern aus M30. Altair hält noch der Hammer of Light, und sein
+Zerstörer **Anvil** (Typhon) versperrt den Weg zum Altair-Sprungknoten. Der
+Spieler fliegt zum ersten Mal die **Ursa mit Harbinger-Bomben**; beides wird
+genau mit dieser Mission freigeschaltet (Harbinger `fs1:{p:26}` in
+`56_banks.js`, `boursa:26` in `FS1_ALLY_INTRO`).
+
+**Silvios Festlegungen (28.11.2026).**
+
+- Der Besprechungstext ist **wörtlich seiner**. Claudes Entwurf hat er
+  verworfen.
+- Sein Text nennt **eine** Jägerstaffel und **eine** Bomberstaffel. Die
+  zweite Jägerstaffel des Originals (Horus) fällt deshalb weg, und die
+  Thoth-Staffel fliegt vier Jäger statt drei.
+- Der Knopf heißt **„Anvil Weapons"**, nicht „Anvil guns".
+- Die Aufträge auf dem Besprechungsbildschirm: *Escort Omega 1 and Omega 2
+  to the node*, *Disarm the Anvil*, *Destroy the Anvil*.
+
+**Im Code nachgelesen, nicht vermutet: ein Großkampfschiff schießt nie auf
+einen Transporter.** Die Zielwahl ihrer Geschütze und ihrer Strahlen
+überspringt alles, was nicht Jäger, Bomber oder großes Schiff ist
+(`50_combat.js`, `nearestOf` und die Geschützwahl darüber; `isSmallShip` /
+`isLargeShip` kennen „transport" nicht). Die Anvil ist also die Gefahr für
+unsere Staffeln, die Osiris-Staffel die Gefahr für die Transporter — genau
+so sagt es auch die Originalbesprechung.
+
+**Warum die Transporter warten.** Der erste Bau ließ sie ab der ersten
+Sekunde laufen. Gemessen: nach **26 Sekunden** waren sie am Knoten, und die
+Anvil ließ sich dabei vollständig ignorieren — beide Aufträge an ihr waren
+wertlos. Jetzt stehen sie mit `wait:true, warpIn:true` außerhalb und kommen
+erst herein, wenn ihre Waffen aus sind oder sie zerstört ist. Das ist auch
+die Reihenfolge in Silvios Text („Silence the Anvil's guns then bring both
+transports through the node"). Ein Zeitnetz bei 300 s steht weit hinter
+allem, was ein Lauf braucht, damit die Mission auf keinem Weg hängen kann.
+
+**Gemessen in v388** (`fieldsim`, Spieler greift nicht ein, nur unsere
+Staffeln arbeiten — also der langsamste Fall): Waffen aus bei **69 s**,
+Transporter herein bei **72 s**, Osiris-Staffel bei **84 s**, beide durch den
+Knoten bei **99 s** und **104 s**. Mit einem Spieler, der selbst bombt, geht
+der erste Teil schneller.
+
+**Der Abstand ihres Rumpfs zum Flugweg ist gemessen, nicht geschätzt**
+(Silvio, 28.11.2026, zur Lucifer in M30): 2153 m Rumpf sind 251
+Rasterpunkte. Sie steht auf `x:230, y:330`, die Transporter laufen von
+`y:230`/`y:330` auf den Knoten bei `y:140`. Engster Abstand der beiden
+Rumpfkästen über den ganzen Lauf: **1014 Bildpunkte**, keine Überdeckung.
+Szenario „M31 the transports never cross the Anvil hull"; gegen einen Bau
+mit ihr auf `y:200` wird es rot.
+
+**Entwaffnen hebt die Blockade selbst auf.** `checkDisarmFlee` schickt einen
+entwaffneten Zerstörer nach 25 Sekunden weg — gemessen: nach **26 s** ist sie
+fort. Damit ist der Bonus auf ihren Rumpf verloren (`vernichtet` zählt kein
+entkommenes Schiff), und dieser Weg ist mit `verlaesst` → `bonusFail`
+ausgeschrieben, damit kein Auftrag offen stehen bleibt. **Der Spieler hat
+damit eine echte Wahl:** sie zum Schweigen bringen und den Weg öffnen, oder
+sie in diesen 25 Sekunden noch töten.
+
+**Zwei Aufträge auf einem Rumpf.** `fuer` trägt den vollen Auftragstext, weil
+„Anvil" allein auch „Disarm the Anvil" treffen würde (F151). Ihr
+Rumpf trägt eine `disable`-Marke, der Waffenauftrag nimmt die Farbe also von
+selbst; der Bonus nennt seine Farbe mit `col:'destroy'` dazu.
+
+**`zielCol:'protect'` am Hauptauftrag.** Ohne das stand sein Knopf in der
+ersten Minute in der falschen Farbe: die Marke wird vom Schiff gelesen, und
+die Transporter stehen in dieser Zeit noch nicht im Feld.
+
+**Zwei Fallen, beide in diesem Bau bezahlt.**
+
+- **Ein Schiff von uns braucht `side:'ally'`.** `mark:'protect'` genügt nicht:
+  `buildScripted()` entscheidet allein an `u.side === 'ally'`. Ohne das standen
+  die beiden Transporter als Schiffe des Hammer of Light im Feld — ohne
+  Fehlermeldung, und keine Prüfstufe meldet es.
+- **`at:` wird nur für Schiffe von uns gelesen.** `buildScripted()` gibt es
+  nur im `ally`-Zweig weiter. Bei einer Gegnerstaffel tut es gar nichts; sie
+  erschien am rechten Rand statt bei der Anvil. Ihre Staffel steht deshalb
+  mit eigenen Werten (`x:330, y:360`) neben ihr. Das gilt auch rückwirkend
+  für M30, wo `at:'LU'` nur zufällig passte, weil die Lucifer selbst rechts
+  stand.
+
+**Die alte Mission 31 („The Uprising") ist entfernt** — sie stand in der
+Liste hinter der neuen und hätte sie stillschweigend überschrieben (F129).
+Mit ihr sind die beiden `fieldsim`-Szenarien gegangen, die ihren Inhalt
+geprüft haben („M31 Der Aufstand", „M31 engines stop her"). Die übrigen
+Szenarien mit `m=31` bauen ihre Schiffe selbst und laufen weiter.
+
+**Die NTF-Runde beginnt jetzt bei Welle 32.** Sie begann bei 31, während die
+Hammer-of-Light-Runde bis 30 lief; der FS1-Strang hat 31 erreicht. `swtest`
+und `shipsim` hatten diese Grenze als Zahl bei sich stehen und lasen sie
+dadurch falsch — beide lesen sie jetzt aus `CYCLES` im Quelltext, damit sie
+mit der nächsten Mission nicht wieder veraltet.

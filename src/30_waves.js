@@ -2405,7 +2405,10 @@ if(typeof SMALL_VEL !== 'undefined') for(const r of [ROSTER_HOL, ROSTER_NTF, ROS
 const CYCLES = [
   {first:1,  roster:ROSTER_FS1, call:{terran:true,  vasudan:false}},
   {first:4,  roster:ROSTER_HOL, call:{terran:false, vasudan:true}},
-  {first:31, roster:ROSTER_NTF, call:{terran:true,  vasudan:false}},
+  // v388: the NTF cycle began at 31 while the Hammer of Light cycle ran to
+  // 30. The FS1 strand has now reached 31 (Black Omega), so the boundary
+  // moves up with it - every new FS1 mission pushes it one further.
+  {first:32, roster:ROSTER_NTF, call:{terran:true,  vasudan:false}},
   {first:61, roster:ROSTER_NTF.concat(ROSTER_HOL), call:{terran:true, vasudan:true}, tabs:true}
 ];
 let cycleNow  = null;   // the CYCLES entry the run is in
@@ -4422,6 +4425,11 @@ const SCRIPT_WAVES = {
       // through the node is (F136); 'uebrig' would fall on every success.
       zielKurz:'Omega transports', zielZu:'O1+O2',
       zielSoll:2, zielZaehl:'durch',
+      // Named rather than taken from the ship: the transports are not in
+      // the field for the first stretch of the mission, so there is no
+      // protect mark for the button to read and it came out the wrong
+      // colour (measured in v388).
+      zielCol:'protect',
       // Silvio's own words, 28.11.2026.
       brief:{text:'The Rosetta is carrying the scientists sent to examine the records found '+
                   'on Altair IV. Two transports, Omega 1 and Omega 2, will take them aboard.\n'+
@@ -4509,6 +4517,138 @@ const SCRIPT_WAVES = {
         a2:'The Omega transports are accounted for'},
        {t:'anzahlUnter', a:'O1+O2', b:1, w:'nachschub', a2:'aus'},
        {t:'anzahlUnter', a:'O1+O2', b:1, d:3, w:'raus', a2:'LU'},
+       {t:'anzahlUnter', a:'O1+O2', b:1, d:8, w:'abzug', a2:'', hold:true}
+     ]},
+
+  // Black Omega (fs1/sm3-06a). The records from Altair IV are on their way
+  // home aboard the two Omega transports of M30 and the Hammer of Light
+  // destroyer Anvil holds the Altair node against them. Silvio's briefing
+  // names one fighter wing and one bomber wing, so the original's second
+  // fighter wing (Horus) is left out and the Thoth wing flies four instead
+  // of three (Silvio, 28.11.2026).
+  // The player flies the Ursa with Harbingers, both of which this mission
+  // is the first to hand him: harbinger opens at original 26 (56_banks.js)
+  // and boursa at 26 as well (FS1_ALLY_INTRO).
+  // Read in the code, not assumed: a capital ship never shoots at a
+  // transport - her guns skip anything that is not a fighter, a bomber or
+  // a large ship (50_combat.js, nearestOf and the gun pick above it). So
+  // the Anvil is the danger to our wings and the Osiris wing is the danger
+  // to the transports, which is what the original's briefing says too.
+  31:{name:'Black Omega', era:'fs1', orig:27, ship:'boursa', sec:'harbinger',
+      fac:'hol', o:'clear', live:7,
+      // No mission-wide hunt: the Thoth wing defends her ship until the
+      // Osiris wing is in the field, then 'jagd' puts most of them on the
+      // transports.
+      huntShare:0.75,
+      ziel:'Escort Omega 1 and Omega 2 to the node',
+      // 'durch' counts the ids that left the field in one piece, which is
+      // what a jump out through the node is (F136, M30). 'uebrig' would
+      // fall on every success.
+      zielKurz:'Omega transports', zielZu:'O1+O2',
+      zielSoll:2, zielZaehl:'durch',
+      // Named rather than taken from the ship: the transports are not in
+      // the field for the first stretch of the mission, so there is no
+      // protect mark for the button to read and it came out the wrong
+      // colour (measured in v388).
+      zielCol:'protect',
+      // Silvio's own words, 28.11.2026.
+      brief:{text:'The records from Altair IV have been partially deciphered and need to be '+
+                  'transported to Terran space. Omega 1 and Omega 2 are carrying them and '+
+                  'need to be escorted.\n'+
+                  'The Hammer of Light flagship, the PVD Anvil is blocking the way to the '+
+                  'Altair jump node and is escorted by a fighter wing.\n'+
+                  'Along with this wing a bomber wing is flying with her and poses the '+
+                  'biggest threat for our transports.\n'+
+                  'Alpha wing, you will be flying the Ursa bomber and carry Harbinger bombs '+
+                  'in this operation. Silence the Anvil\'s guns then bring both transports '+
+                  'through the node.',
+             ziele:['Escort Omega 1 and Omega 2 to the node',
+                    'Disarm the Anvil',
+                    'Destroy the Anvil']},
+      // The same node M30 ran for, in the same place.
+      nodes:[{id:'AL', x:40, y:140, label:'Altair Jump Node'}], u:[
+       // Alpha is the player's own wing, Gamma covers her bombing run and
+       // Beta stays with the transports, as the original's briefing has it.
+       {id:'A1', c:'bo', n:1, size:3, spr:'boursa', side:'ally'},
+       {id:'GA', c:'fi', n:1, size:2, spr:'fiherc', side:'ally'},
+       {id:'BE', c:'fi', n:1, size:3, spr:'fiulysses', side:'ally'},
+       // In the order Silvio's briefing gives: silence her guns, THEN bring
+       // the transports through. They hold off the field until the way is
+       // clear and come in through their own vortex - measured in v388, a
+       // run that starts at the first second is over in 26 s and the Anvil
+       // can be ignored altogether, which makes both orders on her
+       // pointless.
+       {id:'O1', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
+        wait:true, warpIn:true, x:740, y:230, cross:-0.25, toNode:'AL',
+        label:'GTT Omega 1'},
+       {id:'O2', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
+        wait:true, warpIn:true, x:740, y:330, cross:-0.25, toNode:'AL',
+        label:'GTT Omega 2'},
+       // She stands between their run and the node, clear of their lane.
+       // 2153 m of hull is 251 raster points long, so her centre has to sit
+       // well below it - measured with the simulator, not judged by eye
+       // (M30).
+       {id:'AN', mark:'disable', c:'de', n:1, spr:'detyphon',
+        still:true, x:230, y:330, label:'PVD Anvil'},
+       // 'at' is only read for ships of ours (buildScripted passes it in
+       // the ally branch alone), so her wing is placed by hand, beside her
+       // and off the transports' lane.
+       {id:'AR', c:'fi', n:1, size:4, spr:'fitoth', x:330, y:360,
+        label:'PVF Aries'},
+       {id:'LE', c:'bo', n:1, size:2, spr:'boosiris', wait:true, label:'PVB Leo'}
+     ], ev:[
+       // Her guns are an order of their own. The hull wears a disable mark,
+       // so this button takes the mark's colour without being told (F151).
+       {t:'sek', a:2, w:'nebenziel', a2:'Disarm the Anvil',
+        kurz:'Anvil Weapons', zu:'AN', sub:'weapons'},
+       {t:'subsystem', a:'AN', b:'weapons', w:'nebenOk', a2:'The Anvil is disarmed',
+        fuer:'Disarm the Anvil'},
+       // The second order on the same hull: killing her is the bonus of the
+       // original, and it needs its colour named because her mark says
+       // disable (F153). 'fuer' carries the full text - 'Anvil' on its own
+       // would match the order above as well (F151).
+       {t:'sek', a:2, w:'bonus', a2:'Destroy the Anvil',
+        kurz:'Anvil', zu:'AN', col:'destroy'},
+       {t:'vernichtet', a:'AN', w:'bonusOk', a2:'The Anvil is destroyed',
+        fuer:'Destroy the Anvil'},
+       // Losing her guns starts her jump clock by itself (checkDisarmFlee):
+       // a destroyer runs 25 s after she is disarmed, and with her the
+       // blockade. The bonus is gone then - 'vernichtet' does not count a
+       // ship that got away - so that end is written here too.
+       {t:'verlaesst', a:'AN', w:'bonusFail', a2:'The Anvil withdrew',
+        fuer:'Destroy the Anvil'},
+       // Bombed down with her turrets still firing: the disarm order is
+       // missed, and it is said so.
+       {t:'vernichtet', a:'AN', solange:{t:'subsystem', a:'AN', b:'weapons'},
+        w:'nebenFail', a2:'Her guns were never silenced', fuer:'Disarm the Anvil'},
+       // The way is clear: either her guns are out or she is dead. Both
+       // ends send the transports in, five seconds apart so they do not
+       // fly the same line stacked on each other.
+       {t:'subsystem', a:'AN', b:'weapons', d:3, w:'einwarpen', a2:'O1'},
+       {t:'subsystem', a:'AN', b:'weapons', d:8, w:'einwarpen', a2:'O2'},
+       {t:'vernichtet', a:'AN', d:3, w:'einwarpen', a2:'O1'},
+       {t:'vernichtet', a:'AN', d:8, w:'einwarpen', a2:'O2'},
+       // The net, far beyond what a run needs (measured below): without it
+       // a player who never gets through her guns would sit in a mission
+       // that cannot end. Far out on purpose - a time net that fires early
+       // takes the real trigger's place and the mission looks broken
+       // (Silvio, 19.11.2026).
+       {t:'sek', a:300, w:'einwarpen', a2:'O1'},
+       {t:'sek', a:305, w:'einwarpen', a2:'O2'},
+       // The bomber wing comes in on the transports once they are under
+       // way. 'jagd' takes one id, byId takes no '+', so it moves on when
+       // the first transport is gone either way.
+       {t:'da', a:'O1', d:12, w:'einwarpen', a2:'LE'},
+       {t:'da', a:'LE', d:2, w:'jagd', a2:'O1'},
+       {t:'verlaesst', a:'O1', w:'jagd', a2:'O2'},
+       {t:'vernichtet', a:'O1', w:'jagd', a2:'O2'},
+       // The end: no transport left in the field, through the node or dead
+       // - anzahlUnter reads either case, so no path leaves the mission
+       // hanging.
+       {t:'anzahlUnter', a:'O1+O2', b:1, w:'zielEnde',
+        a2:'The Omega transports are accounted for'},
+       {t:'anzahlUnter', a:'O1+O2', b:1, w:'nachschub', a2:'aus'},
+       {t:'anzahlUnter', a:'O1+O2', b:1, d:3, w:'raus', a2:'AN'},
        {t:'anzahlUnter', a:'O1+O2', b:1, d:8, w:'abzug', a2:'', hold:true}
      ]},
 
@@ -5112,19 +5252,9 @@ const SCRIPT_WAVES = {
   // Waves 31 to 60. The player flies Terran hulls from here on, see
   // CYCLES. The thread through the cycle is the Iceni: 36, 47 and 60.
 
-  31:{name:'The Uprising', fac:'ntf', o:'clear', live:4, u:[
-       // A patrol with a Leviathan. When the first NTF wing is down, she
-       // goes over - as the NTF hull - and has to be taken down as well.
-       // Until then she cannot die: the turn is the point of the mission.
-       // After the turn she runs for the right edge and jumps out there.
-       {id:'A1', c:'cr', n:1, spr:'crleviathan', side:'ally', defectRun:0.25},
-       {id:'E1', c:'fi', n:2},
-       {id:'E2', c:'fi', n:1, wait:true}
-     ], ev:[
-       {t:'alleZerstoert', a:'E1', w:'meldung', a2:'GTC Leviathan turning hostile'},
-       {t:'alleZerstoert', a:'E1', w:'seite', a2:'A1'},
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'E2'}
-     ]},
+  // The old mission 31 ("The Uprising", the Leviathan that went over to the
+  // NTF) is gone: Black Omega holds number 31 now, and this entry sat behind
+  // it in the list, which would have overwritten it without a word (F129).
 
   32:{name:'The Freight Route', fac:'ntf', o:'protect', live:5, hunt:'F1', u:[
        // Two Poseidons cross. Medusa bombers go for them, with fighters

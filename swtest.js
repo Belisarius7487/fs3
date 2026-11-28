@@ -41,8 +41,18 @@ const W = 800, H = 500, HUD_H = 44, TICK_HZ = 100;
 // Every hull a mission names has to exist. A misspelt key spawns nothing,
 // or a ship of the wrong size, and says nothing about it.
 const HULL_KEYS = new Set(Object.keys(eval('(' + src.match(/const HULL_LEN = (\{[^}]*\})/)[1] + ')')));
-// Which faction each block of missions is fought against.
-const CYCLE_FAC = n => n <= 30 ? 'hol' : n <= 60 ? 'ntf' : 'shivan';
+// Which faction each block of missions is fought against. The boundaries
+// are read out of CYCLES in the source instead of written down here: every
+// new FS1 mission pushes the NTF cycle one wave further (v388: it began at
+// 31 until Black Omega took mission 31), and a copied number goes stale.
+const CYCLES_SRC = src.match(/const CYCLES = \[[\s\S]*?\n\];/)[0];
+const cycFirst = (roster) => {
+  const m = CYCLES_SRC.match(new RegExp('\\{first:\\s*(\\d+)[^{}]*roster:\\s*' + roster));
+  return m ? +m[1] : Infinity;
+};
+const NTF_FIRST    = cycFirst('ROSTER_NTF,');
+const SHIVAN_FIRST = cycFirst('ROSTER_NTF\\.concat');
+const CYCLE_FAC = n => n < NTF_FIRST ? 'hol' : n < SHIVAN_FIRST ? 'ntf' : 'shivan';
 const SCRIPT_WAVES = eval('(' + body('const SCRIPT_WAVES =').replace(/^const SCRIPT_WAVES =\s*/, '') + ')');
 
 // Triggers without a unit as target, and effects whose argument is a unit.
