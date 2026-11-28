@@ -8389,7 +8389,7 @@ scenario('F149 v383 M26 Exodus: convoy counted in blue, the hunters a red pointe
   r.nothingCut = !_cut;
   return r;`);
 
-scenario('F149 v383 M27 Last Hope: the Hope and the repair transport, both in blue', 'm=27', `
+scenario('F149 v383 M27 Last Hope: four orders, and each result settles its own', 'm=27', `
   const r = {};
   draw();
   r.briefShown = !!briefOpen && !!window._briefBtnRect;
@@ -8398,20 +8398,44 @@ scenario('F149 v383 M27 Last Hope: the Hope and the repair transport, both in bl
   FS.step(12*TICK_HZ);
   draw();
   ${colOf}
-  const _labs = objBarList().map(objBarLabel);
+  let _labs = objBarList().map(objBarLabel);
   r.hopeListed = _labs.indexOf('PVD HOPE') >= 0;
   r.isisListed = _labs.indexOf('PVT ISIS') >= 0;
+  r.mecrossListed = _labs.indexOf('PVC MECROSS') >= 0;
   r.hopeBlue = colOf('PVD HOPE') === MARK_COL.PROTECT;
   r.isisBlue = colOf('PVT ISIS') === MARK_COL.PROTECT;
+  r.mecrossBlue = colOf('PVC MECROSS') === MARK_COL.PROTECT;
+  // The Shivan cruiser comes at second 55. Hold the player alive and the
+  // Hope hurt, so the repair cannot finish and end the mission first.
+  // The Hope stays hurt so the repair cannot finish and end the mission,
+  // and the Isis and the Mecross are held alive - left to chance one of
+  // them dies in some runs, their order settles early and the run means
+  // nothing (seen in a batch run of v384).
+  FS.until(()=>{ player.invT = 999;
+                 for(const a of allies){
+                   if(a.uid === 'HO') a.hp = a.maxHp*0.35;
+                   if(a.uid === 'IS' || a.uid === 'ME'){ a.hp = a.maxHp; a.shield = a.maxShield || a.shield; }
+                 }
+                 // out of her vortex and holdable - that is the very test
+                 // objBarTarget makes before it reads her job colour
+                 return byId('LI').some(u => tgtCan(u));
+               }, 20000, false);
+  draw();
+  _labs = objBarList().map(objBarLabel);
+  r.lightningListed = _labs.indexOf('SC LIGHTNING') >= 0;
+  r.lightningRed = colOf('SC LIGHTNING') === MARK_COL.DESTROY;
+  r.fourOrders = _labs.length === 4;
   ${fitAll}
   r.nothingCut = !_cut;
-  // Her order has to settle: lose the transport and the button takes red.
+  // The 'fuer' trap: losing the Isis has to settle HER order, not the one
+  // that was opened last (the Lightning).
   ${stOf}
-  r.isisOpen = st('PVT ISIS') === 'open';
   for(const a of allies) if(a.uid === 'IS'){ a.hp = 0; a.shield = 0; }
   FS.step(4*TICK_HZ);
   draw();
   r.isisFailed = st('PVT ISIS') === 'fail';
+  r.lightningStillOpen = st('SC LIGHTNING') === 'open';
+  r.mecrossStillOpen = st('PVC MECROSS') === 'open';
   return r;`);
 
 scenario('F149 v383 M28 A Failure to Communicate: both buttons named after their target', 'm=28', `

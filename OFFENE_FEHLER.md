@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 28.11.2026, v383, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 28.11.2026, v384, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F149 | **Besprechung und Auftragsknöpfe sind jetzt in allen Missionen** — Runde 6 (M26, M27, M29) ist gebaut, und M28 hat Silvio dabei nochmal überarbeitet. Texte alle von Silvio selbst (28.11.2026). Neu dabei: ein roter **Hinweisknopf** in M26 („Shivan forces"), der kein Auftrag ist und nicht bewertet wird, und ein eigener blauer Auftrag für die **PVT Isis** in M27. Einzelheiten im Abschnitt „F149 — Runde 6" | v383 |
+| F149 | **Besprechung und Auftragsknöpfe sind jetzt in allen Missionen** — Runde 6 (M26, M27, M29) ist gebaut, und M28 hat Silvio dabei nochmal überarbeitet. Texte alle von Silvio selbst (28.11.2026). Neu dabei: ein roter **Hinweisknopf** in M26 („Shivan forces"), der kein Auftrag ist und nicht bewertet wird, und eigene Aufträge in M27 für die **PVT Isis**, die **PVC Mecross** (blau) und die **SC Lightning** (rot) — vier Knöpfe in einer Mission. Einzelheiten im Abschnitt „F149 — Runde 6" | v383, v384 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
 | F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
@@ -7209,3 +7209,47 @@ suchen über den **Kurznamen** des Knopfes. Ein Hinweisknopf hatte bisher
 keinen (`a2` ist dort der Protokolltext), deshalb trägt der in M26 jetzt
 `kurz:'Shivan forces'`. Und `st` vergleicht in Großbuchstaben — `st('PVT
 Isis')` findet nichts, `st('PVT ISIS')` ist richtig.
+
+### Nachtrag v384 — M27: Mecross und Lightning als eigene Aufträge
+
+Silvio, 28.11.2026: „In M28 ist auch ein Vasudanischer Kreuzer mit anwesend
+und es warpt ein Shivanischer Kreuzer ein, der den Drohnen Transporter im Nu
+vernichtet, wenn der Spieler nicht schnell genug reagiert. Daher bräuchten
+beide jeweils einen Protect bzw. Destroy Button."
+
+**Gemeint ist M27, nicht M28.** Im Code nachgesehen: M28 hat überhaupt
+keinen Kreuzer — dort stehen die Station, die Aquilae Communications, die
+Lucifer, die Kapseln und die Hope. Die beschriebene Lage ist M27: die
+**PVC Mecross** (Aten, verbündet, steht von Anfang an im Feld), die
+**SC Lightning** (Cain, springt in Sekunde 55 ein) und die **PVT Isis** als
+Drohnentransporter.
+
+Gebaut:
+
+- Die Mecross trägt jetzt `mark:'protect'`, die Lightning `mark:'destroy'`.
+  Beide bekommen damit ihre Klammern im Feld und ihren Knopf in der Farbe
+  des Auftrags (F151).
+- Die Mecross ist erfüllt, wenn die Hope abspringt, verfehlt, wenn sie
+  stirbt. Die Lightning ist erfüllt, wenn sie zerstört ist; lebt sie am
+  Missionsende noch, färbt `objEndState` ihren Knopf rot — sie braucht also
+  kein eigenes Fehlschlag-Ereignis.
+- **Jedes Ergebnis nennt jetzt sein Ziel mit `fuer`.** Mit drei Nebenzielen
+  gleichzeitig offen hätte ein Ergebnis ohne `fuer` immer das **zuletzt**
+  geöffnete getroffen — hier die Lightning. Genau dafür ist `fuer` da.
+- M27 hat damit vier Knöpfe gleichzeitig (PVD Hope, PVT Isis, PVC Mecross,
+  SC Lightning). Das ist genau das Maximum der Leiste (`OBJ_BAR_MAX` 4), und
+  die Breite reicht (`nothingCut` grün).
+
+**Zwei Stellen, die Zeit gekostet haben:**
+
+1. Der Knopf der Lightning ist **während ihres Einsprungs farblos**.
+   `objBarColour` liest die Farbe über `objBarTarget`, und das verlangt
+   `tgtCan` — solange sie im Wirbel steckt, ist sie nicht greifbar. Im Spiel
+   dauert das einen Moment, in der Prüfung wird deshalb auf `tgtCan`
+   gewartet, nicht auf das Erscheinen des Knopfes.
+2. Das Szenario war **zufallsabhängig**: in manchen Läufen starb die Isis
+   vor Sekunde 55, dann sprang die Hope ab und die Mission war vorbei, bevor
+   die Lightning kam. Die Prüfung hält Isis und Mecross während der
+   Wartezeit am Leben und tötet die Isis erst danach absichtlich. Alleine
+   lief das Szenario grün, im Stapellauf fiel es durch — ein Szenario also
+   mehrmals und **im Stapel** laufen lassen, nicht nur einzeln.

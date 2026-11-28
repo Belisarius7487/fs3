@@ -4127,7 +4127,11 @@ const SCRIPT_WAVES = {
        {id:'HO', mark:'protect', c:'de', n:1, spr:'detyphon', side:'ally',
         x:240, y:265, still:true, noWarp:true, stay:true, hurt:0.35,
         label:'PVD Hope'},
-       {id:'ME', c:'cr', n:1, spr:'craten', side:'ally', x:170, y:400,
+       // F149 round 6 (Silvio, 28.11.2026): she is an order of her own, so
+       // she wears the protect mark - button colour and brackets come from
+       // the same place (F151), and objEndState needs the mark to tell a
+       // lost cruiser from a safe one at the end of the mission.
+       {id:'ME', mark:'protect', c:'cr', n:1, spr:'craten', side:'ally', x:170, y:400,
         still:true, noWarp:true, label:'PVC Mecross'},
        // repPct: per cent of her hull per second with all ten drones out,
        // at full rate. They lose about two fifths of it flying from one
@@ -4146,19 +4150,37 @@ const SCRIPT_WAVES = {
        {id:'IN', c:'bo', n:1, size:3, spr:'bonephilim',  fac:'shivan', t:12, x:470, y:300, label:'SB Indra'},
        {id:'KR', c:'fi', n:1, size:3, spr:'fimanticore', fac:'shivan', t:18, x:520, y:170, label:'SF Krishna'},
        {id:'AS', c:'bo', n:1, size:2, spr:'bonephilim',  fac:'shivan', wait:true, x:480, y:210, label:'SB Asura'},
-       {id:'LI', c:'cr', n:1, spr:'crcain', fac:'shivan', t:55, x:640, y:360, label:'SC Lightning'},
+       // Silvio, 28.11.2026: "es warpt ein Shivanischer Kreuzer ein, der den
+       // Drohnen Transporter im Nu vernichtet, wenn der Spieler nicht
+       // schnell genug reagiert" - so she is an order of her own, in red.
+       {id:'LI', mark:'destroy', c:'cr', n:1, spr:'crcain', fac:'shivan', t:55, x:640, y:360, label:'SC Lightning'},
        {id:'DU', c:'fi', n:1, size:2, spr:'fidragon',  fac:'shivan', wait:true, x:540, y:250, label:'SF Durga'},
        {id:'BH', c:'bo', n:1, size:3, spr:'boshaitan', fac:'shivan', wait:true, x:500, y:380, label:'SB Bheema'},
        // The Vasudan relief of the original: they come, she goes.
        {id:'MU', c:'fi', n:1, size:4, spr:'fitoth', side:'ally', wait:true,
         x:60, y:265, label:'PVF Mu'}
      ], ev:[
-       // The transport as an order of her own - opened once she is out of
-       // her vortex (t:4). Won when the Hope is away, lost when the Isis is.
+       // Three orders beside the Hope, so every result names the one it is
+       // meant for with 'fuer' - without it a result settles the objective
+       // opened LAST, which here would be the Shivan cruiser (F149).
+       // The transport, opened once she is out of her vortex (t:4), and the
+       // Vasudan cruiser that stands in the field from the start. Both are
+       // won when the Hope is away, lost when they are.
        {t:'sek', a:8, w:'nebenziel', a2:'Protect the PVT Isis',
         kurz:'PVT Isis', zu:'IS'},
-       {t:'vernichtet', a:'IS', w:'nebenFail', a2:'The PVT Isis is lost'},
-       {t:'verlaesst', a:'HO', w:'nebenOk', a2:'The PVT Isis came through'},
+       {t:'sek', a:8, w:'nebenziel', a2:'Protect the PVC Mecross',
+        kurz:'PVC Mecross', zu:'ME'},
+       {t:'vernichtet', a:'IS', w:'nebenFail', a2:'The PVT Isis is lost', fuer:'PVT Isis'},
+       {t:'vernichtet', a:'ME', w:'nebenFail', a2:'The PVC Mecross is lost', fuer:'PVC Mecross'},
+       {t:'verlaesst', a:'HO', w:'nebenOk', a2:'The PVT Isis came through', fuer:'PVT Isis'},
+       {t:'verlaesst', a:'HO', w:'nebenOk', a2:'The PVC Mecross came through', fuer:'PVC Mecross'},
+       // The Shivan cruiser - an order from the moment she is in the field.
+       // Left alive at the end she takes red from objEndState (mark destroy,
+       // still flying), so she needs no failure event of her own.
+       {t:'da', a:'LI', w:'nebenziel', a2:'Destroy the SC Lightning',
+        kurz:'SC Lightning', zu:'LI'},
+       {t:'vernichtet', a:'LI', w:'nebenOk', a2:'The SC Lightning is destroyed',
+        fuer:'SC Lightning'},
        // Waves keep coming while she lives (solange: must NOT hold)
        {t:'alleZerstoert', a:'IN', solange:{t:'vernichtet', a:'HO'}, w:'einwarpen', a2:'AS'},
        {t:'alleZerstoert', a:'KR', solange:{t:'vernichtet', a:'HO'}, w:'einwarpen', a2:'DU'},
