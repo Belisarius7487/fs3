@@ -905,7 +905,7 @@ function leaveEmpty(e, wasCargo){
     SUB_MSGS.push({x:e.x, y:e.y-28, txt:'NO CARGO', logTxt: plogName(e)+' FOUND NO CARGO', life:150, ml:150,
                    ally:false, tone:(e.side==='ally' || allies.indexOf(e) >= 0) ? 'bad' : 'good'});
   }
-  if(e.crossAfter){ e.crossing = e.crossAfter; faceTurn(e, e.crossAfter < 0); }
+  if(e.crossAfter){ e.crossing = e.crossAfter; dkCastOffTurn(e); }
   if(e.escaping) faceTurn(e, false);
 }
 // Is anybody still able to come for this container? A living freighter
@@ -1246,8 +1246,9 @@ function tickDocking(){
     }
     // v257 (Tombaugh): she stays on her dock until the script lets her go.
     if(e.dockStay){ e.crossing = 0; continue; }
-    // Load first, then leave - facing the way she leaves (F24).
-    if(e.crossAfter){ e.crossing = e.crossAfter; faceTurn(e, e.crossAfter < 0); }
+    // Load first, then leave - facing the way she leaves (F24), unless she
+    // steers herself from here on (F156).
+    if(e.crossAfter){ e.crossing = e.crossAfter; dkCastOffTurn(e); }
     if(e.escaping) faceTurn(e, false);
   }
 }
@@ -6811,8 +6812,9 @@ function evFire(ev){
         u.dockStay = false; u.dockedOn = null; u.dockTo = null; u.dockRes = null;
         u.crossing = u.crossAfter || -0.38;
         // F99 (v283): she first slides back out along the dock path, then
-        // turns and goes (dkCastOffStep in tickCrossGuards)
-        if(!dkCastOff(u)) faceTurn(u, u.crossing < 0);
+        // turns and goes (dkCastOffStep in tickCrossGuards). F156: a hull
+        // bound for a node turns herself from here on (dkSteersHerself).
+        if(!dkCastOff(u)) dkCastOffTurn(u);
       }
       break;
     case 'freigeben':

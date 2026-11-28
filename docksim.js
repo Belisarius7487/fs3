@@ -42,6 +42,8 @@ const NAMES = ['dockPoint','dockPointN','tickRiders','dockOffset','unitAlive','i
   'dkList','dkHas','dkHalf','dkIsCargo','dkInPlane','dkPick','dkRideIndex','dkRight','dkAngDiff','dkPose','dkGrid',
   'dkClear','dkMeet','dkOut','dkFlies','dkFly','poseFor','dkDepthOf','dkMustRoll','dkNeedsUpsideDown','dkPlanFor','dkPlaceCargo','dkSeat',
   'dkApproach','dkCastOff','dkCastOffStep','dkPairInfo',
+  // F156 (v386): what she does with her nose when she leaves a dock
+  'dkSteersHerself','dkCastOffTurn',
   // F140 (v350): the kind of ship decides who flies like a small one
   'flyCrLen','flyLikeFighter'];
 // their constants, as the game has them

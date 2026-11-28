@@ -134,6 +134,35 @@ function flyLikeFighter(o){
   const L = (typeof HULL_LEN !== 'undefined') ? HULL_LEN[o.img] : null;
   return L != null && L < flyCrLen();
 }
+// F156 (v386): once she is off the dock and bound for a jump node, dkFly
+// steers her - it turns her heading a step at a time and sets her picture
+// from it every step (F139/F140). A faceTurn on top of that is a second
+// hand on the same wheel, and the two fight: dkFly has her facing her
+// course within a step, the mirror turn keeps squashing her through it and
+// then flips her back when it runs out, which starts the whole thing
+// again. Silvio, 28.11.2026: "mitten in der Drehung schauen sie ploetzlich
+// wieder nach rechts, nur um dann direkt nach links zu snappen." Measured
+// in v385: the turn restarted once, crossed the mirror twice and held her
+// squashed for 149 steps. A hull that does not fly like a fighter keeps
+// the mirror turn - nothing else steers her.
+function dkSteersHerself(o){
+  return !!o && !!o.toNode && flyLikeFighter(o);
+}
+// What she is to do with her nose the moment she leaves a dock. One that
+// steers herself reads her heading back out of the pose she is drawn in
+// and turns from there; everyone else keeps the mirror turn.
+// The read-back is the other half of F156 and the reason she snapped:
+// while she sat alongside, the docking flow turned her picture and left
+// her heading where it last was. Measured in v385: drawn facing right
+// (ang 0.00, not mirrored) with a heading of 3.14 - a half turn apart. So
+// dkFly thought her nose was already where it had to go and put her round
+// in one step. Read back out of ang and the mirror flag, she turns the
+// whole way at her own rate (DK_TURN), which is what F24 asks for.
+function dkCastOffTurn(o){
+  if(!o) return;
+  if(dkSteersHerself(o)){ o.head = (o.ang || 0) + (o.flip ? Math.PI : 0); return; }
+  faceTurn(o, o.crossing < 0);
+}
 // Steer her heading towards want, a step at a time, and draw her from it.
 // True once she is there.
 function dkFly(o, want){
@@ -427,7 +456,7 @@ function dkCastOffStep(a){
   if(!o) return false;
   const s = Math.min(DK_SLIDE, o.left);
   a.x += o.vx*s; a.y += o.vy*s; o.left -= s;
-  if(o.left <= 0){ a._dkOut = null; faceTurn(a, a.crossing < 0); }
+  if(o.left <= 0){ a._dkOut = null; dkCastOffTurn(a); }
   return true;
 }
 // For the checks (docksim): how a freighter of key dk and a container of

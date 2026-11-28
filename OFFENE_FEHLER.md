@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 28.11.2026, v385, M1 bis M29 abgenommen,
+## Lage — als Erstes lesen (Stand 28.11.2026, v386, M1 bis M29 abgenommen,
 M30 gebaut und noch nicht beurteilt, Besprechungen und Auftragsknöpfe in
 allen Missionen abgenommen)
 
@@ -28,6 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F156 | **M30: die Drehung der Omega-Transporter beim Ablegen von der Rosetta** (Silvio, 28.11.2026). Zwei Hände am selben Steuer: die Spiegeldrehung lief, während die Jägersteuerung sie schon herumgelegt hatte, und ihr Kurswinkel stand seit dem Anflug auf „links", obwohl sie sichtbar nach rechts zeigte. Jetzt liest sie ihren Kurswinkel aus der Lage zurück, in der sie gezeichnet wird, und dreht sich von dort aus selbst herum | v386 |
 | F155 | **M30 „Running the Gauntlet" gebaut** (FS1-Mission 26): die Omega-Transporter nehmen die Wissenschaftler von der Rosetta auf und laufen zum Altair-Sprungknoten. Die Lucifer ist reine Kulisse — unverwundbar und mit `noFire`, kein Geschütz feuert (Silvios Festlegung). Die alte Mission 30 („The Boss") ist entfernt | v385 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
@@ -7306,3 +7307,45 @@ tatsächlich bekämpfen muss, dauert es länger.
 zwanzig Arjuna-Wellen, und die Frage, ob die Zenith aus M29 überlebt hat —
 das Original liest sie aus der Vormission, einen solchen Zustand tragen wir
 nicht mit.
+
+
+## F156 — M30: die Drehung der Omega-Transporter beim Abdocken (v386, 28.11.2026)
+
+**Silvios Befund, in seinen Worten:** „Die Drehung der beiden
+Omega-Transportern beim Abfliegen von der Rosetta ist falsch. Ich kann es
+schwer beschreiben, aber sie sind nach rechts ausgerichtet, solange sie
+docken. Dann stoßen sie sich nach links ab und drehen sich dabei mit der
+Front nach links, aber mitten in der Drehung schauen sie plötzlich wieder
+nach rechts, nur um dann direkt nach links zu snappen."
+
+**Zwei Ursachen, beide im gemeinsamen Ablauf, nicht in der Mission.**
+
+1. **Zwei Hände am selben Steuer.** Ein Rumpf, der wie ein Jäger fliegt und
+   zu einem Sprungknoten unterwegs ist, wird von `dkFly` gesteuert: das
+   dreht seinen Kurswinkel Schritt für Schritt und zeichnet ihn danach.
+   Beim Ablegen wurde zusätzlich die Spiegeldrehung (`faceTurn`) gestartet.
+   Die beiden arbeiten gegeneinander: `dkFly` hatte sie binnen eines
+   Schrittes nach links gelegt, die Spiegeldrehung quetschte sie weiter
+   hindurch und kippte sie am Ende ihres Laufs wieder zurück — worauf sie
+   von vorn begann. Gemessen in v385: die Drehung startete einmal neu,
+   kreuzte zweimal den Spiegel und hielt sie 149 Schritte lang gequetscht.
+2. **Ihr Kurswinkel war veraltet.** Gemessen in v385 und v386 vor der
+   Behebung: die ganze Dockzeit über wurde sie nach rechts gezeichnet
+   (`ang` 0,00, nicht gespiegelt), ihr Kurswinkel stand aber auf 3,14 — eine
+   halbe Drehung daneben. Der Andockablauf dreht das Bild und lässt den
+   Kurswinkel stehen. `dkFly` hielt ihre Nase deshalb für schon fertig
+   gedreht und legte sie in **einem** Schritt um.
+
+Behoben mit `dkCastOffTurn` in `src/31_dock.js`: wer sich selbst steuert,
+liest beim Ablegen seinen Kurswinkel aus der Lage zurück, in der er
+gezeichnet wird, und dreht sich von dort aus mit seiner eigenen Drehrate
+herum; alle anderen behalten die Spiegeldrehung. Gemessen in v386: keine
+gequetschten Schritte mehr, 187 Schritte gleichmäßige Drehung, am Ende
+zeigt die Nase auf den Kurs. Gegen v385 fällt die Prüfung durch.
+
+Dieselbe Stelle gilt für alle vier Wege, auf denen ein Schiff einen
+Andockplatz verlässt (Ablegebefehl, Ausschweben auf dem Andockweg,
+Weiterfahrt nach dem Laden, Abzug ohne Fracht). Betroffen ist nur, wer zu
+einem Sprungknoten unterwegs ist und wie ein kleines Schiff fliegt — heute
+die Omega-Transporter in M30. M3 und M8 docken ohne Knoten und fahren
+unverändert.

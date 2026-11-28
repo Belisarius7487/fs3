@@ -8584,3 +8584,32 @@ scenario('M30 the transports never cross the Lucifer hull', 'm=30', `
   r.neverOverHerHull = overlaps === 0;
   r.closestGapPx = Math.round(minGap);
   return r;`);
+
+// F156 (v386): off the dock and bound for the node, she turns herself
+// (dkFly). The mirror turn must not run on top of it - in v385 it did, and
+// Silvio saw her face right again in the middle of her turn and then snap
+// left. Against v385 this goes red on noMirrorTurn (149 squashed steps).
+scenario('M30 the Omegas come round under their own steering', 'm=30', `
+  const r = {};
+  const o1 = () => allies.filter(a=>a.uid==='O1' && !a.dead)[0];
+  let i = 0;
+  while(i < 6000){ FS.step(1); i++; const a = o1(); if(a && a.crossing) break; }
+  r.castOff = i < 6000;
+  r.castOffAt = Math.round(i/TICK_HZ) + 's';
+  let squashed = 0, turning = 0, prev = null;
+  for(let k=0;k<900;k++){
+    FS.step(1);
+    const a = o1(); if(!a) break;
+    if(a.turnSq != null) squashed++;
+    if(prev != null && Math.abs(a.head - prev) > 1e-6) turning++;
+    prev = a.head;
+  }
+  const a = o1();
+  r.noMirrorTurn = squashed === 0;
+  r.squashedSteps = squashed;
+  r.turnedGradually = turning > 100;
+  r.turningSteps = turning;
+  // Round at the end: her nose is on her course, which runs to the left.
+  r.facesHerCourse = !!a && Math.abs(Math.cos(a.head) + 1) < 0.35;
+  return r;`);
+
