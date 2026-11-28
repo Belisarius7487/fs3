@@ -4409,6 +4409,8 @@ const SCRIPT_WAVES = {
   // from the last mission, a state we do not carry).
   // The old mission 30 ("The Boss") is gone: it sat behind this one in the
   // list and would have overwritten it without a word (F129).
+  // Accepted by Silvio on 28.11.2026 (v386): "jetzt funktioniert es
+  // problemlos. Mission damit abgenommen".
   30:{name:'Running the Gauntlet', era:'fs1', orig:26, ship:'fiulysses',
       pri:['prom1','banshee'], fac:'hol', o:'clear', live:8,
       // The Shivans are after the Rosetta while the transfer runs and after

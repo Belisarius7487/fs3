@@ -15,9 +15,8 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 28.11.2026, v386, M1 bis M29 abgenommen,
-M30 gebaut und noch nicht beurteilt, Besprechungen und Auftragsknöpfe in
-allen Missionen abgenommen)
+## Lage — als Erstes lesen (Stand 28.11.2026, v386, M1 bis M30 abgenommen,
+Besprechungen und Auftragsknöpfe in allen Missionen abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -28,8 +27,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F156 | **M30: die Drehung der Omega-Transporter beim Ablegen von der Rosetta** (Silvio, 28.11.2026). Zwei Hände am selben Steuer: die Spiegeldrehung lief, während die Jägersteuerung sie schon herumgelegt hatte, und ihr Kurswinkel stand seit dem Anflug auf „links", obwohl sie sichtbar nach rechts zeigte. Jetzt liest sie ihren Kurswinkel aus der Lage zurück, in der sie gezeichnet wird, und dreht sich von dort aus selbst herum | v386 |
-| F155 | **M30 „Running the Gauntlet" gebaut** (FS1-Mission 26): die Omega-Transporter nehmen die Wissenschaftler von der Rosetta auf und laufen zum Altair-Sprungknoten. Die Lucifer ist reine Kulisse — unverwundbar und mit `noFire`, kein Geschütz feuert (Silvios Festlegung). Die alte Mission 30 („The Boss") ist entfernt | v385 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
 | F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
@@ -7265,7 +7262,7 @@ Gebaut:
    mehrmals und **im Stapel** laufen lassen, nicht nur einzeln.
 
 
-## F155 — M30 „Running the Gauntlet" (v385, 28.11.2026)
+## F155 — M30 „Running the Gauntlet" (v385, abgenommen 28.11.2026)
 
 FS1-Mission 26 (`fs1/sm3-05a.fs2`). Die Rosetta, ein Forschungsschiff, hat
 die Wissenschaftler an Bord, die die Aufzeichnungen von Altair IV auswerten
@@ -7309,7 +7306,10 @@ das Original liest sie aus der Vormission, einen solchen Zustand tragen wir
 nicht mit.
 
 
-## F156 — M30: die Drehung der Omega-Transporter beim Abdocken (v386, 28.11.2026)
+## F156 — M30: die Drehung der Omega-Transporter beim Abdocken (v386, abgenommen 28.11.2026)
+
+**Abgenommen** (Silvio, 28.11.2026, zu v386): „jetzt funktioniert es
+problemlos. Mission damit abgenommen".
 
 **Silvios Befund, in seinen Worten:** „Die Drehung der beiden
 Omega-Transportern beim Abfliegen von der Rosetta ist falsch. Ich kann es
