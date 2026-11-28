@@ -4390,6 +4390,125 @@ const SCRIPT_WAVES = {
        {t:'vernichtet', a:'ZE', d:2, w:'abzug', a2:''}
      ]},
 
+  // Running the Gauntlet (fs1/sm3-05a). The scientists who are to read the
+  // records found on Altair IV sit aboard the science cruiser Rosetta. Two
+  // Elysium transports take them off her and carry them out through the
+  // Altair node, and that run is the mission: the original's primary order
+  // is one transport through, its secondary both, and both is what our one
+  // tally says in green (zielEnde: all through green, one yellow, none
+  // red). The bonus of the original is the Rosetta's own survival.
+  // The gauntlet itself is the Lucifer standing off and launching wing
+  // after wing. She is scenery and nothing else here - Silvio, 28.11.2026:
+  // "Die Lucifer sollte reine Kulisse sein. Keines ihrer Geschuetze darf
+  // feuern, sonst ist die Mission nicht schaffbar." (invuln, noFire). She
+  // comes in at the top right with her nose towards the node, his own
+  // layout, so the transports' run never has to cross her hull.
+  // Left out: two of the original's four allied wings, its twenty Arjuna
+  // waves, and whether the Zenith of M29 survived (the original reads that
+  // from the last mission, a state we do not carry).
+  // The old mission 30 ("The Boss") is gone: it sat behind this one in the
+  // list and would have overwritten it without a word (F129).
+  30:{name:'Running the Gauntlet', era:'fs1', orig:26, ship:'fiulysses',
+      pri:['prom1','banshee'], fac:'hol', o:'clear', live:8,
+      // The Shivans are after the Rosetta while the transfer runs and after
+      // the transports once they are under way ('jagd' below).
+      hunt:'RO', huntShare:0.7,
+      ziel:'Escort the Omega transports to the Altair jump node',
+      // F149: both ids count, so the button reads 2/2. 'durch' counts the
+      // ids that left the field in one piece, which is what a jump out
+      // through the node is (F136); 'uebrig' would fall on every success.
+      zielKurz:'Omega transports', zielZu:'O1+O2',
+      zielSoll:2, zielZaehl:'durch',
+      // Silvio's own words, 28.11.2026.
+      brief:{text:'The Rosetta is carrying the scientists sent to examine the records found '+
+                  'on Altair IV. Two transports, Omega 1 and Omega 2, will take them aboard.\n'+
+                  'Oversee the transfer, then escort both transports to the Altair jump node.\n'+
+                  'We are deep in conquered Vasudan space and the SD Lucifer is somewhere in '+
+                  'this system as well, so stay vigilant.',
+             ziele:['Escort the Omega transports to the Altair jump node',
+                    'Protect the Rosetta until she departs']},
+      nodes:[{id:'AL', x:40, y:140, label:'Altair Jump Node'}], u:[
+       // Alpha flies the Ulysses of the original and Gamma comes along. No
+       // Beta bombers: the only capital ship in this field cannot be shot
+       // at, so a bomber wing would have nothing here to put a bomb into.
+       {id:'A1', c:'fi', n:1, size:3, spr:'fiulysses', side:'ally'},
+       {id:'GA', c:'fi', n:1, size:2, spr:'fiherc', side:'ally'},
+       // stay: a cruiser of ours jumps out by herself as soon as the field
+       // looks clear, and between two waves it does (M24). She leaves on
+       // the script's word ('raus' below), not on her own.
+       {id:'RO', mark:'protect', c:'cr', n:1, spr:'scfaustus', side:'ally',
+        x:560, y:350, still:true, stay:true, noWarp:true, guard:true,
+        label:'GTSC Rosetta'},
+       // They come out of their vortex beside her and take station
+       // alongside: dockBeside, up at the end of her that faces them, one
+       // above and one below her centre. The Faustus has a single dock
+       // point in the picture plane, so two ships on it would stand in the
+       // same place. dockStay holds them there until 'abdocken'; from then
+       // on cross with toNode is their run for the node.
+       {id:'O1', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
+        warpIn:true, t:5, x:490, y:300, dockTo:'RO', dockBeside:-10,
+        dockStay:true, cross:-0.25, toNode:'AL', label:'GTT Omega 1'},
+       {id:'O2', mark:'protect', c:'tr', n:1, spr:'trelysium', side:'ally',
+        warpIn:true, t:8, x:490, y:410, dockTo:'RO', dockBeside:10,
+        dockStay:true, cross:-0.25, toNode:'AL', label:'GTT Omega 2'},
+       // The bombers of the original's Indra wing, in beside the Rosetta so
+       // their run starts at once instead of being flown in (M24/M26).
+       {id:'AS', c:'bo', n:1, size:3, spr:'boshaitan', fac:'shivan', t:10,
+        x:660, y:400, label:'SB Asura'},
+       {id:'LU', c:'sd', n:1, spr:'sdlucifer', fac:'shivan', invuln:true,
+        noFire:true, shieldShow:true, still:true, wait:true,
+        x:660, y:120, label:'SD Lucifer'},
+       // Her wings, in at her side, one lot after the other.
+       {id:'RA', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan',
+        wait:true, at:'LU', label:'SF Rama'},
+       {id:'AR', c:'fi', n:1, size:4, spr:'fibasilisk', fac:'shivan',
+        wait:true, at:'LU', label:'SF Arjuna'},
+       {id:'VI', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan',
+        wait:true, at:'LU', label:'SF Vishnu'}
+     ], ev:[
+       // F148: the bonus of the original - she has to live until she goes.
+       {t:'sek', a:3, w:'bonus', a2:'Protect the Rosetta until she departs',
+        kurz:'Rosetta', zu:'RO'},
+       // Each transport casts off once her own transfer is done, counted
+       // from the moment she made her station, so one that never gets there
+       // cannot hold up the other. A whole science team goes across, and the
+       // transfer is the mission's first half: measured in v385 both are on
+       // station around second eighteen.
+       {t:'angedockt', a:'O1', d:30, w:'abdocken', a2:'O1'},
+       {t:'angedockt', a:'O2', d:30, w:'abdocken', a2:'O2'},
+       // Under way now, so the hunt moves off the Rosetta and onto them -
+       // one id at a time, byId takes no '+'.
+       {t:'angedockt', a:'O1', d:31, w:'jagd', a2:'O1'},
+       {t:'verlaesst', a:'O1', w:'jagd', a2:'O2'},
+       {t:'vernichtet', a:'O1', w:'jagd', a2:'O2'},
+       // The Lucifer comes with the run, her wings behind her.
+       {t:'angedockt', a:'O1', d:20, w:'einwarpen', a2:'LU'},
+       {t:'da', a:'LU', d:4, w:'einwarpen', a2:'RA'},
+       {t:'alleZerstoert', a:'RA', w:'einwarpen', a2:'AR'},
+       {t:'da', a:'RA', d:35, w:'einwarpen', a2:'AR'},
+       {t:'alleZerstoert', a:'AR', w:'einwarpen', a2:'VI'},
+       {t:'da', a:'AR', d:40, w:'einwarpen', a2:'VI'},
+       // The Rosetta goes once both of them are off her. Held by 'wenn'
+       // until the second one has made her station too, so she cannot
+       // leave with a transport still alongside.
+       {t:'angedockt', a:'O1', d:36, wenn:{t:'angedockt', a:'O2'},
+        w:'raus', a2:'RO'},
+       {t:'verlaesst', a:'RO', w:'bonusOk', a2:'The Rosetta is away'},
+       {t:'vernichtet', a:'RO', w:'bonusFail', a2:'The Rosetta is lost'},
+       // The end: both transports are off the field, through the node or
+       // dead - anzahlUnter reads either case, so no path leaves the
+       // mission hanging. If the Rosetta dies before the transfer, the
+       // transports still run for the node (leaveEmpty), and this fires
+       // all the same. The second 'raus' on her is the net for a run in
+       // which her own one never came up.
+       {t:'anzahlUnter', a:'O1+O2', b:1, w:'raus', a2:'RO'},
+       {t:'anzahlUnter', a:'O1+O2', b:1, w:'zielEnde',
+        a2:'The Omega transports are accounted for'},
+       {t:'anzahlUnter', a:'O1+O2', b:1, w:'nachschub', a2:'aus'},
+       {t:'anzahlUnter', a:'O1+O2', b:1, d:3, w:'raus', a2:'LU'},
+       {t:'anzahlUnter', a:'O1+O2', b:1, d:8, w:'abzug', a2:'', hold:true}
+     ]},
+
   // Tenderizer (fs1/sm2-05a). Alpha patrols the Antares-Beta Aquilae jump
   // node while the Galatea passes through. The Vasudans escalate: Anubis
   // fighters, then Osiris bombers on the Galatea, then Seths packed with
@@ -4984,24 +5103,6 @@ const SCRIPT_WAVES = {
         w:'raus', a2:'LU'},
        {t:'alleZerstoert', a:'H1+H2+H3+H4+H5', wenn:{t:'vernichtet', a:'GA'},
         d:6, w:'abzug', a2:'', hold:true}
-     ]},
-
-  30:{name:'The Boss', fac:'hol', o:'clear', live:6, u:[
-       // Die Hatshepsut, die du vier Wellen lang beschuetzt hast, steht
-       // mit im Feld. Faellt eines der beiden feindlichen Schiffe, kommt
-       // die dritte - erst dann ist Platz fuer sie.
-       {id:'A1', c:'de', n:1, spr:'dehatshepsut', side:'ally', hp:0.9},
-       {id:'V1', c:'de', n:1, spr:'detyphon'},
-       {id:'V2', c:'cr', n:1, spr:'craten'},   // nur sie darf fliehen
-       {id:'V3', c:'de', n:1, spr:'dehatshepsut', wait:true},
-       {id:'E1', c:'fi', n:2},
-       {id:'B1', c:'bo', n:2, wait:true}
-     ], ev:[
-       {t:'zerstoert', a:'V2', w:'einwarpen', a2:'V3'},
-       {t:'zerstoert', a:'V1', w:'einwarpen', a2:'V3'},
-       {t:'alleZerstoert', a:'E1', w:'einwarpen', a2:'B1'},
-       {t:'alleZerstoert', a:'E1', w:'nachschub', a2:'an'},
-       {t:'zerstoert', a:'V3', w:'nachschub', a2:'aus'}
      ]},
 
   // ── NTF CYCLE ─────────────────────────────────────────────

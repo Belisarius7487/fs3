@@ -8477,3 +8477,110 @@ scenario('F149 v383 M29 Reaching the Zenith: red for the hull, yellow for her ra
   ${fitAll}
   r.nothingCut = !_cut;
   return r;`);
+
+// ── M30 "Running the Gauntlet" (v385) ──────────────────────────────────
+// The run is the mission: the two Elysiums take station alongside the
+// Rosetta, cast off twelve seconds later and leave through the Altair node.
+// Three things can break that, and each has cost a cycle before: a ship held
+// on her dock never gets her crossing back ('abdocken'), a protected ship's
+// height stays pinned so she can never climb to a node above her (F136), and
+// a node run longer than the mission leaves the order open for good (the
+// Ptolemy, M13). Hulls are held full here - this is about whether they can
+// get there at all, not about surviving the wings. 'throughAt' is the
+// measurement: no duration for this mission is stated without it.
+scenario('M30 both Omega transports leave through the Altair node', 'm=30', `
+  const r = {};
+  const om = () => allies.filter(a=>(a.uid==='O1'||a.uid==='O2') && !a.dead);
+  const ro = () => allies.filter(a=>a.uid==='RO' && !a.dead)[0];
+  const left = [];
+  let seen = 0, docked = 0;
+  for(let sec=1; sec<=180; sec++){
+    FS.step(TICK_HZ);
+    for(const a of om()) a.hp = a.maxHp;
+    const q = ro(); if(q) q.hp = q.maxHp;
+    if(!docked && EV_DOCK['O1'] && EV_DOCK['O2']) docked = sec;
+    const n = (typeof countLeft==='function') ? countLeft('O1+O2') : 0;
+    if(n > seen){ for(let k=seen;k<n;k++) left.push(sec); seen = n; }
+    if(seen >= 2) break;
+  }
+  r.bothOnStation = docked > 0;
+  r.onStationAt = docked + 's';
+  r.bothThroughTheNode = seen >= 2;
+  r.throughAt = left.join('s ') + 's';
+  // Gone, or caught in her vortex by the end of the mission - what must
+  // not happen is one still flying about the field.
+  r.noneLeftOutside = om().every(a=>a.warpOut>0);
+  r.stillOut = om().map(a=>a.uid+' warp '+Math.round(a.warpOut)).join(', ');
+  // She goes by herself once both of them are off her (the bonus of the
+  // original). Her hull was held full above, so this is the script, not luck.
+  FS.step(TICK_HZ*10);
+  r.rosettaAway = !ro() && EV_LEFT['RO'] === true;
+  r.orderNotFailed = !(objCard && objCard.tone==='fail');
+  return r;`);
+
+// Silvio, 28.11.2026: "Die Lucifer sollte reine Kulisse sein. Keines ihrer
+// Geschuetze darf feuern, sonst ist die Mission nicht schaffbar." noFire
+// covers beams, main guns, turrets and flak alike, and v180 is the reason
+// the beams are watched separately: the Sathanas of M78 still lit her
+// anti-fighter beams once she was told to hold fire. Her guns are driven
+// here by hand, with the bullet list cleared right before each call, so
+// anything that comes out is hers and nobody else's. Against a build with
+// noFire taken off her again this goes red.
+scenario('M30 the Lucifer does not fire a shot', 'm=30', `
+  const r = {};
+  const lu = () => enemies.filter(e=>e.uid==='LU' && !e.dead)[0];
+  let sec = 0;
+  while(sec < 120 && !lu()){ FS.step(TICK_HZ); sec++; }
+  r.sheIsThere = !!lu();
+  r.arrivedAt = sec + 's';
+  if(!lu()) return r;
+  r.toldNotToFire = lu().noFire === true;
+  let beamLit = 0, shots = 0;
+  for(let i=0;i<200;i++){
+    const q = lu(); if(!q) break;
+    if(q.beams) for(const b of q.beams) if(b.state && b.state !== 'idle') beamLit++;
+    eBullets.length = 0;
+    if(typeof capitalFire === 'function') capitalFire(q);
+    if(typeof flakFire === 'function'){ try{ flakFire(q, allies[0]); }catch(_e){} }
+    shots += eBullets.length;
+    FS.step(10);
+  }
+  r.beamsStayIdle = beamLit === 0;
+  r.beamLit = beamLit;
+  r.gunsStaySilent = shots === 0;
+  r.shots = shots;
+  return r;`);
+
+// Silvio, 28.11.2026, on where she stands: "mit der Nase zum Sprungpunkt
+// ausgerichtet, sonst koennte es passieren, dass die Transporter quasi ueber
+// ihren Rumpf drueber muessen." Her hull is a sixth of the field wide, so
+// this is measured and not judged by eye: the gap between her hull box and
+// each transport's, every second of the run. Against a build with her put
+// where the Rosetta stands this goes red on neverOverHerHull.
+scenario('M30 the transports never cross the Lucifer hull', 'm=30', `
+  const r = {};
+  const lu = () => enemies.filter(e=>e.uid==='LU' && !e.dead)[0];
+  const om = () => allies.filter(a=>(a.uid==='O1'||a.uid==='O2') && !a.dead);
+  let minGap = 1e9, overlaps = 0, sawHer = false;
+  for(let sec=1; sec<=180; sec++){
+    FS.step(TICK_HZ);
+    for(const a of om()) a.hp = a.maxHp;
+    const e = lu();
+    if(e){
+      sawHer = true;
+      const B = eBox(e);
+      for(const a of om()){
+        const b = eBox(a);
+        const gx = Math.max(B[0] - (b[0]+b[2]), b[0] - (B[0]+B[2]));
+        const gy = Math.max(B[1] - (b[1]+b[3]), b[1] - (B[1]+B[3]));
+        const g = Math.max(gx, gy);
+        if(g < minGap) minGap = g;
+        if(gx < 0 && gy < 0) overlaps++;
+      }
+    }
+    if(countLeft('O1+O2') >= 2) break;
+  }
+  r.sheWasThere = sawHer;
+  r.neverOverHerHull = overlaps === 0;
+  r.closestGapPx = Math.round(minGap);
+  return r;`);

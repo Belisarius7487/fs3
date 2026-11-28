@@ -15,8 +15,9 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 28.11.2026, v384, M1 bis M29 abgenommen,
-Besprechungen und Auftragsknöpfe in allen Missionen abgenommen)
+## Lage — als Erstes lesen (Stand 28.11.2026, v385, M1 bis M29 abgenommen,
+M30 gebaut und noch nicht beurteilt, Besprechungen und Auftragsknöpfe in
+allen Missionen abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -27,6 +28,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F155 | **M30 „Running the Gauntlet" gebaut** (FS1-Mission 26): die Omega-Transporter nehmen die Wissenschaftler von der Rosetta auf und laufen zum Altair-Sprungknoten. Die Lucifer ist reine Kulisse — unverwundbar und mit `noFire`, kein Geschütz feuert (Silvios Festlegung). Die alte Mission 30 („The Boss") ist entfernt | v385 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
 | F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
@@ -45,7 +47,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
+| F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff . **28.11.2026 (v385):** dieselbe Prüfung meldet einen dritten Fall — ein Transporter, der zum Andocken einspringt, steht im Wirbel still und fährt beim Schließen schlagartig auf 0,88 Bildpunkte je Schritt an (M30: Omega 1 und Omega 2). **Das ist nicht neu:** M8 („Shieldbreaker", längst abgenommen) meldet für ihre Elysium genau dasselbe. Ursache (Vermutung, im Code noch nicht nachgewiesen): der Andockablauf fährt mit festem Tempo los, während eine Querfahrt mit dem sich öffnenden Wirbel anläuft |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
 
@@ -7260,3 +7262,47 @@ Gebaut:
    Wartezeit am Leben und tötet die Isis erst danach absichtlich. Alleine
    lief das Szenario grün, im Stapellauf fiel es durch — ein Szenario also
    mehrmals und **im Stapel** laufen lassen, nicht nur einzeln.
+
+
+## F155 — M30 „Running the Gauntlet" (v385, 28.11.2026)
+
+FS1-Mission 26 (`fs1/sm3-05a.fs2`). Die Rosetta, ein Forschungsschiff, hat
+die Wissenschaftler an Bord, die die Aufzeichnungen von Altair IV auswerten
+sollen. Zwei Elysium-Transporter, Omega 1 und Omega 2, gehen bei ihr
+längsseits, nehmen die Leute auf und laufen zum Altair-Sprungknoten. Erst
+greifen Shivaner-Bomber an, dann kommt die Lucifer und schickt eine Staffel
+nach der anderen.
+
+**Silvios Festlegungen vom 28.11.2026:**
+
+- **Die Lucifer ist reine Kulisse.** „Die Lucifer sollte reine Kulisse sein.
+  Keines ihrer Geschütze darf feuern, sonst ist die Mission nicht
+  schaffbar." Umgesetzt mit `invuln` und `noFire` — das stellt Strahlen,
+  Hauptgeschütze, Geschütztürme und Flak zugleich still. Ein `fieldsim`-
+  Szenario fährt ihre Feuerroutinen von Hand an und prüft, dass nichts
+  herauskommt; ohne `noFire` fällt es durch (gemessen: 260 Strahlzündungen
+  und 7 Schuss).
+- **Sie springt oben rechts ein, mit der Nase zum Sprungknoten.** „sonst
+  könnte es passieren, dass die Transporter quasi über ihren Rumpf drüber
+  müssen." Ihr Rumpf ist ein Sechstel der Spielfläche lang, deshalb wird der
+  Abstand gemessen und nicht nach Augenmaß beurteilt: ein Szenario misst
+  jede Sekunde den Abstand zwischen ihrem Rumpfrechteck und dem jedes
+  Transporters. Gemessen in v385: engster Abstand 941 Bildpunkte, nie eine
+  Überdeckung.
+- **Besprechungstext wörtlich von Silvio.** Knöpfe wie angeboten
+  abgenommen: `Omega transports (0/2)` (blau, Zähler `durch`) und der
+  Bonusknopf `Rosetta` (blau).
+
+**Gemessene Zeiten (v385, `fieldsim`, Hüllen voll gehalten):** beide
+Transporter sind nach 18 Sekunden längsseits, der Transfer dauert 30
+Sekunden, beide sind nach 62 und 66 Sekunden durch den Knoten. Die Lucifer
+kommt nach 33 Sekunden. Mit einem echten Spieler, der die Staffeln
+tatsächlich bekämpfen muss, dauert es länger.
+
+**Die alte Mission 30 („The Boss") ist entfernt.** Sie stand in der Liste
+**hinter** der neuen und hätte sie stillschweigend überschrieben (F129).
+
+**Was aus dem Original wegfiel:** zwei der vier eigenen Staffeln, die
+zwanzig Arjuna-Wellen, und die Frage, ob die Zenith aus M29 überlebt hat —
+das Original liest sie aus der Vormission, einen solchen Zustand tragen wir
+nicht mit.
