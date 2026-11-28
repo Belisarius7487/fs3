@@ -8365,3 +8365,91 @@ scenario('F149 v382 M25 The Fall of Vasuda Prime: one order, fourteen refugees c
   ${fitAll}
   r.nothingCut = !_cut;
   return r;`);
+
+// F149 round 6 (v383): M26, M27, M29 get their briefing and their buttons,
+// and M28's two buttons are renamed - the colour carries the verb, so the
+// label is the target alone (F151).
+scenario('F149 v383 M26 Exodus: convoy counted in blue, the hunters a red pointer', 'm=26', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.oneOrderListed = ((SCRIPT_WAVES[26].brief||{}).ziele||[]).length === 1;
+  ${accept}
+  FS.step(20*TICK_HZ);
+  draw();
+  ${colOf}
+  const _labs = objBarList().map(objBarLabel);
+  r.convoyCounted = _labs.some(t => /^VASUDAN CONVOYS \\(0\\/6\\)$/.test(t));
+  r.convoyBlue = colOf('VASUDAN CONVOYS') === MARK_COL.PROTECT;
+  r.hunterRed = colOf('SHIVAN FORCES') === MARK_COL.DESTROY;
+  // The pointer is no order: it never shows up in the pause screen.
+  r.hunterNotAnOrder = MLOG.objs.filter(o => String(o.kurz||'') === 'Shivan forces')
+                                .every(o => o.side === 'tipp');
+  ${fitAll}
+  r.nothingCut = !_cut;
+  return r;`);
+
+scenario('F149 v383 M27 Last Hope: the Hope and the repair transport, both in blue', 'm=27', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.oneOrderListed = ((SCRIPT_WAVES[27].brief||{}).ziele||[]).length === 1;
+  ${accept}
+  FS.step(12*TICK_HZ);
+  draw();
+  ${colOf}
+  const _labs = objBarList().map(objBarLabel);
+  r.hopeListed = _labs.indexOf('PVD HOPE') >= 0;
+  r.isisListed = _labs.indexOf('PVT ISIS') >= 0;
+  r.hopeBlue = colOf('PVD HOPE') === MARK_COL.PROTECT;
+  r.isisBlue = colOf('PVT ISIS') === MARK_COL.PROTECT;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  // Her order has to settle: lose the transport and the button takes red.
+  ${stOf}
+  r.isisOpen = st('PVT ISIS') === 'open';
+  for(const a of allies) if(a.uid === 'IS'){ a.hp = 0; a.shield = 0; }
+  FS.step(4*TICK_HZ);
+  draw();
+  r.isisFailed = st('PVT ISIS') === 'fail';
+  return r;`);
+
+scenario('F149 v383 M28 A Failure to Communicate: both buttons named after their target', 'm=28', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.twoOrdersListed = ((SCRIPT_WAVES[28].brief||{}).ziele||[]).length === 2;
+  ${accept}
+  FS.step(6*TICK_HZ);
+  draw();
+  ${colOf}
+  const _labs = objBarList().map(objBarLabel);
+  r.commListed = _labs.indexOf('AQUILAE COMMUNICATIONS') >= 0;
+  r.podsCounted = _labs.indexOf('ESCAPE PODS (0/4)') >= 0;
+  // F151: no verb left in either label
+  r.noVerbInLabels = _labs.every(t => t.indexOf('PROTECT') < 0);
+  r.commBlue = colOf('AQUILAE COMMUNICATIONS') === MARK_COL.PROTECT;
+  r.podsBlue = colOf('ESCAPE PODS') === MARK_COL.PROTECT;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  return r;`);
+
+scenario('F149 v383 M29 Reaching the Zenith: red for the hull, yellow for her radio room', 'm=29', `
+  const r = {};
+  draw();
+  r.briefShown = !!briefOpen && !!window._briefBtnRect;
+  r.twoOrdersListed = ((SCRIPT_WAVES[29].brief||{}).ziele||[]).length === 2;
+  ${accept}
+  FS.step(5*TICK_HZ);
+  draw();
+  ${colOf}
+  const _labs = objBarList().map(objBarLabel);
+  r.zenithListed = _labs.indexOf('ZENITH') >= 0;
+  r.commsListed = _labs.indexOf('ZENITH COMMUNICATIONS') >= 0;
+  // read by exact label - 'ZENITH' is a substring of the other button
+  const _bZ = (window._objBtns||[]).find(x => String(x.o.kurz) === 'Zenith');
+  r.zenithRed = !!_bZ && objBarColour(_bZ.o) === MARK_COL.DESTROY;
+  r.commsYellow = colOf('ZENITH COMMUNICATIONS') === MARK_COL.DISABLE;
+  ${fitAll}
+  r.nothingCut = !_cut;
+  return r;`);

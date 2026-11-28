@@ -15,7 +15,7 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 28.11.2026, v382, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 28.11.2026, v383, M1 bis M29 abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,6 +26,7 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
+| F149 | **Besprechung und Auftragsknöpfe sind jetzt in allen Missionen** — Runde 6 (M26, M27, M29) ist gebaut, und M28 hat Silvio dabei nochmal überarbeitet. Texte alle von Silvio selbst (28.11.2026). Neu dabei: ein roter **Hinweisknopf** in M26 („Shivan forces"), der kein Auftrag ist und nicht bewertet wird, und ein eigener blauer Auftrag für die **PVT Isis** in M27. Einzelheiten im Abschnitt „F149 — Runde 6" | v383 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
 | F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
@@ -44,7 +45,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 | Punkt | Worum es geht |
 |---|---|
 | — | Eine Prüfung, die eine doppelt belegte Missionsnummer von selbst meldet (siehe Nachtrag v333 unter F129). Angeboten am 19.11.2026, Silvios Entscheidung fehlt noch |
-| F149 | **F148 auf alle übrigen Missionen ausrollen** (Silvio, 26.11.2026: „Jetzt müssen wir das nur noch für alle weiteren Missionen umsetzen“). Betroffen sind M1 bis M27 und M29: jede braucht ihr `brief:{text,ziele}` und für jeden Auftrag einen Kurznamen mit Kennung (`zielKurz`/`zielZu` bzw. `kurz`/`zu` am Ereignis), bei Gruppen dazu `soll`/`zaehl`. **Fünf Missionen je Runde** (Silvios Wahl): die fünf Texte zuerst im Chat zeigen und abnehmen lassen, danach alle fünf in einen Bau. Die Texte folgen den sechs Regeln unter F148. **Runde 1 (M1 bis M5) ist gebaut und von Silvio abgenommen** (26.11.2026, v370/v371). **Runde 2 (M6 bis M10) ist gebaut und von Silvio abgenommen** (26.11.2026, v372: „Sieht alles gut aus und ich nehme es so ab") — Einzelheiten im Abschnitt „F149 — Runde 2". **Runde 3 (M11 bis M15) ist gebaut und von Silvio abgenommen** (27.11.2026, v373 bis v380: „Von den texten her bin ich zufrieden"). **Runde 4 (M16 bis M20) ist gebaut und von Silvio abgenommen** (27.11.2026, v381: „Soweit sah alles gut aus. Ich würde es so abnehmen"). **Runde 5 (M21 bis M25) ist gebaut und von Silvio abgenommen** (28.11.2026, v382: „Funktioniert alles wunderbar.“) — Einzelheiten im Abschnitt „F149 — Runde 5“. **Runde 6 ist der Rest: M26, M27 und M29.** Jede Runde beginnt in einem neuen Chat (Silvio, 26.11.2026) |
 | F132 | `warpsim` meldet bei jedem absprungenden Jäger einen „stop“ (Tempo fällt beim Aussprung schlagartig auf null). Das ist vermutlich genau das gewollte Verhalten — beim Absprung bleibt die Position stehen und nur das Bild fährt in den Wirbel —, also prüft `warpsim` hier wohl das Falsche. Besteht schon in v333 (M19, abgenommen); am 19.11.2026 beim Bau von M24 aufgefallen. **23.11.2026 (v345):** dieselbe Prüfung meldet jetzt auch den umgekehrten Fall — bei den sechs Konvoischiffen von M26 springt das **Bild** im ersten Bild des Wirbels um rund 5 Bildpunkte vor (2,56 → 5,12). Der Rumpf steht dabei still (im Spiel nachgemessen: Querfahrt gesperrt, Bahnantrieb 0). Es ist also wieder das Bild, das mit Anlauf in den Wirbel fährt, und nicht das Schiff |
 | F131 | `fieldsim`-Szenario `onlyBombs` (Mission 31) ist rot: es erwartet, dass nur die Cyclops eine Sprengwirkung im Umkreis hat, und findet eine weitere Waffe. Besteht schon in v333, hat mit M24 nichts zu tun; am 19.11.2026 beim Bau von M24 aufgefallen |
 
@@ -7142,3 +7142,70 @@ eigene Medusa-Staffel `A2` und die Herkules-Staffel `GA` ein Abbremsen beim
 Absprung (3,42 → 2,05 bzw. 1,18 px je Schritt). Derselbe Befund steht
 wortgleich in v381, ist also älter als diese Runde und bleibt liegen, bis
 Silvio ihn im Spiel sieht.
+
+## F149 — Runde 6: M26, M27, M29 und eine Überarbeitung von M28 (v383, 28.11.2026)
+
+Damit haben **alle** geschriebenen Missionen ihre Besprechung und ihre
+Auftragsknöpfe. Silvios Urteil zu dieser Runde fehlt noch.
+
+Die vier Texte sind **von Silvio selbst** (28.11.2026) und wörtlich
+übernommen. Eine Stelle ist still berichtigt: in M28 stand
+„Aquila Communications vessel", das Schiff heißt im Feld
+**Aquilae Communications** — die Besprechung nennt es jetzt genauso.
+
+**Was gebaut wurde**
+
+- **M26 „Exodus"** — Besprechung, Aufträge: *Escort Vasudan convoys to the
+  jump nodes*. Knopf **Vasudan convoys (0/6)**, blau, gezählt mit
+  `zielZaehl:'durch'` über die sechs Kennungen des Konvois. `uebrig` wäre
+  hier falsch: es fällt bei jedem gelungenen Absprung.
+- **M26, roter Hinweisknopf „Shivan forces"** — Silvio wollte die Angreifer
+  in Rot in der Leiste. Das ist **kein Auftrag**: die Mission ist über die
+  Konvois gewonnen, also wird er nicht bewertet und steht nicht im
+  Pausebildschirm (`hinweis`, Seite `tipp`). Ein Klick nimmt den nächsten
+  Gegner, der überhaupt zu bekämpfen ist (`zu:'*'`). Silvio hatte die Wahl
+  zwischen Zeiger und echtem Auftrag und nahm den Zeiger: „Wegen A oder B
+  empfehle ich A."
+  **Dafür eine Änderung im Allgemeinen:** `objBarColour` gab für `tipp` und
+  `ruf` immer „keine Farbe" zurück. Jetzt wird ein ausdrücklich genanntes
+  `col` auch dort gelesen; ohne `col` bleibt ein Hinweisknopf farblos wie
+  bisher (Rufmenü in M7, „Hold out!" in M14).
+- **M27 „Last Hope"** — Besprechung, Auftrag *Cover the repair of the PVD
+  Hope*, Knopf **PVD Hope**, blau.
+- **M27, eigener Auftrag für die PVT Isis** (Silvio: „Der Vasudanische
+  Transporter, der die Dohnen liefert braucht auch einen blauen Knopf").
+  Sie trägt dafür jetzt `mark:'protect'` — also auch blaue Klammern im Feld,
+  denn Knopffarbe und Klammern kommen aus derselben Stelle (F151). Ohne die
+  Marke hätte `objEndState` eine verlorene Isis am Missionsende als erledigt
+  gewertet: ein Schiff ohne Marke gilt dort als abgehakt, sobald es weg ist.
+  Erfüllt, wenn die Hope abspringt; verfehlt, wenn die Isis stirbt. Dass die
+  Drohnen alle abgeschossen werden, ist **kein** Fehlschlag für diesen
+  Auftrag — die Isis lebt dann noch, und der Teilerfolg dafür steht schon im
+  Hauptauftrag.
+- **M28 „A Failure to Communicate"** — neue Besprechung von Silvio, dazu
+  `ziel:'Protect the Faustus Science vessel'`. Beide Knöpfe nach der Regel
+  aus F151 umbenannt, weil die Farbe das Verb trägt:
+  **Aquilae Communications** (vorher „Protect Aquilae Comm") und
+  **Escape Pods (0/4)** (vorher „Protect Escape Pods"). Der Hauptknopf heißt
+  nach dem Namen, der im Feld am Rumpf steht, nicht nach der Klasse aus dem
+  Auftragstext.
+- **M29 „Reaching the Zenith"** — Besprechung, Aufträge *Destroy the Zenith*
+  und *Disable her Communication subsystem*. Knöpfe **Zenith** (rot) und
+  **Zenith communications** (gelb, ab Sekunde 3). Der zweite nennt seine
+  Farbe mit `col:'disable'` selbst: die Zenith ist DESTROY markiert, also
+  wären ohne das beide Knöpfe rot (derselbe Fall wie die Mauler in M19).
+
+**Geprüft**
+
+`./checks.sh --fast` grün (14 Stufen). Vier neue `fieldsim`-Szenarien
+(„F149 v383 M26/M27/M28/M29"): Besprechung da, Zahl der Aufträge, Knopftexte,
+Zähler, Farben, nichts abgeschnitten — und für M27 zusätzlich, dass der
+Isis-Auftrag offen steht und beim Verlust der Isis rot wird. Gegen v382
+gestellt: 21 der Zusicherungen fallen dort durch, die Prüfungen greifen also.
+`warpsim 26-29` findet dieselben 15 Stellen wie in v382, also keine neue.
+
+**Eine Stelle, die Zeit gekostet hat:** `colOf` und `st` in `fieldsim`
+suchen über den **Kurznamen** des Knopfes. Ein Hinweisknopf hatte bisher
+keinen (`a2` ist dort der Protokolltext), deshalb trägt der in M26 jetzt
+`kurz:'Shivan forces'`. Und `st` vergleicht in Großbuchstaben — `st('PVT
+Isis')` findet nichts, `st('PVT ISIS')` ist richtig.

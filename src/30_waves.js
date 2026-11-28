@@ -4028,7 +4028,20 @@ const SCRIPT_WAVES = {
       // The Shivans are after the convoy, not the player; the hunt moves
       // on with each lot that comes through (as in M25).
       hunt:'KA', huntShare:0.8,
-      ziel:'Escort the Vasudan convoys to the jump nodes', u:[
+      ziel:'Escort Vasudan convoys to the jump nodes',
+      // F148/F149 round 6: the button carries the convoy, counted by how
+      // many of the six ids left the field in one piece ('durch'). 'uebrig'
+      // would be wrong here - it falls on every successful jump out.
+      zielKurz:'Vasudan convoys', zielZu:'KA+KB+KC+KD+KE+KF',
+      zielSoll:6, zielZaehl:'durch',
+      // Silvio's own words, 28.11.2026.
+      brief:{text:'Vasuda Prime has fallen and only a few ships made it out in one piece. '+
+                  'Those who made it are being hunted by the Shivans ever since and it\'s our '+
+                  'job to keep them safe.\n'+
+                  'We\'re sending you to Alpha Centauri where refugee convoys will arrive from '+
+                  'Vasuda and either head off to Aldebaran or to Sirius. Protect these few '+
+                  'survivors at all costs.',
+             ziele:['Escort Vasudan convoys to the jump nodes']}, u:[
        {id:'A1', c:'fi', n:2, size:3, spr:'fiherc', side:'ally'},
        // First lot, for the Aldebaran node below left.
        {id:'KA', mark:'protect', c:'fr', n:1, spr:'frsatis', side:'ally', warpIn:true, t:6,
@@ -4067,6 +4080,12 @@ const SCRIPT_WAVES = {
        {id:'S6', c:'fi', n:1, size:4, spr:'fiscorpion', fac:'shivan', t:92, x:600, y:250},
        {id:'S7', c:'fi', n:1, size:1, spr:'fidragon',   fac:'shivan', t:104, x:520, y:270}
      ], ev:[
+       // F149 round 6 (Silvio, 28.11.2026): a red pointer, not an order.
+       // The mission is won on the convoys, so this is never scored and it
+       // stays out of the pause screen ('tipp'); a click takes the nearest
+       // hunter worth shooting at.
+       {t:'da', a:'S1', w:'hinweis', a2:'Shivan forces',
+        kurz:'Shivan forces', zu:'*', col:'destroy'},
        // the hunt follows each lot as it comes out
        {t:'sek', a:40, w:'jagd', a2:'KC'},
        {t:'sek', a:78, w:'jagd', a2:'KE'},
@@ -4094,7 +4113,14 @@ const SCRIPT_WAVES = {
   // its own.
   27:{name:'Last Hope', era:'fs1', orig:23, ship:'fivalyrie', pri:['prom1','banshee'],
       fac:'hol', o:'clear', live:8,
-      ziel:'Cover the repair of the PVD Hope', u:[
+      ziel:'Cover the repair of the PVD Hope',
+      zielKurz:'PVD Hope', zielZu:'HO',
+      // Silvio's own words, 28.11.2026.
+      brief:{text:'The PVD Hope escaped Antares, but got badly beaten and is now holding '+
+                  'position awaiting urgent repairs. A Vasudan transport is sending repair '+
+                  'drones to patch her up. Shivan forces are pursing her to finish her off. '+
+                  'Cover the Hope and the drones until the repairs are done.',
+             ziele:['Cover the repair of the PVD Hope']}, u:[
        // hurt: the share of her hull she starts with. stay: she never
        // leaves on her own, so a field gone quiet between two waves
        // cannot end the mission - only the 'raus' below sends her off.
@@ -4107,7 +4133,11 @@ const SCRIPT_WAVES = {
        // at full rate. They lose about two fifths of it flying from one
        // damaged spot to the next, so 1.1 makes her 65 % good in a little
        // under two minutes - measured in fieldsim, not guessed.
-       {id:'IS', c:'tr', n:1, spr:'trisis', side:'ally', x:330, y:410,
+       // F149 round 6 (Silvio, 28.11.2026): she carries the drones, so she
+       // is an order of her own and wears the protect mark - the button's
+       // colour and her brackets come from the same place (F151), and
+       // objEndState needs the mark to tell a lost transport from a safe one.
+       {id:'IS', mark:'protect', c:'tr', n:1, spr:'trisis', side:'ally', x:330, y:410,
         warpIn:true, still:true, t:4, repair:'HO', repPct:1.1, label:'PVT Isis'},
        {id:'A1', c:'fi', n:2, size:3, spr:'fivalyrie', side:'ally'},
        // The Shivans jump in beside the Hope instead of at the edge, so
@@ -4123,6 +4153,12 @@ const SCRIPT_WAVES = {
        {id:'MU', c:'fi', n:1, size:4, spr:'fitoth', side:'ally', wait:true,
         x:60, y:265, label:'PVF Mu'}
      ], ev:[
+       // The transport as an order of her own - opened once she is out of
+       // her vortex (t:4). Won when the Hope is away, lost when the Isis is.
+       {t:'sek', a:8, w:'nebenziel', a2:'Protect the PVT Isis',
+        kurz:'PVT Isis', zu:'IS'},
+       {t:'vernichtet', a:'IS', w:'nebenFail', a2:'The PVT Isis is lost'},
+       {t:'verlaesst', a:'HO', w:'nebenOk', a2:'The PVT Isis came through'},
        // Waves keep coming while she lives (solange: must NOT hold)
        {t:'alleZerstoert', a:'IN', solange:{t:'vernichtet', a:'HO'}, w:'einwarpen', a2:'AS'},
        {t:'alleZerstoert', a:'KR', solange:{t:'vernichtet', a:'HO'}, w:'einwarpen', a2:'DU'},
@@ -4171,17 +4207,23 @@ const SCRIPT_WAVES = {
       pri:['prom1','banshee'], fac:'hol', o:'clear', live:7,
       // While the pods are out the Shivans are after them, not the player.
       hunt:'EP', huntShare:0.6,
-      ziel:'Hold the Aquilae Communications',
+      ziel:'Protect the Faustus Science vessel',
       // F148: the short label on its button, and the ship the button jumps
-      // to. The words themselves are read once, in the briefing.
-      zielKurz:'Protect Aquilae Comm', zielZu:'AC',
+      // to. The words themselves are read once, in the briefing. F151: the
+      // colour carries the verb, so the button is named after its target
+      // alone - and the name is the one on her hull in the field.
+      zielKurz:'Aquilae Communications', zielZu:'AC',
       // The briefing describes OUR mission, not the original's (Silvio,
       // 25.11.2026): what stands in this field and what is asked here.
-      brief:{text:'The SD Lucifer is attacking the Aquilae installation. Our weapons cannot harm her '+
-                  'and the installation will be lost.\n'+
-                  'The crew is evacuating by Escape Pods. The Aquilae Communications must survive. '+
-                  'Defend both.',
-             ziele:['Hold the Aquilae Communications',
+      // Silvio's own words, 28.11.2026.
+      brief:{text:'The SD Lucifer is attacking the Aquilae installation and given our inability '+
+                  'to punch through the superdestroyer\'s shields, the station is likely to be '+
+                  'going down.\n'+
+                  'The crew is evacuating by Escape Pods. Close to the station the Aquilae '+
+                  'Communications vessel has taken position. It must survive along with the '+
+                  'Escape Pods.\n'+
+                  'The PVD Hope is on its way, but no ETA can be given.',
+             ziele:['Protect the Faustus Science vessel',
                     'Get the escape pods aboard the Hope']}, u:[
        // The station: her own entry (ter_aquilae) carries the name and a
        // hull four times a Tombaugh's, so she lasts past the last pod.
@@ -4227,7 +4269,7 @@ const SCRIPT_WAVES = {
        // F148: the pods are a group, so their button carries the tally -
        // "Protect Escape Pods (1/4)" - and jumps to whichever is flying.
        {t:'sek', a:3, w:'nebenziel', a2:'Get the escape pods aboard the Hope',
-        kurz:'Protect Escape Pods', zu:'EP', soll:4, zaehl:'gerettet'},
+        kurz:'Escape Pods', zu:'EP', soll:4, zaehl:'gerettet'},
        {t:'sek', a:8, w:'einwarpen', a2:'DE'},
        // The last pod leaves at 19 s - Silvio: the Hope comes as soon as
        // she is out, at the right edge.
@@ -4274,7 +4316,14 @@ const SCRIPT_WAVES = {
   // overwritten it without a word (see F129).
   29:{name:'Reaching the Zenith', era:'fs1', orig:25, ship:'fiulysses',
       pri:['prom1','banshee'], fac:'hol', o:'clear', live:9,
-      ziel:'Destroy the cruiser Zenith',
+      ziel:'Destroy the Zenith',
+      zielKurz:'Zenith', zielZu:'ZE',
+      // Silvio's own words, 28.11.2026.
+      brief:{text:'The way to Altair runs through this jump node and the Shivan cruiser Zenith '+
+                  'is holding it. Destroy her. As long as her Comms system is operational, '+
+                  'she\'s likely to call in additional waves, so shut it down.',
+             ziele:['Destroy the Zenith',
+                    'Disable her Communication subsystem']},
       nodes:[{id:'AL', x:772, y:266, label:'Altair Jump Node'}], u:[
        {id:'BE', c:'bo', n:1, size:2, spr:'bomedusa', side:'ally'},
        {id:'GA', c:'fi', n:1, size:2, spr:'fiherc', side:'ally'},
@@ -4294,7 +4343,10 @@ const SCRIPT_WAVES = {
        {id:'KR', c:'fi', n:1, size:3, spr:'fiscorpion', fac:'shivan',
         wait:true, at:'ZE', label:'SF Krishna'}
      ], ev:[
-       {t:'sek', a:3, w:'nebenziel', a2:'Knock out the communications on the Zenith'},
+       // F151: two orders on one hull - she is marked DESTROY, so this one
+       // has to state its own colour, or the button would come out red.
+       {t:'sek', a:3, w:'nebenziel', a2:'Disable her Communication subsystem',
+        kurz:'Zenith communications', zu:'ZE', sub:'communication', col:'disable'},
        {t:'subsystem', a:'ZE', b:'communication', w:'nebenOk', a2:'The Zenith is cut off'},
        {t:'subsystem', a:'ZE', b:'communication', d:1, w:'meldung',
         a2:'Her radio room is gone - no more wings will answer her'},

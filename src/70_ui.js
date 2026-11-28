@@ -2132,7 +2132,7 @@ function objBarTarget(o){
 // no mark of its own takes the colour of the job it plainly is: an enemy is
 // there to be destroyed.
 function objBarColour(o){
-  if(!o || o.side === 'ruf' || o.side === 'tipp') return null;
+  if(!o) return null;
   // A scan is none of the three jobs - its ring on the ship says it, and a
   // red button would read as "destroy" (F89: a scan target wears no frame).
   if(o.col === 'none') return null;
@@ -2143,6 +2143,11 @@ function objBarColour(o){
   // second list.
   if(o.col && typeof MARK_COL !== 'undefined' && MARK_COL[String(o.col).toUpperCase()])
     return MARK_COL[String(o.col).toUpperCase()];
+  // F149 round 6: a hint button is no objective, so it has no job colour of
+  // its own to read off a target - but it may state one (M26: the Shivan
+  // hunters are there to be shot at). Without col it stays plain, as the
+  // support hint and "Hold out!" do.
+  if(o.side === 'ruf' || o.side === 'tipp') return null;
   const t = objBarTarget(o);
   if(!t) return null;
   if(typeof missionMark === 'function'){
