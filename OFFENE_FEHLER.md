@@ -15,7 +15,8 @@ Ein Bauzyklus ging schon verloren, weil „der Rearm-Knopf reagiert nicht" in
 „vermutlich fehlt eine Korvette" umgedeutet wurde. Der Knopf war nie
 angeschlossen.
 
-## Lage — als Erstes lesen (Stand 28.11.2026, v384, M1 bis M29 abgenommen)
+## Lage — als Erstes lesen (Stand 28.11.2026, v384, M1 bis M29 abgenommen,
+Besprechungen und Auftragsknöpfe in allen Missionen abgenommen)
 
 **Diese Übersicht wird bei jeder Änderung mitgeführt** (Silvio,
 16.11.2026: „Bitte Änderungen in Zukunft immer so hinterlegen, dass sie in
@@ -26,7 +27,6 @@ es auch unten in den Abschnitt des Punktes ein — und umgekehrt.
 
 | Punkt | Worum es geht | gebaut in |
 |---|---|---|
-| F149 | **Besprechung und Auftragsknöpfe sind jetzt in allen Missionen** — Runde 6 (M26, M27, M29) ist gebaut, und M28 hat Silvio dabei nochmal überarbeitet. Texte alle von Silvio selbst (28.11.2026). Neu dabei: ein roter **Hinweisknopf** in M26 („Shivan forces"), der kein Auftrag ist und nicht bewertet wird, und eigene Aufträge in M27 für die **PVT Isis**, die **PVC Mecross** (blau) und die **SC Lightning** (rot) — vier Knöpfe in einer Mission. Einzelheiten im Abschnitt „F149 — Runde 6" | v383, v384 |
 | F152 | **M25: eine Sonne lag vor Vasuda Prime** (Silvio, 27.11.2026, mit Bild). Ursache: die Himmelskörper wurden nach Größe sortiert gezeichnet, eine breite Sonne landete vor dem Planeten. Der Planet einer Mission wird jetzt als Letztes gezeichnet, und eine Sonne auf seiner Scheibe weicht zur Seite | v380 |
 | F153 | **Aufträge ohne Zähler und ohne farbige Rückmeldung** (Silvio, 27.11.2026). Beim Abzug bekommt jeder offene Auftrag sein Ergebnis, und vier Gruppenaufträge in M2, M3, M5 und M15 zählen jetzt **Schiffe statt Staffeln** (M2 zeigt 0/13, nicht 0/5) | v380 |
 | F151 | **Auftragsknöpfe in der Farbe ihres Auftrags** (blau beschützen, gelb lahmlegen, rot zerstören), Texte dafür in M1 bis M15 gekürzt — vorher wurden drei Knöpfe nebeneinander abgeschnitten. Scanaufträge behalten ihr Verb und bleiben farblos | v379 |
@@ -7143,10 +7143,17 @@ Absprung (3,42 → 2,05 bzw. 1,18 px je Schritt). Derselbe Befund steht
 wortgleich in v381, ist also älter als diese Runde und bleibt liegen, bis
 Silvio ihn im Spiel sieht.
 
-## F149 — Runde 6: M26, M27, M29 und eine Überarbeitung von M28 (v383, 28.11.2026)
+## F149 — Runde 6: M26, M27, M29 und eine Überarbeitung von M28 (v383/v384, 28.11.2026, abgenommen)
 
 Damit haben **alle** geschriebenen Missionen ihre Besprechung und ihre
-Auftragsknöpfe. Silvios Urteil zu dieser Runde fehlt noch.
+Auftragsknöpfe. Abgenommen am 28.11.2026: „Jetzt ist es perfekt und ich
+nehme es so ab." Damit ist F149 geschlossen.
+
+**Daraus folgt eine Dauerregel, die jetzt in `CLAUDE.md` Abschnitt 8
+steht:** jeder künftige Missionsentwurf (FS1, STR, FS2) nennt neben der
+Planungstabelle auch den Besprechungstext und alle Auftragsknöpfe, damit
+Silvio alles in einem Zug beurteilen kann (seine Worten vom 28.11.2026
+stehen dort).
 
 Die vier Texte sind **von Silvio selbst** (28.11.2026) und wörtlich
 übernommen. Eine Stelle ist still berichtigt: in M28 stand

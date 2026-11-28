@@ -326,6 +326,23 @@ Andockfehler wird im gemeinsamen Ablauf oder in den Modelldaten behoben,
 nie mit einem Sonderschalter für eine Mission oder ein Schiff — und nie
 ohne Bild aus dem Spiel von allen Phasen.
 
+**Jeder Missionsentwurf nennt von Anfang an auch den Besprechungstext und
+die Auftragsknöpfe** (Silvio, 28.11.2026: „Für jede kommende FS1, STR und
+FS2 Mission möchte ich dich bitten, dass du festhältst, dass neben der
+Missionsplanung, also der Tabelle, auch die Briefingtexte und die Buttons
+mit angegeben werden, damit ich direkt schon darauf eingehen kann."). Also
+nicht mehr erst die Einheiten und Ereignisse zeigen und die Texte in einem
+zweiten Durchgang nachliefern: der Entwurf enthält beides, und Silvio
+beurteilt alles in einem Zug.
+
+- Der Besprechungstext nach den sechs Regeln unter F148 in
+  `OFFENE_FEHLER.md`.
+- **Alle** Knöpfe mit Name, Farbe und Zähler — auch die für Bonus- und
+  Nebenziele, die im Spiel erst später auftauchen (Silvio, 26.11.2026).
+- Farbe nach dem Auftrag: blau beschützen, gelb lahmlegen, rot zerstören;
+  ein Scan bleibt farblos und behält sein Verb. Der Name ist nur das Ziel,
+  weil die Farbe das Verb trägt (F151).
+
 Was seit v240 an Einheiten, Auslösern und Wirkungen dazukam (`escHit`,
 `ride`, `mark`, `wenn` …) und wie das Andocken seit v283 läuft:
 `CLAUDE_DETAILS.md`, Abschnitt B.
